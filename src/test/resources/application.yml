@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: mytools-test
+  datasource:
+    dynamic:
+      enabled: true
+      primary: my_tools
+      strict: false
+      datasource:
+        my_tools:
+          url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+          username: sa
+          password:
+          driver-class-name: org.h2.Driver
+        sales_order:
+          url: jdbc:h2:mem:salesdb;MODE=MySQL;DB_CLOSE_DELAY=-1
+          username: sa
+          password:
+          driver-class-name: org.h2.Driver
+
+mybatis:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.mytools.**.Model
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-scan:
+    enabled: false
+
+jwt:
+  secret: dGhpcyBpcyBhIHZlcnkgc2VjcmV0IGtleSBmb3IgdGVzdGluZyBvbmx5IQ==
+  access-expiration-ms: 900000
+  refresh-expiration-ms: 604800000
+
+snowflake:
+  datacenter-id: 1
+  worker-id: 1
+  enabled: false
+
+password:
+  salt: test-secret-salt
+
+logging:
+  level:
+    root: WARN
+    com.mytools: DEBUG
