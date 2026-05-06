@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.mytools.auth.mapper.TokenMapper">
+<mapper namespace="com.yuyutian.mytools.auth.mapper.TokenMapper">
 
-    <resultMap id="TokenResultMap" type="com.mytools.auth.Model.Token">
+    <resultMap id="TokenResultMap" type="com.yuyutian.mytools.auth.Model.Token">
         <id column="id" property="id"/>
         <result column="user_id" property="userId"/>
         <result column="token" property="token"/>
@@ -12,7 +12,7 @@
         <result column="create_time" property="createTime"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.mytools.auth.Model.Token">
+    <insert id="insert" parameterType="com.yuyutian.mytools.auth.Model.Token">
         INSERT INTO t_token (id, user_id, token, device_info, expires_at, create_time)
         VALUES (#{id}, #{userId}, #{token}, #{deviceInfo}, #{expiresAt}, #{createTime})
     </insert>

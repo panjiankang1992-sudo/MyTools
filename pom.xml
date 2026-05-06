@@ -11,7 +11,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.mytools</groupId>
+    <groupId>com.yuyutian.mytools</groupId>
     <artifactId>mytools</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>

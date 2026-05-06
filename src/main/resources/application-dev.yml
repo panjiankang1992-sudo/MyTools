@@ -6,6 +6,6 @@ spring:
 logging:
   level:
     root: INFO
-    com.mytools: DEBUG
+    com.yuyutian.mytools: DEBUG
     org.mybatis: DEBUG
     org.springframework.security: DEBUG
