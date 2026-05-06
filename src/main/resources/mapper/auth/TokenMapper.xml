@@ -6,31 +6,68 @@
     <resultMap id="TokenResultMap" type="com.yuyutian.mytools.auth.Model.Token">
         <id column="id" property="id"/>
         <result column="user_id" property="userId"/>
-        <result column="token" property="token"/>
-        <result column="device_info" property="deviceInfo"/>
-        <result column="expires_at" property="expiresAt"/>
+        <result column="access_token" property="accessToken"/>
+        <result column="refresh_token" property="refreshToken"/>
+        <result column="token_type" property="tokenType"/>
+        <result column="expire_time" property="expireTime"/>
+        <result column="refresh_expire_time" property="refreshExpireTime"/>
+        <result column="version" property="version"/>
+        <result column="status" property="status"/>
         <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.yuyutian.mytools.auth.Model.Token">
-        INSERT INTO t_token (id, user_id, token, device_info, expires_at, create_time)
-        VALUES (#{id}, #{userId}, #{token}, #{deviceInfo}, #{expiresAt}, #{createTime})
+        INSERT INTO t_token (id, user_id, access_token, refresh_token, token_type, expire_time,
+                            refresh_expire_time, version, status, create_time, update_time)
+        VALUES (#{id}, #{userId}, #{accessToken}, #{refreshToken}, #{tokenType}, #{expireTime},
+                #{refreshExpireTime}, #{version}, #{status}, #{createTime}, #{updateTime})
     </insert>
 
-    <select id="findByToken" resultMap="TokenResultMap">
-        SELECT id, user_id, token, device_info, expires_at, create_time FROM t_token WHERE token = #{token}
+    <select id="findByAccessToken" resultMap="TokenResultMap">
+        SELECT id, user_id, access_token, refresh_token, token_type, expire_time,
+               refresh_expire_time, version, status, create_time, update_time
+        FROM t_token WHERE access_token = #{accessToken}
+    </select>
+
+    <select id="findByRefreshToken" resultMap="TokenResultMap">
+        SELECT id, user_id, access_token, refresh_token, token_type, expire_time,
+               refresh_expire_time, version, status, create_time, update_time
+        FROM t_token WHERE refresh_token = #{refreshToken}
     </select>
 
     <select id="findByUserId" resultMap="TokenResultMap">
-        SELECT id, user_id, token, device_info, expires_at, create_time FROM t_token WHERE user_id = #{userId}
+        SELECT id, user_id, access_token, refresh_token, token_type, expire_time,
+               refresh_expire_time, version, status, create_time, update_time
+        FROM t_token WHERE user_id = #{userId}
     </select>
 
     <delete id="deleteByUserId">
         DELETE FROM t_token WHERE user_id = #{userId}
     </delete>
 
-    <select id="countByUserId" resultType="int">
-        SELECT COUNT(*) FROM t_token WHERE user_id = #{userId}
+    <select id="countActiveByUserId" resultType="int">
+        SELECT COUNT(*) FROM t_token WHERE user_id = #{userId} AND status = 'ACTIVE'
+    </select>
+
+    <update id="invalidateByAccessToken">
+        UPDATE t_token SET status = 'INVALID' WHERE access_token = #{accessToken}
+    </update>
+
+    <update id="update" parameterType="com.yuyutian.mytools.auth.Model.Token">
+        UPDATE t_token
+        SET refresh_token = #{refreshToken},
+            expire_time = #{expireTime},
+            refresh_expire_time = #{refreshExpireTime},
+            version = version + 1,
+            update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findById" resultMap="TokenResultMap">
+        SELECT id, user_id, access_token, refresh_token, token_type, expire_time,
+               refresh_expire_time, version, status, create_time, update_time
+        FROM t_token WHERE id = #{id}
     </select>
 
 </mapper>

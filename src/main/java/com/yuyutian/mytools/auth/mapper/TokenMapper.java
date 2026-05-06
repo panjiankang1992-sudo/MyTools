@@ -1,7 +1,7 @@
 package com.yuyutian.mytools.auth.mapper;
 
 import com.yuyutian.mytools.auth.Model.Token;
-import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -77,4 +77,13 @@ public interface TokenMapper {
      * @return 影响行数
      */
     int update(Token token);
+
+    /**
+     * 根据ID查询令牌。
+     *
+     * @param id 令牌ID
+     * @return 令牌对象
+     */
+    @Select("SELECT * FROM t_token WHERE id = #{id}")
+    Token findById(Long id);
 }
