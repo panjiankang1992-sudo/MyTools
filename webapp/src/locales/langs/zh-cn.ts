@@ -230,10 +230,7 @@ const local: App.I18n.Schema = {
     'system_user': '用户管理',
     'system_role': '角色管理',
     token: 'Token 管理',
-    localfile: '本地文件',
-    wechat: '微信',
-    wechat_account: '微信账号',
-    wechat_moments: '朋友圈任务'
+    localfile: '本地文件'
   },
   page: {
     login: {

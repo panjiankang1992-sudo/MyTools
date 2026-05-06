@@ -173,10 +173,7 @@ const routeMap: RouteMap = {
   "system": "/system",
   "system_role": "/system/role",
   "system_user": "/system/user",
-  "token": "/token",
-  "wechat": "/wechat",
-  "wechat_account": "/wechat/account",
-  "wechat_moments": "/wechat/moments"
+  "token": "/token"
 };
 
 /**

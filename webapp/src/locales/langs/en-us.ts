@@ -233,10 +233,7 @@ const local: App.I18n.Schema = {
     system: 'System Management',
     'system_user': 'User Management',
     'system_role': 'Role Management',
-    token: 'Token Management',
-    wechat: 'WeChat',
-    wechat_account: 'WeChat Account',
-    wechat_moments: 'Moments Task'
+    token: 'Token Management'
   },
   page: {
     login: {

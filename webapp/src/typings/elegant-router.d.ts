@@ -28,9 +28,6 @@ declare module "@elegant-router/types" {
     "system_role": "/system/role";
     "system_user": "/system/user";
     "token": "/token";
-    "wechat": "/wechat";
-    "wechat_account": "/wechat/account";
-    "wechat_moments": "/wechat/moments";
   };
 
   /**
@@ -71,7 +68,6 @@ declare module "@elegant-router/types" {
     | "login"
     | "system"
     | "token"
-    | "wechat"
   >;
 
   /**
@@ -98,8 +94,6 @@ declare module "@elegant-router/types" {
     | "system_role"
     | "system_user"
     | "token"
-    | "wechat_account"
-    | "wechat_moments"
   >;
 
   /**

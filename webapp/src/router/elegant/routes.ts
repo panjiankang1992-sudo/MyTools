@@ -126,40 +126,5 @@ export const generatedRoutes: GeneratedRoute[] = [
       title: 'token',
       i18nKey: 'route.token'
     }
-  },
-  {
-    name: 'wechat',
-    path: '/wechat',
-    component: 'layout.base',
-    meta: {
-      title: 'wechat',
-      i18nKey: 'route.wechat',
-      icon: 'mdi:wechat',
-      order: 3
-    },
-    children: [
-      {
-        name: 'wechat_account',
-        path: '/wechat/account',
-        component: 'view.wechat_account',
-        meta: {
-          title: 'wechat_account',
-          i18nKey: 'route.wechat_account',
-          icon: 'mdi:account-box',
-          roles: ['ADMIN']
-        }
-      },
-      {
-        name: 'wechat_moments',
-        path: '/wechat/moments',
-        component: 'view.wechat_moments',
-        meta: {
-          title: 'wechat_moments',
-          i18nKey: 'route.wechat_moments',
-          icon: 'mdi:message-flash',
-          roles: ['ADMIN']
-        }
-      }
-    ]
   }
 ];

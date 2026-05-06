@@ -25,6 +25,4 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   system_role: () => import("@/views/system/role/index.vue"),
   system_user: () => import("@/views/system/user/index.vue"),
   token: () => import("@/views/token/index.vue"),
-  wechat_account: () => import("@/views/wechat/account/index.vue"),
-  wechat_moments: () => import("@/views/wechat/moments/index.vue"),
 };
