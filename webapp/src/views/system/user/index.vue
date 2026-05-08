@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, h } from 'vue';
+import { reactive, ref, h, onMounted, onUnmounted } from 'vue';
 import { fetchCreateUser, fetchDeleteUser, fetchGetUserList, fetchUpdateUser, fetchUpdateUserStatus, fetchUpdateUserRole } from '@/service/api';
 import { useLoading } from '@sa/hooks';
 import { $t } from '@/locales';
@@ -26,6 +26,59 @@ const createForm = reactive({
   role: 'USER',
   status: 'ACTIVE'
 });
+
+// 表单校验规则
+const rules = {
+  username: [
+    { required: true, message: '用户名不能为空', trigger: 'blur' },
+    { pattern: /^[a-zA-Z0-9_]{4,20}$/, message: '用户名4-20位字母数字下划线', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '密码不能为空', trigger: 'blur' },
+    { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
+      message: '密码必须包含大小写字母和数字', trigger: 'blur' }
+  ],
+  email: [
+    { required: true, message: '邮箱不能为空', trigger: 'blur' },
+    { type: 'email', message: '邮箱格式不正确', trigger: 'blur' }
+  ],
+  phone: [
+    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
+  ]
+};
+
+// 表单引用
+const formRef = ref<any>(null);
+
+// 字段错误
+const fieldErrors = reactive<Record<string, string>>({});
+
+// 监听字段错误事件
+function handleFieldErrors(event: CustomEvent) {
+  const errors = event.detail as Record<string, string>;
+  Object.assign(fieldErrors, errors);
+}
+
+// 组件挂载时监听字段错误事件
+onMounted(() => {
+  window.addEventListener('fieldErrors', handleFieldErrors as EventListener);
+});
+
+// 组件卸载时移除监听
+onUnmounted(() => {
+  window.removeEventListener('fieldErrors', handleFieldErrors as EventListener);
+});
+
+// 重置表单
+function resetForm() {
+  createForm.username = '';
+  createForm.password = '';
+  createForm.email = '';
+  createForm.phone = '';
+  createForm.role = 'USER';
+  createForm.status = 'ACTIVE';
+  Object.keys(fieldErrors).forEach(key => delete fieldErrors[key]);
+}
 
 const columns = [
   { title: '序号', key: 'index', width: 60, render: (_: any, index: number) => index + 1 },
@@ -115,21 +168,16 @@ async function handleRoleSubmit() {
 }
 
 async function handleCreateUser() {
-  if (!createForm.username || !createForm.email || !createForm.password) {
-    message.error('用户名、邮箱和密码不能为空');
-    return;
+  try {
+    await formRef.value?.validate();
+    await fetchCreateUser(createForm as any);
+    showCreateModal.value = false;
+    message.success('用户创建成功');
+    resetForm();
+    loadData();
+  } catch (errors) {
+    // 表单校验失败，不做处理（NaiveUI自动显示错误）
   }
-  await fetchCreateUser(createForm as any);
-  showCreateModal.value = false;
-  message.success('用户创建成功');
-  // 重置表单
-  createForm.username = '';
-  createForm.password = '';
-  createForm.email = '';
-  createForm.phone = '';
-  createForm.role = 'USER';
-  createForm.status = 'ACTIVE';
-  loadData();
 }
 
 function formatDate(date: string) {
@@ -196,17 +244,17 @@ loadData();
 
     <!-- 新增用户弹窗 -->
     <NModal v-model:show="showCreateModal" preset="card" title="新增用户" style="width: 450px">
-      <NForm labelPlacement="left" labelWidth="80">
-        <NFormItem label="用户名">
+      <NForm ref="formRef" :model="createForm" :rules="rules" labelPlacement="left" labelWidth="80">
+        <NFormItem label="用户名" path="username">
           <NInput v-model:value="createForm.username" placeholder="请输入用户名" />
         </NFormItem>
-        <NFormItem label="密码">
+        <NFormItem label="密码" path="password">
           <NInput v-model:value="createForm.password" type="password" placeholder="请输入密码" />
         </NFormItem>
-        <NFormItem label="邮箱">
+        <NFormItem label="邮箱" path="email">
           <NInput v-model:value="createForm.email" placeholder="请输入邮箱" />
         </NFormItem>
-        <NFormItem label="手机号">
+        <NFormItem label="手机号" path="phone">
           <NInput v-model:value="createForm.phone" placeholder="请输入手机号" />
         </NFormItem>
         <NFormItem label="角色">
