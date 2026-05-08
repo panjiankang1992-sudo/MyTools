@@ -2,6 +2,7 @@ import { useAuthStore } from '@/store/modules/auth';
 import { localStg } from '@/utils/storage';
 import { fetchRefreshToken } from '../api';
 import type { RequestInstanceState } from './type';
+import { getI18nMessage, ErrorCodeConfigMap } from '../error-code';
 
 export function getAuthorization() {
   const token = localStg.get('token');
@@ -61,4 +62,25 @@ export function showErrorMsg(state: RequestInstanceState, message: string) {
       }
     });
   }
+}
+
+export function showFieldErrors(fieldErrors: Record<string, string>) {
+  // Store field errors for form components to display via window.__FIELD_ERRORS__
+  window.__FIELD_ERRORS__ = fieldErrors;
+  // Dispatch event for form components to listen
+  window.dispatchEvent(new CustomEvent('fieldErrors', { detail: fieldErrors }));
+}
+
+export function clearFieldErrors() {
+  window.__FIELD_ERRORS__ = {};
+}
+
+export function getErrorCodeConfig(code: string) {
+  return ErrorCodeConfigMap[code] || { isModal: false, isLogout: false };
+}
+
+export function getI18nMessageFn(messageKey: string): string {
+  // Get current locale from naive-ui
+  const locale = window.$i18n?.global?.locale?.value || 'zh-CN';
+  return getI18nMessage(messageKey, locale as 'zh-CN' | 'en');
 }

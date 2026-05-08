@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/modules/auth';
 import { localStg } from '@/utils/storage';
 import { getServiceBaseURL } from '@/utils/service';
 import { $t } from '@/locales';
-import { getAuthorization, handleExpiredRequest, showErrorMsg } from './shared';
+import { getAuthorization, handleExpiredRequest, showErrorMsg, showFieldErrors, clearFieldErrors, getErrorCodeConfig, getI18nMessageFn } from './shared';
 import type { RequestInstanceState } from './type';
 
 const isHttpProxy = import.meta.env.DEV && import.meta.env.VITE_HTTP_PROXY === 'Y';
@@ -96,10 +96,19 @@ export const request = createFlatRequest(
         }
       }
 
-      // 对于其他错误码，显示错误消息
-      if (response.data.message) {
-        showErrorMsg(request.state, response.data.message);
+      // Handle field-level errors
+      const { fieldErrors } = response.data || {};
+      if (fieldErrors && typeof fieldErrors === 'object') {
+        showFieldErrors(fieldErrors);
+        showErrorMsg(request.state, $t('common.validation_failed') || '参数校验失败');
+        return null;
       }
+
+      // Handle i18n message
+      const displayMsg = response.data.message
+        ? (getI18nMessageFn(response.data.message) || response.data.message)
+        : (getErrorCodeConfig(responseCode).isModal ? $t('common.error') : $t('common.operation_failed'));
+      showErrorMsg(request.state, displayMsg);
 
       return null;
     },
