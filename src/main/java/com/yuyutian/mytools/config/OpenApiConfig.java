@@ -29,7 +29,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("MyTools API")
                         .version("1.0.0")
-                        .description("微信朋友圈任务管理系统后端API文档")
+                        .description("MyTools管理后台系统后端API文档")
                         .contact(new Contact()
                                 .name("MyTools Team")
                                 .email("admin@mytools.com")))
