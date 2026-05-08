@@ -64,10 +64,4 @@
         WHERE id = #{id}
     </update>
 
-    <select id="findById" resultMap="TokenResultMap">
-        SELECT id, user_id, access_token, refresh_token, token_type, expire_time,
-               refresh_expire_time, version, status, create_time, update_time
-        FROM t_token WHERE id = #{id}
-    </select>
-
 </mapper>

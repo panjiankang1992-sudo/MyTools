@@ -1,5 +1,6 @@
 package com.yuyutian.mytools.localfile.service.tagging.impl;
 
+import com.yuyutian.mytools.common.ErrorCode;
 import com.yuyutian.mytools.localfile.entity.FileTag;
 import com.yuyutian.mytools.localfile.entity.LocalFile;
 import com.yuyutian.mytools.localfile.mapper.FileTagMapper;
@@ -47,7 +48,7 @@ public class TaggerServiceImpl implements TaggerService {
         File physicalFile = new File(file.getFilePath());
         if (!physicalFile.exists()) {
             log.warn("文件不存在: {}", file.getFilePath());
-            throw new TaggerException("文件不存在: " + file.getFilePath());
+            throw new TaggerException(ErrorCode.FILE_001);
         }
 
         String mimeType = file.getMimeType();
@@ -105,11 +106,11 @@ public class TaggerServiceImpl implements TaggerService {
         // 大文件或视频/音频使用缩略图
         if (file.length() > LARGE_FILE_THRESHOLD || isVideoOrAudio(mimeType)) {
             if (thumbnailPath == null || thumbnailPath.isEmpty()) {
-                throw new TaggerException("大文件缺少缩略图: " + file.getAbsolutePath());
+                throw new TaggerException(ErrorCode.FILE_002);
             }
             File thumbnailFile = new File(thumbnailPath);
             if (!thumbnailFile.exists()) {
-                throw new TaggerException("缩略图不存在: " + thumbnailPath);
+                throw new TaggerException(ErrorCode.FILE_001);
             }
             return taggerClient.tagMediaFile(thumbnailFile, null, mimeType);
         }
@@ -124,14 +125,14 @@ public class TaggerServiceImpl implements TaggerService {
         // 大文本文件跳过
         if (file.length() > TEXT_FILE_THRESHOLD) {
             log.warn("文本文件过大，跳过打标签: {} ({} bytes)", filename, file.length());
-            throw new TaggerException("文本文件过大");
+            throw new TaggerException(ErrorCode.FILE_009);
         }
 
         try {
             String content = Files.readString(Path.of(file.toURI()));
             return taggerClient.tagTextFile(content, filename);
         } catch (IOException e) {
-            throw new TaggerException("读取文本文件失败: " + file.getAbsolutePath(), e);
+            throw new TaggerException(ErrorCode.FILE_005, e);
         }
     }
 

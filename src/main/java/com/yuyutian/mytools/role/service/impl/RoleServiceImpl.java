@@ -53,7 +53,7 @@ public class RoleServiceImpl implements com.yuyutian.mytools.role.service.RoleSe
 
         // 检查角色编码唯一性
         if (roleMapper.findByRoleCode(request.getRoleCode()) != null) {
-            throw new BusinessException(ErrorCode.SYS_003, "角色编码已存在");
+            throw new BusinessException(ErrorCode.ROLE_001);
         }
 
         // 生成雪花ID
@@ -87,14 +87,14 @@ public class RoleServiceImpl implements com.yuyutian.mytools.role.service.RoleSe
         // 检查角色是否存在
         Role role = roleMapper.findById(roleId);
         if (role == null) {
-            throw new BusinessException(ErrorCode.USER_001);
+            throw new BusinessException(ErrorCode.ROLE_003);
         }
 
         // 如果更新角色编码，检查唯一性
         if (request.getRoleCode() != null && !request.getRoleCode().equals(role.getRoleCode())) {
             Role existingRole = roleMapper.findByRoleCode(request.getRoleCode());
             if (existingRole != null) {
-                throw new BusinessException(ErrorCode.SYS_003, "角色编码已存在");
+                throw new BusinessException(ErrorCode.ROLE_001);
             }
         }
 
@@ -125,12 +125,12 @@ public class RoleServiceImpl implements com.yuyutian.mytools.role.service.RoleSe
         // 检查角色是否存在
         Role role = roleMapper.findById(roleId);
         if (role == null) {
-            throw new BusinessException(ErrorCode.USER_001);
+            throw new BusinessException(ErrorCode.ROLE_003);
         }
 
         // 检查角色是否已分配给用户
         if (roleMapper.countByRoleId(roleId) > 0) {
-            throw new BusinessException(ErrorCode.SYS_003, "该角色已分配给用户，无法删除");
+            throw new BusinessException(ErrorCode.ROLE_002);
         }
 
         // 删除角色

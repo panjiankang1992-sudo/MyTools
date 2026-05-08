@@ -1,5 +1,6 @@
 package com.yuyutian.mytools.localfile.controller;
 
+import com.yuyutian.mytools.common.ErrorCode;
 import com.yuyutian.mytools.common.Result;
 import com.yuyutian.mytools.localfile.entity.FileTag;
 import com.yuyutian.mytools.localfile.entity.LocalFile;
@@ -52,7 +53,7 @@ public class LocalFileController {
     public ResponseEntity<Result<LocalFile>> getFileById(@PathVariable Long id) {
         LocalFile file = localFileService.getFileById(id);
         if (file == null) {
-            return ResponseEntity.ok(Result.error("SYS_001", "文件不存在"));
+            return ResponseEntity.ok(Result.error(ErrorCode.FILE_001));
         }
         return ResponseEntity.ok(Result.success(file));
     }
@@ -73,11 +74,7 @@ public class LocalFileController {
     @PostMapping("/{id}/tag")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Result<List<FileTag>>> triggerTagging(@PathVariable Long id) {
-        try {
-            List<FileTag> tags = localFileService.triggerTagging(id);
-            return ResponseEntity.ok(Result.success("打标签成功", tags));
-        } catch (Exception e) {
-            return ResponseEntity.ok(Result.error("SYS_001", "打标签失败: " + e.getMessage()));
-        }
+        List<FileTag> tags = localFileService.triggerTagging(id);
+        return ResponseEntity.ok(Result.success("打标签成功", tags));
     }
 }

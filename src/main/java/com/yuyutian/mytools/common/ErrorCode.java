@@ -48,6 +48,11 @@ public enum ErrorCode {
     TOKEN_004("40004", "token.disabled", HttpStatus.BAD_REQUEST),
     TOKEN_005("40005", "token.verify.failed", HttpStatus.BAD_REQUEST),
 
+    // Role error codes (60001-60099)
+    ROLE_001("60001", "role.code.exists", HttpStatus.CONFLICT),
+    ROLE_002("60002", "role.assigned.to.users", HttpStatus.BAD_REQUEST),
+    ROLE_003("60003", "role.not_found", HttpStatus.NOT_FOUND),
+
     // System error codes (50001-50099)
     SYS_001("50001", "sys.server.error", HttpStatus.INTERNAL_SERVER_ERROR),
     SYS_002("50002", "sys.validation.failed", HttpStatus.BAD_REQUEST),

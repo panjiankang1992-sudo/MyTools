@@ -1,6 +1,7 @@
 package com.yuyutian.mytools.localfile.service.tagging;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yuyutian.mytools.common.ErrorCode;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -109,7 +110,7 @@ public class TaggerClient {
             base64Data = Base64.getEncoder().encodeToString(bytes);
         } catch (IOException e) {
             log.error("读取文件失败: {}", fileToEncode, e);
-            throw new TaggerException("读取文件失败: " + fileToEncode, e);
+            throw new TaggerException(ErrorCode.FILE_005, e);
         }
 
         MediaTaggingRequest request = new MediaTaggingRequest();
@@ -125,13 +126,13 @@ public class TaggerClient {
             );
 
             if (response == null || !Boolean.TRUE.equals(response.getSuccess())) {
-                throw new TaggerException("打标签服务返回失败: " + (response != null ? response.getError() : "null response"));
+                throw new TaggerException(ErrorCode.FILE_008);
             }
 
             return response.getTags() != null ? response.getTags() : new ArrayList<>();
         } catch (RestClientException e) {
             log.error("调用打标签服务失败", e);
-            throw new TaggerException("调用打标签服务失败", e);
+            throw new TaggerException(ErrorCode.FILE_008, e);
         }
     }
 
@@ -155,13 +156,13 @@ public class TaggerClient {
             );
 
             if (response == null || !Boolean.TRUE.equals(response.getSuccess())) {
-                throw new TaggerException("打标签服务返回失败: " + (response != null ? response.getError() : "null response"));
+                throw new TaggerException(ErrorCode.FILE_008);
             }
 
             return response.getTags() != null ? response.getTags() : new ArrayList<>();
         } catch (RestClientException e) {
             log.error("调用打标签服务失败", e);
-            throw new TaggerException("调用打标签服务失败", e);
+            throw new TaggerException(ErrorCode.FILE_008, e);
         }
     }
 

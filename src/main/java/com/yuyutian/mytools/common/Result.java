@@ -44,6 +44,10 @@ public class Result<T> {
         return new Result<>(200, "操作成功", null, null, generateTraceId(), LocalDateTime.now());
     }
 
+    public static <T> Result<T> success(String message) {
+        return new Result<>(200, message, null, null, generateTraceId(), LocalDateTime.now());
+    }
+
     public static <T> Result<T> success(String message, T data) {
         return new Result<>(200, message, data, null, generateTraceId(), LocalDateTime.now());
     }

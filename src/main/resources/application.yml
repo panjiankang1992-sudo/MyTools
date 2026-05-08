@@ -10,7 +10,7 @@ spring:
       strict: false
       datasource:
         my_tools:
-          url: jdbc:mysql://192.168.1.8:3306/my_tools?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+          url: jdbc:mysql://127.0.0.1:3306/my_tools?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
           username: root
           password: YUyutian/1015
           driver-class-name: com.mysql.cj.jdbc.Driver
@@ -18,7 +18,7 @@ spring:
             maximum-pool-size: 20
             minimum-idle: 5
         sales_order:
-          url: jdbc:mysql://192.168.1.8:3306/sales_order?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+          url: jdbc:mysql://127.0.0.1:3306/sales_order?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
           username: root
           password: YUyutian/1015
           driver-class-name: com.mysql.cj.jdbc.Driver

@@ -137,8 +137,9 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
       }
     } else {
       resetStore();
-      // 显示登录失败提示
-      const errorMsg = error?.message || $t('page.login.common.loginFailed');
+      // 显示登录失败提示 - 从 axios 错误中提取后端返回的错误消息
+      const backendMessage = (error as any)?.response?.data?.message;
+      const errorMsg = backendMessage || error?.message || $t('page.login.common.loginFailed');
       window.$message?.error(errorMsg);
     }
 

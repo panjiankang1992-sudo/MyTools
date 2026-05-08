@@ -1,5 +1,7 @@
 package com.yuyutian.mytools.localfile.service;
 
+import com.yuyutian.mytools.common.BusinessException;
+import com.yuyutian.mytools.common.ErrorCode;
 import com.yuyutian.mytools.localfile.entity.FileTag;
 import com.yuyutian.mytools.localfile.entity.LocalFile;
 import com.yuyutian.mytools.localfile.mapper.FileTagMapper;
@@ -64,7 +66,7 @@ public class LocalFileService {
     public List<FileTag> triggerTagging(Long fileId) {
         LocalFile file = localFileMapper.selectById(fileId);
         if (file == null) {
-            throw new RuntimeException("文件不存在: " + fileId);
+            throw new BusinessException(ErrorCode.FILE_001);
         }
 
         // 先删除旧标签
