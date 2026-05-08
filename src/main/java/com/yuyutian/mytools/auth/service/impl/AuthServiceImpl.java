@@ -313,6 +313,8 @@ public class AuthServiceImpl implements AuthService {
             attempt.setLastAttemptTime(now);
             // 设置TTL过期时间（15分钟后重置计数）
             attempt.setExpireTime(now.plusMinutes(ATTEMPT_TTL_MINUTES));
+            attempt.setCreateTime(now);
+            attempt.setUpdateTime(now);
             loginAttemptMapper.insert(attempt);
         } else {
             // 已有记录，检查是否已过期
@@ -325,6 +327,7 @@ public class AuthServiceImpl implements AuthService {
                 attempt.setFailedCount(attempt.getFailedCount() + 1);
             }
             attempt.setLastAttemptTime(now);
+            attempt.setUpdateTime(now);
 
             // 检查是否达到锁定阈值
             if (attempt.getFailedCount() >= MAX_FAILED_ATTEMPTS) {
