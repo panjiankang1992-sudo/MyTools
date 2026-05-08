@@ -3,52 +3,40 @@ package com.yuyutian.mytools.common;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+import java.util.Map;
+
 /**
- * 业务异常基类。
- * 所有业务相关的异常都继承此类，包含错误码和HTTP状态码信息。
- *
- * @author mytools
- * @since 2026-04-22
+ * Business exception.
+ * Contains error code, message key for i18n, HTTP status, and field-level errors.
  */
 @Getter
 public class BusinessException extends RuntimeException {
-
-    private final String errorCode;
+    private final String code;
+    private final String messageKey;
     private final HttpStatus httpStatus;
+    private final Map<String, String> fieldErrors;
 
-    /**
-     * 通过错误码枚举构造业务异常。
-     *
-     * @param errorCode 错误码枚举
-     */
     public BusinessException(ErrorCode errorCode) {
-        super(errorCode.getMessage());
-        this.errorCode = errorCode.getCode();
+        super(errorCode.getMessageKey());
+        this.code = errorCode.getCode();
+        this.messageKey = errorCode.getMessageKey();
         this.httpStatus = errorCode.getHttpStatus();
+        this.fieldErrors = null;
     }
 
-    /**
-     * 通过错误码枚举和自定义消息构造业务异常。
-     *
-     * @param errorCode 错误码枚举
-     * @param customMessage 自定义错误消息
-     */
-    public BusinessException(ErrorCode errorCode, String customMessage) {
-        super(customMessage);
-        this.errorCode = errorCode.getCode();
+    public BusinessException(ErrorCode errorCode, Map<String, String> fieldErrors) {
+        super(errorCode.getMessageKey());
+        this.code = errorCode.getCode();
+        this.messageKey = errorCode.getMessageKey();
         this.httpStatus = errorCode.getHttpStatus();
+        this.fieldErrors = fieldErrors;
     }
 
-    /**
-     * 通过错误码字符串和HTTP状态码构造业务异常。
-     *
-     * @param errorCode 错误码字符串
-     * @param message 错误消息
-     * @param httpStatus HTTP状态码
-     */
-    public BusinessException(String errorCode, String message, HttpStatus httpStatus) {
-        super(message);
-        this.errorCode = errorCode;
+    public BusinessException(String code, String messageKey, HttpStatus httpStatus) {
+        super(messageKey);
+        this.code = code;
+        this.messageKey = messageKey;
         this.httpStatus = httpStatus;
+        this.fieldErrors = null;
     }
 }
