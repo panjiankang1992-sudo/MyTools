@@ -176,6 +176,28 @@ src/main/java/com/yuyutian/mytools/
 - 不允许出现任何 Lint 警告或 IDE 规范告警
 - 所有编译警告必须修复后再提交
 
+## 错误码规范
+
+### 错误码格式
+采用 5 位纯数字格式，按模块分段：
+- 用户 USER: 10001-10099
+- 认证 AUTH: 20001-20099
+- 本地文件 FILE: 30001-30099
+- Token: 40001-40099
+- 角色 ROLE: 60001-60099
+- 系统 SYS: 50001-50099
+
+### 错误消息国际化
+- 所有错误消息通过 `MessageSource` + `messages_xx_XX.properties` 实现国际化
+- 后端 `ErrorCode` 枚举包含 `messageKey` 字段，对应 properties 文件中的 key
+- 前端通过 `webapp/src/service/error-code.ts` 中的 `ErrorMessageMap` 维护国际化映射
+- 新增错误码时需同时添加国际化消息
+
+### 异常处理
+- `BusinessException` 支持 `messageKey` 和 `fieldErrors`
+- `GlobalExceptionHandler` 处理所有异常，返回国际化消息
+- 未捕获异常返回 `SYS_001`，堆栈打印到日志
+
 ## 数据库
 
 - MySQL + MyBatis-Plus(动态数据源)
