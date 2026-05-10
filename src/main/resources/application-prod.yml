@@ -1,0 +1,66 @@
+spring:
+  application:
+    name: mytools
+  datasource:
+    dynamic:
+      enabled: true
+      primary: my_tools
+      strict: false
+      datasource:
+        my_tools:
+          url: jdbc:mysql://127.0.0.1:3306/my_tools?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+          username: root
+          password: YUyutian/1015
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          hikari:
+            maximum-pool-size: 20
+            minimum-idle: 5
+        sales_order:
+          url: jdbc:mysql://127.0.0.1:3306/sales_order?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+          username: root
+          password: YUyutian/1015
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          hikari:
+            maximum-pool-size: 30
+            minimum-idle: 10
+
+mybatis:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.yuyutian.mytools.**.Model
+  configuration:
+    map-underscore-to-camel-case: true
+
+jwt:
+  secret: ${JWT_SECRET:dGhpcyBpcyBhIHZlcnkgc2VjcmV0IGtleSBmb3IgZGV2ZWxvcG1lbnQgb25seSE=}
+  access-expiration-ms: 900000
+  refresh-expiration-ms: 604800000
+
+snowflake:
+  datacenter-id: ${SNOWFLAKE_DATACENTER_ID:1}
+  worker-id: ${SNOWFLAKE_WORKER_ID:1}
+  enabled: true
+
+password:
+  salt: ${PASSWORD_SALT:mytools-secret-salt}
+
+logging:
+  path: logs
+  max-size: 10MB
+  max-history: 7
+  total-size-cap: 100MB
+
+server:
+  port: 29210
+
+# 打标签服务配置
+tagging:
+  service:
+    url: http://192.168.1.9:8024
+
+# 文件扫描配置
+file:
+  scan:
+    path: /opt/custom/OpenClaw
+    extensions: jpg,jpeg,png,gif,bmp,webp,mp4,avi,mov,wmv,mp3,wav,flac,txt,md,pdf,doc,docx
+    thumbnail-path: /opt/custom/OpenClaw/.thumbnails
+    batch-size: 100

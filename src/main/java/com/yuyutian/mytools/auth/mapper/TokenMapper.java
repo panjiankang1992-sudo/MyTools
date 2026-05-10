@@ -113,4 +113,12 @@ public interface TokenMapper {
      * @return 影响行数
      */
     int updateStatus(@Param("id") Long id, @Param("status") String status);
+
+    /**
+     * 根据ID删除令牌。
+     *
+     * @param id 令牌ID
+     * @return 影响行数
+     */
+    int deleteById(@Param("id") Long id);
 }

@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { reactive, ref, h, computed } from 'vue';
-import { fetchCreateToken, fetchDeleteToken, fetchGetTokenList, fetchUpdateTokenStatus } from '@/service/api';
+import { reactive, h } from 'vue';
+import { fetchCreateToken, fetchDeleteToken, fetchGetTokenList, fetchUpdateTokenStatus, fetchValidateToken } from '@/service/api';
 import { useLoading } from '@sa/hooks';
-import { NButton, NTag, NSpace, NModal, NCard, NInput, NForm, NFormItem, useMessage, NP, NAlert, useDialog } from 'naive-ui';
-import { useClipboard } from '@vueuse/core';
+import { NButton, NTag, NSpace, NModal, NCard, NInput, NForm, NFormItem, useMessage, NAlert, useDialog, NResult } from 'naive-ui';
 
 defineOptions({ name: 'TokenManagement' });
 
 const message = useMessage();
 const dialog = useDialog();
 const { loading, startLoading, endLoading } = useLoading();
+
+// Token 列表数据
 
 // Token 列表数据
 const data = reactive<Api.Token.TokenItem[]>([]);
@@ -27,11 +28,19 @@ const createModal = reactive({
   createdToken: ''
 });
 
+// 校验 Token 弹窗
+const validateModal = reactive({
+  show: false,
+  tokenValue: '',
+  validating: false,
+  result: null as { valid: boolean; message: string } | null
+});
+
 const columns = [
   { title: '序号', key: 'index', width: 70, render: (_: any, index: number) => (pagination.page - 1) * pagination.pageSize + index + 1 },
   { title: 'Token 名称', key: 'tokenName', width: 200, render: (row: Api.Token.TokenItem) => row.tokenName || '-' },
-  { title: 'Token 前缀', key: 'tokenPrefix', width: 180 },
-  { title: '状态', key: 'status', width: 80, render: (row: Api.Token.TokenItem) => h(NTag, { type: row.status === 'ACTIVE' ? 'success' : 'error', size: 'small' }, () => row.status === 'ACTIVE' ? '正常' : '禁用') },
+  { title: 'Token', key: 'tokenPrefix', width: 220, render: (row: Api.Token.TokenItem) => `${row.tokenPrefix || '****'}****` },
+  { title: '状态', key: 'status', width: 80, render: (row: Api.Token.TokenItem) => h(NTag, { type: row.status === 'ACTIVE' ? 'success' : 'warning', size: 'small' }, () => row.status === 'ACTIVE' ? '正常' : '禁用') },
   { title: '创建时间', key: 'createdTime', width: 180 },
   { title: '最后使用时间', key: 'lastUsedTime', width: 180, render: (row: Api.Token.TokenItem) => row.lastUsedTime || '-' },
   {
@@ -39,7 +48,7 @@ const columns = [
     key: 'actions',
     width: 200,
     render: (row: Api.Token.TokenItem) => [
-      h(NButton, { size: 'small', type: row.status === 'ACTIVE' ? 'warning' : 'primary', onClick: () => handleToggleStatus(row), style: { marginRight: '8px' } }, () => row.status === 'ACTIVE' ? '禁用' : '启用'),
+      h(NButton, { size: 'small', type: row.status === 'ACTIVE' ? 'warning' : 'success', onClick: () => handleToggleStatus(row), style: { marginRight: '8px' } }, () => row.status === 'ACTIVE' ? '禁用' : '启用'),
       h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row) }, () => '删除')
     ]
   }
@@ -68,16 +77,17 @@ async function loadData() {
 }
 
 async function handleToggleStatus(row: Api.Token.TokenItem) {
-  const newStatus = row.status === 'ACTIVE' ? 'DISABLED' : 'ACTIVE';
+  const newStatus = row.status === 'ACTIVE' ? 'INVALID' : 'ACTIVE';
   await fetchUpdateTokenStatus(row.id, newStatus);
   message.success(newStatus === 'ACTIVE' ? '启用成功' : '禁用成功');
   loadData();
 }
 
 async function handleDelete(row: Api.Token.TokenItem) {
-  dialog.warning({
+  const displayName = row.tokenName || `Token ${row.tokenPrefix}`;
+  dialog.error({
     title: '确认删除',
-    content: `确定删除 Token "${row.tokenName || row.tokenPrefix}" 吗？删除后将无法恢复！`,
+    content: `确定删除 "${displayName}" 吗？删除后将无法恢复！`,
     positiveText: '确定删除',
     negativeText: '取消',
     onPositiveClick: async () => {
@@ -92,6 +102,38 @@ function openCreateModal() {
   createModal.tokenName = '';
   createModal.createdToken = '';
   createModal.show = true;
+}
+
+function openValidateModal() {
+  validateModal.tokenValue = '';
+  validateModal.result = null;
+  validateModal.show = true;
+}
+
+async function handleValidateToken() {
+  if (!validateModal.tokenValue.trim()) {
+    message.warning('请输入 Token');
+    return;
+  }
+  validateModal.validating = true;
+  try {
+    const result = await fetchValidateToken(validateModal.tokenValue.trim());
+    if (result?.valid) {
+      validateModal.result = { valid: true, message: 'Token 有效' };
+    } else {
+      validateModal.result = { valid: false, message: 'Token 无效或已过期' };
+    }
+  } catch {
+    validateModal.result = { valid: false, message: 'Token 验证失败' };
+  } finally {
+    validateModal.validating = false;
+  }
+}
+
+function handleCloseValidateModal() {
+  validateModal.show = false;
+  validateModal.tokenValue = '';
+  validateModal.result = null;
 }
 
 async function handleCreateSubmit() {
@@ -119,9 +161,35 @@ async function handleCreateSubmit() {
 
 async function handleCopyToken() {
   if (!createModal.createdToken) return;
+
+  const token = createModal.createdToken;
+
+  // 优先使用 Clipboard API
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    try {
+      await navigator.clipboard.writeText(token);
+      message.success('Token 已复制到剪贴板');
+      return;
+    } catch {
+      // 降级到 execCommand
+    }
+  }
+
+  // 降级方案：execCommand
   try {
-    await navigator.clipboard.writeText(createModal.createdToken);
-    message.success('Token 已复制到剪贴板');
+    const textarea = document.createElement('textarea');
+    textarea.value = token;
+    textarea.style.cssText = 'position:fixed;left:0;top:0;opacity:0;';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    const success = document.execCommand('copy');
+    document.body.removeChild(textarea);
+    if (success) {
+      message.success('Token 已复制到剪贴板');
+    } else {
+      throw new Error('execCommand copy failed');
+    }
   } catch {
     message.error('复制失败，请手动复制');
   }
@@ -156,6 +224,7 @@ loadData();
           <NSpace>
             <NButton type="primary" @click="openCreateModal">新增 Token</NButton>
             <NButton @click="loadData">刷新</NButton>
+            <NButton @click="openValidateModal">校验 Token</NButton>
           </NSpace>
           <NDataTable :columns="columns" :data="data" :loading="loading" :pagination="false" />
           <NSpace justify="end" style="margin-top: 12px">
@@ -188,9 +257,35 @@ loadData();
         <NButton type="primary" block @click="handleCopyToken">复制 Token</NButton>
       </div>
       <template #footer>
-        <NSpace justify="end">
+        <NSpace justify="center">
           <NButton @click="createModal.show = false">{{ createModal.createdToken ? '关闭' : '取消' }}</NButton>
           <NButton v-if="!createModal.createdToken" type="primary" :loading="createModal.creating" @click="handleCreateSubmit">创建</NButton>
+        </NSpace>
+      </template>
+    </NModal>
+
+    <!-- 校验 Token 弹窗 -->
+    <NModal v-model:show="validateModal.show" preset="card" title="校验 Token" style="width: 500px" @afterLeave="handleCloseValidateModal">
+      <NForm labelPlacement="left" labelWidth="80">
+        <NFormItem label="Token">
+          <NInput
+            v-model:value="validateModal.tokenValue"
+            placeholder="请输入完整的 Token"
+            @keyup.enter="handleValidateToken"
+          />
+        </NFormItem>
+      </NForm>
+      <div v-if="validateModal.result" style="text-align: center; margin-top: 16px;">
+        <NResult
+          :status="validateModal.result.valid ? 'success' : 'error'"
+          :title="validateModal.result.valid ? 'Token 有效' : 'Token 无效'"
+          :description="validateModal.result.message"
+        />
+      </div>
+      <template #footer>
+        <NSpace justify="center">
+          <NButton @click="handleCloseValidateModal">关闭</NButton>
+          <NButton type="primary" :loading="validateModal.validating" @click="handleValidateToken">校验</NButton>
         </NSpace>
       </template>
     </NModal>

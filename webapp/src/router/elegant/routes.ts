@@ -56,7 +56,8 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.ai-tools_token',
         meta: {
           title: 'ai-tools_token',
-          i18nKey: 'route.ai-tools_token'
+          i18nKey: 'route.ai-tools_token',
+          icon: 'mdi:key'
         }
       }
     ]
@@ -113,7 +114,7 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'large-media',
           i18nKey: 'route.localfile_large-media',
-          icon: 'mdi:video-file'
+          icon: 'mdi:folder-video'
         }
       },
       {

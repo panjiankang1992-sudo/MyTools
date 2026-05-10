@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.yuyutian.mytools.user.mapper.RoleMapper">
+<mapper namespace="com.yuyutian.mytools.role.mapper.RoleMapper">
 
-    <resultMap id="RoleResultMap" type="com.yuyutian.mytools.user.Model.Role">
+    <resultMap id="RoleResultMap" type="com.yuyutian.mytools.role.model.Role">
         <id column="id" property="id"/>
         <result column="role_name" property="roleName"/>
         <result column="description" property="description"/>
@@ -16,6 +16,10 @@
 
     <select id="findDefaultUserRole" resultMap="RoleResultMap">
         SELECT id, role_name, description, create_time FROM t_role WHERE role_name = 'USER'
+    </select>
+
+    <select id="findAll" resultMap="RoleResultMap">
+        SELECT id, role_name, description, create_time FROM t_role ORDER BY create_time DESC
     </select>
 
 </mapper>

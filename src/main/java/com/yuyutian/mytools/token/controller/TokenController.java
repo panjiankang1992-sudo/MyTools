@@ -1,5 +1,6 @@
 package com.yuyutian.mytools.token.controller;
 
+import com.yuyutian.mytools.auth.Model.Token;
 import com.yuyutian.mytools.auth.utils.JwtUtils;
 import com.yuyutian.mytools.common.ErrorCode;
 import com.yuyutian.mytools.common.MessageHelper;
@@ -130,10 +131,23 @@ public class TokenController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Result<Void>> updateTokenStatus(
             @PathVariable Long tokenId,
-            @RequestBody Map<String, Integer> body,
+            @RequestBody Map<String, Object> body,
             @RequestHeader("Authorization") String authHeader) {
         Long userId = jwtUtils.getUserIdFromToken(extractToken(authHeader));
-        String status = body.get("status") == 1 ? "ACTIVE" : "INVALID";
+        Object statusObj = body.get("status");
+        String status;
+        if (statusObj instanceof Number) {
+            status = ((Number) statusObj).intValue() == 1 ? "ACTIVE" : "INVALID";
+        } else if (statusObj instanceof String) {
+            String strStatus = (String) statusObj;
+            if ("ACTIVE".equalsIgnoreCase(strStatus) || "1".equals(strStatus)) {
+                status = "ACTIVE";
+            } else {
+                status = "INVALID";
+            }
+        } else {
+            status = "INVALID";
+        }
         tokenManagementService.updateTokenStatus(tokenId, status, userId);
         return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.update"), null));
     }
@@ -147,7 +161,7 @@ public class TokenController {
             @PathVariable Long tokenId,
             @RequestHeader("Authorization") String authHeader) {
         Long userId = jwtUtils.getUserIdFromToken(extractToken(authHeader));
-        tokenManagementService.invalidateToken(tokenId, userId);
+        tokenManagementService.deleteToken(tokenId, userId);
         return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.delete"), null));
     }
 
@@ -158,11 +172,18 @@ public class TokenController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<Result<Map<String, Object>>> validateToken(
             @RequestParam String tokenValue) {
-        TokenInfo tokenInfo = tokenManagementService.getCurrentToken(tokenValue);
+        // 处理 Bearer 前缀
+        String actualToken = tokenValue;
+        if (tokenValue.startsWith("Bearer ")) {
+            actualToken = tokenValue.substring(7);
+        }
+
+        Token token = tokenManagementService.getTokenByAccessToken(actualToken);
         Map<String, Object> result = new HashMap<>();
-        if (tokenInfo != null && "ACTIVE".equals(tokenInfo.getStatus())) {
+
+        if (token != null && "ACTIVE".equals(token.getStatus()) && token.getExpireTime() > System.currentTimeMillis()) {
             result.put("valid", true);
-            result.put("userId", tokenInfo.getId());
+            result.put("userId", token.getUserId());
             result.put("username", null);
         } else {
             result.put("valid", false);

@@ -48,7 +48,7 @@ public class TokenManagementServiceImpl implements TokenManagementService {
     public void invalidateToken(Long tokenId, Long userId) {
         Token token = tokenMapper.findById(tokenId);
         if (token != null && token.getUserId().equals(userId)) {
-            tokenMapper.invalidateByAccessToken(token.getAccessToken());
+            tokenMapper.updateStatus(tokenId, "INVALID");
             log.info("令牌已失效: tokenId={}, userId={}", tokenId, userId);
         }
     }
@@ -132,6 +132,21 @@ public class TokenManagementServiceImpl implements TokenManagementService {
             tokenMapper.updateStatus(tokenId, status);
             log.info("更新令牌状态: tokenId={}, userId={}, status={}", tokenId, userId, status);
         }
+    }
+
+    @Override
+    @Transactional
+    public void deleteToken(Long tokenId, Long userId) {
+        Token token = tokenMapper.findById(tokenId);
+        if (token != null && token.getUserId().equals(userId)) {
+            tokenMapper.deleteById(tokenId);
+            log.info("删除令牌: tokenId={}, userId={}", tokenId, userId);
+        }
+    }
+
+    @Override
+    public Token getTokenByAccessToken(String accessToken) {
+        return tokenMapper.findByAccessToken(accessToken);
     }
 
     /**

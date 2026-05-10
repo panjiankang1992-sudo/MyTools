@@ -24,7 +24,7 @@ const ContextHolder = defineComponent({
 </script>
 
 <template>
-  <NLoadingBarProvider>
+  <NLoadingBarProvider :loading-bar-props="{ loadingBarStyle: 'line' }">
     <NDialogProvider>
       <NNotificationProvider>
         <NMessageProvider>

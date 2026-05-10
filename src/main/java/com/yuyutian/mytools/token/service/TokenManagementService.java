@@ -81,4 +81,20 @@ public interface TokenManagementService {
      * @param userId 用户ID（用于权限校验）
      */
     void updateTokenStatus(Long tokenId, String status, Long userId);
+
+    /**
+     * 删除令牌。
+     *
+     * @param tokenId 令牌ID
+     * @param userId 用户ID（用于权限校验）
+     */
+    void deleteToken(Long tokenId, Long userId);
+
+    /**
+     * 根据 Access Token 获取令牌。
+     *
+     * @param accessToken Access Token
+     * @return 令牌对象
+     */
+    com.yuyutian.mytools.auth.Model.Token getTokenByAccessToken(String accessToken);
 }
