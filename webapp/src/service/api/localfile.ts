@@ -68,7 +68,7 @@ interface ScanResult {
 /** 获取目录列表 */
 export function fetchGetDirectories() {
   return request<LocalDirectory[]>({
-    url: '/api/local-files/directories',
+    url: '/api/localfiles/directories',
     method: 'get'
   });
 }
@@ -76,7 +76,7 @@ export function fetchGetDirectories() {
 /** 触发目录扫描 */
 export function fetchScanDirectory(directoryId: number, fullScan: boolean = false) {
   return request<ScanResult>({
-    url: '/api/local-files/scan',
+    url: '/api/localfiles/scan',
     method: 'post',
     params: { directoryId, fullScan }
   });
@@ -91,7 +91,7 @@ export function fetchGetFilePage(params: {
   pageSize?: number;
 }) {
   return request<FileListResponse>({
-    url: '/api/local-files',
+    url: '/api/localfiles',
     method: 'get',
     params
   });

@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.yuyutian.mytools.localfile.dto.ScanResult;
+import com.yuyutian.mytools.localfile.entity.LocalDirectory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,5 +79,27 @@ public class LocalFileController {
     public ResponseEntity<Result<List<FileTag>>> triggerTagging(@PathVariable Long id) {
         List<FileTag> tags = localFileService.triggerTagging(id);
         return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.tagging"), tags));
+    }
+
+    /**
+     * 获取目录列表。
+     */
+    @GetMapping("/directories")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Result<List<LocalDirectory>>> getDirectories() {
+        List<LocalDirectory> directories = localFileService.getDirectories();
+        return ResponseEntity.ok(Result.success(directories));
+    }
+
+    /**
+     * 扫描目录。
+     */
+    @PostMapping("/scan")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Result<ScanResult>> scanDirectory(
+            @RequestParam Long directoryId,
+            @RequestParam(defaultValue = "false") boolean fullScan) {
+        ScanResult result = localFileService.scanDirectory(directoryId, fullScan);
+        return ResponseEntity.ok(Result.success(result));
     }
 }
