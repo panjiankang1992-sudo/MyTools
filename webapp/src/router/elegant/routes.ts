@@ -55,9 +55,8 @@ export const generatedRoutes: GeneratedRoute[] = [
         path: '/ai-tools/token',
         component: 'view.ai-tools_token',
         meta: {
-          title: 'token',
-          i18nKey: 'route.token',
-          icon: 'mdi:key'
+          title: 'ai-tools_token',
+          i18nKey: 'route.ai-tools_token'
         }
       }
     ]

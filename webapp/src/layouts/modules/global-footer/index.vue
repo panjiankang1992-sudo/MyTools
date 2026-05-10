@@ -6,9 +6,7 @@ defineOptions({
 
 <template>
   <DarkModeContainer class="h-full flex-center">
-    <a href="https://github.com/soybeanjs/soybean-admin/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">
-      My Tools © 2026
-    </a>
+    <!-- Footer removed -->
   </DarkModeContainer>
 </template>
 
