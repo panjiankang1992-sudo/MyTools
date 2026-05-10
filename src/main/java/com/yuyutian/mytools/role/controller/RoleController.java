@@ -3,6 +3,7 @@ package com.yuyutian.mytools.role.controller;
 import com.yuyutian.mytools.auth.utils.JwtUtils;
 import com.yuyutian.mytools.common.BusinessException;
 import com.yuyutian.mytools.common.ErrorCode;
+import com.yuyutian.mytools.common.MessageHelper;
 import com.yuyutian.mytools.common.Result;
 import com.yuyutian.mytools.role.model.RoleRequest;
 import com.yuyutian.mytools.role.model.RoleResponse;
@@ -67,7 +68,7 @@ public class RoleController {
         Long adminUserId = extractUserIdFromToken(authHeader);
         RoleResponse response = roleService.createRole(request, adminUserId);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Result.success("创建成功", response));
+                .body(Result.success(MessageHelper.getMessage("success.create"), response));
     }
 
     /**
@@ -86,7 +87,7 @@ public class RoleController {
             @RequestHeader("Authorization") String authHeader) {
         Long adminUserId = extractUserIdFromToken(authHeader);
         RoleResponse response = roleService.updateRole(id, request, adminUserId);
-        return ResponseEntity.ok(Result.success("更新成功", response));
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.update"), response));
     }
 
     /**
@@ -103,7 +104,7 @@ public class RoleController {
             @RequestHeader("Authorization") String authHeader) {
         Long adminUserId = extractUserIdFromToken(authHeader);
         roleService.deleteRole(id, adminUserId);
-        return ResponseEntity.ok(Result.success("删除成功", null));
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.delete"), null));
     }
 
     /**

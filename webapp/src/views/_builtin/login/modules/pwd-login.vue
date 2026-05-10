@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, reactive } from 'vue';
+import { computed, reactive, ref, onMounted } from 'vue';
 import { loginModuleRecord } from '@/constants/app';
 import { useAuthStore } from '@/store/modules/auth';
 import { useRouterPush } from '@/hooks/common/router';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
+import { localStg } from '@/utils/storage';
 
 defineOptions({
   name: 'PwdLogin'
@@ -19,23 +20,42 @@ interface FormModel {
   password: string;
 }
 
+const rememberMe = ref(false);
+
 const model: FormModel = reactive({
-  userName: 'Soybean',
-  password: '123456'
+  userName: '',
+  password: ''
 });
 
-const rules = computed<Record<keyof FormModel, App.Global.FormRule[]>>(() => {
-  // inside computed to make locale reactive, if not apply i18n, you can define it without computed
-  const { formRules } = useFormRules();
+onMounted(() => {
+  const savedUserName = localStg.get('rememberedUserName');
+  const savedPassword = localStg.get('rememberedPassword');
 
-  return {
-    userName: formRules.userName,
-    password: formRules.pwd
-  };
+  if (savedUserName && savedPassword) {
+    model.userName = savedUserName;
+    model.password = savedPassword;
+    rememberMe.value = true;
+  }
 });
+
+function handleRememberMeChange(checked: boolean) {
+  if (!checked) {
+    localStg.remove('rememberedUserName');
+    localStg.remove('rememberedPassword');
+  }
+}
 
 async function handleSubmit() {
   await validate();
+
+  if (rememberMe.value) {
+    localStg.set('rememberedUserName', model.userName);
+    localStg.set('rememberedPassword', model.password);
+  } else {
+    localStg.remove('rememberedUserName');
+    localStg.remove('rememberedPassword');
+  }
+
   await authStore.login(model.userName, model.password);
 }
 
@@ -70,8 +90,22 @@ const accounts = computed<Account[]>(() => [
 ]);
 
 async function handleAccountLogin(account: Account) {
+  if (rememberMe.value) {
+    localStg.set('rememberedUserName', account.userName);
+    localStg.set('rememberedPassword', account.password);
+  }
+
   await authStore.login(account.userName, account.password);
 }
+
+const rules = computed<Record<keyof FormModel, App.Global.FormRule[]>>(() => {
+  const { formRules } = useFormRules();
+
+  return {
+    userName: formRules.userName,
+    password: formRules.pwd
+  };
+});
 </script>
 
 <template>
@@ -89,7 +123,9 @@ async function handleAccountLogin(account: Account) {
     </NFormItem>
     <NSpace vertical :size="24">
       <div class="flex-y-center justify-between">
-        <NCheckbox>{{ $t('page.login.pwdLogin.rememberMe') }}</NCheckbox>
+        <NCheckbox v-model:checked="rememberMe" @update:checked="handleRememberMeChange">
+          {{ $t('page.login.pwdLogin.rememberMe') }}
+        </NCheckbox>
       </div>
       <NButton type="primary" size="large" round block :loading="authStore.loginLoading" @click="handleSubmit">
         {{ $t('common.confirm') }}

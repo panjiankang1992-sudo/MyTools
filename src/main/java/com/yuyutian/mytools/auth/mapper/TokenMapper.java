@@ -86,4 +86,31 @@ public interface TokenMapper {
      */
     @Select("SELECT * FROM t_token WHERE id = #{id}")
     Token findById(Long id);
+
+    /**
+     * 分页查询用户令牌。
+     *
+     * @param userId 用户ID
+     * @param offset 偏移量
+     * @param limit 每页数量
+     * @return 令牌列表
+     */
+    List<Token> findAllWithPage(@Param("userId") Long userId, @Param("offset") int offset, @Param("limit") int limit);
+
+    /**
+     * 统计用户令牌总数。
+     *
+     * @param userId 用户ID
+     * @return 令牌数量
+     */
+    long countAllByUserId(Long userId);
+
+    /**
+     * 更新令牌状态。
+     *
+     * @param id 令牌ID
+     * @param status 新状态
+     * @return 影响行数
+     */
+    int updateStatus(@Param("id") Long id, @Param("status") String status);
 }

@@ -29,21 +29,19 @@ const createModal = reactive({
 
 const columns = [
   { title: '序号', key: 'index', width: 70, render: (_: any, index: number) => (pagination.page - 1) * pagination.pageSize + index + 1 },
-  { title: 'Token 名称', key: 'tokenName', width: 200 },
+  { title: 'Token 名称', key: 'tokenName', width: 200, render: (row: Api.Token.TokenItem) => row.tokenName || '-' },
   { title: 'Token 前缀', key: 'tokenPrefix', width: 180 },
-  { title: '状态', key: 'status', width: 80, render: (row: Api.Token.TokenItem) => h(NTag, { type: row.status === 1 ? 'success' : 'error', size: 'small' }, () => row.status === 1 ? '正常' : '禁用') },
+  { title: '状态', key: 'status', width: 80, render: (row: Api.Token.TokenItem) => h(NTag, { type: row.status === 'ACTIVE' ? 'success' : 'error', size: 'small' }, () => row.status === 'ACTIVE' ? '正常' : '禁用') },
   { title: '创建时间', key: 'createdTime', width: 180 },
-  { title: '最后使用时间', key: 'lastUsedTime', width: 180 },
+  { title: '最后使用时间', key: 'lastUsedTime', width: 180, render: (row: Api.Token.TokenItem) => row.lastUsedTime || '-' },
   {
     title: '操作',
     key: 'actions',
     width: 200,
-    render: (row: Api.Token.TokenItem) => {
-      return h(NSpace, { size: 'small' }, () => [
-        h(NButton, { size: 'small', type: row.status === 1 ? 'warning' : 'primary', onClick: () => handleToggleStatus(row) }, () => row.status === 1 ? '禁用' : '启用'),
-        h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row) }, () => '删除')
-      ]);
-    }
+    render: (row: Api.Token.TokenItem) => [
+      h(NButton, { size: 'small', type: row.status === 'ACTIVE' ? 'warning' : 'primary', onClick: () => handleToggleStatus(row), style: { marginRight: '8px' } }, () => row.status === 'ACTIVE' ? '禁用' : '启用'),
+      h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row) }, () => '删除')
+    ]
   }
 ];
 
@@ -52,25 +50,34 @@ async function loadData() {
   try {
     const result = await fetchGetTokenList({ page: pagination.page, pageSize: pagination.pageSize });
     console.log('Token result:', result);
+    console.log('Token result keys:', Object.keys(result));
+    console.log('Token result.data:', result?.data);
+    console.log('Token result.data?.list:', result?.data?.list);
     data.length = 0;
-    pagination.total = result.total || 0;
-    data.push(...(result.list || []));
+    // 处理多种可能的响应结构
+    const list = result?.data?.list || result?.list || [];
+    // Debug: log each item's status
+    list.forEach((item: any, idx: number) => {
+      console.log(`Token[${idx}] status:`, item.status, 'type:', typeof item.status);
+    });
+    pagination.total = result?.data?.total || result?.total || 0;
+    data.push(...list);
   } finally {
     endLoading();
   }
 }
 
 async function handleToggleStatus(row: Api.Token.TokenItem) {
-  const newStatus = row.status === 1 ? 0 : 1;
+  const newStatus = row.status === 'ACTIVE' ? 'DISABLED' : 'ACTIVE';
   await fetchUpdateTokenStatus(row.id, newStatus);
-  message.success(newStatus === 1 ? '启用成功' : '禁用成功');
+  message.success(newStatus === 'ACTIVE' ? '启用成功' : '禁用成功');
   loadData();
 }
 
 async function handleDelete(row: Api.Token.TokenItem) {
   dialog.warning({
     title: '确认删除',
-    content: `确定删除 Token "${row.tokenName}" 吗？删除后将无法恢复！`,
+    content: `确定删除 Token "${row.tokenName || row.tokenPrefix}" 吗？删除后将无法恢复！`,
     positiveText: '确定删除',
     negativeText: '取消',
     onPositiveClick: async () => {

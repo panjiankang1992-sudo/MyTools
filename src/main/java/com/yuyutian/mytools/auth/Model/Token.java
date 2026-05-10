@@ -47,6 +47,9 @@ public class Token {
     /** 状态：ACTIVE / INVALID */
     private String status;
 
+    /** Token名称（用户自定义） */
+    private String tokenName;
+
     /** 创建时间 */
     private LocalDateTime createTime;
 

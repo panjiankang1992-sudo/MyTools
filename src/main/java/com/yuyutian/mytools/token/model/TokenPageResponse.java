@@ -17,4 +17,10 @@ public class TokenPageResponse {
 
     /** 总数 */
     private Long total;
+
+    /** 当前页码 */
+    private Integer page;
+
+    /** 每页数量 */
+    private Integer pageSize;
 }

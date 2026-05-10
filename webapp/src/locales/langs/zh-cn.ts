@@ -45,6 +45,8 @@ const local: App.I18n.Schema = {
     update: '更新',
     updateSuccess: '更新成功',
     userCenter: '个人中心',
+    validation_failed: '参数校验失败',
+    operation_failed: '操作失败',
     yesOrNo: {
       yes: '是',
       no: '否'
@@ -246,6 +248,7 @@ const local: App.I18n.Schema = {
         back: '返回',
         validateSuccess: '验证成功',
         loginSuccess: '登录成功',
+        loginFailed: '登录失败',
         welcomeBack: '欢迎回来，{userName} ！'
       },
       pwdLogin: {
@@ -330,7 +333,7 @@ const local: App.I18n.Schema = {
     },
     pwd: {
       required: '请输入密码',
-      invalid: '密码格式不正确，6-18位字符，包含字母、数字、下划线'
+      invalid: '密码至少8位，必须包含大小写字母和数字'
     },
     confirmPwd: {
       required: '请输入确认密码',

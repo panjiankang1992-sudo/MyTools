@@ -114,26 +114,16 @@ export const request = createFlatRequest(
     },
     onError(error) {
       // when the request is fail, you can show error message
+      // Skip if backend already handled it (has response with data)
+      if (error.response?.data) {
+        return;
+      }
 
       let message = error.message;
-      let backendErrorCode = '';
 
       // get backend error message and code
       if (error.code === BACKEND_ERROR_CODE) {
         message = error.response?.data?.message || message;
-        backendErrorCode = String(error.response?.data?.code || '');
-      }
-
-      // the error message is displayed in the modal
-      const modalLogoutCodes = import.meta.env.VITE_SERVICE_MODAL_LOGOUT_CODES?.split(',') || [];
-      if (modalLogoutCodes.includes(backendErrorCode)) {
-        return;
-      }
-
-      // when the token is expired, refresh token and retry request, so no need to show error message
-      const expiredTokenCodes = import.meta.env.VITE_SERVICE_EXPIRED_TOKEN_CODES?.split(',') || [];
-      if (expiredTokenCodes.includes(backendErrorCode)) {
-        return;
       }
 
       showErrorMsg(request.state, message);

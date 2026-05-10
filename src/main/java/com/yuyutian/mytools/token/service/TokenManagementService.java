@@ -53,4 +53,32 @@ public interface TokenManagementService {
      * @return 在线令牌数量
      */
     int getOnlineTokenCount(Long userId);
+
+    /**
+     * 分页获取用户令牌列表。
+     *
+     * @param userId 用户ID
+     * @param page 页码
+     * @param pageSize 每页数量
+     * @return 分页令牌响应
+     */
+    TokenPageResponse getTokenPage(Long userId, int page, int pageSize);
+
+    /**
+     * 创建新令牌。
+     *
+     * @param userId 用户ID
+     * @param tokenName 令牌名称
+     * @return 令牌信息
+     */
+    TokenInfo createToken(Long userId, String tokenName);
+
+    /**
+     * 更新令牌状态。
+     *
+     * @param tokenId 令牌ID
+     * @param status 新状态
+     * @param userId 用户ID（用于权限校验）
+     */
+    void updateTokenStatus(Long tokenId, String status, Long userId);
 }

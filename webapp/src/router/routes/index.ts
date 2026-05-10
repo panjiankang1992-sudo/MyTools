@@ -3,41 +3,12 @@ import { generatedRoutes } from '../elegant/routes';
 import { layouts, views } from '../elegant/imports';
 import { transformElegantRoutesToVueRoutes } from '../elegant/transform';
 
-/**
- * custom routes
- *
- * @link https://github.com/soybeanjs/elegant-router?tab=readme-ov-file#custom-route
- */
-const customRoutes: CustomRoute[] = [
-  {
-    name: 'localfile',
-    path: '/localfile',
-    meta: {
-      title: 'localfile',
-      i18nKey: 'route.localfile',
-      icon: 'mdi:folder-multiple',
-      order: 2
-    }
-  },
-  {
-    name: 'token',
-    path: '/token',
-    meta: {
-      title: 'token',
-      i18nKey: 'route.token',
-      icon: 'mdi:key-variant',
-      order: 3
-    }
-  }
-];
-
 /** create routes when the auth route mode is static */
 export function createStaticRoutes() {
   const constantRoutes: ElegantRoute[] = [];
-
   const authRoutes: ElegantRoute[] = [];
 
-  [...customRoutes, ...generatedRoutes].forEach(item => {
+  generatedRoutes.forEach(item => {
     if (item.meta?.constant) {
       constantRoutes.push(item);
     } else {

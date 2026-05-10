@@ -2,6 +2,7 @@ package com.yuyutian.mytools.auth.controller;
 
 import com.yuyutian.mytools.auth.Model.*;
 import com.yuyutian.mytools.auth.service.AuthService;
+import com.yuyutian.mytools.common.MessageHelper;
 import com.yuyutian.mytools.common.Result;
 import com.yuyutian.mytools.utils.PasswordUtils;
 import com.yuyutian.mytools.user.mapper.UserMapper;
@@ -39,12 +40,12 @@ public class AuthController {
     public ResponseEntity<Result<String>> resetAdminPassword() {
         com.yuyutian.mytools.user.Model.User admin = userMapper.findByUsername("admin");
         if (admin == null) {
-            return ResponseEntity.ok(Result.success("Admin用户不存在", null));
+            return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.admin.not.exists"), null));
         }
         String newHash = PasswordUtils.encode("admin123");
         int rows = userMapper.updatePassword(admin.getId(), newHash);
         log.info("Admin password reset, userId={}, rows affected: {}", admin.getId(), rows);
-        return ResponseEntity.ok(Result.success("Admin密码已重置为admin123", null));
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.admin.password.reset"), null));
     }
 
     /**
@@ -57,7 +58,7 @@ public class AuthController {
     public ResponseEntity<Result<RegisterResponse>> register(@Valid @RequestBody RegisterRequest request) {
         RegisterResponse response = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Result.success("注册成功", response));
+                .body(Result.success(MessageHelper.getMessage("success.register"), response));
     }
 
     /**
@@ -69,7 +70,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Result<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authService.login(request);
-        return ResponseEntity.ok(Result.success("登录成功", response));
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.login"), response));
     }
 
     /**
@@ -81,7 +82,7 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<Result<RefreshResponse>> refresh(@RequestHeader("Authorization") String authHeader) {
         RefreshResponse response = authService.refreshToken(authHeader);
-        return ResponseEntity.ok(Result.success("刷新成功", response));
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.refresh"), response));
     }
 
     /**
@@ -94,6 +95,6 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Result<Void>> logout(@RequestHeader("Authorization") String authHeader) {
         authService.logout(authHeader);
-        return ResponseEntity.ok(Result.success("登出成功", null));
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.logout"), null));
     }
 }

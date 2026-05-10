@@ -5,7 +5,7 @@ declare namespace Api {
       id: number;
       tokenName: string;
       tokenPrefix: string;
-      status: number;
+      status: string;
       createdTime: string;
       lastUsedTime: string | null;
     }
@@ -21,7 +21,7 @@ declare namespace Api {
       tokenName: string;
       tokenValue: string;
       tokenPrefix: string;
-      status: number;
+      status: string;
       createdTime: string;
     }
 

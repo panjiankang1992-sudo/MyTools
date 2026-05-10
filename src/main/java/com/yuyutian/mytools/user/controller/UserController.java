@@ -3,6 +3,7 @@ package com.yuyutian.mytools.user.controller;
 import com.yuyutian.mytools.auth.utils.JwtUtils;
 import com.yuyutian.mytools.common.BusinessException;
 import com.yuyutian.mytools.common.ErrorCode;
+import com.yuyutian.mytools.common.MessageHelper;
 import com.yuyutian.mytools.common.PageResult;
 import com.yuyutian.mytools.common.Result;
 import com.yuyutian.mytools.user.Model.*;
@@ -64,7 +65,7 @@ public class UserController {
             @Valid @RequestBody UpdateUserInfoRequest request) {
         Long userId = extractUserIdFromToken(authHeader);
         UserInfoResponse response = userService.updateUserInfo(userId, request);
-        return ResponseEntity.ok(Result.success("更新成功", response));
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.update"), response));
     }
 
     /**
@@ -80,7 +81,7 @@ public class UserController {
             @Valid @RequestBody ChangePasswordRequest request) {
         Long userId = extractUserIdFromToken(authHeader);
         userService.changePassword(userId, request);
-        return ResponseEntity.ok(Result.success("密码修改成功", null));
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.password.change"), null));
     }
 
     /**
@@ -116,7 +117,7 @@ public class UserController {
             @RequestHeader("Authorization") String authHeader) {
         Long adminUserId = extractUserIdFromToken(authHeader);
         userService.deleteUser(id, adminUserId);
-        return ResponseEntity.ok(Result.success("删除成功", null));
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.delete"), null));
     }
 
     /**
@@ -157,7 +158,7 @@ public class UserController {
         Long adminUserId = extractUserIdFromToken(authHeader);
         CreateUserResponse response = userService.createUser(request, adminUserId);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Result.success("创建成功", response));
+                .body(Result.success(MessageHelper.getMessage("success.create"), response));
     }
 
     /**
@@ -176,7 +177,7 @@ public class UserController {
             @RequestHeader("Authorization") String authHeader) {
         Long adminUserId = extractUserIdFromToken(authHeader);
         UserInfoResponse response = userService.updateUser(id, request, adminUserId);
-        return ResponseEntity.ok(Result.success("更新成功", response));
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.update"), response));
     }
 
     /**
@@ -195,7 +196,7 @@ public class UserController {
             @RequestHeader("Authorization") String authHeader) {
         Long adminUserId = extractUserIdFromToken(authHeader);
         userService.assignRole(id, roleCode, adminUserId);
-        return ResponseEntity.ok(Result.success("角色分配成功", null));
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.role.assign"), null));
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.yuyutian.mytools.localfile.controller;
 
 import com.yuyutian.mytools.common.ErrorCode;
+import com.yuyutian.mytools.common.MessageHelper;
 import com.yuyutian.mytools.common.Result;
 import com.yuyutian.mytools.localfile.entity.FileTag;
 import com.yuyutian.mytools.localfile.entity.LocalFile;
@@ -75,6 +76,6 @@ public class LocalFileController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Result<List<FileTag>>> triggerTagging(@PathVariable Long id) {
         List<FileTag> tags = localFileService.triggerTagging(id);
-        return ResponseEntity.ok(Result.success("打标签成功", tags));
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.tagging"), tags));
     }
 }

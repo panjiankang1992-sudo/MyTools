@@ -45,6 +45,8 @@ const local: App.I18n.Schema = {
     update: 'Update',
     updateSuccess: 'Update Success',
     userCenter: 'User Center',
+    validation_failed: 'Validation failed',
+    operation_failed: 'Operation failed',
     yesOrNo: {
       yes: 'Yes',
       no: 'No'
@@ -249,6 +251,7 @@ const local: App.I18n.Schema = {
         back: 'Back',
         validateSuccess: 'Verification passed',
         loginSuccess: 'Login successfully',
+        loginFailed: 'Login failed',
         welcomeBack: 'Welcome back, {userName} !'
       },
       pwdLogin: {
@@ -333,7 +336,7 @@ const local: App.I18n.Schema = {
     },
     pwd: {
       required: 'Please enter password',
-      invalid: '6-18 characters, including letters, numbers, and underscores'
+      invalid: 'At least 8 characters, must contain uppercase and lowercase letters and numbers'
     },
     confirmPwd: {
       required: 'Please enter password again',

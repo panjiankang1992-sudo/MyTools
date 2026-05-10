@@ -83,13 +83,78 @@ public class TokenManagementServiceImpl implements TokenManagementService {
         return tokenMapper.countActiveByUserId(userId);
     }
 
+    @Override
+    public TokenPageResponse getTokenPage(Long userId, int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        List<Token> tokens = tokenMapper.findAllWithPage(userId, offset, pageSize);
+        long total = tokenMapper.countAllByUserId(userId);
+
+        List<TokenInfo> tokenInfos = tokens.stream()
+                .map(this::convertToTokenInfo)
+                .collect(Collectors.toList());
+
+        TokenPageResponse response = new TokenPageResponse();
+        response.setList(tokenInfos);
+        response.setTotal(total);
+        response.setPage(page);
+        response.setPageSize(pageSize);
+        return response;
+    }
+
+    @Override
+    public TokenInfo createToken(Long userId, String tokenName) {
+        // 生成简单的随机令牌（实际应用中应使用更安全的方式）
+        String tokenStr = generateRandomToken();
+        Token token = new Token();
+        token.setId(System.currentTimeMillis());
+        token.setUserId(userId);
+        token.setAccessToken(tokenStr);
+        token.setTokenType("Bearer");
+        token.setExpireTime(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000); // 30天
+        token.setStatus("ACTIVE");
+        token.setTokenName(tokenName);
+        token.setCreateTime(LocalDateTime.now());
+        token.setUpdateTime(LocalDateTime.now());
+
+        tokenMapper.insert(token);
+        log.info("创建新令牌: userId={}, tokenName={}", userId, tokenName);
+
+        TokenInfo info = convertToTokenInfo(token);
+        info.setTokenValue(tokenStr); // 返回完整token值（仅在创建时返回一次）
+        return info;
+    }
+
+    @Override
+    @Transactional
+    public void updateTokenStatus(Long tokenId, String status, Long userId) {
+        Token token = tokenMapper.findById(tokenId);
+        if (token != null && token.getUserId().equals(userId)) {
+            tokenMapper.updateStatus(tokenId, status);
+            log.info("更新令牌状态: tokenId={}, userId={}, status={}", tokenId, userId, status);
+        }
+    }
+
+    /**
+     * 生成随机令牌。
+     */
+    private String generateRandomToken() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 32; i++) {
+            sb.append(chars.charAt((int) (Math.random() * chars.length())));
+        }
+        return sb.toString();
+    }
+
     /**
      * 将Token实体转换为TokenInfo。
      */
     private TokenInfo convertToTokenInfo(Token token) {
         TokenInfo info = new TokenInfo();
         info.setId(token.getId());
+        info.setTokenName(token.getTokenName());
         info.setAccessToken(maskToken(token.getAccessToken()));
+        info.setTokenPrefix(getTokenPrefix(token.getAccessToken()));
         info.setCreateTime(token.getCreateTime());
 
         // 转换过期时间戳
@@ -107,6 +172,16 @@ public class TokenManagementServiceImpl implements TokenManagementService {
         }
 
         return info;
+    }
+
+    /**
+     * 获取令牌前缀。
+     */
+    private String getTokenPrefix(String token) {
+        if (token == null || token.length() < 8) {
+            return "****";
+        }
+        return token.substring(0, 8);
     }
 
     /**
