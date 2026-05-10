@@ -89,13 +89,45 @@ export const generatedRoutes: GeneratedRoute[] = [
   {
     name: 'localfile',
     path: '/localfile',
-    component: 'layout.base$view.localfile',
+    component: 'layout.base',
     meta: {
       title: 'localfile',
       i18nKey: 'route.localfile',
       icon: 'mdi:folder',
       order: 2
-    }
+    },
+    children: [
+      {
+        name: 'localfile_ebook',
+        path: '/localfile/ebook',
+        component: 'view.localfile_ebook',
+        meta: {
+          title: 'ebook',
+          i18nKey: 'route.localfile_ebook',
+          icon: 'mdi:book'
+        }
+      },
+      {
+        name: 'localfile_large-media',
+        path: '/localfile/large-media',
+        component: 'view.localfile_large-media',
+        meta: {
+          title: 'large-media',
+          i18nKey: 'route.localfile_large-media',
+          icon: 'mdi:video-file'
+        }
+      },
+      {
+        name: 'localfile_multimedia',
+        path: '/localfile/multimedia',
+        component: 'view.localfile_multimedia',
+        meta: {
+          title: 'multimedia',
+          i18nKey: 'route.localfile_multimedia',
+          icon: 'mdi:image-multiple'
+        }
+      }
+    ]
   },
   {
     name: 'login',

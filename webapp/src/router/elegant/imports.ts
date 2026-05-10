@@ -22,7 +22,9 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   login: () => import("@/views/_builtin/login/index.vue"),
   "ai-tools_token": () => import("@/views/ai-tools/token/index.vue"),
   home: () => import("@/views/home/index.vue"),
-  localfile: () => import("@/views/localfile/index.vue"),
+  localfile_ebook: () => import("@/views/localfile/ebook/index.vue"),
+  "localfile_large-media": () => import("@/views/localfile/large-media/index.vue"),
+  localfile_multimedia: () => import("@/views/localfile/multimedia/index.vue"),
   system_role: () => import("@/views/system/role/index.vue"),
   system_user: () => import("@/views/system/user/index.vue"),
 };

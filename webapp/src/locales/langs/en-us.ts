@@ -237,7 +237,10 @@ const local: App.I18n.Schema = {
     'system_role': 'Role Management',
     'ai-tools': 'AI Tools',
     token: 'Token Management',
-    localfile: 'Local File'
+    localfile: 'Local File',
+    'localfile_multimedia': 'Multimedia',
+    'localfile_ebook': 'Ebook',
+    'localfile_large-media': 'Large Media'
   },
   page: {
     login: {

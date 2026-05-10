@@ -25,6 +25,9 @@ declare module "@elegant-router/types" {
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
     "localfile": "/localfile";
+    "localfile_ebook": "/localfile/ebook";
+    "localfile_large-media": "/localfile/large-media";
+    "localfile_multimedia": "/localfile/multimedia";
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
     "system": "/system";
     "system_role": "/system/role";
@@ -92,7 +95,9 @@ declare module "@elegant-router/types" {
     | "login"
     | "ai-tools_token"
     | "home"
-    | "localfile"
+    | "localfile_ebook"
+    | "localfile_large-media"
+    | "localfile_multimedia"
     | "system_role"
     | "system_user"
   >;
