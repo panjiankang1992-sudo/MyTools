@@ -69,7 +69,8 @@ export const generatedRoutes: GeneratedRoute[] = [
     component: 'layout.base$view.localfile',
     meta: {
       title: 'localfile',
-      i18nKey: 'route.localfile'
+      i18nKey: 'route.localfile',
+      order: 2
     }
   },
   {
@@ -124,7 +125,8 @@ export const generatedRoutes: GeneratedRoute[] = [
     component: 'layout.base$view.token',
     meta: {
       title: 'token',
-      i18nKey: 'route.token'
+      i18nKey: 'route.token',
+      order: 3
     }
   }
 ];
