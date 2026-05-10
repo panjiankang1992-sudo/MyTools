@@ -231,7 +231,8 @@ const local: App.I18n.Schema = {
     system: '系统管理',
     'system_user': '用户管理',
     'system_role': '角色管理',
-    token: 'Token 管理',
+    'ai-tools': 'AI Tools',
+    'ai-tools_token': 'Token 管理',
     localfile: '本地文件'
   },
   page: {

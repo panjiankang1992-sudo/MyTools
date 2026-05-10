@@ -166,14 +166,15 @@ const routeMap: RouteMap = {
   "403": "/403",
   "404": "/404",
   "500": "/500",
+  "ai-tools": "/ai-tools",
+  "ai-tools_token": "/ai-tools/token",
   "home": "/home",
   "iframe-page": "/iframe-page/:url",
   "localfile": "/localfile",
   "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?",
   "system": "/system",
   "system_role": "/system/role",
-  "system_user": "/system/user",
-  "token": "/token"
+  "system_user": "/system/user"
 };
 
 /**

@@ -62,7 +62,7 @@ tagging:
 # 文件扫描配置
 file:
   scan:
-    path: D:/MyFiles
+    path: /opt/custom/OpenClaw
     extensions: jpg,jpeg,png,gif,bmp,webp,mp4,avi,mov,wmv,mp3,wav,flac,txt,md,pdf,doc,docx
-    thumbnail-path: D:/MyFiles/.thumbnails
+    thumbnail-path: /opt/custom/OpenClaw/.thumbnails
     batch-size: 100

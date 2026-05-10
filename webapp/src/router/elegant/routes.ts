@@ -40,6 +40,29 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'ai-tools',
+    path: '/ai-tools',
+    component: 'layout.base',
+    meta: {
+      title: 'ai-tools',
+      i18nKey: 'route.ai-tools',
+      icon: 'mdi:robot',
+      order: 3
+    },
+    children: [
+      {
+        name: 'ai-tools_token',
+        path: '/ai-tools/token',
+        component: 'view.ai-tools_token',
+        meta: {
+          title: 'token',
+          i18nKey: 'route.token',
+          icon: 'mdi:key'
+        }
+      }
+    ]
+  },
+  {
     name: 'home',
     path: '/home',
     component: 'layout.base$view.home',
@@ -70,6 +93,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: 'localfile',
       i18nKey: 'route.localfile',
+      icon: 'mdi:folder',
       order: 2
     }
   },
@@ -118,15 +142,5 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       }
     ]
-  },
-  {
-    name: 'token',
-    path: '/token',
-    component: 'layout.base$view.token',
-    meta: {
-      title: 'token',
-      i18nKey: 'route.token',
-      order: 3
-    }
   }
 ];

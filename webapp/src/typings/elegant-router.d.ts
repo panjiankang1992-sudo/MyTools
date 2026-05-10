@@ -20,6 +20,8 @@ declare module "@elegant-router/types" {
     "403": "/403";
     "404": "/404";
     "500": "/500";
+    "ai-tools": "/ai-tools";
+    "ai-tools_token": "/ai-tools/token";
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
     "localfile": "/localfile";
@@ -27,7 +29,6 @@ declare module "@elegant-router/types" {
     "system": "/system";
     "system_role": "/system/role";
     "system_user": "/system/user";
-    "token": "/token";
   };
 
   /**
@@ -62,12 +63,12 @@ declare module "@elegant-router/types" {
     | "403"
     | "404"
     | "500"
+    | "ai-tools"
     | "home"
     | "iframe-page"
     | "localfile"
     | "login"
     | "system"
-    | "token"
   >;
 
   /**
@@ -89,11 +90,11 @@ declare module "@elegant-router/types" {
     | "500"
     | "iframe-page"
     | "login"
+    | "ai-tools_token"
     | "home"
     | "localfile"
     | "system_role"
     | "system_user"
-    | "token"
   >;
 
   /**
