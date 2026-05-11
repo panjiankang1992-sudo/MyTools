@@ -126,20 +126,26 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtUtils.generateAccessToken(userId, request.getUsername(), "USER");
         long expiresIn = jwtUtils.getExpirationMs() / 1000;
 
-        // 保存令牌到数据库（用于后续校验）
-        Token tokenEntity = new Token();
-        tokenEntity.setId(snowflakeIdGenerator.nextId());
-        tokenEntity.setUserId(userId);
-        tokenEntity.setAccessToken(token);
-        tokenEntity.setRefreshToken(token);
-        tokenEntity.setTokenType("Bearer");
-        tokenEntity.setExpireTime(System.currentTimeMillis() + expiresIn * 1000);
-        tokenEntity.setRefreshExpireTime(System.currentTimeMillis() + expiresIn * 1000);
-        tokenEntity.setStatus("ACTIVE");
-        tokenEntity.setTokenName("注册令牌");
-        tokenEntity.setCreateTime(now);
-        tokenEntity.setUpdateTime(now);
-        tokenMapper.insert(tokenEntity);
+        // 保存令牌到数据库（用于后续校验，添加容错处理）
+        try {
+            Token tokenEntity = new Token();
+            tokenEntity.setId(snowflakeIdGenerator.nextId());
+            tokenEntity.setUserId(userId);
+            tokenEntity.setAccessToken(token);
+            tokenEntity.setRefreshToken(token);
+            tokenEntity.setTokenType("Bearer");
+            tokenEntity.setExpireTime(System.currentTimeMillis() + expiresIn * 1000);
+            tokenEntity.setRefreshExpireTime(System.currentTimeMillis() + expiresIn * 1000);
+            tokenEntity.setStatus("ACTIVE");
+            tokenEntity.setTokenName("注册令牌");
+            tokenEntity.setCreateTime(now);
+            tokenEntity.setUpdateTime(now);
+            tokenMapper.insert(tokenEntity);
+            log.info("令牌已保存到数据库: userId={}", userId);
+        } catch (Exception e) {
+            // 记录日志但不影响注册
+            log.warn("令牌保存失败，继续注册流程: userId={}, error={}", userId, e.getMessage());
+        }
 
         log.info("用户注册成功: username={}, userId={}", request.getUsername(), userId);
 
@@ -206,20 +212,26 @@ public class AuthServiceImpl implements AuthService {
         long expiresIn = jwtUtils.getExpirationMs() / 1000;
         long refreshExpiresIn = jwtUtils.getRefreshExpirationMs() / 1000;
 
-        // 保存令牌到数据库（用于后续校验）
-        Token tokenEntity = new Token();
-        tokenEntity.setId(snowflakeIdGenerator.nextId());
-        tokenEntity.setUserId(user.getId());
-        tokenEntity.setAccessToken(token);
-        tokenEntity.setRefreshToken(refreshToken);
-        tokenEntity.setTokenType("Bearer");
-        tokenEntity.setExpireTime(System.currentTimeMillis() + expiresIn * 1000);
-        tokenEntity.setRefreshExpireTime(System.currentTimeMillis() + refreshExpiresIn * 1000);
-        tokenEntity.setStatus("ACTIVE");
-        tokenEntity.setTokenName("登录令牌");
-        tokenEntity.setCreateTime(LocalDateTime.now());
-        tokenEntity.setUpdateTime(LocalDateTime.now());
-        tokenMapper.insert(tokenEntity);
+        // 保存令牌到数据库（用于后续校验，添加容错处理）
+        try {
+            Token tokenEntity = new Token();
+            tokenEntity.setId(snowflakeIdGenerator.nextId());
+            tokenEntity.setUserId(user.getId());
+            tokenEntity.setAccessToken(token);
+            tokenEntity.setRefreshToken(refreshToken);
+            tokenEntity.setTokenType("Bearer");
+            tokenEntity.setExpireTime(System.currentTimeMillis() + expiresIn * 1000);
+            tokenEntity.setRefreshExpireTime(System.currentTimeMillis() + refreshExpiresIn * 1000);
+            tokenEntity.setStatus("ACTIVE");
+            tokenEntity.setTokenName("登录令牌");
+            tokenEntity.setCreateTime(LocalDateTime.now());
+            tokenEntity.setUpdateTime(LocalDateTime.now());
+            tokenMapper.insert(tokenEntity);
+            log.info("令牌已保存到数据库: userId={}", user.getId());
+        } catch (Exception e) {
+            // 记录日志但不影响登录
+            log.warn("令牌保存失败，继续登录流程: userId={}, error={}", user.getId(), e.getMessage());
+        }
 
         log.info("用户登录成功: username={}, userId={}", user.getUsername(), user.getId());
 
