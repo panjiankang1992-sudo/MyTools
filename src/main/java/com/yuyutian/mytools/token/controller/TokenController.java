@@ -9,6 +9,7 @@ import com.yuyutian.mytools.token.model.TokenInfo;
 import com.yuyutian.mytools.token.model.TokenPageResponse;
 import com.yuyutian.mytools.token.service.TokenManagementService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +25,7 @@ import java.util.Map;
  * @author mytools
  * @since 2026-05-04
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/tokens")
 @RequiredArgsConstructor
@@ -178,7 +180,9 @@ public class TokenController {
             actualToken = tokenValue.substring(7);
         }
 
+        log.info("校验Token: {}", actualToken);
         Token token = tokenManagementService.getTokenByAccessToken(actualToken);
+        log.info("查询到Token: {}", token);
         Map<String, Object> result = new HashMap<>();
 
         if (token != null && "ACTIVE".equals(token.getStatus()) && token.getExpireTime() > System.currentTimeMillis()) {
@@ -187,8 +191,13 @@ public class TokenController {
             result.put("username", null);
         } else {
             result.put("valid", false);
-            result.put("userId", null);
-            result.put("username", null);
+            if (token == null) {
+                result.put("message", "Token 不存在");
+            } else if (!"ACTIVE".equals(token.getStatus())) {
+                result.put("message", "Token 状态为: " + token.getStatus());
+            } else {
+                result.put("message", "Token 已过期");
+            }
         }
         return ResponseEntity.ok(Result.success(result));
     }

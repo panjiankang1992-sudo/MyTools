@@ -328,6 +328,9 @@ const local: App.I18n.Schema = {
     },
     token: {
       title: 'Token Management'
+    },
+    profile: {
+      title: 'Profile'
     }
   },
   form: {

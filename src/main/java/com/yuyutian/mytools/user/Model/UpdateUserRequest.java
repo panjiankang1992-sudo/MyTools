@@ -16,6 +16,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateUserRequest {
 
+    /** 昵称 */
+    @Size(max = 50, message = "昵称最长50位")
+    private String nickname;
+
     /** 邮箱 */
     @Email(message = "邮箱格式不正确")
     private String email;

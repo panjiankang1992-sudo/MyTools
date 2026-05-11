@@ -175,6 +175,7 @@ const routeMap: RouteMap = {
   "localfile_large-media": "/localfile/large-media",
   "localfile_multimedia": "/localfile/multimedia",
   "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?",
+  "profile": "/profile",
   "system": "/system",
   "system_role": "/system/role",
   "system_user": "/system/user"

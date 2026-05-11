@@ -42,7 +42,13 @@ public class RoleServiceImpl implements com.yuyutian.mytools.role.service.RoleSe
     @Override
     public List<RoleResponse> getRoleList() {
         List<Role> roles = roleMapper.findAll();
-        return roles.stream().map(this::convertToResponse).collect(Collectors.toList());
+        log.info("角色列表查询结果: 共{}条", roles.size());
+        for (Role r : roles) {
+            log.info("  角色: id={}, roleName={}, roleCode={}, status={}", r.getId(), r.getRoleName(), r.getRoleCode(), r.getStatus());
+        }
+        List<RoleResponse> result = roles.stream().map(this::convertToResponse).collect(Collectors.toList());
+        log.info("RoleResponse转换结果: {}", result);
+        return result;
     }
 
     @Override
@@ -101,6 +107,9 @@ public class RoleServiceImpl implements com.yuyutian.mytools.role.service.RoleSe
         // 更新角色（只更新非空字段）
         if (request.getRoleName() != null) {
             role.setRoleName(request.getRoleName());
+        }
+        if (request.getRoleCode() != null) {
+            role.setRoleCode(request.getRoleCode());
         }
         if (request.getDescription() != null) {
             role.setDescription(request.getDescription());

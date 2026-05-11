@@ -67,7 +67,7 @@ public class AuthServiceImpl implements AuthService {
      * 3. BCrypt加密密码
      * 4. 保存用户记录
      * 5. 分配默认USER角色
-     * 6. 生成JWT令牌
+     * 6. 生成JWT令牌并保存到数据库
      */
     @Override
     @Transactional
@@ -126,6 +126,21 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtUtils.generateAccessToken(userId, request.getUsername(), "USER");
         long expiresIn = jwtUtils.getExpirationMs() / 1000;
 
+        // 保存令牌到数据库（用于后续校验）
+        Token tokenEntity = new Token();
+        tokenEntity.setId(snowflakeIdGenerator.nextId());
+        tokenEntity.setUserId(userId);
+        tokenEntity.setAccessToken(token);
+        tokenEntity.setRefreshToken(token);
+        tokenEntity.setTokenType("Bearer");
+        tokenEntity.setExpireTime(System.currentTimeMillis() + expiresIn * 1000);
+        tokenEntity.setRefreshExpireTime(System.currentTimeMillis() + expiresIn * 1000);
+        tokenEntity.setStatus("ACTIVE");
+        tokenEntity.setTokenName("注册令牌");
+        tokenEntity.setCreateTime(now);
+        tokenEntity.setUpdateTime(now);
+        tokenMapper.insert(tokenEntity);
+
         log.info("用户注册成功: username={}, userId={}", request.getUsername(), userId);
 
         // 返回响应
@@ -144,7 +159,7 @@ public class AuthServiceImpl implements AuthService {
      * 3. 验证密码
      * 4. 检查账户状态
      * 5. 更新最后登录时间
-     * 6. 生成JWT令牌
+     * 6. 生成JWT令牌并保存到数据库
      * 7. 登录成功后重置失败计数
      */
     @Override
@@ -187,7 +202,24 @@ public class AuthServiceImpl implements AuthService {
 
         // 生成JWT令牌
         String token = jwtUtils.generateAccessToken(user.getId(), user.getUsername(), user.getRole());
+        String refreshToken = jwtUtils.generateRefreshToken(user.getId(), user.getUsername(), user.getRole());
         long expiresIn = jwtUtils.getExpirationMs() / 1000;
+        long refreshExpiresIn = jwtUtils.getRefreshExpirationMs() / 1000;
+
+        // 保存令牌到数据库（用于后续校验）
+        Token tokenEntity = new Token();
+        tokenEntity.setId(snowflakeIdGenerator.nextId());
+        tokenEntity.setUserId(user.getId());
+        tokenEntity.setAccessToken(token);
+        tokenEntity.setRefreshToken(refreshToken);
+        tokenEntity.setTokenType("Bearer");
+        tokenEntity.setExpireTime(System.currentTimeMillis() + expiresIn * 1000);
+        tokenEntity.setRefreshExpireTime(System.currentTimeMillis() + refreshExpiresIn * 1000);
+        tokenEntity.setStatus("ACTIVE");
+        tokenEntity.setTokenName("登录令牌");
+        tokenEntity.setCreateTime(LocalDateTime.now());
+        tokenEntity.setUpdateTime(LocalDateTime.now());
+        tokenMapper.insert(tokenEntity);
 
         log.info("用户登录成功: username={}, userId={}", user.getUsername(), user.getId());
 
@@ -195,8 +227,11 @@ public class AuthServiceImpl implements AuthService {
         LoginResponse response = new LoginResponse();
         response.setUserId(user.getId());
         response.setUsername(user.getUsername());
+        response.setNickname(user.getNickname());
+        response.setAvatar(user.getAvatar());
         response.setRole(user.getRole());
         response.setAccessToken(token);
+        response.setRefreshToken(refreshToken);
         response.setExpiresIn(expiresIn);
         return response;
     }

@@ -83,7 +83,7 @@ public class RoleController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Result<RoleResponse>> updateRole(
             @PathVariable("id") Long id,
-            @Valid @RequestBody RoleRequest request,
+            @RequestBody RoleRequest request,
             @RequestHeader("Authorization") String authHeader) {
         Long adminUserId = extractUserIdFromToken(authHeader);
         RoleResponse response = roleService.updateRole(id, request, adminUserId);

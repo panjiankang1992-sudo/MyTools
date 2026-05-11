@@ -3,6 +3,7 @@ import { watch } from 'vue';
 import { useAppStore } from '@/store/modules/app';
 import { useEcharts } from '@/hooks/common/echarts';
 import { $t } from '@/locales';
+import { fetchGetLogStatistics } from '@/service/api';
 
 defineOptions({
   name: 'PieChart'
@@ -23,7 +24,7 @@ const { domRef, updateOptions } = useEcharts(() => ({
   },
   series: [
     {
-      color: ['#5da8ff', '#8e9dff', '#fedc69', '#26deca'],
+      color: ['#5da8ff', '#8e9dff', '#fedc69', '#26deca', '#ff6b6b', '#4ecdc4'],
       name: $t('page.home.schedule'),
       type: 'pie',
       radius: ['45%', '75%'],
@@ -51,21 +52,25 @@ const { domRef, updateOptions } = useEcharts(() => ({
   ]
 }));
 
-async function mockData() {
-  await new Promise(resolve => {
-    setTimeout(resolve, 1000);
-  });
+async function loadData() {
+  try {
+    const result = await fetchGetLogStatistics({});
+    console.log('[PieChart] statistics result:', result);
 
-  updateOptions(opts => {
-    opts.series[0].data = [
-      { name: $t('page.home.study'), value: 20 },
-      { name: $t('page.home.entertainment'), value: 10 },
-      { name: $t('page.home.work'), value: 40 },
-      { name: $t('page.home.rest'), value: 30 }
-    ];
+    if (result?.moduleStats) {
+      const moduleData = result.moduleStats.map((item: Api.Log.ModuleStat) => ({
+        name: item.module,
+        value: item.count
+      }));
 
-    return opts;
-  });
+      updateOptions(opts => {
+        opts.series[0].data = moduleData;
+        return opts;
+      });
+    }
+  } catch (error) {
+    console.error('[PieChart] failed to load statistics:', error);
+  }
 }
 
 function updateLocale() {
@@ -74,19 +79,9 @@ function updateLocale() {
 
     opts.series[0].name = originOpts.series[0].name;
 
-    opts.series[0].data = [
-      { name: $t('page.home.study'), value: 20 },
-      { name: $t('page.home.entertainment'), value: 10 },
-      { name: $t('page.home.work'), value: 40 },
-      { name: $t('page.home.rest'), value: 30 }
-    ];
-
+    // Keep the existing data
     return opts;
   });
-}
-
-async function init() {
-  mockData();
 }
 
 watch(
@@ -97,7 +92,7 @@ watch(
 );
 
 // init
-init();
+loadData();
 </script>
 
 <template>

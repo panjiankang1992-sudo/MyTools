@@ -18,7 +18,17 @@ function loginOrRegister() {
   toLogin();
 }
 
-type DropdownKey = 'logout';
+// 显示名称：优先使用昵称，其次使用用户名
+const displayName = computed(() => {
+  return authStore.userInfo.nickname || authStore.userInfo.username || '用户';
+});
+
+// 显示头像：优先使用用户头像，其次使用默认头像
+const avatarSrc = computed(() => {
+  return authStore.userInfo.avatar || '/favicon.svg';
+});
+
+type DropdownKey = 'profile' | 'logout';
 
 type DropdownOption =
   | {
@@ -33,6 +43,15 @@ type DropdownOption =
 
 const options = computed(() => {
   const opts: DropdownOption[] = [
+    {
+      label: $t('page.profile.title') || '个人中心',
+      key: 'profile',
+      icon: SvgIconVNode({ icon: 'ph:user-circle', fontSize: 18 })
+    },
+    {
+      type: 'divider',
+      key: 'divider'
+    },
     {
       label: $t('common.logout'),
       key: 'logout',
@@ -58,8 +77,9 @@ function logout() {
 function handleDropdown(key: DropdownKey) {
   if (key === 'logout') {
     logout();
+  } else if (key === 'profile') {
+    routerPushByKey('profile');
   } else {
-    // If your other options are jumps from other routes, they will be directly supported here
     routerPushByKey(key);
   }
 }
@@ -72,8 +92,18 @@ function handleDropdown(key: DropdownKey) {
   <NDropdown v-else placement="bottom" trigger="click" :options="options" @select="handleDropdown">
     <div>
       <ButtonIcon>
-        <SvgIcon icon="ph:user-circle" class="text-icon-large" />
-        <span class="text-16px font-medium">{{ authStore.userInfo.username }}</span>
+        <NAvatar
+          v-if="avatarSrc"
+          class="mr-8px"
+          :src="avatarSrc"
+          :fallback-src="'/favicon.svg'"
+          round
+          :size="28"
+        />
+        <NAvatar v-else class="mr-8px" round :size="28">
+          {{ displayName.charAt(0).toUpperCase() }}
+        </NAvatar>
+        <span class="text-16px font-medium">{{ displayName }}</span>
       </ButtonIcon>
     </div>
   </NDropdown>

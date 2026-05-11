@@ -10,15 +10,15 @@ const message = useMessage();
 const { loading, startLoading, endLoading } = useLoading();
 
 const columns = [
-  { title: '序号', key: 'index', width: 70 },
+  { title: '序号', key: 'index', width: 70, render: (_: any, index: number) => index + 1 },
   { title: '角色名称', key: 'roleName', width: 150 },
-  { title: '角色代码', key: 'roleCode', width: 120 },
-  { title: '描述', key: 'description', width: 200 },
-  { title: '状态', key: 'status', width: 80, render: (row: Api.Role.RoleItem) => h(NTag, { type: row.status === 'ACTIVE' ? 'success' : 'error', size: 'small' }, () => row.status === 'ACTIVE' ? '启用' : '禁用') },
+  { title: '角色代码', key: 'roleCode', width: 120, render: (row: Api.Role.RoleItem) => row.roleCode || '-' },
+  { title: '描述', key: 'description', width: 200, render: (row: Api.Role.RoleItem) => row.description || '-' },
+  { title: '状态', key: 'status', width: 80, render: (row: Api.Role.RoleItem) => h(NTag, { type: row.status === 'ACTIVE' ? 'success' : 'warning', size: 'small' }, () => row.status === 'ACTIVE' ? '启用' : '禁用') },
   { title: '操作', key: 'actions', width: 200, render: (row: Api.Role.RoleItem) => {
     return h(NSpace, { size: 'small' }, () => [
       h(NButton, { size: 'small', onClick: () => openEditModal(row) }, () => '编辑'),
-      h(NButton, { size: 'small', type: row.status === 'ACTIVE' ? 'warning' : 'primary', onClick: () => handleToggleStatus(row) }, () => row.status === 'ACTIVE' ? '禁用' : '启用'),
+      h(NButton, { size: 'small', type: row.status === 'ACTIVE' ? 'warning' : 'success', onClick: () => handleToggleStatus(row) }, () => row.status === 'ACTIVE' ? '禁用' : '启用'),
       h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row) }, () => '删除')
     ]);
   }}
@@ -51,8 +51,9 @@ async function loadData() {
 }
 
 async function handleToggleStatus(row: Api.Role.RoleItem) {
-  const newStatus = row.status === 'ACTIVE' ? 'DISABLED' : 'ACTIVE';
+  const newStatus = row.status === 'ACTIVE' ? 'INVALID' : 'ACTIVE';
   await fetchUpdateRole(row.id, { status: newStatus });
+  message.success(newStatus === 'ACTIVE' ? '启用成功' : '禁用成功');
   loadData();
 }
 

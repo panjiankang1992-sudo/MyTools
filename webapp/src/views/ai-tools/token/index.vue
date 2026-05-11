@@ -118,12 +118,24 @@ async function handleValidateToken() {
   validateModal.validating = true;
   try {
     const result = await fetchValidateToken(validateModal.tokenValue.trim());
-    if (result?.valid) {
+    console.log('[Token校验] raw result:', result);
+    console.log('[Token校验] result type:', typeof result);
+    console.log('[Token校验] result?.valid:', result?.valid);
+    console.log('[Token校验] result?.message:', result?.message);
+    // result 为 null 表示请求失败（已在 service 层处理错误提示）
+    if (result === null) {
+      validateModal.result = { valid: false, message: 'Token 验证请求失败' };
+    } else if (result?.valid === true) {
       validateModal.result = { valid: true, message: 'Token 有效' };
+    } else if (result?.valid === false) {
+      validateModal.result = { valid: false, message: result?.message || 'Token 无效或已过期' };
     } else {
-      validateModal.result = { valid: false, message: 'Token 无效或已过期' };
+      // 调试：打印更多详情
+      console.error('[Token校验] unexpected result structure:', JSON.stringify(result));
+      validateModal.result = { valid: false, message: `Token 验证失败(${typeof result})` };
     }
-  } catch {
+  } catch (e) {
+    console.error('[Token校验] exception:', e);
     validateModal.result = { valid: false, message: 'Token 验证失败' };
   } finally {
     validateModal.validating = false;
@@ -164,34 +176,61 @@ async function handleCopyToken() {
 
   const token = createModal.createdToken;
 
-  // 优先使用 Clipboard API
+  // 方案1：navigator.clipboard.writeText
   if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
     try {
       await navigator.clipboard.writeText(token);
       message.success('Token 已复制到剪贴板');
       return;
     } catch {
-      // 降级到 execCommand
+      // 失败，继续尝试其他方案
     }
   }
 
-  // 降级方案：execCommand
+  // 方案2：使用 Selection API（浏览器原生，不依赖 execCommand）
   try {
-    const textarea = document.createElement('textarea');
-    textarea.value = token;
-    textarea.style.cssText = 'position:fixed;left:0;top:0;opacity:0;';
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
+    const span = document.createElement('span');
+    span.textContent = token;
+    span.style.cssText = 'position:fixed;left:0;top:0;opacity:0;pointer-events:none;white-space:pre;';
+    span.id = '__token_copy_span__';
+    span.setAttribute('data-value', token);
+    document.body.appendChild(span);
+
+    const range = document.createRange();
+    range.selectNodeContents(span);
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+
     const success = document.execCommand('copy');
-    document.body.removeChild(textarea);
+    sel?.removeAllRanges();
+    document.body.removeChild(span);
+
     if (success) {
       message.success('Token 已复制到剪贴板');
-    } else {
-      throw new Error('execCommand copy failed');
+      return;
     }
   } catch {
-    message.error('复制失败，请手动复制');
+    // 失败
+  }
+
+  // 方案3：最后的备选方案
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = token;
+    ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    if (ok) {
+      message.success('Token 已复制到剪贴板');
+    } else {
+      message.warning('复制失败，请手动选中文本后 Ctrl+C 复制');
+    }
+  } catch {
+    message.warning('复制失败，请手动选中文本后 Ctrl+C 复制');
   }
 }
 

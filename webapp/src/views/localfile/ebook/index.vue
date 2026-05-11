@@ -15,11 +15,28 @@ const directory = ref<any | null>(null);
 async function loadDirectory() {
   try {
     startLoading();
-    const dirs = await fetchGetDirectories();
-    directory.value = dirs.find((d: any) => d.directoryType === 'EBOOK') || null;
-  } catch (error) {
+    const dirs: any = await fetchGetDirectories();
+    console.log('[Ebook] fetchGetDirectories result:', dirs);
+
+    // 兼容处理：可能是数组，也可能是 { data: [] } 格式
+    let dirArray: any[] = [];
+    if (Array.isArray(dirs)) {
+      dirArray = dirs;
+    } else if (dirs && typeof dirs === 'object') {
+      dirArray = dirs.data || dirs.list || [];
+    }
+
+    if (!dirArray || dirArray.length === 0) {
+      console.warn('[Ebook] 没有配置目录或目录列表为空');
+      return;
+    }
+
+    const ebookDir = dirArray.find((d: any) => d.directoryType === 'EBOOK');
+    directory.value = ebookDir || null;
+    console.log('[Ebook] 找到电子书目录:', directory.value);
+  } catch (error: any) {
+    console.error('[Ebook] 加载目录失败:', error);
     message.error('加载目录失败');
-    console.error(error);
   } finally {
     endLoading();
   }

@@ -3,6 +3,7 @@ import { watch } from 'vue';
 import { useAppStore } from '@/store/modules/app';
 import { useEcharts } from '@/hooks/common/echarts';
 import { $t } from '@/locales';
+import { fetchGetLogStatistics } from '@/service/api';
 
 defineOptions({
   name: 'LineChart'
@@ -97,23 +98,31 @@ const { domRef, updateOptions } = useEcharts(() => ({
       emphasis: {
         focus: 'series'
       },
-      data: []
+      data: [] as number[]
     }
   ]
 }));
 
-async function mockData() {
-  await new Promise(resolve => {
-    setTimeout(resolve, 1000);
-  });
+async function loadData() {
+  try {
+    const result = await fetchGetLogStatistics({});
+    console.log('[LineChart] statistics result:', result);
 
-  updateOptions(opts => {
-    opts.xAxis.data = ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '24:00'];
-    opts.series[0].data = [4623, 6145, 6268, 6411, 1890, 4251, 2978, 3880, 3606, 4311];
-    opts.series[1].data = [2208, 2016, 2916, 4512, 8281, 2008, 1963, 2367, 2956, 678];
+    if (result?.hourlyStats) {
+      const hours = result.hourlyStats.map((item: Api.Log.HourlyStat) => item.hour);
+      const requestCounts = result.hourlyStats.map((item: Api.Log.HourlyStat) => item.count);
+      const successCounts = result.hourlyStats.map((item: Api.Log.HourlyStat) => item.successCount);
 
-    return opts;
-  });
+      updateOptions(opts => {
+        opts.xAxis.data = hours;
+        opts.series[0].data = requestCounts;
+        opts.series[1].data = successCounts;
+        return opts;
+      });
+    }
+  } catch (error) {
+    console.error('[LineChart] failed to load statistics:', error);
+  }
 }
 
 function updateLocale() {
@@ -128,10 +137,6 @@ function updateLocale() {
   });
 }
 
-async function init() {
-  mockData();
-}
-
 watch(
   () => appStore.locale,
   () => {
@@ -140,7 +145,7 @@ watch(
 );
 
 // init
-init();
+loadData();
 </script>
 
 <template>

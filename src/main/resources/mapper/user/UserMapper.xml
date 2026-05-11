@@ -7,8 +7,15 @@
         <id column="id" property="id"/>
         <result column="username" property="username"/>
         <result column="password" property="password"/>
+        <result column="nickname" property="nickname"/>
+        <result column="avatar" property="avatar"/>
         <result column="email" property="email"/>
         <result column="phone" property="phone"/>
+        <result column="gender" property="gender"/>
+        <result column="birthday" property="birthday"/>
+        <result column="address" property="address"/>
+        <result column="hobbies" property="hobbies"/>
+        <result column="signature" property="signature"/>
         <result column="role" property="role"/>
         <result column="status" property="status"/>
         <result column="register_time" property="registerTime"/>
@@ -18,22 +25,22 @@
     </resultMap>
 
     <insert id="insert" parameterType="com.yuyutian.mytools.user.Model.User">
-        INSERT INTO t_user (id, username, password, email, phone, role, status, register_time, create_time, update_time)
-        VALUES (#{id}, #{username}, #{password}, #{email}, #{phone}, #{role}, #{status}, #{registerTime}, #{createTime}, #{updateTime})
+        INSERT INTO t_user (id, username, password, nickname, avatar, email, phone, gender, birthday, address, hobbies, signature, role, status, register_time, create_time, update_time)
+        VALUES (#{id}, #{username}, #{password}, #{nickname}, #{avatar}, #{email}, #{phone}, #{gender}, #{birthday}, #{address}, #{hobbies}, #{signature}, #{role}, #{status}, #{registerTime}, #{createTime}, #{updateTime})
     </insert>
 
     <select id="findByUsername" resultMap="UserResultMap">
-        SELECT id, username, password, email, phone, role, status, register_time, last_login_time, create_time, update_time
+        SELECT id, username, password, nickname, avatar, email, phone, gender, birthday, address, hobbies, signature, role, status, register_time, last_login_time, create_time, update_time
         FROM t_user WHERE username = #{username}
     </select>
 
     <select id="findById" resultMap="UserResultMap">
-        SELECT id, username, password, email, phone, role, status, register_time, last_login_time, create_time, update_time
+        SELECT id, username, password, nickname, avatar, email, phone, gender, birthday, address, hobbies, signature, role, status, register_time, last_login_time, create_time, update_time
         FROM t_user WHERE id = #{id}
     </select>
 
     <select id="findByEmail" resultMap="UserResultMap">
-        SELECT id, username, password, email, phone, role, status, register_time, last_login_time, create_time, update_time
+        SELECT id, username, password, nickname, avatar, email, phone, gender, birthday, address, hobbies, signature, role, status, register_time, last_login_time, create_time, update_time
         FROM t_user WHERE email = #{email}
     </select>
 
@@ -65,6 +72,10 @@
         UPDATE t_user SET status = #{status}, update_time = CURRENT_TIMESTAMP WHERE id = #{id}
     </update>
 
+    <update id="updateRole">
+        UPDATE t_user SET role = #{role}, update_time = CURRENT_TIMESTAMP WHERE id = #{id}
+    </update>
+
     <delete id="deleteById">
         DELETE FROM t_user WHERE id = #{id}
     </delete>
@@ -73,7 +84,7 @@
         SELECT COUNT(*) FROM t_user
         <where>
             <if test="keyword != null and keyword != ''">
-                AND (username LIKE CONCAT('%', #{keyword}, '%') OR email LIKE CONCAT('%', #{keyword}, '%'))
+                AND (username LIKE CONCAT('%', #{keyword}, '%') OR email LIKE CONCAT('%', #{keyword}, '%') OR nickname LIKE CONCAT('%', #{keyword}, '%'))
             </if>
             <if test="status != null and status != ''">
                 AND status = #{status}
@@ -82,11 +93,11 @@
     </select>
 
     <select id="selectPage" resultMap="UserResultMap">
-        SELECT id, username, password, email, phone, role, status, register_time, last_login_time, create_time, update_time
+        SELECT id, username, password, nickname, avatar, email, phone, gender, birthday, address, hobbies, signature, role, status, register_time, last_login_time, create_time, update_time
         FROM t_user
         <where>
             <if test="keyword != null and keyword != ''">
-                AND (username LIKE CONCAT('%', #{keyword}, '%') OR email LIKE CONCAT('%', #{keyword}, '%'))
+                AND (username LIKE CONCAT('%', #{keyword}, '%') OR email LIKE CONCAT('%', #{keyword}, '%') OR nickname LIKE CONCAT('%', #{keyword}, '%'))
             </if>
             <if test="status != null and status != ''">
                 AND status = #{status}
@@ -95,5 +106,22 @@
         ORDER BY create_time DESC
         LIMIT #{offset}, #{limit}
     </select>
+
+    <update id="updateProfile" parameterType="com.yuyutian.mytools.user.Model.User">
+        UPDATE t_user
+        <set>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="birthday != null">birthday = #{birthday},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="hobbies != null">hobbies = #{hobbies},</if>
+            <if test="signature != null">signature = #{signature},</if>
+            update_time = CURRENT_TIMESTAMP
+        </set>
+        WHERE id = #{id}
+    </update>
 
 </mapper>

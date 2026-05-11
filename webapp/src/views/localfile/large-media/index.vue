@@ -15,11 +15,28 @@ const directory = ref<any | null>(null);
 async function loadDirectory() {
   try {
     startLoading();
-    const dirs = await fetchGetDirectories();
-    directory.value = dirs.find((d: any) => d.directoryType === 'LARGE_MEDIA') || null;
-  } catch (error) {
+    const dirs: any = await fetchGetDirectories();
+    console.log('[LargeMedia] fetchGetDirectories result:', dirs);
+
+    // 兼容处理：可能是数组，也可能是 { data: [] } 格式
+    let dirArray: any[] = [];
+    if (Array.isArray(dirs)) {
+      dirArray = dirs;
+    } else if (dirs && typeof dirs === 'object') {
+      dirArray = dirs.data || dirs.list || [];
+    }
+
+    if (!dirArray || dirArray.length === 0) {
+      console.warn('[LargeMedia] 没有配置目录或目录列表为空');
+      return;
+    }
+
+    const largeMediaDir = dirArray.find((d: any) => d.directoryType === 'LARGE_MEDIA');
+    directory.value = largeMediaDir || null;
+    console.log('[LargeMedia] 找到大文件多媒体目录:', directory.value);
+  } catch (error: any) {
+    console.error('[LargeMedia] 加载目录失败:', error);
     message.error('加载目录失败');
-    console.error(error);
   } finally {
     endLoading();
   }

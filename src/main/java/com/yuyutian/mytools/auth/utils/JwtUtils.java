@@ -178,6 +178,15 @@ public class JwtUtils {
         return accessExpirationMs;
     }
 
+    /**
+     * 获取刷新令牌过期时间（毫秒）。
+     *
+     * @return 刷新令牌过期时间
+     */
+    public long getRefreshExpirationMs() {
+        return refreshExpirationMs;
+    }
+
     private SecretKey getSigningKey() {
         byte[] keyBytes = Base64.getDecoder().decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);

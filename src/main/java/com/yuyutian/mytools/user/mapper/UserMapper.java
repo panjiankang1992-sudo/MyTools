@@ -126,6 +126,14 @@ public interface UserMapper {
     int updateRole(Long id, String role);
 
     /**
+     * 更新用户资料。
+     *
+     * @param user 用户对象
+     * @return 影响行数
+     */
+    int updateProfile(User user);
+
+    /**
      * 统计用户总数（支持关键字和状态过滤）。
      *
      * @param keyword 关键字（用户名或邮箱模糊匹配）

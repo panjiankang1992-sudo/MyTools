@@ -69,8 +69,15 @@ public class UserServiceImpl implements UserService {
         UserInfoResponse response = new UserInfoResponse();
         response.setUserId(user.getId());
         response.setUsername(user.getUsername());
+        response.setNickname(user.getNickname());
+        response.setAvatar(user.getAvatar());
         response.setEmail(user.getEmail());
         response.setPhone(user.getPhone());
+        response.setGender(user.getGender());
+        response.setBirthday(user.getBirthday());
+        response.setAddress(user.getAddress());
+        response.setHobbies(user.getHobbies());
+        response.setSignature(user.getSignature());
         response.setRole(user.getRole());
         response.setStatus(user.getStatus());
         response.setRegisterTime(user.getRegisterTime());
@@ -97,13 +104,23 @@ public class UserServiceImpl implements UserService {
             if (existingUser != null && !existingUser.getId().equals(userId)) {
                 throw new BusinessException(ErrorCode.USER_007);
             }
-            userMapper.updateEmail(userId, request.getEmail());
         }
 
-        // 更新手机号
-        if (request.getPhone() != null) {
-            userMapper.updatePhone(userId, request.getPhone());
-        }
+        // 使用 updateProfile 更新所有字段
+        User updateUser = new User();
+        updateUser.setId(userId);
+        updateUser.setNickname(request.getNickname());
+        updateUser.setAvatar(request.getAvatar());
+        updateUser.setEmail(request.getEmail());
+        updateUser.setPhone(request.getPhone());
+        updateUser.setGender(request.getGender());
+        updateUser.setBirthday(request.getBirthday());
+        updateUser.setAddress(request.getAddress());
+        updateUser.setHobbies(request.getHobbies());
+        updateUser.setSignature(request.getSignature());
+        userMapper.updateProfile(updateUser);
+
+        log.info("用户{}更新了个人信息", userId);
 
         // 返回最新用户信息
         return getUserInfo(userId);
@@ -263,9 +280,15 @@ public class UserServiceImpl implements UserService {
         UserInfoResponse response = new UserInfoResponse();
         response.setUserId(user.getId());
         response.setUsername(user.getUsername());
+        response.setNickname(user.getNickname());
+        response.setAvatar(user.getAvatar());
         response.setEmail(user.getEmail());
         response.setPhone(user.getPhone());
         response.setGender(user.getGender());
+        response.setBirthday(user.getBirthday());
+        response.setAddress(user.getAddress());
+        response.setHobbies(user.getHobbies());
+        response.setSignature(user.getSignature());
         response.setRole(user.getRole());
         response.setStatus(user.getStatus());
         response.setRegisterTime(user.getRegisterTime());
@@ -310,6 +333,7 @@ public class UserServiceImpl implements UserService {
         user.setId(userId);
         user.setUsername(request.getUsername());
         user.setPassword(encodedPassword);
+        user.setNickname(request.getNickname()); // 设置昵称
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setGender(request.getGender() != null ? request.getGender() : 0);
@@ -358,13 +382,15 @@ public class UserServiceImpl implements UserService {
             if (existingUser != null && !existingUser.getId().equals(targetUserId)) {
                 throw new BusinessException(ErrorCode.USER_007);
             }
-            userMapper.updateEmail(targetUserId, request.getEmail());
         }
 
-        // 更新手机号
-        if (request.getPhone() != null) {
-            userMapper.updatePhone(targetUserId, request.getPhone());
-        }
+        // 使用 updateProfile 更新所有字段
+        User updateUser = new User();
+        updateUser.setId(targetUserId);
+        updateUser.setNickname(request.getNickname());
+        updateUser.setEmail(request.getEmail());
+        updateUser.setPhone(request.getPhone());
+        userMapper.updateProfile(updateUser);
 
         log.info("管理员{}更新了用户{}", adminUserId, targetUserId);
 

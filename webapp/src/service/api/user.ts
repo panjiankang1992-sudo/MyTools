@@ -76,3 +76,31 @@ export function fetchUpdateUserRole(id: number, role: string) {
     params: { roleCode: role }
   });
 }
+
+/** 更新个人信息 */
+export function fetchUpdateProfile(data: {
+  nickname?: string;
+  avatar?: string;
+  email?: string;
+  phone?: string;
+  gender?: number;
+  birthday?: string;
+  address?: string;
+  hobbies?: string;
+  signature?: string;
+}) {
+  return request<Api.Auth.UserInfo>({
+    url: '/api/user/info',
+    method: 'put',
+    data
+  });
+}
+
+/** 修改密码 */
+export function fetchChangePassword(data: { oldPassword: string; newPassword: string }) {
+  return request<{ message: string }>({
+    url: '/api/user/password',
+    method: 'put',
+    data
+  });
+}

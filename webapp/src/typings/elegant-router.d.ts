@@ -29,6 +29,7 @@ declare module "@elegant-router/types" {
     "localfile_large-media": "/localfile/large-media";
     "localfile_multimedia": "/localfile/multimedia";
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
+    "profile": "/profile";
     "system": "/system";
     "system_role": "/system/role";
     "system_user": "/system/user";
@@ -71,6 +72,7 @@ declare module "@elegant-router/types" {
     | "iframe-page"
     | "localfile"
     | "login"
+    | "profile"
     | "system"
   >;
 
@@ -98,6 +100,7 @@ declare module "@elegant-router/types" {
     | "localfile_ebook"
     | "localfile_large-media"
     | "localfile_multimedia"
+    | "profile"
     | "system_role"
     | "system_user"
   >;

@@ -23,7 +23,11 @@ export const request = createFlatRequest(
       refreshTokenPromise: null
     } as RequestInstanceState,
     transform(response: AxiosResponse<App.Service.Response<any>>) {
-      return response.data.data;
+      // 返回 response.data.data，如果不存在则返回整个 response.data
+      const data = response.data?.data;
+      console.log('[Request Transform] response.data:', response.data);
+      console.log('[Request Transform] response.data.data:', data);
+      return data !== undefined ? data : response.data;
     },
     async onRequest(config) {
       const Authorization = getAuthorization();

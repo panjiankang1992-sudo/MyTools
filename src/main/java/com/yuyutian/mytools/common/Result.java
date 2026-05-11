@@ -18,8 +18,8 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Result<T> {
 
-    /** Error code, 200 means success */
-    private int code;
+    /** Error code, "0000" means success */
+    private String code;
 
     /** Response message (i18n key or display text) */
     private String message;
@@ -37,35 +37,35 @@ public class Result<T> {
     private LocalDateTime timestamp;
 
     public static <T> Result<T> success(T data) {
-        return new Result<>(200, "操作成功", data, null, generateTraceId(), LocalDateTime.now());
+        return new Result<>("0000", "操作成功", data, null, generateTraceId(), LocalDateTime.now());
     }
 
     public static <T> Result<T> success() {
-        return new Result<>(200, "操作成功", null, null, generateTraceId(), LocalDateTime.now());
+        return new Result<>("0000", "操作成功", null, null, generateTraceId(), LocalDateTime.now());
     }
 
     public static <T> Result<T> success(String message) {
-        return new Result<>(200, message, null, null, generateTraceId(), LocalDateTime.now());
+        return new Result<>("0000", message, null, null, generateTraceId(), LocalDateTime.now());
     }
 
     public static <T> Result<T> success(String message, T data) {
-        return new Result<>(200, message, data, null, generateTraceId(), LocalDateTime.now());
+        return new Result<>("0000", message, data, null, generateTraceId(), LocalDateTime.now());
     }
 
     public static <T> Result<T> error(String code, String message, Map<String, String> fieldErrors) {
-        return new Result<>(parseCode(code), message, null, fieldErrors, generateTraceId(), LocalDateTime.now());
+        return new Result<>(String.valueOf(parseCode(code)), message, null, fieldErrors, generateTraceId(), LocalDateTime.now());
     }
 
     public static <T> Result<T> error(String code, String message) {
-        return new Result<>(parseCode(code), message, null, null, generateTraceId(), LocalDateTime.now());
+        return new Result<>(String.valueOf(parseCode(code)), message, null, null, generateTraceId(), LocalDateTime.now());
     }
 
     public static <T> Result<T> error(ErrorCode errorCode) {
-        return new Result<>(errorCode.getHttpStatus().value(), errorCode.getMessageKey(), null, null, generateTraceId(), LocalDateTime.now());
+        return new Result<>(String.valueOf(errorCode.getHttpStatus().value()), errorCode.getMessageKey(), null, null, generateTraceId(), LocalDateTime.now());
     }
 
     public static <T> Result<T> error(BusinessException e) {
-        return new Result<>(e.getHttpStatus().value(), e.getMessageKey(), null, e.getFieldErrors(), generateTraceId(), LocalDateTime.now());
+        return new Result<>(String.valueOf(e.getHttpStatus().value()), e.getMessageKey(), null, e.getFieldErrors(), generateTraceId(), LocalDateTime.now());
     }
 
     private static int parseCode(String code) {

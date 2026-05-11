@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuyutian.mytools.apilog.mapper.ApiLogMapper">
+
+    <resultMap id="ApiLogResultMap" type="com.yuyutian.mytools.apilog.model.ApiLog">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="username" property="username"/>
+        <result column="module" property="module"/>
+        <result column="api_path" property="apiPath"/>
+        <result column="method" property="method"/>
+        <result column="request_method" property="requestMethod"/>
+        <result column="success" property="success"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="duration_ms" property="durationMs"/>
+        <result column="ip_address" property="ipAddress"/>
+        <result column="request_time" property="requestTime"/>
+        <result column="response_time" property="responseTime"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.yuyutian.mytools.apilog.model.ApiLog">
+        INSERT INTO t_api_log (id, user_id, username, module, api_path, method, request_method, success, error_message, duration_ms, ip_address, request_time, response_time)
+        VALUES (#{id}, #{userId}, #{username}, #{module}, #{apiPath}, #{method}, #{requestMethod}, #{success}, #{errorMessage}, #{durationMs}, #{ipAddress}, #{requestTime}, #{responseTime})
+    </insert>
+
+    <select id="countByTimeRange" resultType="long">
+        SELECT COUNT(*) FROM t_api_log
+        WHERE request_time BETWEEN #{startTime} AND #{endTime}
+    </select>
+
+    <select id="countByTimeRangeAndSuccess" resultType="long">
+        SELECT COUNT(*) FROM t_api_log
+        WHERE request_time BETWEEN #{startTime} AND #{endTime}
+        AND success = #{success}
+    </select>
+
+    <select id="avgDurationByTimeRange" resultType="java.lang.Long">
+        SELECT AVG(duration_ms) FROM t_api_log
+        WHERE request_time BETWEEN #{startTime} AND #{endTime}
+    </select>
+
+    <select id="countHourly" resultType="com.yuyutian.mytools.apilog.mapper.ApiLogMapper$HourlyStat">
+        SELECT
+            DATE_FORMAT(request_time, '%H:00') as hour,
+            COUNT(*) as count,
+            SUM(CASE WHEN success = true THEN 1 ELSE 0 END) as successCount
+        FROM t_api_log
+        WHERE request_time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY DATE_FORMAT(request_time, '%Y-%m-%d %H:00')
+        ORDER BY hour
+    </select>
+
+    <select id="countByModule" resultType="com.yuyutian.mytools.apilog.mapper.ApiLogMapper$ModuleStat">
+        SELECT
+            COALESCE(module, 'OTHER') as module,
+            COUNT(*) as count
+        FROM t_api_log
+        WHERE request_time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY module
+        ORDER BY count DESC
+    </select>
+
+</mapper>

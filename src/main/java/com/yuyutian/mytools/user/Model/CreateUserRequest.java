@@ -28,6 +28,10 @@ public class CreateUserRequest {
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$", message = "密码必须包含大小写字母和数字")
     private String password;
 
+    /** 昵称 */
+    @Size(max = 50, message = "昵称最长50位")
+    private String nickname;
+
     /** 邮箱（有效邮箱格式） */
     @NotBlank(message = "邮箱不能为空")
     @Email(message = "邮箱格式不正确")

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.ibatis.type.Alias;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -28,6 +29,12 @@ public class User {
     /** 密码（BCrypt加密） */
     private String password;
 
+    /** 昵称 */
+    private String nickname;
+
+    /** 头像URL */
+    private String avatar;
+
     /** 邮箱 */
     private String email;
 
@@ -36,6 +43,18 @@ public class User {
 
     /** 性别：0-未知，1-男，2-女 */
     private Integer gender;
+
+    /** 生日 */
+    private LocalDate birthday;
+
+    /** 地址 */
+    private String address;
+
+    /** 爱好 */
+    private String hobbies;
+
+    /** 个人签名 */
+    private String signature;
 
     /** 角色：ADMIN / USER */
     private String role;

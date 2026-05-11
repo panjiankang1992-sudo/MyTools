@@ -25,6 +25,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   localfile_ebook: () => import("@/views/localfile/ebook/index.vue"),
   "localfile_large-media": () => import("@/views/localfile/large-media/index.vue"),
   localfile_multimedia: () => import("@/views/localfile/multimedia/index.vue"),
+  profile: () => import("@/views/profile/index.vue"),
   system_role: () => import("@/views/system/role/index.vue"),
   system_user: () => import("@/views/system/user/index.vue"),
 };

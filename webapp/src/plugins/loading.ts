@@ -39,7 +39,7 @@ export function setupLoading() {
 
   const loading = `
 <div class="fixed-center flex-col bg-layout" style="${cssVars}">
-  <div class="w-128px h-128px">
+  <div class="w-128px h-128px flex items-center justify-center">
     ${getLogoSvg()}
   </div>
   <div class="w-56px h-56px my-36px">
@@ -58,153 +58,34 @@ export function setupLoading() {
 }
 
 function getLogoSvg() {
+  // 使用与主题色一致的深色
+  const primaryRgb = getRgb(localStg.get('themeColor') || '#646cff');
+  const primaryColor = `rgb(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b})`;
+
+  // 简单的 M 字母 Logo SVG
   const logoSvg = `<svg
-        width="100%"
-        height="100%"
-        version="1.1"
-        viewBox="0 0 1000 1000"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-      >
-        <g>
-          <path
-            d="M 200,866 C 100,866 50,779.4 100,692.8 L 200,519.6 C 220,485 240,490 265,499.6 S 360,542.68 360,542.68 C 480.5,601 498,642.5 500,720 C 498,811 462,856 420,866"
-            fill="url(#LinearGradient)"
-            fill-rule="nonzero"
-            opacity="1"
-            stroke="none"
-          />
-          <path
-            d="M 420,866 C 455,861 478,846 500,827 C 614,696 615,597 500,517 C 394,444 333,374 380,207.82 L 260,415.67 C 240.22,450 254.37,465.1 275.28,481.79 S 360,542.68 360,542.68 C 480.5,601 498,642.5 500,720 C 498,811 462,856 420,866"
-            fill="url(#LinearGradient_2)"
-            fill-rule="nonzero"
-            opacity="1"
-            stroke="none"
-          />
-          <path
-            d="M 500,517 C 394,444 333,374 380,207.82 L 400,173.2 C 367,295 421,350 603,428 C 572,440 524,474 500,517"
-            fill="url(#LinearGradient_3)"
-            fill-rule="nonzero"
-            opacity="1"
-            stroke="none"
-          />
-          <path
-            d="M 500,827 L 660,660 C 738,589 710,482 603,428 C 572,440 524,474 500,517 C 615,597 614,696 500,827"
-            fill="url(#LinearGradient_4)"
-            fill-rule="nonzero"
-            opacity="1"
-            stroke="none"
-          />
-          <path
-            d="M 400,173.2 C 367,295 421,350 603,428 C 690,389, 750,445 788,500 L 600,173.2 C 550,86.6 450,86.6 400,173.2"
-            fill="url(#LinearGradient_5)"
-            fill-rule="nonzero"
-            opacity="1"
-            stroke="none"
-          />
-          <path
-            d="M 500,827 L 660,660 C 738,589 710,482 603,428 C 690,389, 750,445 788,500 C 816,554 797,606 750,640 L 500,827"
-            fill="url(#LinearGradient_6)"
-            fill-rule="nonzero"
-            opacity="1"
-            stroke="none"
-          />
-          <path
-            d="M 788,500 C 816,554 797,606 750,640 L 500,827 C 497,851 513,862 540,866 L 800,866 C 900,866 950,779.4 900,692.8 L 788,500"
-            fill="url(#LinearGradient_7)"
-            fill-rule="nonzero"
-            opacity="1"
-            stroke="none"
-          />
-        </g>
-        <defs>
-          <linearGradient
-            id="LinearGradient"
-            gradientTransform="matrix(104.391 -73.3432 73.3432 104.391 277.441 710.122)"
-            gradientUnits="userSpaceOnUse"
-            x1="0"
-            x2="1"
-            y1="0"
-            y2="0"
-          >
-            <stop offset="0" stop-color="var(--logo-color-700)" />
-            <stop offset="1" stop-color="var(--logo-color-600)" />
-          </linearGradient>
-          <linearGradient
-            id="LinearGradient_2"
-            gradientTransform="matrix(-173.747 557.324 -557.324 -173.747 508.829 258.172)"
-            gradientUnits="userSpaceOnUse"
-            x1="0"
-            x2="1"
-            y1="0"
-            y2="0"
-          >
-            <stop offset="0" stop-color="var(--logo-color-300)" />
-            <stop offset="1" stop-color="var(--logo-color-500)" />
-          </linearGradient>
-          <linearGradient
-            id="LinearGradient_3"
-            gradientTransform="matrix(157.951 295.666 -295.666 157.951 382.944 193.642)"
-            gradientUnits="userSpaceOnUse"
-            x1="0"
-            x2="1"
-            y1="0"
-            y2="0"
-          >
-            <stop offset="0" stop-color="var(--logo-color-600)" />
-            <stop offset="1" stop-color="var(--logo-color-700)" />
-          </linearGradient>
-          <linearGradient
-            id="LinearGradient_4"
-            gradientTransform="matrix(-44.3023 219.578 -219.578 -44.3023 619.69 469.652)"
-            gradientUnits="userSpaceOnUse"
-            x1="0"
-            x2="1"
-            y1="0"
-            y2="0"
-          >
-            <stop offset="0" stop-color="var(--logo-color-400)" />
-            <stop offset="1" stop-color="var(--logo-color-600)" />
-          </linearGradient>
-          <linearGradient
-            id="LinearGradient_5"
-            gradientTransform="matrix(125.52 334.256 -334.256 125.52 539.723 235.139)"
-            gradientUnits="userSpaceOnUse"
-            x1="0"
-            x2="1"
-            y1="0"
-            y2="0"
-          >
-            <stop offset="0" stop-color="var(--logo-color-500)" />
-            <stop offset="1" stop-color="var(--logo-color-300)" />
-          </linearGradient>
-          <linearGradient
-            id="LinearGradient_6"
-            gradientTransform="matrix(-241.23 357.206 -357.206 -241.23 754.054 449.312)"
-            gradientUnits="userSpaceOnUse"
-            x1="0"
-            x2="1"
-            y1="0"
-            y2="0"
-          >
-            <stop offset="0" stop-color="var(--logo-color-300)" />
-            <stop offset="1" stop-color="var(--logo-color-500)" />
-          </linearGradient>
-          <linearGradient
-            id="LinearGradient_7"
-            gradientTransform="matrix(125.978 210.065 -210.065 125.978 596.433 613.665)"
-            gradientUnits="userSpaceOnUse"
-            x1="0"
-            x2="1"
-            y1="0"
-            y2="0"
-          >
-            <stop offset="0" stop-color="var(--logo-color-700)" />
-            <stop offset="1" stop-color="var(--logo-color-600)" />
-          </linearGradient>
-        </defs>
-      </svg>
-  `;
+    width="100%"
+    height="100%"
+    viewBox="0 0 1024 1024"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M58.187 261.514 489.751 506.067C497.23 510.305 506.385 510.305 513.865 506.067L945.428 261.514C962.457 251.865 961.814 227.117 944.308 218.364L512.744 2.582C505.86 -0.86 497.756 -0.86 490.871 2.582L59.307 218.364C41.801 227.117 41.159 251.865 58.187 261.514Z"
+      fill="${primaryColor}"
+    />
+    <path
+      d="M477.352 504.93V974.794C477.352 993.514 497.526 1005.293 513.829 996.091L974.164 736.254C981.846 731.918 986.598 723.78 986.598 714.957V398.477C986.598 384.971 975.649 374.022 962.143 374.022 948.636 374.022 937.687 384.971 937.687 398.477V714.957L950.121 693.661 489.787 953.497 526.263 974.794V504.93C526.263 491.423 515.314 480.474 501.808 480.474 488.301 480.474 477.352 491.423 477.352 504.93Z"
+      fill="${primaryColor}"
+    />
+    <path
+      d="M514.422 953.843 82.858 694.006 94.699 714.957V254.623C94.699 241.116 83.75 230.167 70.244 230.167 56.738 230.167 45.789 241.116 45.789 254.623V714.957C45.789 723.534 50.282 731.484 57.63 735.908L489.194 995.745C500.764 1002.712 515.792 998.979 522.759 987.408 529.725 975.837 525.993 960.81 514.422 953.843Z"
+      fill="${primaryColor}"
+    />
+    <path
+      d="M172.745 448.218 316.6 534.531C328.182 541.48 343.204 537.725 350.152 526.143 357.101 514.562 353.346 499.54 341.764 492.591L197.91 406.278C186.328 399.329 171.306 403.085 164.357 414.666 157.408 426.248 161.164 441.27 172.745 448.218Z"
+      fill="${primaryColor}"
+    />
+  </svg>`;
 
   return logoSvg;
 }

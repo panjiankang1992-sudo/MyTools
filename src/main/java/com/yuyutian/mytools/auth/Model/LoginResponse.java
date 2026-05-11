@@ -21,11 +21,20 @@ public class LoginResponse {
     /** 用户名 */
     private String username;
 
+    /** 昵称 */
+    private String nickname;
+
+    /** 头像URL */
+    private String avatar;
+
     /** 用户角色 */
     private String role;
 
     /** JWT访问令牌 */
     private String accessToken;
+
+    /** 刷新令牌 */
+    private String refreshToken;
 
     /** 令牌过期时间（秒） */
     private Long expiresIn;

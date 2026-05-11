@@ -92,6 +92,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 3. 合入前需确保代码可编译通过
 4. 合入后删除已合并的功能分支
 
+## 框架参考文档
+
+**SoybeanAdmin 框架指南**: `doc/soybean-admin-guide.md`
+
+此文档总结了 [SoybeanAdmin 官方文档](https://docs.soybeanjs.cn/zh/) 的核心内容，包括：
+- 环境变量配置说明
+- 请求封装机制
+- API 调用规范
+- 常见问题解决方案
+- 代码命名规范
+
+**重要**: 前端问题排查和方案设计应优先参考此文档。
+
 ## 常用命令
 
 ### 后端 (Maven)

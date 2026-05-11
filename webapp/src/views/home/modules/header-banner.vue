@@ -13,6 +13,16 @@ const authStore = useAuthStore();
 
 const gap = computed(() => (appStore.isMobile ? 0 : 16));
 
+// 显示名称：优先使用昵称，其次使用用户名
+const displayName = computed(() => {
+  return authStore.userInfo.nickname || authStore.userInfo.username || '用户';
+});
+
+// 显示头像：优先使用用户头像，其次使用默认头像
+const avatarSrc = computed(() => {
+  return authStore.userInfo.avatar || '/favicon.svg';
+});
+
 interface StatisticData {
   id: number;
   label: string;
@@ -44,11 +54,11 @@ const statisticData = computed<StatisticData[]>(() => [
       <NGi span="24 s:24 m:18">
         <div class="flex-y-center">
           <div class="size-72px shrink-0 overflow-hidden rd-1/2">
-            <img src="@/assets/imgs/soybean.jpg" class="size-full" />
+            <img :src="avatarSrc" class="size-full" @error="(e) => { (e.target as HTMLImageElement).src = '/favicon.svg'; }" />
           </div>
           <div class="pl-12px">
             <h3 class="text-18px font-semibold">
-              {{ $t('page.home.greeting', { userName: authStore.userInfo.username }) }}
+              {{ $t('page.home.greeting', { userName: displayName }) }}
             </h3>
             <p class="text-#999 leading-30px">{{ $t('page.home.weatherDesc') }}</p>
           </div>

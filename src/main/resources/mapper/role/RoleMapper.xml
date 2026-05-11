@@ -6,20 +6,54 @@
     <resultMap id="RoleResultMap" type="com.yuyutian.mytools.role.model.Role">
         <id column="id" property="id"/>
         <result column="role_name" property="roleName"/>
+        <result column="role_code" property="roleCode"/>
         <result column="description" property="description"/>
+        <result column="status" property="status"/>
         <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
     </resultMap>
 
+    <select id="findById" resultMap="RoleResultMap">
+        SELECT id, role_name, role_code, description, status, create_time, update_time FROM t_role WHERE id = #{id}
+    </select>
+
     <select id="findByRoleName" resultMap="RoleResultMap">
-        SELECT id, role_name, description, create_time FROM t_role WHERE role_name = #{roleName}
+        SELECT id, role_name, role_code, description, status, create_time, update_time FROM t_role WHERE role_name = #{roleName}
+    </select>
+
+    <select id="findByRoleCode" resultMap="RoleResultMap">
+        SELECT id, role_name, role_code, description, status, create_time, update_time FROM t_role WHERE role_code = #{roleCode}
     </select>
 
     <select id="findDefaultUserRole" resultMap="RoleResultMap">
-        SELECT id, role_name, description, create_time FROM t_role WHERE role_name = 'USER'
+        SELECT id, role_name, role_code, description, status, create_time, update_time FROM t_role WHERE role_name = 'USER'
     </select>
 
     <select id="findAll" resultMap="RoleResultMap">
-        SELECT id, role_name, description, create_time FROM t_role ORDER BY create_time DESC
+        SELECT id, role_name, role_code, description, status, create_time, update_time FROM t_role ORDER BY create_time DESC
     </select>
+
+    <select id="countByRoleId" resultType="int">
+        SELECT COUNT(*) FROM t_user WHERE role_id = #{roleId}
+    </select>
+
+    <insert id="insert" parameterType="com.yuyutian.mytools.role.model.Role">
+        INSERT INTO t_role (id, role_name, role_code, description, status, create_time, update_time)
+        VALUES (#{id}, #{roleName}, #{roleCode}, #{description}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update" parameterType="com.yuyutian.mytools.role.model.Role">
+        UPDATE t_role
+        SET role_name = #{roleName},
+            role_code = #{roleCode},
+            description = #{description},
+            status = #{status},
+            update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_role WHERE id = #{id}
+    </delete>
 
 </mapper>

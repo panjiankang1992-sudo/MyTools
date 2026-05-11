@@ -146,7 +146,9 @@ public class TokenManagementServiceImpl implements TokenManagementService {
 
     @Override
     public Token getTokenByAccessToken(String accessToken) {
-        return tokenMapper.findByAccessToken(accessToken);
+        Token token = tokenMapper.findByAccessToken(accessToken);
+        log.info("findByAccessToken({}) = {}", accessToken, token);
+        return token;
     }
 
     /**

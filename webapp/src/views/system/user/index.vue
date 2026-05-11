@@ -82,6 +82,32 @@ function resetForm() {
 
 const columns = [
   { title: '序号', key: 'index', width: 60, render: (_: any, index: number) => index + 1 },
+  {
+    title: '头像',
+    key: 'avatar',
+    width: 70,
+    render: (row: Api.User.UserItem) => {
+      if (row.avatar) {
+        return h('img', {
+          src: row.avatar,
+          style: 'width: 40px; height: 40px; border-radius: 50%; object-fit: cover;',
+          onError: (e: Event) => {
+            const img = e.target as HTMLImageElement;
+            img.style.display = 'none';
+          }
+        });
+      }
+      return h('div', {
+        style: 'width: 40px; height: 40px; border-radius: 50%; background: #646cff; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: bold;'
+      }, row.nickname?.charAt(0) || row.username?.charAt(0) || '?');
+    }
+  },
+  {
+    title: '昵称',
+    key: 'nickname',
+    width: 100,
+    render: (row: Api.User.UserItem) => row.nickname || '-'
+  },
   { title: '用户名', key: 'username', width: 120 },
   { title: '邮箱', key: 'email', width: 180 },
   { title: '手机', key: 'phone', width: 130 },
