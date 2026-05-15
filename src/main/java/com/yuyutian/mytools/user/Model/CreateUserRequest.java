@@ -22,10 +22,11 @@ public class CreateUserRequest {
     @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "用户名只能包含字母、数字和下划线")
     private String username;
 
-    /** 密码（至少8位，大小写字母和数字） */
+    /** 密码：6-20位，无异常字符 */
     @NotBlank(message = "密码不能为空")
-    @Size(min = 8, message = "密码至少8位")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$", message = "密码必须包含大小写字母和数字")
+    @Size(min = 6, max = 20, message = "密码长度为6-20位")
+    @Pattern(regexp = "^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]+$",
+            message = "密码不能包含异常字符")
     private String password;
 
     /** 昵称 */

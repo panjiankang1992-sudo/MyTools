@@ -12,6 +12,7 @@ import com.yuyutian.mytools.user.mapper.UserMapper;
 import com.yuyutian.mytools.user.mapper.RoleFinderMapper;
 import com.yuyutian.mytools.user.mapper.UserRoleMapper;
 import com.yuyutian.mytools.user.service.UserService;
+import com.yuyutian.mytools.utils.AvatarUtils;
 import com.yuyutian.mytools.utils.PasswordUtils;
 import com.yuyutian.mytools.utils.SnowflakeIdGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -70,7 +71,9 @@ public class UserServiceImpl implements UserService {
         response.setUserId(user.getId());
         response.setUsername(user.getUsername());
         response.setNickname(user.getNickname());
-        response.setAvatar(user.getAvatar());
+        response.setAvatar(user.getAvatar() != null && !user.getAvatar().isEmpty()
+            ? user.getAvatar()
+            : AvatarUtils.generateAvatar(user.getNickname(), user.getUsername()));
         response.setEmail(user.getEmail());
         response.setPhone(user.getPhone());
         response.setGender(user.getGender());
@@ -281,7 +284,9 @@ public class UserServiceImpl implements UserService {
         response.setUserId(user.getId());
         response.setUsername(user.getUsername());
         response.setNickname(user.getNickname());
-        response.setAvatar(user.getAvatar());
+        response.setAvatar(user.getAvatar() != null && !user.getAvatar().isEmpty()
+            ? user.getAvatar()
+            : AvatarUtils.generateAvatar(user.getNickname(), user.getUsername()));
         response.setEmail(user.getEmail());
         response.setPhone(user.getPhone());
         response.setGender(user.getGender());
@@ -391,6 +396,13 @@ public class UserServiceImpl implements UserService {
         updateUser.setEmail(request.getEmail());
         updateUser.setPhone(request.getPhone());
         userMapper.updateProfile(updateUser);
+
+        // 如果提供了新密码，则更新密码
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            String encodedPassword = PasswordUtils.encode(request.getPassword());
+            userMapper.updatePassword(targetUserId, encodedPassword);
+            log.info("管理员{}重置了用户{}的密码", adminUserId, targetUserId);
+        }
 
         log.info("管理员{}更新了用户{}", adminUserId, targetUserId);
 

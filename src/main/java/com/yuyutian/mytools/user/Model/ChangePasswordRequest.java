@@ -2,6 +2,7 @@ package com.yuyutian.mytools.user.Model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,9 +22,10 @@ public class ChangePasswordRequest {
     @NotBlank(message = "旧密码不能为空")
     private String oldPassword;
 
-    /** 新密码（至少8位，必须包含大小写字母和数字） */
+    /** 新密码：6-20位，无异常字符 */
     @NotBlank(message = "新密码不能为空")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$",
-            message = "新密码至少8位，必须包含大小写字母和数字")
+    @Size(min = 6, max = 20, message = "密码长度为6-20位")
+    @Pattern(regexp = "^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]+$",
+            message = "密码不能包含异常字符")
     private String newPassword;
 }

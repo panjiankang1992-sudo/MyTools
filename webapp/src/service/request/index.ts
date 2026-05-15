@@ -10,12 +10,30 @@ import type { RequestInstanceState } from './type';
 const isHttpProxy = import.meta.env.DEV && import.meta.env.VITE_HTTP_PROXY === 'Y';
 const { baseURL, otherBaseURL } = getServiceBaseURL(import.meta.env, isHttpProxy);
 
+/** 大整数精度解析器：超过 Number.MAX_SAFE_INTEGER 的数字转为字符串 */
+function safeJsonReviver(_key: string, value: unknown): unknown {
+  if (
+    typeof value === 'number' &&
+    !Number.isFinite(value) ||
+    (typeof value === 'number' && Math.abs(value) > Number.MAX_SAFE_INTEGER)
+  ) {
+    return String(value);
+  }
+  return value;
+}
+
+function safeParseJson(text: string): unknown {
+  return JSON.parse(text, safeJsonReviver);
+}
+
 export const request = createFlatRequest(
   {
     baseURL,
     headers: {
       apifoxToken: 'XL299LiMEDZ0H5h3A29PxwQXdMJqWyY2'
-    }
+    },
+    // 大整数精度保护：使用 parseReviver 在 JSON.parse 阶段将超过 MAX_SAFE_INTEGER 的数字转为字符串
+    parseReviver: safeJsonReviver
   },
   {
     defaultState: {
@@ -104,7 +122,13 @@ export const request = createFlatRequest(
       const { fieldErrors } = response.data || {};
       if (fieldErrors && typeof fieldErrors === 'object') {
         showFieldErrors(fieldErrors);
-        showErrorMsg(request.state, $t('common.validation_failed') || '参数校验失败');
+        const fieldErrorMsgs = Object.entries(fieldErrors)
+          .map(([, msg]) => msg)
+          .filter(Boolean);
+        const errorMsg = fieldErrorMsgs.length > 0
+          ? fieldErrorMsgs.join('；')
+          : ($t('common.validation_failed') || '参数校验失败');
+        showErrorMsg(request.state, errorMsg);
         return null;
       }
 

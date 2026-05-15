@@ -2,7 +2,7 @@ declare namespace Api {
   namespace Token {
     /** Token 项 */
     interface TokenItem {
-      id: number;
+      id: string;
       tokenName: string;
       tokenPrefix: string;
       status: string;
@@ -17,7 +17,7 @@ declare namespace Api {
 
     /** Token 创建响应 */
     interface TokenCreateResponse {
-      id: number;
+      id: string;
       tokenName: string;
       tokenValue: string;
       tokenPrefix: string;

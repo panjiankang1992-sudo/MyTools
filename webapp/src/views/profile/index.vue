@@ -98,7 +98,7 @@ async function handleAvatarChange(event: Event) {
   if (input.files && input.files[0]) {
     const file = input.files[0];
     try {
-      const dataUrl = await readFileAsDataURL(file);
+      const dataUrl = await compressImage(file, 200, 0.8);
       avatarPreview.value = dataUrl;
       profileForm.avatar = dataUrl;
       showAvatarModal.value = true;
@@ -109,10 +109,36 @@ async function handleAvatarChange(event: Event) {
   input.value = '';
 }
 
-function readFileAsDataURL(file: File): Promise<string> {
+/**
+ * 压缩图片：限制最大尺寸，按比例缩放后转为 JPEG base64
+ */
+function compressImage(file: File, maxSize: number, quality: number): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = (e) => resolve(e.target?.result as string);
+    reader.onload = (e) => {
+      const src = e.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxSize || height > maxSize) {
+          if (width > height) {
+            height = Math.round((height * maxSize) / width);
+            width = maxSize;
+          } else {
+            width = Math.round((width * maxSize) / height);
+            height = maxSize;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = src;
+    };
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
@@ -132,11 +158,6 @@ function cancelAvatar() {
 
 // 保存个人信息
 async function saveProfile() {
-  console.log('[Profile] saveProfile start', {
-    avatar: profileForm.avatar ? `data:${profileForm.avatar.substring(5, 50)}` : 'null',
-    hasOriginal: !!originalForm.avatar,
-    formAvatar: profileForm.avatar === originalForm.avatar
-  });
   try {
     startSave();
     const profileData: any = {

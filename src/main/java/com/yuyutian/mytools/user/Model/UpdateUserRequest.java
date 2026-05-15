@@ -36,4 +36,7 @@ public class UpdateUserRequest {
 
     /** 状态：ACTIVE / DISABLED */
     private String status;
+
+    /** 密码（管理员重置密码用） */
+    private String password;
 }

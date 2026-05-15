@@ -19,7 +19,7 @@ export function fetchCreateToken(data: Api.Token.TokenCreateRequest) {
 }
 
 /** 获取 Token 详情 */
-export function fetchGetTokenDetail(id: number) {
+export function fetchGetTokenDetail(id: string) {
   return request<Api.Token.TokenItem>({
     url: `/api/tokens/${id}`,
     method: 'get'
@@ -27,7 +27,7 @@ export function fetchGetTokenDetail(id: number) {
 }
 
 /** 更新 Token 状态 */
-export function fetchUpdateTokenStatus(id: number, status: string) {
+export function fetchUpdateTokenStatus(id: string, status: string) {
   return request({
     url: `/api/tokens/${id}/status`,
     method: 'put',
@@ -36,7 +36,7 @@ export function fetchUpdateTokenStatus(id: number, status: string) {
 }
 
 /** 删除 Token */
-export function fetchDeleteToken(id: number) {
+export function fetchDeleteToken(id: string) {
   return request({
     url: `/api/tokens/${id}`,
     method: 'delete'
