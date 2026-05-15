@@ -185,6 +185,15 @@ src/main/java/com/yuyutian/mytools/
 - 错误码格式: `模块_序号` (如 `USER_001`, `AUTH_002`)
 - 错误码统一在 `common/ErrorCode.java` 中管理
 
+### ID 类型规范
+- **所有实体 ID（尤其后端 Snowflake/分布式 ID）一律在前端定义为 `string`**，不得使用 `number`
+- **原因**: JavaScript `Number.MAX_SAFE_INTEGER` = 2^53-1，而后端 Snowflake ID 为 19 位（可超过此范围），解析为 number 会导致精度丢失
+- **实践**:
+  - TypeScript 接口中 ID 字段使用 `string` 类型（如 `id: string`）
+  - API 函数参数使用 `string` 类型
+  - URL 路径参数（如 `/api/tokens/${id}`）JavaScript 会自动将 string 转为 number 参与 URL 拼接，不影响后端解析
+  - 如需参与数值运算，显式转换: `Number(id)`
+
 ### 提交前检查
 - 不允许出现任何 Lint 警告或 IDE 规范告警
 - 所有编译警告必须修复后再提交
