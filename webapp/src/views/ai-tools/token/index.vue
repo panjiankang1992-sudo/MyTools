@@ -38,11 +38,11 @@ const validateModal = reactive({
 
 const columns = [
   { title: '序号', key: 'index', width: 70, render: (_: any, index: number) => (pagination.page - 1) * pagination.pageSize + index + 1 },
-  { title: 'Token 名称', key: 'tokenName', width: 200, render: (row: Api.Token.TokenItem) => row.tokenName || '-' },
-  { title: 'Token', key: 'tokenPrefix', width: 220, render: (row: Api.Token.TokenItem) => `${row.tokenPrefix || '****'}****` },
+  { title: 'Token 名称', key: 'tokenName', width: 130, render: (row: Api.Token.TokenItem) => row.tokenName || '-' },
+  { title: 'Token', key: 'tokenPrefix', width: 160, render: (row: Api.Token.TokenItem) => `${row.tokenPrefix || '****'}****` },
   { title: '状态', key: 'status', width: 80, render: (row: Api.Token.TokenItem) => h(NTag, { type: row.status === 'ACTIVE' ? 'success' : 'warning', size: 'small' }, () => row.status === 'ACTIVE' ? '正常' : '禁用') },
-  { title: '创建时间', key: 'createdTime', width: 180 },
-  { title: '最后使用时间', key: 'lastUsedTime', width: 180, render: (row: Api.Token.TokenItem) => row.lastUsedTime || '-' },
+  { title: '创建时间', key: 'createdTime', width: 160 },
+  { title: '最后使用时间', key: 'lastUsedTime', width: 160, render: (row: Api.Token.TokenItem) => row.lastUsedTime || '-' },
   {
     title: '操作',
     key: 'actions',
@@ -251,7 +251,7 @@ loadData();
             <NButton @click="loadData">刷新</NButton>
             <NButton @click="openValidateModal">校验 Token</NButton>
           </NSpace>
-          <NDataTable :columns="columns" :data="data" :loading="loading" :pagination="false" />
+          <NDataTable :columns="columns" :data="data" :loading="loading" :pagination="false" scroll-x="1130" />
           <NSpace justify="end" style="margin-top: 12px">
             <NPagination
               v-model:page="pagination.page"
