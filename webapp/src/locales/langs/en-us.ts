@@ -241,7 +241,8 @@ const local: App.I18n.Schema = {
     localfile: 'Local File',
     'localfile_multimedia': 'Multimedia',
     'localfile_ebook': 'Ebook',
-    'localfile_large-media': 'Large Media'
+    'localfile_large-media': 'Large Media',
+    profile: 'Profile'
   },
   page: {
     login: {

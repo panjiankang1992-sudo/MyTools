@@ -110,15 +110,15 @@
     <update id="updateProfile" parameterType="com.yuyutian.mytools.user.Model.User">
         UPDATE t_user
         <set>
-            <if test="nickname != null">nickname = #{nickname},</if>
-            <if test="avatar != null">avatar = #{avatar},</if>
-            <if test="email != null">email = #{email},</if>
-            <if test="phone != null">phone = #{phone},</if>
-            <if test="gender != null">gender = #{gender},</if>
-            <if test="birthday != null">birthday = #{birthday},</if>
-            <if test="address != null">address = #{address},</if>
-            <if test="hobbies != null">hobbies = #{hobbies},</if>
-            <if test="signature != null">signature = #{signature},</if>
+            nickname = #{nickname},
+            avatar = #{avatar},
+            email = #{email},
+            phone = #{phone},
+            gender = #{gender},
+            birthday = #{birthday},
+            address = #{address},
+            hobbies = #{hobbies},
+            signature = #{signature},
             update_time = CURRENT_TIMESTAMP
         </set>
         WHERE id = #{id}

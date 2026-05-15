@@ -27,7 +27,7 @@ export function fetchGetTokenDetail(id: number) {
 }
 
 /** 更新 Token 状态 */
-export function fetchUpdateTokenStatus(id: number, status: number) {
+export function fetchUpdateTokenStatus(id: number, status: string) {
   return request({
     url: `/api/tokens/${id}/status`,
     method: 'put',

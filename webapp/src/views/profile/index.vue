@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { useAuthStore } from '@/store/modules/auth';
 import { fetchChangePassword, fetchUpdateProfile } from '@/service/api/user';
 import { useLoading } from '@sa/hooks';
@@ -42,26 +42,50 @@ const genderOptions = [
   { label: '女', value: 2 }
 ];
 
-// 个人信息表单
+// 个人信息表单（初始为空，等 userInfo 加载后同步）
 const profileForm = reactive({
-  nickname: authStore.userInfo.nickname || '',
-  avatar: authStore.userInfo.avatar || '',
-  email: authStore.userInfo.email || '',
-  phone: authStore.userInfo.phone || '',
-  gender: authStore.userInfo.gender || 0,
-  birthday: authStore.userInfo.birthday ? new Date(authStore.userInfo.birthday).getTime() : null,
-  address: authStore.userInfo.address || '',
-  hobbies: authStore.userInfo.hobbies || '',
-  signature: authStore.userInfo.signature || ''
+  nickname: '',
+  avatar: '',
+  email: '',
+  phone: '',
+  gender: 0,
+  birthday: null as number | null,
+  address: '',
+  hobbies: '',
+  signature: ''
 });
 
 // 原始值用于比较
 const originalForm = reactive({ ...profileForm });
 
+// 监听 authStore.userInfo.id，等数据加载完成后同步到表单
+watch(
+  () => authStore.userInfo.id,
+  (userId) => {
+    if (userId) {
+      const u = authStore.userInfo;
+      profileForm.nickname = u.nickname || '';
+      profileForm.avatar = u.avatar || '';
+      profileForm.email = u.email || '';
+      profileForm.phone = u.phone || '';
+      profileForm.gender = u.gender || 0;
+      profileForm.birthday = u.birthday ? new Date(u.birthday).getTime() : null;
+      profileForm.address = u.address || '';
+      profileForm.hobbies = u.hobbies || '';
+      profileForm.signature = u.signature || '';
+      Object.assign(originalForm, profileForm);
+    }
+  },
+  { immediate: true }
+);
+
 // 是否有变更
 const hasChanges = computed(() => {
   return JSON.stringify(profileForm) !== JSON.stringify(originalForm);
 });
+
+// 用户数据是否已加载
+const userDataLoaded = computed(() => Boolean(authStore.userInfo.id));
 
 // 打开头像选择
 function openAvatarSelect() {
@@ -69,19 +93,29 @@ function openAvatarSelect() {
 }
 
 // 处理头像文件选择
-function handleAvatarChange(event: Event) {
+async function handleAvatarChange(event: Event) {
   const input = event.target as HTMLInputElement;
   if (input.files && input.files[0]) {
     const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      avatarPreview.value = e.target?.result as string;
-      profileForm.avatar = avatarPreview.value;
+    try {
+      const dataUrl = await readFileAsDataURL(file);
+      avatarPreview.value = dataUrl;
+      profileForm.avatar = dataUrl;
       showAvatarModal.value = true;
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      message.error('头像文件读取失败');
+    }
   }
   input.value = '';
+}
+
+function readFileAsDataURL(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target?.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 // 确认头像裁剪/选择
@@ -98,9 +132,14 @@ function cancelAvatar() {
 
 // 保存个人信息
 async function saveProfile() {
+  console.log('[Profile] saveProfile start', {
+    avatar: profileForm.avatar ? `data:${profileForm.avatar.substring(5, 50)}` : 'null',
+    hasOriginal: !!originalForm.avatar,
+    formAvatar: profileForm.avatar === originalForm.avatar
+  });
   try {
     startSave();
-    const data: any = {
+    const profileData: any = {
       nickname: profileForm.nickname || null,
       avatar: profileForm.avatar || null,
       email: profileForm.email || null,
@@ -111,8 +150,8 @@ async function saveProfile() {
       hobbies: profileForm.hobbies || null,
       signature: profileForm.signature || null
     };
-    const result = await fetchUpdateProfile(data);
-    if (result) {
+    const { data } = await fetchUpdateProfile(profileData);
+    if (data) {
       // 更新本地 store
       Object.assign(authStore.userInfo, {
         nickname: profileForm.nickname,
@@ -125,7 +164,17 @@ async function saveProfile() {
         hobbies: profileForm.hobbies,
         signature: profileForm.signature
       });
-      Object.assign(originalForm, profileForm);
+      // 保存成功后同步 originalForm（确保 hasChanges 正确）
+      const u = authStore.userInfo;
+      originalForm.nickname = u.nickname || '';
+      originalForm.avatar = u.avatar || '';
+      originalForm.email = u.email || '';
+      originalForm.phone = u.phone || '';
+      originalForm.gender = u.gender || 0;
+      originalForm.birthday = u.birthday ? new Date(u.birthday).getTime() : null;
+      originalForm.address = u.address || '';
+      originalForm.hobbies = u.hobbies || '';
+      originalForm.signature = u.signature || '';
       isEditing.value = false;
       message.success('保存成功');
     }
@@ -168,12 +217,8 @@ async function handleChangePassword() {
     message.error('请输入新密码');
     return;
   }
-  if (passwordForm.newPassword.length < 8) {
-    message.error('新密码至少8位');
-    return;
-  }
-  if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(passwordForm.newPassword)) {
-    message.error('新密码必须包含大小写字母和数字');
+  if (passwordForm.newPassword.length < 6 || passwordForm.newPassword.length > 20) {
+    message.error('新密码长度为6-20位');
     return;
   }
   if (passwordForm.newPassword !== confirmPassword.value) {
@@ -201,7 +246,7 @@ async function handleChangePassword() {
 <template>
   <div class="profile-container p-6">
     <div class="max-w-4xl mx-auto">
-      <NCard :bordered="false" class="mb-4">
+      <NCard v-if="userDataLoaded" :bordered="false" class="mb-4">
         <template #header>
           <div class="flex justify-between items-center">
             <span class="text-lg font-semibold">个人信息</span>
@@ -240,7 +285,7 @@ async function handleChangePassword() {
               ref="avatarInputRef"
               type="file"
               accept="image/*"
-              class="hidden"
+              style="position:absolute;width:0;height:0;opacity:0;overflow:hidden;"
               @change="handleAvatarChange"
             />
             <NButton
@@ -362,7 +407,7 @@ async function handleChangePassword() {
           <NInput
             v-model:value="passwordForm.newPassword"
             type="password"
-            placeholder="至少8位，包含大小写字母和数字"
+            placeholder="6-20位密码"
             show-password-on="click"
           />
         </NFormItem>

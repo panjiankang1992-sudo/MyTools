@@ -238,7 +238,8 @@ const local: App.I18n.Schema = {
     localfile: '本地文件',
     'localfile_multimedia': '多媒体',
     'localfile_ebook': '电子书',
-    'localfile_large-media': '大文件多媒体'
+    'localfile_large-media': '大文件多媒体',
+    profile: '个人信息'
   },
   page: {
     login: {
@@ -342,7 +343,7 @@ const local: App.I18n.Schema = {
     },
     pwd: {
       required: '请输入密码',
-      invalid: '密码至少8位，必须包含大小写字母和数字'
+      invalid: '密码长度为6-20位，不能包含异常字符'
     },
     confirmPwd: {
       required: '请输入确认密码',

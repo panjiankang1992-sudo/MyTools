@@ -147,7 +147,8 @@ export const generatedRoutes: GeneratedRoute[] = [
     component: 'layout.base$view.profile',
     meta: {
       title: 'profile',
-      i18nKey: 'route.profile'
+      i18nKey: 'route.profile',
+      hideInMenu: true
     }
   },
   {

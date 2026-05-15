@@ -24,8 +24,8 @@ public class UpdateUserInfoRequest {
     @Size(max = 50, message = "昵称最长50位")
     private String nickname;
 
-    /** 头像URL */
-    @Size(max = 500, message = "头像URL最长500位")
+    /** 头像URL（base64图片数据，允许较大长度） */
+    @Size(max = 500000, message = "头像数据过长")
     private String avatar;
 
     /** 新邮箱（可选，有效邮箱格式） */

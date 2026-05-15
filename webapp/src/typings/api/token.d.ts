@@ -38,6 +38,7 @@ declare namespace Api {
       valid: boolean;
       userId: number | null;
       username: string | null;
+      message?: string;
     }
   }
 }

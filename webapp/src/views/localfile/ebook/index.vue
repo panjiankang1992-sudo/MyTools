@@ -50,8 +50,8 @@ async function handleScan() {
 
   try {
     startLoading();
-    const result = await fetchScanDirectory(directory.value.id, true);
-    message.success(`扫描完成：共扫描 ${result.scannedCount} 个文件，新增 ${result.newCount} 个`);
+    const { data } = await fetchScanDirectory(directory.value.id, true);
+    message.success(`扫描完成：共扫描 ${data?.scannedCount || 0} 个文件，新增 ${data?.newCount || 0} 个`);
   } catch (error) {
     message.error('扫描失败');
     console.error(error);

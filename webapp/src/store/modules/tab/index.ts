@@ -40,7 +40,19 @@ export const useTabStore = defineStore(SetupStoreId.Tab, () => {
   }
 
   /** Get all tabs */
-  const allTabs = computed(() => getAllTabs(tabs.value, homeTab.value));
+  const allTabs = computed(() => {
+    const all = getAllTabs(tabs.value, homeTab.value);
+    // 过滤掉登录页和 not-found 页（最终防线）
+    return all.filter(tab => {
+      const id = tab.id || '';
+      const routeKey = tab.routeKey || '';
+      return !(
+        id.startsWith('/login') ||
+        routeKey === 'login' ||
+        routeKey === 'not-found'
+      );
+    });
+  });
 
   /** Active tab id */
   const activeTabId = ref<string>('');
@@ -64,7 +76,14 @@ export const useTabStore = defineStore(SetupStoreId.Tab, () => {
 
     if (themeStore.tab.cache && storageTabs) {
       const extractedTabs = extractTabsByAllRoutes(router, storageTabs);
-      tabs.value = updateTabsByI18nKey(extractedTabs);
+      // 过滤掉 constant: true 的路由（如登录页）
+      const filteredTabs = extractedTabs.filter(tab => {
+        const routeName = String(tab.routeKey || '');
+        // 过滤掉登录页和 not-found 页
+        if (routeName === 'login' || routeName === 'not-found') return false;
+        return true;
+      });
+      tabs.value = updateTabsByI18nKey(filteredTabs);
     }
 
     addTab(currentRoute);
@@ -77,6 +96,13 @@ export const useTabStore = defineStore(SetupStoreId.Tab, () => {
    * @param active Whether to activate the added tab
    */
   function addTab(route: App.Global.TabRoute, active = true) {
+    // 跳过 constant: true 的路由（如登录页）和已激活的标签页
+    if (route.meta?.constant) return;
+
+    // 跳过登录页（多种路径形式）
+    const routeName = String(route.name || '');
+    if (routeName === 'login' || route.name === 'not-found') return;
+
     const tab = getTabByRoute(route);
 
     const isHomeTab = tab.id === homeTab.value?.id;

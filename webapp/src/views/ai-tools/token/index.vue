@@ -57,19 +57,11 @@ const columns = [
 async function loadData() {
   startLoading();
   try {
-    const result = await fetchGetTokenList({ page: pagination.page, pageSize: pagination.pageSize });
-    console.log('Token result:', result);
-    console.log('Token result keys:', Object.keys(result));
-    console.log('Token result.data:', result?.data);
-    console.log('Token result.data?.list:', result?.data?.list);
+    const { data: res } = await fetchGetTokenList({ page: pagination.page, pageSize: pagination.pageSize });
+    // createFlatRequest returns { data, error, response }, data is {list, total}
     data.length = 0;
-    // 处理多种可能的响应结构
-    const list = result?.data?.list || result?.list || [];
-    // Debug: log each item's status
-    list.forEach((item: any, idx: number) => {
-      console.log(`Token[${idx}] status:`, item.status, 'type:', typeof item.status);
-    });
-    pagination.total = result?.data?.total || result?.total || 0;
+    const list = res?.list || [];
+    pagination.total = res?.total || 0;
     data.push(...list);
   } finally {
     endLoading();
@@ -117,22 +109,17 @@ async function handleValidateToken() {
   }
   validateModal.validating = true;
   try {
-    const result = await fetchValidateToken(validateModal.tokenValue.trim());
-    console.log('[Token校验] raw result:', result);
-    console.log('[Token校验] result type:', typeof result);
-    console.log('[Token校验] result?.valid:', result?.valid);
-    console.log('[Token校验] result?.message:', result?.message);
-    // result 为 null 表示请求失败（已在 service 层处理错误提示）
-    if (result === null) {
+    const { data } = await fetchValidateToken(validateModal.tokenValue.trim());
+    // createFlatRequest returns { data, error, response }
+    if (data === null) {
       validateModal.result = { valid: false, message: 'Token 验证请求失败' };
-    } else if (result?.valid === true) {
+    } else if (data?.valid === true) {
       validateModal.result = { valid: true, message: 'Token 有效' };
-    } else if (result?.valid === false) {
-      validateModal.result = { valid: false, message: result?.message || 'Token 无效或已过期' };
+    } else if (data?.valid === false) {
+      validateModal.result = { valid: false, message: data?.message || 'Token 无效或已过期' };
     } else {
-      // 调试：打印更多详情
-      console.error('[Token校验] unexpected result structure:', JSON.stringify(result));
-      validateModal.result = { valid: false, message: `Token 验证失败(${typeof result})` };
+      console.error('[Token校验] unexpected result structure:', JSON.stringify(data));
+      validateModal.result = { valid: false, message: `Token 验证失败(${typeof data})` };
     }
   } catch (e) {
     console.error('[Token校验] exception:', e);
@@ -155,10 +142,9 @@ async function handleCreateSubmit() {
   }
   createModal.creating = true;
   try {
-    const result = await fetchCreateToken({ tokenName: createModal.tokenName.trim() });
-    console.log('Create result:', result);
-    // 处理可能的响应结构
-    const tokenValue = result.tokenValue || (result as any).data?.tokenValue || '';
+    const { data } = await fetchCreateToken({ tokenName: createModal.tokenName.trim() });
+    // createFlatRequest returns { data, error, response }
+    const tokenValue = data?.tokenValue || '';
     createModal.createdToken = tokenValue;
     if (tokenValue) {
       message.success('Token 创建成功！');

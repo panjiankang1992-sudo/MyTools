@@ -9,28 +9,28 @@
         <result column="role_code" property="roleCode"/>
         <result column="description" property="description"/>
         <result column="status" property="status"/>
-        <result column="create_time" property="createTime"/>
-        <result column="update_time" property="updateTime"/>
+        <result column="created_at" property="createTime"/>
+        <result column="updated_at" property="updateTime"/>
     </resultMap>
 
     <select id="findById" resultMap="RoleResultMap">
-        SELECT id, role_name, role_code, description, status, create_time, update_time FROM t_role WHERE id = #{id}
+        SELECT id, role_name, role_code, description, status, created_at, updated_at FROM t_role WHERE id = #{id}
     </select>
 
     <select id="findByRoleName" resultMap="RoleResultMap">
-        SELECT id, role_name, role_code, description, status, create_time, update_time FROM t_role WHERE role_name = #{roleName}
+        SELECT id, role_name, role_code, description, status, created_at, updated_at FROM t_role WHERE role_name = #{roleName}
     </select>
 
     <select id="findByRoleCode" resultMap="RoleResultMap">
-        SELECT id, role_name, role_code, description, status, create_time, update_time FROM t_role WHERE role_code = #{roleCode}
+        SELECT id, role_name, role_code, description, status, created_at, updated_at FROM t_role WHERE role_code = #{roleCode}
     </select>
 
     <select id="findDefaultUserRole" resultMap="RoleResultMap">
-        SELECT id, role_name, role_code, description, status, create_time, update_time FROM t_role WHERE role_name = 'USER'
+        SELECT id, role_name, role_code, description, status, created_at, updated_at FROM t_role WHERE role_name = 'USER'
     </select>
 
     <select id="findAll" resultMap="RoleResultMap">
-        SELECT id, role_name, role_code, description, status, create_time, update_time FROM t_role ORDER BY create_time DESC
+        SELECT id, role_name, role_code, description, status, created_at, updated_at FROM t_role ORDER BY created_at DESC
     </select>
 
     <select id="countByRoleId" resultType="int">
@@ -38,7 +38,7 @@
     </select>
 
     <insert id="insert" parameterType="com.yuyutian.mytools.role.model.Role">
-        INSERT INTO t_role (id, role_name, role_code, description, status, create_time, update_time)
+        INSERT INTO t_role (id, role_name, role_code, description, status, created_at, updated_at)
         VALUES (#{id}, #{roleName}, #{roleCode}, #{description}, #{status}, #{createTime}, #{updateTime})
     </insert>
 
@@ -48,7 +48,7 @@
             role_code = #{roleCode},
             description = #{description},
             status = #{status},
-            update_time = #{updateTime}
+            updated_at = #{updateTime}
         WHERE id = #{id}
     </update>
 

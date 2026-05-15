@@ -138,7 +138,7 @@ public class AuthServiceImpl implements AuthService {
             tokenEntity.setRefreshExpireTime(System.currentTimeMillis() + expiresIn * 1000);
             tokenEntity.setStatus("ACTIVE");
             tokenEntity.setTokenName("注册令牌");
-            tokenEntity.setCreateTime(now);
+            tokenEntity.setCreatedAt(now);
             tokenEntity.setUpdateTime(now);
             tokenMapper.insert(tokenEntity);
             log.info("令牌已保存到数据库: userId={}", userId);
@@ -224,7 +224,7 @@ public class AuthServiceImpl implements AuthService {
             tokenEntity.setRefreshExpireTime(System.currentTimeMillis() + refreshExpiresIn * 1000);
             tokenEntity.setStatus("ACTIVE");
             tokenEntity.setTokenName("登录令牌");
-            tokenEntity.setCreateTime(LocalDateTime.now());
+            tokenEntity.setCreatedAt(LocalDateTime.now());
             tokenEntity.setUpdateTime(LocalDateTime.now());
             tokenMapper.insert(tokenEntity);
             log.info("令牌已保存到数据库: userId={}", user.getId());

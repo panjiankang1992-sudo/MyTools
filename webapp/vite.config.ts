@@ -9,7 +9,7 @@ export default defineConfig(configEnv => {
 
   const buildTime = getBuildTime();
 
-  const enableProxy = configEnv.command === 'serve' && !configEnv.isPreview;
+  const enableProxy = configEnv.command === 'serve' || configEnv.isPreview;
 
   return {
     base: viteEnv.VITE_BASE_URL,
@@ -33,7 +33,7 @@ export default defineConfig(configEnv => {
     },
     server: {
       host: '0.0.0.0',
-      port: 29211,
+      port: 23111,
       open: true,
       proxy: createViteProxy(viteEnv, enableProxy)
     },

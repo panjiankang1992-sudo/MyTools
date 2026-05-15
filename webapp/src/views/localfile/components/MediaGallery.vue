@@ -41,13 +41,13 @@ async function loadFiles() {
 
   try {
     startLoading();
-    const result = await fetchGetFilePage({
+    const { data } = await fetchGetFilePage({
       directoryId: props.directoryId,
       page: page.value,
       pageSize: pageSize.value
     });
-    files.value = result.list || [];
-    total.value = result.total || 0;
+    files.value = data?.list || [];
+    total.value = data?.total || 0;
 
     // 加载语义标签
     await loadSemanticTags();
@@ -63,7 +63,7 @@ async function loadFiles() {
 async function loadSemanticTags() {
   for (const file of files.value) {
     try {
-      const tags = await fetchGetFileTags(file.id);
+      const { data: tags } = await fetchGetFileTags(file.id);
       file.semanticTags = tags || [];
     } catch {
       file.semanticTags = [];
@@ -73,7 +73,7 @@ async function loadSemanticTags() {
 
 async function handlePreview(file: FileItem) {
   try {
-    const blob = await fetchGetFileContent(file.id);
+    const { data: blob } = await fetchGetFileContent(file.id);
     const url = URL.createObjectURL(blob);
     previewFile.value = { ...file, semanticTags: file.semanticTags || [] };
     previewVisible.value = true;
@@ -104,12 +104,12 @@ async function handleRetag(file: FileItem, event?: Event) {
 
   try {
     taggingFileId.value = file.id;
-    const result = await fetchRetagFile(file.id);
-    file.semanticTags = result.tags || [];
+    const { data } = await fetchRetagFile(file.id);
+    file.semanticTags = data?.tags || [];
 
     // 更新预览弹窗中的文件信息
     if (previewFile.value && previewFile.value.id === file.id) {
-      previewFile.value.semanticTags = result.tags || [];
+      previewFile.value.semanticTags = data?.tags || [];
     }
 
     message.success('打标签成功');

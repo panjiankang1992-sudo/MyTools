@@ -39,12 +39,10 @@ const editModal = reactive({
 async function loadData() {
   startLoading();
   try {
-    const result = await fetchGetRoleList();
-    console.log('Role result:', result);
-    // Handle both possible structures - result could be array directly or {data: [...]}
-    const list = Array.isArray(result) ? result : (result?.data || []);
+    const { data: apiData } = await fetchGetRoleList();
+    const roleList = Array.isArray(apiData) ? apiData : [];
     data.length = 0;
-    data.push(...list);
+    data.push(...roleList);
   } finally {
     endLoading();
   }

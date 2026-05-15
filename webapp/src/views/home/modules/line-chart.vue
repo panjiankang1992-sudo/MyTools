@@ -105,13 +105,12 @@ const { domRef, updateOptions } = useEcharts(() => ({
 
 async function loadData() {
   try {
-    const result = await fetchGetLogStatistics({});
-    console.log('[LineChart] statistics result:', result);
+    const { data } = await fetchGetLogStatistics({});
 
-    if (result?.hourlyStats) {
-      const hours = result.hourlyStats.map((item: Api.Log.HourlyStat) => item.hour);
-      const requestCounts = result.hourlyStats.map((item: Api.Log.HourlyStat) => item.count);
-      const successCounts = result.hourlyStats.map((item: Api.Log.HourlyStat) => item.successCount);
+    if (data?.hourlyStats) {
+      const hours = data.hourlyStats.map((item: Api.Log.HourlyStat) => item.hour);
+      const requestCounts = data.hourlyStats.map((item: Api.Log.HourlyStat) => item.count);
+      const successCounts = data.hourlyStats.map((item: Api.Log.HourlyStat) => item.successCount);
 
       updateOptions(opts => {
         opts.xAxis.data = hours;

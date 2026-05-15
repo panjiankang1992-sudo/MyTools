@@ -23,7 +23,7 @@ export const ErrorMessageMap: Record<Locale['zh-CN'] | 'en', Record<string, stri
     // User errors
     'user.not_found': '用户不存在',
     'user.username.exists': '用户名已存在',
-    'user.password.invalid': '密码必须包含大小写字母和数字',
+    'user.password.invalid': '密码长度为6-20位，不能包含异常字符',
     'user.email.format.invalid': '邮箱格式不正确',
     'user.username.or.password.wrong': '用户名或密码错误',
     'user.account.disabled': '账户已禁用',
@@ -67,7 +67,7 @@ export const ErrorMessageMap: Record<Locale['zh-CN'] | 'en', Record<string, stri
     // User errors
     'user.not_found': 'User not found',
     'user.username.exists': 'Username already exists',
-    'user.password.invalid': 'Password must contain uppercase, lowercase letters and numbers',
+    'user.password.invalid': 'Password must be 6-20 characters, no special characters',
     'user.email.format.invalid': 'Email format is invalid',
     'user.username.or.password.wrong': 'Username or password is incorrect',
     'user.account.disabled': 'Account has been disabled',

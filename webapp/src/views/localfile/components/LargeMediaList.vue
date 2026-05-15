@@ -108,13 +108,13 @@ async function loadFiles() {
 
   try {
     startLoading();
-    const result = await fetchGetFilePage({
+    const { data } = await fetchGetFilePage({
       directoryId: props.directoryId,
       page: page.value,
       pageSize: pageSize.value
     });
-    files.value = result.list || [];
-    total.value = result.total || 0;
+    files.value = data?.list || [];
+    total.value = data?.total || 0;
   } catch (error) {
     message.error('加载文件失败');
     console.error(error);
@@ -125,7 +125,7 @@ async function loadFiles() {
 
 async function handlePlay(file: FileItem) {
   try {
-    const blob = await fetchGetFileContent(file.id);
+    const { data: blob } = await fetchGetFileContent(file.id);
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
   } catch (error) {
@@ -136,7 +136,7 @@ async function handlePlay(file: FileItem) {
 
 async function handleDownload(file: FileItem) {
   try {
-    const blob = await fetchGetFileContent(file.id);
+    const { data: blob } = await fetchGetFileContent(file.id);
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

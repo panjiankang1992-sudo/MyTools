@@ -22,6 +22,7 @@ export function fetchGetUserList(params: {
 /** 新增用户 */
 export function fetchCreateUser(data: {
   username: string;
+  nickname?: string;
   password: string;
   email: string;
   phone?: string;

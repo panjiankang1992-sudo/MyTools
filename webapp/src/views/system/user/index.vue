@@ -20,6 +20,7 @@ const newPassword = ref('');
 // 新增用户表单
 const createForm = reactive({
   username: '',
+  nickname: '',
   password: '',
   email: '',
   phone: '',
@@ -35,8 +36,8 @@ const rules = {
   ],
   password: [
     { required: true, message: '密码不能为空', trigger: 'blur' },
-    { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
-      message: '密码必须包含大小写字母和数字', trigger: 'blur' }
+    { pattern: /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{6,20}$/,
+      message: '密码6-20位，不能包含异常字符', trigger: 'blur' }
   ],
   email: [
     { required: true, message: '邮箱不能为空', trigger: 'blur' },
@@ -72,6 +73,7 @@ onUnmounted(() => {
 // 重置表单
 function resetForm() {
   createForm.username = '';
+  createForm.nickname = '';
   createForm.password = '';
   createForm.email = '';
   createForm.phone = '';
@@ -131,16 +133,16 @@ const searchParams = reactive({ keyword: '', status: '' });
 async function loadData() {
   startLoading();
   try {
-    const result = await fetchGetUserList({
+    const { data: res } = await fetchGetUserList({
       page: pagination.page,
       pageSize: pagination.pageSize,
       keyword: searchParams.keyword || undefined,
       status: searchParams.status || undefined
     });
-    const list = result?.list || result?.data?.list || [];
     data.length = 0;
+    const list = res?.list || [];
     data.push(...list);
-    pagination.total = result?.total || result?.data?.total || 0;
+    pagination.total = res?.total || 0;
   } finally {
     endLoading();
   }
@@ -273,6 +275,9 @@ loadData();
       <NForm ref="formRef" :model="createForm" :rules="rules" labelPlacement="left" labelWidth="80">
         <NFormItem label="用户名" path="username">
           <NInput v-model:value="createForm.username" placeholder="请输入用户名" />
+        </NFormItem>
+        <NFormItem label="昵称" path="nickname">
+          <NInput v-model:value="createForm.nickname" placeholder="请输入昵称（可选）" />
         </NFormItem>
         <NFormItem label="密码" path="password">
           <NInput v-model:value="createForm.password" type="password" placeholder="请输入密码" />

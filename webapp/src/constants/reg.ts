@@ -7,9 +7,9 @@ export const REG_PHONE =
 /**
  * Password reg
  *
- * At least 8 characters, must contain uppercase, lowercase letters and numbers
+ * 6-20 characters, no special characters
  */
-export const REG_PWD = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+export const REG_PWD = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{6,20}$/;
 
 /** Email reg */
 export const REG_EMAIL = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;

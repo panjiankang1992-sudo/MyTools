@@ -113,7 +113,7 @@ public class TokenManagementServiceImpl implements TokenManagementService {
         token.setExpireTime(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000); // 30天
         token.setStatus("ACTIVE");
         token.setTokenName(tokenName);
-        token.setCreateTime(LocalDateTime.now());
+        token.setCreatedAt(LocalDateTime.now());
         token.setUpdateTime(LocalDateTime.now());
 
         tokenMapper.insert(token);
@@ -172,7 +172,7 @@ public class TokenManagementServiceImpl implements TokenManagementService {
         info.setTokenName(token.getTokenName());
         info.setAccessToken(maskToken(token.getAccessToken()));
         info.setTokenPrefix(getTokenPrefix(token.getAccessToken()));
-        info.setCreateTime(token.getCreateTime());
+        info.setCreateTime(token.getCreatedAt());
 
         // 转换过期时间戳
         if (token.getExpireTime() != null) {

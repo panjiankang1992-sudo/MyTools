@@ -25,10 +25,11 @@ public class RegisterRequest {
     @Pattern(regexp = "^[a-zA-Z_][a-zA-Z0-9_]*$", message = "用户名必须以字母或下划线开头，只能包含字母、数字、下划线")
     private String username;
 
-    /** 密码：至少8位，必须包含大小写字母和数字 */
+    /** 密码：6-20位，无异常字符 */
     @NotBlank(message = "密码不能为空")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$",
-            message = "密码至少8位，必须包含大小写字母和数字")
+    @Size(min = 6, max = 20, message = "密码长度为6-20位")
+    @Pattern(regexp = "^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]+$",
+            message = "密码不能包含异常字符")
     private String password;
 
     /** 邮箱：有效邮箱格式 */

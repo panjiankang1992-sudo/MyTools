@@ -219,8 +219,8 @@ src/main/java/com/yuyutian/mytools/
 
 ## API文档
 
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+- Swagger UI: `http://localhost:23110/swagger-ui.html`
+- OpenAPI JSON: `http://localhost:23110/v3/api-docs`
 
 ## 规格文档
 
@@ -253,26 +253,41 @@ src/main/java/com/yuyutian/mytools/
 
 ## 部署信息
 
-**注意**: 敏感信息（密码等）存储在 `~/.MyToolsEnv` 文件中，请勿将密码直接写入代码或文档。
-
-### 现网环境
-| 项目 | 信息 |
-|------|------|
-| 主机 | 192.168.1.9 |
-| 用户 | pankang |
-| 密码 | 见 `~/.MyToolsEnv` |
+### 服务端口范围
+所有服务端口固定在 **23110 ~ 23119** 范围内。
 
 ### 服务部署地址
 | 服务 | 部署路径 | 端口 |
 |------|----------|------|
-| 后端 | `/opt/mycode/MyTools/backend` | 29210 |
-| 前端 | `/opt/mycode/MyTools/webapp` | 29211 |
+| 后端 | `/opt/yuyutian/MyTools/backend` | 23110 |
+| 前端 | `/opt/yuyutian/MyTools/frontend` | 23111 |
 
 ### 相关服务地址
 | 服务 | 地址 |
 |------|------|
-| 后端API | http://192.168.1.9:29210 |
-| 前端 | http://192.168.1.9:29211 |
-| Swagger UI | http://192.168.1.9:29210/swagger-ui.html |
-| MySQL | 192.168.1.8:3306 (my_tools 库) |
-| 打标签服务 | http://192.168.1.9:8024 |
+| 后端API | http://localhost:23110 |
+| 前端 | http://localhost:23111 |
+| Swagger UI | http://localhost:23110/swagger-ui.html |
+| MySQL | 127.0.0.1:3306 (my_tools 库) |
+| 打标签服务 | http://localhost:8024 |
+
+### 服务管理
+```bash
+/opt/yuyutian/MyTools/manage.sh start   # 启动所有服务
+/opt/yuyutian/MyTools/manage.sh stop    # 停止所有服务
+/opt/yuyutian/MyTools/manage.sh restart  # 重启所有服务
+/opt/yuyutian/MyTools/manage.sh status   # 查看服务状态
+```
+
+### 日志目录
+日志统一输出到: `/opt/yuyutian/logs/MyTools/`
+- `backend.log` - 后端日志
+- `frontend.log` - 前端日志
+
+### 发布流程
+1. 本地构建: `mvn clean package -DskipTests` (后端) + `cd webapp && pnpm build` (前端)
+2. 复制 JAR: `cp target/mytools-1.0.0.jar /opt/yuyutian/MyTools/backend/mytools-backend.jar`
+3. 复制前端: `cp -r webapp/dist/* /opt/yuyutian/MyTools/frontend/`
+4. 重启服务: `/opt/yuyutian/MyTools/manage.sh restart`
+
+**注意**: 敏感信息（密码等）存储在 `~/.MyToolsEnv` 文件中，请勿将密码直接写入代码或文档。

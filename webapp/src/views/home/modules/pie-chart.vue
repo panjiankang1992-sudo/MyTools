@@ -54,11 +54,10 @@ const { domRef, updateOptions } = useEcharts(() => ({
 
 async function loadData() {
   try {
-    const result = await fetchGetLogStatistics({});
-    console.log('[PieChart] statistics result:', result);
+    const { data } = await fetchGetLogStatistics({});
 
-    if (result?.moduleStats) {
-      const moduleData = result.moduleStats.map((item: Api.Log.ModuleStat) => ({
+    if (data?.moduleStats) {
+      const moduleData = data.moduleStats.map((item: Api.Log.ModuleStat) => ({
         name: item.module,
         value: item.count
       }));
