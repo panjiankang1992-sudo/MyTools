@@ -178,7 +178,9 @@ const routeMap: RouteMap = {
   "profile": "/profile",
   "system": "/system",
   "system_role": "/system/role",
-  "system_user": "/system/user"
+  "system_user": "/system/user",
+  "app-market": "/app-market",
+  "app-market_index": "/app-market/index"
 };
 
 /**

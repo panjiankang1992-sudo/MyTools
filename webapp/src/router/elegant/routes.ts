@@ -130,6 +130,29 @@ export const generatedRoutes: GeneratedRoute[] = [
     ]
   },
   {
+    name: 'app-market',
+    path: '/app-market',
+    component: 'layout.base',
+    meta: {
+      title: 'app-market',
+      i18nKey: 'route.app-market',
+      icon: 'mdi:store',
+      order: 5
+    },
+    children: [
+      {
+        name: 'app-market_index',
+        path: '/app-market/index',
+        component: 'view.app-market_index',
+        meta: {
+          title: 'app-market_index',
+          i18nKey: 'route.app-market_index',
+          icon: 'mdi:application-outline'
+        }
+      }
+    ]
+  },
+  {
     name: 'login',
     path: '/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?',
     component: 'layout.blank$view.login',
