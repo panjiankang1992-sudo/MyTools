@@ -173,23 +173,18 @@ public class AppMarketServiceImpl implements AppMarketService {
         // 权限检查
         checkPermission(app, currentUserId);
 
-        // 删除所有文件（磁盘）
+        // 删除所有文件（磁盘和数据库）
         List<AppFile> allFiles = appFileMapper.selectAllByAppId(appId);
         for (AppFile file : allFiles) {
             deleteFileFromDisk(file.getFilePath());
-        }
-
-        // 删除数据库文件记录
-        appFileMapper.deleteAll(appFileMapper.selectAllByAppId(appId));
-        if (!allFiles.isEmpty()) {
-            for (AppFile file : allFiles) {
-                appFileMapper.deleteById(file.getId());
-            }
+            appFileMapper.deleteById(file.getId());
         }
 
         // 删除历史版本
-        appVersionMapper.delete(appVersionMapper.selectByAppId(appId));
-        appVersionMapper.deleteAll();
+        List<AppVersion> versions = appVersionMapper.selectByAppId(appId);
+        for (AppVersion v : versions) {
+            appVersionMapper.deleteById(v.getId());
+        }
 
         // 删除主表记录
         appMarketMapper.deleteById(appId);
