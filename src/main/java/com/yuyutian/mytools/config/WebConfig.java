@@ -8,8 +8,12 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Web配置类。
@@ -19,7 +23,20 @@ import java.util.Arrays;
  * @since 2026-05-03
  */
 @Configuration
-public class WebConfig {
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String fileDir = "/opt/yuyutian/MyTools/app-market-files/";
+        // 确保目录存在
+        try {
+            Files.createDirectories(Paths.get(fileDir));
+        } catch (java.io.IOException e) {
+            // 忽略，目录可能已存在
+        }
+        registry.addResourceHandler("/market-files/**")
+                .addResourceLocations("file:" + fileDir);
+    }
 
     /**
      * 配置CORS过滤器。

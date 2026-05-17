@@ -58,6 +58,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/route/**").permitAll()
                         .requestMatchers("/api/tokens/validate").permitAll()
+                        .requestMatchers("/api/market/files/**").permitAll()
+                        .requestMatchers("/market-files/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated())
