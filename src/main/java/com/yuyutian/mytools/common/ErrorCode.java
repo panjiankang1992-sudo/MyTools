@@ -48,6 +48,16 @@ public enum ErrorCode {
     TOKEN_004("40004", "token.disabled", HttpStatus.BAD_REQUEST),
     TOKEN_005("40005", "token.verify.failed", HttpStatus.BAD_REQUEST),
 
+    // App Market error codes (70001-70099)
+    APP_001("70001", "app.market.app_not_found", HttpStatus.NOT_FOUND),
+    APP_002("70002", "app.market.permission.denied", HttpStatus.FORBIDDEN),
+    APP_003("70003", "app.market.file.too_large", HttpStatus.BAD_REQUEST),
+    APP_004("70004", "app.market.file.type.unsupported", HttpStatus.BAD_REQUEST),
+    APP_005("70005", "app.market.version.conflict", HttpStatus.CONFLICT),
+    APP_006("70006", "app.market.name.duplicate", HttpStatus.CONFLICT),
+    APP_007("70007", "app.market.file.not_found", HttpStatus.NOT_FOUND),
+    APP_008("70008", "app.market.version.not_found", HttpStatus.NOT_FOUND),
+
     // Role error codes (60001-60099)
     ROLE_001("60001", "role.code.exists", HttpStatus.CONFLICT),
     ROLE_002("60002", "role.assigned.to.users", HttpStatus.BAD_REQUEST),
