@@ -1,6 +1,5 @@
 package com.yuyutian.mytools.appmarket.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.yuyutian.mytools.appmarket.dto.*;
 import com.yuyutian.mytools.appmarket.entity.AppMarket;
 import com.yuyutian.mytools.appmarket.entity.AppVersion;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * 应用市场 Controller。
@@ -38,12 +38,12 @@ public class AppMarketController {
      */
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Result<IPage<AppMarketListResponse>>> listApps(
+    public ResponseEntity<Result<AppMarketPageResponse>> listApps(
             @RequestParam int page,
             @RequestParam int pageSize,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String name) {
-        IPage<AppMarketListResponse> result = appMarketService.listApps(type, name, page, pageSize);
+        AppMarketPageResponse result = appMarketService.listApps(type, name, page, pageSize);
         return ResponseEntity.ok(Result.success(result));
     }
 
@@ -122,8 +122,8 @@ public class AppMarketController {
      */
     @GetMapping("/{id}/versions")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Result<java.util.List<AppVersion>>> getVersions(@PathVariable String id) {
-        java.util.List<AppVersion> versions = appMarketService.getVersions(id);
+    public ResponseEntity<Result<List<AppVersion>>> getVersions(@PathVariable String id) {
+        List<AppVersion> versions = appMarketService.getVersions(id);
         return ResponseEntity.ok(Result.success(versions));
     }
 

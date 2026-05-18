@@ -1,6 +1,5 @@
 package com.yuyutian.mytools.appmarket.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.yuyutian.mytools.appmarket.dto.*;
 import com.yuyutian.mytools.appmarket.entity.AppFile;
 import com.yuyutian.mytools.appmarket.entity.AppMarket;
@@ -21,7 +20,7 @@ public interface AppMarketService {
     /**
      * 分页查询应用列表。
      */
-    IPage<AppMarketListResponse> listApps(String type, String name, int page, int pageSize);
+    AppMarketPageResponse listApps(String type, String name, int page, int pageSize);
 
     /**
      * 获取应用详情。

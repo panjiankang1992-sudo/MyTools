@@ -1,10 +1,7 @@
 package com.yuyutian.mytools.appmarket.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yuyutian.mytools.appmarket.entity.AppVersion;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -15,8 +12,18 @@ import java.util.List;
  * @since 2026-05-16
  */
 @Mapper
-public interface AppVersionMapper extends BaseMapper<AppVersion> {
+public interface AppVersionMapper {
 
     @Select("SELECT * FROM t_app_version WHERE app_id = #{appId} ORDER BY created_time DESC")
     List<AppVersion> selectByAppId(@Param("appId") String appId);
+
+    @Select("SELECT * FROM t_app_version WHERE id = #{id}")
+    AppVersion selectById(@Param("id") String id);
+
+    @Insert("INSERT INTO t_app_version (id, app_id, version, content, file_id, created_time) " +
+            "VALUES (#{id}, #{appId}, #{version}, #{content}, #{fileId}, #{createdTime})")
+    void insert(AppVersion version);
+
+    @Delete("DELETE FROM t_app_version WHERE id = #{id}")
+    void deleteById(@Param("id") String id);
 }

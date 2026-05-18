@@ -1,6 +1,5 @@
 package com.yuyutian.mytools.appmarket.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -12,10 +11,8 @@ import java.time.LocalDateTime;
  * @since 2026-05-16
  */
 @Data
-@TableName("t_app_version")
 public class AppVersion {
 
-    @TableId(type = IdType.ASSIGN_ID)
     private String id;
 
     private String appId;
@@ -26,6 +23,5 @@ public class AppVersion {
 
     private String fileId;
 
-    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdTime;
 }

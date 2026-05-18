@@ -1,23 +1,22 @@
 package com.yuyutian.mytools.appmarket.service.impl;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yuyutian.mytools.appmarket.dto.*;
 import com.yuyutian.mytools.appmarket.entity.AppFile;
 import com.yuyutian.mytools.appmarket.entity.AppMarket;
 import com.yuyutian.mytools.appmarket.entity.AppVersion;
+import com.yuyutian.mytools.appmarket.enums.AppStatus;
+import com.yuyutian.mytools.appmarket.enums.AppType;
 import com.yuyutian.mytools.appmarket.mapper.AppFileMapper;
 import com.yuyutian.mytools.appmarket.mapper.AppMarketMapper;
 import com.yuyutian.mytools.appmarket.mapper.AppVersionMapper;
 import com.yuyutian.mytools.appmarket.service.AppMarketService;
 import com.yuyutian.mytools.common.BusinessException;
 import com.yuyutian.mytools.common.ErrorCode;
-import com.yuyutian.mytools.user.Mapper.UserMapper;
+import com.yuyutian.mytools.user.mapper.UserMapper;
 import com.yuyutian.mytools.user.Model.User;
 import com.yuyutian.mytools.utils.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -50,17 +50,21 @@ public class AppMarketServiceImpl implements AppMarketService {
     private final SnowflakeIdGenerator snowflakeIdGenerator;
 
     @Override
-    public IPage<AppMarketListResponse> listApps(String type, String name, int page, int pageSize) {
-        Page<AppMarket> pageParam = new Page<>(page, pageSize);
-        IPage<AppMarket> pageResult = appMarketMapper.selectAppPage(pageParam, type, name);
+    public AppMarketPageResponse listApps(String type, String name, int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        List<AppMarket> apps = appMarketMapper.selectByTypeAndName(type, name, offset, pageSize);
+        long total = appMarketMapper.countByTypeAndName(type, name);
 
-        List<AppMarketListResponse> list = pageResult.getRecords().stream()
+        List<AppMarketListResponse> list = apps.stream()
                 .map(this::convertToListResponse)
                 .collect(Collectors.toList());
 
-        Page<AppMarketListResponse> result = new Page<>(page, pageSize, pageResult.getTotal());
-        result.setRecords(list);
-        return result;
+        AppMarketPageResponse response = new AppMarketPageResponse();
+        response.setList(list);
+        response.setTotal(total);
+        response.setPage(page);
+        response.setPageSize(pageSize);
+        return response;
     }
 
     @Override
@@ -71,10 +75,7 @@ public class AppMarketServiceImpl implements AppMarketService {
         }
 
         AppMarketDetailResponse response = convertToDetailResponse(app);
-
-        // 判断是否为所有者
         response.setIsOwner(app.getUserId().equals(currentUserId));
-
         return response;
     }
 
@@ -86,22 +87,22 @@ public class AppMarketServiceImpl implements AppMarketService {
         app.setId(String.valueOf(snowflakeIdGenerator.nextId()));
         app.setUserId(userId);
         app.setName(request.getName());
-        app.setType(com.yuyutian.mytools.appmarket.enums.AppType.fromValue(request.getType()));
+        app.setType(AppType.fromValue(request.getType()));
         app.setVersion(request.getVersion());
         app.setContent(request.getContent());
         app.setInstallCmd(request.getInstallCmd());
         app.setDownloadUrl(request.getDownloadUrl());
-        app.setStatus(com.yuyutian.mytools.appmarket.enums.AppStatus.PUBLISHED);
+        app.setStatus(AppStatus.PUBLISHED);
+        app.setCreatedTime(LocalDateTime.now());
+        app.setUpdateTime(LocalDateTime.now());
 
         appMarketMapper.insert(app);
         log.info("上架新应用: id={}, name={}, userId={}", app.getId(), app.getName(), userId);
 
-        // 保存缩略图
         if (thumbnail != null && !thumbnail.isEmpty()) {
             saveFile(app.getId(), null, "thumbnail", thumbnail);
         }
 
-        // 保存内容文件
         if (file != null && !file.isEmpty()) {
             String fileType = getFileType(request.getType());
             saveFile(app.getId(), null, fileType, file);
@@ -120,7 +121,6 @@ public class AppMarketServiceImpl implements AppMarketService {
             throw new BusinessException(ErrorCode.APP_001);
         }
 
-        // 权限检查
         checkPermission(app, userId);
 
         // 保存历史版本
@@ -129,7 +129,6 @@ public class AppMarketServiceImpl implements AppMarketService {
         history.setAppId(appId);
         history.setVersion(app.getVersion());
         history.setContent(app.getContent());
-        // 找到当前版本的文件
         List<AppFile> currentFiles = appFileMapper.selectCurrentFilesByAppId(appId);
         if (!currentFiles.isEmpty()) {
             history.setFileId(currentFiles.get(0).getId());
@@ -142,17 +141,15 @@ public class AppMarketServiceImpl implements AppMarketService {
         app.setContent(request.getContent());
         app.setInstallCmd(request.getInstallCmd());
         app.setDownloadUrl(request.getDownloadUrl());
+        app.setUpdateTime(LocalDateTime.now());
         appMarketMapper.updateById(app);
         log.info("更新应用: id={}, version={}", appId, request.getVersion());
 
-        // 保存缩略图
         if (thumbnail != null && !thumbnail.isEmpty()) {
-            // 删除旧的缩略图
             deleteFilesByType(appId, null, "thumbnail");
             saveFile(appId, null, "thumbnail", thumbnail);
         }
 
-        // 保存内容文件
         if (file != null && !file.isEmpty()) {
             String fileType = getFileType(app.getType().getValue());
             deleteFilesByType(appId, null, fileType);
@@ -170,23 +167,19 @@ public class AppMarketServiceImpl implements AppMarketService {
             throw new BusinessException(ErrorCode.APP_001);
         }
 
-        // 权限检查
         checkPermission(app, currentUserId);
 
-        // 删除所有文件（磁盘和数据库）
         List<AppFile> allFiles = appFileMapper.selectAllByAppId(appId);
         for (AppFile file : allFiles) {
             deleteFileFromDisk(file.getFilePath());
             appFileMapper.deleteById(file.getId());
         }
 
-        // 删除历史版本
         List<AppVersion> versions = appVersionMapper.selectByAppId(appId);
         for (AppVersion v : versions) {
             appVersionMapper.deleteById(v.getId());
         }
 
-        // 删除主表记录
         appMarketMapper.deleteById(appId);
         log.info("删除应用: id={}", appId);
     }
@@ -201,7 +194,8 @@ public class AppMarketServiceImpl implements AppMarketService {
 
         checkPermission(app, currentUserId);
 
-        app.setStatus(com.yuyutian.mytools.appmarket.enums.AppStatus.DRAFT);
+        app.setStatus(AppStatus.DRAFT);
+        app.setUpdateTime(LocalDateTime.now());
         appMarketMapper.updateById(app);
         log.info("下架应用: id={}", appId);
     }
@@ -215,8 +209,6 @@ public class AppMarketServiceImpl implements AppMarketService {
         }
 
         checkPermission(app, userId);
-
-        // 删除同类型旧文件
         deleteFilesByType(appId, null, fileType);
 
         return saveFile(appId, null, fileType, file);
@@ -277,20 +269,15 @@ public class AppMarketServiceImpl implements AppMarketService {
     // ========== 私有方法 ==========
 
     private void checkPermission(AppMarket app, Long userId) {
-        // 需要管理员或应用所有者权限
-        // 注意：此处简化处理，实际应从 SecurityContext 获取用户角色
-        // 暂时只检查所有者，管理员权限在 Controller 层通过 @PreAuthorize 控制
         if (!app.getUserId().equals(userId)) {
             throw new BusinessException(ErrorCode.APP_002);
         }
     }
 
     private AppFile saveFile(String appId, String versionId, String fileType, MultipartFile file) throws IOException {
-        // 确保目录存在
         Path dir = Paths.get(FILE_BASE_PATH, appId, fileType);
         Files.createDirectories(dir);
 
-        // 生成唯一文件名
         String originalFilename = file.getOriginalFilename();
         String ext = "";
         if (originalFilename != null && originalFilename.contains(".")) {
@@ -299,10 +286,8 @@ public class AppMarketServiceImpl implements AppMarketService {
         String uniqueFilename = UUID.randomUUID().toString().replace("-", "") + ext;
         Path filePath = dir.resolve(uniqueFilename);
 
-        // 保存文件
         file.transferTo(filePath.toFile());
 
-        // 保存数据库记录
         AppFile appFile = new AppFile();
         appFile.setId(String.valueOf(snowflakeIdGenerator.nextId()));
         appFile.setAppId(appId);
@@ -311,6 +296,7 @@ public class AppMarketServiceImpl implements AppMarketService {
         appFile.setFileName(originalFilename != null ? originalFilename : uniqueFilename);
         appFile.setFilePath(filePath.toString());
         appFile.setFileSize(file.getSize());
+        appFile.setCreatedTime(LocalDateTime.now());
         appFileMapper.insert(appFile);
 
         log.info("保存文件: id={}, appId={}, type={}, name={}", appFile.getId(), appId, fileType, originalFilename);
@@ -365,13 +351,11 @@ public class AppMarketServiceImpl implements AppMarketService {
         response.setCreatedTime(app.getCreatedTime());
         response.setUpdateTime(app.getUpdateTime());
 
-        // 获取用户名
         User user = userMapper.findById(app.getUserId());
         if (user != null) {
             response.setUserName(user.getUsername());
         }
 
-        // 获取缩略图
         List<AppFile> files = appFileMapper.selectCurrentFilesByAppId(app.getId());
         for (AppFile file : files) {
             if ("thumbnail".equals(file.getFileType())) {
@@ -380,7 +364,6 @@ public class AppMarketServiceImpl implements AppMarketService {
             }
         }
 
-        // 内容摘要
         if (app.getContent() != null) {
             String text = app.getContent().replaceAll("<[^>]+>", "").trim();
             response.setContentPreview(text.length() > 50 ? text.substring(0, 50) + "..." : text);
@@ -403,13 +386,11 @@ public class AppMarketServiceImpl implements AppMarketService {
         response.setCreatedTime(app.getCreatedTime());
         response.setUpdateTime(app.getUpdateTime());
 
-        // 获取用户名
         User user = userMapper.findById(app.getUserId());
         if (user != null) {
             response.setUserName(user.getUsername());
         }
 
-        // 获取文件信息
         List<AppFile> files = appFileMapper.selectCurrentFilesByAppId(app.getId());
         for (AppFile file : files) {
             if ("thumbnail".equals(file.getFileType())) {

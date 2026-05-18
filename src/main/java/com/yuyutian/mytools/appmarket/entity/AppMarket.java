@@ -1,6 +1,5 @@
 package com.yuyutian.mytools.appmarket.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
 import com.yuyutian.mytools.appmarket.enums.AppStatus;
 import com.yuyutian.mytools.appmarket.enums.AppType;
 import lombok.Data;
@@ -14,10 +13,8 @@ import java.time.LocalDateTime;
  * @since 2026-05-16
  */
 @Data
-@TableName("t_app_market")
 public class AppMarket {
 
-    @TableId(type = IdType.ASSIGN_ID)
     private String id;
 
     private Long userId;
@@ -38,9 +35,7 @@ public class AppMarket {
 
     private AppStatus status;
 
-    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdTime;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 }
