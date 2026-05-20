@@ -67,4 +67,21 @@ public class WebdavAccountServiceImpl implements WebdavAccountService {
             account.getPassword() != null && !account.getPassword().isBlank()
         );
     }
+
+    @Override
+    public WebdavAccountPublicResponse getPublicByUserId(Long userId) {
+        WebdavAccount account = webdavAccountMapper.selectByUserId(userId);
+        if (account == null) {
+            return null;
+        }
+        return new WebdavAccountPublicResponse(
+            account.getId(),
+            account.getUserId(),
+            account.getType(),
+            account.getUrl(),
+            account.getUsername(),
+            account.getPassword(),
+            account.getPassword() != null && !account.getPassword().isBlank()
+        );
+    }
 }
