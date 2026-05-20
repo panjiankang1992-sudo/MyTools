@@ -330,7 +330,12 @@ const local: App.I18n.Schema = {
       title: 'Token 管理'
     },
     profile: {
-      title: '个人中心'
+      title: '个人中心',
+      webdavTitle: 'WebDAV 信息维护',
+      webdavType: '类型',
+      webdavUrl: '地址',
+      webdavUsername: '用户名',
+      webdavPassword: '密码'
     }
   },
   form: {
