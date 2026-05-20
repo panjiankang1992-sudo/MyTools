@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, h, reactive, ref } from 'vue';
-import { useCloudFileStore } from '@/store/modules/cloudfile';
+import { useCloudFileStore, type CloudFileTreeNode } from '@/store/modules/cloudfile';
 import {
   createCloudDir,
   copyCloudFile,
@@ -12,6 +12,7 @@ import {
   uploadCloudFile
 } from '@/service/api/cloudfile';
 import CloudFileEditor from './CloudFileEditor.vue';
+import type { TreeOption, UploadFileInfo } from 'naive-ui';
 import {
   NLayout,
   NLayoutSider,
@@ -281,9 +282,9 @@ async function handleTreeSelect(keys: string[]) {
 }
 
 // 树节点懒加载（展开时触发）
-async function handleTreeLoad({ node }: { node: any }) {
+async function handleTreeLoad(node: TreeOption) {
   if (!node.isDirectory) return Promise.resolve();
-  await store.loadTreeNodeChildren(node);
+  await store.loadTreeNodeChildren(node as unknown as CloudFileTreeNode);
   return Promise.resolve();
 }
 
@@ -438,10 +439,12 @@ function handleDelete(file: Api.CloudFile.CloudFileItem) {
 }
 
 // 上传：使用 NUpload custom-request
-function customUpload({ file, onFinish, onError }: { file: File; onFinish: () => void; onError: (e: Error) => void }) {
+function customUpload({ file, onFinish, onError }: { file: UploadFileInfo; onFinish: () => void; onError: (e: Error) => void }) {
   const targetPath = uploadCurrentPath.value === '/' ? '/' : uploadCurrentPath.value + '/';
+  const rawFile = file.file;
+  if (!rawFile) return;
   isUploading.value = true;
-  uploadCloudFile(targetPath, file.name, file)
+  uploadCloudFile(targetPath, file.name, rawFile)
     .then(({ error }) => {
       if (error) {
         onError(new Error(String(error)));

@@ -180,7 +180,8 @@ const routeMap: RouteMap = {
   "system_role": "/system/role",
   "system_user": "/system/user",
   "app-market": "/app-market",
-  "app-market_index": "/app-market/index"
+  "app-market_index": "/app-market/index",
+  "cloud-file": "/cloud-file"
 };
 
 /**
