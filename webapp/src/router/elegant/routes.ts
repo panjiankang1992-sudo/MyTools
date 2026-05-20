@@ -137,7 +137,7 @@ export const generatedRoutes: GeneratedRoute[] = [
       title: 'app-market',
       i18nKey: 'route.app-market',
       icon: 'mdi:store',
-      order: 5
+      order: 4
     },
     children: [
       {
@@ -182,7 +182,7 @@ export const generatedRoutes: GeneratedRoute[] = [
       title: 'system',
       i18nKey: 'route.system',
       icon: 'carbon:settings',
-      order: 4,
+      order: 5,
       roles: ['ADMIN']
     },
     children: [
