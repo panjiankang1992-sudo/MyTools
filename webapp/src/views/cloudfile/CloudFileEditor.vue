@@ -147,7 +147,7 @@ function handleCancel() {
   const current = editorInstance.getValue();
   const original = props.file?.content || '';
   if (current !== original) {
-    const confirmed = window.confirm('内容已修改，关闭将丢失更改，确定关闭吗？');
+    const confirmed = window.confirm('有未保存的更改，确认关闭？');
     if (!confirmed) return;
   }
   emit('update:show', false);
@@ -166,11 +166,14 @@ function formatSize(bytes: number): string {
   <n-modal
     :show="show"
     preset="card"
-    :title="`编辑: ${file?.name ?? ''}`"
     style="width: 900px; max-width: 95vw;"
     :mask-closable="false"
     @update:show="(val) => emit('update:show', val)"
   >
+    <template #header>
+      <span>编辑: {{ file?.name ?? '' }}</span>
+      <span style="font-size:12px;color:#888;margin-left:8px;">{{ file?.path }}</span>
+    </template>
     <n-spin :show="loading" description="加载文件内容...">
       <!-- Monaco Editor container -->
       <div
