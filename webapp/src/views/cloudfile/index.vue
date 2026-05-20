@@ -5,11 +5,9 @@ import {
   createCloudDir,
   deleteCloudFile,
   downloadCloudFile,
-  fetchCloudFiles,
   renameCloudFile,
   uploadCloudFile
 } from '@/service/api/cloudfile';
-import { useLoading } from '@sa/hooks';
 import {
   NLayout,
   NLayoutSider,
@@ -22,11 +20,9 @@ import {
   NDataTable,
   NModal,
   NInput,
-  NInputGroup,
   NUpload,
   useMessage,
   useDialog,
-  NTag,
   NEmpty,
   NSpin
 } from 'naive-ui';
@@ -50,8 +46,6 @@ defineOptions({ name: 'CloudFile' });
 const message = useMessage();
 const dialog = useDialog();
 const store = useCloudFileStore();
-const { loading: tableLoading, startLoading, endLoading } = useLoading();
-
 // 树相关
 const selectedTreeKey = ref<string[]>([]);
 
@@ -74,12 +68,6 @@ const isUploading = ref(false);
 
 // 上传时需要保持当前目录
 const uploadCurrentPath = ref('/');
-
-// 文本文件扩展名
-const TEXT_EXTENSIONS = [
-  'md', 'txt', 'json', 'xml', 'html', 'htm', 'css', 'js', 'ts',
-  'py', 'java', 'c', 'cpp', 'h', 'sh', 'yaml', 'yml', 'properties'
-];
 
 // 格式化文件大小
 function formatSize(bytes: number): string {
