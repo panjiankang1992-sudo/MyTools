@@ -1,103 +1,138 @@
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
-import { useLoading } from '@sa/hooks';
 import { fetchCloudFiles } from '@/service/api/cloudfile';
 import { SetupStoreId } from '@/enum';
 
-interface CloudFileTreeNode {
-  key: string;
-  label: string;
-  isLeaf: boolean;
-  children?: CloudFileTreeNode[];
-  loading?: boolean;
-}
-
 export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
-  const { loading, startLoading, endLoading } = useLoading();
-
-  /** Current path */
+  /** 当前路径 */
   const currentPath = ref('/');
 
-  /** File list items */
-  const items = ref<Api.CloudFile.CloudFileItem[]>([]);
+  /** 当前目录的文件列表 */
+  const fileList = ref<Api.CloudFile.CloudFileItem[]>([]);
 
-  /** Tree data for directory tree */
+  /** 目录树数据 (用于 NTree) */
   const treeData = ref<CloudFileTreeNode[]>([]);
 
-  /**
-   * Load files at the given path
-   *
-   * @param path Path to load
-   * @param depth Fetch depth (1 = list only, 2+ = include subdirectories)
-   */
-  async function loadFiles(path: string, depth = 1) {
-    startLoading();
+  /** 加载状态 */
+  const loading = ref(false);
 
-    try {
-      const resp = await fetchCloudFiles(path, depth);
-      currentPath.value = path;
-      items.value = resp.data?.items || [];
+  /** 是否有文件或目录 */
+  const isEmpty = computed(() => fileList.value.length === 0);
 
-      if (depth > 1) {
-        const dirs = (resp.data?.items || []).filter(
-          (i: Api.CloudFile.CloudFileItem) => i.isDirectory
-        );
-        updateTreeChildren(path, dirs);
+  /** 将 CloudFileItem 列表转换为 NTree 节点 */
+  function itemToNode(item: Api.CloudFile.CloudFileItem): CloudFileTreeNode {
+    return {
+      key: item.path,
+      label: item.name,
+      isLeaf: !item.isDirectory,
+      path: item.path,
+      isDirectory: item.isDirectory,
+      children: item.isDirectory ? [] : undefined
+    };
+  }
+
+  /** 递归查找并更新 treeData 中的某个节点 */
+  function updateNodeInTree(
+    nodes: CloudFileTreeNode[],
+    path: string,
+    updater: (node: CloudFileTreeNode) => void
+  ): boolean {
+    for (const node of nodes) {
+      if (node.path === path) {
+        updater(node);
+        return true;
       }
-    } finally {
-      endLoading();
+      if (node.children && node.children.length > 0) {
+        const found = updateNodeInTree(node.children, path, updater);
+        if (found) return true;
+      }
+    }
+    return false;
+  }
+
+  /** 加载指定路径的文件列表并更新 treeData */
+  async function loadFiles(path: string, parentPath = '/') {
+    const { data, error } = await fetchCloudFiles(path, 1);
+    if (error || !data) {
+      return;
+    }
+
+    const items = data.items || [];
+    const nodes = items.map(itemToNode);
+
+    fileList.value = items;
+    currentPath.value = data.path || path;
+
+    // 更新 treeData：替换或追加子节点
+    if (parentPath === '/') {
+      // 根目录，直接替换
+      treeData.value = nodes;
+    } else {
+      // 找到父节点并更新其 children
+      updateNodeInTree(treeData.value, parentPath, node => {
+        node.children = nodes;
+      });
+      // 强制响应式更新
+      treeData.value = [...treeData.value];
     }
   }
 
-  /**
-   * Update tree node children for a given parent path
-   *
-   * @param parentPath Parent path (tree node key)
-   * @param dirs Directory items to set as children
-   */
-  function updateTreeChildren(parentPath: string, dirs: Api.CloudFile.CloudFileItem[]) {
-    const updateNode = (nodes: CloudFileTreeNode[]): boolean => {
-      for (const node of nodes) {
-        if (node.key === parentPath) {
-          node.children = dirs.map(d => ({
-            key: d.path,
-            label: d.name,
-            isLeaf: false,
-            children: []
-          }));
-          return true;
-        }
-        if (node.children && updateNode(node.children)) {
-          return true;
-        }
-      }
-      return false;
-    };
-
-    updateNode(treeData.value);
+  /** 初始化，加载根目录 */
+  async function init() {
+    await loadFiles('/');
   }
 
-  /**
-   * Build tree root from a flat directory list
-   *
-   * @param dirs Directory items to build tree from
-   */
-  function buildTree(dirs: Api.CloudFile.CloudFileItem[]) {
-    treeData.value = dirs.map(d => ({
-      key: d.path,
-      label: d.name,
-      isLeaf: false,
-      children: []
-    }));
+  /** 刷新当前目录 */
+  async function refresh() {
+    await loadFiles(currentPath.value);
+  }
+
+  /** 导航到指定路径 */
+  async function navigateTo(path: string) {
+    loading.value = true;
+    try {
+      await loadFiles(path);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  /** 懒加载树节点的子节点 */
+  async function loadTreeNodeChildren(node: CloudFileTreeNode) {
+    if (!node.isDirectory) return;
+    if (node.children && node.children.length > 0) return; // 已有子节点
+
+    const { data, error } = await fetchCloudFiles(node.path, 1);
+    if (error || !data) return;
+
+    const children = (data.items || []).map(itemToNode);
+
+    updateNodeInTree(treeData.value, node.path, n => {
+      n.children = children;
+    });
+    treeData.value = [...treeData.value];
   }
 
   return {
     currentPath,
-    items,
+    fileList,
     treeData,
     loading,
+    isEmpty,
     loadFiles,
-    updateTreeChildren,
-    buildTree
+    init,
+    refresh,
+    navigateTo,
+    loadTreeNodeChildren
   };
 });
+
+/** NTree 树节点类型 */
+export interface CloudFileTreeNode {
+  key: string;
+  label: string;
+  isLeaf: boolean;
+  path: string;
+  isDirectory: boolean;
+  children?: CloudFileTreeNode[];
+}
