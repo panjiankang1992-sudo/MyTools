@@ -3,11 +3,15 @@ import { computed, h, reactive, ref } from 'vue';
 import { useCloudFileStore } from '@/store/modules/cloudfile';
 import {
   createCloudDir,
+  copyCloudFile,
   deleteCloudFile,
   downloadCloudFile,
+  fetchFileContent,
+  moveCloudFile,
   renameCloudFile,
   uploadCloudFile
 } from '@/service/api/cloudfile';
+import CloudFileEditor from './CloudFileEditor.vue';
 import {
   NLayout,
   NLayoutSider,
@@ -38,7 +42,9 @@ import {
   CreateOutline,
   TrashOutline,
   CloudUploadOutline,
-  Folder
+  Folder,
+  ArrowForwardOutline,
+  CopyOutline
 } from '@vicons/ionicons5';
 
 defineOptions({ name: 'CloudFile' });
@@ -61,6 +67,29 @@ const renameModal = reactive({
   show: false,
   file: null as Api.CloudFile.CloudFileItem | null,
   newName: ''
+});
+
+// 编辑器弹窗
+const editorModal = reactive({
+  show: false,
+  file: null as { path: string; name: string; content: string } | null,
+  loading: false
+});
+
+// 移动弹窗
+const moveModal = reactive({
+  show: false,
+  file: null as Api.CloudFile.CloudFileItem | null,
+  targetPath: '',
+  moving: false
+});
+
+// 复制弹窗
+const copyModal = reactive({
+  show: false,
+  file: null as Api.CloudFile.CloudFileItem | null,
+  targetPath: '',
+  copying: false
 });
 
 // 上传状态
@@ -147,9 +176,9 @@ const columns = [
   {
     title: '操作',
     key: 'actions',
-    width: 220,
+    width: 300,
     render: (row: Api.CloudFile.CloudFileItem) => {
-      const btns = [];
+      const btns: ReturnType<typeof h>[] = [];
 
       // 双击/点击名称时已经在 handleRowClick 中处理，这里只放额外按钮
       btns.push(
@@ -181,6 +210,30 @@ const columns = [
           NButton,
           {
             size: 'tiny',
+            onClick: () => handleMove(row),
+            style: 'margin-right:4px;flex-shrink:0;'
+          },
+          { icon: () => h(ArrowForwardOutline, { size: 14 }) }
+        )
+      );
+
+      btns.push(
+        h(
+          NButton,
+          {
+            size: 'tiny',
+            onClick: () => handleCopy(row),
+            style: 'margin-right:4px;flex-shrink:0;'
+          },
+          { icon: () => h(CopyOutline, { size: 14 }) }
+        )
+      );
+
+      btns.push(
+        h(
+          NButton,
+          {
+            size: 'tiny',
             type: 'error',
             onClick: () => handleDelete(row),
             style: 'flex-shrink:0;'
@@ -194,14 +247,27 @@ const columns = [
   }
 ];
 
-// 表格行点击：目录→导航，文件→打开
+// 表格行点击：目录→导航，文本文件→Monaco Editor
 async function handleRowClick(row: Api.CloudFile.CloudFileItem) {
   if (row.isDirectory) {
     await store.navigateTo(row.path);
     selectedTreeKey.value = [row.path];
   } else {
-    // TODO: Task 9 替换为 Monaco Editor
-    message.warning(`文件已选择: ${row.name}`);
+    const ext = row.name.split('.').pop()?.toLowerCase() || '';
+    const textExts = ['md', 'txt', 'json', 'xml', 'html', 'css', 'js', 'ts', 'vue', 'py', 'java', 'c', 'cpp', 'h', 'sh', 'yaml', 'yml', 'properties', 'jsx', 'tsx'];
+    if (textExts.includes(ext)) {
+      editorModal.loading = true;
+      editorModal.file = null;
+      editorModal.show = true;
+      try {
+        const { data } = await fetchFileContent(row.path);
+        editorModal.file = { path: row.path, name: row.name, content: data || '' };
+      } finally {
+        editorModal.loading = false;
+      }
+    } else {
+      message.warning('该文件类型不支持在线编辑');
+    }
   }
 }
 
@@ -299,6 +365,57 @@ async function handleDownload(file: Api.CloudFile.CloudFileItem) {
   } catch {
     message.error('下载失败');
   }
+}
+
+// 移动
+function handleMove(file: Api.CloudFile.CloudFileItem) {
+  moveModal.file = file;
+  moveModal.targetPath = store.currentPath === '/' ? '/' : store.currentPath + '/';
+  moveModal.show = true;
+}
+
+async function handleMoveSubmit() {
+  if (!moveModal.file || !moveModal.targetPath.trim()) return;
+  moveModal.moving = true;
+  try {
+    const toPath =
+      (moveModal.targetPath.endsWith('/') ? moveModal.targetPath : moveModal.targetPath + '/') +
+      moveModal.file.name;
+    await moveCloudFile(moveModal.file.path, toPath);
+    message.success('移动成功');
+    moveModal.show = false;
+    await store.refresh();
+  } finally {
+    moveModal.moving = false;
+  }
+}
+
+// 复制
+function handleCopy(file: Api.CloudFile.CloudFileItem) {
+  copyModal.file = file;
+  copyModal.targetPath = store.currentPath === '/' ? '/' : store.currentPath + '/';
+  copyModal.show = true;
+}
+
+async function handleCopySubmit() {
+  if (!copyModal.file || !copyModal.targetPath.trim()) return;
+  copyModal.copying = true;
+  try {
+    const toPath =
+      (copyModal.targetPath.endsWith('/') ? copyModal.targetPath : copyModal.targetPath + '/') +
+      copyModal.file.name;
+    await copyCloudFile(copyModal.file.path, toPath);
+    message.success('复制成功');
+    copyModal.show = false;
+    await store.refresh();
+  } finally {
+    copyModal.copying = false;
+  }
+}
+
+// 编辑器保存后刷新
+function handleEditorSaved() {
+  store.refresh();
 }
 
 // 删除
@@ -499,6 +616,50 @@ store.init();
         <n-button type="primary" @click="handleRenameSubmit">
           确认
         </n-button>
+      </n-space>
+    </template>
+  </n-modal>
+
+  <!-- 编辑器弹窗 -->
+  <cloud-file-editor
+    v-model:show="editorModal.show"
+    :file="editorModal.file"
+    :loading="editorModal.loading"
+    @saved="handleEditorSaved"
+  />
+
+  <!-- 移动弹窗 -->
+  <n-modal v-model:show="moveModal.show" preset="card" title="移动文件" style="width: 400px;">
+    <div style="margin-bottom: 12px;">
+      移动 <b>{{ moveModal.file?.name }}</b> 到：
+    </div>
+    <n-input
+      v-model:value="moveModal.targetPath"
+      placeholder="目标路径，如 /docs"
+      @keyup.enter="handleMoveSubmit"
+    />
+    <template #footer>
+      <n-space justify="end">
+        <n-button @click="moveModal.show = false">取消</n-button>
+        <n-button type="primary" :loading="moveModal.moving" @click="handleMoveSubmit">移动</n-button>
+      </n-space>
+    </template>
+  </n-modal>
+
+  <!-- 复制弹窗 -->
+  <n-modal v-model:show="copyModal.show" preset="card" title="复制文件" style="width: 400px;">
+    <div style="margin-bottom: 12px;">
+      复制 <b>{{ copyModal.file?.name }}</b> 到：
+    </div>
+    <n-input
+      v-model:value="copyModal.targetPath"
+      placeholder="目标路径，如 /backup"
+      @keyup.enter="handleCopySubmit"
+    />
+    <template #footer>
+      <n-space justify="end">
+        <n-button @click="copyModal.show = false">取消</n-button>
+        <n-button type="primary" :loading="copyModal.copying" @click="handleCopySubmit">复制</n-button>
       </n-space>
     </template>
   </n-modal>
