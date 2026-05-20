@@ -392,15 +392,10 @@ async function handleChangePassword() {
               style="position:absolute;width:0;height:0;opacity:0;overflow:hidden;"
               @change="handleAvatarChange"
             />
-            <NButton
-              text
-              type="primary"
-              class="mt-2"
-              @click="openAvatarSelect"
-            >
+            <NButton class="mt-3" @click="openAvatarSelect">
               更换头像
             </NButton>
-            <NButton class="mt-2" @click="openPasswordModal">
+            <NButton class="mt-3" @click="openPasswordModal">
               修改密码
             </NButton>
           </div>
