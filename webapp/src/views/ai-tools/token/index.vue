@@ -37,19 +37,19 @@ const validateModal = reactive({
 });
 
 const columns = [
-  { title: '序号', key: 'index', width: 70, render: (_: any, index: number) => (pagination.page - 1) * pagination.pageSize + index + 1 },
-  { title: 'Token 名称', key: 'tokenName', width: 130, render: (row: Api.Token.TokenItem) => row.tokenName || '-' },
-  { title: 'Token', key: 'tokenPrefix', width: 160, render: (row: Api.Token.TokenItem) => `${row.tokenPrefix || '****'}****` },
-  { title: '状态', key: 'status', width: 80, render: (row: Api.Token.TokenItem) => h(NTag, { type: row.status === 'ACTIVE' ? 'success' : 'warning', size: 'small' }, () => row.status === 'ACTIVE' ? '正常' : '禁用') },
-  { title: '创建时间', key: 'createdTime', width: 160 },
-  { title: '最后使用时间', key: 'lastUsedTime', width: 160, render: (row: Api.Token.TokenItem) => row.lastUsedTime || '-' },
+  { title: '序号', key: 'index', width: 60, render: (_: any, index: number) => (pagination.page - 1) * pagination.pageSize + index + 1 },
+  { title: 'Token 名称', key: 'tokenName', width: 110, ellipsis: { tooltip: true }, render: (row: Api.Token.TokenItem) => row.tokenName || '-' },
+  { title: 'Token', key: 'tokenPrefix', width: 120, ellipsis: { tooltip: true }, render: (row: Api.Token.TokenItem) => `${row.tokenPrefix || '****'}****` },
+  { title: '状态', key: 'status', width: 70, render: (row: Api.Token.TokenItem) => h(NTag, { type: row.status === 'ACTIVE' ? 'success' : 'warning', size: 'small' }, () => row.status === 'ACTIVE' ? '正常' : '禁用') },
+  { title: '创建时间', key: 'createdTime', width: 140, ellipsis: { tooltip: true } },
+  { title: '最后使用时间', key: 'lastUsedTime', width: 140, ellipsis: { tooltip: true }, render: (row: Api.Token.TokenItem) => row.lastUsedTime || '-' },
   {
     title: '操作',
     key: 'actions',
-    width: 200,
+    width: 130,
     render: (row: Api.Token.TokenItem) => [
-      h(NButton, { size: 'small', type: row.status === 'ACTIVE' ? 'warning' : 'success', onClick: () => handleToggleStatus(row), style: { marginRight: '8px' } }, () => row.status === 'ACTIVE' ? '禁用' : '启用'),
-      h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row) }, () => '删除')
+      h(NButton, { size: 'tiny', type: row.status === 'ACTIVE' ? 'warning' : 'success', onClick: () => handleToggleStatus(row), style: { marginRight: '6px' } }, () => row.status === 'ACTIVE' ? '禁用' : '启用'),
+      h(NButton, { size: 'tiny', type: 'error', onClick: () => handleDelete(row) }, () => '删除')
     ]
   }
 ];
@@ -251,7 +251,7 @@ loadData();
             <NButton @click="loadData">刷新</NButton>
             <NButton @click="openValidateModal">校验 Token</NButton>
           </NSpace>
-          <NDataTable :columns="columns" :data="data" :loading="loading" :pagination="false" scroll-x="1130" />
+          <NDataTable :columns="columns" :data="data" :loading="loading" :pagination="false" scroll-x="800" />
           <NSpace justify="end" style="margin-top: 12px">
             <NPagination
               v-model:page="pagination.page"

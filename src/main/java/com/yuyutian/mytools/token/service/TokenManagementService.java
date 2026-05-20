@@ -36,7 +36,7 @@ public interface TokenManagementService {
      * @param currentTokenId 当前令牌ID
      * @param userId 用户ID
      */
-    void invalidateOtherTokens(Long currentTokenId, Long userId);
+    void invalidateOtherTokens(String currentTokenId, Long userId);
 
     /**
      * 获取当前令牌信息。

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, h, computed } from 'vue';
+import { reactive, h, computed, type VNode } from 'vue';
 import {
   fetchGetAppList, fetchDeleteApp, fetchGetAppVersions,
   getFileDownloadUrl
@@ -97,7 +97,7 @@ const columns = [
     key: 'actions',
     width: 180,
     render: (row: Api.AppMarket.AppItem) => {
-      const btns = [];
+      const btns: VNode[] = [];
 
       // 下载按钮（所有人可见）
       btns.push(
@@ -136,14 +136,14 @@ const columns = [
 async function loadData() {
   startLoading();
   try {
-    const result = await fetchGetAppList({
+    const { data: result } = await fetchGetAppList({
       page: pagination.page,
       pageSize: pagination.pageSize,
       type: searchForm.type || undefined,
       name: searchForm.name || undefined
     });
     data.length = 0;
-    data.push(...(result?.records || []));
+    data.push(...(result?.list || []));
     pagination.total = result?.total || 0;
   } finally {
     endLoading();
@@ -156,16 +156,13 @@ async function handleDelete(row: Api.AppMarket.AppItem) {
   loadData();
 }
 
-function handleDownload(row: Api.AppMarket.AppItem) {
-  // 下载需要 fileId，暂时用 appId 作为 fileId 的占位
-  // 实际从详情接口获取 fileId
-  fetchGetAppDetail(row.id).then(detail => {
-    if (detail?.fileId) {
-      window.open(getFileDownloadUrl(detail.fileId), '_blank');
-    } else {
-      message.warning('该应用暂无下载文件');
-    }
-  });
+async function handleDownload(row: Api.AppMarket.AppItem) {
+  const { data: detail } = await fetchGetAppDetail(row.id);
+  if (detail?.fileId) {
+    window.open(getFileDownloadUrl(detail.fileId), '_blank');
+  } else {
+    message.warning('该应用暂无下载文件');
+  }
 }
 
 async function fetchGetAppDetail(id: string) {
@@ -213,7 +210,7 @@ loadData();
           v-model:value="searchForm.type"
           placeholder="应用类型"
           :options="[
-            { label: '全部类型', value: null },
+            { label: '全部类型', value: '' },
             { label: 'App', value: 'app' },
             { label: 'CLI', value: 'cli' },
             { label: 'MCP', value: 'mcp' },

@@ -49,7 +49,7 @@ export const useTabStore = defineStore(SetupStoreId.Tab, () => {
       return !(
         id.startsWith('/login') ||
         routeKey === 'login' ||
-        routeKey === 'not-found'
+        (routeKey as string) === 'not-found'
       );
     });
   });

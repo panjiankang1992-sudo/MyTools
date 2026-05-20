@@ -55,10 +55,10 @@ public class TokenManagementServiceImpl implements TokenManagementService {
 
     @Override
     @Transactional
-    public void invalidateOtherTokens(Long currentTokenId, Long userId) {
+    public void invalidateOtherTokens(String currentTokenId, Long userId) {
         List<Token> tokens = tokenMapper.findByUserId(userId);
         for (Token token : tokens) {
-            if (!token.getId().equals(currentTokenId) && "ACTIVE".equals(token.getStatus())) {
+            if (!String.valueOf(token.getId()).equals(currentTokenId) && "ACTIVE".equals(token.getStatus())) {
                 tokenMapper.invalidateByAccessToken(token.getAccessToken());
             }
         }
@@ -168,7 +168,7 @@ public class TokenManagementServiceImpl implements TokenManagementService {
      */
     private TokenInfo convertToTokenInfo(Token token) {
         TokenInfo info = new TokenInfo();
-        info.setId(token.getId());
+        info.setId(String.valueOf(token.getId()));
         info.setTokenName(token.getTokenName());
         info.setAccessToken(maskToken(token.getAccessToken()));
         info.setTokenPrefix(getTokenPrefix(token.getAccessToken()));

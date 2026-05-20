@@ -160,8 +160,15 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
 
   async function loginByToken(loginToken: Api.Auth.LoginToken) {
     // 1. stored in the localStorage, the later requests need it in headers
-    localStg.set('token', loginToken.accessToken);
-    localStg.set('refreshToken', loginToken.refreshToken);
+    // Use localStorage directly to avoid JSON.stringify double-encoding (tokens are already strings)
+    const tokenKey = import.meta.env.VITE_STORAGE_PREFIX
+      ? import.meta.env.VITE_STORAGE_PREFIX + 'token'
+      : 'token';
+    const refreshTokenKey = import.meta.env.VITE_STORAGE_PREFIX
+      ? import.meta.env.VITE_STORAGE_PREFIX + 'refreshToken'
+      : 'refreshToken';
+    localStorage.setItem(tokenKey, loginToken.accessToken);
+    localStorage.setItem(refreshTokenKey, loginToken.refreshToken);
 
     // 2. get user info
     const pass = await getUserInfo();

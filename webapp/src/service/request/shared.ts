@@ -1,11 +1,14 @@
 import { useAuthStore } from '@/store/modules/auth';
-import { localStg } from '@/utils/storage';
 import { fetchRefreshToken } from '../api';
 import type { RequestInstanceState } from './type';
 import { getI18nMessage, ErrorCodeConfigMap } from '../error-code';
 
 export function getAuthorization() {
-  const token = localStg.get('token');
+  // Use localStorage directly to avoid JSON.parse issues with previously double-encoded tokens
+  const tokenKey = import.meta.env.VITE_STORAGE_PREFIX
+    ? import.meta.env.VITE_STORAGE_PREFIX + 'token'
+    : 'token';
+  const token = localStorage.getItem(tokenKey);
   const Authorization = token ? `Bearer ${token}` : null;
 
   return Authorization;
@@ -15,11 +18,19 @@ export function getAuthorization() {
 async function handleRefreshToken() {
   const { resetStore } = useAuthStore();
 
-  const rToken = localStg.get('refreshToken') || '';
+  const storagePrefix = import.meta.env.VITE_STORAGE_PREFIX || '';
+  const rToken = localStorage.getItem(storagePrefix + 'refreshToken') || '';
   const { error, data } = await fetchRefreshToken(rToken);
   if (!error) {
-    localStg.set('token', data.accessToken);
-    localStg.set('refreshToken', data.refreshToken);
+    // Use localStorage directly to avoid JSON.stringify double-encoding (tokens are already strings)
+    const tokenKey = import.meta.env.VITE_STORAGE_PREFIX
+      ? import.meta.env.VITE_STORAGE_PREFIX + 'token'
+      : 'token';
+    const refreshTokenKey = import.meta.env.VITE_STORAGE_PREFIX
+      ? import.meta.env.VITE_STORAGE_PREFIX + 'refreshToken'
+      : 'refreshToken';
+    localStorage.setItem(tokenKey, data.accessToken);
+    localStorage.setItem(refreshTokenKey, data.refreshToken);
     return true;
   }
 

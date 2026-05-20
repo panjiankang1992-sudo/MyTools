@@ -66,11 +66,10 @@ export namespace Api.AppMarket {
   }
 
   export interface ListResponse {
-    records: AppItem[];
+    list: AppItem[];
     total: number;
-    size: number;
-    current: number;
-    pages: number;
+    page: number;
+    pageSize: number;
   }
 }
 

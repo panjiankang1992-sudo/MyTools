@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Data
 public class TokenInfo {
 
-    /** 令牌ID */
-    private Long id;
+    /** 令牌ID，使用String类型避免前端JavaScript Number精度丢失 */
+    private String id;
 
     /** 令牌名称 */
     private String tokenName;

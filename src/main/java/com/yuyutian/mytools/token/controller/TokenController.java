@@ -110,7 +110,7 @@ public class TokenController {
     @GetMapping("/{tokenId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Result<TokenInfo>> getTokenDetail(
-            @PathVariable Long tokenId,
+            @PathVariable String tokenId,
             @RequestHeader("Authorization") String authHeader) {
         Long userId = jwtUtils.getUserIdFromToken(extractToken(authHeader));
         TokenInfo tokenInfo = tokenManagementService.getCurrentToken("Bearer " + jwtUtils.getUserIdFromToken(extractToken(authHeader)));
@@ -132,7 +132,7 @@ public class TokenController {
     @PutMapping("/{tokenId}/status")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Result<Void>> updateTokenStatus(
-            @PathVariable Long tokenId,
+            @PathVariable String tokenId,
             @RequestBody Map<String, Object> body,
             @RequestHeader("Authorization") String authHeader) {
         Long userId = jwtUtils.getUserIdFromToken(extractToken(authHeader));
@@ -150,7 +150,7 @@ public class TokenController {
         } else {
             status = "INVALID";
         }
-        tokenManagementService.updateTokenStatus(tokenId, status, userId);
+        tokenManagementService.updateTokenStatus(Long.valueOf(tokenId), status, userId);
         return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.update"), null));
     }
 
@@ -160,10 +160,10 @@ public class TokenController {
     @DeleteMapping("/{tokenId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Result<Void>> deleteToken(
-            @PathVariable Long tokenId,
+            @PathVariable String tokenId,
             @RequestHeader("Authorization") String authHeader) {
         Long userId = jwtUtils.getUserIdFromToken(extractToken(authHeader));
-        tokenManagementService.deleteToken(tokenId, userId);
+        tokenManagementService.deleteToken(Long.valueOf(tokenId), userId);
         return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.delete"), null));
     }
 

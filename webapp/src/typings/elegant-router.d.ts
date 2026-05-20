@@ -33,6 +33,8 @@ declare module "@elegant-router/types" {
     "system": "/system";
     "system_role": "/system/role";
     "system_user": "/system/user";
+    "app-market": "/app-market";
+    "app-market_index": "/app-market/index";
   };
 
   /**
@@ -74,6 +76,7 @@ declare module "@elegant-router/types" {
     | "login"
     | "profile"
     | "system"
+    | "app-market"
   >;
 
   /**
@@ -103,6 +106,7 @@ declare module "@elegant-router/types" {
     | "profile"
     | "system_role"
     | "system_user"
+    | "app-market_index"
   >;
 
   /**

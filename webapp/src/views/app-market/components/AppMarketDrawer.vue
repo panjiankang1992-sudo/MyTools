@@ -8,10 +8,9 @@ import { useAuthStore } from '@/store/modules/auth';
 import { useLoading } from '@sa/hooks';
 import {
   NDrawer, NDrawerContent, NButton, NSpace, NTag, NImage,
-  NInput, NSelect, NForm, NFormItem, NAlert, NEmpty,
-  NSpin, NDivider, NPopconfirm, useMessage, NScrollbar
+  NInput, NSelect, NForm, NFormItem, NEmpty,
+  NSpin, NDivider, NPopconfirm, useMessage
 } from 'naive-ui';
-import { fetchUploadThumbnail, fetchUploadAppFile } from '@/service/api/appmarket';
 
 const props = defineProps<{
   show: boolean;
@@ -83,7 +82,8 @@ async function loadDetail() {
   if (!props.appId) return;
   startLoading();
   try {
-    detail.value = await fetchGetAppDetail(props.appId);
+    const { data } = await fetchGetAppDetail(props.appId);
+    detail.value = data || null;
   } finally {
     endLoading();
   }
@@ -91,7 +91,8 @@ async function loadDetail() {
 
 async function loadVersions() {
   if (!props.appId) return;
-  versions.value = await fetchGetAppVersions(props.appId);
+  const { data } = await fetchGetAppVersions(props.appId);
+  versions.value = data || [];
 }
 
 async function handleSubmit() {

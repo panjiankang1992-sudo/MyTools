@@ -41,11 +41,7 @@ export const request = createFlatRequest(
       refreshTokenPromise: null
     } as RequestInstanceState,
     transform(response: AxiosResponse<App.Service.Response<any>>) {
-      // 返回 response.data.data，如果不存在则返回整个 response.data
-      const data = response.data?.data;
-      console.log('[Request Transform] response.data:', response.data);
-      console.log('[Request Transform] response.data.data:', data);
-      return data !== undefined ? data : response.data;
+      return response.data.data;
     },
     async onRequest(config) {
       const Authorization = getAuthorization();
@@ -170,8 +166,9 @@ export const demoRequest = createRequest(
     async onRequest(config) {
       const { headers } = config;
 
-      // set token
-      const token = localStg.get('token');
+      // set token - use localStorage directly to avoid JSON.parse failing on plain JWT strings
+      const storagePrefix = import.meta.env.VITE_STORAGE_PREFIX || '';
+      const token = localStorage.getItem(storagePrefix + 'token');
       const Authorization = token ? `Bearer ${token}` : null;
       Object.assign(headers, { Authorization });
 
