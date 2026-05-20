@@ -153,6 +153,17 @@ export const generatedRoutes: GeneratedRoute[] = [
     ]
   },
   {
+    name: 'cloud-file',
+    path: '/cloud-file',
+    component: 'layout.base$view.cloud-file',
+    meta: {
+      title: 'cloud-file',
+      i18nKey: 'route.cloud-file',
+      icon: 'mdi:cloud',
+      order: 4
+    }
+  },
+  {
     name: 'login',
     path: '/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?',
     component: 'layout.blank$view.login',

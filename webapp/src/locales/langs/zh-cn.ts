@@ -239,7 +239,8 @@ const local: App.I18n.Schema = {
     'localfile_large-media': '大文件多媒体',
     profile: '个人信息',
     'app-market': '应用市场',
-    'app-market_index': '应用列表'
+    'app-market_index': '应用列表',
+    'cloud-file': '云端文件'
   },
   page: {
     login: {

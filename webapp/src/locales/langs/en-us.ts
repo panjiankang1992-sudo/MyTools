@@ -243,7 +243,8 @@ const local: App.I18n.Schema = {
     'localfile_large-media': 'Large Media',
     profile: 'Profile',
     'app-market': 'App Market',
-    'app-market_index': 'App List'
+    'app-market_index': 'App List',
+    'cloud-file': 'Cloud File'
   },
   page: {
     login: {
