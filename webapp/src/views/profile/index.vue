@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
 import { useAuthStore } from '@/store/modules/auth';
-import { fetchChangePassword, fetchUpdateProfile } from '@/service/api/user';
+import { fetchChangePassword, fetchUpdateProfile, fetchWebdavAccount, updateWebdavAccount } from '@/service/api/user';
 import { useLoading } from '@sa/hooks';
 import { $t } from '@/locales';
 import {
@@ -17,7 +17,9 @@ import {
   NImageGroup,
   useMessage,
   NModal,
-  NInputGroup
+  NInputGroup,
+  NGrid,
+  NGridItem as NGi
 } from 'naive-ui';
 
 defineOptions({ name: 'UserProfile' });
@@ -26,6 +28,7 @@ const message = useMessage();
 const authStore = useAuthStore();
 const { loading: saveLoading, startLoading: startSave, endLoading: endSave } = useLoading();
 const { loading: pwdLoading, startLoading: startPwdLoad, endLoading: endPwdLoad } = useLoading();
+const { loading: webdavLoading, startLoading: startWebdav, endLoading: endWebdav } = useLoading();
 
 // 头像预览
 const avatarPreview = ref<string | null>(null);
@@ -35,11 +38,37 @@ const avatarInputRef = ref<HTMLInputElement | null>(null);
 // 编辑状态
 const isEditing = ref(false);
 
+// WebDAV 编辑状态
+const webdavEditing = ref(false);
+const webdavForm = reactive({
+  type: 'jianguoyun',
+  url: '',
+  username: '',
+  password: ''
+});
+const originalWebdavForm = reactive({
+  type: 'jianguoyun',
+  url: '',
+  username: '',
+  password: ''
+});
+
 // 性别选项
 const genderOptions = [
   { label: '未知', value: 0 },
   { label: '男', value: 1 },
   { label: '女', value: 2 }
+];
+
+// WebDAV 类型选项
+const webdavTypeOptions = [
+  { label: '坚果云', value: 'jianguoyun' },
+  { label: 'Nextcloud', value: 'nextcloud' },
+  { label: 'ownCloud', value: 'owncloud' },
+  { label: '群晖/NAS', value: 'synology' },
+  { label: 'Alist', value: 'alist' },
+  { label: 'S3/WebDAV网关', value: 's3' },
+  { label: '自定义', value: 'custom' }
 ];
 
 // 个人信息表单（初始为空，等 userInfo 加载后同步）
@@ -74,6 +103,7 @@ watch(
       profileForm.hobbies = u.hobbies || '';
       profileForm.signature = u.signature || '';
       Object.assign(originalForm, profileForm);
+      loadWebdav();
     }
   },
   { immediate: true }
@@ -212,6 +242,59 @@ function cancelEdit() {
   Object.assign(profileForm, originalForm);
   avatarPreview.value = null;
   isEditing.value = false;
+}
+
+// 加载 WebDAV 账户
+async function loadWebdav() {
+  try {
+    const data = await fetchWebdavAccount();
+    if (data) {
+      webdavForm.type = data.type || 'jianguoyun';
+      webdavForm.url = data.url || '';
+      webdavForm.username = data.username || '';
+      webdavForm.password = '';
+      originalWebdavForm.type = webdavForm.type;
+      originalWebdavForm.url = webdavForm.url;
+      originalWebdavForm.username = webdavForm.username;
+      originalWebdavForm.password = '';
+    }
+  } catch {
+    // 未配置时不报错
+  }
+}
+
+// 保存 WebDAV 账户
+async function saveWebdav() {
+  try {
+    startWebdav();
+    await updateWebdavAccount({
+      type: webdavForm.type,
+      url: webdavForm.url,
+      username: webdavForm.username,
+      password: webdavForm.password || undefined
+    });
+    originalWebdavForm.type = webdavForm.type;
+    originalWebdavForm.url = webdavForm.url;
+    originalWebdavForm.username = webdavForm.username;
+    originalWebdavForm.password = '';
+    webdavForm.password = '';
+    webdavEditing.value = false;
+    message.success('保存成功');
+  } catch (error: any) {
+    const backendMsg = error?.response?.data?.message;
+    message.error(backendMsg || '保存失败');
+  } finally {
+    endWebdav();
+  }
+}
+
+// 取消 WebDAV 编辑
+function cancelWebdavEdit() {
+  webdavForm.type = originalWebdavForm.type;
+  webdavForm.url = originalWebdavForm.url;
+  webdavForm.username = originalWebdavForm.username;
+  webdavForm.password = '';
+  webdavEditing.value = false;
 }
 
 // 修改密码
@@ -391,6 +474,67 @@ async function handleChangePassword() {
           </div>
           <NButton @click="openPasswordModal">修改密码</NButton>
         </div>
+      </NCard>
+
+      <!-- WebDAV 信息维护 -->
+      <NCard :bordered="false" class="mb-4">
+        <template #header>
+          <div class="flex justify-between items-center">
+            <span class="text-lg font-semibold">WebDAV 信息维护</span>
+            <NSpace>
+              <NButton v-if="!webdavEditing" type="primary" @click="webdavEditing = true">
+                编辑
+              </NButton>
+              <template v-else>
+                <NButton @click="cancelWebdavEdit">取消</NButton>
+                <NButton type="primary" :loading="webdavLoading" @click="saveWebdav">
+                  保存
+                </NButton>
+              </template>
+            </NSpace>
+          </div>
+        </template>
+
+        <NGrid :x-gap="16" :cols="2">
+          <NGi>
+            <NFormItem label="类型">
+              <NSelect
+                v-model:value="webdavForm.type"
+                :options="webdavTypeOptions"
+                :disabled="!webdavEditing"
+              />
+            </NFormItem>
+          </NGi>
+          <NGi>
+            <NFormItem label="地址">
+              <NInput
+                v-model:value="webdavForm.url"
+                :disabled="!webdavEditing"
+                placeholder="https://dav.example.com/dav/"
+              />
+            </NFormItem>
+          </NGi>
+          <NGi>
+            <NFormItem label="用户名">
+              <NInput
+                v-model:value="webdavForm.username"
+                :disabled="!webdavEditing"
+                placeholder="请输入用户名"
+              />
+            </NFormItem>
+          </NGi>
+          <NGi>
+            <NFormItem label="密码">
+              <NInput
+                v-model:value="webdavForm.password"
+                type="password"
+                :disabled="!webdavEditing"
+                show-password-on="click"
+                placeholder="已设置则留空"
+              />
+            </NFormItem>
+          </NGi>
+        </NGrid>
       </NCard>
     </div>
 
