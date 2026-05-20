@@ -393,7 +393,6 @@ async function handleChangePassword() {
               @change="handleAvatarChange"
             />
             <NButton
-              v-if="isEditing"
               text
               type="primary"
               class="mt-2"
