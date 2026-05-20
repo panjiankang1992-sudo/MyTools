@@ -35,10 +35,14 @@ public class WebdavClient {
     private static final String DEPTH_HEADER = "Depth";
     private static final String DESTINATION_HEADER = "Destination";
 
+    // DAV namespace URI
+    private static final String DAV_NS = "DAV:";
+
     private final String baseUrl;
     private final String username;
     private final String password;
     private final HttpClient httpClient;
+    private final String urlPathPrefix;
 
     public WebdavClient(String baseUrl, String username, String password) {
         this.baseUrl = normalizeUrl(baseUrl);
@@ -47,12 +51,14 @@ public class WebdavClient {
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
+        this.urlPathPrefix = URI.create(this.baseUrl).getPath();
     }
 
     public CloudFileListResponse list(String path, int depth) throws Exception {
         String url = buildUrl(path);
         String propfindBody = buildPropfindBody();
         HttpResponse<String> response = executePropfind(url, propfindBody, depth);
+        checkResponse(response);
         return parsePropfindResponse(response.body(), path);
     }
 
@@ -194,11 +200,11 @@ public class WebdavClient {
         factory.setNamespaceAware(true);
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(new InputSource(new StringReader(xmlBody)));
-        NodeList responses = doc.getElementsByTagName("D:response");
+        NodeList responses = doc.getElementsByTagNameNS(DAV_NS, "response");
 
         for (int i = 0; i < responses.getLength(); i++) {
             Element resp = (Element) responses.item(i);
-            String href = getElementText(resp, "D:href");
+            String href = getElementTextNS(resp, "href");
             if (href == null || href.isEmpty()) continue;
 
             String itemPath = hrefToPath(href);
@@ -207,10 +213,10 @@ public class WebdavClient {
             if (itemPath.equals(normalizedParent)) continue;
 
             boolean isDir = hasResourcetypeCollection(resp);
-            long size = parseLong(getElementText(resp, "D:getcontentlength"));
-            String contentType = getElementText(resp, "D:getcontenttype");
-            String lastModifiedStr = getElementText(resp, "D:getlastmodified");
-            String etag = getElementText(resp, "D:getetag");
+            long size = parseLong(getElementTextNS(resp, "getcontentlength"));
+            String contentType = getElementTextNS(resp, "getcontenttype");
+            String lastModifiedStr = getElementTextNS(resp, "getlastmodified");
+            String etag = getElementTextNS(resp, "getetag");
             Instant lastModified = parseHttpDate(lastModifiedStr);
             String name = pathToName(itemPath);
 
@@ -223,6 +229,10 @@ public class WebdavClient {
     private String hrefToPath(String href) {
         try {
             String decoded = URLDecoder.decode(href, StandardCharsets.UTF_8);
+            // Strip the urlPathPrefix (e.g., /dav) and the full baseUrl
+            if (!urlPathPrefix.isEmpty() && !urlPathPrefix.equals("/") && decoded.startsWith(urlPathPrefix)) {
+                decoded = decoded.substring(urlPathPrefix.length());
+            }
             if (decoded.startsWith(baseUrl)) {
                 decoded = decoded.substring(baseUrl.length());
             }
@@ -247,17 +257,17 @@ public class WebdavClient {
         return path.isEmpty() ? "/" : path;
     }
 
-    private String getElementText(Element parent, String tagName) {
-        NodeList list = parent.getElementsByTagName(tagName);
+    private String getElementTextNS(Element parent, String localName) {
+        NodeList list = parent.getElementsByTagNameNS(DAV_NS, localName);
         if (list.getLength() > 0) return list.item(0).getTextContent();
         return null;
     }
 
     private boolean hasResourcetypeCollection(Element resp) {
-        NodeList list = resp.getElementsByTagName("D:resourcetype");
+        NodeList list = resp.getElementsByTagNameNS(DAV_NS, "resourcetype");
         for (int i = 0; i < list.getLength(); i++) {
             Element rt = (Element) list.item(i);
-            if (rt.getElementsByTagName("D:collection").getLength() > 0) return true;
+            if (rt.getElementsByTagNameNS(DAV_NS, "collection").getLength() > 0) return true;
         }
         return false;
     }

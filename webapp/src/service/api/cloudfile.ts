@@ -9,26 +9,43 @@ export function fetchCloudFiles(path = '/', depth = 1) {
   });
 }
 
-/** 获取文件内容（文本预览） */
-export function fetchFileContent(path: string) {
+/** 获取文件内容（文本预览，跳过 interceptor 直接 fetch） */
+export async function fetchFileContent(path: string) {
+  const storagePrefix = import.meta.env.VITE_STORAGE_PREFIX || '';
+  const token = localStorage.getItem(storagePrefix + 'token') || '';
   const encoded = encodeURIComponent(path);
-  return request<string, 'text'>({
-    url: '/api/cloud/file',
-    method: 'get',
-    params: { path: encoded, preview: true },
-    responseType: 'text'
+  const baseURL = import.meta.env.VITE_SERVICE_BASE_URL || '/';
+  const base = baseURL.endsWith('/') ? baseURL : baseURL + '/';
+
+  const response = await fetch(`${base}api/cloud/file?path=${encoded}&preview=true`, {
+    headers: { Authorization: token ? `Bearer ${token}` : '' }
   });
+
+  if (!response.ok) {
+    throw new Error(`请求失败: ${response.status}`);
+  }
+
+  return { data: await response.text(), error: null };
 }
 
-/** 下载文件 */
-export function downloadCloudFile(path: string) {
+/** 下载文件（跳过 request interceptor，直接获取 blob） */
+export async function downloadCloudFile(path: string) {
+  const storagePrefix = import.meta.env.VITE_STORAGE_PREFIX || '';
+  const token = localStorage.getItem(storagePrefix + 'token') || '';
   const encoded = encodeURIComponent(path);
-  return request<Blob, 'blob'>({
-    url: '/api/cloud/file',
-    method: 'get',
-    params: { path: encoded },
-    responseType: 'blob'
+  const baseURL = import.meta.env.VITE_SERVICE_BASE_URL || '/';
+  const base = baseURL.endsWith('/') ? baseURL : baseURL + '/';
+
+  const response = await fetch(`${base}api/cloud/file?path=${encoded}`, {
+    headers: { Authorization: token ? `Bearer ${token}` : '' }
   });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`下载失败: ${text}`);
+  }
+
+  return { data: await response.blob(), error: null };
 }
 
 /** 上传文件 */

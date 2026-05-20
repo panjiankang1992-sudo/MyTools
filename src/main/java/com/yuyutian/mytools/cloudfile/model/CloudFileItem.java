@@ -13,7 +13,10 @@ public class CloudFileItem {
 
     private String name;
     private String path;
+
+    @JsonProperty("isDirectory")
     private boolean isDirectory;
+
     private long size;
 
     @JsonProperty("contentType")

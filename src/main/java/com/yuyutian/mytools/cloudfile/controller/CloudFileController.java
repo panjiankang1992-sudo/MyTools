@@ -45,10 +45,11 @@ public class CloudFileController {
         } else {
             byte[] bytes = cloudFileService.downloadFile(userId, decodedPath);
             String filename = decodedPath.substring(decodedPath.lastIndexOf('/') + 1);
+            MediaType mediaType = detectMediaType(filename);
             return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .contentType(mediaType)
                     .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"" + filename + "\"")
+                            "inline; filename=\"" + filename + "\"")
                     .body(new ByteArrayResource(bytes));
         }
     }
@@ -139,5 +140,27 @@ public class CloudFileController {
 
     private String decode(String s) {
         try { return URLDecoder.decode(s, StandardCharsets.UTF_8); } catch (Exception e) { return s; }
+    }
+
+    private MediaType detectMediaType(String filename) {
+        String lower = filename.toLowerCase();
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return MediaType.IMAGE_JPEG;
+        if (lower.endsWith(".png")) return MediaType.IMAGE_PNG;
+        if (lower.endsWith(".gif")) return MediaType.IMAGE_GIF;
+        if (lower.endsWith(".webp")) return MediaType.valueOf("image/webp");
+        if (lower.endsWith(".svg")) return MediaType.valueOf("image/svg+xml");
+        if (lower.endsWith(".bmp")) return MediaType.valueOf("image/bmp");
+        if (lower.endsWith(".ico")) return MediaType.valueOf("image/x-icon");
+        if (lower.endsWith(".pdf")) return MediaType.APPLICATION_PDF;
+        if (lower.endsWith(".txt") || lower.endsWith(".md")) return MediaType.TEXT_PLAIN;
+        if (lower.endsWith(".html") || lower.endsWith(".htm")) return MediaType.TEXT_HTML;
+        if (lower.endsWith(".css")) return MediaType.valueOf("text/css");
+        if (lower.endsWith(".js")) return MediaType.valueOf("application/javascript");
+        if (lower.endsWith(".json")) return MediaType.APPLICATION_JSON;
+        if (lower.endsWith(".xml")) return MediaType.APPLICATION_XML;
+        if (lower.endsWith(".zip")) return MediaType.valueOf("application/zip");
+        if (lower.endsWith(".mp3")) return MediaType.valueOf("audio/mpeg");
+        if (lower.endsWith(".mp4")) return MediaType.valueOf("video/mp4");
+        return MediaType.APPLICATION_OCTET_STREAM;
     }
 }

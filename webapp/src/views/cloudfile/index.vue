@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, reactive, ref } from 'vue';
+import { computed, h, reactive, ref, watch } from 'vue';
 import { useCloudFileStore, type CloudFileTreeNode } from '@/store/modules/cloudfile';
 import {
   createCloudDir,
@@ -29,7 +29,8 @@ import {
   useMessage,
   useDialog,
   NEmpty,
-  NSpin
+  NSpin,
+  NImage
 } from 'naive-ui';
 import {
   FolderOutline,
@@ -91,6 +92,21 @@ const copyModal = reactive({
   file: null as Api.CloudFile.CloudFileItem | null,
   targetPath: '',
   copying: false
+});
+
+// 图片预览
+const imagePreview = reactive({
+  show: false,
+  url: '',
+  name: '',
+  loading: false
+});
+
+watch(() => imagePreview.show, (visible) => {
+  if (!visible && imagePreview.url) {
+    URL.revokeObjectURL(imagePreview.url);
+    imagePreview.url = '';
+  }
 });
 
 // 上传状态
@@ -248,34 +264,57 @@ const columns = [
   }
 ];
 
-// 表格行点击：目录→导航，文本文件→Monaco Editor
+// 表格行点击：目录→导航，文本文件→编辑器，图片→预览
 async function handleRowClick(row: Api.CloudFile.CloudFileItem) {
   if (row.isDirectory) {
     await store.navigateTo(row.path);
     selectedTreeKey.value = [row.path];
   } else {
     const ext = row.name.split('.').pop()?.toLowerCase() || '';
-    const textExts = ['md', 'txt', 'json', 'xml', 'html', 'css', 'js', 'ts', 'vue', 'py', 'java', 'c', 'cpp', 'h', 'sh', 'yaml', 'yml', 'properties', 'jsx', 'tsx'];
-    if (textExts.includes(ext)) {
-      editorModal.loading = true;
-      editorModal.file = null;
-      editorModal.show = true;
+    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'];
+    if (imageExts.includes(ext)) {
+      if (imagePreview.url) URL.revokeObjectURL(imagePreview.url);
+      imagePreview.loading = true;
+      imagePreview.name = row.name;
+      imagePreview.url = '';
+      imagePreview.show = true;
       try {
-        const { data } = await fetchFileContent(row.path);
-        editorModal.file = { path: row.path, name: row.name, content: data || '' };
+        const { data: blob } = await downloadCloudFile(row.path);
+        if (blob) {
+          imagePreview.url = URL.createObjectURL(blob);
+        }
       } finally {
-        editorModal.loading = false;
+        imagePreview.loading = false;
       }
     } else {
-      message.warning('该文件类型不支持在线编辑');
+      const textExts = ['md', 'txt', 'json', 'xml', 'html', 'css', 'js', 'ts', 'vue', 'py', 'java', 'c', 'cpp', 'h', 'sh', 'yaml', 'yml', 'properties', 'jsx', 'tsx'];
+      if (textExts.includes(ext)) {
+        editorModal.loading = true;
+        editorModal.file = null;
+        editorModal.show = true;
+        try {
+          const { data } = await fetchFileContent(row.path);
+          editorModal.file = { path: row.path, name: row.name, content: data || '' };
+        } finally {
+          editorModal.loading = false;
+        }
+      } else {
+        message.warning('该文件类型不支持在线预览');
+      }
     }
   }
 }
 
-// 树节点点击：导航到该目录
+// 树节点点击：导航到该目录（文件节点不导航）
 async function handleTreeSelect(keys: string[]) {
   if (keys.length === 0) return;
   const path = keys[0]!;
+  const node = store.findNode(path);
+  // 文件节点不做导航，仅保持选中
+  if (node && !node.isDirectory) {
+    selectedTreeKey.value = [path];
+    return;
+  }
   selectedTreeKey.value = [path];
   uploadCurrentPath.value = path;
   await store.navigateTo(path);
@@ -630,6 +669,27 @@ store.init();
     :loading="editorModal.loading"
     @saved="handleEditorSaved"
   />
+
+  <!-- 图片预览弹窗 -->
+  <n-modal
+    v-model:show="imagePreview.show"
+    preset="card"
+    :title="imagePreview.name"
+    style="width: 90vw; max-width: 1200px;"
+    :mask-closable="true"
+  >
+    <div style="display: flex; justify-content: center; align-items: center; min-height: 200px;">
+      <n-spin :show="imagePreview.loading">
+        <n-image
+          v-if="imagePreview.url"
+          :src="imagePreview.url"
+          style="max-height: 80vh;"
+          object-fit="contain"
+          show-toolbar-tooltip
+        />
+      </n-spin>
+    </div>
+  </n-modal>
 
   <!-- 移动弹窗 -->
   <n-modal v-model:show="moveModal.show" preset="card" title="移动文件" style="width: 400px;">

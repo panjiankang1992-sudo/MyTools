@@ -26,8 +26,8 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
       label: item.name,
       isLeaf: !item.isDirectory,
       path: item.path,
-      isDirectory: item.isDirectory,
-      children: item.isDirectory ? [] : undefined
+      isDirectory: item.isDirectory
+      // children undefined → NTree shows expand arrow and triggers @load for lazy loading
     };
   }
 
@@ -48,6 +48,18 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
       }
     }
     return false;
+  }
+
+  /** 在 treeData 中查找指定路径的节点 */
+  function findNode(nodes: CloudFileTreeNode[], path: string): CloudFileTreeNode | null {
+    for (const node of nodes) {
+      if (node.path === path) return node;
+      if (node.children && node.children.length > 0) {
+        const found = findNode(node.children, path);
+        if (found) return found;
+      }
+    }
+    return null;
   }
 
   /** 加载指定路径的文件列表并更新 treeData */
@@ -123,7 +135,8 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
     init,
     refresh,
     navigateTo,
-    loadTreeNodeChildren
+    loadTreeNodeChildren,
+    findNode: (path: string) => findNode(treeData.value, path)
   };
 });
 
