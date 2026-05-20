@@ -117,6 +117,16 @@ public class CloudFileController {
         return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.operation"), null));
     }
 
+    @PutMapping("/api/cloud/text-file")
+    public ResponseEntity<Result<Void>> saveTextFile(
+            @RequestHeader("Authorization") String auth,
+            @RequestParam("path") String path,
+            @RequestBody String content) {
+        Long userId = resolveUserId(auth);
+        cloudFileService.saveTextFile(userId, decode(path), content);
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.operation"), null));
+    }
+
     private Long resolveUserId(String auth) {
         String token = extractToken(auth);
         return jwtUtils.getUserIdFromToken(token);

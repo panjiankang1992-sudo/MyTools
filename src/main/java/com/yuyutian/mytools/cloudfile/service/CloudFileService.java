@@ -92,4 +92,13 @@ public interface CloudFileService {
      * @param recursive 是否递归删除（目录时需为true）
      */
     void delete(Long userId, String path, boolean recursive);
+
+    /**
+     * 保存文本文件内容（用于 Monaco Editor 等场景）。
+     *
+     * @param userId  用户ID
+     * @param path    文件路径
+     * @param content 文本内容
+     */
+    void saveTextFile(Long userId, String path, String content);
 }

@@ -84,6 +84,10 @@ public class WebdavClient {
         return new CloudFileItem(null, path, false, content.length, null, Instant.now(), null);
     }
 
+    public CloudFileItem put(String path, String content) throws Exception {
+        return put(path, content.getBytes(StandardCharsets.UTF_8));
+    }
+
     public void mkdir(String path) throws Exception {
         String url = buildUrl(path);
         HttpRequest request = newRequest(url, MKCOL_METHOD).PUT(HttpRequest.BodyPublishers.noBody()).build();

@@ -128,6 +128,16 @@ public class CloudFileServiceImpl implements CloudFileService {
         }
     }
 
+    @Override
+    public void saveTextFile(Long userId, String path, String content) {
+        WebdavClient client = buildClient(userId);
+        try {
+            client.put(path, content);
+        } catch (Exception e) {
+            throw new BusinessException("50001", "保存文件失败: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * 根据用户ID构建 WebDAV 客户端。
      */
