@@ -22,6 +22,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
 
   const userInfo: Api.Auth.UserInfo = reactive({
     id: 0,
+    userId: 0,
     username: '',
     nickname: null,
     avatar: null,
@@ -57,6 +58,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     token.value = '';
     Object.assign(userInfo, {
       id: 0,
+      userId: 0,
       username: '',
       nickname: null,
       avatar: null,
@@ -87,7 +89,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     }
 
     // Store current user ID locally for next login comparison
-    localStg.set('lastLoginUserId', userInfo.userId);
+    localStg.set('lastLoginUserId', String(userInfo.userId));
   }
 
   /**
@@ -103,7 +105,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     const lastLoginUserId = localStg.get('lastLoginUserId');
 
     // Clear all tabs if current user is different from previous user
-    if (!lastLoginUserId || lastLoginUserId !== userInfo.userId) {
+    if (!lastLoginUserId || Number(lastLoginUserId) !== userInfo.userId) {
       localStg.remove('globalTabs');
       tabStore.clearTabs();
 

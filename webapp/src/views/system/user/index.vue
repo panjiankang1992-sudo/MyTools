@@ -41,7 +41,7 @@ const rules = {
   ],
   email: [
     { required: true, message: '邮箱不能为空', trigger: 'blur' },
-    { type: 'email', message: '邮箱格式不正确', trigger: 'blur' }
+    { type: 'email' as const, message: '邮箱格式不正确', trigger: 'blur' }
   ],
   phone: [
     { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }

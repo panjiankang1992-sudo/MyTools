@@ -74,6 +74,7 @@ async function loadSemanticTags() {
 async function handlePreview(file: FileItem) {
   try {
     const { data: blob } = await fetchGetFileContent(file.id);
+    if (!blob) return;
     const url = URL.createObjectURL(blob);
     previewFile.value = { ...file, semanticTags: file.semanticTags || [] };
     previewVisible.value = true;
@@ -233,7 +234,7 @@ watch(() => props.directoryId, () => {
         />
         <div v-else-if="previewFile" class="preview-unsupported">
           <p>该文件类型暂不支持预览</p>
-          <p class="file-path">{{ previewFile.absolutePath }}</p>
+          <p class="file-path">{{ previewFile.relativePath }}</p>
         </div>
       </div>
       <!-- 文件信息 -->

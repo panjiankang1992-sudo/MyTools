@@ -108,7 +108,7 @@ export function fetchChangePassword(data: { oldPassword: string; newPassword: st
 
 // WebDAV 账号
 export const fetchWebdavAccount = () =>
-  request<Api.User.WebdavAccountResponse>('get', '/api/user/webdav');
+  request<Api.User.WebdavAccountResponse>({ url: '/api/user/webdav', method: 'get' });
 
 export const updateWebdavAccount = (data: Api.User.UpdateWebdavAccountRequest) =>
-  request<Api.User.WebdavAccountResponse>('put', '/api/user/webdav', data);
+  request<Api.User.WebdavAccountResponse>({ url: '/api/user/webdav', method: 'put', data });

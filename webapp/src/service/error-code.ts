@@ -1,5 +1,3 @@
-import type { Locale } from 'naive-ui';
-
 export interface ErrorCodeConfig {
   /** Whether to show as modal */
   isModal: boolean;
@@ -18,7 +16,7 @@ export const ErrorCodeConfigMap: Record<string, ErrorCodeConfig> = {
   '40002': { isModal: false, isLogout: false },
 };
 
-export const ErrorMessageMap: Record<Locale['zh-CN'] | 'en', Record<string, string>> = {
+export const ErrorMessageMap: Record<'zh-CN' | 'en', Record<string, string>> = {
   'zh-CN': {
     // User errors
     'user.not_found': '用户不存在',
@@ -112,6 +110,6 @@ export const ErrorMessageMap: Record<Locale['zh-CN'] | 'en', Record<string, stri
 /**
  * Get i18n message by message key
  */
-export function getI18nMessage(messageKey: string, locale: Locale['zh-CN'] | 'en' = 'zh-CN'): string {
+export function getI18nMessage(messageKey: string, locale: 'zh-CN' | 'en' = 'zh-CN'): string {
   return ErrorMessageMap[locale][messageKey] || messageKey;
 }

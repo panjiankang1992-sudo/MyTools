@@ -357,6 +357,8 @@ declare namespace App {
         update: string;
         updateSuccess: string;
         userCenter: string;
+        validation_failed: string;
+        operation_failed: string;
         yesOrNo: {
           yes: string;
           no: string;
@@ -494,6 +496,7 @@ declare namespace App {
             back: string;
             validateSuccess: string;
             loginSuccess: string;
+            loginFailed: string;
             welcomeBack: string;
           };
           pwdLogin: {
@@ -554,6 +557,23 @@ declare namespace App {
             desc5: string;
           };
           creativity: string;
+        };
+        profile: {
+          title: string;
+          webdavTitle: string;
+          webdavType: string;
+          webdavUrl: string;
+          webdavUsername: string;
+          webdavPassword: string;
+        };
+        user: {
+          title: string;
+        };
+        role: {
+          title: string;
+        };
+        token: {
+          title: string;
         };
       };
       form: {
@@ -645,6 +665,8 @@ declare namespace App {
       msg: string;
       /** The backend service response data */
       data: T;
+      /** Field-level validation errors (optional) */
+      fieldErrors?: Record<string, string>;
     };
 
     /** The demo backend service response data */

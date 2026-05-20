@@ -126,6 +126,7 @@ async function loadFiles() {
 async function handlePlay(file: FileItem) {
   try {
     const { data: blob } = await fetchGetFileContent(file.id);
+    if (!blob) return;
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
   } catch (error) {
@@ -137,6 +138,7 @@ async function handlePlay(file: FileItem) {
 async function handleDownload(file: FileItem) {
   try {
     const { data: blob } = await fetchGetFileContent(file.id);
+    if (!blob) return;
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -181,7 +183,6 @@ watch(() => props.directoryId, () => {
         :pagination="{
           page: page,
           pageSize: pageSize,
-          total: total,
           onUpdatePage: handlePageChange
         }"
         :bordered="false"

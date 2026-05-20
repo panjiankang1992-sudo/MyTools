@@ -237,12 +237,13 @@ const local: App.I18n.Schema = {
     'system_role': 'Role Management',
     'ai-tools': 'AI Tools',
     'ai-tools_token': 'Token Management',
-    token: 'Token Management',
     localfile: 'Local File',
     'localfile_multimedia': 'Multimedia',
     'localfile_ebook': 'Ebook',
     'localfile_large-media': 'Large Media',
-    profile: 'Profile'
+    profile: 'Profile',
+    'app-market': 'App Market',
+    'app-market_index': 'App List'
   },
   page: {
     login: {
@@ -331,7 +332,12 @@ const local: App.I18n.Schema = {
       title: 'Token Management'
     },
     profile: {
-      title: 'Profile'
+      title: 'Profile',
+      webdavTitle: 'WebDAV Account',
+      webdavType: 'Type',
+      webdavUrl: 'URL',
+      webdavUsername: 'Username',
+      webdavPassword: 'Password'
     }
   },
   form: {

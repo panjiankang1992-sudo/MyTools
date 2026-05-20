@@ -18,6 +18,7 @@ declare namespace Api {
 
     interface UserInfo {
       id: number;
+      userId: number;
       username: string;
       nickname: string | null;
       avatar: string | null;

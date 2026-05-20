@@ -28,7 +28,11 @@ interface LoginModule {
 }
 
 const moduleMap: Record<UnionKey.LoginModule, LoginModule> = {
-  'pwd-login': { label: loginModuleRecord['pwd-login'], component: PwdLogin }
+  'pwd-login': { label: loginModuleRecord['pwd-login'], component: PwdLogin },
+  register: { label: '' as App.I18n.I18nKey, component: PwdLogin },
+  'code-login': { label: '' as App.I18n.I18nKey, component: PwdLogin },
+  'reset-pwd': { label: '' as App.I18n.I18nKey, component: PwdLogin },
+  'bind-wechat': { label: '' as App.I18n.I18nKey, component: PwdLogin }
 };
 
 const activeModule = computed(() => moduleMap[props.module || 'pwd-login']);

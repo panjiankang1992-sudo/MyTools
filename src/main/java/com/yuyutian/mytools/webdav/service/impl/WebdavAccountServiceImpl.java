@@ -32,7 +32,7 @@ public class WebdavAccountServiceImpl implements WebdavAccountService {
 
         String encryptedPassword;
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            encryptedPassword = AesEncryptUtils.encrypt(request.getPassword());
+            encryptedPassword = AesEncryptUtils.encrypt(request.getPassword(), "CJ0Xkfbp2KtWq0uZ0ckCCtGIOZU7NPC9ZXenbcZGZG8=");
         } else if (existing != null) {
             encryptedPassword = existing.getPassword();
         } else {

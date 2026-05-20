@@ -248,10 +248,10 @@ function cancelEdit() {
 async function loadWebdav() {
   try {
     const data = await fetchWebdavAccount();
-    if (data) {
-      webdavForm.type = data.type || 'jianguoyun';
-      webdavForm.url = data.url || '';
-      webdavForm.username = data.username || '';
+    if (data.data) {
+      webdavForm.type = data.data.type || 'jianguoyun';
+      webdavForm.url = data.data.url || '';
+      webdavForm.username = data.data.username || '';
       webdavForm.password = '';
       originalWebdavForm.type = webdavForm.type;
       originalWebdavForm.url = webdavForm.url;

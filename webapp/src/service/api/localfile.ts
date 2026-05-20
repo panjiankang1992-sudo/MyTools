@@ -107,7 +107,7 @@ export function fetchGetFileDetail(id: number) {
 
 /** 获取文件内容 */
 export function fetchGetFileContent(id: number) {
-  return request<Blob>({
+  return request<Blob, 'blob'>({
     url: `/api/local-files/${id}/content`,
     method: 'get',
     responseType: 'blob'

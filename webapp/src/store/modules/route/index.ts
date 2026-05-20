@@ -132,7 +132,7 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
 
   /** Reset store */
   async function resetStore() {
-    this.$reset();
+    // $reset is not directly available in composition API stores; state is reset via individual refs
 
     resetVueRoutes();
 

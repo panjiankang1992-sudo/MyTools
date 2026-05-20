@@ -12,6 +12,10 @@ declare global {
     $message?: import('naive-ui').MessageProviderInst;
     /** Notification instance */
     $notification?: import('naive-ui').NotificationProviderInst;
+    /** vue-i18n instance */
+    $i18n?: { global: { locale: { value: string } } };
+    /** Field errors for form display */
+    __FIELD_ERRORS__?: Record<string, string>;
   }
 
   /** Build time of the project */
