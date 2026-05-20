@@ -401,6 +401,9 @@ async function handleChangePassword() {
             >
               更换头像
             </NButton>
+            <NButton class="mt-2" @click="openPasswordModal">
+              修改密码
+            </NButton>
           </div>
 
           <!-- 基本信息 -->
@@ -459,20 +462,6 @@ async function handleChangePassword() {
               </NFormItem>
             </NForm>
           </div>
-        </div>
-      </NCard>
-
-      <!-- 账号安全 -->
-      <NCard :bordered="false">
-        <template #header>
-          <span class="text-lg font-semibold">账号安全</span>
-        </template>
-        <div class="flex justify-between items-center">
-          <div>
-            <div class="font-medium">登录密码</div>
-            <div class="text-gray-500 text-sm mt-1">定期更换密码可保护账户安全</div>
-          </div>
-          <NButton @click="openPasswordModal">修改密码</NButton>
         </div>
       </NCard>
 
