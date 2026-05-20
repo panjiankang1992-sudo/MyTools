@@ -1,13 +1,23 @@
 package com.yuyutian.mytools.openapi.model;
 
 import com.yuyutian.mytools.user.Model.UserInfoResponse;
-import com.yuyutian.mytools.webdav.model.WebdavAccountPublicResponse;
 import lombok.Data;
 
 @Data
-public class OpenProfileResponse {
+public class OpenProfileResponse extends UserInfoResponse {
 
-    private UserInfoResponse user;
+    /** WebDAV 服务类型 */
+    private String webdavType;
 
-    private WebdavAccountPublicResponse webdav;
+    /** WebDAV 服务器地址 */
+    private String webdavUrl;
+
+    /** WebDAV 用户名 */
+    private String webdavUsername;
+
+    /** AES-GCM 加密后的密码密文（Base64），可用于客户端解密 */
+    private String webdavEncryptedPassword;
+
+    /** WebDAV 密码是否已设置 */
+    private Boolean webdavPasswordSet;
 }

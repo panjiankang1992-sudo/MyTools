@@ -40,8 +40,31 @@ public class OpenApiController {
         WebdavAccountPublicResponse webdav = webdavAccountService.getPublicByUserId(userId);
 
         OpenProfileResponse response = new OpenProfileResponse();
-        response.setUser(user);
-        response.setWebdav(webdav);
+        // 用户基本信息字段
+        response.setUserId(user.getUserId());
+        response.setUsername(user.getUsername());
+        response.setNickname(user.getNickname());
+        response.setAvatar(user.getAvatar());
+        response.setEmail(user.getEmail());
+        response.setPhone(user.getPhone());
+        response.setGender(user.getGender());
+        response.setBirthday(user.getBirthday());
+        response.setAddress(user.getAddress());
+        response.setHobbies(user.getHobbies());
+        response.setSignature(user.getSignature());
+        response.setRole(user.getRole());
+        response.setStatus(user.getStatus());
+        response.setRegisterTime(user.getRegisterTime());
+        response.setLastLoginTime(user.getLastLoginTime());
+
+        // WebDAV 字段
+        if (webdav != null) {
+            response.setWebdavType(webdav.getType());
+            response.setWebdavUrl(webdav.getUrl());
+            response.setWebdavUsername(webdav.getUsername());
+            response.setWebdavEncryptedPassword(webdav.getEncryptedPassword());
+            response.setWebdavPasswordSet(webdav.getPasswordSet());
+        }
 
         return ResponseEntity.ok(Result.success(response));
     }
