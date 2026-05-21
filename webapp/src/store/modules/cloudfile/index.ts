@@ -19,6 +19,14 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
   /** 是否有文件或目录 */
   const isEmpty = computed(() => fileList.value.length === 0);
 
+  /** 当前选中的文件节点（用于文件详情视图） */
+  const selectedNode = ref<CloudFileTreeNode | null>(null);
+
+  /** 当前视图模式 */
+  const viewMode = computed<'directory' | 'file-detail'>(() =>
+    selectedNode.value && !selectedNode.value.isDirectory ? 'file-detail' : 'directory'
+  );
+
   /** 将 CloudFileItem 列表转换为 NTree 节点 */
   function itemToNode(item: Api.CloudFile.CloudFileItem): CloudFileTreeNode {
     return {
@@ -26,7 +34,10 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
       label: item.name,
       isLeaf: !item.isDirectory,
       path: item.path,
-      isDirectory: item.isDirectory
+      isDirectory: item.isDirectory,
+      size: item.size,
+      contentType: item.contentType,
+      lastModified: item.lastModified
       // children undefined → NTree shows expand arrow and triggers @load for lazy loading
     };
   }
@@ -63,7 +74,7 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
   }
 
   /** 加载指定路径的文件列表并更新 treeData */
-  async function loadFiles(path: string, parentPath = '/') {
+  async function loadFiles(path: string, parentPath?: string) {
     const { data, error } = await fetchCloudFiles(path, 1);
     if (error || !data) {
       return;
@@ -75,17 +86,22 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
     fileList.value = items;
     currentPath.value = data.path || path;
 
+    // 确定父路径：如果未指定，从当前路径推导
+    const effectiveParent = parentPath ?? (path === '/' ? '/' : path.substring(0, path.lastIndexOf('/')) || '/');
+
     // 更新 treeData：替换或追加子节点
-    if (parentPath === '/') {
+    if (effectiveParent === '/') {
       // 根目录，直接替换
       treeData.value = nodes;
     } else {
       // 找到父节点并更新其 children
-      updateNodeInTree(treeData.value, parentPath, node => {
+      const found = updateNodeInTree(treeData.value, effectiveParent, node => {
         node.children = nodes;
       });
-      // 强制响应式更新
-      treeData.value = [...treeData.value];
+      if (found) {
+        // 强制响应式更新
+        treeData.value = [...treeData.value];
+      }
     }
   }
 
@@ -107,6 +123,19 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
     } finally {
       loading.value = false;
     }
+  }
+
+  /** 选择文件节点，切换到文件详情视图 */
+  function selectFile(path: string) {
+    const node = findNode(treeData.value, path);
+    if (node && !node.isDirectory) {
+      selectedNode.value = node;
+    }
+  }
+
+  /** 清除文件选择，返回目录视图 */
+  function clearSelection() {
+    selectedNode.value = null;
   }
 
   /** 懒加载树节点的子节点 */
@@ -131,12 +160,16 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
     treeData,
     loading,
     isEmpty,
+    selectedNode,
+    viewMode,
     loadFiles,
     init,
     refresh,
     navigateTo,
     loadTreeNodeChildren,
-    findNode: (path: string) => findNode(treeData.value, path)
+    findNode: (path: string) => findNode(treeData.value, path),
+    selectFile,
+    clearSelection
   };
 });
 
@@ -147,5 +180,8 @@ export interface CloudFileTreeNode {
   isLeaf: boolean;
   path: string;
   isDirectory: boolean;
+  size?: number;
+  contentType?: string | null;
+  lastModified?: string | null;
   children?: CloudFileTreeNode[];
 }
