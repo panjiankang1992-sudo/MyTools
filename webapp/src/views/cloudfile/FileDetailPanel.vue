@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useThumbnail } from '@/composables/cloudfile/useThumbnail';
 import { fetchFileContent } from '@/service/api/cloudfile';
+import { marked } from 'marked';
 import {
   NButton,
   NSpace,
@@ -27,6 +28,53 @@ const textFileExts = ['txt', 'md', 'json', 'xml', 'html', 'htm', 'css', 'js', 't
 function isTextFile(name: string): boolean {
   const ext = name.split('.').pop()?.toLowerCase() || '';
   return textFileExts.includes(ext);
+}
+
+function isJsonFile(name: string): boolean {
+  const ext = name.split('.').pop()?.toLowerCase() || '';
+  return ext === 'json';
+}
+
+function isMarkdownFile(name: string): boolean {
+  const ext = name.split('.').pop()?.toLowerCase() || '';
+  return ext === 'md';
+}
+
+function formatJsonContent(raw: string): string {
+  try {
+    const obj = JSON.parse(raw);
+    return JSON.stringify(obj, null, 2);
+  } catch {
+    return raw;
+  }
+}
+
+function highlightJson(raw: string): string {
+  // Simple JSON syntax highlighting
+  return raw.replace(
+    /("(?:[^"\\]|\\.)*")\s*:/g,
+    '<span style="color:#9cdcfe;">$1</span>:'
+  ).replace(
+    /:\s*("(?:[^"\\]|\\.)*")/g,
+    ': <span style="color:#ce9178;">$1</span>'
+  ).replace(
+    /:\s*(true|false)/g,
+    ': <span style="color:#569cd6;">$1</span>'
+  ).replace(
+    /:\s*(null)/g,
+    ': <span style="color:#569cd6;">$1</span>'
+  ).replace(
+    /:\s*(-?\d+\.?\d*(?:[eE][+-]?\d+)?)/g,
+    ': <span style="color:#b5cea8;">$1</span>'
+  );
+}
+
+function renderMarkdown(raw: string): string {
+  try {
+    return marked.parse(raw) as string;
+  } catch {
+    return `<p style="color:#f48771;">Markdown 解析失败</p>`;
+  }
 }
 
 const props = defineProps<{
@@ -112,6 +160,21 @@ watch(
   { immediate: true }
 );
 
+const jsonFormatted = computed(() => {
+  if (!textContent.value) return '';
+  return formatJsonContent(textContent.value);
+});
+
+const jsonHighlighted = computed(() => {
+  if (!jsonFormatted.value) return '';
+  return highlightJson(jsonFormatted.value);
+});
+
+const markdownHtml = computed(() => {
+  if (!textContent.value) return '';
+  return renderMarkdown(textContent.value);
+});
+
 function formatSize(bytes: number): string {
   if (bytes === 0) return '0 B';
   if (!bytes) return '-';
@@ -174,8 +237,58 @@ function formatDate(dateStr: string | null): string {
           padding: 16px;
         "
       >
-        <!-- 文本文件内容预览 -->
-        <n-spin v-if="isTextFile(file.name)" :show="textLoading">
+        <!-- JSON 格式化预览 -->
+        <n-spin v-if="isJsonFile(file.name)" :show="textLoading">
+          <div
+            v-if="textContent && !textError"
+            style="
+              width: 100%;
+              max-height: 500px;
+              overflow: auto;
+              background: #1e1e1e;
+              color: #d4d4d4;
+              border-radius: 8px;
+              padding: 16px;
+              text-align: left;
+            "
+          >
+            <pre
+              style="margin: 0; white-space: pre-wrap; word-break: break-all; font-size: 13px; line-height: 1.6; font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;"
+              v-html="jsonHighlighted"
+            />
+          </div>
+          <div v-else-if="textError" style="text-align: center; color: #999;">
+            <construct-outline :style="{ fontSize: '64px' }" />
+            <p style="margin-top: 8px;">加载内容失败</p>
+          </div>
+        </n-spin>
+
+        <!-- Markdown 预览 -->
+        <n-spin v-else-if="isMarkdownFile(file.name)" :show="textLoading">
+          <div
+            v-if="textContent && !textError"
+            class="markdown-preview"
+            style="
+              width: 100%;
+              max-height: 500px;
+              overflow: auto;
+              background: #fff;
+              color: #333;
+              border-radius: 8px;
+              padding: 24px;
+              text-align: left;
+              border: 1px solid #e8e8e8;
+            "
+            v-html="markdownHtml"
+          />
+          <div v-else-if="textError" style="text-align: center; color: #999;">
+            <construct-outline :style="{ fontSize: '64px' }" />
+            <p style="margin-top: 8px;">加载内容失败</p>
+          </div>
+        </n-spin>
+
+        <!-- 其他文本文件预览 -->
+        <n-spin v-else-if="isTextFile(file.name)" :show="textLoading">
           <div
             v-if="textContent && !textError"
             style="
@@ -253,4 +366,94 @@ function formatDate(dateStr: string | null): string {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.markdown-preview :deep(h1) {
+  font-size: 1.8em;
+  font-weight: 700;
+  margin: 0.5em 0 0.3em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #e8e8e8;
+}
+.markdown-preview :deep(h2) {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin: 0.5em 0 0.3em;
+  padding-bottom: 0.25em;
+  border-bottom: 1px solid #eee;
+}
+.markdown-preview :deep(h3) {
+  font-size: 1.25em;
+  font-weight: 600;
+  margin: 0.4em 0 0.2em;
+}
+.markdown-preview :deep(h4) {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 0.3em 0 0.15em;
+}
+.markdown-preview :deep(p) {
+  margin: 0.5em 0;
+  line-height: 1.7;
+}
+.markdown-preview :deep(a) {
+  color: #1890ff;
+}
+.markdown-preview :deep(code) {
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+  font-size: 0.9em;
+  color: #d63384;
+}
+.markdown-preview :deep(pre) {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+.markdown-preview :deep(pre code) {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: 13px;
+}
+.markdown-preview :deep(blockquote) {
+  margin: 0.5em 0;
+  padding: 8px 16px;
+  border-left: 4px solid #1890ff;
+  background: #f0f7ff;
+  color: #555;
+}
+.markdown-preview :deep(ul),
+.markdown-preview :deep(ol) {
+  padding-left: 2em;
+  line-height: 1.7;
+}
+.markdown-preview :deep(table) {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.8em 0;
+}
+.markdown-preview :deep(th),
+.markdown-preview :deep(td) {
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  text-align: left;
+}
+.markdown-preview :deep(th) {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+.markdown-preview :deep(hr) {
+  border: none;
+  border-top: 1px solid #e8e8e8;
+  margin: 1em 0;
+}
+.markdown-preview :deep(img) {
+  max-width: 100%;
+  border-radius: 4px;
+}
+</style>
