@@ -136,6 +136,10 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
 
     resetVueRoutes();
 
+    // reset init flags so initConstantRoute can re-add routes
+    setIsInitConstantRoute(false);
+    setIsInitAuthRoute(false);
+
     // after reset store, need to re-init constant route
     await initConstantRoute();
   }

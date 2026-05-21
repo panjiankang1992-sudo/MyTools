@@ -205,7 +205,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
       const pass = await getUserInfo();
 
       if (!pass) {
-        resetStore();
+        await resetStore();
       }
     }
   }
