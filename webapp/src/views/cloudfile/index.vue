@@ -202,7 +202,7 @@ const columns = [
 
       if (row.isDirectory) {
         return h('div', { style: 'display:flex;align-items:center;gap:6px;cursor:pointer;' }, [
-          h(Folder, { size: 20, style: 'flex-shrink:0;color:#f0a020;' }),
+          h(Folder, { size: 16, style: 'flex-shrink:0;color:#f0a020;' }),
           h('span', { style: 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' }, row.name)
         ]);
       }
@@ -216,7 +216,7 @@ const columns = [
 
       const IconComp = getFileIcon(row.name, row.isDirectory);
       return h('div', { style: 'display:flex;align-items:center;gap:6px;cursor:pointer;' }, [
-        h(IconComp, { size: 20, style: 'flex-shrink:0;color:#666;' }),
+        h(IconComp, { size: 16, style: 'flex-shrink:0;color:#666;' }),
         h('span', { style: 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' }, row.name)
       ]);
     }
