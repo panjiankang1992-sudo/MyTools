@@ -600,7 +600,8 @@ onMounted(() => loadAccounts());
 </script>
 
 <template>
-  <n-layout has-sider style="height: 100%">
+  <div style="height: 100%">
+    <n-layout has-sider style="height: 100%">
     <!-- 左侧目录树 -->
     <n-layout-sider :width="220" bordered content-style="padding: 8px;">
       <n-space vertical :size="8" style="height: 100%;">
@@ -744,6 +745,7 @@ onMounted(() => loadAccounts());
       </div>
     </n-layout-content>
   </n-layout>
+  </div>
 
   <!-- 新建目录弹窗 -->
   <n-modal

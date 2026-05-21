@@ -37,7 +37,6 @@ function resetScroll() {
   <RouterView v-slot="{ Component, route }">
     <Transition
       :name="transitionName"
-      mode="out-in"
       @before-leave="appStore.setContentXScrollable(true)"
       @after-leave="resetScroll"
       @after-enter="appStore.setContentXScrollable(false)"
