@@ -202,21 +202,21 @@ const columns = [
 
       if (row.isDirectory) {
         return h('div', { style: 'display:flex;align-items:center;gap:6px;cursor:pointer;' }, [
-          h(Folder, { size: 16, style: 'flex-shrink:0;color:#f0a020;' }),
+          h(Folder, { size: 14, style: 'flex-shrink:0;color:#f0a020;width:14px;height:14px;' }),
           h('span', { style: 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' }, row.name)
         ]);
       }
 
       if (isMedia && thumbUrl) {
         return h('div', { style: 'display:flex;align-items:center;gap:8px;cursor:pointer;' }, [
-          h(NImage, { src: thumbUrl, width: 32, height: 32, objectFit: 'cover', style: 'border-radius:4px;flex-shrink:0;', showToolbar: false }),
+          h(NImage, { src: thumbUrl, width: 20, height: 20, objectFit: 'cover', style: 'border-radius:2px;flex-shrink:0;', showToolbar: false }),
           h('span', { style: 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' }, row.name)
         ]);
       }
 
       const IconComp = getFileIcon(row.name, row.isDirectory);
       return h('div', { style: 'display:flex;align-items:center;gap:6px;cursor:pointer;' }, [
-        h(IconComp, { size: 16, style: 'flex-shrink:0;color:#666;' }),
+        h(IconComp, { size: 14, style: 'flex-shrink:0;color:#666;' }),
         h('span', { style: 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' }, row.name)
       ]);
     }
