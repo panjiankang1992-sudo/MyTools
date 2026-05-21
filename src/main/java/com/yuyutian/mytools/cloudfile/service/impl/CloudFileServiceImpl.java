@@ -13,12 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.regex.Pattern;
 
-/**
- * CloudFileService 实现类，基于 WebDAV 协议操作云盘文件。
- *
- * @author mytools
- * @since 2026-05-20
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,8 +27,8 @@ public class CloudFileServiceImpl implements CloudFileService {
     private final WebdavAccountMapper webdavAccountMapper;
 
     @Override
-    public CloudFileListResponse listFiles(Long userId, String path, int depth) {
-        WebdavClient client = buildClient(userId);
+    public CloudFileListResponse listFiles(Long userId, Long accountId, String path, int depth) {
+        WebdavClient client = buildClient(userId, accountId);
         try {
             return client.list(path, depth);
         } catch (Exception e) {
@@ -43,8 +37,8 @@ public class CloudFileServiceImpl implements CloudFileService {
     }
 
     @Override
-    public String getFileContent(Long userId, String path) {
-        WebdavClient client = buildClient(userId);
+    public String getFileContent(Long userId, Long accountId, String path) {
+        WebdavClient client = buildClient(userId, accountId);
         try {
             if (!detectTextFile(path)) {
                 throw new BusinessException("50001", "不支持预览该类型文件", HttpStatus.BAD_REQUEST);
@@ -58,8 +52,8 @@ public class CloudFileServiceImpl implements CloudFileService {
     }
 
     @Override
-    public byte[] downloadFile(Long userId, String path) {
-        WebdavClient client = buildClient(userId);
+    public byte[] downloadFile(Long userId, Long accountId, String path) {
+        WebdavClient client = buildClient(userId, accountId);
         try {
             return client.getBytes(path);
         } catch (Exception e) {
@@ -68,8 +62,8 @@ public class CloudFileServiceImpl implements CloudFileService {
     }
 
     @Override
-    public FileOperationResponse uploadFile(Long userId, String dirPath, String filename, byte[] content) {
-        WebdavClient client = buildClient(userId);
+    public FileOperationResponse uploadFile(Long userId, Long accountId, String dirPath, String filename, byte[] content) {
+        WebdavClient client = buildClient(userId, accountId);
         String cleanDir = dirPath == null || dirPath.equals("/") ? "" : dirPath;
         String fullPath = (cleanDir.isEmpty() ? "" : cleanDir) + "/" + filename;
         try {
@@ -81,8 +75,8 @@ public class CloudFileServiceImpl implements CloudFileService {
     }
 
     @Override
-    public void createDirectory(Long userId, String path) {
-        WebdavClient client = buildClient(userId);
+    public void createDirectory(Long userId, Long accountId, String path) {
+        WebdavClient client = buildClient(userId, accountId);
         try {
             client.mkdir(path);
         } catch (Exception e) {
@@ -91,16 +85,16 @@ public class CloudFileServiceImpl implements CloudFileService {
     }
 
     @Override
-    public void rename(Long userId, String path, String newName) {
+    public void rename(Long userId, Long accountId, String path, String newName) {
         int lastSlash = path.lastIndexOf('/');
         String parent = lastSlash <= 0 ? "/" : path.substring(0, lastSlash);
         String newPath = parent.equals("/") ? "/" + newName : parent + "/" + newName;
-        move(userId, path, newPath);
+        move(userId, accountId, path, newPath);
     }
 
     @Override
-    public void move(Long userId, String from, String to) {
-        WebdavClient client = buildClient(userId);
+    public void move(Long userId, Long accountId, String from, String to) {
+        WebdavClient client = buildClient(userId, accountId);
         try {
             client.move(from, to);
         } catch (Exception e) {
@@ -109,8 +103,8 @@ public class CloudFileServiceImpl implements CloudFileService {
     }
 
     @Override
-    public void copy(Long userId, String from, String to) {
-        WebdavClient client = buildClient(userId);
+    public void copy(Long userId, Long accountId, String from, String to) {
+        WebdavClient client = buildClient(userId, accountId);
         try {
             client.copy(from, to);
         } catch (Exception e) {
@@ -119,8 +113,8 @@ public class CloudFileServiceImpl implements CloudFileService {
     }
 
     @Override
-    public void delete(Long userId, String path, boolean recursive) {
-        WebdavClient client = buildClient(userId);
+    public void delete(Long userId, Long accountId, String path, boolean recursive) {
+        WebdavClient client = buildClient(userId, accountId);
         try {
             client.delete(path, recursive);
         } catch (Exception e) {
@@ -129,8 +123,8 @@ public class CloudFileServiceImpl implements CloudFileService {
     }
 
     @Override
-    public void saveTextFile(Long userId, String path, String content) {
-        WebdavClient client = buildClient(userId);
+    public void saveTextFile(Long userId, Long accountId, String path, String content) {
+        WebdavClient client = buildClient(userId, accountId);
         try {
             client.put(path, content);
         } catch (Exception e) {
@@ -138,13 +132,18 @@ public class CloudFileServiceImpl implements CloudFileService {
         }
     }
 
-    /**
-     * 根据用户ID构建 WebDAV 客户端。
-     */
-    private WebdavClient buildClient(Long userId) {
-        WebdavAccount account = webdavAccountMapper.selectByUserId(userId);
-        if (account == null) {
-            throw new BusinessException("40001", "请先在个人信息中配置 WebDAV", HttpStatus.BAD_REQUEST);
+    private WebdavClient buildClient(Long userId, Long accountId) {
+        WebdavAccount account;
+        if (accountId != null) {
+            account = webdavAccountMapper.selectById(accountId);
+            if (account == null || !account.getUserId().equals(userId)) {
+                throw new BusinessException("40002", "账号不存在或无权访问", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            account = webdavAccountMapper.selectDefaultByUserId(userId);
+            if (account == null) {
+                throw new BusinessException("40001", "请先在 WebDAV 管理中配置账号", HttpStatus.BAD_REQUEST);
+            }
         }
         String plainPassword = "";
         if (account.getPassword() != null && !account.getPassword().isBlank()) {
@@ -158,9 +157,6 @@ public class CloudFileServiceImpl implements CloudFileService {
         return new WebdavClient(account.getUrl(), account.getUsername(), plainPassword);
     }
 
-    /**
-     * 判断给定路径是否为文本文档。
-     */
     private boolean detectTextFile(String path) {
         if (path == null) return false;
         return TEXT_EXT_PATTERN.matcher(path).matches();

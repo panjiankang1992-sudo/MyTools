@@ -24,9 +24,10 @@ public class CloudFileController {
     public ResponseEntity<Result<CloudFileListResponse>> listFiles(
             @RequestHeader("Authorization") String auth,
             @RequestParam(value = "path", defaultValue = "/") String path,
-            @RequestParam(value = "depth", defaultValue = "1") int depth) {
+            @RequestParam(value = "depth", defaultValue = "1") int depth,
+            @RequestParam(value = "accountId", required = false) Long accountId) {
         Long userId = resolveUserId(auth);
-        CloudFileListResponse resp = cloudFileService.listFiles(userId, decode(path), depth);
+        CloudFileListResponse resp = cloudFileService.listFiles(userId, accountId, decode(path), depth);
         return ResponseEntity.ok(Result.success(resp));
     }
 
@@ -34,16 +35,17 @@ public class CloudFileController {
     public ResponseEntity<?> getFile(
             @RequestHeader("Authorization") String auth,
             @RequestParam("path") String path,
-            @RequestParam(value = "preview", defaultValue = "false") boolean preview) {
+            @RequestParam(value = "preview", defaultValue = "false") boolean preview,
+            @RequestParam(value = "accountId", required = false) Long accountId) {
         Long userId = resolveUserId(auth);
         String decodedPath = decode(path);
         if (preview) {
-            String content = cloudFileService.getFileContent(userId, decodedPath);
+            String content = cloudFileService.getFileContent(userId, accountId, decodedPath);
             return ResponseEntity.ok()
                     .contentType(MediaType.TEXT_PLAIN)
                     .body(content);
         } else {
-            byte[] bytes = cloudFileService.downloadFile(userId, decodedPath);
+            byte[] bytes = cloudFileService.downloadFile(userId, accountId, decodedPath);
             String filename = decodedPath.substring(decodedPath.lastIndexOf('/') + 1);
             MediaType mediaType = detectMediaType(filename);
             return ResponseEntity.ok()
@@ -59,12 +61,13 @@ public class CloudFileController {
             @RequestHeader("Authorization") String auth,
             @RequestParam("file") MultipartFile file,
             @RequestParam("path") String dirPath,
-            @RequestParam(value = "filename", required = false) String filename) {
+            @RequestParam(value = "filename", required = false) String filename,
+            @RequestParam(value = "accountId", required = false) Long accountId) {
         Long userId = resolveUserId(auth);
         String targetFilename = (filename != null && !filename.isBlank()) ? filename : file.getOriginalFilename();
         try {
             FileOperationResponse resp = cloudFileService.uploadFile(
-                    userId, decode(dirPath), targetFilename, file.getBytes());
+                    userId, accountId, decode(dirPath), targetFilename, file.getBytes());
             return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.operation"), resp));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
@@ -75,36 +78,40 @@ public class CloudFileController {
     @PostMapping("/api/cloud/dir")
     public ResponseEntity<Result<Void>> createDir(
             @RequestHeader("Authorization") String auth,
-            @RequestBody FileOperationRequest request) {
+            @RequestBody FileOperationRequest request,
+            @RequestParam(value = "accountId", required = false) Long accountId) {
         Long userId = resolveUserId(auth);
-        cloudFileService.createDirectory(userId, decode(request.getPath()));
+        cloudFileService.createDirectory(userId, accountId, decode(request.getPath()));
         return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.operation"), null));
     }
 
     @PostMapping("/api/cloud/rename")
     public ResponseEntity<Result<Void>> rename(
             @RequestHeader("Authorization") String auth,
-            @RequestBody FileOperationRequest request) {
+            @RequestBody FileOperationRequest request,
+            @RequestParam(value = "accountId", required = false) Long accountId) {
         Long userId = resolveUserId(auth);
-        cloudFileService.rename(userId, decode(request.getPath()), request.getNewName());
+        cloudFileService.rename(userId, accountId, decode(request.getPath()), request.getNewName());
         return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.operation"), null));
     }
 
     @PostMapping("/api/cloud/move")
     public ResponseEntity<Result<Void>> move(
             @RequestHeader("Authorization") String auth,
-            @RequestBody FileOperationRequest request) {
+            @RequestBody FileOperationRequest request,
+            @RequestParam(value = "accountId", required = false) Long accountId) {
         Long userId = resolveUserId(auth);
-        cloudFileService.move(userId, decode(request.getFrom()), decode(request.getTo()));
+        cloudFileService.move(userId, accountId, decode(request.getFrom()), decode(request.getTo()));
         return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.operation"), null));
     }
 
     @PostMapping("/api/cloud/copy")
     public ResponseEntity<Result<Void>> copy(
             @RequestHeader("Authorization") String auth,
-            @RequestBody FileOperationRequest request) {
+            @RequestBody FileOperationRequest request,
+            @RequestParam(value = "accountId", required = false) Long accountId) {
         Long userId = resolveUserId(auth);
-        cloudFileService.copy(userId, decode(request.getFrom()), decode(request.getTo()));
+        cloudFileService.copy(userId, accountId, decode(request.getFrom()), decode(request.getTo()));
         return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.operation"), null));
     }
 
@@ -112,9 +119,10 @@ public class CloudFileController {
     public ResponseEntity<Result<Void>> delete(
             @RequestHeader("Authorization") String auth,
             @RequestParam("path") String path,
-            @RequestParam(value = "recursive", defaultValue = "false") boolean recursive) {
+            @RequestParam(value = "recursive", defaultValue = "false") boolean recursive,
+            @RequestParam(value = "accountId", required = false) Long accountId) {
         Long userId = resolveUserId(auth);
-        cloudFileService.delete(userId, decode(path), recursive);
+        cloudFileService.delete(userId, accountId, decode(path), recursive);
         return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.operation"), null));
     }
 
@@ -122,9 +130,10 @@ public class CloudFileController {
     public ResponseEntity<Result<Void>> saveTextFile(
             @RequestHeader("Authorization") String auth,
             @RequestParam("path") String path,
-            @RequestBody String content) {
+            @RequestBody String content,
+            @RequestParam(value = "accountId", required = false) Long accountId) {
         Long userId = resolveUserId(auth);
-        cloudFileService.saveTextFile(userId, decode(path), content);
+        cloudFileService.saveTextFile(userId, accountId, decode(path), content);
         return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.operation"), null));
     }
 
