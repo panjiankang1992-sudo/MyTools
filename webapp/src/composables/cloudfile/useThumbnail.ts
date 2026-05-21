@@ -60,11 +60,11 @@ export function useThumbnail() {
         canvas.remove();
       };
 
-      video.onloadeddata = () => {
+      video.addEventListener('loadeddata', () => {
         video.currentTime = Math.min(1, video.duration || 1);
-      };
+      });
 
-      video.onseeked = () => {
+      video.addEventListener('seeked', () => {
         canvas.width = video.videoWidth || 320;
         canvas.height = video.videoHeight || 180;
         const ctx = canvas.getContext('2d');
@@ -74,12 +74,12 @@ export function useThumbnail() {
         const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
         cleanup();
         resolve(dataUrl);
-      };
+      });
 
-      video.onerror = () => {
+      video.addEventListener('error', () => {
         cleanup();
         reject(new Error('Video load failed'));
-      };
+      });
 
       video.src = videoUrl;
     });

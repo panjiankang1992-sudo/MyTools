@@ -12,6 +12,8 @@ import {
   uploadCloudFile
 } from '@/service/api/cloudfile';
 import CloudFileEditor from './CloudFileEditor.vue';
+import FileDetailPanel from './FileDetailPanel.vue';
+import { useThumbnail } from '@/composables/cloudfile/useThumbnail';
 import type { TreeOption, UploadFileInfo } from 'naive-ui';
 import {
   NLayout,
@@ -54,6 +56,11 @@ defineOptions({ name: 'CloudFile' });
 const message = useMessage();
 const dialog = useDialog();
 const store = useCloudFileStore();
+const { getImageThumbnail, isImageFile, isVideoFile } = useThumbnail();
+
+// 表格缩略图缓存
+const tableThumbnails = reactive<Record<string, string>>({});
+const thumbnailLoading = reactive<Record<string, boolean>>({});
 // 树相关
 const selectedTreeKey = ref<string[]>([]);
 
@@ -67,7 +74,7 @@ const mkdirModal = reactive({
 // rename 弹窗
 const renameModal = reactive({
   show: false,
-  file: null as Api.CloudFile.CloudFileItem | null,
+  file: null as { name: string; path: string } | null,
   newName: ''
 });
 
@@ -81,7 +88,7 @@ const editorModal = reactive({
 // 移动弹窗
 const moveModal = reactive({
   show: false,
-  file: null as Api.CloudFile.CloudFileItem | null,
+  file: null as { name: string; path: string } | null,
   targetPath: '',
   moving: false
 });
@@ -89,7 +96,7 @@ const moveModal = reactive({
 // 复制弹窗
 const copyModal = reactive({
   show: false,
-  file: null as Api.CloudFile.CloudFileItem | null,
+  file: null as { name: string; path: string } | null,
   targetPath: '',
   copying: false
 });
@@ -106,6 +113,24 @@ watch(() => imagePreview.show, (visible) => {
   if (!visible && imagePreview.url) {
     URL.revokeObjectURL(imagePreview.url);
     imagePreview.url = '';
+  }
+});
+
+// 文件列表变化时预加载缩略图
+watch(() => store.fileList, async (items) => {
+  for (const item of items) {
+    if (item.isDirectory) continue;
+    if (tableThumbnails[item.path] || thumbnailLoading[item.path]) continue;
+    if (!isImageFile(item.name) && !isVideoFile(item.name)) continue;
+
+    thumbnailLoading[item.path] = true;
+    try {
+      tableThumbnails[item.path] = await getImageThumbnail(item.path);
+    } catch {
+      // 缩略图加载失败，静默处理
+    } finally {
+      thumbnailLoading[item.path] = false;
+    }
   }
 });
 
@@ -170,10 +195,28 @@ const columns = [
   {
     title: '名称',
     key: 'name',
+    width: 280,
     render: (row: Api.CloudFile.CloudFileItem) => {
+      const thumbUrl = tableThumbnails[row.path];
+      const isMedia = isImageFile(row.name) || isVideoFile(row.name);
+
+      if (row.isDirectory) {
+        return h('div', { style: 'display:flex;align-items:center;gap:6px;cursor:pointer;' }, [
+          h(Folder, { size: 20, style: 'flex-shrink:0;color:#f0a020;' }),
+          h('span', { style: 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' }, row.name)
+        ]);
+      }
+
+      if (isMedia && thumbUrl) {
+        return h('div', { style: 'display:flex;align-items:center;gap:8px;cursor:pointer;' }, [
+          h(NImage, { src: thumbUrl, width: 32, height: 32, objectFit: 'cover', style: 'border-radius:4px;flex-shrink:0;', showToolbar: false }),
+          h('span', { style: 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' }, row.name)
+        ]);
+      }
+
       const IconComp = getFileIcon(row.name, row.isDirectory);
       return h('div', { style: 'display:flex;align-items:center;gap:6px;cursor:pointer;' }, [
-        h(IconComp, { size: 16, style: 'flex-shrink:0;color:#666;' }),
+        h(IconComp, { size: 20, style: 'flex-shrink:0;color:#666;' }),
         h('span', { style: 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' }, row.name)
       ]);
     }
@@ -305,19 +348,24 @@ async function handleRowClick(row: Api.CloudFile.CloudFileItem) {
   }
 }
 
-// 树节点点击：导航到该目录（文件节点不导航）
+// 树节点点击：目录→导航，文件→切换到详情视图
 async function handleTreeSelect(keys: string[]) {
   if (keys.length === 0) return;
   const path = keys[0]!;
   const node = store.findNode(path);
-  // 文件节点不做导航，仅保持选中
-  if (node && !node.isDirectory) {
-    selectedTreeKey.value = [path];
-    return;
-  }
+  if (!node) return;
   selectedTreeKey.value = [path];
-  uploadCurrentPath.value = path;
-  await store.navigateTo(path);
+
+  if (node.isDirectory) {
+    store.clearSelection();
+    uploadCurrentPath.value = path;
+    await store.navigateTo(path);
+  } else {
+    store.selectFile(path);
+    const parentPath = path.substring(0, path.lastIndexOf('/')) || '/';
+    uploadCurrentPath.value = parentPath;
+    await store.navigateTo(parentPath);
+  }
 }
 
 // 树节点懒加载（展开时触发）
@@ -325,6 +373,12 @@ async function handleTreeLoad(node: TreeOption) {
   if (!node.isDirectory) return Promise.resolve();
   await store.loadTreeNodeChildren(node as unknown as CloudFileTreeNode);
   return Promise.resolve();
+}
+
+// 从文件详情返回目录视图
+function handleBackToDirectory() {
+  store.clearSelection();
+  selectedTreeKey.value = [store.currentPath];
 }
 
 // 刷新
@@ -357,7 +411,7 @@ async function handleMkdirSubmit() {
 }
 
 // 打开 rename 弹窗
-function handleRename(file: Api.CloudFile.CloudFileItem) {
+function handleRename(file: { name: string; path: string }) {
   renameModal.file = file;
   renameModal.newName = file.name;
   renameModal.show = true;
@@ -386,7 +440,7 @@ async function handleRenameSubmit() {
 }
 
 // 下载
-async function handleDownload(file: Api.CloudFile.CloudFileItem) {
+async function handleDownload(file: { name: string; path: string }) {
   try {
     const { data: blob, error } = await downloadCloudFile(file.path);
     if (error || !blob) {
@@ -408,7 +462,7 @@ async function handleDownload(file: Api.CloudFile.CloudFileItem) {
 }
 
 // 移动
-function handleMove(file: Api.CloudFile.CloudFileItem) {
+function handleMove(file: { name: string; path: string }) {
   moveModal.file = file;
   moveModal.targetPath = store.currentPath === '/' ? '/' : store.currentPath + '/';
   moveModal.show = true;
@@ -431,7 +485,7 @@ async function handleMoveSubmit() {
 }
 
 // 复制
-function handleCopy(file: Api.CloudFile.CloudFileItem) {
+function handleCopy(file: { name: string; path: string }) {
   copyModal.file = file;
   copyModal.targetPath = store.currentPath === '/' ? '/' : store.currentPath + '/';
   copyModal.show = true;
@@ -459,7 +513,7 @@ function handleEditorSaved() {
 }
 
 // 删除
-function handleDelete(file: Api.CloudFile.CloudFileItem) {
+function handleDelete(file: { name: string; path: string; isDirectory?: boolean }) {
   dialog.warning({
     title: '确认删除',
     content: `确定删除 "${file.name}" ${file.isDirectory ? '(包含所有内容)' : ''} 吗？此操作不可恢复！`,
@@ -593,27 +647,49 @@ store.init();
         </n-space>
       </div>
 
-      <!-- 文件列表 -->
+      <!-- 文件列表 / 文件详情 -->
       <div style="flex: 1; overflow: auto; padding: 8px 16px;">
-        <n-data-table
-          :columns="columns"
-          :data="store.fileList"
-          :loading="store.loading"
-          :pagination="false"
-          :row-key="(row: Api.CloudFile.CloudFileItem) => row.path"
-          :row-props="(row: Api.CloudFile.CloudFileItem) => ({
-            style: 'cursor: pointer;',
-            onClick: () => handleRowClick(row)
-          })"
-          striped
+        <!-- 文件详情视图 -->
+        <FileDetailPanel
+          v-if="store.viewMode === 'file-detail' && store.selectedNode"
+          :file="{
+            name: store.selectedNode.label,
+            path: store.selectedNode.path,
+            size: store.selectedNode.size ?? 0,
+            contentType: store.selectedNode.contentType ?? null,
+            lastModified: store.selectedNode.lastModified ?? null,
+            isDirectory: false
+          }"
+          @back="handleBackToDirectory"
+          @download="handleDownload(store.selectedNode as any)"
+          @rename="handleRename(store.selectedNode as any)"
+          @move="handleMove(store.selectedNode as any)"
+          @copy="handleCopy(store.selectedNode as any)"
+          @delete="handleDelete(store.selectedNode as any)"
         />
 
-        <!-- 空状态 -->
-        <n-empty
-          v-if="!store.loading && store.isEmpty"
-          description="该目录为空"
-          style="margin-top: 48px;"
-        />
+        <!-- 目录表格视图 -->
+        <template v-else>
+          <n-data-table
+            :columns="columns"
+            :data="store.fileList"
+            :loading="store.loading"
+            :pagination="false"
+            :row-key="(row: Api.CloudFile.CloudFileItem) => row.path"
+            :row-props="(row: Api.CloudFile.CloudFileItem) => ({
+              style: 'cursor: pointer;',
+              onClick: () => handleRowClick(row)
+            })"
+            striped
+          />
+
+          <!-- 空状态 -->
+          <n-empty
+            v-if="!store.loading && store.isEmpty"
+            description="该目录为空"
+            style="margin-top: 48px;"
+          />
+        </template>
       </div>
     </n-layout-content>
   </n-layout>
