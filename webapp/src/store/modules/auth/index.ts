@@ -74,12 +74,12 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
       lastLoginTime: ''
     });
 
+    tabStore.cacheTabs();
+    await routeStore.resetStore();
+
     if (route.name !== 'login') {
       await toLogin();
     }
-
-    tabStore.cacheTabs();
-    await routeStore.resetStore();
   }
 
   /** Record the user ID of the previous login session Used to compare with the current user ID on next login */

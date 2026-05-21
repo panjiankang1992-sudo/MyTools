@@ -247,7 +247,7 @@ function cancelEdit() {
 // 加载 WebDAV 账户
 async function loadWebdav() {
   try {
-    const data = await fetchWebdavAccount();
+    const { data } = await fetchWebdavAccount();
     if (data) {
       webdavForm.type = data.type || 'jianguoyun';
       webdavForm.url = data.url || '';
