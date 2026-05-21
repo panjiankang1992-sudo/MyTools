@@ -181,7 +181,9 @@ const routeMap: RouteMap = {
   "system_user": "/system/user",
   "app-market": "/app-market",
   "app-market_index": "/app-market/index",
-  "cloud-file": "/cloud-file"
+  "cloud-file": "/cloud-file",
+  "cloud-file_browse": "/cloud-file/browse",
+  "cloud-file_accounts": "/cloud-file/accounts"
 };
 
 /**

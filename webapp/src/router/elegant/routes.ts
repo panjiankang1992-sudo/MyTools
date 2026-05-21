@@ -155,13 +155,38 @@ export const generatedRoutes: GeneratedRoute[] = [
   {
     name: 'cloud-file',
     path: '/cloud-file',
-    component: 'layout.base$view.cloud-file',
+    component: 'layout.base',
+    redirect: '/cloud-file/browse',
     meta: {
       title: 'cloud-file',
       i18nKey: 'route.cloud-file',
       icon: 'mdi:cloud',
       order: 4
-    }
+    },
+    children: [
+      {
+        name: 'cloud-file_browse',
+        path: '/cloud-file/browse',
+        component: 'view.cloud-file_browse',
+        meta: {
+          title: 'cloud-file_browse',
+          i18nKey: 'route.cloud-file_browse',
+          icon: 'mdi:folder-open',
+          order: 1
+        }
+      },
+      {
+        name: 'cloud-file_accounts',
+        path: '/cloud-file/accounts',
+        component: 'view.cloud-file_accounts',
+        meta: {
+          title: 'cloud-file_accounts',
+          i18nKey: 'route.cloud-file_accounts',
+          icon: 'mdi:account-cog',
+          order: 2
+        }
+      }
+    ]
   },
   {
     name: 'login',

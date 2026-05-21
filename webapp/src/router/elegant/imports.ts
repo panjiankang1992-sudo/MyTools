@@ -29,5 +29,6 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   system_role: () => import("@/views/system/role/index.vue"),
   system_user: () => import("@/views/system/user/index.vue"),
   "app-market_index": () => import("@/views/app-market/index.vue"),
-  "cloud-file": () => import("@/views/cloudfile/index.vue"),
+  "cloud-file_browse": () => import("@/views/cloud-file/browse/index.vue"),
+  "cloud-file_accounts": () => import("@/views/cloud-file/accounts/index.vue"),
 };

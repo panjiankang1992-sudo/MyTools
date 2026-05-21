@@ -240,7 +240,9 @@ const local: App.I18n.Schema = {
     profile: '个人信息',
     'app-market': '应用市场',
     'app-market_index': '应用列表',
-    'cloud-file': '云端文件'
+    'cloud-file': '云端文件',
+    'cloud-file_browse': '坚果云',
+    'cloud-file_accounts': 'WebDAV 管理'
   },
   page: {
     login: {

@@ -36,6 +36,8 @@ declare module "@elegant-router/types" {
     "app-market": "/app-market";
     "app-market_index": "/app-market/index";
     "cloud-file": "/cloud-file";
+    "cloud-file_browse": "/cloud-file/browse";
+    "cloud-file_accounts": "/cloud-file/accounts";
   };
 
   /**
@@ -109,7 +111,8 @@ declare module "@elegant-router/types" {
     | "system_role"
     | "system_user"
     | "app-market_index"
-    | "cloud-file"
+    | "cloud-file_browse"
+    | "cloud-file_accounts"
   >;
 
   /**
