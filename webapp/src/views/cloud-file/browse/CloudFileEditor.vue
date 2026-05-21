@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { NModal, NButton, NSpace, NSpin, useMessage } from 'naive-ui';
 import * as monaco from 'monaco-editor';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+import { saveTextFile } from '@/service/api/cloudfile';
 
 // Configure Monaco environment for workers
 self.MonacoEnvironment = {
@@ -11,11 +12,14 @@ self.MonacoEnvironment = {
   }
 };
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   show: boolean;
   file: { path: string; name: string; content: string } | null;
   loading: boolean;
-}>();
+  accountId?: string;
+}>(), {
+  accountId: ''
+});
 
 const emit = defineEmits<{
   (e: 'update:show', val: boolean): void;
@@ -118,16 +122,10 @@ async function handleSave() {
   saving.value = true;
   try {
     const content = editorInstance.getValue();
-    const resp = await fetch(
-      `/api/cloud/text-file?path=${encodeURIComponent(props.file.path)}`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'text/plain' },
-        body: content,
-      }
-    );
-    if (!resp.ok) {
-      throw new Error(`HTTP ${resp.status}`);
+    const { error } = await saveTextFile(props.file.path, content, props.accountId || undefined);
+    if (error) {
+      message.error(error.message || '保存失败');
+      return;
     }
     message.success('保存成功');
     emit('saved');

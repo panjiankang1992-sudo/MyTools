@@ -358,7 +358,7 @@ async function handleRowClick(row: Api.CloudFile.CloudFileItem) {
       imagePreview.url = '';
       imagePreview.show = true;
       try {
-        const { data: blob } = await downloadCloudFile(row.path);
+        const { data: blob } = await downloadCloudFile(row.path, store.getAccountId());
         if (blob) {
           imagePreview.url = URL.createObjectURL(blob);
         }
@@ -372,7 +372,7 @@ async function handleRowClick(row: Api.CloudFile.CloudFileItem) {
         editorModal.file = null;
         editorModal.show = true;
         try {
-          const { data } = await fetchFileContent(row.path);
+          const { data } = await fetchFileContent(row.path, store.getAccountId());
           editorModal.file = { path: row.path, name: row.name, content: data || '' };
         } finally {
           editorModal.loading = false;
@@ -437,7 +437,7 @@ async function handleMkdirSubmit() {
   mkdirModal.creating = true;
   try {
     const dirPath = (store.currentPath === '/' ? '' : store.currentPath) + '/' + mkdirModal.name.trim();
-    await createCloudDir(dirPath);
+    await createCloudDir(dirPath, store.getAccountId());
     message.success('目录创建成功');
     mkdirModal.show = false;
     await store.refresh();
@@ -466,7 +466,7 @@ async function handleRenameSubmit() {
     return;
   }
   try {
-    await renameCloudFile(renameModal.file.path, newName);
+    await renameCloudFile(renameModal.file.path, newName, store.getAccountId());
     message.success('重命名成功');
     renameModal.show = false;
     await store.refresh();
@@ -478,7 +478,7 @@ async function handleRenameSubmit() {
 // 下载
 async function handleDownload(file: { name: string; path: string }) {
   try {
-    const { data: blob, error } = await downloadCloudFile(file.path);
+    const { data: blob, error } = await downloadCloudFile(file.path, store.getAccountId());
     if (error || !blob) {
       message.error('下载失败');
       return;
@@ -511,7 +511,7 @@ async function handleMoveSubmit() {
     const toPath =
       (moveModal.targetPath.endsWith('/') ? moveModal.targetPath : moveModal.targetPath + '/') +
       moveModal.file.name;
-    await moveCloudFile(moveModal.file.path, toPath);
+    await moveCloudFile(moveModal.file.path, toPath, store.getAccountId());
     message.success('移动成功');
     moveModal.show = false;
     await store.refresh();
@@ -534,7 +534,7 @@ async function handleCopySubmit() {
     const toPath =
       (copyModal.targetPath.endsWith('/') ? copyModal.targetPath : copyModal.targetPath + '/') +
       copyModal.file.name;
-    await copyCloudFile(copyModal.file.path, toPath);
+    await copyCloudFile(copyModal.file.path, toPath, store.getAccountId());
     message.success('复制成功');
     copyModal.show = false;
     await store.refresh();
@@ -557,7 +557,7 @@ function handleDelete(file: { name: string; path: string; isDirectory?: boolean 
     negativeText: '取消',
     onPositiveClick: async () => {
       try {
-        await deleteCloudFile(file.path, file.isDirectory);
+        await deleteCloudFile(file.path, file.isDirectory, store.getAccountId());
         message.success('删除成功');
         await store.refresh();
       } catch {
@@ -573,7 +573,7 @@ function customUpload({ file, onFinish, onError }: { file: UploadFileInfo; onFin
   const rawFile = file.file;
   if (!rawFile) return;
   isUploading.value = true;
-  uploadCloudFile(targetPath, file.name, rawFile)
+  uploadCloudFile(targetPath, file.name, rawFile, store.getAccountId())
     .then(({ error }) => {
       if (error) {
         onError(new Error(String(error)));
@@ -796,6 +796,7 @@ onMounted(() => loadAccounts());
     v-model:show="editorModal.show"
     :file="editorModal.file"
     :loading="editorModal.loading"
+    :account-id="store.currentAccountId"
     @saved="handleEditorSaved"
   />
 
