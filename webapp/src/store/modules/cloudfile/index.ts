@@ -7,6 +7,9 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
   /** 当前路径 */
   const currentPath = ref('/');
 
+  /** 当前选中的 WebDAV 账号 ID */
+  const currentAccountId = ref<string>('');
+
   /** 当前目录的文件列表 */
   const fileList = ref<Api.CloudFile.CloudFileItem[]>([]);
 
@@ -27,7 +30,6 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
     selectedNode.value && !selectedNode.value.isDirectory ? 'file-detail' : 'directory'
   );
 
-  /** 将 CloudFileItem 列表转换为 NTree 节点 */
   function itemToNode(item: Api.CloudFile.CloudFileItem): CloudFileTreeNode {
     return {
       key: item.path,
@@ -38,11 +40,9 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
       size: item.size,
       contentType: item.contentType,
       lastModified: item.lastModified
-      // children undefined → NTree shows expand arrow and triggers @load for lazy loading
     };
   }
 
-  /** 递归查找并更新 treeData 中的某个节点 */
   function updateNodeInTree(
     nodes: CloudFileTreeNode[],
     path: string,
@@ -61,7 +61,6 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
     return false;
   }
 
-  /** 在 treeData 中查找指定路径的节点 */
   function findNode(nodes: CloudFileTreeNode[], path: string): CloudFileTreeNode | null {
     for (const node of nodes) {
       if (node.path === path) return node;
@@ -73,9 +72,12 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
     return null;
   }
 
-  /** 加载指定路径的文件列表并更新 treeData */
+  function getAccountId(): string | undefined {
+    return currentAccountId.value || undefined;
+  }
+
   async function loadFiles(path: string, parentPath?: string) {
-    const { data, error } = await fetchCloudFiles(path, 1);
+    const { data, error } = await fetchCloudFiles(path, 1, getAccountId());
     if (error || !data) {
       return;
     }
@@ -86,36 +88,30 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
     fileList.value = items;
     currentPath.value = data.path || path;
 
-    // 确定父路径：如果未指定，从当前路径推导
     const effectiveParent = parentPath ?? (path === '/' ? '/' : path.substring(0, path.lastIndexOf('/')) || '/');
 
-    // 更新 treeData：替换或追加子节点
     if (effectiveParent === '/') {
-      // 根目录，直接替换
       treeData.value = nodes;
     } else {
-      // 找到父节点并更新其 children
       const found = updateNodeInTree(treeData.value, effectiveParent, node => {
         node.children = nodes;
       });
       if (found) {
-        // 强制响应式更新
         treeData.value = [...treeData.value];
       }
     }
   }
 
-  /** 初始化，加载根目录 */
-  async function init() {
+  async function init(accountId?: string) {
+    if (accountId) currentAccountId.value = accountId;
+    currentPath.value = '/';
     await loadFiles('/');
   }
 
-  /** 刷新当前目录 */
   async function refresh() {
     await loadFiles(currentPath.value);
   }
 
-  /** 导航到指定路径 */
   async function navigateTo(path: string) {
     loading.value = true;
     try {
@@ -125,7 +121,6 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
     }
   }
 
-  /** 选择文件节点，切换到文件详情视图 */
   function selectFile(path: string) {
     const node = findNode(treeData.value, path);
     if (node && !node.isDirectory) {
@@ -133,17 +128,15 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
     }
   }
 
-  /** 清除文件选择，返回目录视图 */
   function clearSelection() {
     selectedNode.value = null;
   }
 
-  /** 懒加载树节点的子节点 */
   async function loadTreeNodeChildren(node: CloudFileTreeNode) {
     if (!node.isDirectory) return;
-    if (node.children && node.children.length > 0) return; // 已有子节点
+    if (node.children && node.children.length > 0) return;
 
-    const { data, error } = await fetchCloudFiles(node.path, 1);
+    const { data, error } = await fetchCloudFiles(node.path, 1, getAccountId());
     if (error || !data) return;
 
     const children = (data.items || []).map(itemToNode);
@@ -156,6 +149,7 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
 
   return {
     currentPath,
+    currentAccountId,
     fileList,
     treeData,
     loading,
@@ -169,11 +163,11 @@ export const useCloudFileStore = defineStore(SetupStoreId.CloudFile, () => {
     loadTreeNodeChildren,
     findNode: (path: string) => findNode(treeData.value, path),
     selectFile,
-    clearSelection
+    clearSelection,
+    getAccountId
   };
 });
 
-/** NTree 树节点类型 */
 export interface CloudFileTreeNode {
   key: string;
   label: string;

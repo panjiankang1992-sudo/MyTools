@@ -518,6 +518,12 @@ async function handleChangePassword() {
             </NFormItem>
           </NGi>
         </NGrid>
+
+        <div class="mt-4">
+          <NButton type="primary" @click="$router.push('/cloud-file/accounts')">
+            管理 WebDAV 账号
+          </NButton>
+        </div>
       </NCard>
     </div>
 

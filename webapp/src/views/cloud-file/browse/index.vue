@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, reactive, ref, watch } from 'vue';
+import { computed, h, onMounted, reactive, ref, watch } from 'vue';
 import { useCloudFileStore, type CloudFileTreeNode } from '@/store/modules/cloudfile';
 import {
   createCloudDir,
@@ -28,6 +28,7 @@ import {
   NModal,
   NInput,
   NUpload,
+  NSelect,
   useMessage,
   useDialog,
   NEmpty,
@@ -48,8 +49,10 @@ import {
   CloudUploadOutline,
   Folder,
   ArrowForwardOutline,
-  CopyOutline
+  CopyOutline,
+  SettingsOutline
 } from '@vicons/ionicons5';
+import { fetchWebdavAccounts } from '@/service/api/webdav';
 
 defineOptions({ name: 'CloudFile' });
 
@@ -57,6 +60,35 @@ const message = useMessage();
 const dialog = useDialog();
 const store = useCloudFileStore();
 const { getImageThumbnail, isImageFile, isVideoFile } = useThumbnail();
+
+// 账号相关
+const accounts = ref<Api.Webdav.WebdavAccount[]>([]);
+const accountOptions = computed(() =>
+  accounts.value.map(a => ({ label: a.name, value: a.id }))
+);
+
+async function loadAccounts() {
+  try {
+    const { data } = await fetchWebdavAccounts();
+    if (data) {
+      accounts.value = data;
+      const defaultAccount = data.find(a => a.isDefault === 1) || data[0];
+      if (defaultAccount) {
+        store.currentAccountId = defaultAccount.id;
+        await store.init(defaultAccount.id);
+      } else {
+        await store.init();
+      }
+    }
+  } catch {
+    await store.init();
+  }
+}
+
+async function handleAccountChange(accountId: string) {
+  selectedTreeKey.value = [];
+  await store.init(accountId);
+}
 
 // 表格缩略图缓存
 const tableThumbnails = reactive<Record<string, string>>({});
@@ -564,7 +596,7 @@ async function handleBreadcrumbNavigate(path: string) {
 }
 
 // 初始化
-store.init();
+onMounted(() => loadAccounts());
 </script>
 
 <template>
@@ -593,6 +625,21 @@ store.init();
 
     <!-- 右侧内容区 -->
     <n-layout-content content-style="display: flex; flex-direction: column; height: 100%;">
+      <!-- 账号选择器 -->
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 16px 0;">
+        <n-select
+          v-model:value="store.currentAccountId"
+          :options="accountOptions"
+          placeholder="选择账号"
+          style="width:200px;"
+          @update:value="handleAccountChange"
+        />
+        <n-button size="small" @click="$router.push('/cloud-file/accounts')">
+          <template #icon><settings-outline /></template>
+          管理
+        </n-button>
+      </div>
+
       <!-- 工具栏：面包屑 + 操作按钮 -->
       <div
         style="
