@@ -81,7 +81,6 @@ public class WebdavClient {
     public CloudFileItem put(String path, byte[] content) throws Exception {
         String url = buildUrl(path);
         HttpRequest request = newRequest(url, "PUT")
-                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(content.length))
                 .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
                 .PUT(HttpRequest.BodyPublishers.ofByteArray(content))
                 .build();
