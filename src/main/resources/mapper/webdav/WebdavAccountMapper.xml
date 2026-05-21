@@ -7,27 +7,56 @@
     <id column="id" property="id"/>
     <result column="user_id" property="userId"/>
     <result column="type" property="type"/>
+    <result column="name" property="name"/>
     <result column="url" property="url"/>
     <result column="username" property="username"/>
     <result column="password" property="password"/>
     <result column="is_active" property="isActive"/>
+    <result column="is_default" property="isDefault"/>
     <result column="create_time" property="createTime"/>
     <result column="update_time" property="updateTime"/>
   </resultMap>
+
+  <select id="selectById" resultMap="WebdavAccountResultMap">
+    SELECT * FROM webdav_account WHERE id = #{id}
+  </select>
 
   <select id="selectByUserId" resultMap="WebdavAccountResultMap">
     SELECT * FROM webdav_account WHERE user_id = #{userId}
   </select>
 
+  <select id="selectAllByUserId" resultMap="WebdavAccountResultMap">
+    SELECT * FROM webdav_account WHERE user_id = #{userId} ORDER BY is_default DESC, id ASC
+  </select>
+
+  <select id="selectDefaultByUserId" resultMap="WebdavAccountResultMap">
+    SELECT * FROM webdav_account WHERE user_id = #{userId} AND is_default = 1 LIMIT 1
+  </select>
+
   <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO webdav_account (user_id, type, url, username, password, is_active)
-    VALUES (#{userId}, #{type}, #{url}, #{username}, #{password}, 1)
+    INSERT INTO webdav_account (user_id, type, name, url, username, password, is_active, is_default)
+    VALUES (#{userId}, #{type}, #{name}, #{url}, #{username}, #{password}, 1, #{isDefault})
   </insert>
 
   <update id="updateByUserId">
     UPDATE webdav_account
-    SET type = #{type}, url = #{url}, username = #{username}, password = #{password}
+    SET type = #{type}, name = #{name}, url = #{url}, username = #{username}, password = #{password}
     WHERE user_id = #{userId}
   </update>
+
+  <update id="updateById">
+    UPDATE webdav_account
+    SET type = #{type}, name = #{name}, url = #{url}, username = #{username},
+        password = #{password}, is_active = #{isActive}, is_default = #{isDefault}
+    WHERE id = #{id}
+  </update>
+
+  <update id="clearDefaultByUserId">
+    UPDATE webdav_account SET is_default = 0 WHERE user_id = #{userId}
+  </update>
+
+  <delete id="deleteById">
+    DELETE FROM webdav_account WHERE id = #{id}
+  </delete>
 
 </mapper>

@@ -10,6 +10,7 @@ public class WebdavAccount {
     private Long id;
     private Long userId;
     private String type;
+    private String name;
     private String url;
     private String username;
 
@@ -17,6 +18,7 @@ public class WebdavAccount {
     private String password;
 
     private Integer isActive;
+    private Integer isDefault;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 
