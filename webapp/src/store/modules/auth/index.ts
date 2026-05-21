@@ -79,7 +79,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     }
 
     tabStore.cacheTabs();
-    routeStore.resetStore();
+    await routeStore.resetStore();
   }
 
   /** Record the user ID of the previous login session Used to compare with the current user ID on next login */

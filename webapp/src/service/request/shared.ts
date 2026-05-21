@@ -34,7 +34,7 @@ async function handleRefreshToken() {
     return true;
   }
 
-  resetStore();
+  await resetStore();
 
   return false;
 }
