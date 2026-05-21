@@ -200,26 +200,27 @@ const columns = [
       const thumbUrl = tableThumbnails[row.path];
       const isMedia = isImageFile(row.name) || isVideoFile(row.name);
 
-      const baseFlexStyle = 'display:flex;align-items:center;gap:6px;cursor:pointer;';
-      const nameSpan = h('span', { style: 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;' }, row.name);
+      const iconSize = 72;
+      const baseFlexStyle = `display:flex;align-items:center;gap:8px;cursor:pointer;`;
+      const nameSpan = h('span', { style: 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;' }, row.name);
 
       if (row.isDirectory) {
         return h('div', { style: baseFlexStyle }, [
-          h(Folder, { size: 18, style: 'flex-shrink:0;color:#f0a020;width:18px;height:18px;' }),
+          h(Folder, { size: iconSize, style: `flex-shrink:0;color:#f0a020;width:${iconSize}px;height:${iconSize}px;` }),
           nameSpan
         ]);
       }
 
       if (isMedia && thumbUrl) {
         return h('div', { style: baseFlexStyle }, [
-          h('img', { src: thumbUrl, style: 'width:18px;height:18px;object-fit:cover;border-radius:2px;flex-shrink:0;' }),
+          h('img', { src: thumbUrl, style: `width:${iconSize}px;height:${iconSize}px;object-fit:cover;border-radius:4px;flex-shrink:0;` }),
           nameSpan
         ]);
       }
 
       const IconComp = getFileIcon(row.name, row.isDirectory);
       return h('div', { style: baseFlexStyle }, [
-        h(IconComp, { size: 18, style: 'flex-shrink:0;color:#666;width:18px;height:18px;' }),
+        h(IconComp, { size: iconSize, style: `flex-shrink:0;color:#666;width:${iconSize}px;height:${iconSize}px;` }),
         nameSpan
       ]);
     }
