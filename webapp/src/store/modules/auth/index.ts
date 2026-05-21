@@ -105,7 +105,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     const lastLoginUserId = localStg.get('lastLoginUserId');
 
     // Clear all tabs if current user is different from previous user
-    if (!lastLoginUserId || Number(lastLoginUserId) !== userInfo.userId) {
+    if (lastLoginUserId && Number(lastLoginUserId) !== userInfo.userId) {
       localStg.remove('globalTabs');
       tabStore.clearTabs();
 
