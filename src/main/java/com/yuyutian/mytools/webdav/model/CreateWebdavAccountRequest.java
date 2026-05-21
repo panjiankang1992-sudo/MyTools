@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UpdateWebdavAccountRequest {
+public class CreateWebdavAccountRequest {
 
     @NotBlank(message = "webdav.type.notBlank")
     @Pattern(regexp = "^(jianguoyun|nextcloud|owncloud|synology|alist|s3|custom)$",
@@ -25,6 +25,7 @@ public class UpdateWebdavAccountRequest {
     @Size(max = 128, message = "webdav.username.size")
     private String username;
 
+    @NotBlank(message = "webdav.password.notBlank")
     @Size(max = 128, message = "webdav.password.size")
     private String password;
 
