@@ -36,7 +36,7 @@ const rules = {
   ],
   password: [
     { required: true, message: '密码不能为空', trigger: 'blur' },
-    { pattern: /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{6,20}$/,
+    { pattern: /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]{6,20}$/,
       message: '密码6-20位，不能包含异常字符', trigger: 'blur' }
   ],
   email: [
