@@ -174,7 +174,7 @@ function getFileIcon(name: string, isDirectory: boolean) {
   if (['mp4', 'avi', 'mov', 'mkv', 'flv'].includes(ext)) return FilmOutline;
   if (['mp3', 'wav', 'flac', 'aac', 'ogg'].includes(ext)) return MusicalNotesOutline;
   if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) return FileTrayOutline;
-  if (['js', 'ts', 'py', 'java', 'c', 'cpp', 'h', 'sh'].includes(ext)) return DocumentTextOutline;
+  if (['js', 'ts', 'py', 'java', 'c', 'cpp', 'h', 'sh', 'json', 'xml', 'yaml', 'yml', 'md', 'txt', 'html', 'css', 'sql', 'log', 'vue', 'jsx', 'tsx'].includes(ext)) return DocumentTextOutline;
   return FileTrayOutline;
 }
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useThumbnail } from '@/composables/cloudfile/useThumbnail';
+import { fetchFileContent } from '@/service/api/cloudfile';
 import {
   NButton,
   NSpace,
@@ -19,6 +20,14 @@ import {
   DocumentTextOutline,
   ConstructOutline
 } from '@vicons/ionicons5';
+
+const textFileExts = ['txt', 'md', 'json', 'xml', 'html', 'htm', 'css', 'js', 'ts', 'jsx', 'tsx',
+  'vue', 'py', 'java', 'c', 'cpp', 'h', 'sh', 'bash', 'yaml', 'yml', 'toml', 'ini', 'cfg', 'conf',
+  'properties', 'log', 'csv', 'sql', 'env', 'gitignore', 'editorconfig', 'rst', 'tex', 'svg'];
+function isTextFile(name: string): boolean {
+  const ext = name.split('.').pop()?.toLowerCase() || '';
+  return textFileExts.includes(ext);
+}
 
 const props = defineProps<{
   file: {
@@ -70,6 +79,34 @@ watch(
       } finally {
         thumbnailLoading.value = false;
       }
+    }
+  },
+  { immediate: true }
+);
+
+const textContent = ref<string>('');
+const textLoading = ref(false);
+const textError = ref(false);
+
+watch(
+  () => props.file,
+  async f => {
+    textContent.value = '';
+    textError.value = false;
+    if (!f || f.isDirectory) return;
+    if (!isTextFile(f.name)) return;
+    textLoading.value = true;
+    try {
+      const { data, error } = await fetchFileContent(f.path);
+      if (!error && data) {
+        textContent.value = data;
+      } else {
+        textError.value = true;
+      }
+    } catch {
+      textError.value = true;
+    } finally {
+      textLoading.value = false;
     }
   },
   { immediate: true }
@@ -137,7 +174,31 @@ function formatDate(dateStr: string | null): string {
           padding: 16px;
         "
       >
-        <n-spin :show="thumbnailLoading">
+        <!-- 文本文件内容预览 -->
+        <n-spin v-if="isTextFile(file.name)" :show="textLoading">
+          <div
+            v-if="textContent && !textError"
+            style="
+              width: 100%;
+              max-height: 500px;
+              overflow: auto;
+              background: #1e1e1e;
+              color: #d4d4d4;
+              border-radius: 8px;
+              padding: 16px;
+              text-align: left;
+            "
+          >
+            <pre style="margin: 0; white-space: pre-wrap; word-break: break-all; font-size: 13px; line-height: 1.6; font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;">{{ textContent }}</pre>
+          </div>
+          <div v-else-if="textError" style="text-align: center; color: #999;">
+            <construct-outline :style="{ fontSize: '64px' }" />
+            <p style="margin-top: 8px;">加载内容失败</p>
+          </div>
+        </n-spin>
+
+        <!-- 媒体文件预览 -->
+        <n-spin v-else :show="thumbnailLoading">
           <n-image
             v-if="thumbnailUrl && !thumbnailError"
             :src="thumbnailUrl"
