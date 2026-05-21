@@ -74,7 +74,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
       lastLoginTime: ''
     });
 
-    if (!route.meta.constant) {
+    if (route.name !== 'login') {
       await toLogin();
     }
 
