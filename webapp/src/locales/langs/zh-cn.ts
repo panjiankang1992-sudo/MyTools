@@ -242,7 +242,9 @@ const local: App.I18n.Schema = {
     'app-market_index': '应用列表',
     'cloud-file': '云端文件',
     'cloud-file_browse': '坚果云',
-    'cloud-file_accounts': 'WebDAV 管理'
+    'cloud-file_accounts': 'WebDAV 管理',
+    alist: 'Alist',
+    alist_index: 'Alist 文件'
   },
   page: {
     login: {

@@ -189,6 +189,29 @@ export const generatedRoutes: GeneratedRoute[] = [
     ]
   },
   {
+    name: 'alist',
+    path: '/alist',
+    component: 'layout.base',
+    meta: {
+      title: 'alist',
+      i18nKey: 'route.alist',
+      icon: 'mdi:cloud-outline',
+      order: 4
+    },
+    children: [
+      {
+        name: 'alist_index',
+        path: '/alist/index',
+        component: 'view.alist_index',
+        meta: {
+          title: 'alist_index',
+          i18nKey: 'route.alist_index',
+          icon: 'mdi:file-document-outline'
+        }
+      }
+    ]
+  },
+  {
     name: 'login',
     path: '/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?',
     component: 'layout.blank$view.login',
