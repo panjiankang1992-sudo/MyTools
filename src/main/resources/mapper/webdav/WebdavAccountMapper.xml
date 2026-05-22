@@ -59,4 +59,8 @@
     DELETE FROM webdav_account WHERE id = #{id}
   </delete>
 
+  <update id="updatePasswordById">
+    UPDATE webdav_account SET password = #{password} WHERE id = #{id}
+  </update>
+
 </mapper>

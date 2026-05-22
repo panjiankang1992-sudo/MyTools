@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 public class CloudFileServiceImpl implements CloudFileService {
 
     private static final String AES_KEY = "CJ0Xkfbp2KtWq0uZ0ckCCtGIOZU7NPC9ZXenbcZGZG8=";
+    private static final String ALIST_TYPE = "alist";
 
     private static final Pattern TEXT_EXT_PATTERN = Pattern.compile(
             ".*\\.(txt|md|json|xml|html|htm|css|js|ts|py|java|cpp|c|h|sh|yaml|yml|properties)$",
@@ -132,7 +133,51 @@ public class CloudFileServiceImpl implements CloudFileService {
         }
     }
 
-    private WebdavClient buildClient(Long userId, Long accountId) {
+    @Override
+    public String alistRawUrl(Long userId, Long accountId, String path) {
+        AlistClient client = buildAlistClient(userId, accountId);
+        try {
+            return client.getRawUrl(path);
+        } catch (java.io.IOException e) {
+            if ("TOKEN_EXPIRED".equals(e.getMessage())) {
+                client = rebuildAlistClient(userId, accountId);
+                try {
+                    return client.getRawUrl(path);
+                } catch (Exception ex) {
+                    throw new BusinessException("53001", "获取预览链接失败: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
+            throw new BusinessException("53001", "获取预览链接失败: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            throw new BusinessException("53001", "获取预览链接失败: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private AlistClient buildAlistClient(Long userId, Long accountId) {
+        WebdavAccount account = resolveAccount(userId, accountId);
+        if (!ALIST_TYPE.equals(account.getType())) {
+            throw new BusinessException("40002", "账号类型不是 Alist", HttpStatus.BAD_REQUEST);
+        }
+        String token = decrypt(account.getPassword());
+        return new AlistClient(account.getUrl(), account.getUsername(), token);
+    }
+
+    private AlistClient rebuildAlistClient(Long userId, Long accountId) {
+        WebdavAccount account = resolveAccount(userId, accountId);
+        String newToken;
+        try {
+            String plainPassword = decrypt(account.getPassword());
+            AlistClient tempClient = new AlistClient(account.getUrl(), account.getUsername(), "");
+            newToken = tempClient.login(plainPassword);
+            reSaveAlistToken(accountId, encrypt(newToken));
+        } catch (Exception e) {
+            log.error("Failed to refresh Alist token", e);
+            throw new BusinessException("53002", "Alist 登录失败，请检查账号配置", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new AlistClient(account.getUrl(), account.getUsername(), newToken);
+    }
+
+    private WebdavAccount resolveAccount(Long userId, Long accountId) {
         WebdavAccount account;
         if (accountId != null) {
             account = webdavAccountMapper.selectById(accountId);
@@ -142,17 +187,42 @@ public class CloudFileServiceImpl implements CloudFileService {
         } else {
             account = webdavAccountMapper.selectDefaultByUserId(userId);
             if (account == null) {
-                throw new BusinessException("40001", "请先在 WebDAV 管理中配置账号", HttpStatus.BAD_REQUEST);
+                throw new BusinessException("40001", "请先配置云盘账号", HttpStatus.BAD_REQUEST);
             }
         }
-        String plainPassword = "";
-        if (account.getPassword() != null && !account.getPassword().isBlank()) {
-            try {
-                plainPassword = AesEncryptUtils.decrypt(account.getPassword(), AES_KEY);
-            } catch (Exception e) {
-                log.error("Failed to decrypt WebDAV password for user {}", userId);
-                throw new BusinessException("50001", "WebDAV 配置无效", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+        return account;
+    }
+
+    private String decrypt(String encrypted) {
+        if (encrypted == null || encrypted.isBlank()) return "";
+        try {
+            return AesEncryptUtils.decrypt(encrypted, AES_KEY);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String encrypt(String plain) {
+        try {
+            return AesEncryptUtils.encrypt(plain, AES_KEY);
+        } catch (Exception e) {
+            throw new BusinessException("50001", "加密失败", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void reSaveAlistToken(Long accountId, String newToken) {
+        webdavAccountMapper.updatePasswordById(accountId, newToken);
+    }
+
+    private WebdavClient buildClient(Long userId, Long accountId) {
+        WebdavAccount account = resolveAccount(userId, accountId);
+        if (ALIST_TYPE.equals(account.getType())) {
+            throw new BusinessException("40002", "请使用 Alist 接口访问 Alist 账号", HttpStatus.BAD_REQUEST);
+        }
+        String plainPassword = decrypt(account.getPassword());
+        if (plainPassword.isEmpty() && account.getPassword() != null && !account.getPassword().isBlank()) {
+            log.error("Failed to decrypt WebDAV password for user {}", userId);
+            throw new BusinessException("50001", "WebDAV 配置无效", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new WebdavClient(account.getUrl(), account.getUsername(), plainPassword);
     }

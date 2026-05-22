@@ -29,4 +29,6 @@ public interface CloudFileService {
     void delete(Long userId, Long accountId, String path, boolean recursive);
 
     void saveTextFile(Long userId, Long accountId, String path, String content);
+
+    String alistRawUrl(Long userId, Long accountId, String path);
 }

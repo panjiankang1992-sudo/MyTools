@@ -25,4 +25,6 @@ public interface WebdavAccountMapper {
     int clearDefaultByUserId(Long userId);
 
     int deleteById(Long id);
+
+    int updatePasswordById(Long id, String password);
 }

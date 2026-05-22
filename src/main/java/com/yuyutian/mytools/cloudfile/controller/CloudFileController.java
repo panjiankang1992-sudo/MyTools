@@ -10,8 +10,10 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -135,6 +137,16 @@ public class CloudFileController {
         Long userId = resolveUserId(auth);
         cloudFileService.saveTextFile(userId, accountId, decode(path), content);
         return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.operation"), null));
+    }
+
+    @GetMapping("/api/cloud/alist/raw")
+    public ResponseEntity<Result<Map<String, String>>> getAlistRawUrl(
+            @RequestHeader("Authorization") String auth,
+            @RequestParam("path") String path,
+            @RequestParam(value = "accountId", required = false) Long accountId) {
+        Long userId = resolveUserId(auth);
+        String rawUrl = cloudFileService.alistRawUrl(userId, accountId, decode(path));
+        return ResponseEntity.ok(Result.success(Map.of("rawUrl", rawUrl)));
     }
 
     private Long resolveUserId(String auth) {
