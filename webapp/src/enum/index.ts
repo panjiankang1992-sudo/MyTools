@@ -4,5 +4,6 @@ export enum SetupStoreId {
   Auth = 'auth-store',
   Route = 'route-store',
   Tab = 'tab-store',
-  CloudFile = 'cloudfile-store'
+  CloudFile = 'cloudfile-store',
+  Alist = 'alist-store'
 }
