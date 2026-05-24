@@ -218,12 +218,12 @@ onMounted(() => loadAccounts());
     <n-data-table :columns="columns" :data="accounts" :loading="loading" :bordered="false" />
 
     <n-modal v-model:show="showModal" :title="editingAccount ? '编辑账号' : '添加账号'" style="width: 520px;">
-      <n-form :model="formData" label-placement="left" label-width="80">
+      <n-form :model="formData" label-placement="left" label-width="90">
+        <n-form-item label="服务类型" required>
+          <n-select v-model:value="formData.type" :options="typeOptions" placeholder="请选择服务类型" />
+        </n-form-item>
         <n-form-item label="账号名称" required>
           <n-input v-model:value="formData.name" placeholder="如：工作坚果云" />
-        </n-form-item>
-        <n-form-item label="服务类型" required>
-          <n-select v-model:value="formData.type" :options="typeOptions" />
         </n-form-item>
         <n-form-item label="WebDAV 地址" required>
           <n-input v-model:value="formData.url" placeholder="https://dav.jianguoyun.com/dav/" />
