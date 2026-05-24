@@ -217,7 +217,7 @@ onMounted(() => loadAccounts());
 
     <n-data-table :columns="columns" :data="accounts" :loading="loading" :bordered="false" />
 
-    <n-modal v-model:show="showModal" :title="editingAccount ? '编辑账号' : '添加账号'" style="width: 520px;">
+    <n-modal v-model:show="showModal" :title="editingAccount ? '编辑账号' : '添加账号'" style="width: 520px;" preset="card" :style="{ '--n-color': '#ffffff' }">
       <n-form :model="formData" label-placement="left" label-width="90">
         <n-form-item label="服务类型" required>
           <n-select v-model:value="formData.type" :options="typeOptions" placeholder="请选择服务类型" />
