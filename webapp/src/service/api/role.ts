@@ -18,7 +18,7 @@ export function fetchCreateRole(data: { roleName: string; roleCode: string; desc
 }
 
 /** 编辑角色 */
-export function fetchUpdateRole(id: number, data: {
+export function fetchUpdateRole(id: string, data: {
   roleName?: string;
   roleCode?: string;
   description?: string;
@@ -32,7 +32,7 @@ export function fetchUpdateRole(id: number, data: {
 }
 
 /** 删除角色 */
-export function fetchDeleteRole(id: number) {
+export function fetchDeleteRole(id: string) {
   return request<null>({
     url: `/api/roles/${id}`,
     method: 'delete'

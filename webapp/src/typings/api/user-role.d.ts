@@ -39,7 +39,8 @@ declare namespace Api {
 
   namespace Role {
     interface RoleItem {
-      id: number;
+      /** 角色ID，后端为 Snowflake ID（19位），前端统一用 string 避免精度丢失 */
+      id: string;
       roleName: string;
       roleCode: string;
       description: string;

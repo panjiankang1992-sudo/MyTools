@@ -31,5 +31,5 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "app-market_index": () => import("@/views/app-market/index.vue"),
   "cloud-file_browse": () => import("@/views/cloud-file/browse/index.vue"),
   "cloud-file_accounts": () => import("@/views/cloud-file/accounts/index.vue"),
-  "alist_index": () => import("@/views/alist/index.vue"),
+  "cloud-file_alist": () => import("@/views/cloud-file/alist/index.vue"),
 };

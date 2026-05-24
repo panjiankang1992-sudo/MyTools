@@ -243,8 +243,7 @@ const local: App.I18n.Schema = {
     'cloud-file': '云端文件',
     'cloud-file_browse': '坚果云',
     'cloud-file_accounts': 'WebDAV 管理',
-    alist: 'Alist',
-    alist_index: 'Alist 文件'
+    'cloud-file_alist': 'Alist'
   },
   page: {
     login: {

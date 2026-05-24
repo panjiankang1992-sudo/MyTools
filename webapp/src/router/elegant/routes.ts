@@ -185,28 +185,16 @@ export const generatedRoutes: GeneratedRoute[] = [
           icon: 'mdi:account-cog',
           order: 2
         }
-      }
-    ]
-  },
-  {
-    name: 'alist',
-    path: '/alist',
-    component: 'layout.base',
-    meta: {
-      title: 'alist',
-      i18nKey: 'route.alist',
-      icon: 'mdi:cloud-outline',
-      order: 4
-    },
-    children: [
+      },
       {
-        name: 'alist_index',
-        path: '/alist/index',
-        component: 'view.alist_index',
+        name: 'cloud-file_alist',
+        path: '/cloud-file/alist',
+        component: 'view.cloud-file_alist',
         meta: {
-          title: 'alist_index',
-          i18nKey: 'route.alist_index',
-          icon: 'mdi:file-document-outline'
+          title: 'cloud-file_alist',
+          i18nKey: 'route.cloud-file_alist',
+          icon: 'mdi:cloud-outline',
+          order: 3
         }
       }
     ]

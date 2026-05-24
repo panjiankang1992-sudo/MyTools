@@ -247,8 +247,7 @@ const local: App.I18n.Schema = {
     'cloud-file': 'Cloud File',
     'cloud-file_browse': 'JianGuoYun',
     'cloud-file_accounts': 'WebDAV Manager',
-    alist: 'Alist',
-    alist_index: 'Alist Files'
+    'cloud-file_alist': 'Alist'
   },
   page: {
     login: {

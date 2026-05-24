@@ -24,12 +24,13 @@ const columns = [
   }}
 ];
 
-const data = reactive<Api.Role.RoleItem[]>([]);
+// 使用 ref 而非 reactive 数组：Vue 3 对 ref 的直接赋值 (.value = ...) 触发 NDataTable 响应式更新更可靠
+const data = ref<Api.Role.RoleItem[]>([]);
 
 // Edit modal
 const editModal = reactive({
   show: false,
-  id: null as number | null,
+  id: null as string | null,
   roleName: '',
   roleCode: '',
   description: '',
@@ -40,9 +41,7 @@ async function loadData() {
   startLoading();
   try {
     const { data: apiData } = await fetchGetRoleList();
-    const roleList = Array.isArray(apiData) ? apiData : [];
-    data.length = 0;
-    data.push(...roleList);
+    data.value = Array.isArray(apiData) ? apiData : [];
   } finally {
     endLoading();
   }

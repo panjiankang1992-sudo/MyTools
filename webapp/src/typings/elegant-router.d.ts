@@ -38,8 +38,7 @@ declare module "@elegant-router/types" {
     "cloud-file": "/cloud-file";
     "cloud-file_browse": "/cloud-file/browse";
     "cloud-file_accounts": "/cloud-file/accounts";
-    "alist": "/alist";
-    "alist_index": "/alist/index";
+    "cloud-file_alist": "/cloud-file/alist";
   };
 
   /**
@@ -83,7 +82,6 @@ declare module "@elegant-router/types" {
     | "system"
     | "app-market"
     | "cloud-file"
-    | "alist"
   >;
 
   /**
@@ -116,7 +114,7 @@ declare module "@elegant-router/types" {
     | "app-market_index"
     | "cloud-file_browse"
     | "cloud-file_accounts"
-    | "alist_index"
+    | "cloud-file_alist"
   >;
 
   /**
