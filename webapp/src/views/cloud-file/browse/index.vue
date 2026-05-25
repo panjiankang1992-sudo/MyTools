@@ -53,6 +53,7 @@ import {
   SettingsOutline
 } from '@vicons/ionicons5';
 import { fetchWebdavAccounts } from '@/service/api/webdav';
+import AccountDrawer from '../components/AccountDrawer.vue';
 
 defineOptions({ name: 'CloudFile' });
 
@@ -88,6 +89,12 @@ async function loadAccounts() {
 async function handleAccountChange(accountId: string) {
   selectedTreeKey.value = [];
   await store.init(accountId);
+}
+
+const accountDrawerShow = ref(false);
+
+function openAccountDrawer() {
+  accountDrawerShow.value = true;
 }
 
 // 表格缩略图缓存
@@ -635,7 +642,7 @@ onMounted(() => loadAccounts());
           style="width:200px;"
           @update:value="handleAccountChange"
         />
-        <n-button size="small" @click="$router.push('/cloud-file/accounts')">
+        <n-button size="small" @click="openAccountDrawer">
           <template #icon><settings-outline /></template>
           管理
         </n-button>
@@ -746,6 +753,13 @@ onMounted(() => loadAccounts());
     </n-layout-content>
   </n-layout>
   </div>
+
+  <!-- 账号管理抽屉 -->
+  <account-drawer
+    v-model:show="accountDrawerShow"
+    account-type="webdav"
+    @account-change="handleAccountChange"
+  />
 
   <!-- 新建目录弹窗 -->
   <n-modal
