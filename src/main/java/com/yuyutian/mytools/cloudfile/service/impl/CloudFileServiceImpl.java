@@ -29,9 +29,17 @@ public class CloudFileServiceImpl implements CloudFileService {
 
     @Override
     public CloudFileListResponse listFiles(Long userId, Long accountId, String path, int depth) {
-        WebdavClient client = buildClient(userId, accountId);
+        WebdavAccount account = resolveAccount(userId, accountId);
         try {
-            return client.list(path, depth);
+            if (ALIST_TYPE.equals(account.getType())) {
+                AlistClient client = buildAlistClient(account);
+                return client.list(path);
+            } else {
+                WebdavClient client = buildClient(account);
+                return client.list(path, depth);
+            }
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
             throw new BusinessException("50001", "无法连接到云盘服务: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -39,7 +47,11 @@ public class CloudFileServiceImpl implements CloudFileService {
 
     @Override
     public String getFileContent(Long userId, Long accountId, String path) {
-        WebdavClient client = buildClient(userId, accountId);
+        WebdavAccount account = resolveAccount(userId, accountId);
+        if (ALIST_TYPE.equals(account.getType())) {
+            throw new BusinessException("40002", "Alist 账号不支持文件内容预览", HttpStatus.BAD_REQUEST);
+        }
+        WebdavClient client = buildClient(account);
         try {
             if (!detectTextFile(path)) {
                 throw new BusinessException("50001", "不支持预览该类型文件", HttpStatus.BAD_REQUEST);
@@ -54,7 +66,11 @@ public class CloudFileServiceImpl implements CloudFileService {
 
     @Override
     public byte[] downloadFile(Long userId, Long accountId, String path) {
-        WebdavClient client = buildClient(userId, accountId);
+        WebdavAccount account = resolveAccount(userId, accountId);
+        if (ALIST_TYPE.equals(account.getType())) {
+            throw new BusinessException("40002", "Alist 账号不支持文件下载", HttpStatus.BAD_REQUEST);
+        }
+        WebdavClient client = buildClient(account);
         try {
             return client.getBytes(path);
         } catch (Exception e) {
@@ -64,9 +80,10 @@ public class CloudFileServiceImpl implements CloudFileService {
 
     @Override
     public FileOperationResponse uploadFile(Long userId, Long accountId, String dirPath, String filename, byte[] content) {
-        WebdavClient client = buildClient(userId, accountId);
-        String cleanDir = dirPath == null || dirPath.equals("/") ? "" : dirPath;
-        String fullPath = (cleanDir.isEmpty() ? "" : cleanDir) + "/" + filename;
+        WebdavAccount account = resolveAccount(userId, accountId);
+        WebdavClient client = buildClient(account);
+        String cleanDir = (dirPath == null || dirPath.equals("/") || dirPath.isEmpty()) ? "" : dirPath.replaceAll("/+$", "");
+        String fullPath = (cleanDir.isEmpty() ? "" : cleanDir + "/") + filename;
         try {
             CloudFileItem item = client.put(fullPath, content);
             return new FileOperationResponse(item.getName(), item.getPath(), item.getSize(), item.getLastModified());
@@ -77,7 +94,8 @@ public class CloudFileServiceImpl implements CloudFileService {
 
     @Override
     public void createDirectory(Long userId, Long accountId, String path) {
-        WebdavClient client = buildClient(userId, accountId);
+        WebdavAccount account = resolveAccount(userId, accountId);
+        WebdavClient client = buildClient(account);
         try {
             client.mkdir(path);
         } catch (Exception e) {
@@ -95,7 +113,8 @@ public class CloudFileServiceImpl implements CloudFileService {
 
     @Override
     public void move(Long userId, Long accountId, String from, String to) {
-        WebdavClient client = buildClient(userId, accountId);
+        WebdavAccount account = resolveAccount(userId, accountId);
+        WebdavClient client = buildClient(account);
         try {
             client.move(from, to);
         } catch (Exception e) {
@@ -105,7 +124,8 @@ public class CloudFileServiceImpl implements CloudFileService {
 
     @Override
     public void copy(Long userId, Long accountId, String from, String to) {
-        WebdavClient client = buildClient(userId, accountId);
+        WebdavAccount account = resolveAccount(userId, accountId);
+        WebdavClient client = buildClient(account);
         try {
             client.copy(from, to);
         } catch (Exception e) {
@@ -115,7 +135,8 @@ public class CloudFileServiceImpl implements CloudFileService {
 
     @Override
     public void delete(Long userId, Long accountId, String path, boolean recursive) {
-        WebdavClient client = buildClient(userId, accountId);
+        WebdavAccount account = resolveAccount(userId, accountId);
+        WebdavClient client = buildClient(account);
         try {
             client.delete(path, recursive);
         } catch (Exception e) {
@@ -125,7 +146,8 @@ public class CloudFileServiceImpl implements CloudFileService {
 
     @Override
     public void saveTextFile(Long userId, Long accountId, String path, String content) {
-        WebdavClient client = buildClient(userId, accountId);
+        WebdavAccount account = resolveAccount(userId, accountId);
+        WebdavClient client = buildClient(account);
         try {
             client.put(path, content);
         } catch (Exception e) {
@@ -135,12 +157,13 @@ public class CloudFileServiceImpl implements CloudFileService {
 
     @Override
     public String alistRawUrl(Long userId, Long accountId, String path) {
-        AlistClient client = buildAlistClient(userId, accountId);
+        WebdavAccount account = resolveAccount(userId, accountId);
+        AlistClient client = buildAlistClient(account);
         try {
             return client.getRawUrl(path);
         } catch (java.io.IOException e) {
             if ("TOKEN_EXPIRED".equals(e.getMessage())) {
-                client = rebuildAlistClient(userId, accountId);
+                client = rebuildAlistClient(account);
                 try {
                     return client.getRawUrl(path);
                 } catch (Exception ex) {
@@ -153,23 +176,18 @@ public class CloudFileServiceImpl implements CloudFileService {
         }
     }
 
-    private AlistClient buildAlistClient(Long userId, Long accountId) {
-        WebdavAccount account = resolveAccount(userId, accountId);
-        if (!ALIST_TYPE.equals(account.getType())) {
-            throw new BusinessException("40002", "账号类型不是 Alist", HttpStatus.BAD_REQUEST);
-        }
+    private AlistClient buildAlistClient(WebdavAccount account) {
         String token = decrypt(account.getPassword());
         return new AlistClient(account.getUrl(), account.getUsername(), token);
     }
 
-    private AlistClient rebuildAlistClient(Long userId, Long accountId) {
-        WebdavAccount account = resolveAccount(userId, accountId);
+    private AlistClient rebuildAlistClient(WebdavAccount account) {
         String newToken;
         try {
             String plainPassword = decrypt(account.getPassword());
             AlistClient tempClient = new AlistClient(account.getUrl(), account.getUsername(), "");
             newToken = tempClient.login(plainPassword);
-            reSaveAlistToken(accountId, encrypt(newToken));
+            reSaveAlistToken(account.getId(), encrypt(newToken));
         } catch (Exception e) {
             log.error("Failed to refresh Alist token", e);
             throw new BusinessException("53002", "Alist 登录失败，请检查账号配置", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -198,7 +216,7 @@ public class CloudFileServiceImpl implements CloudFileService {
         try {
             return AesEncryptUtils.decrypt(encrypted, AES_KEY);
         } catch (Exception e) {
-            return "";
+            throw new BusinessException("50001", "密码解密失败，请检查账号配置", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -214,14 +232,10 @@ public class CloudFileServiceImpl implements CloudFileService {
         webdavAccountMapper.updatePasswordById(accountId, newToken);
     }
 
-    private WebdavClient buildClient(Long userId, Long accountId) {
-        WebdavAccount account = resolveAccount(userId, accountId);
-        if (ALIST_TYPE.equals(account.getType())) {
-            throw new BusinessException("40002", "请使用 Alist 接口访问 Alist 账号", HttpStatus.BAD_REQUEST);
-        }
+    private WebdavClient buildClient(WebdavAccount account) {
         String plainPassword = decrypt(account.getPassword());
         if (plainPassword.isEmpty() && account.getPassword() != null && !account.getPassword().isBlank()) {
-            log.error("Failed to decrypt WebDAV password for user {}", userId);
+            log.error("Failed to decrypt WebDAV password for user {}", account.getUserId());
             throw new BusinessException("50001", "WebDAV 配置无效", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new WebdavClient(account.getUrl(), account.getUsername(), plainPassword);
