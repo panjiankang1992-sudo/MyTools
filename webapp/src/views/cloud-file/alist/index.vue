@@ -26,8 +26,10 @@ import {
   FolderOutline,
   DocumentTextOutline,
   ImageOutline,
-  RefreshOutline
+  RefreshOutline,
+  SettingsOutline
 } from '@vicons/ionicons5';
+import AccountDrawer from '../components/AccountDrawer.vue';
 
 defineOptions({ name: 'AlistIndex' });
 
@@ -35,6 +37,11 @@ const message = useMessage();
 const store = useAlistStore();
 
 const selectedTreeKey = ref<string[]>([]);
+const accountDrawerShow = ref(false);
+
+function openAccountDrawer() {
+  accountDrawerShow.value = true;
+}
 
 onMounted(async () => {
   await store.loadAccounts();
@@ -54,8 +61,17 @@ const accountOptions = computed(() =>
     .map(a => ({ label: a.name, value: a.id }))
 );
 
-async function handleAccountChange(accountId: string) {
-  await store.init(accountId);
+async function handleAccountChange(_accountId: string) {
+  await store.loadAccounts();
+  const alistAccounts = store.accounts.filter(a => a.type === 'alist');
+  if (alistAccounts.length > 0) {
+    const defaultAccount = alistAccounts.find(a => a.isDefault === 1) || alistAccounts[0];
+    store.currentAccountId = defaultAccount.id;
+    await store.init(defaultAccount.id);
+  } else {
+    store.currentAccountId = '';
+    store.clearFiles();
+  }
   selectedTreeKey.value = [];
 }
 
@@ -191,6 +207,10 @@ function isTextFile(name: string) {
             style="width:200px;"
             @update:value="handleAccountChange"
           />
+          <n-button size="small" @click="openAccountDrawer">
+            <template #icon><n-icon :component="SettingsOutline" /></template>
+            管理
+          </n-button>
         </div>
 
         <!-- 工具栏 -->
@@ -233,6 +253,13 @@ function isTextFile(name: string) {
         </div>
       </n-layout-content>
     </n-layout>
+
+    <!-- 账号管理抽屉 -->
+    <account-drawer
+      v-model:show="accountDrawerShow"
+      account-type="alist"
+      @account-change="handleAccountChange"
+    />
 
     <!-- 预览抽屉 -->
     <n-drawer v-model:show="previewDrawer.show" :width="800" placement="right">
