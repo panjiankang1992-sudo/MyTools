@@ -232,7 +232,14 @@ public class CloudFileServiceImpl implements CloudFileService {
         webdavAccountMapper.updatePasswordById(accountId, newToken);
     }
 
+    private void rejectAlistForWrite(WebdavAccount account) {
+        if (ALIST_TYPE.equals(account.getType())) {
+            throw new BusinessException("40002", "Alist 账号不支持该操作", HttpStatus.BAD_REQUEST);
+        }
+    }
+
     private WebdavClient buildClient(WebdavAccount account) {
+        rejectAlistForWrite(account);
         String plainPassword = decrypt(account.getPassword());
         if (plainPassword.isEmpty() && account.getPassword() != null && !account.getPassword().isBlank()) {
             log.error("Failed to decrypt WebDAV password for user {}", account.getUserId());

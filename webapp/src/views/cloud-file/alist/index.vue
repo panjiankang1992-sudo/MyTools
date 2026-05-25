@@ -25,7 +25,6 @@ import {
 import {
   FolderOutline,
   DocumentTextOutline,
-  ImageOutline,
   RefreshOutline,
   SettingsOutline
 } from '@vicons/ionicons5';
@@ -47,7 +46,7 @@ onMounted(async () => {
   await store.loadAccounts();
   const alistAccounts = store.accounts.filter(a => a.type === 'alist');
   if (alistAccounts.length === 0) {
-    message.warning('未找到 Alist 账号，请先在 WebDAV 管理中添加 Alist 账号');
+    message.warning('未找到 Alist 账号，请点击右侧「管理」添加');
     return;
   }
   const defaultAccount = alistAccounts.find(a => a.isDefault === 1) || alistAccounts[0];
