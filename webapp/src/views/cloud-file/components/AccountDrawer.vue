@@ -3,7 +3,7 @@ import { ref, h, computed } from 'vue';
 import {
   NDrawer, NDrawerContent, NButton, NSpace, NTag,
   NDataTable, NModal, NForm, NFormItem, NInput,
-  NSelect, NSwitch, NPopconfirm, useMessage
+  NSelect, NSwitch, NPopconfirm, NEmpty, useMessage
 } from 'naive-ui';
 import {
   CreateOutline, TrashOutline, StarOutline
@@ -246,18 +246,22 @@ async function handleSetDefault(account: Api.Webdav.WebdavAccount) {
 <template>
   <n-drawer v-model:show="show" :width="480" placement="right" @after-enter="loadAccounts">
     <n-drawer-content :title="drawerTitle" closable>
-      <!-- header-extra is not in DrawerContent slot types but is accepted at runtime -->
-      <!-- @ts-expect-error header-extra slot is supported by n-drawer-content at runtime -->
-      <template #header-extra>
+      <n-space justify="end" mb-3>
         <n-button type="primary" size="small" @click="openCreateModal">添加账号</n-button>
-      </template>
+      </n-space>
 
       <n-data-table
+        v-if="filteredAccounts.length > 0"
         :columns="columns"
         :data="filteredAccounts"
         :loading="loading"
         :bordered="false"
         size="small"
+      />
+      <n-empty
+        v-else
+        :description="accountType === 'alist' ? '暂无 Alist 账号' : '暂无 WebDAV 账号'"
+        style="margin-top: 48px;"
       />
     </n-drawer-content>
   </n-drawer>
@@ -284,8 +288,8 @@ async function handleSetDefault(account: Api.Webdav.WebdavAccount) {
         <n-input v-model:value="formData.name" placeholder="如：工作坚果云" />
       </n-form-item>
 
-      <n-form-item label="服务地址" required>
-        <n-input v-model:value="formData.url" placeholder="https://..." />
+      <n-form-item :label="accountType === 'alist' ? 'Alist 地址' : 'WebDAV 地址'" required>
+        <n-input v-model:value="formData.url" :placeholder="accountType === 'alist' ? 'https://alist.example.com' : 'https://dav.jianguoyun.com/dav/'" />
       </n-form-item>
 
       <n-form-item label="用户名" required>
