@@ -176,17 +176,6 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
-        name: 'cloud-file_accounts',
-        path: '/cloud-file/accounts',
-        component: 'view.cloud-file_accounts',
-        meta: {
-          title: 'cloud-file_accounts',
-          i18nKey: 'route.cloud-file_accounts',
-          icon: 'mdi:account-cog',
-          order: 2
-        }
-      },
-      {
         name: 'cloud-file_alist',
         path: '/cloud-file/alist',
         component: 'view.cloud-file_alist',
@@ -194,7 +183,7 @@ export const generatedRoutes: GeneratedRoute[] = [
           title: 'cloud-file_alist',
           i18nKey: 'route.cloud-file_alist',
           icon: 'mdi:cloud-outline',
-          order: 3
+          order: 2
         }
       }
     ]

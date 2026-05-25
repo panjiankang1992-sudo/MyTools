@@ -245,8 +245,7 @@ const local: App.I18n.Schema = {
     'app-market': 'App Market',
     'app-market_index': 'App List',
     'cloud-file': 'Cloud File',
-    'cloud-file_browse': 'JianGuoYun',
-    'cloud-file_accounts': 'WebDAV Manager',
+    'cloud-file_browse': 'WebDAV',
     'cloud-file_alist': 'Alist'
   },
   page: {
