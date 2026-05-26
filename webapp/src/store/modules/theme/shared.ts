@@ -250,9 +250,7 @@ export function getNaiveTheme(
   const theme: GlobalThemeOverrides = {
     common: {
       ...getNaiveThemeColors(colors, settings.recommendColor),
-      borderRadius: `${settings.themeRadius}px`,
-      // 强制 Modal 背景为白色，避免与页面灰色背景混在一起
-      colorModal: '#ffffff'
+      borderRadius: `${settings.themeRadius}px`
     },
     LoadingBar: {
       colorLoading

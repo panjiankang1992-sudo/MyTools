@@ -89,6 +89,7 @@ async function loadAccounts() {
 async function handleAccountChange(accountId: string) {
   selectedTreeKey.value = [];
   await store.init(accountId);
+  await loadAccounts();
 }
 
 const accountDrawerShow = ref(false);

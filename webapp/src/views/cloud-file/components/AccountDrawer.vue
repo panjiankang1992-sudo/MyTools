@@ -23,8 +23,14 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
+  (e: 'update:show', val: boolean): void;
   (e: 'account-change', accountId: string): void;
 }>();
+
+const show = computed({
+  get: () => props.show,
+  set: (val) => emit('update:show', val)
+});
 
 const message = useMessage();
 

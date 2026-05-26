@@ -122,6 +122,12 @@ export const useAlistStore = defineStore(SetupStoreId.Alist, () => {
     if (data) accounts.value = data;
   }
 
+  function clearFiles() {
+    fileList.value = [];
+    treeData.value = [];
+    currentPath.value = '/';
+  }
+
   return {
     currentPath,
     currentAccountId,
@@ -135,6 +141,7 @@ export const useAlistStore = defineStore(SetupStoreId.Alist, () => {
     refresh,
     navigateTo,
     loadTreeNodeChildren,
-    loadAccounts
+    loadAccounts,
+    clearFiles
   };
 });
