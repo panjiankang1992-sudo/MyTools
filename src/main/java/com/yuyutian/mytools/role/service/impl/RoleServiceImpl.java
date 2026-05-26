@@ -72,7 +72,7 @@ public class RoleServiceImpl implements com.yuyutian.mytools.role.service.RoleSe
         role.setRoleName(request.getRoleName());
         role.setRoleCode(request.getRoleCode());
         role.setDescription(request.getDescription());
-        role.setStatus("ACTIVE");
+        role.setStatus("1");
         role.setCreateTime(now);
         role.setUpdateTime(now);
 
@@ -115,7 +115,7 @@ public class RoleServiceImpl implements com.yuyutian.mytools.role.service.RoleSe
             role.setDescription(request.getDescription());
         }
         if (request.getStatus() != null) {
-            role.setStatus(request.getStatus());
+            role.setStatus("ACTIVE".equals(request.getStatus()) ? "1" : "0");
         }
         role.setUpdateTime(LocalDateTime.now());
         roleMapper.update(role);
@@ -167,7 +167,8 @@ public class RoleServiceImpl implements com.yuyutian.mytools.role.service.RoleSe
         response.setRoleName(role.getRoleName());
         response.setRoleCode(role.getRoleCode());
         response.setDescription(role.getDescription());
-        response.setStatus(role.getStatus());
+        // 数据库用整数存储：1=ACTIVE, 0=INVALID
+        response.setStatus("1".equals(role.getStatus()) ? "ACTIVE" : "INVALID");
         return response;
     }
 }
