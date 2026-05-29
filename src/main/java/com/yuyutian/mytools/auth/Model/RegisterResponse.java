@@ -24,6 +24,9 @@ public class RegisterResponse {
     /** JWT访问令牌 */
     private String accessToken;
 
+    /** 刷新令牌 */
+    private String refreshToken;
+
     /** 令牌过期时间（秒） */
     private Long expiresIn;
 }

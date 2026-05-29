@@ -39,10 +39,10 @@ systemctl restart mytools
 
 #    方法B: 手动重启
 pkill -f mytools-1.0.0.jar
-nohup java -jar target/mytools-1.0.0.jar --server.port=29210 > logs/app.log 2>&1 &
+nohup java -jar target/mytools-1.0.0.jar --server.port=23110 > logs/app.log 2>&1 &
 
 # 4. 检查状态
-curl http://localhost:29210
+curl http://localhost:23110
 ```
 
 ## 数据库迁移
@@ -76,7 +76,7 @@ mysql -u root -p your_database
 ### 查看应用状态
 ```bash
 # 检查端口
-netstat -tlnp | grep 29210
+netstat -tlnp | grep 23110
 
 # 或使用脚本
 ./scripts/deploy.sh --status
@@ -107,7 +107,7 @@ kill <PID>
 A: 检查数据库迁移是否执行，特别是新增的表和字段
 
 ### Q: 端口被占用
-A: 检查是否有旧进程: `lsof -i :29210` 或 `netstat -tlnp | grep 29210`
+A: 检查是否有旧进程: `lsof -i :23110` 或 `netstat -tlnp | grep 23110`
 
 ### Q: 前端静态文件不更新
 A: 需要重新构建前端并部署到 Nginx:

@@ -9,3 +9,7 @@ logging:
     com.yuyutian.mytools: DEBUG
     org.mybatis: DEBUG
     org.springframework.security: DEBUG
+
+registration:
+  mail:
+    dev-log-code: ${REGISTRATION_MAIL_DEV_LOG_CODE:true}

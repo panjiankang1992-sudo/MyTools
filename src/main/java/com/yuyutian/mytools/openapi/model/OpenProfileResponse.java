@@ -2,8 +2,13 @@ package com.yuyutian.mytools.openapi.model;
 
 import com.yuyutian.mytools.user.Model.UserInfoResponse;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+/**
+ * 对外开放的用户资料响应。
+ */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class OpenProfileResponse extends UserInfoResponse {
 
     /** WebDAV 服务类型 */

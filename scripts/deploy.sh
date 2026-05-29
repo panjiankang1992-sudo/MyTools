@@ -7,7 +7,7 @@ set -e
 
 # 配置区域
 APP_NAME="mytools"
-APP_PORT=29210
+APP_PORT=23110
 JAR_FILE="target/mytools-1.0.0.jar"
 CURRENT_DIR=$(cd "$(dirname "$0")/.." && pwd)
 

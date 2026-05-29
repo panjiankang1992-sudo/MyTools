@@ -20,6 +20,9 @@ public enum ErrorCode {
     USER_007("10007", "user.email.exists", HttpStatus.CONFLICT),
     USER_008("10008", "user.old.password.wrong", HttpStatus.BAD_REQUEST),
     USER_009("10009", "user.status.invalid", HttpStatus.BAD_REQUEST),
+    USER_010("10010", "user.verification.code.invalid", HttpStatus.BAD_REQUEST),
+    USER_011("10011", "user.verification.code.expired", HttpStatus.BAD_REQUEST),
+    USER_012("10012", "user.verification.code.too_frequent", HttpStatus.TOO_MANY_REQUESTS),
 
     // Auth error codes (20001-20099)
     AUTH_001("20001", "auth.token.expired", HttpStatus.UNAUTHORIZED),

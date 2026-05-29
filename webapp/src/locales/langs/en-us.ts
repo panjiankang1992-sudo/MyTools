@@ -253,6 +253,7 @@ const local: App.I18n.Schema = {
       common: {
         loginOrRegister: 'Login / Register',
         userNamePlaceholder: 'Please enter user name',
+        emailPlaceholder: 'Please enter email',
         phonePlaceholder: 'Please enter phone number',
         codePlaceholder: 'Please enter verification code',
         passwordPlaceholder: 'Please enter password',
@@ -285,6 +286,7 @@ const local: App.I18n.Schema = {
       },
       register: {
         title: 'Register',
+        success: 'Registration successful, please log in',
         agreement: 'I have read and agree to',
         protocol: '《User Agreement》',
         policy: '《Privacy Policy》'

@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS t_user_role (
     id BIGINT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL,
-    create_time TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL,
     UNIQUE (user_id, role_id)
 );
 
@@ -41,6 +41,21 @@ CREATE TABLE IF NOT EXISTS t_token (
     device_info VARCHAR(255),
     expires_at TIMESTAMP NOT NULL,
     create_time TIMESTAMP NOT NULL
+);
+
+-- 邮箱验证码表
+CREATE TABLE IF NOT EXISTS t_email_verification_code (
+    id BIGINT PRIMARY KEY,
+    purpose VARCHAR(32) NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    code_hash VARCHAR(128) NOT NULL,
+    expire_time TIMESTAMP NOT NULL,
+    used_time TIMESTAMP,
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    create_time TIMESTAMP NOT NULL,
+    update_time TIMESTAMP NOT NULL
 );
 
 -- 错误码表

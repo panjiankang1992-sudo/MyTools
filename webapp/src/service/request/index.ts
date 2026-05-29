@@ -57,6 +57,7 @@ export const request = createFlatRequest(
     async onBackendFail(response, instance) {
       const authStore = useAuthStore();
       const responseCode = String(response.data.code);
+      const responseMsg = response.data.msg || response.data.message || '';
 
       function handleLogout() {
         authStore.resetStore();
@@ -66,7 +67,7 @@ export const request = createFlatRequest(
         handleLogout();
         window.removeEventListener('beforeunload', handleLogout);
 
-        request.state.errMsgStack = request.state.errMsgStack.filter(msg => msg !== response.data.msg);
+        request.state.errMsgStack = request.state.errMsgStack.filter(msg => msg !== responseMsg);
       }
 
       // when the backend response code is in `logoutCodes`, it means the user will be logged out and redirected to login page
@@ -78,15 +79,15 @@ export const request = createFlatRequest(
 
       // when the backend response code is in `modalLogoutCodes`, it means the user will be logged out by displaying a modal
       const modalLogoutCodes = import.meta.env.VITE_SERVICE_MODAL_LOGOUT_CODES?.split(',') || [];
-      if (modalLogoutCodes.includes(responseCode) && !request.state.errMsgStack?.includes(response.data.msg)) {
-        request.state.errMsgStack = [...(request.state.errMsgStack || []), response.data.msg];
+      if (modalLogoutCodes.includes(responseCode) && !request.state.errMsgStack?.includes(responseMsg)) {
+        request.state.errMsgStack = [...(request.state.errMsgStack || []), responseMsg];
 
         // prevent the user from refreshing the page
         window.addEventListener('beforeunload', handleLogout);
 
         window.$dialog?.error({
           title: $t('common.error'),
-          content: response.data.msg,
+          content: responseMsg,
           positiveText: $t('common.confirm'),
           maskClosable: false,
           closeOnEsc: false,
@@ -112,6 +113,8 @@ export const request = createFlatRequest(
 
           return instance.request(response.config) as Promise<AxiosResponse>;
         }
+        // refresh 也失败了，不要 fallthrough — 让 getUserInfo 收到 error
+        throw Object.assign(new Error(responseMsg || 'Token expired'), { code: responseCode });
       }
 
       // Handle field-level errors
@@ -129,8 +132,8 @@ export const request = createFlatRequest(
       }
 
       // Handle i18n message
-      const displayMsg = response.data.msg
-        ? (getI18nMessageFn(response.data.msg) || response.data.msg)
+      const displayMsg = responseMsg
+        ? (getI18nMessageFn(responseMsg) || responseMsg)
         : (getErrorCodeConfig(responseCode).isModal ? $t('common.error') : $t('common.operation_failed'));
       showErrorMsg(request.state, displayMsg);
 
@@ -138,16 +141,38 @@ export const request = createFlatRequest(
     },
     onError(error) {
       // when the request is fail, you can show error message
-      // Skip if backend already handled it (has response with data)
-      if (error.response?.data) {
+      // BACKEND_ERROR_CODE 已在 onBackendFail 中处理，这里避免重复弹窗。
+      if (error.code === BACKEND_ERROR_CODE && error.response?.data) {
         return;
+      }
+
+      if (error.response?.data) {
+        const responseData = error.response.data as Partial<App.Service.Response>;
+        const responseMsg = responseData.msg || responseData.message || '';
+
+        if (responseData.fieldErrors && typeof responseData.fieldErrors === 'object') {
+          showFieldErrors(responseData.fieldErrors);
+          const fieldErrorMsgs = Object.entries(responseData.fieldErrors)
+            .map(([, msg]) => msg)
+            .filter(Boolean);
+          const errorMsg = fieldErrorMsgs.length > 0
+            ? fieldErrorMsgs.join('；')
+            : ($t('common.validation_failed') || '参数校验失败');
+          showErrorMsg(request.state, errorMsg);
+          return;
+        }
+
+        if (responseMsg) {
+          showErrorMsg(request.state, getI18nMessageFn(responseMsg) || responseMsg);
+          return;
+        }
       }
 
       let message = error.message;
 
       // get backend error message and code
       if (error.code === BACKEND_ERROR_CODE) {
-        message = error.response?.data?.msg || message;
+        message = error.response?.data?.msg || error.response?.data?.message || message;
       }
 
       showErrorMsg(request.state, message);

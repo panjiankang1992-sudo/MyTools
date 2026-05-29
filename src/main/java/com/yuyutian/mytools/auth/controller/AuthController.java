@@ -49,6 +49,18 @@ public class AuthController {
     }
 
     /**
+     * 发送注册邮箱验证码。
+     *
+     * @param request 注册验证码请求参数
+     * @return 成功响应
+     */
+    @PostMapping("/register/code")
+    public ResponseEntity<Result<Void>> sendRegisterCode(@Valid @RequestBody RegisterCodeRequest request) {
+        authService.sendRegisterCode(request);
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.verification.code.send"), null));
+    }
+
+    /**
      * 用户注册接口。
      *
      * @param request 注册请求参数

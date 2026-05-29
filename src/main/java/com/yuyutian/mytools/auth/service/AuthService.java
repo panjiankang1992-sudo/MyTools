@@ -11,6 +11,13 @@ import com.yuyutian.mytools.auth.Model.*;
 public interface AuthService {
 
     /**
+     * 发送注册邮箱验证码。
+     *
+     * @param request 注册验证码请求参数
+     */
+    void sendRegisterCode(RegisterCodeRequest request);
+
+    /**
      * 用户注册。
      *
      * @param request 注册请求参数

@@ -3,6 +3,7 @@ package com.yuyutian.mytools.auth.service.impl;
 import com.yuyutian.mytools.auth.Model.*;
 import com.yuyutian.mytools.auth.mapper.TokenMapper;
 import com.yuyutian.mytools.auth.service.AuthService;
+import com.yuyutian.mytools.auth.service.RegistrationCodeService;
 import com.yuyutian.mytools.auth.utils.JwtUtils;
 import com.yuyutian.mytools.common.BusinessException;
 import com.yuyutian.mytools.common.ErrorCode;
@@ -39,6 +40,7 @@ public class AuthServiceImpl implements AuthService {
     private final LoginAttemptMapper loginAttemptMapper;
     private final JwtUtils jwtUtils;
     private final SnowflakeIdGenerator snowflakeIdGenerator;
+    private final RegistrationCodeService registrationCodeService;
 
     /** 防暴力破解：最大失败次数 */
     private static final int MAX_FAILED_ATTEMPTS = 5;
@@ -50,7 +52,8 @@ public class AuthServiceImpl implements AuthService {
     public AuthServiceImpl(UserMapper userMapper, RoleFinderMapper roleFinderMapper,
                            UserRoleMapper userRoleMapper, TokenMapper tokenMapper,
                            LoginAttemptMapper loginAttemptMapper, JwtUtils jwtUtils,
-                           SnowflakeIdGenerator snowflakeIdGenerator) {
+                           SnowflakeIdGenerator snowflakeIdGenerator,
+                           RegistrationCodeService registrationCodeService) {
         this.userMapper = userMapper;
         this.roleFinderMapper = roleFinderMapper;
         this.userRoleMapper = userRoleMapper;
@@ -58,6 +61,15 @@ public class AuthServiceImpl implements AuthService {
         this.loginAttemptMapper = loginAttemptMapper;
         this.jwtUtils = jwtUtils;
         this.snowflakeIdGenerator = snowflakeIdGenerator;
+        this.registrationCodeService = registrationCodeService;
+    }
+
+    /**
+     * 发送注册邮箱验证码。
+     */
+    @Override
+    public void sendRegisterCode(RegisterCodeRequest request) {
+        registrationCodeService.sendRegisterCode(request);
     }
 
     /**
@@ -72,6 +84,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
+        // 注册落库前必须先完成邮箱验证码校验。
+        registrationCodeService.verifyRegisterCode(request);
+
         // 检查用户名是否存在
         if (userMapper.existsByUsername(request.getUsername()) > 0) {
             throw new BusinessException(ErrorCode.USER_002);
@@ -79,7 +94,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 检查邮箱是否已被使用
         if (userMapper.existsByEmail(request.getEmail()) > 0) {
-            throw new BusinessException(ErrorCode.USER_004);
+            throw new BusinessException(ErrorCode.USER_007);
         }
 
         // BCrypt加密密码
@@ -124,7 +139,9 @@ public class AuthServiceImpl implements AuthService {
 
         // 生成JWT令牌
         String token = jwtUtils.generateAccessToken(userId, request.getUsername(), "USER");
+        String refreshToken = jwtUtils.generateRefreshToken(userId, request.getUsername(), "USER");
         long expiresIn = jwtUtils.getExpirationMs() / 1000;
+        long refreshExpiresIn = jwtUtils.getRefreshExpirationMs() / 1000;
 
         // 保存令牌到数据库（用于后续校验，添加容错处理）
         try {
@@ -132,10 +149,10 @@ public class AuthServiceImpl implements AuthService {
             tokenEntity.setId(snowflakeIdGenerator.nextId());
             tokenEntity.setUserId(userId);
             tokenEntity.setAccessToken(token);
-            tokenEntity.setRefreshToken(token);
+            tokenEntity.setRefreshToken(refreshToken);
             tokenEntity.setTokenType("Bearer");
             tokenEntity.setExpireTime(System.currentTimeMillis() + expiresIn * 1000);
-            tokenEntity.setRefreshExpireTime(System.currentTimeMillis() + expiresIn * 1000);
+            tokenEntity.setRefreshExpireTime(System.currentTimeMillis() + refreshExpiresIn * 1000);
             tokenEntity.setStatus("ACTIVE");
             tokenEntity.setTokenName("注册令牌");
             tokenEntity.setCreatedAt(now);
@@ -154,6 +171,7 @@ public class AuthServiceImpl implements AuthService {
         response.setUserId(userId);
         response.setUsername(request.getUsername());
         response.setAccessToken(token);
+        response.setRefreshToken(refreshToken);
         response.setExpiresIn(expiresIn);
         return response;
     }

@@ -1,6 +1,18 @@
 spring:
   application:
     name: mytools
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: ${QQ_MAIL_USERNAME:740578608@qq.com}
+    password: ${QQ_MAIL_AUTH_CODE:}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
   profiles:
     active: dev
   datasource:
@@ -44,6 +56,11 @@ snowflake:
 
 password:
   salt: ${PASSWORD_SALT:mytools-secret-salt}
+
+registration:
+  mail:
+    from: ${REGISTRATION_MAIL_FROM:${QQ_MAIL_USERNAME:740578608@qq.com}}
+    dev-log-code: ${REGISTRATION_MAIL_DEV_LOG_CODE:false}
 
 logging:
   path: logs

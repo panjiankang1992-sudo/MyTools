@@ -7,7 +7,7 @@ REM ============================================
 setlocal enabledelayedexpansion
 
 set APP_NAME=mytools
-set APP_PORT=29210
+set APP_PORT=23110
 set JAR_FILE=target\mytools-1.0.0.jar
 set CURRENT_DIR=%~dp0..
 

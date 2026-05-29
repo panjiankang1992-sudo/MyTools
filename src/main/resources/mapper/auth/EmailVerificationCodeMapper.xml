@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuyutian.mytools.auth.mapper.EmailVerificationCodeMapper">
+
+    <resultMap id="EmailVerificationCodeResultMap" type="com.yuyutian.mytools.auth.Model.EmailVerificationCode">
+        <id column="id" property="id"/>
+        <result column="purpose" property="purpose"/>
+        <result column="username" property="username"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="code_hash" property="codeHash"/>
+        <result column="expire_time" property="expireTime"/>
+        <result column="used_time" property="usedTime"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.yuyutian.mytools.auth.Model.EmailVerificationCode">
+        INSERT INTO t_email_verification_code
+            (id, purpose, username, email, phone, code_hash, expire_time, used_time, status, create_time, update_time)
+        VALUES
+            (#{id}, #{purpose}, #{username}, #{email}, #{phone}, #{codeHash}, #{expireTime}, #{usedTime}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="findLatestUnused" resultMap="EmailVerificationCodeResultMap">
+        SELECT id, purpose, username, email, phone, code_hash, expire_time, used_time, status, create_time, update_time
+        FROM t_email_verification_code
+        WHERE username = #{username}
+          AND email = #{email}
+          AND phone = #{phone}
+          AND purpose = #{purpose}
+          AND used_time IS NULL
+          AND status = 'ACTIVE'
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="findLatestUnusedByEmail" resultMap="EmailVerificationCodeResultMap">
+        SELECT id, purpose, username, email, phone, code_hash, expire_time, used_time, status, create_time, update_time
+        FROM t_email_verification_code
+        WHERE email = #{email}
+          AND purpose = #{purpose}
+          AND used_time IS NULL
+          AND status = 'ACTIVE'
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <update id="invalidateUnusedByEmail">
+        UPDATE t_email_verification_code
+        SET status = 'INVALID', update_time = #{updateTime}
+        WHERE email = #{email}
+          AND purpose = #{purpose}
+          AND used_time IS NULL
+          AND status = 'ACTIVE'
+    </update>
+
+    <update id="markUsed">
+        UPDATE t_email_verification_code
+        SET status = 'USED', used_time = #{usedTime}, update_time = #{usedTime}
+        WHERE id = #{id}
+          AND used_time IS NULL
+          AND status = 'ACTIVE'
+    </update>
+
+    <update id="markExpired">
+        UPDATE t_email_verification_code
+        SET status = 'INVALID', update_time = #{updateTime}
+        WHERE id = #{id}
+          AND used_time IS NULL
+          AND status = 'ACTIVE'
+    </update>
+
+</mapper>

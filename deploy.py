@@ -143,7 +143,7 @@ WantedBy=multi-user.target
     }}
 
     location /api {{
-        proxy_pass http://127.0.0.1:29210;
+        proxy_pass http://127.0.0.1:23110;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -173,13 +173,13 @@ WantedBy=multi-user.target
         stdout, _ = run_ssh_command(ssh, 'sudo systemctl status mytools-backend | head -5')
         print(f"Backend status:\n{stdout}")
 
-        stdout, _ = run_ssh_command(ssh, 'sudo netstat -tlnp | grep -E "29210|29211"')
+        stdout, _ = run_ssh_command(ssh, 'sudo netstat -tlnp | grep -E "23110|29211"')
         print(f"Ports:\n{stdout}")
 
         ssh.close()
         print("\nDeployment complete!")
         print("Frontend: http://192.168.1.9:29211")
-        print("Backend API: http://192.168.1.9:29210")
+        print("Backend API: http://192.168.1.9:23110")
 
     except Exception as e:
         print(f"Error: {e}")

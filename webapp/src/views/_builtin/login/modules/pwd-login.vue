@@ -126,6 +126,9 @@ const rules = computed<Record<keyof FormModel, App.Global.FormRule[]>>(() => {
         <NCheckbox v-model:checked="rememberMe" @update:checked="handleRememberMeChange">
           {{ $t('page.login.pwdLogin.rememberMe') }}
         </NCheckbox>
+        <NButton text type="primary" @click="toggleLoginModule('register')">
+          {{ $t('page.login.pwdLogin.register') }}
+        </NButton>
       </div>
       <NButton type="primary" size="large" round block :loading="authStore.loginLoading" @click="handleSubmit">
         {{ $t('common.confirm') }}

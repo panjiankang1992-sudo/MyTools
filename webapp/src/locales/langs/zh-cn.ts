@@ -249,6 +249,7 @@ const local: App.I18n.Schema = {
       common: {
         loginOrRegister: '登录 / 注册',
         userNamePlaceholder: '请输入用户名',
+        emailPlaceholder: '请输入邮箱',
         phonePlaceholder: '请输入手机号',
         codePlaceholder: '请输入验证码',
         passwordPlaceholder: '请输入密码',
@@ -281,6 +282,7 @@ const local: App.I18n.Schema = {
       },
       register: {
         title: '注册账号',
+        success: '注册成功，请登录',
         agreement: '我已经仔细阅读并接受',
         protocol: '《用户协议》',
         policy: '《隐私权政策》'

@@ -16,6 +16,25 @@ declare namespace Api {
       expiresIn: number;
     }
 
+    interface RegisterCodeRequest {
+      username: string;
+      email: string;
+      phone: string;
+    }
+
+    interface RegisterRequest extends RegisterCodeRequest {
+      password: string;
+      verificationCode: string;
+    }
+
+    interface RegisterResponse {
+      userId: number;
+      username: string;
+      accessToken: string;
+      refreshToken: string;
+      expiresIn: number;
+    }
+
     interface UserInfo {
       id: number;
       userId: number;

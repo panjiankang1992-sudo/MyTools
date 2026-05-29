@@ -1,6 +1,10 @@
 package com.yuyutian.mytools.openapi.controller;
 
 import com.yuyutian.mytools.auth.utils.JwtUtils;
+import com.yuyutian.mytools.auth.Model.RegisterCodeRequest;
+import com.yuyutian.mytools.auth.Model.RegisterRequest;
+import com.yuyutian.mytools.auth.Model.RegisterResponse;
+import com.yuyutian.mytools.auth.service.AuthService;
 import com.yuyutian.mytools.common.MessageHelper;
 import com.yuyutian.mytools.common.Result;
 import com.yuyutian.mytools.openapi.model.OpenProfileResponse;
@@ -27,10 +31,33 @@ import org.springframework.web.bind.annotation.*;
 public class OpenApiController {
 
     private final JwtUtils jwtUtils;
+    private final AuthService authService;
     private final UserService userService;
     private final WebdavAccountService webdavAccountService;
 
     // ==================== 查询接口 ====================
+
+    /**
+     * 对外发送注册邮箱验证码。
+     *
+     * @param request 注册验证码请求
+     */
+    @PostMapping("/api/public/register/code")
+    public ResponseEntity<Result<Void>> sendRegisterCode(@Valid @RequestBody RegisterCodeRequest request) {
+        authService.sendRegisterCode(request);
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.verification.code.send"), null));
+    }
+
+    /**
+     * 对外用户注册。
+     *
+     * @param request 注册请求
+     */
+    @PostMapping("/api/public/register")
+    public ResponseEntity<Result<RegisterResponse>> register(@Valid @RequestBody RegisterRequest request) {
+        RegisterResponse response = authService.register(request);
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.register"), response));
+    }
 
     /**
      * 获取用户公开信息及 WebDAV 配置（密码为 AES 加密密文）。

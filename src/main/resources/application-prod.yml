@@ -50,7 +50,7 @@ logging:
   total-size-cap: 100MB
 
 server:
-  port: 29210
+  port: 23110
 
 # 打标签服务配置
 tagging:
