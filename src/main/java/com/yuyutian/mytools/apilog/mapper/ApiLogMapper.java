@@ -1,6 +1,7 @@
 package com.yuyutian.mytools.apilog.mapper;
 
 import com.yuyutian.mytools.apilog.model.ApiLog;
+import lombok.Data;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -82,10 +83,29 @@ public interface ApiLogMapper {
     }
 
     /**
+     * 按小时统计结果实现类。
+     */
+    @Data
+    class HourlyStatImpl implements HourlyStat {
+        private String hour;
+        private Long count;
+        private Long successCount;
+    }
+
+    /**
      * 按模块统计结果。
      */
     interface ModuleStat {
         String getModule();
         Long getCount();
+    }
+
+    /**
+     * 按模块统计结果实现类。
+     */
+    @Data
+    class ModuleStatImpl implements ModuleStat {
+        private String module;
+        private Long count;
     }
 }

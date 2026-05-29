@@ -41,18 +41,18 @@
         WHERE request_time BETWEEN #{startTime} AND #{endTime}
     </select>
 
-    <select id="countHourly" resultType="com.yuyutian.mytools.apilog.mapper.ApiLogMapper$HourlyStat">
+    <select id="countHourly" resultType="com.yuyutian.mytools.apilog.mapper.ApiLogMapper$HourlyStatImpl">
         SELECT
             DATE_FORMAT(request_time, '%H:00') as hour,
             COUNT(*) as count,
             SUM(CASE WHEN success = true THEN 1 ELSE 0 END) as successCount
         FROM t_api_log
         WHERE request_time BETWEEN #{startTime} AND #{endTime}
-        GROUP BY DATE_FORMAT(request_time, '%Y-%m-%d %H:00')
+        GROUP BY DATE_FORMAT(request_time, '%H:00')
         ORDER BY hour
     </select>
 
-    <select id="countByModule" resultType="com.yuyutian.mytools.apilog.mapper.ApiLogMapper$ModuleStat">
+    <select id="countByModule" resultType="com.yuyutian.mytools.apilog.mapper.ApiLogMapper$ModuleStatImpl">
         SELECT
             COALESCE(module, 'OTHER') as module,
             COUNT(*) as count
