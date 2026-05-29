@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, h, onMounted, reactive, ref, watch } from 'vue';
 import { useCloudFileStore, type CloudFileTreeNode } from '@/store/modules/cloudfile';
+import { useAppStore } from '@/store/modules/app';
 import {
   createCloudDir,
   copyCloudFile,
@@ -60,6 +61,7 @@ defineOptions({ name: 'CloudFile' });
 const message = useMessage();
 const dialog = useDialog();
 const store = useCloudFileStore();
+const appStore = useAppStore();
 const { getImageThumbnail, isImageFile, isVideoFile } = useThumbnail();
 
 // 账号相关
@@ -240,26 +242,42 @@ const columns = [
       const thumbUrl = tableThumbnails[row.path];
       const isMedia = isImageFile(row.name) || isVideoFile(row.name);
 
-      const iconSize = 72;
-      const baseFlexStyle = `display:flex;align-items:center;gap:8px;cursor:pointer;`;
+      const iconSize = appStore.isMobile ? 36 : 72;
+      const baseFlexStyle = `display:flex;align-items:center;gap:8px;cursor:pointer;min-width:0;${appStore.isMobile ? 'min-height:40px;' : ''}`;
       const nameSpan = h('span', { style: 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;' }, row.name);
+      const nameProps = {
+        role: 'button',
+        tabindex: 0,
+        style: baseFlexStyle,
+        onClick: (event: MouseEvent) => {
+          event.stopPropagation();
+          void handleRowClick(row);
+        },
+        onKeydown: (event: KeyboardEvent) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            event.stopPropagation();
+            void handleRowClick(row);
+          }
+        }
+      };
 
       if (row.isDirectory) {
-        return h('div', { style: baseFlexStyle }, [
+        return h('div', nameProps, [
           h(Folder, { size: iconSize, style: `flex-shrink:0;color:#f0a020;width:${iconSize}px;height:${iconSize}px;` }),
           nameSpan
         ]);
       }
 
       if (isMedia && thumbUrl) {
-        return h('div', { style: baseFlexStyle }, [
+        return h('div', nameProps, [
           h('img', { src: thumbUrl, style: `width:${iconSize}px;height:${iconSize}px;object-fit:cover;border-radius:4px;flex-shrink:0;` }),
           nameSpan
         ]);
       }
 
       const IconComp = getFileIcon(row.name, row.isDirectory);
-      return h('div', { style: baseFlexStyle }, [
+      return h('div', nameProps, [
         h(IconComp, { size: iconSize, style: `flex-shrink:0;color:#666;width:${iconSize}px;height:${iconSize}px;` }),
         nameSpan
       ]);
@@ -290,7 +308,10 @@ const columns = [
           NButton,
           {
             size: 'tiny',
-            onClick: () => handleDownload(row),
+            onClick: (event: MouseEvent) => {
+              event.stopPropagation();
+              void handleDownload(row);
+            },
             style: 'margin-right:4px;flex-shrink:0;'
           },
           { icon: () => h(DownloadOutline, { size: 14 }) }
@@ -302,7 +323,10 @@ const columns = [
           NButton,
           {
             size: 'tiny',
-            onClick: () => handleRename(row),
+            onClick: (event: MouseEvent) => {
+              event.stopPropagation();
+              handleRename(row);
+            },
             style: 'margin-right:4px;flex-shrink:0;'
           },
           { icon: () => h(CreateOutline, { size: 14 }) }
@@ -314,7 +338,10 @@ const columns = [
           NButton,
           {
             size: 'tiny',
-            onClick: () => handleMove(row),
+            onClick: (event: MouseEvent) => {
+              event.stopPropagation();
+              handleMove(row);
+            },
             style: 'margin-right:4px;flex-shrink:0;'
           },
           { icon: () => h(ArrowForwardOutline, { size: 14 }) }
@@ -326,7 +353,10 @@ const columns = [
           NButton,
           {
             size: 'tiny',
-            onClick: () => handleCopy(row),
+            onClick: (event: MouseEvent) => {
+              event.stopPropagation();
+              handleCopy(row);
+            },
             style: 'margin-right:4px;flex-shrink:0;'
           },
           { icon: () => h(CopyOutline, { size: 14 }) }
@@ -339,7 +369,10 @@ const columns = [
           {
             size: 'tiny',
             type: 'error',
-            onClick: () => handleDelete(row),
+            onClick: (event: MouseEvent) => {
+              event.stopPropagation();
+              handleDelete(row);
+            },
             style: 'flex-shrink:0;'
           },
           { icon: () => h(TrashOutline, { size: 14 }) }
@@ -356,6 +389,7 @@ async function handleRowClick(row: Api.CloudFile.CloudFileItem) {
   if (row.isDirectory) {
     await store.navigateTo(row.path);
     selectedTreeKey.value = [row.path];
+    uploadCurrentPath.value = row.path;
   } else {
     const ext = row.name.split('.').pop()?.toLowerCase() || '';
     const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'];
@@ -609,9 +643,9 @@ onMounted(() => loadAccounts());
 
 <template>
   <div style="height: 100%">
-    <n-layout has-sider style="height: 100%">
+    <n-layout :has-sider="!appStore.isMobile" style="height: 100%">
     <!-- 左侧目录树 -->
-    <n-layout-sider :width="220" bordered content-style="padding: 8px;">
+    <n-layout-sider v-if="!appStore.isMobile" :width="220" bordered content-style="padding: 8px;">
       <n-space vertical :size="8" style="height: 100%;">
         <div style="font-size: 12px; color: #888; padding: 4px 4px 8px;">
           云文件
@@ -635,12 +669,20 @@ onMounted(() => loadAccounts());
     <!-- 右侧内容区 -->
     <n-layout-content content-style="display: flex; flex-direction: column; height: 100%;">
       <!-- 账号选择器 -->
-      <div style="display:flex;align-items:center;gap:8px;padding:8px 16px 0;">
+      <div
+        :style="{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: appStore.isMobile ? '8px 8px 0' : '8px 16px 0',
+          flexWrap: appStore.isMobile ? 'wrap' : 'nowrap'
+        }"
+      >
         <n-select
           v-model:value="store.currentAccountId"
           :options="accountOptions"
           placeholder="选择账号"
-          style="width:200px;"
+          :style="{ width: appStore.isMobile ? '220px' : '200px' }"
           @update:value="handleAccountChange"
         />
         <n-button size="small" @click="openAccountDrawer">
@@ -651,14 +693,15 @@ onMounted(() => loadAccounts());
 
       <!-- 工具栏：面包屑 + 操作按钮 -->
       <div
-        style="
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 8px 16px;
-          border-bottom: 1px solid #f0f0f0;
-          flex-shrink: 0;
-        "
+        :style="{
+          display: 'flex',
+          alignItems: appStore.isMobile ? 'stretch' : 'center',
+          flexDirection: appStore.isMobile ? 'column' : 'row',
+          gap: '12px',
+          padding: appStore.isMobile ? '8px' : '8px 16px',
+          borderBottom: '1px solid #f0f0f0',
+          flexShrink: 0
+        }"
       >
         <!-- 面包屑 -->
         <n-breadcrumb style="flex: 1; min-width: 0;">
@@ -673,7 +716,7 @@ onMounted(() => loadAccounts());
         </n-breadcrumb>
 
         <!-- 操作按钮 -->
-        <n-space>
+        <n-space :wrap="appStore.isMobile">
           <!-- 新建目录 -->
           <n-button size="small" @click="openMkdirModal">
             <template #icon>
@@ -708,7 +751,7 @@ onMounted(() => loadAccounts());
       </div>
 
       <!-- 文件列表 / 文件详情 -->
-      <div style="flex: 1; overflow: auto; padding: 8px 16px;">
+      <div :style="{ flex: 1, overflow: 'auto', padding: appStore.isMobile ? '8px' : '8px 16px' }">
         <!-- 文件详情视图 -->
         <FileDetailPanel
           v-if="store.viewMode === 'file-detail' && store.selectedNode"

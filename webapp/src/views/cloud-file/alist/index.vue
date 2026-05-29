@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, h, onMounted, reactive, ref } from 'vue';
 import { useAlistStore, type AlistTreeNode } from '@/store/modules/alist';
+import { useAppStore } from '@/store/modules/app';
 import { fetchAlistRawUrl } from '@/service/api/alist';
 import type { TreeOption } from 'naive-ui';
 import {
@@ -34,6 +35,7 @@ defineOptions({ name: 'AlistIndex' });
 
 const message = useMessage();
 const store = useAlistStore();
+const appStore = useAppStore();
 
 const selectedTreeKey = ref<string[]>([]);
 const accountDrawerShow = ref(false);
@@ -171,9 +173,9 @@ function isTextFile(name: string) {
 
 <template>
   <div style="height: 100%">
-    <n-layout has-sider style="height: 100%">
+    <n-layout :has-sider="!appStore.isMobile" style="height: 100%">
       <!-- 左侧目录树 -->
-      <n-layout-sider :width="220" bordered content-style="padding: 8px;">
+      <n-layout-sider v-if="!appStore.isMobile" :width="220" bordered content-style="padding: 8px;">
         <n-space vertical :size="8" style="height: 100%;">
           <div style="font-size: 12px; color: #888; padding: 4px; font-weight: 500;">Alist 文件</div>
           <n-spin :show="store.loading" style="flex: 1; overflow: auto;">
@@ -198,12 +200,20 @@ function isTextFile(name: string) {
       <!-- 右侧内容区 -->
       <n-layout-content content-style="display: flex; flex-direction: column; height: 100%;">
         <!-- 账号选择器 -->
-        <div style="display:flex;align-items:center;gap:8px;padding:8px 16px 0;">
+        <div
+          :style="{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: appStore.isMobile ? '8px 8px 0' : '8px 16px 0',
+            flexWrap: appStore.isMobile ? 'wrap' : 'nowrap'
+          }"
+        >
           <n-select
             v-model:value="store.currentAccountId"
             :options="accountOptions"
             placeholder="选择 Alist 账号"
-            style="width:200px;"
+            :style="{ width: appStore.isMobile ? '220px' : '200px' }"
             @update:value="handleAccountChange"
           />
           <n-button size="small" @click="openAccountDrawer">
@@ -213,7 +223,17 @@ function isTextFile(name: string) {
         </div>
 
         <!-- 工具栏 -->
-        <div style="display:flex;align-items:center;gap:12px;padding:8px 16px;border-bottom:1px solid #f0f0f0;flex-shrink:0;">
+        <div
+          :style="{
+            display: 'flex',
+            alignItems: appStore.isMobile ? 'stretch' : 'center',
+            flexDirection: appStore.isMobile ? 'column' : 'row',
+            gap: '12px',
+            padding: appStore.isMobile ? '8px' : '8px 16px',
+            borderBottom: '1px solid #f0f0f0',
+            flexShrink: 0
+          }"
+        >
           <n-breadcrumb style="flex:1;min-width:0;">
             <n-breadcrumb-item
               v-for="crumb in breadcrumbs"
@@ -224,7 +244,7 @@ function isTextFile(name: string) {
               {{ crumb.label }}
             </n-breadcrumb-item>
           </n-breadcrumb>
-          <n-space>
+          <n-space :wrap="appStore.isMobile">
             <n-button size="small" @click="store.refresh()">
               <template #icon><n-icon :component="RefreshOutline" /></template>
               刷新
@@ -233,7 +253,7 @@ function isTextFile(name: string) {
         </div>
 
         <!-- 文件列表 -->
-        <div style="flex:1;overflow:auto;padding:0 16px 16px;">
+        <div :style="{ flex: 1, overflow: 'auto', padding: appStore.isMobile ? '8px' : '0 16px 16px' }">
           <n-data-table
             :columns="columns"
             :data="store.fileList"
