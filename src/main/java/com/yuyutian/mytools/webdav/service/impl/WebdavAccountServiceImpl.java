@@ -72,7 +72,10 @@ public class WebdavAccountServiceImpl implements WebdavAccountService {
 
     @Override
     public WebdavAccountPublicResponse getPublicByUserId(Long userId) {
-        WebdavAccount account = webdavAccountMapper.selectByUserId(userId);
+        WebdavAccount account = webdavAccountMapper.selectDefaultByUserId(userId);
+        if (account == null) {
+            account = webdavAccountMapper.selectByUserId(userId);
+        }
         if (account == null) {
             return null;
         }

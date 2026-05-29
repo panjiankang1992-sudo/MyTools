@@ -22,7 +22,7 @@
   </select>
 
   <select id="selectByUserId" resultMap="WebdavAccountResultMap">
-    SELECT * FROM webdav_account WHERE user_id = #{userId}
+    SELECT * FROM webdav_account WHERE user_id = #{userId} ORDER BY is_default DESC, id ASC LIMIT 1
   </select>
 
   <select id="selectAllByUserId" resultMap="WebdavAccountResultMap">
