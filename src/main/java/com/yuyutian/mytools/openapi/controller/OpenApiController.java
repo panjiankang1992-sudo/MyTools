@@ -60,6 +60,20 @@ public class OpenApiController {
     }
 
     /**
+     * 对外获取当前用户信息。
+     *
+     * @param authorization Bearer <jwt_token>
+     * @return 当前用户信息
+     */
+    @GetMapping("/api/public/user/info")
+    public ResponseEntity<Result<UserInfoResponse>> getUserInfo(
+            @RequestHeader("Authorization") String authorization) {
+        Long userId = resolveUserId(authorization);
+        UserInfoResponse response = userService.getUserInfo(userId);
+        return ResponseEntity.ok(Result.success(response));
+    }
+
+    /**
      * 获取用户公开信息及 WebDAV 配置（密码为 AES 加密密文）。
      *
      * @param authorization Bearer <jwt_token>
@@ -86,6 +100,23 @@ public class OpenApiController {
      */
     @PutMapping("/api/public/profile")
     public ResponseEntity<Result<UserInfoResponse>> updateProfile(
+            @RequestHeader("Authorization") String authorization,
+            @Valid @RequestBody UpdateUserInfoRequest request) {
+
+        Long userId = resolveUserId(authorization);
+        UserInfoResponse updated = userService.updateUserInfo(userId, request);
+        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.update"), updated));
+    }
+
+    /**
+     * 对外更新当前用户信息。
+     *
+     * @param authorization Bearer <jwt_token>
+     * @param request       更新请求
+     * @return 更新后的用户信息
+     */
+    @PutMapping("/api/public/user/info")
+    public ResponseEntity<Result<UserInfoResponse>> updateUserInfo(
             @RequestHeader("Authorization") String authorization,
             @Valid @RequestBody UpdateUserInfoRequest request) {
 
