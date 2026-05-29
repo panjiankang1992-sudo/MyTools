@@ -1,6 +1,7 @@
 package com.yuyutian.mytools.common;
 
 import jakarta.servlet.http.HttpServletRequest;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -71,6 +73,41 @@ public class GlobalExceptionHandler {
                 fieldErrors
         );
         return ResponseEntity.badRequest().body(result);
+    }
+
+    /**
+     * 处理缺失请求头异常。
+     */
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<Result<Void>> handleMissingRequestHeaderException(
+            MissingRequestHeaderException ex, HttpServletRequest request) {
+        if ("Authorization".equalsIgnoreCase(ex.getHeaderName())) {
+            log.warn("Missing authorization header: path={}", request.getRequestURI());
+            Result<Void> result = Result.error(
+                    ErrorCode.AUTH_002.getCode(),
+                    getMessage(ErrorCode.AUTH_002.getMessageKey()),
+                    null
+            );
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+        }
+
+        log.warn("Missing request header: header={}, path={}", ex.getHeaderName(), request.getRequestURI());
+        Result<Void> result = Result.error(
+                ErrorCode.SYS_002.getCode(),
+                getMessage(ErrorCode.SYS_002.getMessageKey()),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+    }
+
+    /**
+     * 处理JWT解析异常。
+     */
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<Result<Void>> handleJwtException(JwtException ex, HttpServletRequest request) {
+        log.warn("JWT exception: message={}, path={}", ex.getMessage(), request.getRequestURI());
+        Result<Void> result = Result.error(ErrorCode.AUTH_002.getCode(), getMessage(ErrorCode.AUTH_002.getMessageKey()), null);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
     }
 
     /**

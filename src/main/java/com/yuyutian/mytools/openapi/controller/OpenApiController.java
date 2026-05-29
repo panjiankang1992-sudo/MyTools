@@ -5,6 +5,8 @@ import com.yuyutian.mytools.auth.Model.RegisterCodeRequest;
 import com.yuyutian.mytools.auth.Model.RegisterRequest;
 import com.yuyutian.mytools.auth.Model.RegisterResponse;
 import com.yuyutian.mytools.auth.service.AuthService;
+import com.yuyutian.mytools.common.BusinessException;
+import com.yuyutian.mytools.common.ErrorCode;
 import com.yuyutian.mytools.common.MessageHelper;
 import com.yuyutian.mytools.common.Result;
 import com.yuyutian.mytools.openapi.model.OpenProfileResponse;
@@ -19,6 +21,7 @@ import com.yuyutian.mytools.webdav.service.WebdavAccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -165,10 +168,14 @@ public class OpenApiController {
     }
 
     private String extractToken(String authHeader) {
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
+        if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) {
+            throw new BusinessException(ErrorCode.AUTH_002);
         }
-        return authHeader;
+        String token = authHeader.substring(7).trim();
+        if (!StringUtils.hasText(token)) {
+            throw new BusinessException(ErrorCode.AUTH_002);
+        }
+        return token;
     }
 
     private OpenProfileResponse buildProfileResponse(UserInfoResponse user, WebdavAccountPublicResponse webdav) {

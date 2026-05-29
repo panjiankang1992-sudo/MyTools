@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -90,6 +91,10 @@ public class JwtUtils {
      * @return 是否有效
      */
     public boolean validateToken(String token) {
+        if (!StringUtils.hasText(token)) {
+            log.warn("JWT令牌为空");
+            return false;
+        }
         try {
             parseToken(token);
             return true;
@@ -108,6 +113,9 @@ public class JwtUtils {
      * @return 是否已过期
      */
     public boolean isTokenExpired(String token) {
+        if (!StringUtils.hasText(token)) {
+            return true;
+        }
         try {
             Claims claims = parseToken(token);
             return claims.getExpiration().before(new Date());
@@ -162,6 +170,9 @@ public class JwtUtils {
      * @return 声明信息
      */
     public Claims parseToken(String token) {
+        if (!StringUtils.hasText(token)) {
+            throw new JwtException("JWT token is empty");
+        }
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
