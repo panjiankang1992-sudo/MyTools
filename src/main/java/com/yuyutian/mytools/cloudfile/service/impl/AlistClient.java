@@ -11,8 +11,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -35,22 +33,21 @@ public class AlistClient {
         this.token = token;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
+                .followRedirects(HttpClient.Redirect.NORMAL)
                 .build();
     }
 
     /**
-     * 使用 SHA-256 哈希后的密码登录，返回新 token。
-     * 用于首次登录或 token 刷新。
+     * 使用用户名和密码登录，返回新 token。
      */
     public String login(String plainPassword) throws Exception {
-        String sha256Hex = sha256(plainPassword);
         String body = MAPPER.writeValueAsString(Map.of(
                 "username", username,
-                "password", sha256Hex
+                "password", plainPassword
         ));
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl + "/api/auth/login/hash"))
+                .uri(URI.create(baseUrl + "/api/auth/login"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
@@ -134,24 +131,57 @@ public class AlistClient {
         throw new IOException("Alist get failed: " + root.path("message").asText("unknown"));
     }
 
+    /**
+     * 通过Alist返回的受控原始地址打开下载流。
+     *
+     * @param path 远程文件路径
+     * @return 原始文件响应流
+     * @throws Exception 网络或协议异常
+     */
+    public HttpResponse<java.io.InputStream> openStream(String path) throws Exception {
+        return openStream(path, null);
+    }
+
+    /**
+     * 通过Alist返回的受控原始地址打开支持单段Range的媒体流。
+     *
+     * @param path 远程文件路径
+     * @param rangeHeader 可选单段Range请求头
+     * @return 原始文件响应流
+     * @throws Exception 网络或协议异常
+     */
+    public HttpResponse<java.io.InputStream> openStream(String path, String rangeHeader) throws Exception {
+        String rawUrl = getRawUrl(path);
+        URI uri = rawUrl.startsWith("http://") || rawUrl.startsWith("https://")
+                ? URI.create(rawUrl)
+                : URI.create(baseUrl + (rawUrl.startsWith("/") ? rawUrl : "/" + rawUrl));
+        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                .uri(uri)
+                .timeout(Duration.ofMinutes(2))
+                .GET();
+        if (rangeHeader != null && !rangeHeader.isBlank()) {
+            requestBuilder.header("Range", rangeHeader);
+        }
+        HttpResponse<java.io.InputStream> response = httpClient.send(
+                requestBuilder.build(), HttpResponse.BodyHandlers.ofInputStream());
+        if ((response.statusCode() < 200 || response.statusCode() >= 300)
+                && response.statusCode() != 416) {
+            response.body().close();
+            throw new IOException("Alist download failed: HTTP " + response.statusCode());
+        }
+        return response;
+    }
+
     private HttpResponse<String> post(String path, String body) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + path))
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + token)
+                .header("Authorization", token)
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         return response;
-    }
-
-    private static String sha256(String input) throws Exception {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-        StringBuilder hex = new StringBuilder();
-        for (byte b : hash) hex.append(String.format("%02x", b));
-        return hex.toString();
     }
 
     private static Instant parseInstant(String text) {

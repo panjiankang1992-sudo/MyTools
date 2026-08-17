@@ -5,6 +5,7 @@ import com.yuyutian.mytools.auth.mapper.TokenMapper;
 import com.yuyutian.mytools.token.model.TokenInfo;
 import com.yuyutian.mytools.token.model.TokenPageResponse;
 import com.yuyutian.mytools.token.service.TokenManagementService;
+import com.yuyutian.mytools.cloudfile.service.MediaPlaybackTicketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public class TokenManagementServiceImpl implements TokenManagementService {
 
     private final TokenMapper tokenMapper;
+    private final MediaPlaybackTicketService mediaPlaybackTicketService;
 
     @Override
     public TokenPageResponse getUserTokens(Long userId) {
@@ -49,6 +51,7 @@ public class TokenManagementServiceImpl implements TokenManagementService {
         Token token = tokenMapper.findById(tokenId);
         if (token != null && token.getUserId().equals(userId)) {
             tokenMapper.updateStatus(tokenId, "INVALID");
+            mediaPlaybackTicketService.revokeSession(tokenId);
             log.info("令牌已失效: tokenId={}, userId={}", tokenId, userId);
         }
     }
@@ -60,6 +63,7 @@ public class TokenManagementServiceImpl implements TokenManagementService {
         for (Token token : tokens) {
             if (!String.valueOf(token.getId()).equals(currentTokenId) && "ACTIVE".equals(token.getStatus())) {
                 tokenMapper.invalidateByAccessToken(token.getAccessToken());
+                mediaPlaybackTicketService.revokeSession(token.getId());
             }
         }
         log.info("用户其他令牌已全部失效: userId={}, exceptTokenId={}", userId, currentTokenId);
@@ -130,6 +134,9 @@ public class TokenManagementServiceImpl implements TokenManagementService {
         Token token = tokenMapper.findById(tokenId);
         if (token != null && token.getUserId().equals(userId)) {
             tokenMapper.updateStatus(tokenId, status);
+            if (!"ACTIVE".equals(status)) {
+                mediaPlaybackTicketService.revokeSession(tokenId);
+            }
             log.info("更新令牌状态: tokenId={}, userId={}, status={}", tokenId, userId, status);
         }
     }
@@ -140,15 +147,14 @@ public class TokenManagementServiceImpl implements TokenManagementService {
         Token token = tokenMapper.findById(tokenId);
         if (token != null && token.getUserId().equals(userId)) {
             tokenMapper.deleteById(tokenId);
+            mediaPlaybackTicketService.revokeSession(tokenId);
             log.info("删除令牌: tokenId={}, userId={}", tokenId, userId);
         }
     }
 
     @Override
     public Token getTokenByAccessToken(String accessToken) {
-        Token token = tokenMapper.findByAccessToken(accessToken);
-        log.info("findByAccessToken({}) = {}", accessToken, token);
-        return token;
+        return tokenMapper.findByAccessToken(accessToken);
     }
 
     /**

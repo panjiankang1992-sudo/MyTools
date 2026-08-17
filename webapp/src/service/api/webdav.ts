@@ -1,10 +1,11 @@
 import { request } from '@/service/request';
 
 /** 获取当前用户的 WebDAV 账号列表 */
-export function fetchWebdavAccounts() {
+export function fetchWebdavAccounts(category: 'webdav' | 'alist' = 'webdav') {
   return request<Api.Webdav.WebdavAccount[]>({
     url: '/api/webdav/accounts',
-    method: 'get'
+    method: 'get',
+    params: { category }
   });
 }
 

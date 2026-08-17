@@ -8,6 +8,8 @@ import PieChart from './modules/pie-chart.vue';
 import ProjectNews from './modules/project-news.vue';
 import CreativityBanner from './modules/creativity-banner.vue';
 
+defineOptions({ name: 'home' });
+
 const appStore = useAppStore();
 
 const gap = computed(() => (appStore.isMobile ? 0 : 16));

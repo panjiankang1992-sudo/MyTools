@@ -96,7 +96,7 @@ function handleDropdown(key: DropdownKey) {
           v-if="avatarSrc"
           class="mr-8px"
           :src="avatarSrc"
-          :fallback-src="'/favicon.svg'"
+          fallback-src="/favicon.svg"
           round
           :size="28"
         />

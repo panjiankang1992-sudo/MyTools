@@ -4,7 +4,8 @@ import { request } from '@/service/request';
 export function fetchAlistAccounts() {
   return request<Api.Webdav.WebdavAccount[]>({
     url: '/api/webdav/accounts',
-    method: 'get'
+    method: 'get',
+    params: { category: 'alist' }
   });
 }
 

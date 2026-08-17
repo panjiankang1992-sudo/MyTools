@@ -213,12 +213,12 @@ function formatDate(dateStr: string | null): string {
         flex-shrink: 0;
       "
     >
-      <n-button size="small" @click="emit('back')">
+      <NButton size="small" @click="emit('back')">
         <template #icon>
-          <arrow-back-outline />
+          <ArrowBackOutline />
         </template>
         返回
-      </n-button>
+      </NButton>
       <span style="font-size: 14px; font-weight: 500;">{{ file.name }}</span>
     </div>
 
@@ -238,7 +238,7 @@ function formatDate(dateStr: string | null): string {
         "
       >
         <!-- JSON 格式化预览 -->
-        <n-spin v-if="isJsonFile(file.name)" :show="textLoading">
+        <NSpin v-if="isJsonFile(file.name)" :show="textLoading">
           <div
             v-if="textContent && !textError"
             style="
@@ -252,19 +252,21 @@ function formatDate(dateStr: string | null): string {
               text-align: left;
             "
           >
+            <!-- eslint-disable vue/no-v-html -->
             <pre
               style="margin: 0; white-space: pre-wrap; word-break: break-all; font-size: 13px; line-height: 1.6; font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;"
               v-html="jsonHighlighted"
-            />
+            /><!-- eslint-enable vue/no-v-html -->
           </div>
           <div v-else-if="textError" style="text-align: center; color: #999;">
-            <construct-outline :style="{ fontSize: '64px' }" />
+            <ConstructOutline :style="{ fontSize: '64px' }" />
             <p style="margin-top: 8px;">加载内容失败</p>
           </div>
-        </n-spin>
+        </NSpin>
 
         <!-- Markdown 预览 -->
-        <n-spin v-else-if="isMarkdownFile(file.name)" :show="textLoading">
+        <NSpin v-else-if="isMarkdownFile(file.name)" :show="textLoading">
+          <!-- eslint-disable vue/no-v-html -->
           <div
             v-if="textContent && !textError"
             class="markdown-preview"
@@ -280,15 +282,15 @@ function formatDate(dateStr: string | null): string {
               border: 1px solid #e8e8e8;
             "
             v-html="markdownHtml"
-          />
+          /><!-- eslint-enable vue/no-v-html -->
           <div v-else-if="textError" style="text-align: center; color: #999;">
-            <construct-outline :style="{ fontSize: '64px' }" />
+            <ConstructOutline :style="{ fontSize: '64px' }" />
             <p style="margin-top: 8px;">加载内容失败</p>
           </div>
-        </n-spin>
+        </NSpin>
 
         <!-- 其他文本文件预览 -->
-        <n-spin v-else-if="isTextFile(file.name)" :show="textLoading">
+        <NSpin v-else-if="isTextFile(file.name)" :show="textLoading">
           <div
             v-if="textContent && !textError"
             style="
@@ -305,14 +307,14 @@ function formatDate(dateStr: string | null): string {
             <pre style="margin: 0; white-space: pre-wrap; word-break: break-all; font-size: 13px; line-height: 1.6; font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;">{{ textContent }}</pre>
           </div>
           <div v-else-if="textError" style="text-align: center; color: #999;">
-            <construct-outline :style="{ fontSize: '64px' }" />
+            <ConstructOutline :style="{ fontSize: '64px' }" />
             <p style="margin-top: 8px;">加载内容失败</p>
           </div>
-        </n-spin>
+        </NSpin>
 
         <!-- 媒体文件预览 -->
-        <n-spin v-else :show="thumbnailLoading">
-          <n-image
+        <NSpin v-else :show="thumbnailLoading">
+          <NImage
             v-if="thumbnailUrl && !thumbnailError"
             :src="thumbnailUrl"
             object-fit="contain"
@@ -320,48 +322,48 @@ function formatDate(dateStr: string | null): string {
             show-toolbar-tooltip
           />
           <div v-else-if="thumbnailError" style="text-align: center; color: #999;">
-            <construct-outline :style="{ fontSize: '64px' }" />
+            <ConstructOutline :style="{ fontSize: '64px' }" />
             <p style="margin-top: 8px;">加载预览失败</p>
           </div>
           <div v-else-if="!thumbnailLoading" style="text-align: center; color: #999;">
-            <document-text-outline :style="{ fontSize: '64px' }" />
+            <DocumentTextOutline :style="{ fontSize: '64px' }" />
             <p style="margin-top: 8px;">{{ file.contentType || '未知类型' }}</p>
           </div>
-        </n-spin>
+        </NSpin>
       </div>
 
       <!-- 元数据 -->
-      <n-descriptions bordered :column="2" label-placement="left">
-        <n-descriptions-item label="文件名">{{ file.name }}</n-descriptions-item>
-        <n-descriptions-item label="大小">{{ formatSize(file.size) }}</n-descriptions-item>
-        <n-descriptions-item label="路径" :span="2">{{ file.path }}</n-descriptions-item>
-        <n-descriptions-item label="MIME 类型">{{ file.contentType || '-' }}</n-descriptions-item>
-        <n-descriptions-item label="修改时间">{{ formatDate(file.lastModified) }}</n-descriptions-item>
-      </n-descriptions>
+      <NDescriptions bordered :column="2" label-placement="left">
+        <NDescriptionsItem label="文件名">{{ file.name }}</NDescriptionsItem>
+        <NDescriptionsItem label="大小">{{ formatSize(file.size) }}</NDescriptionsItem>
+        <NDescriptionsItem label="路径" :span="2">{{ file.path }}</NDescriptionsItem>
+        <NDescriptionsItem label="MIME 类型">{{ file.contentType || '-' }}</NDescriptionsItem>
+        <NDescriptionsItem label="修改时间">{{ formatDate(file.lastModified) }}</NDescriptionsItem>
+      </NDescriptions>
 
       <!-- 操作按钮 -->
-      <n-space justify="center" style="margin-top: 24px;">
-        <n-button @click="emit('download')">
-          <template #icon><download-outline /></template>
+      <NSpace justify="center" style="margin-top: 24px;">
+        <NButton @click="emit('download')">
+          <template #icon><DownloadOutline /></template>
           下载
-        </n-button>
-        <n-button @click="emit('rename')">
-          <template #icon><create-outline /></template>
+        </NButton>
+        <NButton @click="emit('rename')">
+          <template #icon><CreateOutline /></template>
           重命名
-        </n-button>
-        <n-button @click="emit('move')">
-          <template #icon><arrow-forward-outline /></template>
+        </NButton>
+        <NButton @click="emit('move')">
+          <template #icon><ArrowForwardOutline /></template>
           移动
-        </n-button>
-        <n-button @click="emit('copy')">
-          <template #icon><copy-outline /></template>
+        </NButton>
+        <NButton @click="emit('copy')">
+          <template #icon><CopyOutline /></template>
           复制
-        </n-button>
-        <n-button type="error" @click="emit('delete')">
-          <template #icon><trash-outline /></template>
+        </NButton>
+        <NButton type="error" @click="emit('delete')">
+          <template #icon><TrashOutline /></template>
           删除
-        </n-button>
-      </n-space>
+        </NButton>
+      </NSpace>
     </div>
   </div>
 </template>

@@ -66,6 +66,50 @@ public enum ErrorCode {
     ROLE_002("60002", "role.assigned.to.users", HttpStatus.BAD_REQUEST),
     ROLE_003("60003", "role.not_found", HttpStatus.NOT_FOUND),
 
+    // Feedback error codes (80001-80099)
+    FEEDBACK_001("80001", "feedback.create.failed", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    // 媒体错误码（90001-90099）
+    MEDIA_001("90001", "media.stream.source.unsupported", HttpStatus.BAD_REQUEST),
+    MEDIA_002("90002", "media.stream.open.failed", HttpStatus.BAD_GATEWAY),
+    MEDIA_003("90003", "media.stream.range.invalid", HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE),
+    MEDIA_004("90004", "media.stream.ticket.invalid", HttpStatus.UNAUTHORIZED),
+    MEDIA_005("90005", "media.thumbnail.invalid", HttpStatus.UNPROCESSABLE_ENTITY),
+    MEDIA_006("90006", "media.catalog.invalid", HttpStatus.NOT_FOUND),
+
+    // Copilot错误码（91001-91099）
+    COPILOT_001("91001", "copilot.gateway.disabled", HttpStatus.SERVICE_UNAVAILABLE),
+    COPILOT_002("91002", "copilot.request.invalid", HttpStatus.BAD_REQUEST),
+    COPILOT_003("91003", "copilot.provider.unavailable", HttpStatus.BAD_GATEWAY),
+    COPILOT_004("91004", "copilot.provider.response.invalid", HttpStatus.BAD_GATEWAY),
+
+    // DSH错误码（95001-95099）
+    DSH_001("95001", "dsh.gateway.disabled", HttpStatus.SERVICE_UNAVAILABLE),
+    DSH_002("95002", "dsh.request.invalid", HttpStatus.BAD_REQUEST),
+    DSH_003("95003", "dsh.service.unavailable", HttpStatus.BAD_GATEWAY),
+    DSH_004("95004", "dsh.response.invalid", HttpStatus.BAD_GATEWAY),
+    DSH_005("95005", "dsh.session.not.found", HttpStatus.NOT_FOUND),
+    DSH_006("95006", "dsh.session.forbidden", HttpStatus.FORBIDDEN),
+    DSH_007("95007", "dsh.interaction.expired", HttpStatus.CONFLICT),
+
+    // 阅读错误码（92001-92099）
+    READER_001("92001", "reader.marker.quota.exceeded", HttpStatus.CONFLICT),
+    READER_002("92002", "reader.shelf.invalid", HttpStatus.BAD_REQUEST),
+    READER_003("92003", "reader.shelf.quota.exceeded", HttpStatus.CONFLICT),
+    READER_004("92004", "reader.source.invalid", HttpStatus.BAD_REQUEST),
+    READER_005("92005", "reader.source.quota.exceeded", HttpStatus.CONFLICT),
+
+    // 局域网连接错误码（93001-93099）
+    CONNECTIVITY_001("93001", "connectivity.probe.invalid", HttpStatus.UNAUTHORIZED),
+    CONNECTIVITY_002("93002", "connectivity.probe.expired", HttpStatus.UNAUTHORIZED),
+
+    // 网盘错误码（94001-94099）
+    DRIVE_001("94001", "drive.not.found", HttpStatus.NOT_FOUND),
+    DRIVE_002("94002", "drive.item.not.found", HttpStatus.NOT_FOUND),
+    DRIVE_003("94003", "drive.gateway.unavailable", HttpStatus.BAD_GATEWAY),
+    DRIVE_004("94004", "drive.request.invalid", HttpStatus.BAD_REQUEST),
+    DRIVE_005("94005", "drive.ticket.invalid", HttpStatus.UNAUTHORIZED),
+
     // System error codes (50001-50099)
     SYS_001("50001", "sys.server.error", HttpStatus.INTERNAL_SERVER_ERROR),
     SYS_002("50002", "sys.validation.failed", HttpStatus.BAD_REQUEST),

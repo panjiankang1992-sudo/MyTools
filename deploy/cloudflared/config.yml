@@ -1,0 +1,25 @@
+tunnel: eeb9a165-fabb-4b36-98e8-8ab48783dd07
+credentials-file: /home/pankang/.cloudflared/eeb9a165-fabb-4b36-98e8-8ab48783dd07.json
+
+ingress:
+  - hostname: alist.yuyutian.top
+    service: http://127.0.0.1:5244
+  - hostname: webdav.yuyutian.top
+    service: http://127.0.0.1:5244
+  - hostname: mytools.yuyutian.top
+    service: http://127.0.0.1:23111
+  - hostname: api.yuyutian.top
+    service: http://127.0.0.1:23110
+  - hostname: mycopilot.yuyutian.top
+    service: http://127.0.0.1:23211
+  - hostname: mycopilot-api.yuyutian.top
+    service: http://127.0.0.1:23210
+  - hostname: db.yuyutian.top
+    service: tcp://127.0.0.1:3306
+  - hostname: ssh.yuyutian.top
+    service: ssh://127.0.0.1:22
+  - hostname: dsh.yuyutian.top
+    service: http://127.0.0.1:3080
+  - hostname: dsh-app.yuyutian.top
+    service: http://127.0.0.1:3081
+  - service: http_status:404

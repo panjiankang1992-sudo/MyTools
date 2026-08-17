@@ -20,9 +20,6 @@ public class OpenProfileResponse extends UserInfoResponse {
     /** WebDAV 用户名 */
     private String webdavUsername;
 
-    /** AES-GCM 加密后的密码密文（Base64），可用于客户端解密 */
-    private String webdavEncryptedPassword;
-
     /** WebDAV 密码是否已设置 */
     private Boolean webdavPasswordSet;
 }

@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { reactive, ref, h, onMounted, onUnmounted } from 'vue';
-import { fetchCreateUser, fetchDeleteUser, fetchGetUserList, fetchUpdateUser, fetchUpdateUserStatus, fetchUpdateUserRole } from '@/service/api';
+import { fetchCreateUser, fetchDeleteUser, fetchGetUserList, fetchUpdateUser, fetchUpdateUserStatus } from '@/service/api';
 import { useLoading } from '@sa/hooks';
-import { $t } from '@/locales';
 import { NButton, NTag, NSpace, NModal, NCard, NInput, NSelect, NForm, NFormItem, useMessage } from 'naive-ui';
 
-defineOptions({ name: 'UserManagement' });
+defineOptions({ name: 'system_user' });
 
 const message = useMessage();
 const { loading, startLoading, endLoading } = useLoading();
@@ -79,7 +78,7 @@ function resetForm() {
   createForm.phone = '';
   createForm.role = 'USER';
   createForm.status = 'ACTIVE';
-  Object.keys(fieldErrors).forEach(key => delete fieldErrors[key]);
+  Object.keys(fieldErrors).forEach(key => Reflect.deleteProperty(fieldErrors, key));
 }
 
 const columns = [
@@ -203,12 +202,12 @@ async function handleCreateUser() {
     message.success('用户创建成功');
     resetForm();
     loadData();
-  } catch (errors) {
+  } catch {
     // 表单校验失败，不做处理（NaiveUI自动显示错误）
   }
 }
 
-function formatDate(date: string) {
+function _formatDate(date: string) {
   if (!date) return '-';
   return date.substring(0, 16);
 }
@@ -224,10 +223,12 @@ loadData();
         <NSpace vertical :size="12">
           <NSpace>
             <NInput v-model:value="searchParams.keyword" placeholder="搜索用户名/邮箱" clearable style="width: 200px" />
-            <NSelect v-model:value="searchParams.status" placeholder="状态" clearable style="width: 120px" :options="[
-              { label: '启用', value: 'ACTIVE' },
-              { label: '禁用', value: 'DISABLED' }
-            ]" />
+            <NSelect
+              v-model:value="searchParams.status" placeholder="状态" clearable style="width: 120px" :options="[
+                { label: '启用', value: 'ACTIVE' },
+                { label: '禁用', value: 'DISABLED' }
+              ]"
+            />
             <NButton type="primary" @click="handleSearch">搜索</NButton>
             <NButton @click="loadData">刷新</NButton>
             <NButton type="primary" @click="showCreateModal = true">新增用户</NButton>
@@ -256,10 +257,12 @@ loadData();
     <NModal v-model:show="showRoleModal" preset="card" title="修改角色" style="width: 400px">
       <NForm>
         <NFormItem label="角色">
-          <NSelect v-model:value="currentUserRole" :options="[
-            { label: '普通用户', value: 'USER' },
-            { label: '管理员', value: 'ADMIN' }
-          ]" style="width: 200px" />
+          <NSelect
+            v-model:value="currentUserRole" :options="[
+              { label: '普通用户', value: 'USER' },
+              { label: '管理员', value: 'ADMIN' }
+            ]" style="width: 200px"
+          />
         </NFormItem>
       </NForm>
       <template #footer>
@@ -272,7 +275,7 @@ loadData();
 
     <!-- 新增用户弹窗 -->
     <NModal v-model:show="showCreateModal" preset="card" title="新增用户" style="width: 450px">
-      <NForm ref="formRef" :model="createForm" :rules="rules" labelPlacement="left" labelWidth="80">
+      <NForm ref="formRef" :model="createForm" :rules="rules" label-placement="left" label-width="80">
         <NFormItem label="用户名" path="username">
           <NInput v-model:value="createForm.username" placeholder="请输入用户名" />
         </NFormItem>
@@ -289,10 +292,12 @@ loadData();
           <NInput v-model:value="createForm.phone" placeholder="请输入手机号" />
         </NFormItem>
         <NFormItem label="角色">
-          <NSelect v-model:value="createForm.role" :options="[
-            { label: '普通用户', value: 'USER' },
-            { label: '管理员', value: 'ADMIN' }
-          ]" style="width: 200px" />
+          <NSelect
+            v-model:value="createForm.role" :options="[
+              { label: '普通用户', value: 'USER' },
+              { label: '管理员', value: 'ADMIN' }
+            ]" style="width: 200px"
+          />
         </NFormItem>
       </NForm>
       <template #footer>

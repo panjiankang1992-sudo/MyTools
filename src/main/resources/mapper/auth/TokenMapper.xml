@@ -57,12 +57,15 @@
 
     <update id="update" parameterType="com.yuyutian.mytools.auth.Model.Token">
         UPDATE t_token
-        SET refresh_token = #{refreshToken},
+        SET access_token = #{accessToken},
+            refresh_token = #{refreshToken},
             expire_time = #{expireTime},
             refresh_expire_time = #{refreshExpireTime},
-            version = version + 1,
+            version = COALESCE(version, 0) + 1,
             update_time = #{updateTime}
         WHERE id = #{id}
+          AND (version = #{version} OR (version IS NULL AND #{version} IS NULL))
+          AND status = 'ACTIVE'
     </update>
 
     <select id="findAllWithPage" resultMap="TokenResultMap">

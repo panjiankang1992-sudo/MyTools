@@ -31,7 +31,7 @@ import {
 } from '@vicons/ionicons5';
 import AccountDrawer from '../components/AccountDrawer.vue';
 
-defineOptions({ name: 'AlistIndex' });
+defineOptions({ name: 'cloud-file_alist' });
 
 const message = useMessage();
 const store = useAlistStore();
@@ -62,16 +62,20 @@ const accountOptions = computed(() =>
     .map(a => ({ label: a.name, value: a.id }))
 );
 
-async function handleAccountChange(_accountId: string) {
-  await store.loadAccounts();
-  const alistAccounts = store.accounts.filter(a => a.type === 'alist');
-  if (alistAccounts.length > 0) {
-    const defaultAccount = alistAccounts.find(a => a.isDefault === 1) || alistAccounts[0];
-    store.currentAccountId = defaultAccount.id;
-    await store.init(defaultAccount.id);
+async function handleAccountChange(accountId: string) {
+  if (accountId) {
+    store.currentAccountId = accountId;
+    await store.init(accountId);
   } else {
-    store.currentAccountId = '';
-    store.clearFiles();
+    await store.loadAccounts();
+    const account = store.accounts.find(a => a.isDefault === 1) || store.accounts[0];
+    if (account) {
+      store.currentAccountId = account.id;
+      await store.init(account.id);
+    } else {
+      store.currentAccountId = '';
+      store.clearFiles();
+    }
   }
   selectedTreeKey.value = [];
 }
@@ -173,13 +177,13 @@ function isTextFile(name: string) {
 
 <template>
   <div style="height: 100%">
-    <n-layout :has-sider="!appStore.isMobile" style="height: 100%">
+    <NLayout :has-sider="!appStore.isMobile" style="height: 100%">
       <!-- 左侧目录树 -->
-      <n-layout-sider v-if="!appStore.isMobile" :width="220" bordered content-style="padding: 8px;">
-        <n-space vertical :size="8" style="height: 100%;">
+      <NLayoutSider v-if="!appStore.isMobile" :width="220" bordered content-style="padding: 8px;">
+        <NSpace vertical :size="8" style="height: 100%;">
           <div style="font-size: 12px; color: #888; padding: 4px; font-weight: 500;">Alist 文件</div>
-          <n-spin :show="store.loading" style="flex: 1; overflow: auto;">
-            <n-tree
+          <NSpin :show="store.loading" style="flex: 1; overflow: auto;">
+            <NTree
               v-model:selected-keys="selectedTreeKey"
               :data="store.treeData"
               :expand-on-click="true"
@@ -188,17 +192,17 @@ function isTextFile(name: string) {
               @update:selected-keys="(keys) => { if (keys[0]) { store.navigateTo(keys[0] as string); } }"
               @load="(node: TreeOption) => store.loadTreeNodeChildren(node as unknown as AlistTreeNode)"
             />
-            <n-empty
+            <NEmpty
               v-if="!store.loading && store.treeData.length === 0"
               description="暂无文件"
               style="margin-top: 16px;"
             />
-          </n-spin>
-        </n-space>
-      </n-layout-sider>
+          </NSpin>
+        </NSpace>
+      </NLayoutSider>
 
       <!-- 右侧内容区 -->
-      <n-layout-content content-style="display: flex; flex-direction: column; height: 100%;">
+      <NLayoutContent content-style="display: flex; flex-direction: column; height: 100%;">
         <!-- 账号选择器 -->
         <div
           :style="{
@@ -209,17 +213,17 @@ function isTextFile(name: string) {
             flexWrap: appStore.isMobile ? 'wrap' : 'nowrap'
           }"
         >
-          <n-select
+          <NSelect
             v-model:value="store.currentAccountId"
             :options="accountOptions"
             placeholder="选择 Alist 账号"
             :style="{ width: appStore.isMobile ? '220px' : '200px' }"
             @update:value="handleAccountChange"
           />
-          <n-button size="small" @click="openAccountDrawer">
-            <template #icon><n-icon :component="SettingsOutline" /></template>
+          <NButton size="small" @click="openAccountDrawer">
+            <template #icon><NIcon :component="SettingsOutline" /></template>
             管理
-          </n-button>
+          </NButton>
         </div>
 
         <!-- 工具栏 -->
@@ -234,76 +238,76 @@ function isTextFile(name: string) {
             flexShrink: 0
           }"
         >
-          <n-breadcrumb style="flex:1;min-width:0;">
-            <n-breadcrumb-item
+          <NBreadcrumb style="flex:1;min-width:0;">
+            <NBreadcrumbItem
               v-for="crumb in breadcrumbs"
               :key="crumb.path"
               :clickable="crumb.path !== store.currentPath"
               @click="handleBreadcrumbNavigate(crumb.path)"
             >
               {{ crumb.label }}
-            </n-breadcrumb-item>
-          </n-breadcrumb>
-          <n-space :wrap="appStore.isMobile">
-            <n-button size="small" @click="store.refresh()">
-              <template #icon><n-icon :component="RefreshOutline" /></template>
+            </NBreadcrumbItem>
+          </NBreadcrumb>
+          <NSpace :wrap="appStore.isMobile">
+            <NButton size="small" @click="store.refresh()">
+              <template #icon><NIcon :component="RefreshOutline" /></template>
               刷新
-            </n-button>
-          </n-space>
+            </NButton>
+          </NSpace>
         </div>
 
         <!-- 文件列表 -->
         <div :style="{ flex: 1, overflow: 'auto', padding: appStore.isMobile ? '8px' : '0 16px 16px' }">
-          <n-data-table
+          <NDataTable
             :columns="columns"
             :data="store.fileList"
             :loading="store.loading"
-            :row-key="(row: Api.CloudFile.CloudFileItem) => row.path"
+            :row-key="(row: any) => row.path"
             :pagination="false"
             :bordered="false"
             virtual-scroll
             style="margin-top: 8px;"
           />
-          <n-empty
+          <NEmpty
             v-if="!store.loading && store.isEmpty"
             description="该目录为空"
             style="margin-top: 48px;"
           />
         </div>
-      </n-layout-content>
-    </n-layout>
+      </NLayoutContent>
+    </NLayout>
 
     <!-- 账号管理抽屉 -->
-    <account-drawer
+    <AccountDrawer
       v-model:show="accountDrawerShow"
       account-type="alist"
       @account-change="handleAccountChange"
     />
 
     <!-- 预览抽屉 -->
-    <n-drawer v-model:show="previewDrawer.show" :width="800" placement="right">
-      <n-drawer-content :title="previewDrawer.title" closable>
-        <n-spin :show="previewDrawer.loading" description="加载中...">
+    <NDrawer v-model:show="previewDrawer.show" :width="800" placement="right">
+      <NDrawerContent :title="previewDrawer.title" closable>
+        <NSpin :show="previewDrawer.loading" description="加载中...">
           <div v-if="isImageFile(previewDrawer.title)" style="text-align:center;">
-            <n-image :src="previewDrawer.rawUrl" width="100%" />
+            <NImage :src="previewDrawer.rawUrl" width="100%" />
           </div>
           <div v-else-if="isTextFile(previewDrawer.title)" style="height:70vh;">
             <iframe :src="previewDrawer.rawUrl" style="width:100%;height:100%;border:none;" />
           </div>
           <div v-else style="text-align:center;padding:48px;">
             <p>此文件类型不支持内嵌预览</p>
-            <n-button
+            <NButton
               tag="a"
               :href="previewDrawer.rawUrl"
-              target="_blank"
+              target="_blank" rel="noopener noreferrer"
               type="primary"
               style="margin-top:16px;"
             >
               在新窗口打开
-            </n-button>
+            </NButton>
           </div>
-        </n-spin>
-      </n-drawer-content>
-    </n-drawer>
+        </NSpin>
+      </NDrawerContent>
+    </NDrawer>
   </div>
 </template>

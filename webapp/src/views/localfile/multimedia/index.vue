@@ -1,16 +1,37 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { fetchGetDirectories, fetchScanDirectory } from '@/service/api/localfile';
+import { fetchGetDirectories } from '@/service/api/localfile';
+import { useDirectoryScan } from '@/composables/localfile/useDirectoryScan';
+import { useFileMaintenance } from '@/composables/localfile/useFileMaintenance';
 import { useLoading } from '@sa/hooks';
-import { useMessage, NButton, NEmpty } from 'naive-ui';
+import { useDialog, useMessage, NButton, NEmpty, NSpace } from 'naive-ui';
 import MediaGallery from '../components/MediaGallery.vue';
 
-defineOptions({ name: 'LocalFileMultimedia' });
+defineOptions({ name: 'localfile_multimedia' });
 
 const message = useMessage();
-const { loading, startLoading, endLoading } = useLoading();
+const dialog = useDialog();
+const { startLoading, endLoading } = useLoading();
 
 const directory = ref<any | null>(null);
+const listKey = ref(0);
+const { scanRunning, startScan } = useDirectoryScan(() => {
+  listKey.value += 1;
+});
+const { maintenanceRunning, startMaintenance } = useFileMaintenance(() => {
+  listKey.value += 1;
+});
+
+function confirmDedup() {
+  if (!directory.value) return;
+  dialog.warning({
+    title: '确认MD5去重',
+    content: '将隔离内容完全相同的重复文件。文件会移入隐藏隔离目录，可恢复。',
+    positiveText: '开始执行',
+    negativeText: '取消',
+    onPositiveClick: () => startMaintenance(directory.value.id, 'EXACT_DEDUP')
+  });
+}
 
 async function loadDirectory() {
   try {
@@ -48,16 +69,7 @@ async function handleScan() {
     return;
   }
 
-  try {
-    startLoading();
-    const { data } = await fetchScanDirectory(directory.value.id, true);
-    message.success(`扫描完成：共扫描 ${data?.scannedCount || 0} 个文件，新增 ${data?.newCount || 0} 个`);
-  } catch (error) {
-    message.error('扫描失败');
-    console.error(error);
-  } finally {
-    endLoading();
-  }
+  await startScan(directory.value.id);
 }
 
 onMounted(() => {
@@ -73,19 +85,14 @@ onMounted(() => {
         <p v-if="directory" class="text-gray-500 text-sm mt-1">{{ directory.directoryName }}</p>
         <p v-else class="text-gray-400 text-sm mt-1">未配置目录</p>
       </div>
-      <NButton
-        v-if="directory"
-        size="large"
-        type="primary"
-        :loading="loading"
-        @click="handleScan"
-      >
-        扫描目录
-      </NButton>
+      <NSpace v-if="directory">
+        <NButton :loading="maintenanceRunning" @click="confirmDedup">MD5去重</NButton>
+        <NButton size="large" type="primary" :loading="scanRunning" @click="handleScan">扫描目录</NButton>
+      </NSpace>
     </div>
 
     <div v-if="directory">
-      <MediaGallery :directory-id="directory.id" />
+      <MediaGallery :key="listKey" :directory-id="directory.id" :directory-path="directory.directoryPath" />
     </div>
     <NEmpty v-else description="请在配置文件中添加多媒体目录配置" class="py-12" />
   </div>

@@ -24,7 +24,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:show', val: boolean): void;
-  (e: 'account-change', accountId: string): void;
+  (e: 'accountChange', accountId: string): void;
 }>();
 
 const show = computed({
@@ -169,7 +169,7 @@ const columns = computed(() => {
 async function loadAccounts() {
   loading.value = true;
   try {
-    const { data } = await fetchWebdavAccounts();
+    const { data } = await fetchWebdavAccounts(props.accountType);
     if (data) accounts.value = data;
   } catch {
     message.error('加载账号列表失败');
@@ -218,7 +218,7 @@ async function handleSubmit() {
     }
     showModal.value = false;
     await loadAccounts();
-    emit('account-change', '');
+    emit('accountChange', '');
   } catch {
     message.error('操作失败');
   } finally {
@@ -231,7 +231,7 @@ async function handleDelete(account: Api.Webdav.WebdavAccount) {
     await deleteWebdavAccount(account.id);
     message.success('账号已删除');
     await loadAccounts();
-    emit('account-change', '');
+    emit('accountChange', '');
   } catch {
     message.error('删除失败');
   }
@@ -242,7 +242,7 @@ async function handleSetDefault(account: Api.Webdav.WebdavAccount) {
     await setDefaultWebdavAccount(account.id);
     message.success('已设为默认账号');
     await loadAccounts();
-    emit('account-change', account.id);
+    emit('accountChange', account.id);
   } catch {
     message.error('操作失败');
   }
@@ -250,13 +250,13 @@ async function handleSetDefault(account: Api.Webdav.WebdavAccount) {
 </script>
 
 <template>
-  <n-drawer v-model:show="show" :width="480" placement="right" @after-enter="loadAccounts">
-    <n-drawer-content :title="drawerTitle" closable>
-      <n-space justify="end" mb-3>
-        <n-button type="primary" size="small" @click="openCreateModal">添加账号</n-button>
-      </n-space>
+  <NDrawer v-model:show="show" :width="480" placement="right" @after-enter="loadAccounts">
+    <NDrawerContent :title="drawerTitle" closable>
+      <NSpace justify="end" mb-3>
+        <NButton type="primary" size="small" @click="openCreateModal">添加账号</NButton>
+      </NSpace>
 
-      <n-data-table
+      <NDataTable
         v-if="filteredAccounts.length > 0"
         :columns="columns"
         :data="filteredAccounts"
@@ -264,64 +264,64 @@ async function handleSetDefault(account: Api.Webdav.WebdavAccount) {
         :bordered="false"
         size="small"
       />
-      <n-empty
+      <NEmpty
         v-else
         :description="accountType === 'alist' ? '暂无 Alist 账号' : '暂无 WebDAV 账号'"
         style="margin-top: 48px;"
       />
-    </n-drawer-content>
-  </n-drawer>
+    </NDrawerContent>
+  </NDrawer>
 
   <!-- Create / Edit modal -->
-  <n-modal
+  <NModal
     v-model:show="showModal"
     :title="editingAccount ? '编辑账号' : '添加账号'"
     preset="card"
     :style="{ '--n-color': '#ffffff' }"
     style="width: 520px;"
   >
-    <n-form :model="formData" :rules="formRules" label-placement="left" label-width="100">
+    <NForm :model="formData" :rules="formRules" label-placement="left" label-width="100">
       <!-- Type selector: WebDAV only, hidden for Alist -->
-      <n-form-item v-if="accountType === 'webdav'" label="服务类型" required>
-        <n-select
+      <NFormItem v-if="accountType === 'webdav'" label="服务类型" required>
+        <NSelect
           v-model:value="formData.type"
           :options="typeOptions"
           placeholder="请选择服务类型"
         />
-      </n-form-item>
+      </NFormItem>
 
-      <n-form-item label="账号名称" required>
-        <n-input v-model:value="formData.name" placeholder="如：工作坚果云" />
-      </n-form-item>
+      <NFormItem label="账号名称" required>
+        <NInput v-model:value="formData.name" placeholder="如：工作坚果云" />
+      </NFormItem>
 
-      <n-form-item :label="accountType === 'alist' ? 'Alist 地址' : 'WebDAV 地址'" required>
-        <n-input v-model:value="formData.url" :placeholder="accountType === 'alist' ? 'https://alist.example.com' : 'https://dav.jianguoyun.com/dav/'" />
-      </n-form-item>
+      <NFormItem :label="accountType === 'alist' ? 'Alist 地址' : 'WebDAV 地址'" required>
+        <NInput v-model:value="formData.url" :placeholder="accountType === 'alist' ? 'https://alist.example.com' : 'https://dav.jianguoyun.com/dav/'" />
+      </NFormItem>
 
-      <n-form-item label="用户名" required>
-        <n-input v-model:value="formData.username" placeholder="用户名" />
-      </n-form-item>
+      <NFormItem label="用户名" required>
+        <NInput v-model:value="formData.username" placeholder="用户名" />
+      </NFormItem>
 
-      <n-form-item :label="accountType === 'alist' ? 'Alist API 密码' : '密码'" :required="!editingAccount">
-        <n-input
+      <NFormItem :label="accountType === 'alist' ? 'Alist API 密码' : '密码'" :required="!editingAccount">
+        <NInput
           v-model:value="formData.password"
           type="password"
           :placeholder="editingAccount ? '留空不修改' : '密码'"
         />
-      </n-form-item>
+      </NFormItem>
 
-      <n-form-item label="设为默认">
-        <n-switch v-model:value="formData.isDefault" />
-      </n-form-item>
-    </n-form>
+      <NFormItem label="设为默认">
+        <NSwitch v-model:value="formData.isDefault" />
+      </NFormItem>
+    </NForm>
 
     <template #footer>
-      <n-space justify="end">
-        <n-button @click="showModal = false">取消</n-button>
-        <n-button type="primary" :loading="submitting" @click="handleSubmit">
+      <NSpace justify="end">
+        <NButton @click="showModal = false">取消</NButton>
+        <NButton type="primary" :loading="submitting" @click="handleSubmit">
           {{ editingAccount ? '保存' : '创建' }}
-        </n-button>
-      </n-space>
+        </NButton>
+      </NSpace>
     </template>
-  </n-modal>
+  </NModal>
 </template>

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, nextTick, onBeforeUnmount } from 'vue';
 import { LAYOUT_SCROLL_EL_ID } from '@sa/materials';
 import { useAppStore } from '@/store/modules/app';
 import { useThemeStore } from '@/store/modules/theme';
 import { useRouteStore } from '@/store/modules/route';
 import { useTabStore } from '@/store/modules/tab';
+import { router } from '@/router';
 
 defineOptions({
   name: 'GlobalContent'
@@ -25,12 +26,26 @@ const routeStore = useRouteStore();
 const tabStore = useTabStore();
 
 const transitionName = computed(() => (themeStore.page.animate ? themeStore.page.animateMode : ''));
+const scrollPositions = new Map<string, number>();
 
-function resetScroll() {
-  const el = document.querySelector(`#${LAYOUT_SCROLL_EL_ID}`);
+const removeBeforeGuard = router.beforeEach((_to, from) => {
+  const el = document.querySelector<HTMLElement>(`#${LAYOUT_SCROLL_EL_ID}`);
+  if (el) scrollPositions.set(from.fullPath, el.scrollTop);
+});
 
-  el?.scrollTo({ left: 0, top: 0 });
-}
+const removeAfterHook = router.afterEach(to => {
+  void nextTick(() => {
+    const el = document.querySelector<HTMLElement>(`#${LAYOUT_SCROLL_EL_ID}`);
+    el?.scrollTo({ left: 0, top: scrollPositions.get(to.fullPath) || 0 });
+  });
+});
+
+onBeforeUnmount(() => {
+  removeBeforeGuard();
+  removeAfterHook();
+  scrollPositions.clear();
+});
+
 </script>
 
 <template>
@@ -38,7 +53,6 @@ function resetScroll() {
     <Transition
       :name="transitionName"
       @before-leave="appStore.setContentXScrollable(true)"
-      @after-leave="resetScroll"
       @after-enter="appStore.setContentXScrollable(false)"
     >
       <KeepAlive :include="routeStore.cacheRoutes" :exclude="routeStore.excludeCacheRoutes">

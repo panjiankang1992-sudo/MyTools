@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, h } from 'vue';
-import { fetchGetFilePage, fetchGetFileContent } from '@/service/api/localfile';
+import { fetchGetFilePage, fetchGetFileContent, getAuthenticatedFileContentUrl } from '@/service/api/localfile';
 import { useLoading } from '@sa/hooks';
 import { NDataTable, NButton, NSpace, NEmpty, NSpin, NTag, NImage, useMessage } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
@@ -113,7 +113,17 @@ async function loadFiles() {
       page: page.value,
       pageSize: pageSize.value
     });
-    files.value = data?.list || [];
+    files.value = (data?.list || []).map((item: any) => ({
+      ...item,
+      fileName: item.fileName || item.filename,
+      relativePath: item.relativePath || item.filePath,
+      fileType: getMediaType(item.mimeType),
+      thumbnailUrl: item.thumbnailUrl || '',
+      tags: (item.tags || []).map((tag: any) => ({
+        ...tag,
+        name: tag.name || tag.tagName
+      }))
+    }));
     total.value = data?.total || 0;
   } catch (error) {
     message.error('加载文件失败');
@@ -123,16 +133,15 @@ async function loadFiles() {
   }
 }
 
+function getMediaType(mimeType?: string): string {
+  if (mimeType?.startsWith('image/')) return 'IMAGE';
+  if (mimeType?.startsWith('video/')) return 'VIDEO';
+  if (mimeType?.startsWith('audio/')) return 'AUDIO';
+  return 'FILE';
+}
+
 async function handlePlay(file: FileItem) {
-  try {
-    const { data: blob } = await fetchGetFileContent(file.id);
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-  } catch (error) {
-    message.error('播放失败');
-    console.error(error);
-  }
+  window.open(getAuthenticatedFileContentUrl(file.id), '_blank');
 }
 
 async function handleDownload(file: FileItem) {

@@ -16,6 +16,8 @@ public interface WebdavAccountMapper {
 
     WebdavAccount selectDefaultByUserId(Long userId);
 
+    WebdavAccount selectActiveAlistByUserId(Long userId);
+
     int insert(WebdavAccount account);
 
     int updateByUserId(WebdavAccount account);

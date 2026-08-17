@@ -4,7 +4,7 @@ import { fetchCreateRole, fetchDeleteRole, fetchGetRoleList, fetchUpdateRole } f
 import { useLoading } from '@sa/hooks';
 import { NButton, NTag, NSpace, NModal, NCard, NInput, NForm, NFormItem, useMessage } from 'naive-ui';
 
-defineOptions({ name: 'RoleManagement' });
+defineOptions({ name: 'system_role' });
 
 const message = useMessage();
 const { loading, startLoading, endLoading } = useLoading();
@@ -119,7 +119,7 @@ loadData();
 
     <!-- 编辑/新增角色弹窗 -->
     <NModal v-model:show="editModal.show" preset="card" :title="editModal.id ? '编辑角色' : '新增角色'" style="width: 450px">
-      <NForm labelPlacement="left" labelWidth="80">
+      <NForm label-placement="left" label-width="80">
         <NFormItem label="角色名称">
           <NInput v-model:value="editModal.roleName" placeholder="请输入角色名称" />
         </NFormItem>

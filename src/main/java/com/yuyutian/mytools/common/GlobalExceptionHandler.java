@@ -128,6 +128,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Result<Void>> handleAccessDeniedException(
             AccessDeniedException ex, HttpServletRequest request) {
         log.warn("Access denied: message={}, path={}", ex.getMessage(), request.getRequestURI());
+        if (Boolean.TRUE.equals(request.getAttribute("jwtAuthenticationFailed"))) {
+            Result<Void> result = Result.error(
+                    ErrorCode.AUTH_002.getCode(),
+                    getMessage(ErrorCode.AUTH_002.getMessageKey()),
+                    null
+            );
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+        }
         Result<Void> result = Result.error(ErrorCode.AUTH_003.getCode(), getMessage(ErrorCode.AUTH_003.getMessageKey()), null);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
     }

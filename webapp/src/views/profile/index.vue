@@ -3,7 +3,6 @@ import { computed, reactive, ref, watch } from 'vue';
 import { useAuthStore } from '@/store/modules/auth';
 import { fetchChangePassword, fetchUpdateProfile, fetchWebdavAccount, updateWebdavAccount } from '@/service/api/user';
 import { useLoading } from '@sa/hooks';
-import { $t } from '@/locales';
 import {
   NButton,
   NCard,
@@ -13,16 +12,13 @@ import {
   NSelect,
   NSpace,
   NDatePicker,
-  NImage,
-  NImageGroup,
   useMessage,
   NModal,
-  NInputGroup,
   NGrid,
   NGridItem as NGi
 } from 'naive-ui';
 
-defineOptions({ name: 'UserProfile' });
+defineOptions({ name: 'profile' });
 
 const message = useMessage();
 const authStore = useAuthStore();
@@ -110,7 +106,7 @@ watch(
 );
 
 // 是否有变更
-const hasChanges = computed(() => {
+const _hasChanges = computed(() => {
   return JSON.stringify(profileForm) !== JSON.stringify(originalForm);
 });
 
@@ -145,10 +141,10 @@ async function handleAvatarChange(event: Event) {
 function compressImage(file: File, maxSize: number, quality: number): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const src = e.target?.result as string;
+    reader.addEventListener('load', (e) => {
+      const src = (e.target as FileReader).result as string;
       const img = new Image();
-      img.onload = () => {
+      img.addEventListener('load', () => {
         let { width, height } = img;
         if (width > maxSize || height > maxSize) {
           if (width > height) {
@@ -165,11 +161,11 @@ function compressImage(file: File, maxSize: number, quality: number): Promise<st
         const ctx = canvas.getContext('2d')!;
         ctx.drawImage(img, 0, 0, width, height);
         resolve(canvas.toDataURL('image/jpeg', quality));
-      };
-      img.onerror = reject;
+      });
+      img.addEventListener('error', reject);
       img.src = src;
-    };
-    reader.onerror = reject;
+    });
+    reader.addEventListener('error', reject);
     reader.readAsDataURL(file);
   });
 }

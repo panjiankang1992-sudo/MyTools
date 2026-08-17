@@ -1,0 +1,12 @@
+{
+  "string": [
+    {
+      "name": "entry_app_name",
+      "value": "MyTools"
+    },
+    {
+      "name": "entry_desc",
+      "value": "MyTools HarmonyOS NEXT client"
+    }
+  ]
+}

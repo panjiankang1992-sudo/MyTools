@@ -4,7 +4,7 @@ import { fetchCreateToken, fetchDeleteToken, fetchGetTokenList, fetchUpdateToken
 import { useLoading } from '@sa/hooks';
 import { NButton, NTag, NSpace, NModal, NCard, NInput, NForm, NFormItem, useMessage, NAlert, useDialog, NResult } from 'naive-ui';
 
-defineOptions({ name: 'TokenManagement' });
+defineOptions({ name: 'ai-tools_token' });
 
 const message = useMessage();
 const dialog = useDialog();
@@ -13,7 +13,7 @@ const { loading, startLoading, endLoading } = useLoading();
 // Token 列表数据
 
 // Token 列表数据
-const data = reactive<Api.Token.TokenItem[]>([]);
+const tokenList = reactive<Api.Token.TokenItem[]>([]);
 const pagination = reactive({
   page: 1,
   pageSize: 10,
@@ -59,10 +59,10 @@ async function loadData() {
   try {
     const { data: res } = await fetchGetTokenList({ page: pagination.page, pageSize: pagination.pageSize });
     // createFlatRequest returns { data, error, response }, data is {list, total}
-    data.length = 0;
+    tokenList.length = 0;
     const list = res?.list || [];
     pagination.total = res?.total || 0;
-    data.push(...list);
+    tokenList.push(...list);
   } finally {
     endLoading();
   }
@@ -251,7 +251,7 @@ loadData();
             <NButton @click="loadData">刷新</NButton>
             <NButton @click="openValidateModal">校验 Token</NButton>
           </NSpace>
-          <NDataTable :columns="columns" :data="data" :loading="loading" :pagination="false" scroll-x="800" />
+          <NDataTable :columns="columns" :data="tokenList" :loading="loading" :pagination="false" scroll-x="800" />
           <NSpace justify="end" style="margin-top: 12px">
             <NPagination
               v-model:page="pagination.page"
@@ -268,8 +268,8 @@ loadData();
     </NSpace>
 
     <!-- 新增 Token 弹窗 -->
-    <NModal v-model:show="createModal.show" preset="card" :title="createModal.createdToken ? 'Token 创建成功' : '新增 Token'" style="width: 500px" @afterLeave="handleCloseModal">
-      <NForm v-if="!createModal.createdToken" labelPlacement="left" labelWidth="100">
+    <NModal v-model:show="createModal.show" preset="card" :title="createModal.createdToken ? 'Token 创建成功' : '新增 Token'" style="width: 500px" @after-leave="handleCloseModal">
+      <NForm v-if="!createModal.createdToken" label-placement="left" label-width="100">
         <NFormItem label="Token 名称">
           <NInput v-model:value="createModal.tokenName" placeholder="请输入 Token 名称，如：我的开发密钥" />
         </NFormItem>
@@ -290,8 +290,8 @@ loadData();
     </NModal>
 
     <!-- 校验 Token 弹窗 -->
-    <NModal v-model:show="validateModal.show" preset="card" title="校验 Token" style="width: 500px" @afterLeave="handleCloseValidateModal">
-      <NForm labelPlacement="left" labelWidth="80">
+    <NModal v-model:show="validateModal.show" preset="card" title="校验 Token" style="width: 500px" @after-leave="handleCloseValidateModal">
+      <NForm label-placement="left" label-width="80">
         <NFormItem label="Token">
           <NInput
             v-model:value="validateModal.tokenValue"

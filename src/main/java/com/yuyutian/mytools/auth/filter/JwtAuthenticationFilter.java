@@ -1,5 +1,7 @@
 package com.yuyutian.mytools.auth.filter;
 
+import com.yuyutian.mytools.auth.Model.Token;
+import com.yuyutian.mytools.auth.mapper.TokenMapper;
 import com.yuyutian.mytools.auth.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -34,6 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtUtils jwtUtils;
+    private final TokenMapper tokenMapper;
 
     /**
      * 执行过滤逻辑。
@@ -48,8 +51,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = extractJwtFromRequest(request);
 
-            if (StringUtils.hasText(jwt) && jwtUtils.validateToken(jwt)) {
+            if (StringUtils.hasText(jwt) && jwtUtils.validateToken(jwt)
+                    && "access".equals(jwtUtils.getTokenTypeFromToken(jwt))) {
                 Long userId = jwtUtils.getUserIdFromToken(jwt);
+                Token tokenEntity = tokenMapper.findByAccessToken(jwt);
+                // 数据库会话状态用于即时执行注销和后台撤销。
+                if (!isActiveSession(tokenEntity, userId)) {
+                    request.setAttribute("jwtAuthenticationFailed", Boolean.TRUE);
+                    filterChain.doFilter(request, response);
+                    return;
+                }
                 String username = jwtUtils.getUsernameFromToken(jwt);
                 String role = jwtUtils.getRoleFromToken(jwt);
 
@@ -64,8 +75,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 request.setAttribute("userId", userId);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.debug("用户认证成功: userId={}, username={}", userId, username);
+            } else if (StringUtils.hasText(jwt)) {
+                // 标记令牌失效，供异常处理器区分会话过期与权限不足。
+                request.setAttribute("jwtAuthenticationFailed", Boolean.TRUE);
             }
         } catch (Exception e) {
+            request.setAttribute("jwtAuthenticationFailed", Boolean.TRUE);
             log.error("JWT认证失败: {}", e.getMessage());
         }
 
@@ -84,5 +99,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return bearerToken.substring(BEARER_PREFIX.length());
         }
         return null;
+    }
+
+    /**
+     * 校验访问令牌对应的服务端会话是否仍然有效。
+     *
+     * @param tokenEntity 令牌记录
+     * @param userId JWT中的用户ID
+     * @return 会话是否有效
+     */
+    private boolean isActiveSession(Token tokenEntity, Long userId) {
+        return tokenEntity != null
+                && "ACTIVE".equals(tokenEntity.getStatus())
+                && userId.equals(tokenEntity.getUserId())
+                && tokenEntity.getExpireTime() != null
+                && tokenEntity.getExpireTime() > System.currentTimeMillis();
     }
 }

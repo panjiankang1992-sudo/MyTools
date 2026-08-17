@@ -22,8 +22,5 @@ public class WebdavAccountPublicResponse {
     /** WebDAV 用户名 */
     private String username;
 
-    /** AES-GCM 加密后的密码密文（Base64编码），可用于客户端解密 */
-    private String encryptedPassword;
-
     private Boolean passwordSet;
 }

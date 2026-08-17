@@ -2,6 +2,24 @@
 
 ## 快速部署
 
+### 必需安全环境变量
+
+生产启动前必须通过受限环境文件、Secret Manager或systemd `EnvironmentFile`提供以下变量，仓库不再包含可用默认密钥：
+
+```text
+MYTOOLS_DB_PASSWORD
+SALES_ORDER_DB_PASSWORD
+JWT_SECRET
+PASSWORD_SALT
+MYTOOLS_ENCRYPTION_KEY
+```
+
+`MYTOOLS_ENCRYPTION_KEY`必须是Base64编码的16、24或32字节随机密钥，可在受控终端运行
+`java ... AesEncryptUtils generate-key`生成。不要把生成结果写入仓库、命令历史或部署日志。
+
+轮换WebDAV凭据加密密钥时，把旧密钥暂存到`MYTOOLS_ENCRYPTION_PREVIOUS_KEY`，把新密钥设置为
+`MYTOOLS_ENCRYPTION_KEY`。账号下一次保存或更新时会使用新密钥重新加密；确认所有账号完成迁移后删除旧密钥变量。
+
 ### 方式一：使用部署脚本（推荐）
 
 ```bash
@@ -117,12 +135,12 @@ npm run build
 # 将 dist 目录内容复制到 nginx/html
 ```
 
-### Q: 忘记数据库密码
-A: 检查 `src/main/resources/application.yml` 中的数据库配置
+### Q: 启动时提示缺少密钥
+A: 检查服务进程实际读取的受限环境文件，确认上述必需变量已设置；不要把真实值补回`application.yml`。
 
 ## 环境要求
 
-- Java 17+
+- Java 21+
 - Maven 3.6+
 - MySQL 8.0+
 - Node.js 16+ (前端构建需要)

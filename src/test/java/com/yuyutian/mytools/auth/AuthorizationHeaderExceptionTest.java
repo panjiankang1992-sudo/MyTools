@@ -5,7 +5,6 @@ import com.yuyutian.mytools.auth.service.AuthService;
 import com.yuyutian.mytools.auth.utils.JwtUtils;
 import com.yuyutian.mytools.common.GlobalExceptionHandler;
 import com.yuyutian.mytools.openapi.controller.OpenApiController;
-import com.yuyutian.mytools.user.mapper.UserMapper;
 import com.yuyutian.mytools.user.service.UserService;
 import com.yuyutian.mytools.webdav.service.WebdavAccountService;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,9 +38,6 @@ class AuthorizationHeaderExceptionTest {
     @Mock
     private WebdavAccountService webdavAccountService;
 
-    @Mock
-    private UserMapper userMapper;
-
     private MockMvc publicApiMvc;
 
     private MockMvc authMvc;
@@ -52,7 +48,7 @@ class AuthorizationHeaderExceptionTest {
         publicApiMvc = standaloneSetup(new OpenApiController(jwtUtils, authService, userService, webdavAccountService))
                 .setControllerAdvice(exceptionHandler)
                 .build();
-        authMvc = standaloneSetup(new AuthController(authService, userMapper))
+        authMvc = standaloneSetup(new AuthController(authService))
                 .setControllerAdvice(exceptionHandler)
                 .build();
     }

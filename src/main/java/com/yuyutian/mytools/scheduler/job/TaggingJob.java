@@ -27,12 +27,20 @@ public class TaggingJob {
      * 每小时执行一次打标签任务。
      * 从未打标签的文件队列中获取文件进行处理。
      */
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(fixedDelay = 60000, initialDelay = 10000)
     public void processUntaggedFiles() {
         log.info("开始执行定时打标签任务");
         try {
-            int successCount = taggerService.processUntaggedFiles(BATCH_SIZE);
-            log.info("定时打标签任务完成，成功处理: {} 个文件", successCount);
+            int totalSuccessCount = 0;
+            int successCount;
+            do {
+                // 分批循环消费，避免一次查询加载全部文件。
+                successCount = taggerService.processUntaggedFiles(BATCH_SIZE);
+                totalSuccessCount += successCount;
+            } while (successCount == BATCH_SIZE);
+            // 成人内容判断使用独立模型请求和独立状态，避免与普通标签结果互相污染。
+            taggerService.processAdultClassifications(BATCH_SIZE);
+            log.info("定时打标签任务完成，成功处理: {} 个文件", totalSuccessCount);
         } catch (Exception e) {
             log.error("定时打标签任务执行失败", e);
         }

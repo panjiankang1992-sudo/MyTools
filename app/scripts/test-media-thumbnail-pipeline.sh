@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+PAGE="$APP_DIR/entry/src/main/ets/pages/Index.ets"
+API="$APP_DIR/entry/src/main/ets/features/media/RemoteMediaApi.ets"
+CACHE="$APP_DIR/entry/src/main/ets/features/media/RemoteMediaThumbnailCache.ets"
+
+grep -Fq '/api/app/v1/media/thumbnail?accountId=' "$API"
+grep -Fq 'downloadJpegThumbnailToUri' "$API"
+grep -Fq 'downloadJpegShareToUri' "$API"
+grep -Fq '&edge=2048' "$API"
+grep -Fq 'remote-media-thumbnails' "$CACHE"
+grep -Fq 'MAX_FILES: number = 256' "$CACHE"
+grep -Fq 'private protectedBrowsePaths: Set<string> = new Set<string>();' "$CACHE"
+grep -Fq 'protectBrowseUris(uris: string[]): void' "$CACHE"
+grep -Fq 'this.protectedBrowsePaths.has(path)' "$CACHE"
+grep -Fq "digestText(identity, 'SHA256')" "$CACHE"
+grep -Fq 'this.LoadMediaThumbnailWindow(api, source, item, revision)' "$PAGE"
+grep -Fq 'images.slice(start, Math.min(images.length, currentIndex + 6))' "$PAGE"
+grep -Fq 'mediaBrowseThumbnailFailedPaths: string[] = []' "$PAGE"
+grep -Fq 'private async RetryFailedMediaThumbnails(): Promise<void>' "$PAGE"
+grep -Fq 'this.mediaBrowseViewerSnapshotEntries = this.mediaBrowseThumbnailEntries.slice();' "$PAGE"
+grep -Fq 'this.RestoreMediaBrowseThumbnailsAfterViewer();' "$PAGE"
+grep -Fq 'this.SetMediaBrowseThumbnailEntries(restored);' "$PAGE"
+grep -Fq 'this.mediaThumbnailCache.protectBrowseUris(entries.map' "$PAGE"
+grep -Fq 'this.LoadMediaBrowseThumbnails(new RemoteMediaApi(this.serviceUrl, this.authManager), sourceId,' "$PAGE"
+grep -Fq 'const retained = this.mediaBrowseThumbnailEntries.filter' "$PAGE"
+grep -Fq 'const newEntries: MediaThumbnailEntry[]' "$PAGE"
+grep -Fq '每批只发布一次状态' "$PAGE"
+grep -Fq 'Image(this.MediaThumbnailUri(item.path))' "$PAGE"
+grep -Fq 'revision !== this.mediaOpenRevision' "$PAGE"
+grep -Fq 'new systemShare.ShareController' "$PAGE"
+grep -Fq 'uniformTypeDescriptor.UniformDataType.JPEG' "$PAGE"
+grep -Fq 'this.mediaThumbnailCache.cacheShare' "$PAGE"
+! grep -Fq 'uri: this.currentMediaUrl' "$PAGE"
+
+echo 'Remote media thumbnail integration policy tests passed'

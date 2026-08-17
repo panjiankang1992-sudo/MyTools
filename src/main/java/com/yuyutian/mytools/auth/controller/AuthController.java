@@ -4,10 +4,7 @@ import com.yuyutian.mytools.auth.Model.*;
 import com.yuyutian.mytools.auth.service.AuthService;
 import com.yuyutian.mytools.common.MessageHelper;
 import com.yuyutian.mytools.common.Result;
-import com.yuyutian.mytools.utils.PasswordUtils;
-import com.yuyutian.mytools.user.mapper.UserMapper;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,33 +16,14 @@ import org.springframework.web.bind.annotation.*;
  * @author mytools
  * @since 2026-04-22
  */
-@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;
-    private final UserMapper userMapper;
-
     @Autowired
-    public AuthController(AuthService authService, UserMapper userMapper) {
+    public AuthController(AuthService authService) {
         this.authService = authService;
-        this.userMapper = userMapper;
-    }
-
-    /**
-     * 临时密码重置接口（仅用于修复损坏的admin密码）。
-     */
-    @PostMapping("/reset-admin-password")
-    public ResponseEntity<Result<String>> resetAdminPassword() {
-        com.yuyutian.mytools.user.Model.User admin = userMapper.findByUsername("admin");
-        if (admin == null) {
-            return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.admin.not.exists"), null));
-        }
-        String newHash = PasswordUtils.encode("admin123");
-        int rows = userMapper.updatePassword(admin.getId(), newHash);
-        log.info("Admin password reset, userId={}, rows affected: {}", admin.getId(), rows);
-        return ResponseEntity.ok(Result.success(MessageHelper.getMessage("success.admin.password.reset"), null));
     }
 
     /**

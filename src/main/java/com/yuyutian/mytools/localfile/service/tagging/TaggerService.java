@@ -28,4 +28,12 @@ public interface TaggerService {
      * @return 成功处理的数量
      */
     int processUntaggedFiles(int batchSize);
+
+    /**
+     * 独立批量判断资源是否为成人向内容。
+     *
+     * @param batchSize 批量大小
+     * @return 成功识别数量
+     */
+    int processAdultClassifications(int batchSize);
 }

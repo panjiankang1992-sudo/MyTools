@@ -1,0 +1,20 @@
+[Unit]
+Description=MyTools rclone RC Gateway
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=pankang
+Group=pankang
+EnvironmentFile=/opt/yuyutian/app/MyTools/backend/rclone-rc.env
+ExecStart=/bin/bash -c 'exec /usr/local/bin/rclone rcd --config /opt/code/DownloadBot/runtime/rclone/rclone.conf --rc-addr 127.0.0.1:5572 --rc-user "$RCLONE_RC_USER" --rc-pass "$RCLONE_RC_PASSWORD" --log-level INFO'
+Restart=always
+RestartSec=5s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

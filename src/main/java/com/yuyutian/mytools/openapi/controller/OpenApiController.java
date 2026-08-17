@@ -77,7 +77,7 @@ public class OpenApiController {
     }
 
     /**
-     * 获取用户公开信息及 WebDAV 配置（密码为 AES 加密密文）。
+     * 获取用户公开信息及不含凭据的WebDAV配置。
      *
      * @param authorization Bearer <jwt_token>
      */
@@ -200,7 +200,6 @@ public class OpenApiController {
             response.setWebdavType(webdav.getType());
             response.setWebdavUrl(webdav.getUrl());
             response.setWebdavUsername(webdav.getUsername());
-            response.setWebdavEncryptedPassword(webdav.getEncryptedPassword());
             response.setWebdavPasswordSet(webdav.getPasswordSet());
         }
 

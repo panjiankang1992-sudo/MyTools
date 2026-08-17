@@ -7,6 +7,7 @@ import com.yuyutian.mytools.auth.service.RegistrationCodeService;
 import com.yuyutian.mytools.auth.utils.JwtUtils;
 import com.yuyutian.mytools.common.BusinessException;
 import com.yuyutian.mytools.common.ErrorCode;
+import com.yuyutian.mytools.cloudfile.service.MediaPlaybackTicketService;
 import com.yuyutian.mytools.user.Model.Role;
 import com.yuyutian.mytools.user.Model.User;
 import com.yuyutian.mytools.user.Model.UserRole;
@@ -41,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtils jwtUtils;
     private final SnowflakeIdGenerator snowflakeIdGenerator;
     private final RegistrationCodeService registrationCodeService;
+    private final MediaPlaybackTicketService mediaPlaybackTicketService;
 
     /** 防暴力破解：最大失败次数 */
     private static final int MAX_FAILED_ATTEMPTS = 5;
@@ -53,7 +55,8 @@ public class AuthServiceImpl implements AuthService {
                            UserRoleMapper userRoleMapper, TokenMapper tokenMapper,
                            LoginAttemptMapper loginAttemptMapper, JwtUtils jwtUtils,
                            SnowflakeIdGenerator snowflakeIdGenerator,
-                           RegistrationCodeService registrationCodeService) {
+                           RegistrationCodeService registrationCodeService,
+                           MediaPlaybackTicketService mediaPlaybackTicketService) {
         this.userMapper = userMapper;
         this.roleFinderMapper = roleFinderMapper;
         this.userRoleMapper = userRoleMapper;
@@ -62,6 +65,7 @@ public class AuthServiceImpl implements AuthService {
         this.jwtUtils = jwtUtils;
         this.snowflakeIdGenerator = snowflakeIdGenerator;
         this.registrationCodeService = registrationCodeService;
+        this.mediaPlaybackTicketService = mediaPlaybackTicketService;
     }
 
     /**
@@ -153,6 +157,7 @@ public class AuthServiceImpl implements AuthService {
             tokenEntity.setTokenType("Bearer");
             tokenEntity.setExpireTime(System.currentTimeMillis() + expiresIn * 1000);
             tokenEntity.setRefreshExpireTime(System.currentTimeMillis() + refreshExpiresIn * 1000);
+            tokenEntity.setVersion(0);
             tokenEntity.setStatus("ACTIVE");
             tokenEntity.setTokenName("注册令牌");
             tokenEntity.setCreatedAt(now);
@@ -240,8 +245,10 @@ public class AuthServiceImpl implements AuthService {
             tokenEntity.setTokenType("Bearer");
             tokenEntity.setExpireTime(System.currentTimeMillis() + expiresIn * 1000);
             tokenEntity.setRefreshExpireTime(System.currentTimeMillis() + refreshExpiresIn * 1000);
+            tokenEntity.setVersion(0);
             tokenEntity.setStatus("ACTIVE");
-            tokenEntity.setTokenName("登录令牌");
+            String deviceName = request.getDeviceName();
+            tokenEntity.setTokenName(deviceName == null || deviceName.isBlank() ? "Login session" : deviceName.trim());
             tokenEntity.setCreatedAt(LocalDateTime.now());
             tokenEntity.setUpdateTime(LocalDateTime.now());
             tokenMapper.insert(tokenEntity);
@@ -268,41 +275,67 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * 刷新令牌逻辑：
-     * 1. 验证旧令牌有效性
-     * 2. 检查令牌是否过期
-     * 3. 生成新访问令牌
+     * 1. 验证刷新令牌用途和数据库会话状态
+     * 2. 生成新的访问令牌与刷新令牌
+     * 3. 使用乐观锁原子轮换令牌，拒绝旧刷新令牌重放
      */
     @Override
+    @Transactional
     public RefreshResponse refreshToken(String oldToken) {
-        // 移除Bearer前缀
-        if (oldToken != null && oldToken.startsWith("Bearer ")) {
-            oldToken = oldToken.substring(7);
+        if (oldToken == null || !oldToken.startsWith("Bearer ")) {
+            throw new BusinessException(ErrorCode.AUTH_004);
         }
+        // 仅接受Authorization请求头中的Bearer刷新令牌。
+        oldToken = oldToken.substring(7);
 
         // 验证令牌有效性
         if (!jwtUtils.validateToken(oldToken)) {
             throw new BusinessException(ErrorCode.AUTH_002);
         }
 
-        // 检查是否已过期
-        if (jwtUtils.isTokenExpired(oldToken)) {
-            throw new BusinessException(ErrorCode.AUTH_001);
+        // 刷新端点不得接受访问令牌。
+        if (!"refresh".equals(jwtUtils.getTokenTypeFromToken(oldToken))) {
+            throw new BusinessException(ErrorCode.AUTH_002);
         }
 
-        // 从旧令牌中提取用户信息
+        // 数据库记录是会话状态与刷新令牌一次性使用语义的权威来源。
+        Token tokenEntity = tokenMapper.findByRefreshToken(oldToken);
+        long now = System.currentTimeMillis();
+        if (tokenEntity == null || !"ACTIVE".equals(tokenEntity.getStatus())
+                || tokenEntity.getRefreshExpireTime() == null || tokenEntity.getRefreshExpireTime() <= now) {
+            throw new BusinessException(ErrorCode.AUTH_002);
+        }
+
+        // 令牌声明必须与会话所有者一致。
         Long userId = jwtUtils.getUserIdFromToken(oldToken);
+        if (!userId.equals(tokenEntity.getUserId())) {
+            throw new BusinessException(ErrorCode.AUTH_002);
+        }
         String username = jwtUtils.getUsernameFromToken(oldToken);
         String role = jwtUtils.getRoleFromToken(oldToken);
 
-        // 生成新访问令牌
-        String newToken = jwtUtils.generateAccessToken(userId, username, role);
+        // 每次刷新同时轮换两种令牌，JTI确保同一秒内生成的令牌也不重复。
+        String newAccessToken = jwtUtils.generateAccessToken(userId, username, role);
+        String newRefreshToken = jwtUtils.generateRefreshToken(userId, username, role);
         long expiresIn = jwtUtils.getExpirationMs() / 1000;
+        long refreshExpiresIn = jwtUtils.getRefreshExpirationMs() / 1000;
+
+        tokenEntity.setAccessToken(newAccessToken);
+        tokenEntity.setRefreshToken(newRefreshToken);
+        tokenEntity.setExpireTime(now + expiresIn * 1000);
+        tokenEntity.setRefreshExpireTime(now + refreshExpiresIn * 1000);
+        tokenEntity.setUpdateTime(LocalDateTime.now());
+        // 版本冲突表示旧刷新令牌已被另一请求消费。
+        if (tokenMapper.update(tokenEntity) != 1) {
+            throw new BusinessException(ErrorCode.AUTH_002);
+        }
 
         log.info("令牌刷新成功: userId={}", userId);
 
         // 返回响应
         RefreshResponse response = new RefreshResponse();
-        response.setAccessToken(newToken);
+        response.setAccessToken(newAccessToken);
+        response.setRefreshToken(newRefreshToken);
         response.setExpiresIn(expiresIn);
         return response;
     }
@@ -324,8 +357,12 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException(ErrorCode.AUTH_002);
         }
 
-        // 使令牌失效
+        Token session = tokenMapper.findByAccessToken(token);
+        // 使令牌失效，并同步撤销该会话签发的播放票据。
         tokenMapper.invalidateByAccessToken(token);
+        if (session != null) {
+            mediaPlaybackTicketService.revokeSession(session.getId());
+        }
 
         // 从令牌中提取用户ID并记录日志
         Long userId = jwtUtils.getUserIdFromToken(token);

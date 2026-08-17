@@ -21,9 +21,18 @@ public interface FileTagMapper {
     List<FileTag> selectByFileId(Long fileId);
 
     /**
+     * 批量查询文件标签，避免媒体目录聚合产生逐文件查询。
+     */
+    @Select("<script>SELECT * FROM file_tag WHERE file_id IN " +
+            "<foreach collection='fileIds' item='fileId' open='(' separator=',' close=')'>#{fileId}</foreach>" +
+            "</script>")
+    List<FileTag> selectByFileIds(@Param("fileIds") List<Long> fileIds);
+
+    /**
      * 根据标签名称查询。
      */
-    @Select("SELECT ft.* FROM file_tag ft INNER JOIN local_file lf ON ft.file_id = lf.id WHERE ft.tag_name = #{tagName}")
+    @Select("SELECT ft.* FROM file_tag ft INNER JOIN local_file lf ON ft.file_id = lf.id " +
+            "WHERE lf.deleted = 0 AND ft.tag_name = #{tagName}")
     List<FileTag> selectByTagName(@Param("tagName") String tagName);
 
     /**

@@ -16,6 +16,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * JWT工具类。
@@ -77,6 +78,7 @@ public class JwtUtils {
 
         return Jwts.builder()
                 .claims(claims)
+                .id(UUID.randomUUID().toString())
                 .subject(claims.get("userId").toString())
                 .issuedAt(now)
                 .expiration(expiryDate)
@@ -161,6 +163,17 @@ public class JwtUtils {
     public String getRoleFromToken(String token) {
         Claims claims = parseToken(token);
         return (String) claims.get("role");
+    }
+
+    /**
+     * 从令牌中解析令牌用途。
+     *
+     * @param token JWT令牌字符串
+     * @return access或refresh
+     */
+    public String getTokenTypeFromToken(String token) {
+        Claims claims = parseToken(token);
+        return (String) claims.get("type");
     }
 
     /**

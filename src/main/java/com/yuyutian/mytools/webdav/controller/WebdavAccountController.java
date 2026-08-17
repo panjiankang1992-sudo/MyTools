@@ -58,9 +58,15 @@ public class WebdavAccountController {
     @GetMapping("/api/webdav/accounts")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Result<List<WebdavAccountResponse>>> listAccounts(
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(value = "category", required = false) String category) {
         Long userId = resolveUserId(authHeader);
         List<WebdavAccountResponse> data = webdavAccountService.listByUserId(userId);
+        if ("alist".equalsIgnoreCase(category)) {
+            data = data.stream().filter(account -> "alist".equalsIgnoreCase(account.getType())).toList();
+        } else if ("webdav".equalsIgnoreCase(category)) {
+            data = data.stream().filter(account -> !"alist".equalsIgnoreCase(account.getType())).toList();
+        }
         return ResponseEntity.ok(Result.success(data));
     }
 

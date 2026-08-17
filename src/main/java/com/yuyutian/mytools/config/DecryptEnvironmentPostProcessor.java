@@ -19,13 +19,14 @@ import java.util.Map;
  */
 public class DecryptEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
-    private static final String AES_KEY = "CJ0Xkfbp2KtWq0uZ0ckCCtGIOZU7NPC9ZXenbcZGZG8=";
     private static final String PROPERTY_SOURCE_NAME = "decryptedDatasource";
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         String[] datasourceKeys = {"my_tools", "sales_order"};
         Map<String, Object> decryptedProps = new HashMap<>();
+        String encryptionKey = environment.getProperty("mytools.encryption.key", "");
+        String previousEncryptionKey = environment.getProperty("mytools.encryption.previous-key", "");
 
         for (String key : datasourceKeys) {
             String passwordKey = "spring.datasource.dynamic.datasource." + key + ".password";
@@ -34,7 +35,8 @@ public class DecryptEnvironmentPostProcessor implements EnvironmentPostProcessor
             if (encryptedPassword.startsWith("aes:")) {
                 String encrypted = encryptedPassword.substring(4);
                 try {
-                    String decrypted = AesEncryptUtils.decrypt(encrypted, AES_KEY);
+                    String decrypted = AesEncryptUtils.decryptWithKeyRing(
+                            encrypted, encryptionKey, previousEncryptionKey);
                     decryptedProps.put(passwordKey, decrypted);
                 } catch (Exception e) {
                     throw new RuntimeException("密码解密失败: " + key, e);

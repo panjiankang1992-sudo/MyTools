@@ -3,14 +3,18 @@ package com.yuyutian.mytools.cloudfile.service.impl;
 import com.yuyutian.mytools.cloudfile.model.*;
 import com.yuyutian.mytools.cloudfile.service.CloudFileService;
 import com.yuyutian.mytools.common.BusinessException;
+import com.yuyutian.mytools.common.ErrorCode;
 import com.yuyutian.mytools.utils.AesEncryptUtils;
 import com.yuyutian.mytools.webdav.mapper.WebdavAccountMapper;
 import com.yuyutian.mytools.webdav.model.WebdavAccount;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
+import java.net.http.HttpResponse;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -18,8 +22,8 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class CloudFileServiceImpl implements CloudFileService {
 
-    private static final String AES_KEY = "CJ0Xkfbp2KtWq0uZ0ckCCtGIOZU7NPC9ZXenbcZGZG8=";
     private static final String ALIST_TYPE = "alist";
+    private static final Pattern SINGLE_RANGE_PATTERN = Pattern.compile("^bytes=(?:\\d+-\\d*|-\\d+)$");
 
     private static final Pattern TEXT_EXT_PATTERN = Pattern.compile(
             ".*\\.(txt|md|json|xml|html|htm|css|js|ts|py|java|cpp|c|h|sh|yaml|yml|properties)$",
@@ -27,12 +31,24 @@ public class CloudFileServiceImpl implements CloudFileService {
 
     private final WebdavAccountMapper webdavAccountMapper;
 
+    @Value("${alist.internal-url:}")
+    private String alistInternalUrl;
+
+    @Value("${alist.public-url:}")
+    private String alistPublicUrl;
+
+    @Value("${mytools.encryption.key:}")
+    private String encryptionKey;
+
+    @Value("${mytools.encryption.previous-key:}")
+    private String previousEncryptionKey;
+
     @Override
     public CloudFileListResponse listFiles(Long userId, Long accountId, String path, int depth) {
         WebdavAccount account = resolveAccount(userId, accountId);
         try {
             if (ALIST_TYPE.equals(account.getType())) {
-                AlistClient client = buildAlistClient(account);
+                AlistClient client = buildAuthenticatedAlistClient(account);
                 return client.list(path);
             } else {
                 WebdavClient client = buildClient(account);
@@ -80,6 +96,7 @@ public class CloudFileServiceImpl implements CloudFileService {
 
     @Override
     public FileOperationResponse uploadFile(Long userId, Long accountId, String dirPath, String filename, byte[] content) {
+        validateUploadTarget(dirPath, filename);
         WebdavAccount account = resolveAccount(userId, accountId);
         WebdavClient client = buildClient(account);
         String cleanDir = (dirPath == null || dirPath.equals("/") || dirPath.isEmpty()) ? "" : dirPath.replaceAll("/+$", "");
@@ -89,6 +106,37 @@ public class CloudFileServiceImpl implements CloudFileService {
             return new FileOperationResponse(item.getName(), item.getPath(), item.getSize(), item.getLastModified());
         } catch (Exception e) {
             throw new BusinessException("50001", "上传文件失败: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 从Multipart输入流上传文件，不复制完整内容到JVM堆。
+     */
+    @Override
+    public FileOperationResponse uploadFileStream(Long userId, Long accountId, String dirPath, String filename,
+                                                  InputStream content, long contentLength) {
+        validateUploadTarget(dirPath, filename);
+        WebdavAccount account = resolveAccount(userId, accountId);
+        WebdavClient client = buildClient(account);
+        String cleanDir = (dirPath == null || dirPath.equals("/") || dirPath.isEmpty())
+                ? "" : dirPath.replaceAll("/+$", "");
+        String fullPath = (cleanDir.isEmpty() ? "" : cleanDir + "/") + filename;
+        try {
+            CloudFileItem item = client.put(fullPath, content, contentLength);
+            return new FileOperationResponse(item.getName(), item.getPath(), item.getSize(), item.getLastModified());
+        } catch (Exception exception) {
+            throw new BusinessException("50001", "上传文件失败: " + exception.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void validateUploadTarget(String directory, String filename) {
+        String normalizedDirectory = directory == null ? "" : directory.trim();
+        if (filename == null || filename.isBlank() || filename.equals(".") || filename.equals("..")
+                || filename.contains("/") || filename.contains("\\") || filename.indexOf('\0') >= 0
+                || (!normalizedDirectory.isEmpty() && !normalizedDirectory.startsWith("/"))
+                || normalizedDirectory.contains("/../") || normalizedDirectory.endsWith("/..")) {
+            throw new BusinessException(ErrorCode.FILE_005);
         }
     }
 
@@ -157,42 +205,138 @@ public class CloudFileServiceImpl implements CloudFileService {
 
     @Override
     public String alistRawUrl(Long userId, Long accountId, String path) {
-        WebdavAccount account = resolveAccount(userId, accountId);
-        AlistClient client = buildAlistClient(account);
+        WebdavAccount account = resolveAlistAccount(userId, accountId);
+        AlistClient client = buildAuthenticatedAlistClient(account);
         try {
-            return client.getRawUrl(path);
-        } catch (java.io.IOException e) {
-            if ("TOKEN_EXPIRED".equals(e.getMessage())) {
-                client = rebuildAlistClient(account);
-                try {
-                    return client.getRawUrl(path);
-                } catch (Exception ex) {
-                    throw new BusinessException("53001", "获取预览链接失败: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-                }
+            String rawUrl = client.getRawUrl(path);
+            String apiUrl = resolveAlistApiUrl(account.getUrl());
+            if (!apiUrl.equals(normalizeBaseUrl(account.getUrl())) && rawUrl.startsWith(apiUrl)) {
+                // 本机 API 返回的直链主机浏览器不可达，替换回公开 Alist 地址。
+                return normalizeBaseUrl(account.getUrl()) + rawUrl.substring(apiUrl.length());
             }
-            throw new BusinessException("53001", "获取预览链接失败: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return rawUrl;
         } catch (Exception e) {
             throw new BusinessException("53001", "获取预览链接失败: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private AlistClient buildAlistClient(WebdavAccount account) {
-        String token = decrypt(account.getPassword());
-        return new AlistClient(account.getUrl(), account.getUsername(), token);
+    /**
+     * 打开可直接转发给移动端的远程媒体流。
+     *
+     * @param userId 当前用户ID
+     * @param accountId 远程账号ID
+     * @param path 远程文件路径
+     * @param rangeHeader 客户端 Range 请求头
+     * @return 远程媒体流
+     */
+    @Override
+    public RemoteMediaStream openMediaStream(Long userId, Long accountId, String path, String rangeHeader) {
+        WebdavAccount account = resolveAccount(userId, accountId);
+        String normalizedRange = normalizeRange(rangeHeader);
+        try {
+            HttpResponse<InputStream> response = ALIST_TYPE.equals(account.getType())
+                    ? buildAuthenticatedAlistClient(account).openStream(path, normalizedRange)
+                    : buildClient(account).openStream(path, normalizedRange);
+            return new RemoteMediaStream(
+                    response.body(),
+                    response.statusCode(),
+                    response.headers().firstValue("Content-Type"),
+                    response.headers().firstValue("Content-Length"),
+                    response.headers().firstValue("Content-Range"),
+                    response.headers().firstValue("Accept-Ranges"),
+                    response.headers().firstValue("ETag"),
+                    response.headers().firstValue("Last-Modified"));
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.MEDIA_002);
+        }
     }
 
-    private AlistClient rebuildAlistClient(WebdavAccount account) {
-        String newToken;
+    /**
+     * 打开WebDAV或Alist远程文件下载流。
+     *
+     * @param userId 当前用户ID
+     * @param accountId 远程账号ID
+     * @param path 远程文件路径
+     * @return 远程文件流
+     */
+    @Override
+    public RemoteMediaStream openDownloadStream(Long userId, Long accountId, String path) {
+        WebdavAccount account = resolveAccount(userId, accountId);
+        try {
+            HttpResponse<InputStream> response = ALIST_TYPE.equals(account.getType())
+                    ? buildAuthenticatedAlistClient(account).openStream(path)
+                    : buildClient(account).openStream(path, null);
+            return new RemoteMediaStream(
+                    response.body(),
+                    response.statusCode(),
+                    response.headers().firstValue("Content-Type"),
+                    response.headers().firstValue("Content-Length"),
+                    response.headers().firstValue("Content-Range"),
+                    response.headers().firstValue("Accept-Ranges"),
+                    response.headers().firstValue("ETag"),
+                    response.headers().firstValue("Last-Modified"));
+        } catch (BusinessException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new BusinessException(ErrorCode.MEDIA_002);
+        }
+    }
+
+    private String normalizeRange(String rangeHeader) {
+        if (rangeHeader == null || rangeHeader.isBlank()) {
+            return null;
+        }
+        String normalized = rangeHeader.trim();
+        if (!SINGLE_RANGE_PATTERN.matcher(normalized).matches()) {
+            throw new BusinessException(ErrorCode.MEDIA_003);
+        }
+        return normalized;
+    }
+
+    private WebdavAccount resolveAlistAccount(Long userId, Long accountId) {
+        WebdavAccount account;
+        if (accountId != null) {
+            account = webdavAccountMapper.selectById(accountId);
+            if (account == null || !account.getUserId().equals(userId)
+                    || !ALIST_TYPE.equals(account.getType()) || !Integer.valueOf(1).equals(account.getIsActive())) {
+                throw new BusinessException("40002", "Alist 账号不存在或无权访问", HttpStatus.BAD_REQUEST);
+            }
+            return account;
+        }
+
+        account = webdavAccountMapper.selectActiveAlistByUserId(userId);
+        if (account == null) {
+            throw new BusinessException("40001", "请先配置 Alist 账号", HttpStatus.BAD_REQUEST);
+        }
+        return account;
+    }
+
+    private AlistClient buildAuthenticatedAlistClient(WebdavAccount account) {
         try {
             String plainPassword = decrypt(account.getPassword());
-            AlistClient tempClient = new AlistClient(account.getUrl(), account.getUsername(), "");
-            newToken = tempClient.login(plainPassword);
-            reSaveAlistToken(account.getId(), encrypt(newToken));
+            AlistClient client = new AlistClient(resolveAlistApiUrl(account.getUrl()), account.getUsername(), "");
+            client.login(plainPassword);
+            return client;
         } catch (Exception e) {
             log.error("Failed to refresh Alist token", e);
             throw new BusinessException("53002", "Alist 登录失败，请检查账号配置", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new AlistClient(account.getUrl(), account.getUsername(), newToken);
+    }
+
+    private String resolveAlistApiUrl(String accountUrl) {
+        String normalizedAccountUrl = normalizeBaseUrl(accountUrl);
+        if (alistInternalUrl != null && !alistInternalUrl.isBlank()
+                && alistPublicUrl != null && !alistPublicUrl.isBlank()
+                && normalizedAccountUrl.equals(normalizeBaseUrl(alistPublicUrl))) {
+            return normalizeBaseUrl(alistInternalUrl);
+        }
+        return normalizedAccountUrl;
+    }
+
+    private String normalizeBaseUrl(String url) {
+        return url != null && url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
     }
 
     private WebdavAccount resolveAccount(Long userId, Long accountId) {
@@ -214,22 +358,10 @@ public class CloudFileServiceImpl implements CloudFileService {
     private String decrypt(String encrypted) {
         if (encrypted == null || encrypted.isBlank()) return "";
         try {
-            return AesEncryptUtils.decrypt(encrypted, AES_KEY);
+            return AesEncryptUtils.decryptWithKeyRing(encrypted, encryptionKey, previousEncryptionKey);
         } catch (Exception e) {
             throw new BusinessException("50001", "密码解密失败，请检查账号配置", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private String encrypt(String plain) {
-        try {
-            return AesEncryptUtils.encrypt(plain, AES_KEY);
-        } catch (Exception e) {
-            throw new BusinessException("50001", "加密失败", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private void reSaveAlistToken(Long accountId, String newToken) {
-        webdavAccountMapper.updatePasswordById(accountId, newToken);
     }
 
     private void rejectAlistForWrite(WebdavAccount account) {

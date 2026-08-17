@@ -1,5 +1,3 @@
-import { localStg } from '@/utils/storage';
-
 /** Get token */
 export function getToken() {
   // Use localStorage directly to avoid JSON.parse failing on plain JWT strings
@@ -12,4 +10,7 @@ export function clearAuthStorage() {
   const storagePrefix = import.meta.env.VITE_STORAGE_PREFIX || '';
   localStorage.removeItem(storagePrefix + 'token');
   localStorage.removeItem(storagePrefix + 'refreshToken');
+  if (typeof window !== 'undefined' && 'caches' in window) {
+    void window.caches.delete('mytools-localfile-thumbnails-v1');
+  }
 }

@@ -78,6 +78,29 @@ public class WebdavClient {
         return response.body();
     }
 
+    /**
+     * 打开远程文件流，并按需向 WebDAV 服务转发单段 Range 请求。
+     *
+     * @param path 远程文件路径
+     * @param rangeHeader 经过校验的 Range 请求头
+     * @return 远端流式响应
+     * @throws Exception 网络或远端协议错误
+     */
+    public HttpResponse<InputStream> openStream(String path, String rangeHeader) throws Exception {
+        String url = buildUrl(path);
+        HttpRequest.Builder builder = newRequest(url, "GET").GET();
+        if (rangeHeader != null && !rangeHeader.isBlank()) {
+            builder.header(HttpHeaders.RANGE, rangeHeader);
+        }
+        HttpResponse<InputStream> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream());
+        if ((response.statusCode() < 200 || response.statusCode() >= 300)
+                && response.statusCode() != 416) {
+            response.body().close();
+            throw new IOException("WebDAV stream failed: HTTP " + response.statusCode());
+        }
+        return response;
+    }
+
     public CloudFileItem put(String path, byte[] content) throws Exception {
         String url = buildUrl(path);
         HttpRequest request = newRequest(url, "PUT")
@@ -87,6 +110,26 @@ public class WebdavClient {
         HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
         checkResponse(response);
         return new CloudFileItem(null, path, false, content.length, null, Instant.now(), null);
+    }
+
+    /**
+     * 从输入流上传文件。
+     *
+     * @param path 远程目标路径
+     * @param content 文件输入流
+     * @param contentLength 文件长度
+     * @return 远程文件元数据
+     * @throws Exception 网络或协议异常
+     */
+    public CloudFileItem put(String path, InputStream content, long contentLength) throws Exception {
+        String url = buildUrl(path);
+        HttpRequest request = newRequest(url, "PUT")
+                .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
+                .PUT(HttpRequest.BodyPublishers.ofInputStream(() -> content))
+                .build();
+        HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+        checkResponse(response);
+        return new CloudFileItem(null, path, false, contentLength, null, Instant.now(), null);
     }
 
     public CloudFileItem put(String path, String content) throws Exception {

@@ -57,7 +57,8 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'ai-tools_token',
           i18nKey: 'route.ai-tools_token',
-          icon: 'mdi:key'
+          icon: 'mdi:key',
+          keepAlive: true
         }
       }
     ]
@@ -70,7 +71,8 @@ export const generatedRoutes: GeneratedRoute[] = [
       title: 'home',
       i18nKey: 'route.home',
       icon: 'mdi:monitor-dashboard',
-      order: 1
+      order: 1,
+      keepAlive: true
     }
   },
   {
@@ -90,6 +92,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     name: 'localfile',
     path: '/localfile',
     component: 'layout.base',
+    redirect: '/localfile/ebook',
     meta: {
       title: 'localfile',
       i18nKey: 'route.localfile',
@@ -104,7 +107,8 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'ebook',
           i18nKey: 'route.localfile_ebook',
-          icon: 'mdi:book'
+          icon: 'mdi:book',
+          keepAlive: true
         }
       },
       {
@@ -114,7 +118,8 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'large-media',
           i18nKey: 'route.localfile_large-media',
-          icon: 'mdi:folder-video'
+          icon: 'mdi:folder-video',
+          keepAlive: true
         }
       },
       {
@@ -124,7 +129,8 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'multimedia',
           i18nKey: 'route.localfile_multimedia',
-          icon: 'mdi:image-multiple'
+          icon: 'mdi:image-multiple',
+          keepAlive: true
         }
       }
     ]
@@ -133,6 +139,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     name: 'app-market',
     path: '/app-market',
     component: 'layout.base',
+    redirect: '/app-market/index',
     meta: {
       title: 'app-market',
       i18nKey: 'route.app-market',
@@ -147,7 +154,8 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'app-market_index',
           i18nKey: 'route.app-market_index',
-          icon: 'mdi:application-outline'
+          icon: 'mdi:application-outline',
+          keepAlive: true
         }
       }
     ]
@@ -172,7 +180,8 @@ export const generatedRoutes: GeneratedRoute[] = [
           title: 'cloud-file_browse',
           i18nKey: 'route.cloud-file_browse',
           icon: 'mdi:folder-open',
-          order: 1
+          order: 1,
+          keepAlive: true
         }
       },
       {
@@ -183,7 +192,8 @@ export const generatedRoutes: GeneratedRoute[] = [
           title: 'cloud-file_alist',
           i18nKey: 'route.cloud-file_alist',
           icon: 'mdi:cloud-outline',
-          order: 2
+          order: 2,
+          keepAlive: true
         }
       }
     ]
@@ -207,7 +217,8 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: 'profile',
       i18nKey: 'route.profile',
-      hideInMenu: true
+      hideInMenu: true,
+      keepAlive: true
     }
   },
   {
@@ -229,7 +240,8 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'system_role',
           i18nKey: 'route.system_role',
-          icon: 'mdi:shield-account'
+          icon: 'mdi:shield-account',
+          keepAlive: true
         }
       },
       {
@@ -239,7 +251,8 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'system_user',
           i18nKey: 'route.system_user',
-          icon: 'mdi:account-group'
+          icon: 'mdi:account-group',
+          keepAlive: true
         }
       }
     ]

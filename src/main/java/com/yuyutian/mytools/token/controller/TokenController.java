@@ -9,7 +9,6 @@ import com.yuyutian.mytools.token.model.TokenInfo;
 import com.yuyutian.mytools.token.model.TokenPageResponse;
 import com.yuyutian.mytools.token.service.TokenManagementService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +24,6 @@ import java.util.Map;
  * @author mytools
  * @since 2026-05-04
  */
-@Slf4j
 @RestController
 @RequestMapping("/api/tokens")
 @RequiredArgsConstructor
@@ -55,7 +53,11 @@ public class TokenController {
             @RequestHeader("Authorization") String authHeader) {
         TokenInfo tokenInfo = tokenManagementService.getCurrentToken(authHeader);
         if (tokenInfo == null) {
-            return ResponseEntity.ok(Result.error(ErrorCode.AUTH_002));
+            return ResponseEntity.status(ErrorCode.AUTH_002.getHttpStatus())
+                    .body(Result.error(
+                            ErrorCode.AUTH_002.getCode(),
+                            MessageHelper.getMessage(ErrorCode.AUTH_002.getMessageKey())
+                    ));
         }
         return ResponseEntity.ok(Result.success(tokenInfo));
     }
@@ -113,8 +115,7 @@ public class TokenController {
             @PathVariable String tokenId,
             @RequestHeader("Authorization") String authHeader) {
         Long userId = jwtUtils.getUserIdFromToken(extractToken(authHeader));
-        TokenInfo tokenInfo = tokenManagementService.getCurrentToken("Bearer " + jwtUtils.getUserIdFromToken(extractToken(authHeader)));
-        // 简化实现，返回当前用户令牌列表中的第一个匹配的
+        // 仅在当前用户自己的令牌列表中查询，避免越权读取其他用户会话。
         TokenPageResponse tokens = tokenManagementService.getTokenPage(userId, 1, 100);
         TokenInfo found = tokens.getList().stream()
                 .filter(t -> t.getId().equals(tokenId))
@@ -123,7 +124,11 @@ public class TokenController {
         if (found != null) {
             return ResponseEntity.ok(Result.success(found));
         }
-        return ResponseEntity.ok(Result.error(ErrorCode.TOKEN_001));
+        return ResponseEntity.status(ErrorCode.TOKEN_001.getHttpStatus())
+                .body(Result.error(
+                        ErrorCode.TOKEN_001.getCode(),
+                        MessageHelper.getMessage(ErrorCode.TOKEN_001.getMessageKey())
+                ));
     }
 
     /**
@@ -180,9 +185,7 @@ public class TokenController {
             actualToken = tokenValue.substring(7);
         }
 
-        log.info("校验Token: {}", actualToken);
         Token token = tokenManagementService.getTokenByAccessToken(actualToken);
-        log.info("查询到Token: {}", token);
         Map<String, Object> result = new HashMap<>();
 
         if (token != null && "ACTIVE".equals(token.getStatus()) && token.getExpireTime() > System.currentTimeMillis()) {

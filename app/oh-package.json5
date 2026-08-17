@@ -1,0 +1,8 @@
+{
+  "modelVersion": "5.0.0",
+  "name": "mytools-harmony",
+  "version": "0.1.0",
+  "description": "MyTools HarmonyOS NEXT client",
+  "dependencies": {},
+  "devDependencies": {}
+}

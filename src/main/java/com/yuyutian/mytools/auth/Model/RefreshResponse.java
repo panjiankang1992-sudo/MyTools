@@ -18,6 +18,9 @@ public class RefreshResponse {
     /** 新JWT访问令牌 */
     private String accessToken;
 
+    /** 新JWT刷新令牌 */
+    private String refreshToken;
+
     /** 令牌过期时间（秒） */
     private Long expiresIn;
 }

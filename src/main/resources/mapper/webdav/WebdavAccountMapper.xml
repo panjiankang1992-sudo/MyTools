@@ -33,6 +33,13 @@
     SELECT * FROM webdav_account WHERE user_id = #{userId} AND is_default = 1 LIMIT 1
   </select>
 
+  <select id="selectActiveAlistByUserId" resultMap="WebdavAccountResultMap">
+    SELECT * FROM webdav_account
+    WHERE user_id = #{userId} AND type = 'alist' AND is_active = 1
+    ORDER BY is_default DESC, id ASC
+    LIMIT 1
+  </select>
+
   <insert id="insert" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO webdav_account (user_id, type, name, url, username, password, is_active, is_default)
     VALUES (#{userId}, #{type}, #{name}, #{url}, #{username}, #{password}, 1, #{isDefault})

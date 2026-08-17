@@ -20,6 +20,27 @@ public class AesEncryptUtils {
     private static final int GCM_TAG_LENGTH = 128;
 
     /**
+     * 校验外部提供的AES密钥是否为合法长度。
+     *
+     * @param key Base64编码的密钥
+     * @return 原始密钥字符串
+     */
+    public static String requireValidKey(String key) {
+        if (key == null || key.isBlank()) {
+            throw new IllegalStateException("MYTOOLS_ENCRYPTION_KEY is required");
+        }
+        try {
+            int length = Base64.getDecoder().decode(key).length;
+            if (length != 16 && length != 24 && length != 32) {
+                throw new IllegalStateException("MYTOOLS_ENCRYPTION_KEY must contain 16, 24, or 32 bytes");
+            }
+            return key;
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalStateException("MYTOOLS_ENCRYPTION_KEY must be valid Base64", exception);
+        }
+    }
+
+    /**
      * AES-GCM 加密。
      *
      * @param plaintext 明文
@@ -28,7 +49,7 @@ public class AesEncryptUtils {
      */
     public static String encrypt(String plaintext, String key) {
         try {
-            byte[] keyBytes = Base64.getDecoder().decode(key);
+            byte[] keyBytes = Base64.getDecoder().decode(requireValidKey(key));
             SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "AES");
 
             byte[] iv = new byte[GCM_IV_LENGTH];
@@ -60,7 +81,7 @@ public class AesEncryptUtils {
      */
     public static String decrypt(String ciphertext, String key) {
         try {
-            byte[] keyBytes = Base64.getDecoder().decode(key);
+            byte[] keyBytes = Base64.getDecoder().decode(requireValidKey(key));
             SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "AES");
 
             byte[] decoded = Base64.getDecoder().decode(ciphertext);
@@ -80,6 +101,25 @@ public class AesEncryptUtils {
             return new String(plainText);
         } catch (Exception e) {
             throw new RuntimeException("解密失败", e);
+        }
+    }
+
+    /**
+     * 使用当前密钥解密，失败时可使用迁移期旧密钥重试。
+     *
+     * @param ciphertext Base64编码密文
+     * @param currentKey 当前密钥
+     * @param previousKey 可选旧密钥
+     * @return 解密后的明文
+     */
+    public static String decryptWithKeyRing(String ciphertext, String currentKey, String previousKey) {
+        try {
+            return decrypt(ciphertext, requireValidKey(currentKey));
+        } catch (RuntimeException currentFailure) {
+            if (previousKey == null || previousKey.isBlank()) {
+                throw currentFailure;
+            }
+            return decrypt(ciphertext, requireValidKey(previousKey));
         }
     }
 

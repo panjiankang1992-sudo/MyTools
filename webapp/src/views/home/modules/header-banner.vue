@@ -54,7 +54,7 @@ const statisticData = computed<StatisticData[]>(() => [
       <NGi span="24 s:24 m:18">
         <div class="flex-y-center">
           <div class="size-72px shrink-0 overflow-hidden rd-1/2">
-            <img :src="avatarSrc" class="size-full" @error="(e) => { (e.target as HTMLImageElement).src = '/favicon.svg'; }" />
+            <img :src="avatarSrc" class="size-full" @error="(e) => { (e.target as any).src = '/favicon.svg'; }" />
           </div>
           <div class="pl-12px">
             <h3 class="text-18px font-semibold">

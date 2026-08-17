@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { reactive, h, computed, type VNode } from 'vue';
 import {
-  fetchGetAppList, fetchDeleteApp, fetchGetAppVersions,
-  getFileDownloadUrl
+  fetchGetAppList, fetchDeleteApp,
+  getFileDownloadUrl, fetchGetAppDetail
 } from '@/service/api/appmarket';
 import { useAuthStore } from '@/store/modules/auth';
 import { useLoading } from '@sa/hooks';
@@ -12,7 +12,7 @@ import {
 } from 'naive-ui';
 import AppMarketDrawer from './components/AppMarketDrawer.vue';
 
-defineOptions({ name: 'AppMarket' });
+defineOptions({ name: 'app-market_index' });
 
 const message = useMessage();
 const authStore = useAuthStore();
@@ -37,8 +37,6 @@ const pagination = reactive({
 
 // 数据
 const data: Api.AppMarket.AppItem[] = reactive([]);
-// 展开的行（历史版本）
-const expandedRows = reactive<Record<string, Api.AppMarket.AppVersion[]>>({});
 
 // 侧滑
 const drawer = reactive({
@@ -98,6 +96,14 @@ const columns = [
     width: 180,
     render: (row: Api.AppMarket.AppItem) => {
       const btns: VNode[] = [];
+
+      btns.push(
+        h(NButton, {
+          size: 'tiny', type: 'primary',
+          onClick: () => openDrawer('detail', row.id),
+          style: 'margin-right: 6px; flex-shrink: 0;'
+        }, () => '打开')
+      );
 
       // 下载按钮（所有人可见）
       btns.push(
@@ -163,11 +169,6 @@ async function handleDownload(row: Api.AppMarket.AppItem) {
   } else {
     message.warning('该应用暂无下载文件');
   }
-}
-
-async function fetchGetAppDetail(id: string) {
-  const { request } = await import('@/service/request');
-  return request<Api.AppMarket.AppDetail>({ url: `/api/market/apps/${id}`, method: 'GET' });
 }
 
 function openDrawer(mode: 'detail' | 'publish', appId?: string) {
@@ -242,7 +243,7 @@ loadData();
         :loading="loading"
         :pagination="false"
         :scroll-x="900"
-        :row-key="(row: Api.AppMarket.AppItem) => row.id"
+        :row-key="(row: any) => row.id"
       />
 
       <!-- 分页 -->

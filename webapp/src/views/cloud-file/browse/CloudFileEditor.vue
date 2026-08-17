@@ -2,13 +2,13 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { NModal, NButton, NSpace, NSpin, useMessage } from 'naive-ui';
 import * as monaco from 'monaco-editor';
-import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import { saveTextFile } from '@/service/api/cloudfile';
 
 // Configure Monaco environment for workers
 self.MonacoEnvironment = {
   getWorker(_: string, _label: string) {
-    return new editorWorker();
+    return new EditorWorker();
   }
 };
 
@@ -151,17 +151,10 @@ function handleCancel() {
   emit('update:show', false);
 }
 
-// Format file size for display
-function formatSize(bytes: number): string {
-  if (!bytes) return '-';
-  const units = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0)} ${units[i]}`;
-}
 </script>
 
 <template>
-  <n-modal
+  <NModal
     :show="show"
     preset="card"
     style="width: 900px; max-width: 95vw;"
@@ -172,7 +165,7 @@ function formatSize(bytes: number): string {
       <span>编辑: {{ file?.name ?? '' }}</span>
       <span style="font-size:12px;color:#888;margin-left:8px;">{{ file?.path }}</span>
     </template>
-    <n-spin :show="loading" description="加载文件内容...">
+    <NSpin :show="loading" description="加载文件内容...">
       <!-- Monaco Editor container -->
       <div
         ref="editorContainerRef"
@@ -197,15 +190,15 @@ function formatSize(bytes: number): string {
       >
         <span>语言: {{ detectLanguage(file.name) }}</span>
       </div>
-    </n-spin>
+    </NSpin>
 
     <template #footer>
-      <n-space justify="end">
-        <n-button @click="handleCancel">取消</n-button>
-        <n-button type="primary" :loading="saving" :disabled="!file" @click="handleSave">
+      <NSpace justify="end">
+        <NButton @click="handleCancel">取消</NButton>
+        <NButton type="primary" :loading="saving" :disabled="!file" @click="handleSave">
           保存
-        </n-button>
-      </n-space>
+        </NButton>
+      </NSpace>
     </template>
-  </n-modal>
+  </NModal>
 </template>

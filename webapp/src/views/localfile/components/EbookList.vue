@@ -2,7 +2,7 @@
 import { ref, onMounted, watch, h } from 'vue';
 import { fetchGetFilePage, fetchGetFileContent } from '@/service/api/localfile';
 import { useLoading } from '@sa/hooks';
-import { NDataTable, NButton, NSpace, NEmpty, NSpin, NTag, NAvatar, useMessage } from 'naive-ui';
+import { NDataTable, NButton, NSpace, NEmpty, NSpin, NTag, useMessage } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 
 defineOptions({ name: 'EbookList' });
@@ -34,7 +34,7 @@ const columns: DataTableColumns<FileItem> = [
     title: '序号',
     key: 'index',
     width: 60,
-    render: (_: any, index: number) => index + 1
+    render: (_: any, index: number) => (page.value - 1) * pageSize.value + index + 1
   },
   {
     title: '文件名',
@@ -97,7 +97,16 @@ async function loadFiles() {
       page: page.value,
       pageSize: pageSize.value
     });
-    files.value = data?.list || [];
+    files.value = (data?.list || []).map((item: any) => ({
+      ...item,
+      fileName: item.fileName || item.filename,
+      relativePath: item.relativePath || item.filePath,
+      fileType: (item.fileType || item.extension || '').toUpperCase(),
+      tags: (item.tags || []).map((tag: any) => ({
+        ...tag,
+        name: tag.name || tag.tagName
+      }))
+    }));
     total.value = data?.total || 0;
   } catch (error) {
     message.error('加载文件失败');
@@ -166,8 +175,12 @@ watch(() => props.directoryId, () => {
         :pagination="{
           page: page,
           pageSize: pageSize,
+          itemCount: total,
+          pageCount: Math.ceil(total / pageSize),
+          prefix: () => `共 ${total} 本`,
           onUpdatePage: handlePageChange
         }"
+        remote
         :bordered="false"
         :row-key="(row: FileItem) => row.id"
       />

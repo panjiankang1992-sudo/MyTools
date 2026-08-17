@@ -1,16 +1,26 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { fetchGetDirectories, fetchScanDirectory } from '@/service/api/localfile';
+import { fetchGetDirectories } from '@/service/api/localfile';
+import { useDirectoryScan } from '@/composables/localfile/useDirectoryScan';
+import { useFileMaintenance } from '@/composables/localfile/useFileMaintenance';
 import { useLoading } from '@sa/hooks';
-import { useMessage, NButton, NEmpty } from 'naive-ui';
+import { useDialog, useMessage, NButton, NEmpty, NSpace } from 'naive-ui';
 import EbookList from '../components/EbookList.vue';
 
-defineOptions({ name: 'LocalFileEbook' });
+defineOptions({ name: 'localfile_ebook' });
 
 const message = useMessage();
-const { loading, startLoading, endLoading } = useLoading();
+const dialog = useDialog();
+const { startLoading, endLoading } = useLoading();
 
 const directory = ref<any | null>(null);
+const listKey = ref(0);
+const { scanRunning, startScan } = useDirectoryScan(() => {
+  listKey.value += 1;
+});
+const { maintenanceRunning, maintenanceProgress, startMaintenance } = useFileMaintenance(() => {
+  listKey.value += 1;
+});
 
 async function loadDirectory() {
   try {
@@ -48,16 +58,21 @@ async function handleScan() {
     return;
   }
 
-  try {
-    startLoading();
-    const { data } = await fetchScanDirectory(directory.value.id, true);
-    message.success(`扫描完成：共扫描 ${data?.scannedCount || 0} 个文件，新增 ${data?.newCount || 0} 个`);
-  } catch (error) {
-    message.error('扫描失败');
-    console.error(error);
-  } finally {
-    endLoading();
-  }
+  await startScan(directory.value.id);
+}
+
+function confirmMaintenance(mode: 'EXACT_DEDUP' | 'EBOOK_ORGANIZE') {
+  if (!directory.value) return;
+  const smart = mode === 'EBOOK_ORGANIZE';
+  dialog.warning({
+    title: smart ? '确认智能整理电子书' : '确认MD5去重',
+    content: smart
+      ? '将隔离完全重复和模型判定为被较完整版本包含的电子书，并使用模型净化文件名。文件会移入隐藏隔离目录，可恢复。'
+      : '将计算MD5并隔离内容完全相同的重复文件。文件会移入隐藏隔离目录，可恢复。',
+    positiveText: '开始执行',
+    negativeText: '取消',
+    onPositiveClick: () => startMaintenance(directory.value.id, mode)
+  });
 }
 
 onMounted(() => {
@@ -73,19 +88,17 @@ onMounted(() => {
         <p v-if="directory" class="text-gray-500 text-sm mt-1">{{ directory.directoryName }}</p>
         <p v-else class="text-gray-400 text-sm mt-1">未配置目录</p>
       </div>
-      <NButton
-        v-if="directory"
-        size="large"
-        type="primary"
-        :loading="loading"
-        @click="handleScan"
-      >
-        扫描目录
-      </NButton>
+      <NSpace v-if="directory">
+        <NButton :loading="maintenanceRunning" @click="confirmMaintenance('EXACT_DEDUP')">MD5去重</NButton>
+        <NButton type="warning" :loading="maintenanceRunning" @click="confirmMaintenance('EBOOK_ORGANIZE')">智能整理</NButton>
+        <NButton size="large" type="primary" :loading="scanRunning" @click="handleScan">扫描目录</NButton>
+      </NSpace>
     </div>
 
+    <div v-if="maintenanceProgress" class="mb-3 text-sm text-gray-500">{{ maintenanceProgress }}</div>
+
     <div v-if="directory">
-      <EbookList :directory-id="directory.id" />
+      <EbookList :key="listKey" :directory-id="directory.id" />
     </div>
     <NEmpty v-else description="请在配置文件中添加电子书目录配置" class="py-12" />
   </div>

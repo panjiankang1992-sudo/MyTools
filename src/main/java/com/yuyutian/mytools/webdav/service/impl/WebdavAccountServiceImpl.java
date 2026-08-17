@@ -8,6 +8,7 @@ import com.yuyutian.mytools.webdav.service.WebdavAccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +20,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WebdavAccountServiceImpl implements WebdavAccountService {
 
-    private static final String AES_KEY = "CJ0Xkfbp2KtWq0uZ0ckCCtGIOZU7NPC9ZXenbcZGZG8=";
-
     private final WebdavAccountMapper webdavAccountMapper;
+
+    @Value("${mytools.encryption.key:}")
+    private String encryptionKey;
+
+    @Value("${mytools.encryption.previous-key:}")
+    private String previousEncryptionKey;
 
     @Override
     public WebdavAccountResponse getByUserId(Long userId) {
@@ -42,9 +47,9 @@ public class WebdavAccountServiceImpl implements WebdavAccountService {
 
         String encryptedPassword;
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            encryptedPassword = AesEncryptUtils.encrypt(request.getPassword(), AES_KEY);
+            encryptedPassword = encryptPassword(request.getPassword());
         } else if (existing != null) {
-            encryptedPassword = existing.getPassword();
+            encryptedPassword = rotatePasswordIfNeeded(existing.getPassword());
         } else {
             encryptedPassword = "";
         }
@@ -85,7 +90,6 @@ public class WebdavAccountServiceImpl implements WebdavAccountService {
             account.getType(),
             account.getUrl(),
             account.getUsername(),
-            account.getPassword(),
             account.getPassword() != null && !account.getPassword().isBlank()
         );
     }
@@ -117,7 +121,7 @@ public class WebdavAccountServiceImpl implements WebdavAccountService {
     @Override
     @Transactional
     public WebdavAccountResponse create(Long userId, CreateWebdavAccountRequest request) {
-        String encryptedPassword = AesEncryptUtils.encrypt(request.getPassword(), AES_KEY);
+        String encryptedPassword = encryptPassword(request.getPassword());
 
         if (Boolean.TRUE.equals(request.getIsDefault())) {
             webdavAccountMapper.clearDefaultByUserId(userId);
@@ -147,9 +151,9 @@ public class WebdavAccountServiceImpl implements WebdavAccountService {
 
         String encryptedPassword;
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            encryptedPassword = AesEncryptUtils.encrypt(request.getPassword(), AES_KEY);
+            encryptedPassword = encryptPassword(request.getPassword());
         } else {
-            encryptedPassword = existing.getPassword();
+            encryptedPassword = rotatePasswordIfNeeded(existing.getPassword());
         }
 
         if (Boolean.TRUE.equals(request.getIsDefault())) {
@@ -224,5 +228,19 @@ public class WebdavAccountServiceImpl implements WebdavAccountService {
             case "s3" -> "S3";
             default -> "自定义";
         };
+    }
+
+    private String encryptPassword(String password) {
+        return AesEncryptUtils.encrypt(password, AesEncryptUtils.requireValidKey(encryptionKey));
+    }
+
+    private String rotatePasswordIfNeeded(String encryptedPassword) {
+        if (encryptedPassword == null || encryptedPassword.isBlank() || previousEncryptionKey == null
+                || previousEncryptionKey.isBlank()) {
+            return encryptedPassword;
+        }
+        String plaintext = AesEncryptUtils.decryptWithKeyRing(
+                encryptedPassword, encryptionKey, previousEncryptionKey);
+        return encryptPassword(plaintext);
     }
 }

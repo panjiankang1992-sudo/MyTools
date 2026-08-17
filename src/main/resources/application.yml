@@ -1,4 +1,8 @@
 spring:
+  task:
+    scheduling:
+      pool:
+        size: 4
   application:
     name: mytools
   mail:
@@ -24,7 +28,7 @@ spring:
         my_tools:
           url: jdbc:mysql://127.0.0.1:3306/my_tools?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
           username: root
-          password: YUyutian/1015
+          password: ${MYTOOLS_DB_PASSWORD:}
           driver-class-name: com.mysql.cj.jdbc.Driver
           hikari:
             maximum-pool-size: 20
@@ -32,7 +36,7 @@ spring:
         sales_order:
           url: jdbc:mysql://127.0.0.1:3306/sales_order?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
           username: root
-          password: YUyutian/1015
+          password: ${SALES_ORDER_DB_PASSWORD:}
           driver-class-name: com.mysql.cj.jdbc.Driver
           hikari:
             maximum-pool-size: 30
@@ -45,9 +49,9 @@ mybatis:
     map-underscore-to-camel-case: true
 
 jwt:
-  secret: ${JWT_SECRET:dGhpcyBpcyBhIHZlcnkgc2VjcmV0IGtleSBmb3IgZGV2ZWxvcG1lbnQgb25seSE=}
-  access-expiration-ms: 900000
-  refresh-expiration-ms: 604800000
+  secret: ${JWT_SECRET:}
+  access-expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:2592000000}
+  refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:2592000000}
 
 snowflake:
   datacenter-id: ${SNOWFLAKE_DATACENTER_ID:1}
@@ -55,7 +59,33 @@ snowflake:
   enabled: true
 
 password:
-  salt: ${PASSWORD_SALT:mytools-secret-salt}
+  salt: ${PASSWORD_SALT:}
+
+mytools:
+  encryption:
+    key: ${MYTOOLS_ENCRYPTION_KEY:}
+    previous-key: ${MYTOOLS_ENCRYPTION_PREVIOUS_KEY:}
+  connectivity:
+    instance-id: ${MYTOOLS_INSTANCE_ID:mytools-default}
+    api-version: v1
+    mdns-enabled: ${MYTOOLS_MDNS_ENABLED:true}
+
+rclone:
+  rc-url: ${RCLONE_RC_URL:http://127.0.0.1:5572}
+  rc-user: ${RCLONE_RC_USER:}
+  rc-password: ${RCLONE_RC_PASSWORD:}
+  serve-url: ${RCLONE_SERVE_URL:http://127.0.0.1:5573}
+  serve-user: ${RCLONE_SERVE_USER:${RCLONE_RC_USER:}}
+  serve-password: ${RCLONE_SERVE_PASSWORD:${RCLONE_RC_PASSWORD:}}
+
+media:
+  big-video-threshold-bytes: ${MEDIA_BIG_VIDEO_THRESHOLD_BYTES:52428800}
+  manual-package:
+    scan-delay-ms: ${MEDIA_MANUAL_PACKAGE_SCAN_DELAY_MS:30000}
+    initial-delay-ms: ${MEDIA_MANUAL_PACKAGE_INITIAL_DELAY_MS:45000}
+  analysis:
+    scan-delay-ms: ${MEDIA_ANALYSIS_SCAN_DELAY_MS:15000}
+    initial-delay-ms: ${MEDIA_ANALYSIS_INITIAL_DELAY_MS:30000}
 
 registration:
   mail:
@@ -74,12 +104,28 @@ server:
 # 打标签服务配置
 tagging:
   service:
-    url: http://192.168.1.9:8024
+    url: http://127.0.0.1:11434
+    model: huihui_ai/qwen3-vl-abliterated:4b
+
+copilot:
+  gateway:
+    enabled: ${COPILOT_GATEWAY_ENABLED:false}
+    provider-url: ${COPILOT_PROVIDER_URL:http://127.0.0.1:11434/v1/chat/completions}
+    api-key: ${COPILOT_PROVIDER_API_KEY:}
+    model: ${COPILOT_PROVIDER_MODEL:huihui_ai/qwen3-vl-abliterated:4b}
+
+dsh:
+  enabled: ${DSH_ENABLED:false}
+  base-url: ${DSH_BASE_URL:http://127.0.0.1:3080}
+  workspace-path: ${DSH_WORKSPACE_PATH:/home/pankang}
+  agent-preset: ${DSH_AGENT_PRESET:standard}
+  connect-timeout-seconds: ${DSH_CONNECT_TIMEOUT_SECONDS:5}
+  request-timeout-seconds: ${DSH_REQUEST_TIMEOUT_SECONDS:30}
 
 # 文件扫描配置
 file:
   scan:
-    path: /opt/custom/OpenClaw
-    extensions: jpg,jpeg,png,gif,bmp,webp,mp4,avi,mov,wmv,mp3,wav,flac,txt,md,pdf,doc,docx
-    thumbnail-path: /opt/custom/OpenClaw/.thumbnails
+    path: /opt/extend/resource
+    extensions: jpg,jpeg,png,gif,bmp,webp,mp4,avi,mov,wmv,mkv,flv,mp3,wav,flac,aac,ogg,m4a,txt,md,pdf,doc,docx,epub,mobi
+    thumbnail-path: /opt/extend/resource/.thumbnails
     batch-size: 100

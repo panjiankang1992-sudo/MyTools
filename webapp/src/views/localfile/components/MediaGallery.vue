@@ -1,82 +1,224 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import { fetchGetFilePage, fetchGetFileContent, fetchRetagFile, fetchGetFileTags } from '@/service/api/localfile';
-import { useLoading } from '@sa/hooks';
-import { NImage, NButton, NSpace, NEmpty, NSpin, NModal, useMessage, NTag } from 'naive-ui';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import {
+  fetchGetFileContent,
+  fetchGetFileFilters,
+  fetchGetFilePage,
+  fetchGetFileTags,
+  fetchGetCachedFileThumbnail,
+  fetchRetagFile
+} from '@/service/api/localfile';
+import { getAuthenticatedFileContentUrl } from '@/service/api/localfile';
+import { NButton, NEmpty, NIcon, NModal, NSelect, NSpin, NTag, useMessage } from 'naive-ui';
+import { FolderOpenOutline, ImageOutline, MusicalNotesOutline, VideocamOutline } from '@vicons/ionicons5';
 
 defineOptions({ name: 'MediaGallery' });
 
 const props = defineProps<{
   directoryId: number;
+  directoryPath: string;
 }>();
 
-const message = useMessage();
-const { loading, startLoading, endLoading } = useLoading();
+interface SemanticTag {
+  tag: string;
+  score: number;
+}
 
 interface FileItem {
   id: number;
   fileName: string;
+  filePath: string;
   relativePath: string;
+  directoryName: string;
   fileType: string;
-  thumbnailUrl: string;
   fileSize: number;
-  tags: { id: number; name: string; color: string }[];
-  semanticTags?: { tag: string; score: number }[];
+  thumbnailUrl: string;
+  previewUrl?: string;
+  semanticTags?: SemanticTag[];
 }
 
+const message = useMessage();
 const files = ref<FileItem[]>([]);
 const total = ref(0);
 const page = ref(1);
-const pageSize = ref(50);
+const pageSize = 24;
+const loading = ref(false);
+const loadingMore = ref(false);
+const loadMoreSentinel = ref<HTMLElement | null>(null);
+let observer: IntersectionObserver | null = null;
 
-// 预览相关
 const previewVisible = ref(false);
 const previewFile = ref<FileItem | null>(null);
-
-// 打标签相关
+const previewAspectRatio = ref<number | null>(null);
 const taggingFileId = ref<number | null>(null);
+const selectedDirectory = ref<string | null>(null);
+const selectedTag = ref<string | null>(null);
+const selectedFileType = ref<string | null>(null);
+const directoryOptions = ref<{ label: string; value: string }[]>([]);
+const tagOptions = ref<{ label: string; value: string }[]>([]);
+const fileTypeOptions = [
+  { label: '图片', value: 'IMAGE' },
+  { label: '视频', value: 'VIDEO' },
+  { label: '音频', value: 'AUDIO' }
+];
 
-async function loadFiles() {
-  if (!props.directoryId) return;
+const hasMore = computed(() => files.value.length < total.value);
+const previewModalStyle = computed(() => {
+  if (!previewAspectRatio.value || previewFile.value?.fileType === 'AUDIO') {
+    return { width: 'min(92vw, 720px)' };
+  }
+
+  // 根据媒体原始比例计算弹窗宽度，同时预留标题、标签和视口边距。
+  const maxMediaHeight = Math.max(window.innerHeight * 0.68, 240);
+  const mediaWidth = Math.min(window.innerWidth * 0.88, maxMediaHeight * previewAspectRatio.value);
+  return { width: `${Math.max(mediaWidth + 48, 320)}px`, maxWidth: '92vw' };
+});
+const groupedFiles = computed(() => {
+  const groups = new Map<string, FileItem[]>();
+  files.value.forEach(file => {
+    const items = groups.get(file.directoryName) || [];
+    items.push(file);
+    groups.set(file.directoryName, items);
+  });
+  return Array.from(groups, ([directoryName, items]) => ({ directoryName, items }))
+    .sort((left, right) => compareDirectoryNames(left.directoryName, right.directoryName));
+});
+
+function getDateDirectoryKey(directoryName: string): string | null {
+  const dateSegments = directoryName.split('/').filter(segment => /^\d{6,8}$/.test(segment));
+  return dateSegments.length > 0 ? dateSegments.join('') : null;
+}
+
+function compareDirectoryNames(left: string, right: string): number {
+  const leftDateKey = getDateDirectoryKey(left);
+  const rightDateKey = getDateDirectoryKey(right);
+  if (leftDateKey && rightDateKey) return rightDateKey.localeCompare(leftDateKey);
+  if (leftDateKey) return -1;
+  if (rightDateKey) return 1;
+  return left.localeCompare(right, 'zh-CN');
+}
+
+function normalizeFile(item: any): FileItem {
+  const filePath = item.filePath || '';
+  const root = props.directoryPath.replace(/\/+$/, '');
+  const relativePath = filePath.startsWith(`${root}/`) ? filePath.slice(root.length + 1) : filePath;
+  const separator = relativePath.lastIndexOf('/');
+  return {
+    ...item,
+    fileName: item.fileName || item.filename,
+    filePath,
+    relativePath,
+    directoryName: separator > -1 ? relativePath.slice(0, separator) : '根目录',
+    fileType: getMediaType(item.mimeType),
+    thumbnailUrl: '',
+    semanticTags: (item.tags || []).map((tag: any) => ({
+      tag: tag.tag || tag.tagName,
+      score: tag.score ?? tag.confidence ?? 0
+    }))
+  };
+}
+
+async function loadFiles(reset = false) {
+  if (!props.directoryId || loading.value || loadingMore.value) return;
+  if (reset) {
+    revokeObjectUrls();
+    files.value = [];
+    total.value = 0;
+    page.value = 1;
+    loading.value = true;
+  } else {
+    if (!hasMore.value) return;
+    loadingMore.value = true;
+  }
 
   try {
-    startLoading();
     const { data } = await fetchGetFilePage({
       directoryId: props.directoryId,
+      subdirectory: selectedDirectory.value || undefined,
+      tagName: selectedTag.value || undefined,
+      fileType: selectedFileType.value || undefined,
       page: page.value,
-      pageSize: pageSize.value
+      pageSize
     });
-    files.value = data?.list || [];
+    const incoming = (data?.list || []).map(normalizeFile);
+    files.value.push(...incoming);
     total.value = data?.total || 0;
-
-    // 加载语义标签
-    await loadSemanticTags();
+    if (incoming.length > 0) page.value += 1;
+    void loadThumbnails(incoming);
   } catch (error) {
     message.error('加载文件失败');
     console.error(error);
   } finally {
-    endLoading();
+    loading.value = false;
+    loadingMore.value = false;
   }
 }
 
-// 加载语义标签
-async function loadSemanticTags() {
-  for (const file of files.value) {
-    try {
-      const { data: tags } = await fetchGetFileTags(file.id);
-      file.semanticTags = tags || [];
-    } catch {
-      file.semanticTags = [];
+async function loadThumbnails(items: FileItem[]) {
+  const images = items.filter(item => item.fileType === 'IMAGE' || item.fileType === 'VIDEO');
+  if (images.length === 0) return;
+
+  // 先展示文件卡片，再逐张替换缩略图，避免整批完成后同时出现。
+  await nextTick();
+  let cursor = 0;
+  // 并发请求缩略图，每个请求完成后独立更新对应卡片，不等待整批完成。
+  const workerCount = Math.min(6, images.length);
+
+  async function loadNextImage() {
+    while (cursor < images.length) {
+      const file = images[cursor];
+      cursor += 1;
+      try {
+        const blob = await fetchGetCachedFileThumbnail(file.id);
+        // 必须更新列表中的 Vue 响应式代理，修改分页返回的原始对象不会触发 DOM 刷新。
+        const currentFile = files.value.find(item => item.id === file.id);
+        if (blob && currentFile) {
+          if (currentFile.thumbnailUrl) URL.revokeObjectURL(currentFile.thumbnailUrl);
+          currentFile.thumbnailUrl = URL.createObjectURL(blob);
+        }
+      } catch {
+        // 筛选切换后旧请求可能才返回，仅清理当前仍存在的卡片。
+        const currentFile = files.value.find(item => item.id === file.id);
+        if (currentFile) currentFile.thumbnailUrl = '';
+      }
+
+      // 主动让出一帧，使已完成的缩略图立即显示。
+      await nextTick();
+      await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
     }
   }
+
+  await Promise.all(Array.from({ length: workerCount }, () => loadNextImage()));
+}
+
+async function loadFilterOptions() {
+  const { data } = await fetchGetFileFilters(props.directoryId);
+  directoryOptions.value = [...(data?.directories || [])]
+    .sort(compareDirectoryNames)
+    .map(value => ({
+      label: value || '根目录',
+      value
+    }));
+  tagOptions.value = (data?.tags || []).map(value => ({ label: value, value }));
 }
 
 async function handlePreview(file: FileItem) {
   try {
-    const { data: blob } = await fetchGetFileContent(file.id);
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    previewFile.value = { ...file, semanticTags: file.semanticTags || [] };
+    previewAspectRatio.value = null;
+    const isStreamMedia = file.fileType === 'VIDEO' || file.fileType === 'AUDIO';
+    const contentPromise = isStreamMedia ? Promise.resolve(null) : fetchGetFileContent(file.id);
+    const [contentResponse, { data: tags }] = await Promise.all([contentPromise, fetchGetFileTags(file.id)]);
+    const blob = contentResponse?.data;
+    if (!isStreamMedia && !blob) return;
+    const normalizedTags = (tags || []).map((tag: any) => ({
+      tag: tag.tag || tag.tagName,
+      score: tag.score ?? tag.confidence ?? 0
+    }));
+    previewFile.value = {
+      ...file,
+      previewUrl: isStreamMedia ? getAuthenticatedFileContentUrl(file.id) : URL.createObjectURL(blob!),
+      semanticTags: normalizedTags
+    };
     previewVisible.value = true;
   } catch (error) {
     message.error('预览失败');
@@ -85,190 +227,244 @@ async function handlePreview(file: FileItem) {
 }
 
 function handleClosePreview() {
-  if (previewFile.value) {
-    URL.revokeObjectURL((previewFile.value as any).url || '');
+  if (previewFile.value?.previewUrl?.startsWith('blob:')) {
+    URL.revokeObjectURL(previewFile.value.previewUrl);
   }
-  previewVisible.value = false;
   previewFile.value = null;
+  previewAspectRatio.value = null;
 }
 
-// 重新打标签
+function handleImageLoaded(event: Event) {
+  const image = event.currentTarget as HTMLImageElement;
+  if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+    previewAspectRatio.value = image.naturalWidth / image.naturalHeight;
+  }
+}
+
+function handleVideoLoaded(event: Event) {
+  const video = event.currentTarget as HTMLVideoElement;
+  if (video.videoWidth > 0 && video.videoHeight > 0) {
+    previewAspectRatio.value = video.videoWidth / video.videoHeight;
+  }
+}
+
 async function handleRetag(file: FileItem, event?: Event) {
-  if (event) {
-    event.stopPropagation();
-  }
-
-  if (taggingFileId.value === file.id) {
-    message.warning('正在打标签中，请稍候');
-    return;
-  }
-
+  event?.stopPropagation();
+  if (taggingFileId.value === file.id) return;
   try {
     taggingFileId.value = file.id;
     const { data } = await fetchRetagFile(file.id);
-    file.semanticTags = data?.tags || [];
-
-    // 更新预览弹窗中的文件信息
-    if (previewFile.value && previewFile.value.id === file.id) {
-      previewFile.value.semanticTags = data?.tags || [];
-    }
-
+    const tags = (data || []).map((tag: any) => ({
+      tag: tag.tag || tag.tagName,
+      score: tag.score ?? tag.confidence ?? 0
+    }));
+    file.semanticTags = tags;
+    if (previewFile.value?.id === file.id) previewFile.value.semanticTags = tags;
     message.success('打标签成功');
   } catch (error: any) {
     message.error(error?.message || '打标签失败');
-    console.error(error);
   } finally {
     taggingFileId.value = null;
   }
 }
 
-function formatFileSize(size: number): string {
-  if (size < 1024) return size + ' B';
-  if (size < 1024 * 1024) return (size / 1024).toFixed(1) + ' KB';
-  return (size / (1024 * 1024)).toFixed(1) + ' MB';
+async function handleTagFilter(tagName: string, event?: Event, closePreview = false) {
+  event?.stopPropagation();
+  if (closePreview) previewVisible.value = false;
+  if (selectedTag.value === tagName) {
+    await loadFiles(true);
+    return;
+  }
+  selectedTag.value = tagName;
 }
 
-onMounted(() => {
-  loadFiles();
+function getMediaType(mimeType?: string): string {
+  if (mimeType?.startsWith('image/')) return 'IMAGE';
+  if (mimeType?.startsWith('video/')) return 'VIDEO';
+  if (mimeType?.startsWith('audio/')) return 'AUDIO';
+  return 'FILE';
+}
+
+function mediaIcon(fileType: string) {
+  if (fileType === 'VIDEO') return VideocamOutline;
+  if (fileType === 'AUDIO') return MusicalNotesOutline;
+  return ImageOutline;
+}
+
+function formatFileSize(size: number): string {
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function revokeObjectUrls() {
+  files.value.forEach(file => {
+    if (file.thumbnailUrl) URL.revokeObjectURL(file.thumbnailUrl);
+  });
+}
+
+function setupObserver() {
+  observer?.disconnect();
+  observer = new IntersectionObserver(entries => {
+    if (entries[0]?.isIntersecting && hasMore.value) void loadFiles();
+  }, { rootMargin: '500px 0px' });
+  if (loadMoreSentinel.value) observer.observe(loadMoreSentinel.value);
+}
+
+onMounted(async () => {
+  await loadFilterOptions();
+  await loadFiles(true);
+  await nextTick();
+  setupObserver();
 });
 
-watch(() => props.directoryId, () => {
-  page.value = 1;
-  loadFiles();
+watch(() => [props.directoryId, props.directoryPath], async () => {
+  selectedDirectory.value = null;
+  selectedTag.value = null;
+  selectedFileType.value = null;
+  await loadFilterOptions();
+  await loadFiles(true);
+  await nextTick();
+  setupObserver();
+});
+
+watch(loadMoreSentinel, setupObserver);
+
+watch([selectedDirectory, selectedTag, selectedFileType], async () => {
+  await loadFiles(true);
+  await nextTick();
+  setupObserver();
+});
+
+onBeforeUnmount(() => {
+  observer?.disconnect();
+  revokeObjectUrls();
+  handleClosePreview();
 });
 </script>
 
 <template>
   <div class="media-gallery">
+    <div class="filter-bar">
+      <NSelect
+        v-model:value="selectedDirectory"
+        :options="directoryOptions"
+        clearable
+        placeholder="全部目录"
+      />
+      <NSelect v-model:value="selectedTag" :options="tagOptions" clearable placeholder="全部标签" />
+      <NSelect
+        v-model:value="selectedFileType"
+        :options="fileTypeOptions"
+        clearable
+        placeholder="全部类型"
+      />
+    </div>
     <NSpin :show="loading">
-      <div v-if="files.length > 0" class="gallery-grid">
-        <div
-          v-for="file in files"
-          :key="file.id"
-          class="gallery-item"
-          @click="handlePreview(file)"
-        >
-          <div class="thumbnail-wrapper">
-            <NImage
-              v-if="file.fileType === 'IMAGE' && file.thumbnailUrl"
-              :src="file.thumbnailUrl"
-              object-fit="cover"
-              class="thumbnail"
-              preview-src=""
-            />
-            <div v-else class="file-icon">
-              <span class="icon-text">{{ file.fileName.split('.').pop()?.toUpperCase() || 'FILE' }}</span>
+      <section v-for="group in groupedFiles" :key="group.directoryName" class="directory-section">
+        <header class="directory-header">
+          <NIcon :component="FolderOpenOutline" :size="21" color="#64748b" />
+          <h3>{{ group.directoryName }}</h3>
+          <span>{{ group.items.length }} 项</span>
+        </header>
+
+        <div class="gallery-grid">
+          <article
+            v-for="file in group.items"
+            :key="file.id"
+            class="gallery-item"
+            tabindex="0"
+            @click="handlePreview(file)"
+            @keyup.enter="handlePreview(file)"
+          >
+            <div class="thumbnail-wrapper">
+              <img
+                v-if="file.thumbnailUrl"
+                :src="file.thumbnailUrl"
+                :alt="file.fileName"
+                class="thumbnail"
+                loading="lazy"
+                @error="file.thumbnailUrl = ''"
+              />
+              <div v-else class="thumbnail-placeholder">
+                <NIcon :component="mediaIcon(file.fileType)" :size="42" color="#94a3b8" />
+                <span>{{ file.fileName.split('.').pop()?.toUpperCase() || 'FILE' }}</span>
+              </div>
             </div>
-            <!-- 打标签按钮 -->
-            <div class="tag-button-wrapper">
-              <NButton
-                size="tiny"
-                :loading="taggingFileId === file.id"
-                @click="handleRetag(file, $event)"
-                class="tag-button"
-              >
-                {{ taggingFileId === file.id ? '打标签中...' : '打标签' }}
-              </NButton>
+            <div class="file-info">
+              <p class="file-name" :title="file.fileName">{{ file.fileName }}</p>
+              <p class="file-size">{{ formatFileSize(file.fileSize) }}</p>
+              <div v-if="file.semanticTags?.length" class="file-tags">
+                <NTag
+                  v-for="tag in file.semanticTags.slice(0, 3)"
+                  :key="tag.tag"
+                  size="tiny"
+                  type="info"
+                  :bordered="false"
+                  class="clickable-tag"
+                  @click="handleTagFilter(tag.tag, $event)"
+                >
+                  {{ tag.tag }}
+                </NTag>
+              </div>
             </div>
-          </div>
-          <div class="file-info">
-            <p class="file-name" :title="file.fileName">{{ file.fileName }}</p>
-            <p class="file-size">{{ formatFileSize(file.fileSize) }}</p>
-            <!-- 语义标签展示 -->
-            <div v-if="file.semanticTags && file.semanticTags.length > 0" class="semantic-tags">
-              <NTag
-                v-for="(tag, index) in file.semanticTags.slice(0, 3)"
-                :key="index"
-                size="small"
-                type="info"
-                class="semantic-tag"
-              >
-                {{ tag.tag }}
-              </NTag>
-              <span v-if="file.semanticTags.length > 3" class="more-tags">
-                +{{ file.semanticTags.length - 3 }}
-              </span>
-            </div>
-          </div>
+          </article>
         </div>
+      </section>
+
+      <NEmpty v-if="!loading && files.length === 0" description="暂无文件" class="empty-state" />
+      <div ref="loadMoreSentinel" class="load-more-sentinel">
+        <NSpin v-if="loadingMore" size="small" />
+        <span v-else-if="!hasMore && files.length > 0">已加载全部 {{ total }} 个文件</span>
       </div>
-      <NEmpty v-else description="暂无文件" />
     </NSpin>
 
-    <!-- 预览弹窗 -->
     <NModal
       v-model:show="previewVisible"
       preset="card"
       :title="previewFile?.fileName"
-      style="width: 90%; max-width: 1200px;"
+      class="preview-modal"
+      :style="previewModalStyle"
       @after-leave="handleClosePreview"
     >
       <template #header-extra>
         <NButton
+          v-if="previewFile"
           size="small"
           type="primary"
-          :loading="taggingFileId === previewFile?.id"
-          @click="handleRetag(previewFile!)"
+          :loading="taggingFileId === previewFile.id"
+          @click="handleRetag(previewFile)"
         >
-          {{ taggingFileId === previewFile?.id ? '打标签中...' : '重新打标签' }}
+          重新打标签
         </NButton>
       </template>
-      <div class="preview-content">
+      <div v-if="previewFile" class="preview-content">
         <img
-          v-if="previewFile && previewFile.fileType === 'IMAGE'"
-          :src="(previewFile as any).url"
+          v-if="previewFile.fileType === 'IMAGE'"
+          :src="previewFile.previewUrl"
           :alt="previewFile.fileName"
-          style="max-width: 100%; max-height: 60vh; object-fit: contain;"
+          @load="handleImageLoaded"
         />
         <video
-          v-else-if="previewFile && previewFile.fileType === 'VIDEO'"
-          :src="(previewFile as any).url"
+          v-else-if="previewFile.fileType === 'VIDEO'"
+          :src="previewFile.previewUrl"
           controls
-          style="max-width: 100%; max-height: 60vh;"
+          @loadedmetadata="handleVideoLoaded"
         />
-        <audio
-          v-else-if="previewFile && previewFile.fileType === 'AUDIO'"
-          :src="(previewFile as any).url"
-          controls
-          style="width: 100%;"
-        />
-        <div v-else-if="previewFile" class="preview-unsupported">
-          <p>该文件类型暂不支持预览</p>
-          <p class="file-path">{{ previewFile.relativePath }}</p>
-        </div>
+        <audio v-else-if="previewFile.fileType === 'AUDIO'" :src="previewFile.previewUrl" controls />
+        <div v-else class="preview-unsupported">该文件类型暂不支持预览</div>
       </div>
-      <!-- 文件信息 -->
-      <div v-if="previewFile" class="file-detail">
-        <div class="detail-row">
-          <span class="detail-label">文件名：</span>
-          <span class="detail-value">{{ previewFile.fileName }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">文件大小：</span>
-          <span class="detail-value">{{ formatFileSize(previewFile.fileSize) }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">文件类型：</span>
-          <span class="detail-value">{{ previewFile.fileType }}</span>
-        </div>
-        <!-- 语义标签展示 -->
-        <div class="detail-row tags-row">
-          <span class="detail-label">语义标签：</span>
-          <div class="detail-tags">
-            <NTag
-              v-for="(tag, index) in previewFile.semanticTags"
-              :key="index"
-              size="small"
-              type="info"
-              class="detail-tag"
-            >
-              {{ tag.tag }} <span class="tag-score">{{ (tag.score * 100).toFixed(0) }}%</span>
-            </NTag>
-            <span v-if="!previewFile.semanticTags || previewFile.semanticTags.length === 0" class="no-tags">
-              暂无标签
-            </span>
-          </div>
-        </div>
+      <div v-if="previewFile?.semanticTags?.length" class="preview-tags">
+        <NTag
+          v-for="tag in previewFile.semanticTags"
+          :key="tag.tag"
+          size="small"
+          type="info"
+          class="clickable-tag"
+          @click="handleTagFilter(tag.tag, $event, true)"
+        >
+          {{ tag.tag }} {{ (tag.score * 100).toFixed(0) }}%
+        </NTag>
       </div>
     </NModal>
   </div>
@@ -276,181 +472,188 @@ watch(() => props.directoryId, () => {
 
 <style scoped>
 .media-gallery {
-  min-height: 400px;
+  min-height: 420px;
+}
+
+.filter-bar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(160px, 240px));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.directory-section + .directory-section {
+  margin-top: 32px;
+}
+
+.directory-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgb(226 232 240 / 80%);
+}
+
+.directory-header h3 {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: #1e293b;
+  font-size: 16px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.directory-header span {
+  color: #94a3b8;
+  font-size: 12px;
 }
 
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 16px;
-  padding: 8px;
+  gap: 22px 18px;
 }
 
 .gallery-item {
+  min-width: 0;
   cursor: pointer;
-  border-radius: 8px;
-  overflow: hidden;
-  background: var(--n-card-color);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.gallery-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  outline: none;
 }
 
 .thumbnail-wrapper {
-  width: 100%;
-  height: 160px;
-  overflow: hidden;
-  background: var(--n-border-color);
   position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border: 1px solid #edf0f4;
+  border-radius: 12px;
+  background: #f5f6f8;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.gallery-item:hover .thumbnail-wrapper,
+.gallery-item:focus-visible .thumbnail-wrapper {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgb(15 23 42 / 10%);
 }
 
 .thumbnail {
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
 
-.file-icon {
-  width: 100%;
-  height: 100%;
+.thumbnail-placeholder {
   display: flex;
+  height: 100%;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f5f5f5;
-}
-
-.icon-text {
-  font-size: 24px;
-  font-weight: bold;
-  color: #999;
-}
-
-.tag-button-wrapper {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.gallery-item:hover .tag-button-wrapper {
-  opacity: 1;
-}
-
-.tag-button {
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  border: none;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .file-info {
-  padding: 8px 12px;
+  padding: 10px 4px 0;
 }
 
-.file-name {
-  font-size: 14px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.file-name,
+.file-size {
   margin: 0;
 }
 
-.file-size {
-  font-size: 12px;
-  color: var(--n-text-color-3);
-  margin: 4px 0 0;
-}
-
-.semantic-tags {
+.file-tags {
   display: flex;
+  min-height: 20px;
+  margin-top: 7px;
   flex-wrap: wrap;
   gap: 4px;
-  margin-top: 6px;
 }
 
-.semantic-tag {
-  font-size: 10px;
+.clickable-tag {
+  cursor: pointer;
 }
 
-.more-tags {
-  font-size: 10px;
-  color: var(--n-text-color-3);
-  line-height: 22px;
+.clickable-tag:hover {
+  filter: brightness(0.94);
+}
+
+.file-name {
+  overflow: hidden;
+  color: #20242c;
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  margin-top: 4px;
+  color: #77808f;
+  font-size: 12px;
+}
+
+.load-more-sentinel {
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.empty-state {
+  padding: 80px 0;
+}
+
+.preview-modal {
+  transition: width 160ms ease;
 }
 
 .preview-content {
   display: flex;
-  justify-content: center;
+  min-height: 220px;
   align-items: center;
-  min-height: 300px;
-  background: var(--n-card-color);
-  border-radius: 8px;
+  justify-content: center;
 }
 
-.preview-unsupported {
-  text-align: center;
-  color: var(--n-text-color-3);
+.preview-content img,
+.preview-content video {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 68vh;
+  object-fit: contain;
 }
 
-.file-path {
-  font-size: 12px;
-  color: var(--n-text-color-2);
-  word-break: break-all;
-  margin-top: 8px;
+.preview-content audio {
+  width: 100%;
 }
 
-.file-detail {
-  margin-top: 16px;
-  padding: 16px;
-  background: var(--n-card-color);
-  border-radius: 8px;
-}
-
-.detail-row {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-
-.detail-row:last-child {
-  margin-bottom: 0;
-}
-
-.detail-label {
-  font-size: 14px;
-  color: var(--n-text-color-3);
-  min-width: 80px;
-}
-
-.detail-value {
-  font-size: 14px;
-  color: var(--n-text-color-1);
-}
-
-.tags-row {
-  align-items: flex-start;
-}
-
-.detail-tags {
+.preview-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-top: 16px;
 }
 
-.detail-tag {
-  font-size: 12px;
-}
+@media (max-width: 640px) {
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
 
-.tag-score {
-  font-size: 10px;
-  opacity: 0.7;
-  margin-left: 4px;
-}
+  .gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 10px;
+  }
 
-.no-tags {
-  font-size: 14px;
-  color: var(--n-text-color-3);
+  .thumbnail-wrapper {
+    border-radius: 9px;
+  }
 }
 </style>

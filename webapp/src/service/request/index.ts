@@ -1,10 +1,9 @@
 import type { AxiosResponse } from 'axios';
 import { BACKEND_ERROR_CODE, createFlatRequest, createRequest } from '@sa/axios';
 import { useAuthStore } from '@/store/modules/auth';
-import { localStg } from '@/utils/storage';
 import { getServiceBaseURL } from '@/utils/service';
 import { $t } from '@/locales';
-import { getAuthorization, handleExpiredRequest, showErrorMsg, showFieldErrors, clearFieldErrors, getErrorCodeConfig, getI18nMessageFn } from './shared';
+import { getAuthorization, handleExpiredRequest, showErrorMsg, showFieldErrors, getErrorCodeConfig, getI18nMessageFn } from './shared';
 import type { RequestInstanceState } from './type';
 
 const isHttpProxy = import.meta.env.DEV && import.meta.env.VITE_HTTP_PROXY === 'Y';
@@ -22,9 +21,6 @@ function safeJsonReviver(_key: string, value: unknown): unknown {
   return value;
 }
 
-function safeParseJson(text: string): unknown {
-  return JSON.parse(text, safeJsonReviver);
-}
 
 export const request = createFlatRequest(
   {
@@ -139,7 +135,7 @@ export const request = createFlatRequest(
 
       return null;
     },
-    onError(error) {
+    async onError(error) {
       // when the request is fail, you can show error message
       // BACKEND_ERROR_CODE 已在 onBackendFail 中处理，这里避免重复弹窗。
       if (error.code === BACKEND_ERROR_CODE && error.response?.data) {
@@ -149,6 +145,14 @@ export const request = createFlatRequest(
       if (error.response?.data) {
         const responseData = error.response.data as Partial<App.Service.Response>;
         const responseMsg = responseData.msg || responseData.message || '';
+        const responseCode = String(responseData.code || '');
+        const expiredTokenCodes = import.meta.env.VITE_SERVICE_EXPIRED_TOKEN_CODES?.split(',') || [];
+
+        if (expiredTokenCodes.includes(responseCode)) {
+          window.$message?.warning('登录状态已过期，请重新登录');
+          await useAuthStore().resetStore();
+          return;
+        }
 
         if (responseData.fieldErrors && typeof responseData.fieldErrors === 'object') {
           showFieldErrors(responseData.fieldErrors);

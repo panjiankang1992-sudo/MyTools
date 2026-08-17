@@ -121,11 +121,11 @@ function getTagType(t: string | undefined) {
             <div><strong>发布人：</strong>{{ detail?.userName }} ({{ detail?.userId }})</div>
             <div><strong>上架时间：</strong>{{ detail?.createdTime }}</div>
             <div v-if="detail?.installCmd"><strong>安装命令：</strong><code style="background:#f5f5f5;padding:2px 6px">{{ detail.installCmd }}</code></div>
-            <div v-if="detail?.downloadUrl"><strong>外部链接：</strong><a :href="detail.downloadUrl" target="_blank" style="color:#18a058">{{ detail.downloadUrl }}</a></div>
+            <div v-if="detail?.downloadUrl"><strong>外部链接：</strong><a :href="detail.downloadUrl" target="_blank" rel="noopener noreferrer" style="color:#18a058">{{ detail.downloadUrl }}</a></div>
             <div v-if="detail?.fileName"><strong>文件：</strong>{{ detail.fileName }}</div>
           </NSpace>
           <NDivider>应用简介</NDivider>
-          <div v-if="detail?.content" v-html="detail.content" style="line-height:1.8" />
+          <div v-if="detail?.content" style="line-height:1.8" v-html="detail.content" /><!-- eslint-disable-line vue/no-v-html -->
           <NEmpty v-else description="暂无简介" />
           <NDivider>历史版本</NDivider>
           <div v-if="versions.length">
@@ -139,7 +139,7 @@ function getTagType(t: string | undefined) {
       <template v-if="props.mode === 'detail'" #footer>
         <NSpace justify="center">
           <NButton @click="onClose">关闭</NButton>
-          <NButton type="info" @click="handleDownload" :disabled="!detail?.fileId">下载{{ detail?.fileName ? `（${detail.fileName}）` : '' }}</NButton>
+          <NButton type="info" :disabled="!detail?.fileId" @click="handleDownload">下载{{ detail?.fileName ? `（${detail.fileName}）` : '' }}</NButton>
           <NButton v-if="canEdit" type="warning" @click="emit('close')">编辑</NButton>
           <NPopconfirm v-if="canEdit" @positive-click="handleOffline">
             <template #trigger><NButton type="error">下架</NButton></template>
@@ -153,12 +153,14 @@ function getTagType(t: string | undefined) {
             <NInput v-model:value="form.name" placeholder="请输入应用名称" :disabled="isEdit" />
           </NFormItem>
           <NFormItem v-if="!isEdit" label="应用类型">
-            <NSelect v-model:value="form.type" :options="[
-              { label: 'App（富文本HTML）', value: 'app' },
-              { label: 'CLI（二进制）', value: 'cli' },
-              { label: 'MCP（JSON配置）', value: 'mcp' },
-              { label: 'Skill（ZIP包）', value: 'skill' }
-            ]" />
+            <NSelect
+              v-model:value="form.type" :options="[
+                { label: 'App（富文本HTML）', value: 'app' },
+                { label: 'CLI（二进制）', value: 'cli' },
+                { label: 'MCP（JSON配置）', value: 'mcp' },
+                { label: 'Skill（ZIP包）', value: 'skill' }
+              ]"
+            />
           </NFormItem>
           <NFormItem label="版本号" required>
             <NInput v-model:value="form.version" placeholder="如 1.0.0" />

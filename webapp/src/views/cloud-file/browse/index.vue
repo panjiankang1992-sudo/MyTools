@@ -56,7 +56,7 @@ import {
 import { fetchWebdavAccounts } from '@/service/api/webdav';
 import AccountDrawer from '../components/AccountDrawer.vue';
 
-defineOptions({ name: 'CloudFile' });
+defineOptions({ name: 'cloud-file_browse' });
 
 const message = useMessage();
 const dialog = useDialog();
@@ -69,6 +69,12 @@ const accounts = ref<Api.Webdav.WebdavAccount[]>([]);
 const accountOptions = computed(() =>
   accounts.value.map(a => ({ label: a.name, value: a.id }))
 );
+
+// 表格缩略图缓存
+const tableThumbnails = reactive<Record<string, string>>({});
+const thumbnailLoading = reactive<Record<string, boolean>>({});
+// 树相关
+const selectedTreeKey = ref<string[]>([]);
 
 async function loadAccounts() {
   try {
@@ -99,12 +105,6 @@ const accountDrawerShow = ref(false);
 function openAccountDrawer() {
   accountDrawerShow.value = true;
 }
-
-// 表格缩略图缓存
-const tableThumbnails = reactive<Record<string, string>>({});
-const thumbnailLoading = reactive<Record<string, boolean>>({});
-// 树相关
-const selectedTreeKey = ref<string[]>([]);
 
 // mkdir 弹窗
 const mkdirModal = reactive({
@@ -643,214 +643,214 @@ onMounted(() => loadAccounts());
 
 <template>
   <div style="height: 100%">
-    <n-layout :has-sider="!appStore.isMobile" style="height: 100%">
-    <!-- 左侧目录树 -->
-    <n-layout-sider v-if="!appStore.isMobile" :width="220" bordered content-style="padding: 8px;">
-      <n-space vertical :size="8" style="height: 100%;">
-        <div style="font-size: 12px; color: #888; padding: 4px 4px 8px;">
-          云文件
-        </div>
-        <n-spin :show="store.loading" style="flex: 1; overflow: auto;">
-          <n-tree
-            v-model:selected-keys="selectedTreeKey"
-            :data="store.treeData"
-            block-line
-            expand-on-click
-            select-on-click
-            virtual-scroll
-            :load-mode="(mode: string) => mode"
-            @load="handleTreeLoad"
-            @update:selected-keys="handleTreeSelect"
-          />
-        </n-spin>
-      </n-space>
-    </n-layout-sider>
+    <NLayout :has-sider="!appStore.isMobile" style="height: 100%">
+      <!-- 左侧目录树 -->
+      <NLayoutSider v-if="!appStore.isMobile" :width="220" bordered content-style="padding: 8px;">
+        <NSpace vertical :size="8" style="height: 100%;">
+          <div style="font-size: 12px; color: #888; padding: 4px 4px 8px;">
+            云文件
+          </div>
+          <NSpin :show="store.loading" style="flex: 1; overflow: auto;">
+            <NTree
+              v-model:selected-keys="selectedTreeKey"
+              :data="store.treeData"
+              block-line
+              expand-on-click
+              select-on-click
+              virtual-scroll
+              :load-mode="(mode: string) => mode"
+              @load="handleTreeLoad"
+              @update:selected-keys="handleTreeSelect"
+            />
+          </NSpin>
+        </NSpace>
+      </NLayoutSider>
 
-    <!-- 右侧内容区 -->
-    <n-layout-content content-style="display: flex; flex-direction: column; height: 100%;">
-      <!-- 账号选择器 -->
-      <div
-        :style="{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: appStore.isMobile ? '8px 8px 0' : '8px 16px 0',
-          flexWrap: appStore.isMobile ? 'wrap' : 'nowrap'
-        }"
-      >
-        <n-select
-          v-model:value="store.currentAccountId"
-          :options="accountOptions"
-          placeholder="选择账号"
-          :style="{ width: appStore.isMobile ? '220px' : '200px' }"
-          @update:value="handleAccountChange"
-        />
-        <n-button size="small" @click="openAccountDrawer">
-          <template #icon><settings-outline /></template>
-          管理
-        </n-button>
-      </div>
-
-      <!-- 工具栏：面包屑 + 操作按钮 -->
-      <div
-        :style="{
-          display: 'flex',
-          alignItems: appStore.isMobile ? 'stretch' : 'center',
-          flexDirection: appStore.isMobile ? 'column' : 'row',
-          gap: '12px',
-          padding: appStore.isMobile ? '8px' : '8px 16px',
-          borderBottom: '1px solid #f0f0f0',
-          flexShrink: 0
-        }"
-      >
-        <!-- 面包屑 -->
-        <n-breadcrumb style="flex: 1; min-width: 0;">
-          <n-breadcrumb-item
-            v-for="crumb in breadcrumbs"
-            :key="crumb.path"
-            :clickable="crumb.path !== store.currentPath"
-            @click="handleBreadcrumbNavigate(crumb.path)"
-          >
-            {{ crumb.label }}
-          </n-breadcrumb-item>
-        </n-breadcrumb>
-
-        <!-- 操作按钮 -->
-        <n-space :wrap="appStore.isMobile">
-          <!-- 新建目录 -->
-          <n-button size="small" @click="openMkdirModal">
-            <template #icon>
-              <folder-outline />
-            </template>
-            新建目录
-          </n-button>
-
-          <!-- 上传 -->
-          <n-upload
-            :custom-request="customUpload"
-            :show-file-list="false"
-            :disabled="isUploading"
-            multiple
-          >
-            <n-button size="small" :loading="isUploading">
-              <template #icon>
-                <cloud-upload-outline />
-              </template>
-              {{ isUploading ? '上传中...' : '上传文件' }}
-            </n-button>
-          </n-upload>
-
-          <!-- 刷新 -->
-          <n-button size="small" @click="handleRefresh">
-            <template #icon>
-              <construct-outline />
-            </template>
-            刷新
-          </n-button>
-        </n-space>
-      </div>
-
-      <!-- 文件列表 / 文件详情 -->
-      <div :style="{ flex: 1, overflow: 'auto', padding: appStore.isMobile ? '8px' : '8px 16px' }">
-        <!-- 文件详情视图 -->
-        <FileDetailPanel
-          v-if="store.viewMode === 'file-detail' && store.selectedNode"
-          :file="{
-            name: store.selectedNode.label,
-            path: store.selectedNode.path,
-            size: store.selectedNode.size ?? 0,
-            contentType: store.selectedNode.contentType ?? null,
-            lastModified: store.selectedNode.lastModified ?? null,
-            isDirectory: false
+      <!-- 右侧内容区 -->
+      <NLayoutContent content-style="display: flex; flex-direction: column; height: 100%;">
+        <!-- 账号选择器 -->
+        <div
+          :style="{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: appStore.isMobile ? '8px 8px 0' : '8px 16px 0',
+            flexWrap: appStore.isMobile ? 'wrap' : 'nowrap'
           }"
-          @back="handleBackToDirectory"
-          @download="handleDownload(store.selectedNode as any)"
-          @rename="handleRename(store.selectedNode as any)"
-          @move="handleMove(store.selectedNode as any)"
-          @copy="handleCopy(store.selectedNode as any)"
-          @delete="handleDelete(store.selectedNode as any)"
-        />
+        >
+          <NSelect
+            v-model:value="store.currentAccountId"
+            :options="accountOptions"
+            placeholder="选择账号"
+            :style="{ width: appStore.isMobile ? '220px' : '200px' }"
+            @update:value="handleAccountChange"
+          />
+          <NButton size="small" @click="openAccountDrawer">
+            <template #icon><SettingsOutline /></template>
+            管理
+          </NButton>
+        </div>
 
-        <!-- 目录表格视图 -->
-        <template v-else>
-          <n-data-table
-            :columns="columns"
-            :data="store.fileList"
-            :loading="store.loading"
-            :pagination="false"
-            :row-key="(row: Api.CloudFile.CloudFileItem) => row.path"
-            :row-props="(row: Api.CloudFile.CloudFileItem) => ({
-              style: 'cursor: pointer;',
-              onClick: () => handleRowClick(row)
-            })"
-            striped
+        <!-- 工具栏：面包屑 + 操作按钮 -->
+        <div
+          :style="{
+            display: 'flex',
+            alignItems: appStore.isMobile ? 'stretch' : 'center',
+            flexDirection: appStore.isMobile ? 'column' : 'row',
+            gap: '12px',
+            padding: appStore.isMobile ? '8px' : '8px 16px',
+            borderBottom: '1px solid #f0f0f0',
+            flexShrink: 0
+          }"
+        >
+          <!-- 面包屑 -->
+          <NBreadcrumb style="flex: 1; min-width: 0;">
+            <NBreadcrumbItem
+              v-for="crumb in breadcrumbs"
+              :key="crumb.path"
+              :clickable="crumb.path !== store.currentPath"
+              @click="handleBreadcrumbNavigate(crumb.path)"
+            >
+              {{ crumb.label }}
+            </NBreadcrumbItem>
+          </NBreadcrumb>
+
+          <!-- 操作按钮 -->
+          <NSpace :wrap="appStore.isMobile">
+            <!-- 新建目录 -->
+            <NButton size="small" @click="openMkdirModal">
+              <template #icon>
+                <FolderOutline />
+              </template>
+              新建目录
+            </NButton>
+
+            <!-- 上传 -->
+            <NUpload
+              :custom-request="customUpload"
+              :show-file-list="false"
+              :disabled="isUploading"
+              multiple
+            >
+              <NButton size="small" :loading="isUploading">
+                <template #icon>
+                  <CloudUploadOutline />
+                </template>
+                {{ isUploading ? '上传中...' : '上传文件' }}
+              </NButton>
+            </NUpload>
+
+            <!-- 刷新 -->
+            <NButton size="small" @click="handleRefresh">
+              <template #icon>
+                <ConstructOutline />
+              </template>
+              刷新
+            </NButton>
+          </NSpace>
+        </div>
+
+        <!-- 文件列表 / 文件详情 -->
+        <div :style="{ flex: 1, overflow: 'auto', padding: appStore.isMobile ? '8px' : '8px 16px' }">
+          <!-- 文件详情视图 -->
+          <FileDetailPanel
+            v-if="store.viewMode === 'file-detail' && store.selectedNode"
+            :file="{
+              name: store.selectedNode.label,
+              path: store.selectedNode.path,
+              size: store.selectedNode.size ?? 0,
+              contentType: store.selectedNode.contentType ?? null,
+              lastModified: store.selectedNode.lastModified ?? null,
+              isDirectory: false
+            }"
+            @back="handleBackToDirectory"
+            @download="handleDownload(store.selectedNode as any)"
+            @rename="handleRename(store.selectedNode as any)"
+            @move="handleMove(store.selectedNode as any)"
+            @copy="handleCopy(store.selectedNode as any)"
+            @delete="handleDelete(store.selectedNode as any)"
           />
 
-          <!-- 空状态 -->
-          <n-empty
-            v-if="!store.loading && store.isEmpty"
-            description="该目录为空"
-            style="margin-top: 48px;"
-          />
-        </template>
-      </div>
-    </n-layout-content>
-  </n-layout>
+          <!-- 目录表格视图 -->
+          <template v-else>
+            <NDataTable
+              :columns="columns"
+              :data="store.fileList"
+              :loading="store.loading"
+              :pagination="false"
+              :row-key="(row: any) => row.path"
+              :row-props="(row: any) => ({
+                style: 'cursor: pointer;',
+                onClick: () => handleRowClick(row)
+              })"
+              striped
+            />
+
+            <!-- 空状态 -->
+            <NEmpty
+              v-if="!store.loading && store.isEmpty"
+              description="该目录为空"
+              style="margin-top: 48px;"
+            />
+          </template>
+        </div>
+      </NLayoutContent>
+    </NLayout>
   </div>
 
   <!-- 账号管理抽屉 -->
-  <account-drawer
+  <AccountDrawer
     v-model:show="accountDrawerShow"
     account-type="webdav"
     @account-change="handleAccountChange"
   />
 
   <!-- 新建目录弹窗 -->
-  <n-modal
+  <NModal
     v-model:show="mkdirModal.show"
     preset="card"
     title="新建目录"
     style="width: 400px;"
   >
-    <n-input
+    <NInput
       v-model:value="mkdirModal.name"
       placeholder="请输入目录名称"
       @keyup.enter="handleMkdirSubmit"
     />
     <template #footer>
-      <n-space justify="end">
-        <n-button @click="mkdirModal.show = false">取消</n-button>
-        <n-button type="primary" :loading="mkdirModal.creating" @click="handleMkdirSubmit">
+      <NSpace justify="end">
+        <NButton @click="mkdirModal.show = false">取消</NButton>
+        <NButton type="primary" :loading="mkdirModal.creating" @click="handleMkdirSubmit">
           创建
-        </n-button>
-      </n-space>
+        </NButton>
+      </NSpace>
     </template>
-  </n-modal>
+  </NModal>
 
   <!-- 重命名弹窗 -->
-  <n-modal
+  <NModal
     v-model:show="renameModal.show"
     preset="card"
     title="重命名"
     style="width: 400px;"
   >
-    <n-input
+    <NInput
       v-model:value="renameModal.newName"
       placeholder="请输入新名称"
       @keyup.enter="handleRenameSubmit"
     />
     <template #footer>
-      <n-space justify="end">
-        <n-button @click="renameModal.show = false">取消</n-button>
-        <n-button type="primary" @click="handleRenameSubmit">
+      <NSpace justify="end">
+        <NButton @click="renameModal.show = false">取消</NButton>
+        <NButton type="primary" @click="handleRenameSubmit">
           确认
-        </n-button>
-      </n-space>
+        </NButton>
+      </NSpace>
     </template>
-  </n-modal>
+  </NModal>
 
   <!-- 编辑器弹窗 -->
-  <cloud-file-editor
+  <CloudFileEditor
     v-model:show="editorModal.show"
     :file="editorModal.file"
     :loading="editorModal.loading"
@@ -859,7 +859,7 @@ onMounted(() => loadAccounts());
   />
 
   <!-- 图片预览弹窗 -->
-  <n-modal
+  <NModal
     v-model:show="imagePreview.show"
     preset="card"
     :title="imagePreview.name"
@@ -867,53 +867,53 @@ onMounted(() => loadAccounts());
     :mask-closable="true"
   >
     <div style="display: flex; justify-content: center; align-items: center; min-height: 200px;">
-      <n-spin :show="imagePreview.loading">
-        <n-image
+      <NSpin :show="imagePreview.loading">
+        <NImage
           v-if="imagePreview.url"
           :src="imagePreview.url"
           style="max-height: 80vh;"
           object-fit="contain"
           show-toolbar-tooltip
         />
-      </n-spin>
+      </NSpin>
     </div>
-  </n-modal>
+  </NModal>
 
   <!-- 移动弹窗 -->
-  <n-modal v-model:show="moveModal.show" preset="card" title="移动文件" style="width: 400px;">
+  <NModal v-model:show="moveModal.show" preset="card" title="移动文件" style="width: 400px;">
     <div style="margin-bottom: 12px;">
       移动 <b>{{ moveModal.file?.name }}</b> 到：
     </div>
-    <n-input
+    <NInput
       v-model:value="moveModal.targetPath"
       placeholder="目标路径，如 /docs"
       @keyup.enter="handleMoveSubmit"
     />
     <template #footer>
-      <n-space justify="end">
-        <n-button @click="moveModal.show = false">取消</n-button>
-        <n-button type="primary" :loading="moveModal.moving" @click="handleMoveSubmit">移动</n-button>
-      </n-space>
+      <NSpace justify="end">
+        <NButton @click="moveModal.show = false">取消</NButton>
+        <NButton type="primary" :loading="moveModal.moving" @click="handleMoveSubmit">移动</NButton>
+      </NSpace>
     </template>
-  </n-modal>
+  </NModal>
 
   <!-- 复制弹窗 -->
-  <n-modal v-model:show="copyModal.show" preset="card" title="复制文件" style="width: 400px;">
+  <NModal v-model:show="copyModal.show" preset="card" title="复制文件" style="width: 400px;">
     <div style="margin-bottom: 12px;">
       复制 <b>{{ copyModal.file?.name }}</b> 到：
     </div>
-    <n-input
+    <NInput
       v-model:value="copyModal.targetPath"
       placeholder="目标路径，如 /backup"
       @keyup.enter="handleCopySubmit"
     />
     <template #footer>
-      <n-space justify="end">
-        <n-button @click="copyModal.show = false">取消</n-button>
-        <n-button type="primary" :loading="copyModal.copying" @click="handleCopySubmit">复制</n-button>
-      </n-space>
+      <NSpace justify="end">
+        <NButton @click="copyModal.show = false">取消</NButton>
+        <NButton type="primary" :loading="copyModal.copying" @click="handleCopySubmit">复制</NButton>
+      </NSpace>
     </template>
-  </n-modal>
+  </NModal>
 </template>
 
 <style scoped></style>

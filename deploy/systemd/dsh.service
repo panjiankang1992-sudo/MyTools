@@ -1,0 +1,24 @@
+[Unit]
+Description=DeepSeek DSH Web RPC Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pankang
+Group=pankang
+WorkingDirectory=/home/pankang
+Environment=HOME=/home/pankang
+ExecStart=/usr/local/bin/dsh --profile web --host 127.0.0.1 --port 3080 --trusted-host dsh.yuyutian.top dsh-app.yuyutian.top 192.168.1.7:3081 192.168.3.159:3081
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=20
+KillSignal=SIGINT
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/home/pankang/.dsh
+
+[Install]
+WantedBy=multi-user.target

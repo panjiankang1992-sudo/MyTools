@@ -1,0 +1,20 @@
+[Unit]
+Description=MyTools rclone Read-only Stream Gateway
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=pankang
+Group=pankang
+EnvironmentFile=/opt/yuyutian/app/MyTools/backend/rclone-rc.env
+ExecStart=/bin/bash -c 'exec /usr/local/bin/rclone serve http pikpak: --config /opt/code/DownloadBot/runtime/rclone/rclone.conf --addr 127.0.0.1:5573 --user "$RCLONE_RC_USER" --pass "$RCLONE_RC_PASSWORD" --read-only --log-level INFO'
+Restart=always
+RestartSec=5s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
