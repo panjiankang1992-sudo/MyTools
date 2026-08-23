@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -89,6 +90,68 @@ class WebDavObjectConnectorTest {
 
         assertThatThrownBy(() -> connector.list(provider("https://example.com/dav"), "../private"))
                 .isInstanceOf(IllegalArgumentException.class).hasMessage("STORAGE_004");
+    }
+
+    @Test
+    void shouldStreamWriteReadAndCompensateDeleteOneObject() throws Exception {
+        AtomicReference<byte[]> stored = new AtomicReference<>();
+        AtomicReference<String> ifNoneMatch = new AtomicReference<>();
+        AtomicBoolean deleted = new AtomicBoolean();
+        server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/dav/books/a.bin", exchange -> {
+            switch (exchange.getRequestMethod()) {
+                case "PUT" -> {
+                    ifNoneMatch.set(exchange.getRequestHeaders().getFirst("If-None-Match"));
+                    byte[] value = exchange.getRequestBody().readAllBytes();
+                    exchange.sendResponseHeaders(stored.compareAndSet(null, value) ? 201 : 412, -1);
+                }
+                case "GET" -> {
+                    byte[] value = stored.get();
+                    exchange.sendResponseHeaders(200, value.length);
+                    exchange.getResponseBody().write(value);
+                }
+                case "DELETE" -> {
+                    deleted.set(true);
+                    exchange.sendResponseHeaders(204, -1);
+                }
+                default -> exchange.sendResponseHeaders(405, -1);
+            }
+            exchange.close();
+        });
+        server.start();
+        WebDavObjectConnector connector = new WebDavObjectConnector(
+                ignored -> Map.of("username", "reader", "password", "private"));
+        StorageProvider provider = provider("http://127.0.0.1:" + server.getAddress().getPort() + "/dav/");
+
+        assertThat(connector.writeContent(provider, "books/a.bin",
+                new java.io.ByteArrayInputStream("payload".getBytes()), 7)).isTrue();
+        assertThat(connector.writeContent(provider, "books/a.bin",
+                new java.io.ByteArrayInputStream("changed".getBytes()), 7)).isFalse();
+        try (var content = connector.openContent(provider, "books/a.bin", 7).stream()) {
+            assertThat(content.readAllBytes()).isEqualTo("payload".getBytes());
+        }
+        connector.deleteContent(provider, "books/a.bin");
+
+        assertThat(stored.get()).isEqualTo("payload".getBytes());
+        assertThat(ifNoneMatch.get()).isEqualTo("*");
+        assertThat(deleted).isTrue();
+    }
+
+    @Test
+    void shouldRejectDeclaredRemoteContentAboveLimit() throws Exception {
+        server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/dav/large.bin", exchange -> {
+            exchange.sendResponseHeaders(200, 8);
+            exchange.getResponseBody().write(new byte[8]);
+            exchange.close();
+        });
+        server.start();
+        WebDavObjectConnector connector = new WebDavObjectConnector(
+                ignored -> Map.of("username", "reader", "password", "private"));
+        StorageProvider provider = provider("http://127.0.0.1:" + server.getAddress().getPort() + "/dav/");
+
+        assertThatThrownBy(() -> connector.openContent(provider, "large.bin", 7))
+                .isInstanceOf(IllegalStateException.class).hasMessage("STORAGE_029");
     }
 
     private StorageProvider provider(String endpoint) {

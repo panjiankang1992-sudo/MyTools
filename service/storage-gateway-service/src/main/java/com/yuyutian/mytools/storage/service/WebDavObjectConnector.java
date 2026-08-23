@@ -2,6 +2,7 @@ package com.yuyutian.mytools.storage.service;
 
 import com.yuyutian.mytools.storage.model.ErrorCode;
 import com.yuyutian.mytools.storage.model.RemoteObjectView;
+import com.yuyutian.mytools.storage.model.RemoteContent;
 import com.yuyutian.mytools.storage.model.StorageProvider;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.xml.sax.InputSource;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -28,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 使用 WebDAV PROPFIND 原生读取单级目录。
@@ -63,6 +67,18 @@ public class WebDavObjectConnector implements ProviderObjectConnector {
     @Override
     public String providerType() {
         return "WEBDAV";
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean supportsContentRead() {
+        return true;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean supportsContentWrite() {
+        return true;
     }
 
     /**
@@ -101,6 +117,122 @@ public class WebDavObjectConnector implements ProviderObjectConnector {
             if (exception instanceof IllegalStateException stateException) {
                 throw stateException;
             }
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        }
+    }
+
+    /**
+     * 使用原生 GET 打开一个受限普通文件。
+     *
+     * @param provider Provider 配置
+     * @param path 安全相对路径
+     * @param maximumBytes 最大字节数
+     * @return 有界内容流
+     */
+    @Override
+    public RemoteContent openContent(
+            StorageProvider provider, String path, long maximumBytes) {
+        String safePath = RemotePathValidator.validate(path, false);
+        URI requestUri = objectUri(provider, safePath);
+        HttpRequest request = authenticated(provider, requestUri).GET().build();
+        try {
+            HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            long length = response.headers().firstValueAsLong("Content-Length").orElse(-1);
+            if (response.statusCode() != 200 || length < 0 || length > maximumBytes) {
+                response.body().close();
+                throw new IllegalStateException(length > maximumBytes
+                        ? ErrorCode.REMOTE_CONTENT_TOO_LARGE.code() : ErrorCode.REMOTE_FAILURE.code());
+            }
+            return new RemoteContent(
+                    new BoundedInputStream(response.body(), maximumBytes), length);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        } catch (IOException exception) {
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        }
+    }
+
+    /**
+     * 使用原生 PUT 流式写入一个普通文件。
+     *
+     * @param provider Provider 配置
+     * @param path 安全相对路径
+     * @param content 内容流
+     * @param contentLength 精确内容长度
+     * @return 是否由本次请求创建目标
+     */
+    @Override
+    public boolean writeContent(StorageProvider provider, String path, InputStream content, long contentLength) {
+        String safePath = RemotePathValidator.validate(path, false);
+        HttpRequest.BodyPublisher publisher = HttpRequest.BodyPublishers.fromPublisher(
+                HttpRequest.BodyPublishers.ofInputStream(() -> content), contentLength);
+        HttpRequest request = authenticated(provider, objectUri(provider, safePath))
+                .header("Content-Type", "application/octet-stream")
+                .header("If-None-Match", "*").PUT(publisher).build();
+        return sendWrite(request);
+    }
+
+    /**
+     * 使用原生 DELETE 补偿删除一个普通文件。
+     *
+     * @param provider Provider 配置
+     * @param path 安全相对路径
+     */
+    @Override
+    public void deleteContent(StorageProvider provider, String path) {
+        String safePath = RemotePathValidator.validate(path, false);
+        HttpRequest request = authenticated(provider, objectUri(provider, safePath)).DELETE().build();
+        sendWithoutBody(request, Set.of(200, 204, 404));
+    }
+
+    private HttpRequest.Builder authenticated(StorageProvider provider, URI uri) {
+        Map<String, String> secret = secretResolver.resolve(provider.secretRef());
+        String credential = required(secret, "username") + ":" + required(secret, "password");
+        return HttpRequest.newBuilder(uri).timeout(Duration.ofMinutes(30))
+                .header("Authorization", "Basic " + Base64.getEncoder().encodeToString(
+                        credential.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private URI objectUri(StorageProvider provider, String path) {
+        return appendObjectPath(NativeProviderEndpointValidator.webDav(provider.endpointUri()), path);
+    }
+
+    private URI appendObjectPath(URI endpoint, String path) {
+        String encoded = java.util.Arrays.stream(path.split("/"))
+                .map(segment -> URLEncoder.encode(segment, StandardCharsets.UTF_8).replace("+", "%20"))
+                .collect(java.util.stream.Collectors.joining("/"));
+        return endpoint.resolve(encoded);
+    }
+
+    private void sendWithoutBody(HttpRequest request, java.util.Set<Integer> successCodes) {
+        try {
+            HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+            if (!successCodes.contains(response.statusCode())) {
+                throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+            }
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        } catch (IOException exception) {
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        }
+    }
+
+    private boolean sendWrite(HttpRequest request) {
+        try {
+            HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+            if (Set.of(200, 201, 204).contains(response.statusCode())) {
+                return true;
+            }
+            if (response.statusCode() == 412) {
+                return false;
+            }
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        } catch (IOException exception) {
             throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
         }
     }

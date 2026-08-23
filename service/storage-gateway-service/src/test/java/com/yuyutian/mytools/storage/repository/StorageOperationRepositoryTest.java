@@ -123,6 +123,26 @@ class StorageOperationRepositoryTest {
                 .isInstanceOf(IllegalStateException.class).hasMessage("STORAGE_017");
     }
 
+    @Test
+    void shouldPersistAndClearConfirmedNativeTargetOwnership() {
+        Instant now = Instant.now();
+        String suffix = UUID.randomUUID().toString();
+        StorageProvider provider = new StorageProvider(UUID.randomUUID(), "native-owner-" + suffix,
+                "WEBDAV", "native-owner-" + suffix, "https://dav.example.com/", null,
+                "env://WEBDAV_SECRET", true, now, now);
+        repository.insertProvider(provider);
+        StorageOperation operation = new StorageOperation(UUID.randomUUID(), provider.id(), "native-" + suffix,
+                "COPY_OBJECT", "source.bin", provider.id(), "target.bin", "CREATED", null, null,
+                0, 1, null, now, now);
+        repository.insertOperation(operation);
+        repository.bindOperationTask(operation.id(), UUID.randomUUID());
+
+        repository.markNativeTargetCreated(operation.id());
+        assertThat(repository.ownsNativeTarget(operation.id())).isTrue();
+        repository.clearNativeTargetCreated(operation.id());
+        assertThat(repository.ownsNativeTarget(operation.id())).isFalse();
+    }
+
     private String digest(String value) throws Exception {
         return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                 .digest(value.getBytes(StandardCharsets.UTF_8)));

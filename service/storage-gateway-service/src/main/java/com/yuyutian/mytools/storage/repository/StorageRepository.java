@@ -160,6 +160,44 @@ public class StorageRepository {
     }
 
     /**
+     * 记录原生复制目标由本操作确认创建。
+     *
+     * @param operationId 操作标识
+     */
+    public void markNativeTargetCreated(UUID operationId) {
+        int updated = jdbcTemplate.update("""
+                UPDATE storage_operation SET native_target_created = TRUE, updated_at = ?
+                WHERE id = ? AND operation_type = 'COPY_OBJECT' AND status = 'RUNNING'
+                """, Timestamp.from(Instant.now()), operationId.toString());
+        if (updated != 1) {
+            throw new IllegalStateException(ErrorCode.OPERATION_STATE_INVALID.code());
+        }
+    }
+
+    /**
+     * 查询原生复制操作是否确认拥有目标。
+     *
+     * @param operationId 操作标识
+     * @return 是否拥有目标
+     */
+    public boolean ownsNativeTarget(UUID operationId) {
+        Boolean value = jdbcTemplate.queryForObject(
+                "SELECT native_target_created FROM storage_operation WHERE id = ?", Boolean.class,
+                operationId.toString());
+        return Boolean.TRUE.equals(value);
+    }
+
+    /**
+     * 清除已补偿删除的目标所有权标记。
+     *
+     * @param operationId 操作标识
+     */
+    public void clearNativeTargetCreated(UUID operationId) {
+        jdbcTemplate.update("UPDATE storage_operation SET native_target_created = FALSE, updated_at = ? WHERE id = ?",
+                Timestamp.from(Instant.now()), operationId.toString());
+    }
+
+    /**
      * 新增只保存摘要的访问票据。
      *
      * @param ticket 票据

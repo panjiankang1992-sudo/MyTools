@@ -8,9 +8,12 @@ import com.yuyutian.mytools.storage.model.ReconciliationDigest;
 import com.yuyutian.mytools.storage.model.RemoteJobView;
 import com.yuyutian.mytools.storage.model.AbortMoveRequest;
 import com.yuyutian.mytools.storage.model.MoveProgress;
+import com.yuyutian.mytools.storage.model.NativeWriteResult;
+import com.yuyutian.mytools.storage.model.RemoteContent;
 import com.yuyutian.mytools.storage.service.InternalAuthorizer;
 import com.yuyutian.mytools.storage.service.StorageOperationService;
 import com.yuyutian.mytools.storage.service.StorageMoveService;
+import com.yuyutian.mytools.storage.service.StorageNativeCopyService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +23,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.MediaType;
+
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 import java.util.UUID;
 
@@ -32,6 +43,7 @@ public class StorageOperationController {
     private final StorageOperationService operationService;
     private final InternalAuthorizer authorizer;
     private final StorageMoveService moveService;
+    private final StorageNativeCopyService nativeCopyService;
 
     /**
      * 创建操作控制器。
@@ -39,12 +51,14 @@ public class StorageOperationController {
      * @param operationService 操作服务
      * @param authorizer 内部鉴权器
      * @param moveService 远端移动服务
+     * @param nativeCopyService 原生复制服务
      */
     public StorageOperationController(StorageOperationService operationService, InternalAuthorizer authorizer,
-                                      StorageMoveService moveService) {
+                                      StorageMoveService moveService, StorageNativeCopyService nativeCopyService) {
         this.operationService = operationService;
         this.authorizer = authorizer;
         this.moveService = moveService;
+        this.nativeCopyService = nativeCopyService;
     }
 
     /**
@@ -120,6 +134,78 @@ public class StorageOperationController {
             @RequestHeader("Authorization") String authorization) {
         authorizer.require(authorization);
         operationService.stopRemoteJob(id);
+    }
+
+    /**
+     * 流式读取原生复制操作定义的来源对象。
+     *
+     * @param id 操作标识
+     * @param authorization 授权头
+     * @return 来源对象流
+     */
+    @GetMapping("/{id}/native-copy/source")
+    public ResponseEntity<InputStreamResource> nativeCopySource(@PathVariable UUID id,
+            @RequestHeader("Authorization") String authorization) {
+        authorizer.require(authorization);
+        return contentResponse(nativeCopyService.source(id));
+    }
+
+    /**
+     * 流式写入原生复制操作定义的目标对象。
+     *
+     * @param id 操作标识
+     * @param authorization 授权头
+     * @param contentLength 精确内容长度
+     * @param sha256 内容摘要
+     * @param request HTTP 请求
+     * @return 写入结果
+     * @throws IOException 无法读取请求流
+     */
+    @PutMapping(path = "/{id}/native-copy/target", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public NativeWriteResult writeNativeCopyTarget(@PathVariable UUID id,
+            @RequestHeader("Authorization") String authorization,
+            @RequestParam long contentLength, @RequestParam String sha256,
+            HttpServletRequest request) throws IOException {
+        authorizer.require(authorization);
+        if (request.getContentLengthLong() != contentLength) {
+            throw new IllegalArgumentException(com.yuyutian.mytools.storage.model.ErrorCode.CONTENT_MISMATCH.code());
+        }
+        return nativeCopyService.writeTarget(id, request.getInputStream(), contentLength, sha256);
+    }
+
+    /**
+     * 流式读取原生复制操作定义的目标对象用于复验。
+     *
+     * @param id 操作标识
+     * @param authorization 授权头
+     * @return 目标对象流
+     */
+    @GetMapping("/{id}/native-copy/target")
+    public ResponseEntity<InputStreamResource> nativeCopyTarget(@PathVariable UUID id,
+            @RequestHeader("Authorization") String authorization) {
+        authorizer.require(authorization);
+        return contentResponse(nativeCopyService.target(id));
+    }
+
+    /**
+     * 补偿删除原生复制操作定义的目标对象。
+     *
+     * @param id 操作标识
+     * @param authorization 授权头
+     */
+    @DeleteMapping("/{id}/native-copy/target")
+    public void deleteNativeCopyTarget(@PathVariable UUID id,
+            @RequestHeader("Authorization") String authorization) {
+        authorizer.require(authorization);
+        nativeCopyService.deleteTarget(id);
+    }
+
+    private ResponseEntity<InputStreamResource> contentResponse(RemoteContent content) {
+        ResponseEntity.BodyBuilder response = ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM);
+        if (content.contentLength() >= 0) {
+            response.contentLength(content.contentLength());
+        }
+        return response.body(new InputStreamResource(content.stream()));
     }
 
     /**

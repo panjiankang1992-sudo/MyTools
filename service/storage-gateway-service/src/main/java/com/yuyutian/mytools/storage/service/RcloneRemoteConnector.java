@@ -130,6 +130,12 @@ public class RcloneRemoteConnector implements ProviderObjectConnector {
         return "RCLONE";
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public boolean supportsContentRead() {
+        return true;
+    }
+
     /**
      * 使用 Provider 内部 remote 键列目录。
      *

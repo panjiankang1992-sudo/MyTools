@@ -32,6 +32,7 @@ public class StorageOperationService {
     private final StorageTaskSchedulerClient schedulerClient;
     private final RcloneRemoteConnector remoteConnector;
     private final StorageMoveRepository moveRepository;
+    private final ProviderObjectConnectorRegistry connectorRegistry;
 
     /**
      * 创建异步操作服务。
@@ -40,13 +41,16 @@ public class StorageOperationService {
      * @param schedulerClient 调度客户端
      * @param remoteConnector 远程存储连接器
      * @param moveRepository 移动状态仓储
+     * @param connectorRegistry Provider 连接器注册表
      */
     public StorageOperationService(StorageRepository repository, StorageTaskSchedulerClient schedulerClient,
-                                   RcloneRemoteConnector remoteConnector, StorageMoveRepository moveRepository) {
+                                   RcloneRemoteConnector remoteConnector, StorageMoveRepository moveRepository,
+                                   ProviderObjectConnectorRegistry connectorRegistry) {
         this.repository = repository;
         this.schedulerClient = schedulerClient;
         this.remoteConnector = remoteConnector;
         this.moveRepository = moveRepository;
+        this.connectorRegistry = connectorRegistry;
     }
 
     /**
@@ -59,7 +63,8 @@ public class StorageOperationService {
         String sourcePath = normalizePath(request.sourcePath());
         String targetPath = normalizeTarget(request.operationType(), request.targetPath());
         UUID targetProviderId = targetProvider(request.operationType(), request.targetProviderId());
-        if ("MOVE_TREE".equals(request.operationType()) && (sourcePath.isEmpty() || targetPath.isEmpty())) {
+        if (("MOVE_TREE".equals(request.operationType()) || "COPY_OBJECT".equals(request.operationType()))
+                && (sourcePath.isEmpty() || targetPath.isEmpty())) {
             throw new IllegalArgumentException(ErrorCode.PATH_INVALID.code());
         }
         if (targetProviderId != null && request.providerId().equals(targetProviderId)
@@ -76,9 +81,15 @@ public class StorageOperationService {
         StorageProvider provider = repository.findProviderById(request.providerId())
                 .filter(StorageProvider::enabled)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
+        StorageProvider target = null;
         if (targetProviderId != null) {
-            repository.findProviderById(targetProviderId).filter(StorageProvider::enabled)
+            target = repository.findProviderById(targetProviderId).filter(StorageProvider::enabled)
                     .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
+        }
+        if ("COPY_OBJECT".equals(request.operationType())
+                && (!connectorRegistry.supportsContentRead(provider)
+                || !connectorRegistry.supportsContentWrite(target))) {
+            throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_UNSUPPORTED.code());
         }
         Instant now = Instant.now();
         StorageOperation operation = existing == null

@@ -1,0 +1,1 @@
+{"type":"object","required":["operationId","contentLength","sha256","status"],"properties":{"operationId":{"type":"string","format":"uuid"},"contentLength":{"type":"integer","minimum":0},"sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"},"status":{"const":"SUCCEEDED"}},"additionalProperties":false}

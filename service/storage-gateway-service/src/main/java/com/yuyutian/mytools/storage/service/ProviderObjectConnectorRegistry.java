@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.io.InputStream;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,5 +51,33 @@ public class ProviderObjectConnectorRegistry {
             throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
         }
         return connector.openContent(provider, path, maximumBytes);
+    }
+
+    /** 流式写入远端对象。 @param provider Provider @param path 路径 @param content 内容流 @param contentLength 长度 */
+    public boolean writeContent(StorageProvider provider, String path, InputStream content, long contentLength) {
+        return connector(provider).writeContent(provider, path, content, contentLength);
+    }
+
+    /** 补偿删除远端对象。 @param provider Provider @param path 路径 */
+    public void deleteContent(StorageProvider provider, String path) {
+        connector(provider).deleteContent(provider, path);
+    }
+
+    /** 判断 Provider 是否支持内容读取。 @param provider Provider @return 是否支持 */
+    public boolean supportsContentRead(StorageProvider provider) {
+        return connector(provider).supportsContentRead();
+    }
+
+    /** 判断 Provider 是否支持内容写入。 @param provider Provider @return 是否支持 */
+    public boolean supportsContentWrite(StorageProvider provider) {
+        return connector(provider).supportsContentWrite();
+    }
+
+    private ProviderObjectConnector connector(StorageProvider provider) {
+        ProviderObjectConnector connector = connectors.get(provider.providerType());
+        if (connector == null) {
+            throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
+        }
+        return connector;
     }
 }

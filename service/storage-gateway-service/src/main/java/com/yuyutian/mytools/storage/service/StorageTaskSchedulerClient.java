@@ -47,6 +47,7 @@ public class StorageTaskSchedulerClient {
         }
         String taskName = switch (operation.operationType()) {
             case "SCAN_ROOT" -> "storage_scan_root";
+            case "COPY_OBJECT" -> "storage_copy_object";
             case "COPY_TREE" -> "storage_copy_tree";
             case "MOVE_TREE" -> "storage_move_tree";
             case "SYNC_REMOTE" -> "storage_sync_remote";

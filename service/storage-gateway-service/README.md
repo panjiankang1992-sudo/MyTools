@@ -26,7 +26,9 @@ Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 
 
 远端账户通过 `POST /api/internal/v1/storage/providers` 注册，只持久化 `secretRef`，响应不返回 remote 键、端点或密钥引用。`GET /api/internal/v1/storage/providers/{id}/objects` 按 Provider 类型选择受控连接器：`RCLONE` 调用服务端配置的回环 RC `operations/list`；`WEBDAV` 使用原生 `PROPFIND Depth: 1`，只允许 HTTPS 或测试用回环 HTTP、禁止重定向并限制 XML 响应大小和对象数。WebDAV 凭据当前从 `env://ENVIRONMENT_NAME` 引用的 JSON 对象按需读取，至少包含 `username` 和 `password`，不会写入数据库或响应。
 
-原生 WebDAV 和 S3 首版只负责轻量单级目录查询。S3 使用路径风格 ListObjectsV2 和 SigV4，支持临时会话令牌，单页最多 1000 项、最多 10 页；继续截断时返回稳定上限错误并要求改走扫描任务。S3 Provider 的 `remoteKey` 表示 bucket，`regionName` 表示签名区域，凭据 JSON 至少包含 `accessKeyId` 和 `secretAccessKey`，可选 `sessionToken`。递归扫描、复制、移动和同步仍必须走异步任务与现有 rclone 后端；原生远端写入将在后续迁移中逐项开放。
+原生 WebDAV 和 S3 支持轻量单级目录查询。S3 使用路径风格 ListObjectsV2 和 SigV4，支持临时会话令牌，单页最多 1000 项、最多 10 页；继续截断时返回稳定上限错误并要求改走扫描任务。S3 Provider 的 `remoteKey` 表示 bucket，`regionName` 表示签名区域，凭据 JSON 至少包含 `accessKeyId` 和 `secretAccessKey`，可选 `sessionToken`。
+
+`COPY_OBJECT` 是首个原生异步写操作：来源可为 RCLONE 或原生 WebDAV，目标当前只允许原生 WebDAV。创建操作时必须提供非空的服务端 Provider UUID 和相对对象路径，Scheduler 参数仍只有 `operationId`。`storage_copy_object` 在 Executor 工作目录有界暂存来源、计算 SHA-256、通过操作专属条件 PUT 写入目标并复读校验；`If-None-Match: *` 防止覆盖既有对象，V10 所有权标记确保失败、超时或取消步骤只删除本操作确认创建的目标。既有同路径对象只允许复验，永不由补偿步骤删除。成功终态由复验后的独立步骤提交，目标路径写入栅栏防止并发 COPY/MOVE/SYNC 写入相同或上下级路径。`STORAGE_NATIVE_COPY_MAXIMUM_BYTES` 在 Gateway 与 Executor 两侧必须配置为相同值，默认 20 GiB。原生 S3 写入、递归树复制、移动和同步仍待逐项实现，现有 rclone 任务保持不变。
 
 `POST /api/internal/v1/storage/operations` 当前开放已落地的 `SCAN_ROOT`。它创建 `storage_scan_root` 调度实例，Executor 广度遍历远端目录并以最多 500 项的批次幂等回写 `storage_operation_item`；对象总量受 `maximumObjects` 硬限制。成功、失败、超时和取消都会回写稳定终态，任务参数只携带 Provider UUID，不携带 remote 键或密钥。
 
