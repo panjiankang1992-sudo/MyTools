@@ -25,6 +25,9 @@ executor:
   script-environments:
     download_http_asset:
       DOWNLOAD_DESTINATION_ROOT: ${DOWNLOAD_DESTINATION_ROOT:./runtime/downloads}
+    download_record_result:
+      DOWNLOAD_INGESTION_URL: ${DOWNLOAD_INGESTION_URL:http://127.0.0.1:23220}
+      DOWNLOAD_INTERNAL_TOKEN: ${DOWNLOAD_INTERNAL_TOKEN:}
     media_describe_video:
       MEDIA_DESCRIPTION_BASE_URL: ${MEDIA_DESCRIPTION_BASE_URL:}
       MEDIA_DESCRIPTION_MODEL: ${MEDIA_DESCRIPTION_MODEL:qwen-vl}

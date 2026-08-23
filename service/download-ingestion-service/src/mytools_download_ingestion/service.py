@@ -31,6 +31,9 @@ class DownloadRequestRepository(Protocol):
     def update_status(self, request_id: UUID, status: DownloadStatus) -> DownloadRequest:
         """Update one request lifecycle status."""
 
+    def record_result(self, request_id: UUID, result: dict) -> dict:
+        """Idempotently record one verified item and its registered asset."""
+
 
 class TaskScheduler(Protocol):
     """Task Scheduler operations used by download orchestration."""
@@ -94,6 +97,21 @@ class DownloadRequestService:
         return self._repository.update_status(
             current.id, transition(current.status, scheduler_status(str(scheduler_task["status"]))))
 
+    def record_result(self, request_id: UUID, result: dict) -> dict:
+        """Validate and persist a verified executor result callback."""
+        current = self._repository.find_by_id(request_id)
+        if current is None:
+            raise KeyError("download request does not exist")
+        required = ("itemId", "fileName", "contentSha256", "sizeBytes", "storageUri", "assetId")
+        if any(result.get(key) in (None, "") for key in required):
+            raise ValueError("download result is incomplete")
+        digest = str(result["contentSha256"]).lower()
+        if len(digest) != 64 or any(character not in "0123456789abcdef" for character in digest):
+            raise ValueError("download result checksum is invalid")
+        if int(result["sizeBytes"]) < 0:
+            raise ValueError("download result size is invalid")
+        return self._repository.record_result(request_id, {**result, "contentSha256": digest})
+
 
 def scheduler_status(value: str) -> DownloadStatus:
     """Map scheduler lifecycle states to the download aggregate lifecycle."""
@@ -139,6 +157,7 @@ class InMemoryDownloadRequestRepository:
     def __init__(self):
         self._by_id: dict[UUID, DownloadRequest] = {}
         self._by_key: dict[str, UUID] = {}
+        self._results: dict[tuple[UUID, str], dict] = {}
 
     def find_by_idempotency_key(self, key: str) -> DownloadRequest | None:
         """Return a request by key."""
@@ -171,3 +190,12 @@ class InMemoryDownloadRequestRepository:
         updated = replace(current, status=status)
         self._by_id[request_id] = updated
         return updated
+
+    def record_result(self, request_id: UUID, result: dict) -> dict:
+        """Record an immutable result or reject a conflicting replay."""
+        key = (request_id, str(result["itemId"]))
+        existing = self._results.get(key)
+        if existing is not None and existing != result:
+            raise ValueError("download result idempotency conflict")
+        self._results[key] = dict(result)
+        return dict(result)

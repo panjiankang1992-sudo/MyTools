@@ -83,6 +83,19 @@ class DownloadHttpApiTest(unittest.TestCase):
             urlopen(request, timeout=2)
         self.assertEqual(401, raised.exception.code)
 
+    def test_records_executor_result_idempotently(self):
+        """The internal callback accepts a verified logical asset result."""
+        created = self._request("POST", "/api/v1/download-requests", {
+            "idempotencyKey": "http:result-1", "sourceType": "HTTP", "sourceKey": "result-1",
+            "requestKind": "HTTP_ASSET", "parameters": {"itemId": "item-1", "url":
+            "https://example.invalid/file", "fileName": "file.bin"}})
+        payload = {"itemId": "item-1", "fileName": "file.bin", "contentSha256": "a" * 64,
+                   "sizeBytes": 3, "storageUri": "download://executor/r/file.bin",
+                   "assetId": str(uuid4())}
+        path = f"/internal/v1/download-requests/{created['id']}/result"
+        self.assertEqual(payload, self._request("POST", path, payload))
+        self.assertEqual(payload, self._request("POST", path, payload))
+
     def _request(self, method, path, payload=None):
         body = None if payload is None else json.dumps(payload).encode("utf-8")
         request = Request(

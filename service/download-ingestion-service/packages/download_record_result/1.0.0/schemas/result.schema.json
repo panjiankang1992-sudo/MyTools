@@ -1,0 +1,1 @@
+{"type":"object","required":["itemId","assetId"],"properties":{"itemId":{"type":"string"},"assetId":{"type":"string"}}}

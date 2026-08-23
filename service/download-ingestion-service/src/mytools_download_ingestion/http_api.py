@@ -64,6 +64,19 @@ def create_handler(service: DownloadRequestService,
                 return
             path = urlparse(self.path).path
             prefix = "/api/v1/download-requests/"
+            internal_prefix = "/internal/v1/download-requests/"
+            if path.startswith(internal_prefix) and path.endswith("/result"):
+                identifier = path.removeprefix(internal_prefix).removesuffix("/result").rstrip("/")
+                try:
+                    result = service.record_result(UUID(identifier), self._read_json())
+                except KeyError as exception:
+                    self._json(HTTPStatus.NOT_FOUND, {"error": str(exception)})
+                    return
+                except (TypeError, ValueError, json.JSONDecodeError) as exception:
+                    self._json(HTTPStatus.CONFLICT, {"error": str(exception)})
+                    return
+                self._json(HTTPStatus.OK, result)
+                return
             if path.startswith(prefix) and path.endswith("/cancel"):
                 identifier = path.removeprefix(prefix).removesuffix("/cancel").rstrip("/")
                 try:

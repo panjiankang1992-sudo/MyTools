@@ -36,6 +36,8 @@ HTTP 下载成功后追加可忽略的 `asset_register_content` 步骤，将摘�
 
 当前线上契约仅开放已注册执行包的 `HTTP_ASSET`。其余下载类型将在对应任务定义、执行包和回归测试完成后逐项开放。
 
+任务流水线依次执行 `download_asset`、`register_asset` 和 `record_result`。最后一步通过内部 API 将校验摘要、逻辑存储 URI 和 Asset Registry 标识原子写入下载 schema，并生成待发布 outbox 事件；回调可安全重放，内容冲突会拒绝。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。
