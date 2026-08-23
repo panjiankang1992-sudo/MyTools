@@ -86,8 +86,11 @@ public class TaskScriptApiService {
 
     private UUID requireActiveLease(UUID executionId, UUID leaseToken) {
         return jdbcTemplate.query("""
-                SELECT task_instance_id FROM task_execution
-                WHERE id = ? AND lease_token = ? AND status = 'RUNNING' AND lease_until >= ?
+                SELECT execution.task_instance_id FROM task_execution execution
+                JOIN task_instance task ON task.id = execution.task_instance_id
+                WHERE execution.id = ? AND execution.lease_token = ?
+                  AND execution.status = 'RUNNING' AND execution.lease_until >= ?
+                  AND task.status IN ('RUNNING','WAITING_CHILDREN')
                 """, (resultSet, rowNumber) -> UUID.fromString(resultSet.getString(1)),
                 executionId.toString(), leaseToken.toString(), Timestamp.from(Instant.now()))
                 .stream().findFirst()

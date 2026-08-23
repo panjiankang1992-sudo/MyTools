@@ -39,6 +39,11 @@ HTTP 下载成功后追加可忽略的 `asset_register_content` 步骤，将摘�
 `download_storage_object` 任务负责受限读取、摘要校验和向目标托管根的幂等发布；API 和
 下载 schema 不接受任意本机物理路径。
 
+`X_POST` 使用 `download_x_post` 父任务：解析脚本通过受限 `gallery-dl --no-download`
+获得 `twimg.com` HTTPS 媒体清单，为每个媒体幂等创建 `download_http_asset` 子任务并等待
+终态。父任务运行在独立 `download-orchestration` 集群，避免占用实际下载集群造成子任务
+饥饿；Cookie 文件和代理只允许由执行节点环境注入，不进入任务参数或下载 schema。
+
 历史迁移使用 `V3__create_legacy_history_import.sql` 的独立不可变历史表，不把旧完成记录
 伪装成新的 `download_request`，因此不会触发下载。内部接口
 `POST /internal/v1/migrations/downloadbot-history/batches` 支持 dry-run、幂等重放和身份冲突

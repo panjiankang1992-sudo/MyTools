@@ -132,6 +132,21 @@ public class TaskInstanceRepository {
     }
 
     /**
+     * 查询一个父任务尚未结束的直接子任务。
+     *
+     * @param parentTaskInstanceId 父任务标识
+     * @return 活跃直接子任务
+     */
+    public List<TaskInstanceView> findActiveChildren(UUID parentTaskInstanceId) {
+        return jdbcTemplate.query("""
+                SELECT * FROM task_instance
+                WHERE parent_task_instance_id = ?
+                  AND status IN ('CREATED', 'QUEUED', 'RUNNING', 'WAITING_CHILDREN', 'CANCELLING')
+                ORDER BY created_at
+                """, this::mapRow, parentTaskInstanceId.toString());
+    }
+
+    /**
      * 将尚未领取的多节点执行目标标记为取消。
      *
      * @param taskInstanceId 任务实例标识

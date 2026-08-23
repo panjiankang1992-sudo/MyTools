@@ -86,6 +86,8 @@ public class TaskInstanceService {
      */
     @Transactional
     public TaskInstanceView cancel(UUID id) {
+        // 先递归请求取消全部活跃子任务，避免父执行器终止后留下孤儿下载。
+        instanceRepository.findActiveChildren(id).forEach(child -> cancel(child.id()));
         for (int attempt = 0; attempt < 3; attempt++) {
             TaskInstanceView current = get(id);
             if (isTerminal(current.status()) || current.status() == TaskStatus.CANCELLING) {

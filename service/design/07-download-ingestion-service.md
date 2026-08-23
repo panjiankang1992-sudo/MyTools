@@ -34,6 +34,10 @@
 
 下载父任务可创建解析、各文件下载和汇总子任务。脚本通过 Storage Gateway 写 staging，通过 Asset Registry API 发布资产；禁止直接写 Media Library 表。
 
+X 帖子采用解析父任务加 HTTP 文件子任务。解析器只接受单个 `/status/{id}`，只输出
+HTTPS `*.twimg.com` 资源；全部子任务创建后再等待，任一子任务失败时取消仍运行的同批
+任务。解析父任务与实际下载任务使用不同集群，防止父任务等待导致下载 worker 饥饿。
+
 ## DML
 
 下载脚本可用受限 DML 更新下载进度和检查点，但完成状态建议调用 Download 内部 API，以便同时写 Outbox。断点信息必须幂等，重试不得产生第二个资源包。

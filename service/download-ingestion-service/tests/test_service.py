@@ -82,6 +82,15 @@ class DownloadRequestServiceTest(unittest.TestCase):
         self.assertEqual("download_storage_object", scheduler.calls[0]["task_name"])
         self.assertEqual(str(created.id), scheduler.calls[0]["parameters"]["downloadRequestId"])
 
+    def test_routes_x_post_to_child_task_orchestrator(self):
+        """An X request binds to the resolver parent instead of duplicating HTTP download logic."""
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(InMemoryDownloadRequestRepository(), scheduler)
+        created = service.create(CreateDownloadRequest(
+            "x:123", "X", "123", "X_POST", {"url": "https://x.com/user/status/123"}))
+        self.assertEqual("download_x_post", scheduler.calls[0]["task_name"])
+        self.assertEqual(str(created.id), scheduler.calls[0]["parameters"]["downloadRequestId"])
+
     def test_retries_scheduler_binding_for_an_accepted_request(self):
         """A transient scheduler failure must not strand the accepted aggregate."""
         repository = InMemoryDownloadRequestRepository()

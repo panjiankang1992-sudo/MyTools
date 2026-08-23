@@ -87,6 +87,26 @@ class TaskInstanceServiceTest {
     }
 
     @Test
+    void shouldCascadeParentCancellationToQueuedChildren() {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        String parentName = "parent_cancel_" + suffix;
+        String childName = "child_cancel_" + suffix;
+        definitionService.create(new CreateTaskDefinitionRequest(
+                parentName, "Parent cancellation", TaskType.IMMEDIATE, 600, null, null, null,
+                ExecutionMode.SINGLE_NODE, true, 2, "SKIP", "IGNORE", Map.of(), Map.of()));
+        definitionService.create(new CreateTaskDefinitionRequest(
+                childName, "Child cancellation", TaskType.IMMEDIATE, 600, null, null, null,
+                ExecutionMode.SINGLE_NODE, true, 2, "SKIP", "IGNORE", Map.of(), Map.of()));
+        var parent = service.create(new CreateTaskRequest(
+                parentName, "parent_cancel_key_" + suffix, "TEST", "parent", null, 50, Map.of()));
+        var child = service.create(new CreateTaskRequest(
+                childName, "child_cancel_key_" + suffix, "TEST", "child", parent.id(), 50, Map.of()));
+
+        assertEquals(TaskStatus.CANCELLED, service.cancel(parent.id()).status());
+        assertEquals(TaskStatus.CANCELLED, service.get(child.id()).status());
+    }
+
+    @Test
     void shouldPersistentlyTriggerOneMisfiredCronInstance() {
         String suffix = UUID.randomUUID().toString().replace("-", "");
         var definition = definitionService.create(new CreateTaskDefinitionRequest(
