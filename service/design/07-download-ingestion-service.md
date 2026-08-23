@@ -6,11 +6,20 @@
 
 ## 数据模型
 
-- `download_requests`：来源、请求参数、业务状态。
-- `download_items`：一个请求展开出的文件项。
-- `source_references`：消息、URL、帖子、PikPak 等来源。
-- `download_task_bindings`：任务实例关联。
+- `download_request`：来源、请求参数、业务状态。
+- `download_item`：一个请求展开出的文件项。
+- `source_reference`：消息、URL、帖子、PikPak 等来源。
+- `download_task_binding`：任务实例关联。
 - `download_outbox`。
+
+## API
+
+- `POST /api/v1/download-requests`：按全局幂等键接受请求并绑定 Scheduler 任务。
+- `GET /api/v1/download-requests/{id}`：查询请求，同时对账 Scheduler 生命周期状态。
+- `POST /api/v1/download-requests/{id}/cancel`：取消绑定的任务并同步取消状态。
+- `GET /health`：进程健康检查。
+
+首版服务使用 Python 3.12，业务数据写入独立 `mytools_download` schema。Scheduler 短暂不可用时业务请求保留为 `ACCEPTED`，相同幂等键重放会继续创建并绑定任务，不产生第二条下载请求。
 
 ## 任务类型
 
@@ -26,8 +35,8 @@
 
 ## 迁移
 
-1. 保留 DownloadBot 表和模型，给现有 worker 增加任务适配层。
-2. 将 HTTP/X 下载封装为首批脚本。
+1. 保留 DownloadBot 表和模型，给现有 worker 增加默认关闭的任务适配层。
+2. 将 HTTP/X 下载封装为首批脚本；当前已完成受限 HTTP 下载任务。
 3. 迁移 PikPak、magnet 和消息附件。
 4. 双写旧任务状态与新任务绑定并对账。
 5. 关闭旧 worker loop，保留 API、MCP 和业务查询。

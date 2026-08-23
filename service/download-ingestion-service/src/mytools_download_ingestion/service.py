@@ -25,11 +25,17 @@ class DownloadRequestRepository(Protocol):
     def find_by_idempotency_key(self, key: str) -> DownloadRequest | None:
         """Return an existing request by its global idempotency key."""
 
+    def find_by_id(self, request_id: UUID) -> DownloadRequest | None:
+        """Return a request by its business identifier."""
+
     def insert(self, request: DownloadRequest) -> DownloadRequest:
         """Persist a newly accepted request."""
 
     def bind_task(self, request_id: UUID, task_instance_id: UUID) -> DownloadRequest:
         """Bind the scheduler parent task and move the request to running."""
+
+    def update_status(self, request_id: UUID, status: DownloadStatus) -> DownloadRequest:
+        """Update one request lifecycle status."""
 
 
 class TaskScheduler(Protocol):
@@ -38,6 +44,12 @@ class TaskScheduler(Protocol):
     def create_task(self, *, task_name: str, idempotency_key: str,
                     business_id: str, parameters: dict) -> UUID:
         """Idempotently create a scheduler task and return its instance ID."""
+
+    def get_task(self, task_id: UUID) -> dict:
+        """Return one scheduler task representation."""
+
+    def cancel_task(self, task_id: UUID) -> dict:
+        """Request cancellation of one scheduler task."""
 
 
 class DownloadRequestService:
@@ -50,12 +62,14 @@ class DownloadRequestService:
     def create(self, command: CreateDownloadRequest) -> DownloadRequest:
         """Idempotently create a request and its scheduler task binding."""
         existing = self._repository.find_by_idempotency_key(command.idempotency_key)
-        if existing is not None:
+        if existing is not None and existing.task_instance_id is not None:
             return existing
         task_name = TASK_NAMES.get(command.request_kind)
         if task_name is None:
             raise ValueError(f"unsupported download request kind: {command.request_kind}")
-        accepted = self._repository.insert(DownloadRequest.accept(command))
+        accepted = existing or self._repository.insert(DownloadRequest.accept(command))
+        if accepted.task_instance_id is not None:
+            return accepted
         task_id = self._scheduler.create_task(
             task_name=task_name,
             idempotency_key=f"download:{accepted.idempotency_key}",
@@ -63,6 +77,44 @@ class DownloadRequestService:
             parameters={"downloadRequestId": str(accepted.id), **accepted.parameters},
         )
         return self._repository.bind_task(accepted.id, task_id)
+
+    def get(self, request_id: UUID) -> DownloadRequest | None:
+        """Return a request after reconciling its scheduler lifecycle state."""
+        current = self._repository.find_by_id(request_id)
+        if current is None or current.task_instance_id is None:
+            return current
+        scheduler_task = self._scheduler.get_task(current.task_instance_id)
+        status = scheduler_status(str(scheduler_task["status"]))
+        return current if status == current.status else self._repository.update_status(current.id, status)
+
+    def cancel(self, request_id: UUID) -> DownloadRequest | None:
+        """Cancel the bound scheduler task and reconcile the returned state."""
+        current = self._repository.find_by_id(request_id)
+        if current is None or current.task_instance_id is None:
+            return current
+        if current.status in {DownloadStatus.CANCELLED, DownloadStatus.SUCCEEDED, DownloadStatus.FAILED}:
+            return current
+        scheduler_task = self._scheduler.cancel_task(current.task_instance_id)
+        return self._repository.update_status(current.id, scheduler_status(str(scheduler_task["status"])))
+
+
+def scheduler_status(value: str) -> DownloadStatus:
+    """Map scheduler lifecycle states to the download aggregate lifecycle."""
+    mapping = {
+        "CREATED": DownloadStatus.PLANNING,
+        "QUEUED": DownloadStatus.PLANNING,
+        "DISPATCHING": DownloadStatus.RUNNING,
+        "RUNNING": DownloadStatus.RUNNING,
+        "CANCELLING": DownloadStatus.CANCELLING,
+        "CANCELLED": DownloadStatus.CANCELLED,
+        "SUCCEEDED": DownloadStatus.SUCCEEDED,
+        "FAILED": DownloadStatus.FAILED,
+        "TIMED_OUT": DownloadStatus.FAILED,
+    }
+    try:
+        return mapping[value]
+    except KeyError as exception:
+        raise ValueError(f"unsupported scheduler status: {value}") from exception
 
 
 class InMemoryDownloadRequestRepository:
@@ -77,6 +129,10 @@ class InMemoryDownloadRequestRepository:
         request_id = self._by_key.get(key)
         return self._by_id.get(request_id) if request_id else None
 
+    def find_by_id(self, request_id: UUID) -> DownloadRequest | None:
+        """Return a request by identifier."""
+        return self._by_id.get(request_id)
+
     def insert(self, request: DownloadRequest) -> DownloadRequest:
         """Insert one request while enforcing key uniqueness."""
         existing = self.find_by_idempotency_key(request.idempotency_key)
@@ -90,5 +146,12 @@ class InMemoryDownloadRequestRepository:
         """Bind a task to an accepted request."""
         current = self._by_id[request_id]
         updated = replace(current, task_instance_id=task_instance_id, status=DownloadStatus.RUNNING)
+        self._by_id[request_id] = updated
+        return updated
+
+    def update_status(self, request_id: UUID, status: DownloadStatus) -> DownloadRequest:
+        """Update one in-memory aggregate status."""
+        current = self._by_id[request_id]
+        updated = replace(current, status=status)
         self._by_id[request_id] = updated
         return updated

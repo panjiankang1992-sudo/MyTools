@@ -1,0 +1,85 @@
+"""HTTP contract tests for the Download Ingestion service."""
+
+from http.server import ThreadingHTTPServer
+import json
+from pathlib import Path
+import sys
+from threading import Thread
+import unittest
+from urllib.request import Request, urlopen
+from uuid import uuid4
+
+sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
+
+from mytools_download_ingestion.http_api import create_handler
+from mytools_download_ingestion.service import DownloadRequestService, InMemoryDownloadRequestRepository
+
+
+class FakeScheduler:
+    """Provide scheduler behavior for the HTTP boundary."""
+
+    def __init__(self):
+        self.task_id = uuid4()
+        self.status = "QUEUED"
+
+    def create_task(self, **_request):
+        """Return the stable task identifier."""
+        return self.task_id
+
+    def get_task(self, _task_id):
+        """Return the current task state."""
+        return {"id": str(self.task_id), "status": self.status}
+
+    def cancel_task(self, _task_id):
+        """Return a cancelling task state."""
+        self.status = "CANCELLING"
+        return self.get_task(_task_id)
+
+
+class DownloadHttpApiTest(unittest.TestCase):
+    """Validate create, query, and cancellation HTTP contracts."""
+
+    def setUp(self):
+        repository = InMemoryDownloadRequestRepository()
+        scheduler = FakeScheduler()
+        handler = create_handler(DownloadRequestService(repository, scheduler), repository)
+        self.server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+        self.thread = Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        self.base_url = f"http://127.0.0.1:{self.server.server_port}"
+
+    def tearDown(self):
+        self.server.shutdown()
+        self.server.server_close()
+        self.thread.join(timeout=2)
+
+    def test_request_lifecycle_contract(self):
+        """A caller can create, query, and cancel one idempotent request."""
+        payload = {
+            "idempotencyKey": "downloadbot:event-10:0",
+            "sourceType": "HTTP",
+            "sourceKey": "https://example.invalid/file-10",
+            "requestKind": "HTTP_ASSET",
+            "parameters": {
+                "itemId": "item-10",
+                "url": "https://example.invalid/file-10",
+                "fileName": "file.bin",
+            },
+        }
+        created = self._request("POST", "/api/v1/download-requests", payload)
+        queried = self._request("GET", f"/api/v1/download-requests/{created['id']}")
+        cancelled = self._request("POST", f"/api/v1/download-requests/{created['id']}/cancel", {})
+
+        self.assertEqual("RUNNING", created["status"])
+        self.assertEqual("PLANNING", queried["status"])
+        self.assertEqual("CANCELLING", cancelled["status"])
+        self.assertEqual(created["task_instance_id"], queried["task_instance_id"])
+
+    def _request(self, method, path, payload=None):
+        body = None if payload is None else json.dumps(payload).encode("utf-8")
+        request = Request(
+            f"{self.base_url}{path}", data=body, method=method,
+            headers={"Content-Type": "application/json"},
+        )
+        with urlopen(request, timeout=2) as response:
+            return json.loads(response.read().decode("utf-8"))

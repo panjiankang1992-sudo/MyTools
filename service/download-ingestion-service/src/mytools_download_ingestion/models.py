@@ -31,6 +31,16 @@ class CreateDownloadRequest:
     request_kind: str
     parameters: dict[str, Any]
 
+    def __post_init__(self) -> None:
+        """Validate stable request identity and scheduler-compatible fields."""
+        values = (self.idempotency_key, self.source_type, self.source_key, self.request_kind)
+        if any(not value or not value.strip() for value in values):
+            raise ValueError("download request identity fields must not be blank")
+        if len(self.idempotency_key) > 255 or len(self.source_key) > 255:
+            raise ValueError("download request identity exceeds maximum length")
+        if len(self.source_type) > 64 or len(self.request_kind) > 64:
+            raise ValueError("download request type exceeds maximum length")
+
 
 @dataclass(frozen=True, slots=True)
 class DownloadRequest:
