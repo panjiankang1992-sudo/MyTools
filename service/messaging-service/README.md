@@ -22,6 +22,7 @@ Java 21 / Spring Boot
 - `POST /internal/v1/inbound-messages`：provider adapter 幂等写入标准入站消息。
 - `GET /internal/v1/inbound-messages/{id}`：Automation 按消息标识读取标准消息。
 - `POST /internal/v1/adapters/onebot/events`：接收 OneBot 11 原始消息事件并标准化正文与附件引用。
+- `POST /internal/v1/migrations/legacy-inbound/batches`：dry-run 或幂等导入旧 MsgService 的脱敏历史入站消息批次。
 
 OneBot 入站默认由 `MESSAGING_ONEBOT_INGRESS_ENABLED=false` 关闭。灰度时由独立 adapter/反向代理携带内部令牌调用，不修改 DownloadBot 的现有事件消费链。事件幂等键包含 account、self、message type、conversation 和 message id；消息正文与附件分段写入 `inbound_message_part`，附件只保存 provider file id、远程 URL、文件名、MIME 和声明大小，不在 HTTP 入站事务中下载文件。合并转发内容需要由上游 OneBot adapter 展开后提交；未展开的 provider 文件引用将在后续附件下载任务中解析。
 
@@ -30,6 +31,8 @@ OneBot 入站默认由 `MESSAGING_ONEBOT_INGRESS_ENABLED=false` 关闭。灰度�
 MyTools 注册验证码已增加默认关闭的 `MESSAGING_REGISTRATION_MAIL_SIDECAR_ENABLED` 旁路。只有旧 SMTP 调用成功且验证码事务提交后才异步创建新投递；旁路异常不回滚旧链路，开发环境仅打印验证码时不会触发真实旁路邮件。旁路幂等键取验证码记录标识，便于双投递审计和后续切换。
 
 `MESSAGE_AUTOMATION_RELAY_ENABLED` 默认关闭。启用后，Messaging 分批转发未发布的 `MessageReceived` Outbox 事件，Automation 返回成功后才标记 `published_at`；中继失败不丢弃事件，重复发送由下游消息唯一键去重。
+
+历史消息使用 `message_migrate_history` 1.0.0 即时任务迁移。脚本从独立旧服务适配器分页读取脱敏记录，通过内部批次接口写入 `inbound_message` 和 `inbound_history_migration` 审计表；dry-run 不写库，正式导入按来源系统与旧消息标识幂等，并校验载荷摘要。历史导入不会生成 `MessageReceived` Outbox，避免重放实时自动化规则。旧 MsgService 导出适配器及生产副本对账仍待实施。
 
 ## 实施要求
 

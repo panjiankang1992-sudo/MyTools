@@ -18,13 +18,14 @@
 - `POST /internal/v1/adapters/onebot/events`：标准化 OneBot 消息正文和附件引用，默认关闭。
 - `POST /internal/v1/inbound-messages/{messageId}/parts/{partId}/download`：创建附件下载父任务。
 - `POST /internal/v1/attachment-downloads/{jobId}/execute`：由 Executor 幂等创建 Download Ingestion 子任务。
+- `POST /internal/v1/migrations/legacy-inbound/batches`：校验、预演或导入旧系统历史入站消息。
 - `MessageReceived`、`MessageDeliveryRequested`、`MessageDelivered`、`MessageDeliveryFailed`。
 
 ## 任务化操作
 
 - `message_send_email`、`message_send_channel_message`。
 - `message_download_attachment`。
-- `message_backfill_history`、`message_cleanup_retention`。
+- `message_migrate_history`、`message_cleanup_retention`。
 
 步骤脚本调用 Messaging 内部 API 领取经过解析和授权的投递载荷，不能把 SMTP 密码或 Bot Token放进任务参数。
 
@@ -39,9 +40,10 @@
 1. 已建立 provider-neutral 投递、投递尝试、标准入站消息与 Outbox schema，并实现 SMTP 原子 provider。
 2. 已建立只携带 `deliveryId` 的 `message_send_email` 任务，并接入默认关闭、旧事务提交后触发的 MyTools 注册邮件旁路。
 3. 已迁移 OneBot 消息解析和附件标准模型，开关默认关闭；HTTP 附件已通过 `message_download_attachment` 父任务转入 Download Ingestion 子任务，Scheduler 仅持有不透明任务标识。
-4. 迁移 OneBot provider file id 解析以及 QQ、Telegram adapter；渠道凭据只能由隔离 adapter 使用。
-5. 先双投递到审计通道，再切换真实发送。
-6. 删除 MyTools SMTP 和 DownloadBot 渠道发送逻辑。
+4. 已建立历史入站消息批次迁移表、dry-run/幂等导入接口和 `message_migrate_history` 脚本任务；历史记录不产生实时自动化事件。下一步由独立适配器只读分页导出旧 MsgService 数据，并执行生产副本摘要对账。
+5. 迁移 OneBot provider file id 解析以及 QQ、Telegram adapter；渠道凭据只能由隔离 adapter 使用。
+6. 先双投递到审计通道，再切换真实发送。
+7. 删除 MyTools SMTP 和 DownloadBot 渠道发送逻辑。
 
 ## 验收
 
@@ -51,3 +53,4 @@
 - SMTP 网络调用不占用数据库事务，状态与 Outbox 更新保持短事务原子性。
 - 附件入站事务不下载文件，重复父任务执行最多绑定一个 Download Ingestion 请求。
 - Messaging 查询附件任务时应与 Download Ingestion 对账终态，不复制下载产物明细。
+- 历史迁移重复执行不得产生重复消息，载荷冲突必须拒绝且不得触发 `MessageReceived`。

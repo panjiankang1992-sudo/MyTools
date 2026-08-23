@@ -140,6 +140,20 @@ public class MessagingRepository {
      * 写入或返回幂等入站消息。
      */
     public InboundMessageView saveInbound(CreateInboundMessageRequest request) {
+        return saveInbound(request, true);
+    }
+
+    /**
+     * 写入历史入站消息但不产生实时 MessageReceived 事件。
+     *
+     * @param request 标准消息
+     * @return 幂等消息视图
+     */
+    public InboundMessageView saveHistoricalInbound(CreateInboundMessageRequest request) {
+        return saveInbound(request, false);
+    }
+
+    private InboundMessageView saveInbound(CreateInboundMessageRequest request, boolean emitRealtimeEvent) {
         Optional<InboundMessageView> existing = findInbound(request.ownerId(), request.channelType(),
                 request.externalMessageId());
         if (existing.isPresent()) {
@@ -156,13 +170,64 @@ public class MessagingRepository {
                 request.conversationKey(), request.sender(), request.subject(), request.body(),
                 Timestamp.from(request.receivedAt()), Timestamp.from(now));
         insertInboundParts(id, request.parts(), now);
-        appendOutbox("MESSAGE", id, "MessageReceived", Map.of(
-                "messageId", id.toString(), "ownerId", request.ownerId(),
-                "channelType", request.channelType().name(), "conversationKey", request.conversationKey(),
-                "sender", request.sender()));
+        if (emitRealtimeEvent) {
+            appendOutbox("MESSAGE", id, "MessageReceived", Map.of(
+                    "messageId", id.toString(), "ownerId", request.ownerId(),
+                    "channelType", request.channelType().name(), "conversationKey", request.conversationKey(),
+                    "sender", request.sender()));
+        }
         return new InboundMessageView(id, request.ownerId(), request.channelType(), request.externalMessageId(),
                 request.conversationKey(), request.sender(), request.subject(), request.body(),
                 request.receivedAt(), now, findInboundParts(id));
+    }
+
+    /**
+     * 查询历史消息迁移审计记录。
+     *
+     * @param sourceSystem 来源系统
+     * @param legacyMessageId 旧消息标识
+     * @return 迁移记录
+     */
+    public Optional<HistoryMigrationRecord> findHistoryMigration(String sourceSystem, String legacyMessageId) {
+        return jdbcTemplate.query("""
+                SELECT * FROM inbound_history_migration
+                WHERE source_system = ? AND legacy_message_id = ?
+                """, (resultSet, rowNumber) -> new HistoryMigrationRecord(
+                resultSet.getString("migration_key"), resultSet.getString("source_system"),
+                resultSet.getString("legacy_message_id"), resultSet.getString("payload_sha256"),
+                UUID.fromString(resultSet.getString("inbound_message_id")),
+                resultSet.getTimestamp("created_at").toInstant()), sourceSystem, legacyMessageId)
+                .stream().findFirst();
+    }
+
+    /**
+     * 新增历史消息迁移审计记录。
+     *
+     * @param record 迁移记录
+     */
+    public void insertHistoryMigration(HistoryMigrationRecord record) {
+        jdbcTemplate.update("""
+                INSERT INTO inbound_history_migration
+                    (id, migration_key, source_system, legacy_message_id, payload_sha256,
+                     inbound_message_id, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, UUID.randomUUID().toString(), record.migrationKey(), record.sourceSystem(),
+                record.legacyMessageId(), record.payloadSha256(), record.inboundMessageId().toString(),
+                Timestamp.from(record.createdAt()));
+    }
+
+    /**
+     * 历史消息迁移审计记录。
+     *
+     * @param migrationKey 迁移键
+     * @param sourceSystem 来源系统
+     * @param legacyMessageId 旧消息标识
+     * @param payloadSha256 内容摘要
+     * @param inboundMessageId 新消息标识
+     * @param createdAt 创建时间
+     */
+    public record HistoryMigrationRecord(String migrationKey, String sourceSystem, String legacyMessageId,
+                                         String payloadSha256, UUID inboundMessageId, Instant createdAt) {
     }
 
     /**
