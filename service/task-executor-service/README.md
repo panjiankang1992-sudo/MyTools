@@ -10,7 +10,7 @@ Java 21
 
 ## 当前阶段
 
-该目录属于旁路迁移工作区，不参与现有 MyTools 根工程构建和生产启动。详细设计见 [对应设计文档](../design/06-task-executor.md)。
+该目录属于旁路迁移工作区，不参与现有 MyTools 根工程构建和生产启动。详细设计见 [对应设计文档](../design/06-task-executor-service.md)。
 
 ## 实施要求
 

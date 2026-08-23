@@ -3,21 +3,35 @@ package com.yuyutian.mytools.task.scheduler.service;
 import com.yuyutian.mytools.task.scheduler.model.CreateTaskRequest;
 import com.yuyutian.mytools.task.scheduler.model.TaskInstanceView;
 import com.yuyutian.mytools.task.scheduler.model.TaskStatus;
+import com.yuyutian.mytools.task.scheduler.repository.TaskDefinitionRepository;
+import com.yuyutian.mytools.task.scheduler.repository.TaskInstanceRepository;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 任务实例最小实现，阶段一使用内存存储验证契约，后续替换为持久化仓储。
+ * 任务实例服务。
  */
 @Service
 public class TaskInstanceService {
 
-    private final Map<UUID, TaskInstanceView> instances = new ConcurrentHashMap<>();
-    private final Map<String, UUID> idempotencyIndex = new ConcurrentHashMap<>();
+    private final TaskInstanceRepository instanceRepository;
+    private final TaskDefinitionRepository definitionRepository;
+
+    /**
+     * 创建任务实例服务。
+     *
+     * @param instanceRepository 实例仓储
+     * @param definitionRepository 定义仓储
+     */
+    public TaskInstanceService(TaskInstanceRepository instanceRepository,
+                               TaskDefinitionRepository definitionRepository) {
+        this.instanceRepository = instanceRepository;
+        this.definitionRepository = definitionRepository;
+    }
 
     /**
      * 幂等创建任务实例。
@@ -25,32 +39,22 @@ public class TaskInstanceService {
      * @param request 创建请求
      * @return 新建或已存在的任务实例
      */
-    public synchronized TaskInstanceView create(CreateTaskRequest request) {
-        UUID existingId = idempotencyIndex.get(request.idempotencyKey());
-        if (existingId != null) {
-            return instances.get(existingId);
+    @Transactional
+    public TaskInstanceView create(CreateTaskRequest request) {
+        TaskInstanceView existing = instanceRepository.findByIdempotencyKey(request.idempotencyKey()).orElse(null);
+        if (existing != null) {
+            return existing;
         }
-        if (request.parentTaskInstanceId() != null && !instances.containsKey(request.parentTaskInstanceId())) {
+        if (request.parentTaskInstanceId() != null && instanceRepository.findById(request.parentTaskInstanceId()).isEmpty()) {
             throw new IllegalArgumentException("Parent task instance does not exist");
         }
-        Instant now = Instant.now();
-        UUID id = UUID.randomUUID();
-        TaskInstanceView view = new TaskInstanceView(
-                id,
-                request.taskName(),
-                request.idempotencyKey(),
-                request.parentTaskInstanceId(),
-                request.businessType(),
-                request.businessId(),
-                request.priority(),
-                Map.copyOf(request.parameters()),
-                TaskStatus.QUEUED,
-                now,
-                now
-        );
-        instances.put(id, view);
-        idempotencyIndex.put(request.idempotencyKey(), id);
-        return view;
+        var definition = definitionRepository.findLatestEnabled(request.taskName())
+                .orElseThrow(() -> new IllegalArgumentException("Enabled task definition does not exist"));
+        try {
+            return instanceRepository.insert(request, definition);
+        } catch (DuplicateKeyException exception) {
+            return instanceRepository.findByIdempotencyKey(request.idempotencyKey()).orElseThrow(() -> exception);
+        }
     }
 
     /**
@@ -60,11 +64,8 @@ public class TaskInstanceService {
      * @return 任务实例
      */
     public TaskInstanceView get(UUID id) {
-        TaskInstanceView view = instances.get(id);
-        if (view == null) {
-            throw new IllegalArgumentException("Task instance does not exist");
-        }
-        return view;
+        return instanceRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Task instance does not exist"));
     }
 
     /**
@@ -73,18 +74,18 @@ public class TaskInstanceService {
      * @param id 实例标识
      * @return 更新后的任务实例
      */
-    public synchronized TaskInstanceView cancel(UUID id) {
-        TaskInstanceView current = get(id);
-        if (isTerminal(current.status())) {
-            return current;
+    @Transactional
+    public TaskInstanceView cancel(UUID id) {
+        for (int attempt = 0; attempt < 3; attempt++) {
+            TaskInstanceView current = get(id);
+            if (isTerminal(current.status()) || current.status() == TaskStatus.CANCELLING) {
+                return current;
+            }
+            if (instanceRepository.updateStatus(id, current.status(), TaskStatus.CANCELLING, Instant.now())) {
+                return get(id);
+            }
         }
-        TaskInstanceView updated = new TaskInstanceView(
-                current.id(), current.taskName(), current.idempotencyKey(), current.parentTaskInstanceId(),
-                current.businessType(), current.businessId(), current.priority(), current.parameters(),
-                TaskStatus.CANCELLING, current.createdAt(), Instant.now()
-        );
-        instances.put(id, updated);
-        return updated;
+        throw new IllegalStateException("Task instance state changed concurrently");
     }
 
     private boolean isTerminal(TaskStatus status) {

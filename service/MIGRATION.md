@@ -4,9 +4,9 @@
 
 - [x] 建立各服务独立目录。
 - [x] 建立总体与服务设计。
-- [ ] 固化任务创建、状态、脚本上下文和结果 Schema。
-- [ ] 实现 Scheduler 与 Executor MVP。
-- [ ] 创建各服务独立 schema 和最小权限账号。
+- [x] 固化任务创建、状态、脚本上下文和结果 Schema。
+- [ ] 实现 Scheduler 与 Executor MVP。Scheduler 持久化配置面已完成，分发与 Executor 接入待完成。
+- [ ] 创建各服务独立 schema 和最小权限账号。`mytools_task` 建库及 Flyway 已完成，生产账号待部署时创建。
 
 ## 数据迁移原则
 
