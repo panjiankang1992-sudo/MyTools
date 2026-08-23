@@ -32,6 +32,7 @@ public class DownloadIngestionClient {
                          String url, String fileName) {
         String idempotencyKey = "automation:" + messageId + ":" + ruleId + ":" + index;
         Map<String, Object> payload = Map.of(
+                "ownerId", ownerId,
                 "idempotencyKey", idempotencyKey,
                 "sourceType", "MESSAGE",
                 "sourceKey", messageId.toString(),
@@ -50,8 +51,10 @@ public class DownloadIngestionClient {
     /**
      * 查询下载子动作状态。
      */
-    public DownloadSnapshot get(UUID requestId) {
-        JsonNode response = restClient.get().uri("/api/v1/download-requests/{id}", requestId)
+    public DownloadSnapshot get(UUID requestId, long ownerId) {
+        JsonNode response = restClient.get().uri(uriBuilder -> uriBuilder
+                        .path("/internal/v1/download-requests/{id}")
+                        .queryParam("ownerId", ownerId).build(requestId))
                 .header("Authorization", "Bearer " + requiredToken()).retrieve().body(JsonNode.class);
         String identifier = response == null ? "" : response.path("id").asText();
         String status = response == null ? "" : response.path("status").asText();
@@ -64,8 +67,10 @@ public class DownloadIngestionClient {
     /**
      * 取消下载子动作。
      */
-    public DownloadSnapshot cancel(UUID requestId) {
-        JsonNode response = restClient.post().uri("/api/v1/download-requests/{id}/cancel", requestId)
+    public DownloadSnapshot cancel(UUID requestId, long ownerId) {
+        JsonNode response = restClient.post().uri(uriBuilder -> uriBuilder
+                        .path("/internal/v1/download-requests/{id}/cancel")
+                        .queryParam("ownerId", ownerId).build(requestId))
                 .header("Authorization", "Bearer " + requiredToken())
                 .contentType(MediaType.APPLICATION_JSON).body(Map.of()).retrieve().body(JsonNode.class);
         String identifier = response == null ? "" : response.path("id").asText();

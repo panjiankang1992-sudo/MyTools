@@ -117,7 +117,7 @@ class OneBotInboundAdapterTest {
         when(schedulerClient.createAttachmentDownloadTask(any())).thenReturn(schedulerTaskId);
         when(downloadIngestionClient.createHttpAttachment(any(), anyLong(), any(), anyString(), anyString(), any()))
                 .thenReturn(downloadRequestId);
-        when(downloadIngestionClient.get(downloadRequestId))
+        when(downloadIngestionClient.get(downloadRequestId, 11L))
                 .thenReturn(new DownloadIngestionClient.DownloadSnapshot(downloadRequestId, "SUCCEEDED"));
 
         var job = attachmentDownloadService.create(message.id(), part.id());

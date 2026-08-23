@@ -97,11 +97,13 @@ public class DownloadIngestionClient {
     /**
      * 查询下载请求的业务状态。
      */
-    public DownloadSnapshot get(UUID downloadRequestId) {
+    public DownloadSnapshot get(UUID downloadRequestId, long ownerId) {
         if (token == null || token.isBlank()) {
             throw new IllegalStateException("Download Ingestion internal token is missing");
         }
-        JsonNode response = restClient.get().uri("/api/v1/download-requests/{id}", downloadRequestId)
+        JsonNode response = restClient.get().uri(uriBuilder -> uriBuilder
+                        .path("/internal/v1/download-requests/{id}")
+                        .queryParam("ownerId", ownerId).build(downloadRequestId))
                 .header("Authorization", "Bearer " + token).retrieve().body(JsonNode.class);
         String identifier = response == null ? "" : response.path("id").asText();
         String status = response == null ? "" : response.path("status").asText();

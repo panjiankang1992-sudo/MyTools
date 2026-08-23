@@ -48,7 +48,7 @@ class MessageAutomationServiceTest {
         List<UUID> downloadIds = List.of(UUID.randomUUID(), UUID.randomUUID());
         when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString()))
                 .thenAnswer(invocation -> downloadIds.get(invocation.getArgument(3)).toString());
-        when(downloadClient.get(any())).thenAnswer(invocation ->
+        when(downloadClient.get(any(), anyLong())).thenAnswer(invocation ->
                 new DownloadIngestionClient.DownloadSnapshot(invocation.getArgument(0), "SUCCEEDED"));
 
         var running = service.process(messageId);
@@ -95,7 +95,7 @@ class MessageAutomationServiceTest {
                 "download: https://files.example/a https://files.example/b", Instant.now(), Instant.now()));
         when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString()))
                 .thenAnswer(invocation -> UUID.randomUUID().toString());
-        when(downloadClient.cancel(any())).thenAnswer(invocation ->
+        when(downloadClient.cancel(any(), anyLong())).thenAnswer(invocation ->
                 new DownloadIngestionClient.DownloadSnapshot(invocation.getArgument(0), "CANCELLED"));
 
         var running = service.process(messageId);
@@ -103,7 +103,7 @@ class MessageAutomationServiceTest {
 
         assertThat(cancelled.status()).isEqualTo("CANCELLED");
         assertThat(cancelled.actions()).extracting("status").containsOnly("CANCELLED");
-        verify(downloadClient, times(2)).cancel(any());
+        verify(downloadClient, times(2)).cancel(any(), org.mockito.ArgumentMatchers.eq(13L));
     }
 
     @Test
@@ -118,7 +118,7 @@ class MessageAutomationServiceTest {
         when(messagingClient.get(messageId)).thenReturn(inbound);
         when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString()))
                 .thenThrow(new IllegalStateException("unknown result")).thenReturn(downloadId.toString());
-        when(downloadClient.get(downloadId)).thenReturn(
+        when(downloadClient.get(downloadId, 14L)).thenReturn(
                 new DownloadIngestionClient.DownloadSnapshot(downloadId, "SUCCEEDED"));
 
         var uncertain = service.process(messageId);

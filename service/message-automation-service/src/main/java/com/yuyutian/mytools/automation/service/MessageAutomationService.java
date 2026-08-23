@@ -100,10 +100,12 @@ public class MessageAutomationService {
      */
     public AutomationRunView cancel(UUID runId) {
         AutomationRunView run = repository.findRunById(runId).orElseThrow(AutomationRunNotFoundException::new);
+        InboundMessage message = messagingClient.get(run.messageId());
         for (AutomationActionView action : repository.findActions(run.id())) {
             if (action.externalRequestId() != null && !terminalAction(action.status())) {
                 try {
-                    DownloadIngestionClient.DownloadSnapshot snapshot = downloadClient.cancel(action.externalRequestId());
+                    DownloadIngestionClient.DownloadSnapshot snapshot = downloadClient.cancel(
+                            action.externalRequestId(), message.ownerId());
                     repository.updateActionStatus(action.id(), mapDownloadStatus(snapshot.status()), null);
                 } catch (RuntimeException exception) {
                     repository.updateActionStatus(action.id(), action.status(), "CANCEL_REQUEST_FAILED");
@@ -126,17 +128,15 @@ public class MessageAutomationService {
     }
 
     private AutomationRunView reconcile(AutomationRunView run, boolean recoverCreating) {
-        InboundMessage message = null;
+        InboundMessage message = messagingClient.get(run.messageId());
         for (AutomationRepository.ActionExecution action : repository.findActionExecutions(run.id())) {
             if ("CREATING".equals(action.status()) && recoverCreating && run.ruleId() != null) {
-                if (message == null) {
-                    message = messagingClient.get(run.messageId());
-                }
                 submit(run, message, run.ruleId(), "HTTP_ASSET", action.id(), action.sequence(),
                         action.sourceUrl(), action.fileName());
             } else if (action.externalRequestId() != null && !terminalAction(action.status())) {
                 try {
-                    DownloadIngestionClient.DownloadSnapshot snapshot = downloadClient.get(action.externalRequestId());
+                    DownloadIngestionClient.DownloadSnapshot snapshot = downloadClient.get(
+                            action.externalRequestId(), message.ownerId());
                     repository.updateActionStatus(action.id(), mapDownloadStatus(snapshot.status()), null);
                 } catch (RuntimeException exception) {
                     // 临时查询失败不覆盖已知子任务状态，下一次查询继续对账。

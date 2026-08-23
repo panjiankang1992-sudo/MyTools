@@ -31,6 +31,7 @@ class DownloadIngestionClientTest {
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(header("Authorization", "Bearer download-token"))
                 .andExpect(jsonPath("$.idempotencyKey").value("message_attachment:" + jobId + ":v1"))
+                .andExpect(jsonPath("$.ownerId").value(19))
                 .andExpect(jsonPath("$.requestKind").value("HTTP_ASSET"))
                 .andExpect(jsonPath("$.parameters.ownerId").value(19))
                 .andExpect(jsonPath("$.parameters.itemId").value(partId.toString()))
@@ -51,14 +52,15 @@ class DownloadIngestionClientTest {
         UUID downloadId = UUID.randomUUID();
         RestClient.Builder builder = RestClient.builder().baseUrl("http://download.test");
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
-        server.expect(requestTo("http://download.test/api/v1/download-requests/" + downloadId))
+        server.expect(requestTo("http://download.test/internal/v1/download-requests/" + downloadId
+                        + "?ownerId=19"))
                 .andExpect(method(HttpMethod.GET))
                 .andExpect(header("Authorization", "Bearer download-token"))
                 .andRespond(withSuccess("{\"id\":\"" + downloadId + "\",\"status\":\"SUCCEEDED\"}",
                         org.springframework.http.MediaType.APPLICATION_JSON));
         DownloadIngestionClient client = new DownloadIngestionClient(builder.build(), "download-token");
 
-        DownloadIngestionClient.DownloadSnapshot snapshot = client.get(downloadId);
+        DownloadIngestionClient.DownloadSnapshot snapshot = client.get(downloadId, 19L);
 
         assertThat(snapshot.status()).isEqualTo("SUCCEEDED");
         server.verify();

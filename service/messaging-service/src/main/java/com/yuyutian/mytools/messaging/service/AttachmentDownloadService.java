@@ -66,7 +66,9 @@ public class AttachmentDownloadService {
         if (current.downloadRequestId() == null || terminal(current.status())) {
             return view(current);
         }
-        DownloadIngestionClient.DownloadSnapshot snapshot = downloadClient.get(current.downloadRequestId());
+        MessagingRepository.AttachmentSource source = requiredSource(current.messageId(), current.partId());
+        DownloadIngestionClient.DownloadSnapshot snapshot = downloadClient.get(
+                current.downloadRequestId(), source.ownerId());
         String reconciled = mapDownloadStatus(snapshot.status());
         if (!reconciled.equals(current.status())) {
             String errorCode = "FAILED".equals(reconciled) ? "DOWNLOAD_FAILED" : null;
