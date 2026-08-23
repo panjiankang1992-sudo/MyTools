@@ -1,0 +1,22 @@
+server:
+  address: ${READER_HTTP_HOST:127.0.0.1}
+  port: ${READER_HTTP_PORT:23230}
+
+spring:
+  application:
+    name: reader-service
+  datasource:
+    url: jdbc:mysql://${READER_DB_HOST:127.0.0.1}:${READER_DB_PORT:3306}/${READER_DB_NAME:mytools_reader}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: ${READER_DB_USER:}
+    password: ${READER_DB_PASSWORD:}
+  flyway:
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+reader:
+  scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23210}
