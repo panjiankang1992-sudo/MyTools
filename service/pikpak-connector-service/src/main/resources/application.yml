@@ -1,0 +1,18 @@
+server:
+  address: ${PIKPAK_CONNECTOR_HTTP_HOST:127.0.0.1}
+  port: ${PIKPAK_CONNECTOR_HTTP_PORT:23285}
+spring:
+  application.name: pikpak-connector-service
+  datasource:
+    url: jdbc:mysql://${PIKPAK_CONNECTOR_DB_HOST:127.0.0.1}:${PIKPAK_CONNECTOR_DB_PORT:3306}/${PIKPAK_CONNECTOR_DB_NAME:mytools_pikpak_connector}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: ${PIKPAK_CONNECTOR_DB_USER:}
+    password: ${PIKPAK_CONNECTOR_DB_PASSWORD:}
+  flyway.locations: classpath:db/migration
+management.endpoints.web.exposure.include: health,info
+pikpak:
+  enabled: ${PIKPAK_CONNECTOR_ENABLED:false}
+  internal-token: ${PIKPAK_CONNECTOR_TOKEN:}
+  rclone-rc-url: ${PIKPAK_RCLONE_RC_URL:http://127.0.0.1:5572}
+  rclone-rc-user: ${PIKPAK_RCLONE_RC_USER:}
+  rclone-rc-password: ${PIKPAK_RCLONE_RC_PASSWORD:}
+  stable-seconds: ${PIKPAK_STABLE_SECONDS:120}

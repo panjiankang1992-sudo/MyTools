@@ -33,9 +33,10 @@ class ConnectorClient:
     def create(self, payload: dict) -> dict:
         """幂等创建离线操作。"""
         return self._request("POST", "/api/internal/v1/pikpak/operations", payload)
-    def advance(self, operation_id: str) -> dict:
+    def advance(self, operation_id: str, magnet_uri: str) -> dict:
         """推进一次持久化状态机。"""
-        return self._request("POST", f"/api/internal/v1/pikpak/operations/{operation_id}/advance", {})
+        return self._request("POST", f"/api/internal/v1/pikpak/operations/{operation_id}/advance",
+                             {"magnetUri": magnet_uri})
     def cancel(self, operation_id: str) -> dict:
         """请求取消离线操作。"""
         return self._request("POST", f"/api/internal/v1/pikpak/operations/{operation_id}/cancel", {})
@@ -53,7 +54,8 @@ def execute(context: TaskContext, client: ConnectorClient, sleeper=time.sleep) -
     parameters = context.parameters
     request_id = str(UUID(str(parameters["downloadRequestId"])))
     account_id = str(UUID(str(parameters["accountId"])))
-    operation = client.create({"accountId": account_id, "magnetUri": validate_magnet(parameters["magnetUri"]),
+    magnet_uri = validate_magnet(parameters["magnetUri"])
+    operation = client.create({"accountId": account_id, "magnetUri": magnet_uri,
         "idempotencyKey": f"download:{request_id}:pikpak", "businessType": "DOWNLOAD_REQUEST", "businessId": request_id})
     operation_id = str(UUID(str(operation["id"])))
     maximum = int(parameters.get("maximumAdvances", 2160))
@@ -62,7 +64,7 @@ def execute(context: TaskContext, client: ConnectorClient, sleeper=time.sleep) -
     for _ in range(maximum):
         if str(operation.get("phase", "")) in TERMINAL:
             break
-        operation = client.advance(operation_id)
+        operation = client.advance(operation_id, magnet_uri)
         if str(operation.get("phase", "")) not in TERMINAL:
             sleeper(max(1, min(int(operation.get("retryAfterSeconds", 10)), 60)))
     phase = str(operation.get("phase", ""))

@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:pikpak_connector;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  flyway.locations: classpath:db/migration
+pikpak:
+  enabled: false
+  internal-token: test-token
+  rclone-rc-url: http://127.0.0.1:5572

@@ -8,7 +8,7 @@ MODULE = module_from_spec(SPEC); SPEC.loader.exec_module(MODULE)
 class FakeClient:
     def __init__(self, states): self.states, self.created = iter(states), []
     def create(self, payload): self.created.append(payload); return next(self.states)
-    def advance(self, _operation_id): return next(self.states)
+    def advance(self, _operation_id, _magnet_uri): return next(self.states)
 def test_validate_magnet_rejects_missing_btih():
     try: MODULE.validate_magnet("magnet:?dn=no-hash")
     except ValueError: pass

@@ -26,7 +26,8 @@ magnet URI 仅用于首次提交，不持久化原文；数据库保存 SHA-256�
 ## API
 
 - `POST /api/internal/v1/pikpak/operations`：按幂等键创建操作；只接受账户 UUID、magnet URI 和业务引用。
-- `POST /api/internal/v1/pikpak/operations/{id}/advance`：推进一个状态。
+- `POST /api/internal/v1/pikpak/operations/{id}/advance`：推进一个状态；仅首次提交需再次携带
+  magnet URI，服务校验其摘要后使用且不持久化原文。
 - `GET /api/internal/v1/pikpak/operations/{id}`：读取脱敏状态及稳定对象清单。
 - `POST /api/internal/v1/pikpak/operations/{id}/cancel`：请求可恢复取消。
 
@@ -39,6 +40,16 @@ magnet URI 仅用于首次提交，不持久化原文；数据库保存 SHA-256�
 3. 对同一测试 magnet 进行旧链路与新链路文件数、总字节数、内容集合摘要对账。
 4. 按账户灰度启用 `MAGNET` 新入口；旧 watcher 保留但不得同时消费同一隔离目录。
 5. 稳定后再把 READY 对象交给 Storage Gateway 的托管传输任务，最后停用旧轮询。
+
+## 当前实现
+
+已实现 Java 21 / Spring Boot 服务、V1 schema、内部鉴权、账户脱敏登记、操作幂等冲突检查、
+乐观锁检查点、文件集合摘要、稳定窗口、异步移动和取消前向收敛。rclone RC 被限制为回环 HTTP，
+代码只暴露固定的 `backend/command(addurl)`、`operations/list`、`sync/move`、`job/status`、
+`job/stop` 和 `operations/purge`，外部请求不能选择动作或 remote key。
+
+当前服务及 `download_pikpak_magnet` 任务仍默认禁用。READY 对象尚未通过 Storage Gateway
+物化为托管对象，也尚未进入 Asset Registry；这是下一迁移增量的启用前置条件。
 
 ## 验收
 
