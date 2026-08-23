@@ -10,6 +10,7 @@ import com.yuyutian.mytools.task.scheduler.model.RegisterExecutorNodeRequest;
 import com.yuyutian.mytools.task.scheduler.model.AssignClusterNodeRequest;
 import com.yuyutian.mytools.task.scheduler.model.ClaimTaskRequest;
 import com.yuyutian.mytools.task.scheduler.model.CompleteExecutionRequest;
+import com.yuyutian.mytools.task.scheduler.model.CreateChildTaskRequest;
 import com.yuyutian.mytools.task.scheduler.model.LeaseHeartbeatRequest;
 import com.yuyutian.mytools.task.scheduler.model.ReportStepExecutionRequest;
 import com.yuyutian.mytools.task.scheduler.model.StepKind;
@@ -43,6 +44,9 @@ class TaskInstanceServiceTest {
 
     @Autowired
     private TaskDispatchService dispatchService;
+
+    @Autowired
+    private TaskScriptApiService scriptApiService;
 
     @Test
     void shouldCreateIdempotentlyAndCancel() {
@@ -91,6 +95,19 @@ class TaskInstanceServiceTest {
         var claimed = dispatchService.claim(new ClaimTaskRequest(node.id(), nodeInstanceId, 60)).orElseThrow();
         assertEquals(task.id(), claimed.taskInstanceId());
         assertEquals(1, claimed.steps().size());
+        String childTaskName = "child_probe_" + suffix;
+        definitionService.create(new CreateTaskDefinitionRequest(
+                childTaskName, "Child probe", TaskType.IMMEDIATE, 60, cluster.id(), null, null,
+                ExecutionMode.SINGLE_NODE, true, 10, "SKIP", "IGNORE", Map.of(), Map.of()
+        ));
+        var child = scriptApiService.createChild(claimed.executionId(), new CreateChildTaskRequest(
+                claimed.leaseToken(), childTaskName, "child_" + suffix, "MEDIA_ASSET", "asset-2", 40, Map.of()
+        ));
+        assertEquals(task.id(), child.parentTaskInstanceId());
+        assertEquals(child.id(), scriptApiService.getRelated(
+                claimed.executionId(), claimed.leaseToken(), child.id()).id());
+        assertEquals(TaskStatus.CANCELLING, scriptApiService.cancelChild(
+                claimed.executionId(), claimed.leaseToken(), child.id()).status());
         assertTrue(!dispatchService.heartbeat(claimed.executionId(),
                 new LeaseHeartbeatRequest(claimed.leaseToken(), 60)).cancelRequested());
         dispatchService.reportStep(claimed.executionId(), new ReportStepExecutionRequest(

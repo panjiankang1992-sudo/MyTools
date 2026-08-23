@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mytools-task-sdk"
+version = "0.1.0"
+description = "MyTools task script SDK"
+requires-python = ">=3.12"
+
+[project.scripts]
+taskctl = "mytools_task_sdk.taskctl:main"

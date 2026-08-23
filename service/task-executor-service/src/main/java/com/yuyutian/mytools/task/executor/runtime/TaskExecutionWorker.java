@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -166,15 +168,20 @@ public class TaskExecutionWorker {
         Path workingDirectory = safeWorkDirectory(task, step, attempt);
         Path contextFile = workingDirectory.resolve("task-context.json");
         Path resultFile = workingDirectory.resolve("task-result.json");
+        Path leaseTokenFile = workingDirectory.resolve("task-lease-token");
         Files.createDirectories(workingDirectory);
         writeContext(task, step, attempt, contextFile);
+        writeLeaseToken(task, leaseTokenFile);
         Path entrypoint = safeEntrypoint(step);
         List<String> command = buildCommand(entrypoint, step.argumentsTemplate(), task.parameters());
         Map<String, String> environment = Map.of(
                 "PATH", "/usr/local/bin:/usr/bin:/bin",
                 "LANG", "C.UTF-8",
+                "TASK_API_URL", normalizedSchedulerUrl(),
+                "TASK_EXECUTION_ID", task.executionId().toString(),
                 "TASK_CONTEXT_FILE", contextFile.toString(),
                 "TASK_RESULT_FILE", resultFile.toString(),
+                "TASK_LEASE_TOKEN_FILE", leaseTokenFile.toString(),
                 "TASK_WORK_DIR", workingDirectory.toString()
         );
         ScriptExecutionResult result = processRunner.run(new ScriptExecutionRequest(
@@ -278,6 +285,21 @@ public class TaskExecutionWorker {
         context.put("attempt", attempt);
         context.put("parameters", task.parameters());
         Files.writeString(contextFile, objectMapper.writeValueAsString(context), StandardCharsets.UTF_8);
+    }
+
+    private void writeLeaseToken(ClaimedTask task, Path tokenFile) throws IOException {
+        Files.writeString(tokenFile, task.leaseToken().toString(), StandardCharsets.UTF_8);
+        try {
+            Files.setPosixFilePermissions(tokenFile, Set.of(PosixFilePermission.OWNER_READ,
+                    PosixFilePermission.OWNER_WRITE));
+        } catch (UnsupportedOperationException ignored) {
+            // 非 POSIX 文件系统由节点部署权限负责保护工作目录。
+        }
+    }
+
+    private String normalizedSchedulerUrl() {
+        String value = properties.schedulerUrl();
+        return value.endsWith("/") ? value.substring(0, value.length() - 1) : value;
     }
 
     private Map<String, Object> readResult(Path resultFile) throws IOException {
