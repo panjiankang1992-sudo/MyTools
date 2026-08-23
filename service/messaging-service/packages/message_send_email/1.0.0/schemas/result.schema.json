@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["deliveryId", "status", "providerMessageId"],
+  "properties": {
+    "deliveryId": {"type": "string", "format": "uuid"},
+    "status": {"const": "DELIVERED"},
+    "providerMessageId": {"type": "string", "minLength": 1, "maxLength": 512}
+  },
+  "additionalProperties": false
+}

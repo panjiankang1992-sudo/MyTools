@@ -37,7 +37,7 @@
 ## 阶段 4：共享能力
 
 - [ ] Storage Gateway。已建立独立 `mytools_storage` schema 和本地受管根的幂等流式上传、摘要校验、路径隔离及原子发布 MVP；远端 provider、访问票据、复制移动和任务化同步待迁移。
-- [ ] Messaging 和 Message Automation。
+- [ ] Messaging 和 Message Automation。已建立独立 `mytools_messaging` schema、幂等投递/尝试、标准入站消息、事务 Outbox、SMTP provider 及只携带 `deliveryId` 的邮件任务；MyTools 注册邮件旁路、历史收信迁移、QQ/Telegram/OneBot adapter 和自动化规则服务待迁移。
 - [ ] Asset Registry。
 - [ ] Media、Drive、Reader、Identity 独立服务。
 

@@ -1,0 +1,13 @@
+name: message_send_email
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - messaging_internal_execute
+parameters:
+  required:
+    - deliveryId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 120

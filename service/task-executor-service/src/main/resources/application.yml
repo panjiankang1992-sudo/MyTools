@@ -20,6 +20,7 @@ executor:
     - media
     - reader
     - download
+    - messaging
   script-environments:
     download_http_asset:
       DOWNLOAD_DESTINATION_ROOT: ${DOWNLOAD_DESTINATION_ROOT:./runtime/downloads}
@@ -54,6 +55,9 @@ executor:
       READER_RUNTIME_SECURE_KEY: ${READER_RUNTIME_SECURE_KEY:}
       READER_SERVICE_URL: ${READER_SERVICE_URL:http://127.0.0.1:23230}
       READER_INTERNAL_TOKEN: ${READER_INTERNAL_TOKEN:}
+    message_send_email:
+      MESSAGING_SERVICE_URL: ${MESSAGING_SERVICE_URL:http://127.0.0.1:23250}
+      MESSAGING_INTERNAL_TOKEN: ${MESSAGING_INTERNAL_TOKEN:}
 server:
   port: ${TASK_EXECUTOR_MANAGEMENT_PORT:23211}
 management:

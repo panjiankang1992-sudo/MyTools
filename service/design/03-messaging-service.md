@@ -33,8 +33,8 @@
 
 ## 迁移
 
-1. 盘点 MsgService 邮件接口和库表。
-2. 接入 MyTools 注册邮件。
+1. 已建立 provider-neutral 投递、投递尝试、标准入站消息与 Outbox schema，并实现 SMTP 原子 provider。
+2. 已建立只携带 `deliveryId` 的 `message_send_email` 任务；继续接入 MyTools 注册邮件旁路。
 3. 迁移 DownloadBot 的 QQ/Telegram/OneBot 适配器。
 4. 先双投递到审计通道，再切换真实发送。
 5. 删除 MyTools SMTP 和 DownloadBot 渠道发送逻辑。
@@ -44,3 +44,4 @@
 - 同一投递幂等键最多产生一个逻辑消息。
 - 渠道故障不会阻塞其他渠道。
 - 敏感凭据不进入任务参数、日志或事件。
+- SMTP 网络调用不占用数据库事务，状态与 Outbox 更新保持短事务原子性。

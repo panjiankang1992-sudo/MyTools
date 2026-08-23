@@ -1,0 +1,32 @@
+server:
+  address: ${MESSAGING_HTTP_HOST:127.0.0.1}
+  port: ${MESSAGING_HTTP_PORT:23250}
+
+spring:
+  application:
+    name: messaging-service
+  datasource:
+    url: jdbc:mysql://${MESSAGING_DB_HOST:127.0.0.1}:${MESSAGING_DB_PORT:3306}/${MESSAGING_DB_NAME:mytools_messaging}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: ${MESSAGING_DB_USER:}
+    password: ${MESSAGING_DB_PASSWORD:}
+  flyway:
+    locations: classpath:db/migration
+  mail:
+    host: ${MESSAGING_SMTP_HOST:}
+    port: ${MESSAGING_SMTP_PORT:465}
+    username: ${MESSAGING_SMTP_USERNAME:}
+    password: ${MESSAGING_SMTP_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${MESSAGING_SMTP_AUTH:true}
+      mail.smtp.ssl.enable: ${MESSAGING_SMTP_SSL:true}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+messaging:
+  scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23210}
+  internal-token: ${MESSAGING_INTERNAL_TOKEN:}
+  mail-from: ${MESSAGING_MAIL_FROM:}
