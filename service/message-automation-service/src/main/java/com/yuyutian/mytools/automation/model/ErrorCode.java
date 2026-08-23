@@ -6,7 +6,8 @@ package com.yuyutian.mytools.automation.model;
 public enum ErrorCode {
     INTERNAL_UNAUTHORIZED("AUTOMATION_001", "Internal service token is invalid"),
     NO_ACTION_INPUT("AUTOMATION_002", "Message contains no valid action input"),
-    DOWNLOAD_CREATE_FAILED("AUTOMATION_003", "Download request creation failed");
+    DOWNLOAD_CREATE_FAILED("AUTOMATION_003", "Download request creation failed"),
+    RUN_NOT_FOUND("AUTOMATION_004", "Automation run was not found");
 
     private final String code;
     private final String message;

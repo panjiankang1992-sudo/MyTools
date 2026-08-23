@@ -5,13 +5,13 @@ import com.yuyutian.mytools.automation.model.AutomationRunView;
 import com.yuyutian.mytools.automation.model.CreateAutomationRuleRequest;
 import com.yuyutian.mytools.automation.model.InboundMessage;
 import com.yuyutian.mytools.automation.model.ErrorCode;
+import com.yuyutian.mytools.automation.model.AutomationActionView;
 import com.yuyutian.mytools.automation.repository.AutomationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.UUID;
@@ -56,8 +56,7 @@ public class MessageAutomationService {
     public AutomationRunView process(UUID messageId) {
         AutomationRunView existing = repository.findRun(messageId).orElse(null);
         if (existing != null) {
-            // 消息标识是严格去重键，失败运行由对账流程修复，不重新匹配可能已变化的规则。
-            return existing;
+            return reconcile(existing, true);
         }
         InboundMessage message = messagingClient.get(messageId);
         AutomationRuleRecord rule = repository.findEnabledRules(message.ownerId(), message.channelType()).stream()
@@ -74,20 +73,118 @@ public class MessageAutomationService {
             return transactionTemplate.execute(status -> repository.completeRun(
                     messageId, "FAILED", List.of(), ErrorCode.NO_ACTION_INPUT.code()));
         }
-        List<String> refs = new ArrayList<>();
-        try {
-            for (int index = 0; index < urls.size(); index++) {
-                String url = urls.get(index);
-                refs.add(downloadClient.create(messageId, message.ownerId(), rule.id(), index, rule.requestKind(), url,
-                        fileName(url, index)));
+        for (int index = 0; index < urls.size(); index++) {
+            int sequence = index;
+            String url = urls.get(index);
+            var action = transactionTemplate.execute(status -> repository.createAction(
+                    started.id(), sequence, url, fileName(url, sequence)));
+            if (action == null) {
+                throw new IllegalStateException("Automation action transaction returned no action");
             }
-            return transactionTemplate.execute(status -> repository.completeRun(
-                    messageId, "SUCCEEDED", refs, null));
-        } catch (RuntimeException exception) {
-            String status = refs.isEmpty() ? "FAILED" : "PARTIAL_FAILED";
-            return transactionTemplate.execute(transactionStatus -> repository.completeRun(
-                    messageId, status, refs, ErrorCode.DOWNLOAD_CREATE_FAILED.code()));
+            submit(started, message, rule.id(), rule.requestKind(), action.id(), sequence, url,
+                    fileName(url, sequence));
         }
+        return reconcile(repository.findRun(messageId).orElseThrow(), false);
+    }
+
+    /**
+     * 查询并对账消息自动化运行。
+     */
+    public AutomationRunView get(UUID messageId) {
+        AutomationRunView run = repository.findRun(messageId).orElseThrow(AutomationRunNotFoundException::new);
+        return reconcile(run, true);
+    }
+
+    /**
+     * 级联取消运行中下载子动作。
+     */
+    public AutomationRunView cancel(UUID runId) {
+        AutomationRunView run = repository.findRunById(runId).orElseThrow(AutomationRunNotFoundException::new);
+        for (AutomationActionView action : repository.findActions(run.id())) {
+            if (action.externalRequestId() != null && !terminalAction(action.status())) {
+                try {
+                    DownloadIngestionClient.DownloadSnapshot snapshot = downloadClient.cancel(action.externalRequestId());
+                    repository.updateActionStatus(action.id(), mapDownloadStatus(snapshot.status()), null);
+                } catch (RuntimeException exception) {
+                    repository.updateActionStatus(action.id(), action.status(), "CANCEL_REQUEST_FAILED");
+                }
+            }
+        }
+        return aggregate(run.messageId());
+    }
+
+    private void submit(AutomationRunView run, InboundMessage message, UUID ruleId, String requestKind,
+                        UUID actionId, int index, String url, String fileName) {
+        try {
+            UUID requestId = UUID.fromString(downloadClient.create(run.messageId(), message.ownerId(), ruleId,
+                    index, requestKind, url, fileName));
+            transactionTemplate.executeWithoutResult(status -> repository.bindAction(actionId, requestId));
+        } catch (RuntimeException exception) {
+            transactionTemplate.executeWithoutResult(status ->
+                    repository.failAction(actionId, ErrorCode.DOWNLOAD_CREATE_FAILED.code()));
+        }
+    }
+
+    private AutomationRunView reconcile(AutomationRunView run, boolean recoverCreating) {
+        InboundMessage message = null;
+        for (AutomationRepository.ActionExecution action : repository.findActionExecutions(run.id())) {
+            if ("CREATING".equals(action.status()) && recoverCreating && run.ruleId() != null) {
+                if (message == null) {
+                    message = messagingClient.get(run.messageId());
+                }
+                submit(run, message, run.ruleId(), "HTTP_ASSET", action.id(), action.sequence(),
+                        action.sourceUrl(), action.fileName());
+            } else if (action.externalRequestId() != null && !terminalAction(action.status())) {
+                try {
+                    DownloadIngestionClient.DownloadSnapshot snapshot = downloadClient.get(action.externalRequestId());
+                    repository.updateActionStatus(action.id(), mapDownloadStatus(snapshot.status()), null);
+                } catch (RuntimeException exception) {
+                    // 临时查询失败不覆盖已知子任务状态，下一次查询继续对账。
+                }
+            }
+        }
+        return aggregate(run.messageId());
+    }
+
+    private AutomationRunView aggregate(UUID messageId) {
+        AutomationRunView run = repository.findRun(messageId).orElseThrow();
+        List<AutomationActionView> actions = repository.findActions(run.id());
+        if (actions.isEmpty()) {
+            return run;
+        }
+        long active = actions.stream().filter(action -> !terminalAction(action.status())).count();
+        long succeeded = actions.stream().filter(action -> "SUCCEEDED".equals(action.status())).count();
+        long failed = actions.stream().filter(action -> "FAILED".equals(action.status())).count();
+        long cancelled = actions.stream().filter(action -> "CANCELLED".equals(action.status())).count();
+        String status;
+        String error = null;
+        if (active > 0) {
+            status = "RUNNING";
+        } else if (failed > 0) {
+            status = succeeded > 0 ? "PARTIAL_FAILED" : "FAILED";
+            error = ErrorCode.DOWNLOAD_CREATE_FAILED.code();
+        } else if (cancelled > 0) {
+            status = "CANCELLED";
+        } else {
+            status = "SUCCEEDED";
+        }
+        String finalError = error;
+        return transactionTemplate.execute(transactionStatus ->
+                repository.updateRunAggregate(messageId, status, finalError));
+    }
+
+    private String mapDownloadStatus(String status) {
+        return switch (status) {
+            case "ACCEPTED", "PLANNING", "RUNNING", "CANCELLING" -> "RUNNING";
+            case "SUCCEEDED" -> "SUCCEEDED";
+            case "FAILED" -> "FAILED";
+            case "CANCELLED" -> "CANCELLED";
+            default -> throw new IllegalStateException("Unsupported Download Ingestion status");
+        };
+    }
+
+    private boolean terminalAction(String status) {
+        return "SUCCEEDED".equals(status) || "FAILED".equals(status) || "CANCELLED".equals(status);
     }
 
     private boolean matches(AutomationRuleRecord rule, InboundMessage message) {

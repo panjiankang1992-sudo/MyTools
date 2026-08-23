@@ -39,11 +39,53 @@ public class DownloadIngestionClient {
                 "parameters", Map.of("ownerId", ownerId, "itemId", messageId + "-" + index,
                         "url", url, "fileName", fileName));
         JsonNode response = restClient.post().uri("/api/v1/download-requests")
-                .header("Authorization", "Bearer " + internalToken)
+                .header("Authorization", "Bearer " + requiredToken())
                 .contentType(MediaType.APPLICATION_JSON).body(payload).retrieve().body(JsonNode.class);
         if (response == null || response.path("id").isMissingNode()) {
             throw new IllegalStateException("Download Ingestion returned an invalid response");
         }
         return response.path("id").asText();
+    }
+
+    /**
+     * 查询下载子动作状态。
+     */
+    public DownloadSnapshot get(UUID requestId) {
+        JsonNode response = restClient.get().uri("/api/v1/download-requests/{id}", requestId)
+                .header("Authorization", "Bearer " + requiredToken()).retrieve().body(JsonNode.class);
+        String identifier = response == null ? "" : response.path("id").asText();
+        String status = response == null ? "" : response.path("status").asText();
+        if (!requestId.toString().equals(identifier) || status.isBlank()) {
+            throw new IllegalStateException("Download Ingestion returned an invalid status response");
+        }
+        return new DownloadSnapshot(requestId, status);
+    }
+
+    /**
+     * 取消下载子动作。
+     */
+    public DownloadSnapshot cancel(UUID requestId) {
+        JsonNode response = restClient.post().uri("/api/v1/download-requests/{id}/cancel", requestId)
+                .header("Authorization", "Bearer " + requiredToken())
+                .contentType(MediaType.APPLICATION_JSON).body(Map.of()).retrieve().body(JsonNode.class);
+        String identifier = response == null ? "" : response.path("id").asText();
+        String status = response == null ? "" : response.path("status").asText();
+        if (!requestId.toString().equals(identifier) || status.isBlank()) {
+            throw new IllegalStateException("Download Ingestion returned an invalid cancel response");
+        }
+        return new DownloadSnapshot(requestId, status);
+    }
+
+    private String requiredToken() {
+        if (internalToken == null || internalToken.isBlank()) {
+            throw new IllegalStateException("Download Ingestion internal token is missing");
+        }
+        return internalToken;
+    }
+
+    /**
+     * 下载子动作最小状态快照。
+     */
+    public record DownloadSnapshot(UUID id, String status) {
     }
 }

@@ -9,5 +9,6 @@ import java.util.UUID;
  */
 public record AutomationRunView(UUID id, UUID messageId, UUID ruleId, Integer ruleVersion,
                                 String status, int actionCount, List<String> actionRefs,
-                                String errorCode, Instant createdAt, Instant updatedAt) {
+                                String errorCode, Instant createdAt, Instant updatedAt,
+                                List<AutomationActionView> actions) {
 }

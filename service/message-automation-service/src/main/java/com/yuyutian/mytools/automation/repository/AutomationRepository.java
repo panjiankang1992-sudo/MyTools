@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.automation.model.AutomationRuleRecord;
+import com.yuyutian.mytools.automation.model.AutomationActionView;
 import com.yuyutian.mytools.automation.model.AutomationRunView;
 import com.yuyutian.mytools.automation.model.ChannelType;
 import com.yuyutian.mytools.automation.model.CreateAutomationRuleRequest;
@@ -78,6 +79,14 @@ public class AutomationRepository {
     }
 
     /**
+     * 按运行标识查询自动化运行。
+     */
+    public Optional<AutomationRunView> findRunById(UUID runId) {
+        return jdbcTemplate.query("SELECT * FROM automation_run WHERE id = ?",
+                (resultSet, rowNumber) -> mapRun(resultSet), runId.toString()).stream().findFirst();
+    }
+
+    /**
      * 抢占消息处理权并写入运行占位记录。
      *
      * @return 新运行，已存在时返回既有运行
@@ -115,6 +124,101 @@ public class AutomationRepository {
         return findRun(messageId).orElseThrow();
     }
 
+    /**
+     * 幂等创建一个子动作占位记录。
+     */
+    public AutomationActionView createAction(UUID runId, int sequence, String sourceUrl, String fileName) {
+        Optional<AutomationActionView> existing = findAction(runId, sequence);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+        UUID id = UUID.randomUUID();
+        Instant now = Instant.now();
+        jdbcTemplate.update("""
+                INSERT INTO automation_action
+                    (id, automation_run_id, sequence_number, action_type, source_url, file_name,
+                     external_request_id, status, error_code, created_at, updated_at)
+                VALUES (?, ?, ?, 'DOWNLOAD_REQUEST', ?, ?, NULL, 'CREATING', NULL, ?, ?)
+                """, id.toString(), runId.toString(), sequence, sourceUrl, fileName,
+                Timestamp.from(now), Timestamp.from(now));
+        return findAction(runId, sequence).orElseThrow();
+    }
+
+    /**
+     * 绑定子动作的 Download Ingestion 请求。
+     */
+    public void bindAction(UUID actionId, UUID externalRequestId) {
+        jdbcTemplate.update("""
+                UPDATE automation_action SET external_request_id = ?, status = 'RUNNING', error_code = NULL,
+                    updated_at = ? WHERE id = ? AND (external_request_id IS NULL OR external_request_id = ?)
+                """, externalRequestId.toString(), Timestamp.from(Instant.now()), actionId.toString(),
+                externalRequestId.toString());
+    }
+
+    /**
+     * 记录子动作创建结果未知并保留幂等恢复能力。
+     */
+    public void failAction(UUID actionId, String errorCode) {
+        jdbcTemplate.update("""
+                UPDATE automation_action SET status = 'CREATING', error_code = ?, updated_at = ? WHERE id = ?
+                """, errorCode, Timestamp.from(Instant.now()), actionId.toString());
+    }
+
+    /**
+     * 查询运行的全部子动作。
+     */
+    public List<AutomationActionView> findActions(UUID runId) {
+        return jdbcTemplate.query("""
+                SELECT * FROM automation_action WHERE automation_run_id = ? ORDER BY sequence_number
+                """, (resultSet, rowNumber) -> mapAction(resultSet), runId.toString());
+    }
+
+    /**
+     * 查询包含私有输入的子动作执行快照。
+     */
+    public List<ActionExecution> findActionExecutions(UUID runId) {
+        return jdbcTemplate.query("""
+                SELECT * FROM automation_action WHERE automation_run_id = ? ORDER BY sequence_number
+                """, (resultSet, rowNumber) -> {
+            String externalId = resultSet.getString("external_request_id");
+            return new ActionExecution(UUID.fromString(resultSet.getString("id")),
+                    resultSet.getInt("sequence_number"), resultSet.getString("source_url"),
+                    resultSet.getString("file_name"), externalId == null ? null : UUID.fromString(externalId),
+                    resultSet.getString("status"));
+        }, runId.toString());
+    }
+
+    /**
+     * 更新子动作对账状态。
+     */
+    public void updateActionStatus(UUID actionId, String status, String errorCode) {
+        jdbcTemplate.update("""
+                UPDATE automation_action SET status = ?, error_code = ?, updated_at = ? WHERE id = ?
+                """, status, errorCode, Timestamp.from(Instant.now()), actionId.toString());
+    }
+
+    /**
+     * 根据子动作重新计算运行聚合状态。
+     */
+    public AutomationRunView updateRunAggregate(UUID messageId, String status, String errorCode) {
+        AutomationRunView current = findRun(messageId).orElseThrow();
+        List<AutomationActionView> actions = findActions(current.id());
+        List<String> refs = actions.stream().map(AutomationActionView::externalRequestId)
+                .filter(java.util.Objects::nonNull).map(UUID::toString).toList();
+        jdbcTemplate.update("""
+                UPDATE automation_run SET status = ?, action_count = ?, action_refs_json = ?, error_code = ?,
+                    updated_at = ? WHERE id = ?
+                """, status, actions.size(), writeJson(refs), errorCode, Timestamp.from(Instant.now()),
+                current.id().toString());
+        if (!current.status().equals(status) && List.of("SUCCEEDED", "FAILED", "PARTIAL_FAILED", "CANCELLED")
+                .contains(status)) {
+            appendOutbox(current.id(), "AutomationRunCompleted", Map.of(
+                    "runId", current.id().toString(), "messageId", messageId.toString(), "status", status,
+                    "actionCount", actions.size()));
+        }
+        return findRun(messageId).orElseThrow();
+    }
+
     private Optional<AutomationRuleRecord> findRuleByName(long ownerId, String name) {
         return queryRules("WHERE ar.owner_id = ? AND ar.name = ?", ownerId, name).stream().findFirst();
     }
@@ -145,6 +249,24 @@ public class AutomationRepository {
                 UUID.fromString(resultSet.getString("inbound_message_id")),
                 ruleId == null ? null : UUID.fromString(ruleId), version, resultSet.getString("status"),
                 resultSet.getInt("action_count"), readList(resultSet.getString("action_refs_json")),
+                resultSet.getString("error_code"), resultSet.getTimestamp("created_at").toInstant(),
+                resultSet.getTimestamp("updated_at").toInstant(),
+                findActions(UUID.fromString(resultSet.getString("id"))));
+    }
+
+    private Optional<AutomationActionView> findAction(UUID runId, int sequence) {
+        return jdbcTemplate.query("""
+                SELECT * FROM automation_action WHERE automation_run_id = ? AND sequence_number = ?
+                """, (resultSet, rowNumber) -> mapAction(resultSet), runId.toString(), sequence)
+                .stream().findFirst();
+    }
+
+    private AutomationActionView mapAction(java.sql.ResultSet resultSet) throws java.sql.SQLException {
+        String externalId = resultSet.getString("external_request_id");
+        return new AutomationActionView(UUID.fromString(resultSet.getString("id")),
+                UUID.fromString(resultSet.getString("automation_run_id")),
+                resultSet.getInt("sequence_number"), resultSet.getString("action_type"),
+                externalId == null ? null : UUID.fromString(externalId), resultSet.getString("status"),
                 resultSet.getString("error_code"), resultSet.getTimestamp("created_at").toInstant(),
                 resultSet.getTimestamp("updated_at").toInstant());
     }
@@ -181,5 +303,12 @@ public class AutomationRepository {
 
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value;
+    }
+
+    /**
+     * 服务内部使用的子动作执行快照，不得直接作为 API 响应。
+     */
+    public record ActionExecution(UUID id, int sequence, String sourceUrl, String fileName,
+                                  UUID externalRequestId, String status) {
     }
 }

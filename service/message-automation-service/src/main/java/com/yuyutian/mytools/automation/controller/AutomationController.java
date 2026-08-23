@@ -70,7 +70,20 @@ public class AutomationController {
             @RequestHeader(name = "Authorization", required = false) String authorization,
             @PathVariable UUID messageId) {
         authorizer.requireAuthorized(authorization);
-        return repository.findRun(messageId).map(ResponseEntity::ok).orElseGet(
-                () -> ResponseEntity.notFound().build());
+        if (repository.findRun(messageId).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(service.get(messageId));
+    }
+
+    /**
+     * 级联取消自动化运行中的子动作。
+     */
+    @PostMapping("/automation-runs/{runId}/cancel")
+    public AutomationRunView cancel(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable UUID runId) {
+        authorizer.requireAuthorized(authorization);
+        return service.cancel(runId);
     }
 }
