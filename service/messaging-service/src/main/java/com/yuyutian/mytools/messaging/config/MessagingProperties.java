@@ -9,5 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record MessagingProperties(String schedulerUrl, String internalToken, String mailFrom,
                                   String automationUrl, String automationToken,
                                   boolean automationRelayEnabled, int automationRelayBatchSize,
-                                  boolean oneBotIngressEnabled) {
+                                  boolean oneBotIngressEnabled, String downloadIngestionUrl,
+                                  String downloadIngestionToken) {
 }

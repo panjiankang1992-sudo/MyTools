@@ -8,6 +8,8 @@ import com.yuyutian.mytools.messaging.service.ProviderNotConfiguredException;
 import com.yuyutian.mytools.messaging.service.InboundMessageNotFoundException;
 import com.yuyutian.mytools.messaging.service.OneBotIngressDisabledException;
 import com.yuyutian.mytools.messaging.service.OneBotPayloadInvalidException;
+import com.yuyutian.mytools.messaging.service.AttachmentDownloadInvalidException;
+import com.yuyutian.mytools.messaging.service.AttachmentDownloadNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -88,5 +90,25 @@ public class MessagingExceptionHandler {
     public Map<String, String> handleOneBotPayloadInvalid(OneBotPayloadInvalidException exception) {
         return Map.of("code", ErrorCode.ONEBOT_PAYLOAD_INVALID.code(),
                 "message", ErrorCode.ONEBOT_PAYLOAD_INVALID.message());
+    }
+
+    /**
+     * 转换附件下载不存在异常。
+     */
+    @ExceptionHandler(AttachmentDownloadNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleAttachmentDownloadNotFound(AttachmentDownloadNotFoundException exception) {
+        return Map.of("code", ErrorCode.ATTACHMENT_DOWNLOAD_NOT_FOUND.code(),
+                "message", ErrorCode.ATTACHMENT_DOWNLOAD_NOT_FOUND.message());
+    }
+
+    /**
+     * 转换不可下载附件异常。
+     */
+    @ExceptionHandler(AttachmentDownloadInvalidException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public Map<String, String> handleAttachmentDownloadInvalid(AttachmentDownloadInvalidException exception) {
+        return Map.of("code", ErrorCode.ATTACHMENT_DOWNLOAD_INVALID.code(),
+                "message", ErrorCode.ATTACHMENT_DOWNLOAD_INVALID.message());
     }
 }

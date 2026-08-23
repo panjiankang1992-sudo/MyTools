@@ -15,6 +15,9 @@
 
 - `POST /internal/v1/deliveries`：创建投递请求。
 - `GET /internal/v1/deliveries/{id}`：查询状态。
+- `POST /internal/v1/adapters/onebot/events`：标准化 OneBot 消息正文和附件引用，默认关闭。
+- `POST /internal/v1/inbound-messages/{messageId}/parts/{partId}/download`：创建附件下载父任务。
+- `POST /internal/v1/attachment-downloads/{jobId}/execute`：由 Executor 幂等创建 Download Ingestion 子任务。
 - `MessageReceived`、`MessageDeliveryRequested`、`MessageDelivered`、`MessageDeliveryFailed`。
 
 ## 任务化操作
@@ -35,9 +38,10 @@
 
 1. 已建立 provider-neutral 投递、投递尝试、标准入站消息与 Outbox schema，并实现 SMTP 原子 provider。
 2. 已建立只携带 `deliveryId` 的 `message_send_email` 任务，并接入默认关闭、旧事务提交后触发的 MyTools 注册邮件旁路。
-3. 迁移 DownloadBot 的 QQ/Telegram/OneBot 适配器。
-4. 先双投递到审计通道，再切换真实发送。
-5. 删除 MyTools SMTP 和 DownloadBot 渠道发送逻辑。
+3. 已迁移 OneBot 消息解析和附件标准模型，开关默认关闭；HTTP 附件已通过 `message_download_attachment` 父任务转入 Download Ingestion 子任务，Scheduler 仅持有不透明任务标识。
+4. 迁移 OneBot provider file id 解析以及 QQ、Telegram adapter；渠道凭据只能由隔离 adapter 使用。
+5. 先双投递到审计通道，再切换真实发送。
+6. 删除 MyTools SMTP 和 DownloadBot 渠道发送逻辑。
 
 ## 验收
 
@@ -45,3 +49,5 @@
 - 渠道故障不会阻塞其他渠道。
 - 敏感凭据不进入任务参数、日志或事件。
 - SMTP 网络调用不占用数据库事务，状态与 Outbox 更新保持短事务原子性。
+- 附件入站事务不下载文件，重复父任务执行最多绑定一个 Download Ingestion 请求。
+- Messaging 查询附件任务时应与 Download Ingestion 对账终态，不复制下载产物明细。

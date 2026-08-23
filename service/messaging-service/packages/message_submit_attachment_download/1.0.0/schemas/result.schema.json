@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["jobId", "downloadRequestId", "status"],
+  "properties": {
+    "jobId": {"type": "string", "format": "uuid"},
+    "downloadRequestId": {"type": "string", "format": "uuid"},
+    "status": {"const": "SUBMITTED"}
+  },
+  "additionalProperties": false
+}

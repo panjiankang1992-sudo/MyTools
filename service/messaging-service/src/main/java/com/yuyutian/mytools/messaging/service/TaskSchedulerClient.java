@@ -41,6 +41,25 @@ public class TaskSchedulerClient {
     }
 
     /**
+     * 创建只包含附件任务标识的处理任务。
+     */
+    public UUID createAttachmentDownloadTask(UUID jobId) {
+        Map<String, Object> request = Map.of(
+                "taskName", "message_download_attachment",
+                "idempotencyKey", "message_attachment_download:" + jobId + ":v1",
+                "businessType", "MESSAGE_ATTACHMENT",
+                "businessId", jobId.toString(),
+                "priority", 70,
+                "parameters", Map.of("attachmentJobId", jobId.toString()));
+        JsonNode response = restClient.post().uri("/api/v1/task-instances")
+                .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
+        if (response == null || response.path("id").isMissingNode()) {
+            throw new IllegalStateException("Scheduler returned an invalid task response");
+        }
+        return UUID.fromString(response.path("id").asText());
+    }
+
+    /**
      * 渠道到白名单任务定义的映射。
      */
     public record ChannelTask(String taskName) {

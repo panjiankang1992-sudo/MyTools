@@ -11,7 +11,9 @@ public enum ErrorCode {
     INBOUND_NOT_FOUND("MESSAGING_005", "Inbound message was not found"),
     DELIVERY_INVALID("MESSAGING_006", "Delivery request is invalid"),
     ONEBOT_INGRESS_DISABLED("MESSAGING_007", "OneBot ingress adapter is disabled"),
-    ONEBOT_PAYLOAD_INVALID("MESSAGING_008", "OneBot event payload is invalid");
+    ONEBOT_PAYLOAD_INVALID("MESSAGING_008", "OneBot event payload is invalid"),
+    ATTACHMENT_DOWNLOAD_NOT_FOUND("MESSAGING_009", "Attachment download was not found"),
+    ATTACHMENT_DOWNLOAD_INVALID("MESSAGING_010", "Attachment cannot be downloaded through the HTTP pipeline");
 
     private final String code;
     private final String message;

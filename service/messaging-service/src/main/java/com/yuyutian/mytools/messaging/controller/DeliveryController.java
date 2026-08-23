@@ -6,9 +6,12 @@ import com.yuyutian.mytools.messaging.model.DeliveryView;
 import com.yuyutian.mytools.messaging.model.ExecuteDeliveryResult;
 import com.yuyutian.mytools.messaging.model.InboundMessageView;
 import com.yuyutian.mytools.messaging.model.OneBotInboundRequest;
+import com.yuyutian.mytools.messaging.model.AttachmentDownloadView;
+import com.yuyutian.mytools.messaging.model.ExecuteAttachmentDownloadResult;
 import com.yuyutian.mytools.messaging.service.DeliveryService;
 import com.yuyutian.mytools.messaging.service.InternalRequestAuthorizer;
 import com.yuyutian.mytools.messaging.service.OneBotInboundAdapter;
+import com.yuyutian.mytools.messaging.service.AttachmentDownloadService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,15 +34,18 @@ public class DeliveryController {
     private final DeliveryService service;
     private final InternalRequestAuthorizer authorizer;
     private final OneBotInboundAdapter oneBotInboundAdapter;
+    private final AttachmentDownloadService attachmentDownloadService;
 
     /**
      * 创建消息内部控制器。
      */
     public DeliveryController(DeliveryService service, InternalRequestAuthorizer authorizer,
-                              OneBotInboundAdapter oneBotInboundAdapter) {
+                              OneBotInboundAdapter oneBotInboundAdapter,
+                              AttachmentDownloadService attachmentDownloadService) {
         this.service = service;
         this.authorizer = authorizer;
         this.oneBotInboundAdapter = oneBotInboundAdapter;
+        this.attachmentDownloadService = attachmentDownloadService;
     }
 
     /**
@@ -105,5 +111,38 @@ public class DeliveryController {
             @PathVariable UUID id) {
         authorizer.requireAuthorized(authorization);
         return service.inbound(id);
+    }
+
+    /**
+     * 幂等创建消息附件下载处理任务。
+     */
+    @PostMapping("/inbound-messages/{messageId}/parts/{partId}/download")
+    public ResponseEntity<AttachmentDownloadView> createAttachmentDownload(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable UUID messageId, @PathVariable UUID partId) {
+        authorizer.requireAuthorized(authorization);
+        return ResponseEntity.accepted().body(attachmentDownloadService.create(messageId, partId));
+    }
+
+    /**
+     * 查询消息附件下载处理任务。
+     */
+    @GetMapping("/attachment-downloads/{jobId}")
+    public AttachmentDownloadView attachmentDownload(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable UUID jobId) {
+        authorizer.requireAuthorized(authorization);
+        return attachmentDownloadService.get(jobId);
+    }
+
+    /**
+     * 由 Executor 创建实际附件下载子任务。
+     */
+    @PostMapping("/attachment-downloads/{jobId}/execute")
+    public ExecuteAttachmentDownloadResult executeAttachmentDownload(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable UUID jobId) {
+        authorizer.requireAuthorized(authorization);
+        return attachmentDownloadService.execute(jobId);
     }
 }

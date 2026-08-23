@@ -18,6 +18,8 @@ messaging:
   automation-relay-enabled: false
   automation-relay-batch-size: 50
   one-bot-ingress-enabled: true
+  download-ingestion-url: http://download.test
+  download-ingestion-token: test-download-token
 
 management:
   health:

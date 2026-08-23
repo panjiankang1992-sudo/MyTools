@@ -8,7 +8,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 
 /**
  * OneBot 入站适配器集成测试。
@@ -25,8 +33,14 @@ class OneBotInboundAdapterTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private AttachmentDownloadService attachmentDownloadService;
+
     @MockBean
     private TaskSchedulerClient schedulerClient;
+
+    @MockBean
+    private DownloadIngestionClient downloadIngestionClient;
 
     @Test
     void shouldNormalizeAttachmentsAndDeduplicateEvent() throws Exception {
@@ -80,5 +94,40 @@ class OneBotInboundAdapterTest {
 
         assertThat(result.body()).isEqualTo("note");
         assertThat(result.parts()).extracting("type").containsExactly("ATTACHMENT", "TEXT");
+    }
+
+    @Test
+    void shouldCreateOneDownloadChildTaskForHttpAttachment() throws Exception {
+        var event = objectMapper.readTree("""
+                {
+                  "post_type":"message", "message_type":"private", "self_id":90001,
+                  "message_id":44, "user_id":10003,
+                  "message":[{"type":"image","data":{"file":"a.jpg","url":"https://cdn.example.test/a.jpg"}}]
+                }
+                """);
+        var message = adapter.receive(new OneBotInboundRequest(11L, "napcat-main", event));
+        var part = message.parts().getFirst();
+        UUID schedulerTaskId = UUID.randomUUID();
+        UUID downloadRequestId = UUID.randomUUID();
+        when(schedulerClient.createAttachmentDownloadTask(any())).thenReturn(schedulerTaskId);
+        when(downloadIngestionClient.createHttpAttachment(any(), anyLong(), any(), anyString(), anyString(), any()))
+                .thenReturn(downloadRequestId);
+        when(downloadIngestionClient.get(downloadRequestId))
+                .thenReturn(new DownloadIngestionClient.DownloadSnapshot(downloadRequestId, "SUCCEEDED"));
+
+        var job = attachmentDownloadService.create(message.id(), part.id());
+        var replay = attachmentDownloadService.create(message.id(), part.id());
+        var submitted = attachmentDownloadService.execute(job.id());
+        var executeReplay = attachmentDownloadService.execute(job.id());
+        var reconciled = attachmentDownloadService.get(job.id());
+
+        assertThat(replay.id()).isEqualTo(job.id());
+        assertThat(job.taskId()).isEqualTo(schedulerTaskId);
+        assertThat(submitted.downloadRequestId()).isEqualTo(downloadRequestId);
+        assertThat(executeReplay.downloadRequestId()).isEqualTo(downloadRequestId);
+        assertThat(reconciled.status()).isEqualTo("SUCCEEDED");
+        verify(schedulerClient, times(1)).createAttachmentDownloadTask(job.id());
+        verify(downloadIngestionClient, times(1)).createHttpAttachment(
+                any(), anyLong(), any(), anyString(), anyString(), any());
     }
 }

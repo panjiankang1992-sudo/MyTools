@@ -25,12 +25,14 @@ Java 21 / Spring Boot
 
 OneBot 入站默认由 `MESSAGING_ONEBOT_INGRESS_ENABLED=false` 关闭。灰度时由独立 adapter/反向代理携带内部令牌调用，不修改 DownloadBot 的现有事件消费链。事件幂等键包含 account、self、message type、conversation 和 message id；消息正文与附件分段写入 `inbound_message_part`，附件只保存 provider file id、远程 URL、文件名、MIME 和声明大小，不在 HTTP 入站事务中下载文件。合并转发内容需要由上游 OneBot adapter 展开后提交；未展开的 provider 文件引用将在后续附件下载任务中解析。
 
+远程 HTTP 附件可通过消息分段接口幂等创建 `message_download_attachment` 任务。父任务的 Scheduler 参数只保存 `attachmentJobId`；Messaging 持有附件 URL，并由 Executor 回调后创建 Download Ingestion `HTTP_ASSET` 子任务。`attachment_download_job` 保存父任务与下载请求的关联，查询时对账 Download Ingestion 的运行、成功、失败或取消状态；重复创建或重复执行不会产生第二个逻辑下载。provider file id 暂不伪装成 HTTP URL，必须等对应渠道凭据隔离解析器落地后才能进入下载流水线。
+
 MyTools 注册验证码已增加默认关闭的 `MESSAGING_REGISTRATION_MAIL_SIDECAR_ENABLED` 旁路。只有旧 SMTP 调用成功且验证码事务提交后才异步创建新投递；旁路异常不回滚旧链路，开发环境仅打印验证码时不会触发真实旁路邮件。旁路幂等键取验证码记录标识，便于双投递审计和后续切换。
 
 `MESSAGE_AUTOMATION_RELAY_ENABLED` 默认关闭。启用后，Messaging 分批转发未发布的 `MessageReceived` Outbox 事件，Automation 返回成功后才标记 `published_at`；中继失败不丢弃事件，重复发送由下游消息唯一键去重。
 
 ## 实施要求
 
-- 扩展 QQ、Telegram provider adapter；将 OneBot 附件下载实现为独立任务。
+- 扩展 QQ、Telegram provider adapter；补齐 OneBot provider file id 的凭据隔离解析步骤。
 - 迁移已有能力时保留旧实现和功能开关。
 - 在对账与回归通过前不得切换权威数据或生产流量。

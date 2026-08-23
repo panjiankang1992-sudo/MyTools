@@ -3,6 +3,7 @@ package com.yuyutian.mytools.messaging.repository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.messaging.model.ChannelType;
+import com.yuyutian.mytools.messaging.model.AttachmentDownloadRecord;
 import com.yuyutian.mytools.messaging.model.CreateInboundMessageRequest;
 import com.yuyutian.mytools.messaging.model.CreateInboundMessagePart;
 import com.yuyutian.mytools.messaging.model.DeliveryRecord;
@@ -173,6 +174,103 @@ public class MessagingRepository {
     public Optional<InboundMessageView> findInbound(UUID id) {
         return jdbcTemplate.query("SELECT * FROM inbound_message WHERE id = ?", (resultSet, rowNumber) ->
                 mapInbound(resultSet), id.toString()).stream().findFirst();
+    }
+
+    /**
+     * 查询附件下载所需的最小消息分段快照。
+     */
+    public Optional<AttachmentSource> findAttachmentSource(UUID messageId, UUID partId) {
+        return jdbcTemplate.query("""
+                SELECT m.owner_id, p.id, p.part_type, p.source_url, p.file_name, p.declared_size
+                FROM inbound_message_part p JOIN inbound_message m ON m.id = p.inbound_message_id
+                WHERE m.id = ? AND p.id = ?
+                """, (resultSet, rowNumber) -> {
+            long size = resultSet.getLong("declared_size");
+            boolean sizeMissing = resultSet.wasNull();
+            return new AttachmentSource(resultSet.getLong("owner_id"),
+                    UUID.fromString(resultSet.getString("id")), resultSet.getString("part_type"),
+                    resultSet.getString("source_url"), resultSet.getString("file_name"),
+                    sizeMissing ? null : size);
+        }, messageId.toString(), partId.toString()).stream().findFirst();
+    }
+
+    /**
+     * 按消息分段查询附件任务。
+     */
+    public Optional<AttachmentDownloadRecord> findAttachmentJobByPart(UUID partId) {
+        return queryAttachmentJob("WHERE message_part_id = ?", partId.toString());
+    }
+
+    /**
+     * 按标识查询附件任务。
+     */
+    public Optional<AttachmentDownloadRecord> findAttachmentJob(UUID jobId) {
+        return queryAttachmentJob("WHERE id = ?", jobId.toString());
+    }
+
+    /**
+     * 新增附件下载任务记录。
+     */
+    public void insertAttachmentJob(AttachmentDownloadRecord record) {
+        jdbcTemplate.update("""
+                INSERT INTO attachment_download_job
+                    (id, inbound_message_id, message_part_id, status, task_instance_id, download_request_id,
+                     last_error_code, created_at, updated_at)
+                VALUES (?, ?, ?, ?, NULL, NULL, NULL, ?, ?)
+                """, record.id().toString(), record.messageId().toString(), record.partId().toString(),
+                record.status(), Timestamp.from(record.createdAt()), Timestamp.from(record.updatedAt()));
+    }
+
+    /**
+     * 绑定附件处理的 Scheduler 任务。
+     */
+    public void bindAttachmentTask(UUID jobId, UUID taskId) {
+        jdbcTemplate.update("""
+                UPDATE attachment_download_job SET task_instance_id = ?, status = 'QUEUED', updated_at = ?
+                WHERE id = ? AND task_instance_id IS NULL
+                """, taskId.toString(), Timestamp.from(Instant.now()), jobId.toString());
+    }
+
+    /**
+     * 记录已创建的 Download Ingestion 子任务。
+     */
+    public void bindDownloadRequest(UUID jobId, UUID downloadRequestId) {
+        jdbcTemplate.update("""
+                UPDATE attachment_download_job SET download_request_id = ?, status = 'SUBMITTED',
+                    last_error_code = NULL, updated_at = ?
+                WHERE id = ? AND (download_request_id IS NULL OR download_request_id = ?)
+                """, downloadRequestId.toString(), Timestamp.from(Instant.now()), jobId.toString(),
+                downloadRequestId.toString());
+    }
+
+    /**
+     * 对账更新附件下载任务状态。
+     */
+    public void updateAttachmentJobStatus(UUID jobId, String status, String errorCode) {
+        jdbcTemplate.update("""
+                UPDATE attachment_download_job SET status = ?, last_error_code = ?, updated_at = ? WHERE id = ?
+                """, status, errorCode, Timestamp.from(Instant.now()), jobId.toString());
+    }
+
+    private Optional<AttachmentDownloadRecord> queryAttachmentJob(String clause, Object... arguments) {
+        return jdbcTemplate.query("SELECT * FROM attachment_download_job " + clause, (resultSet, rowNumber) -> {
+            String taskId = resultSet.getString("task_instance_id");
+            String downloadId = resultSet.getString("download_request_id");
+            return new AttachmentDownloadRecord(UUID.fromString(resultSet.getString("id")),
+                    UUID.fromString(resultSet.getString("inbound_message_id")),
+                    UUID.fromString(resultSet.getString("message_part_id")), resultSet.getString("status"),
+                    taskId == null ? null : UUID.fromString(taskId),
+                    downloadId == null ? null : UUID.fromString(downloadId),
+                    resultSet.getString("last_error_code"), resultSet.getTimestamp("created_at").toInstant(),
+                    resultSet.getTimestamp("updated_at").toInstant());
+        }, arguments).stream().findFirst();
+    }
+
+    /**
+     * 附件下载所需的不可变来源快照。
+     */
+    public record AttachmentSource(long ownerId, UUID partId, String partType, String sourceUrl,
+                                   String fileName, Long declaredSize) {
     }
 
     /**
