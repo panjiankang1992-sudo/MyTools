@@ -1,21 +1,25 @@
 package com.yuyutian.mytools.gateway.controller;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
+import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.LoginRequest;
 import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.RefreshRequest;
 import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.TokenPair;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
+import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
 import com.yuyutian.mytools.gateway.service.IdentityGatewayClient;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 默认关闭的 Identity 登录和刷新入口。
+ * 默认关闭的 Identity 会话生命周期入口。
  */
 @RestController
 @RequestMapping("/api/app/v1/identity")
@@ -58,6 +62,22 @@ public class IdentityGatewayController {
     public TokenPair refresh(@Valid @RequestBody RefreshRequest request, HttpServletRequest servletRequest) {
         requireEnabled();
         return client.refresh(request, correlation(servletRequest));
+    }
+
+    /**
+     * 撤销访问令牌绑定的当前会话。
+     *
+     * @param request HTTP 请求
+     */
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(HttpServletRequest request) {
+        requireEnabled();
+        Object value = request.getAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE);
+        if (!(value instanceof GatewayPrincipal principal) || principal.sessionId() == null) {
+            throw new GatewayUnauthorizedException();
+        }
+        client.logout(principal.sessionId(), correlation(request));
     }
 
     private void requireEnabled() {

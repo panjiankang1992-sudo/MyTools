@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 按显式迁移模式校验旧会话或 Identity 会话。
@@ -81,12 +82,13 @@ public class PrincipalValidator {
 
     private GatewayPrincipal principal(ValidationResponse response) {
         return new GatewayPrincipal(response.userId(), response.username(),
-                response.roles() == null ? List.of() : List.copyOf(response.roles()));
+                response.roles() == null ? List.of() : List.copyOf(response.roles()), response.sessionId());
     }
 
     /**
      * 下游认证服务统一响应。
      */
-    public record ValidationResponse(boolean active, Long userId, String username, List<String> roles) {
+    public record ValidationResponse(boolean active, Long userId, String username, List<String> roles,
+                                     UUID sessionId) {
     }
 }

@@ -73,6 +73,9 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
         if (uri.startsWith("/api/app/v1/drive/")) {
             return new Route(properties.driveRouteEnabled(), properties::driveTenantAllowed);
         }
+        if (uri.equals("/api/app/v1/identity/logout")) {
+            return new Route(properties.identityRouteUsable(), ignored -> true);
+        }
         return new Route(false, ignored -> false);
     }
 

@@ -26,7 +26,7 @@ class PrincipalValidatorTest {
         GatewayProperties properties = properties(GatewayProperties.IdentityMode.LEGACY);
         when(restTemplate.postForObject(eq("http://mytools/internal/v1/gateway/tokens/validate"),
                 any(HttpEntity.class), eq(PrincipalValidator.ValidationResponse.class)))
-                .thenReturn(new PrincipalValidator.ValidationResponse(true, 7L, "legacy", List.of("USER")));
+                .thenReturn(new PrincipalValidator.ValidationResponse(true, 7L, "legacy", List.of("USER"), null));
 
         var principal = new PrincipalValidator(restTemplate, properties).validate("token");
 
@@ -41,14 +41,17 @@ class PrincipalValidatorTest {
         GatewayProperties properties = properties(GatewayProperties.IdentityMode.DUAL);
         when(restTemplate.postForObject(eq("http://mytools/internal/v1/gateway/tokens/validate"),
                 any(HttpEntity.class), eq(PrincipalValidator.ValidationResponse.class)))
-                .thenReturn(new PrincipalValidator.ValidationResponse(false, null, null, List.of()));
+                .thenReturn(new PrincipalValidator.ValidationResponse(false, null, null, List.of(), null));
         when(restTemplate.postForObject(eq("http://identity/internal/v1/identity/tokens/validate"),
                 any(HttpEntity.class), eq(PrincipalValidator.ValidationResponse.class)))
-                .thenReturn(new PrincipalValidator.ValidationResponse(true, 8L, "identity", List.of("USER")));
+                .thenReturn(new PrincipalValidator.ValidationResponse(true, 8L, "identity", List.of("USER"),
+                        java.util.UUID.fromString("00000000-0000-0000-0000-000000000008")));
 
         var principal = new PrincipalValidator(restTemplate, properties).validate("token");
 
         assertThat(principal.userId()).isEqualTo(8L);
+        assertThat(principal.sessionId()).isEqualTo(
+                java.util.UUID.fromString("00000000-0000-0000-0000-000000000008"));
     }
 
     @Test

@@ -6,12 +6,17 @@ import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.RefreshRequest;
 import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.TokenPair;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.util.UUID;
 
 /**
  * 只转发稳定认证字段的 Identity 客户端。
@@ -53,6 +58,29 @@ public class IdentityGatewayClient {
      */
     public TokenPair refresh(RefreshRequest request, String correlationId) {
         return post("/api/v1/identity/refresh", new RefreshRequest(request.refreshToken()), correlationId);
+    }
+
+    /**
+     * 撤销已验证主体的当前会话。
+     *
+     * @param sessionId 已验证会话标识
+     * @param correlationId 关联标识
+     */
+    public void logout(UUID sessionId, String correlationId) {
+        if (properties.identityToken() == null || properties.identityToken().isBlank()) {
+            throw new GatewayDownstreamException();
+        }
+        URI url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/identity/sessions/"
+                        + sessionId + "/revoke")
+                .queryParam("reason", "USER_LOGOUT").build().encode().toUri();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(properties.identityToken());
+        headers.set("X-Correlation-Id", correlationId);
+        try {
+            restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(headers), Void.class);
+        } catch (RestClientException exception) {
+            throw new GatewayDownstreamException();
+        }
     }
 
     private TokenPair post(String path, Object body, String correlationId) {

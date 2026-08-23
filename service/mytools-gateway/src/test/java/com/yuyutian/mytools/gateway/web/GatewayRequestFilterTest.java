@@ -49,7 +49,7 @@ class GatewayRequestFilterTest {
     @Test
     void shouldRejectAuthenticatedPrincipalOutsideAllowlist() throws Exception {
         PrincipalValidator validator = mock(PrincipalValidator.class);
-        when(validator.validate("token")).thenReturn(new GatewayPrincipal(56L, "user", List.of("USER")));
+        when(validator.validate("token")).thenReturn(new GatewayPrincipal(56L, "user", List.of("USER"), null));
         GatewayRequestFilter filter = new GatewayRequestFilter(validator, properties(true));
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/app/v1/reader/shelves");
         request.addHeader("Authorization", "Bearer token");
@@ -66,7 +66,7 @@ class GatewayRequestFilterTest {
     @Test
     void shouldPassAllowlistedPrincipalToController() throws Exception {
         PrincipalValidator validator = mock(PrincipalValidator.class);
-        when(validator.validate("token")).thenReturn(new GatewayPrincipal(55L, "user", List.of("USER")));
+        when(validator.validate("token")).thenReturn(new GatewayPrincipal(55L, "user", List.of("USER"), null));
         GatewayRequestFilter filter = new GatewayRequestFilter(validator, properties(true));
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/app/v1/reader/shelves");
         request.addHeader("Authorization", "Bearer token");
@@ -76,7 +76,7 @@ class GatewayRequestFilterTest {
 
         assertThat(chain.getRequest()).isNotNull();
         assertThat(request.getAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE))
-                .isEqualTo(new GatewayPrincipal(55L, "user", List.of("USER")));
+                .isEqualTo(new GatewayPrincipal(55L, "user", List.of("USER"), null));
     }
 
     @Test
@@ -96,7 +96,7 @@ class GatewayRequestFilterTest {
     @Test
     void shouldInjectAllowlistedPrincipalForEnabledDriveRoute() throws Exception {
         PrincipalValidator validator = mock(PrincipalValidator.class);
-        when(validator.validate("token")).thenReturn(new GatewayPrincipal(55L, "user", List.of("USER")));
+        when(validator.validate("token")).thenReturn(new GatewayPrincipal(55L, "user", List.of("USER"), null));
         GatewayRequestFilter filter = new GatewayRequestFilter(validator, properties(false, true));
         MockHttpServletRequest request = new MockHttpServletRequest(
                 "GET", "/api/app/v1/drive/accounts/00000000-0000-0000-0000-000000000001/items");
@@ -107,7 +107,29 @@ class GatewayRequestFilterTest {
 
         assertThat(chain.getRequest()).isNotNull();
         assertThat(request.getAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE))
-                .isEqualTo(new GatewayPrincipal(55L, "user", List.of("USER")));
+                .isEqualTo(new GatewayPrincipal(55L, "user", List.of("USER"), null));
+    }
+
+    @Test
+    void shouldAuthenticateIdentityLogoutWithoutApplyingTenantAllowlist() throws Exception {
+        PrincipalValidator validator = mock(PrincipalValidator.class);
+        java.util.UUID sessionId = java.util.UUID.randomUUID();
+        when(validator.validate("token"))
+                .thenReturn(new GatewayPrincipal(99L, "user", List.of("USER"), sessionId));
+        GatewayProperties properties = new GatewayProperties(GatewayProperties.IdentityMode.DUAL,
+                true, false, Set.of(), false, Set.of(), "http://mytools", "http://identity",
+                "http://reader", "http://drive", "gateway-token", "identity-token",
+                "reader-token", "drive-token", 1000, 3000);
+        GatewayRequestFilter filter = new GatewayRequestFilter(validator, properties);
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/app/v1/identity/logout");
+        request.addHeader("Authorization", "Bearer token");
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, new MockHttpServletResponse(), chain);
+
+        assertThat(chain.getRequest()).isNotNull();
+        assertThat(request.getAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE))
+                .isEqualTo(new GatewayPrincipal(99L, "user", List.of("USER"), sessionId));
     }
 
     private GatewayProperties properties(boolean enabled) {

@@ -19,6 +19,7 @@ class IdentityServiceTest {
   assertThatThrownBy(()->service.refresh(new RefreshRequest(login.refreshToken()))).isInstanceOf(SecurityException.class);
   service.revoke(login.sessionId(),"USER_LOGOUT");
   assertThat(service.validate(new ValidateRequest(refreshed.accessToken())).active()).isFalse();
+  assertThatThrownBy(()->service.refresh(new RefreshRequest(refreshed.refreshToken()))).isInstanceOf(SecurityException.class);
  }
  @Test void shouldLockIdentityAfterFiveFailures(){
   service.importUser(new ImportUserRequest(8,"legacy:8","bob",null,encoder.encode("correct-password"),"ACTIVE",0,List.of("USER")));

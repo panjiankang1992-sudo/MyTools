@@ -4,7 +4,7 @@
 
 `identity_migrate_users` 是手工即时任务，通过 MyTools 受保护分页接口迁移用户、BCrypt 哈希和角色。旧 access/refresh token 不导出、不复制，新会话必须重新登录生成。任务输出仅包含数量和不含密码哈希的身份摘要。
 
-Gateway 已提供默认关闭的 `/api/app/v1/identity/login` 和 `/refresh` 代理。启用 `GATEWAY_IDENTITY_ROUTE_ENABLED` 前必须先迁移并对账用户，并把 `IDENTITY_VALIDATION_MODE` 设置为 `DUAL` 或 `IDENTITY`；关闭开关即可恢复旧登录入口，且不会删除 Identity schema 中已创建的会话。
+Gateway 已提供默认关闭的 `/api/app/v1/identity/login`、`/refresh` 和 `/logout` 代理。注销通过实时校验结果撤销当前 Identity 会话，不允许客户端指定会话标识。启用 `GATEWAY_IDENTITY_ROUTE_ENABLED` 前必须先迁移并对账用户，并把 `IDENTITY_VALIDATION_MODE` 设置为 `DUAL` 或 `IDENTITY`；关闭开关即可恢复旧登录入口，且不会删除 Identity schema 中已创建的会话。
 
 ## 技术栈
 

@@ -64,7 +64,7 @@ class ReaderGatewayControllerTest {
     private MockHttpServletRequest request(long userId) {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE,
-                new GatewayPrincipal(userId, "user", List.of("USER")));
+                new GatewayPrincipal(userId, "user", List.of("USER"), null));
         request.setAttribute(GatewayRequestFilter.CORRELATION_ATTRIBUTE, "correlation");
         return request;
     }

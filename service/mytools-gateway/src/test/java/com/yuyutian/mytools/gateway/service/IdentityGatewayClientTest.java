@@ -15,9 +15,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.http.HttpMethod.POST;
 
 class IdentityGatewayClientTest {
     @Test
@@ -47,6 +49,24 @@ class IdentityGatewayClientTest {
         assertFailure(HttpStatus.UNAUTHORIZED, GatewayUnauthorizedException.class);
         assertFailure(HttpStatus.BAD_REQUEST, GatewayBadRequestException.class);
         assertFailure(HttpStatus.SERVICE_UNAVAILABLE, GatewayDownstreamException.class);
+    }
+
+    @Test
+    void shouldRevokeOnlyTrustedSessionWithInternalToken() {
+        RestTemplate restTemplate = new RestTemplate();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
+        java.util.UUID sessionId = java.util.UUID.fromString("00000000-0000-0000-0000-000000000009");
+        server.expect(requestTo("http://identity/internal/v1/identity/sessions/" + sessionId
+                        + "/revoke?reason=USER_LOGOUT"))
+                .andExpect(method(POST))
+                .andExpect(header("Authorization", "Bearer identity-token"))
+                .andExpect(header("X-Correlation-Id", "correlation"))
+                .andRespond(withSuccess());
+        IdentityGatewayClient client = new IdentityGatewayClient(restTemplate, properties());
+
+        client.logout(sessionId, "correlation");
+
+        server.verify();
     }
 
     private void assertFailure(HttpStatus status, Class<? extends RuntimeException> expected) {

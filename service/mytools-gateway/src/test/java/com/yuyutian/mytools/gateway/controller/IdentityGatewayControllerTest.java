@@ -4,6 +4,7 @@ import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.LoginRequest;
 import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.RefreshRequest;
 import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.TokenPair;
+import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.IdentityGatewayClient;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
@@ -67,6 +68,34 @@ class IdentityGatewayControllerTest {
         assertThatThrownBy(() -> controller.login(login, request()))
                 .isInstanceOf(GatewayRouteDisabledException.class);
         verify(client, never()).login(login, "correlation");
+    }
+
+    @Test
+    void shouldRevokeOnlySessionFromValidatedPrincipal() {
+        IdentityGatewayClient client = mock(IdentityGatewayClient.class);
+        IdentityGatewayController controller = new IdentityGatewayController(properties(true), client);
+        UUID sessionId = UUID.fromString("00000000-0000-0000-0000-000000000009");
+        MockHttpServletRequest request = request();
+        request.setAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE,
+                new GatewayPrincipal(55L, "user", java.util.List.of("USER"), sessionId));
+
+        controller.logout(request);
+
+        verify(client).logout(sessionId, "correlation");
+    }
+
+    @Test
+    void shouldRejectLogoutWithoutValidatedIdentitySession() {
+        IdentityGatewayClient client = mock(IdentityGatewayClient.class);
+        IdentityGatewayController controller = new IdentityGatewayController(properties(true), client);
+        MockHttpServletRequest request = request();
+        request.setAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE,
+                new GatewayPrincipal(55L, "legacy", java.util.List.of("USER"), null));
+
+        assertThatThrownBy(() -> controller.logout(request))
+                .isInstanceOf(com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException.class);
+        verify(client, never()).logout(org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.anyString());
     }
 
     @Test
