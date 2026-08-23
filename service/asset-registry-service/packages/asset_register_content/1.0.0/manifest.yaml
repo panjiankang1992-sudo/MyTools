@@ -1,0 +1,14 @@
+name: asset_register_content
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - asset_registry_write
+parameters:
+  required:
+    - ownerId
+    - requestId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 60

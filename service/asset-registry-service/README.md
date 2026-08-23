@@ -21,6 +21,8 @@ Java 21 / Spring Boot
 - `POST /internal/v1/assets/{id}/locations`：按乐观版本登记位置。
 - `POST /internal/v1/assets/{id}/artifacts`：按生成器版本登记派生资产。
 
+`asset_register_content` 1.0.0 脚本包可从明确的 `assetOutput` 或前序 `import_ebook` 步骤读取已经校验的 URI、摘要和大小，并通过共享 Executor SDK 登记资产。Reader 电子书导入已追加该步骤；迁移期使用 `IGNORE` 失败策略，因此 Registry 故障不会改变已经成功的电子书导入状态，独立任务可用于补偿重放。
+
 ## 实施要求
 
 - 继续实现位置失效、资源包发布、迁移映射和批量对账。
