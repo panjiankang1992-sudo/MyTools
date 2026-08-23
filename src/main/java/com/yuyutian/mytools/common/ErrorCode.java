@@ -43,6 +43,7 @@ public enum ErrorCode {
     FILE_009("30009", "file.type.unsupported", HttpStatus.BAD_REQUEST),
     FILE_010("30010", "file.dir.not_found", HttpStatus.NOT_FOUND),
     FILE_011("30011", "file.scan.in_progress", HttpStatus.CONFLICT),
+    FILE_012("30012", "file.storage.unavailable", HttpStatus.SERVICE_UNAVAILABLE),
 
     // Token error codes (40001-40099)
     TOKEN_001("40001", "token.not_found", HttpStatus.NOT_FOUND),
@@ -98,6 +99,15 @@ public enum ErrorCode {
     READER_003("92003", "reader.shelf.quota.exceeded", HttpStatus.CONFLICT),
     READER_004("92004", "reader.source.invalid", HttpStatus.BAD_REQUEST),
     READER_005("92005", "reader.source.quota.exceeded", HttpStatus.CONFLICT),
+    READER_006("92006", "reader.progress.invalid", HttpStatus.BAD_REQUEST),
+    READER_007("92007", "reader.source.discovery.invalid", HttpStatus.BAD_REQUEST),
+    READER_008("92008", "reader.source.discovery.busy", HttpStatus.TOO_MANY_REQUESTS),
+    READER_009("92009", "reader.runtime.unavailable", HttpStatus.BAD_GATEWAY),
+    READER_010("92010", "reader.search.task.not.found", HttpStatus.NOT_FOUND),
+    READER_011("92011", "reader.source.unreadable", HttpStatus.UNPROCESSABLE_ENTITY),
+    READER_012("92012", "reader.ebook.upload.invalid", HttpStatus.BAD_REQUEST),
+    READER_013("92013", "reader.ebook.upload.failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    READER_014("92014", "reader.ebook.import.not.found", HttpStatus.NOT_FOUND),
 
     // 局域网连接错误码（93001-93099）
     CONNECTIVITY_001("93001", "connectivity.probe.invalid", HttpStatus.UNAUTHORIZED),

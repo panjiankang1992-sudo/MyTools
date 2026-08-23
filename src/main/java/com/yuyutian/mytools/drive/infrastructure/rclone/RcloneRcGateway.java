@@ -122,7 +122,8 @@ public class RcloneRcGateway implements RcloneGateway {
                 || (count < 0 && offset != 0) || (count > 0 && offset > Long.MAX_VALUE - count)) {
             throw new BusinessException(ErrorCode.DRIVE_004);
         }
-        String normalizedPath = normalizePath(path);
+        // rclone serve指向组合远端，一级目录固定为drive_account.remote_key。
+        String normalizedPath = remoteKey + "/" + normalizePath(path);
         try {
             HttpRequest.Builder builder = serveRequestBuilder(normalizedPath);
             if (count >= 0) {

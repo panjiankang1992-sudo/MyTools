@@ -1,4 +1,8 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 512MB
   task:
     scheduling:
       pool:
@@ -65,6 +69,23 @@ mytools:
   encryption:
     key: ${MYTOOLS_ENCRYPTION_KEY:}
     previous-key: ${MYTOOLS_ENCRYPTION_PREVIOUS_KEY:}
+  ebook:
+    cover-cache-dir: ${MYTOOLS_EBOOK_COVER_CACHE_DIR:/opt/extend/resource/.mytools/ebook-covers}
+    archive-cache-dir: ${MYTOOLS_EBOOK_ARCHIVE_CACHE_DIR:/opt/extend/resource/.mytools/ebook-archives}
+    index-enabled: ${MYTOOLS_EBOOK_INDEX_ENABLED:true}
+    index-batch-size: ${MYTOOLS_EBOOK_INDEX_BATCH_SIZE:50}
+    index-delay-ms: ${MYTOOLS_EBOOK_INDEX_DELAY_MS:30000}
+    index-initial-delay-ms: ${MYTOOLS_EBOOK_INDEX_INITIAL_DELAY_MS:15000}
+  reader-runtime:
+    enabled: ${READER_RUNTIME_ENABLED:false}
+    base-url: ${READER_RUNTIME_BASE_URL:http://127.0.0.1:23120}
+    secure-key: ${READER_RUNTIME_SECURE_KEY:}
+    connect-timeout-seconds: ${READER_RUNTIME_CONNECT_TIMEOUT_SECONDS:3}
+    request-timeout-seconds: ${READER_RUNTIME_REQUEST_TIMEOUT_SECONDS:25}
+    search-concurrency: ${READER_RUNTIME_SEARCH_CONCURRENCY:20}
+    chapter-cache-dir: ${READER_RUNTIME_CHAPTER_CACHE_DIR:/opt/extend/resource/.mytools/reader-chapters}
+    chapter-cache-ttl-hours: ${READER_RUNTIME_CHAPTER_CACHE_TTL_HOURS:168}
+    chapter-cache-max-entries: ${READER_RUNTIME_CHAPTER_CACHE_MAX_ENTRIES:20000}
   connectivity:
     instance-id: ${MYTOOLS_INSTANCE_ID:mytools-default}
     api-version: v1
@@ -124,8 +145,26 @@ dsh:
 
 # 文件扫描配置
 file:
+  resource:
+    mount-path: ${FILE_RESOURCE_MOUNT_PATH:}
+    require-mount: ${FILE_RESOURCE_REQUIRE_MOUNT:false}
+  directory-name-cleanup:
+    # 模型按小批次返回严格ID映射，避免长输出导致漏项或重复项。
+    model-batch-size: 8
   scan:
     path: /opt/extend/resource
     extensions: jpg,jpeg,png,gif,bmp,webp,mp4,avi,mov,wmv,mkv,flv,mp3,wav,flac,aac,ogg,m4a,txt,md,pdf,doc,docx,epub,mobi
     thumbnail-path: /opt/extend/resource/.thumbnails
     batch-size: 100
+
+management:
+  endpoint:
+    health:
+      group:
+        resource:
+          include: resourceStorage
+          show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics

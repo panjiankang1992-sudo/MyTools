@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /**
@@ -26,6 +27,7 @@ import java.util.List;
 public class MediaPackageAnalysisService {
 
     private static final String PIPELINE_VERSION = "mytools-media-v1";
+    private static final long TAGGING_GRACE_HOURS = 24L;
 
     private final ObjectMapper objectMapper;
     private final MediaPackageArtifactReader artifactReader;
@@ -44,17 +46,35 @@ public class MediaPackageAnalysisService {
         try {
             JsonNode metadata = objectMapper.readTree(packageDirectory.resolve("metadata.json").toFile());
             String tagStatus = metadata.path("tagStatus").asText("");
-            if ("PENDING".equals(tagStatus) || "RUNNING".equals(tagStatus)) {
+            if (("PENDING".equals(tagStatus) || "RUNNING".equals(tagStatus))
+                    && !isTaggingStale(metadata)) {
                 // 等待 DownloadBot 完成其唯一标签任务，避免双方并发改写清单。
                 return false;
             }
-            if ("READY".equals(metadata.path("analysisStatus").asText())) {
+            String analysisStatus = metadata.path("analysisStatus").asText("");
+            if ("READY".equals(analysisStatus) || "UNRECOVERABLE".equals(analysisStatus)) {
                 return false;
             }
             String retryAfter = metadata.path("retryAfter").asText("");
             return retryAfter.isBlank() || !OffsetDateTime.parse(retryAfter).isAfter(now());
         } catch (Exception ex) {
             return true;
+        }
+    }
+
+    private boolean isTaggingStale(JsonNode metadata) {
+        String updatedAt = metadata.path("updatedAt").asText("");
+        if (updatedAt.isBlank()) {
+            updatedAt = metadata.path("createdAt").asText("");
+        }
+        if (updatedAt.isBlank()) {
+            return false;
+        }
+        try {
+            OffsetDateTime deadline = OffsetDateTime.parse(updatedAt).plus(TAGGING_GRACE_HOURS, ChronoUnit.HOURS);
+            return !deadline.isAfter(now());
+        } catch (RuntimeException ex) {
+            return false;
         }
     }
 

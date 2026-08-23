@@ -5,10 +5,11 @@ import { BookSource, BookSourceImportResult } from './ReaderModels';
  */
 export class BookSourceImporter {
   private static readonly MAX_SOURCES: number = 500;
-  private static readonly MAX_SOURCE_BYTES: number = 128 * 1024;
+  private static readonly MAX_SOURCE_BYTES: number = 512 * 1024;
   private static readonly MAX_RULE_FIELDS: number = 64;
-  private static readonly MAX_RULE_BYTES: number = 64 * 1024;
-  private static readonly MAX_RULE_VALUE_LENGTH: number = 16 * 1024;
+  private static readonly MAX_RULE_BYTES: number = 512 * 1024;
+  private static readonly MAX_RULE_VALUE_LENGTH: number = 64 * 1024;
+  private static readonly MAX_ROUTE_LENGTH: number = 512 * 1024;
   /**
    * 解析单个书源或书源数组，并按书源地址去重。
    */
@@ -47,8 +48,8 @@ export class BookSourceImporter {
       }
       try {
         const group = this.limitedString(record, 'bookSourceGroup', 500);
-        const searchUrl = this.limitedString(record, 'searchUrl', 16 * 1024);
-        const exploreUrl = this.limitedString(record, 'exploreUrl', 16 * 1024);
+        const searchUrl = this.limitedString(record, 'searchUrl', BookSourceImporter.MAX_ROUTE_LENGTH);
+        const exploreUrl = this.limitedString(record, 'exploreUrl', BookSourceImporter.MAX_ROUTE_LENGTH);
         this.rejectInlineSensitiveHeaders(searchUrl);
         this.rejectInlineSensitiveHeaders(exploreUrl);
         const header = this.safeHeader(record);
@@ -129,9 +130,18 @@ export class BookSourceImporter {
     const raw = this.limitedString(record, 'header', 32 * 1024);
     if (raw.trim().length === 0) return '';
     let parsed: Record<string, Object>;
+    // 兼容开源阅读书源常见的零宽字符，以及省略最外层花括号的请求头片段。
+    const normalizedRaw = raw.replace(/\uFEFF|\u200B/g, '').trim();
     try {
-      parsed = JSON.parse(raw) as Record<string, Object>;
+      parsed = JSON.parse(normalizedRaw) as Record<string, Object>;
     } catch (_) {
+      try {
+        parsed = JSON.parse(`{${normalizedRaw}}`) as Record<string, Object>;
+      } catch (_) {
+        throw new Error('书源请求头必须是JSON对象');
+      }
+    }
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
       throw new Error('书源请求头必须是JSON对象');
     }
     const keys = Object.keys(parsed);
@@ -139,7 +149,7 @@ export class BookSourceImporter {
     const normalized: Record<string, string> = {};
     keys.forEach((key: string) => {
       const lower = key.trim().toLowerCase();
-      if (!/^[a-z0-9-]{1,64}$/.test(lower)) throw new Error('书源请求头名称无效');
+      if (!/^[!#$%&'*+.^_`|~a-z0-9-]{1,64}$/.test(lower)) throw new Error('书源请求头名称无效');
       if (['authorization', 'cookie', 'proxy-authorization', 'x-api-key'].includes(lower)) {
         throw new Error('书源敏感请求头需要安全凭据存储');
       }
@@ -185,8 +195,8 @@ export class BookSourceImporter {
   private sourceTypeValue(record: Record<string, Object>): number {
     const value = record['bookSourceType'];
     if (value === undefined) return 0;
-    if (typeof value !== 'number' || !Number.isInteger(value) || value < 0 || value > 3) {
-      throw new Error('书源类型必须为0至3的整数');
+    if (typeof value !== 'number' || !Number.isInteger(value) || value < 0 || value > 4) {
+      throw new Error('书源类型必须为0至4的整数');
     }
     return value;
   }

@@ -42,7 +42,7 @@ function source(url, revision, updatedAt, overrides = {}) {
 }
 equal(normalizer.sourceList([
   source('https://one.example', 1, 10), source('https://one.example', 1, 20),
-  source('https://bad.example', 1, 10, { snapshotJson: 'x'.repeat(131073) })
+  source('https://bad.example', 1, 10, { snapshotJson: 'x'.repeat(524289) })
 ]).map(value => [value.sourceUrl, value.updatedAt]), [['https://one.example', 20]],
   'Source validation and timestamp dedupe');
 equal(normalizer.sourceSave({ accepted: false, source: source('https://one.example', 2, 30) }).accepted,

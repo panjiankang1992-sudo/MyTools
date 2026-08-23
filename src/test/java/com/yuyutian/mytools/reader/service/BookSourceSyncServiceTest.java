@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -55,6 +56,23 @@ class BookSourceSyncServiceTest {
                 () -> new BookSourceSyncService(mapper, new ObjectMapper()).save(3L, request));
 
         assertEquals(ErrorCode.READER_004.getCode(), exception.getCode());
+    }
+
+    /**
+     * 验证后端发现任务可以直接写入用户级书源表。
+     */
+    @Test
+    void shouldSaveDiscoveredSourceWithoutUserCountLimit() {
+        SyncedBookSourceMapper mapper = mock(SyncedBookSourceMapper.class);
+        when(mapper.updateDiscovered(any(SyncedBookSource.class))).thenReturn(0);
+        String snapshot = "{\"bookSourceUrl\":\"https://discovered.example\","
+                + "\"bookSourceName\":\"Discovered\",\"header\":\"{}\"}";
+
+        int saved = new BookSourceSyncService(mapper, new ObjectMapper())
+                .saveDiscoveredSources(3L, List.of(snapshot));
+
+        assertEquals(1, saved);
+        verify(mapper).insert(any(SyncedBookSource.class));
     }
 
     private SaveBookSourceRequest request(String snapshot) {

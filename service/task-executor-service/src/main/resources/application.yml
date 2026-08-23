@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: task-executor-service
+executor:
+  node-name: ${TASK_EXECUTOR_NODE_NAME:executor-local}
+  scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23210}
+  work-root: ${TASK_EXECUTOR_WORK_ROOT:./runtime/tasks}
+  heartbeat-seconds: ${TASK_EXECUTOR_HEARTBEAT_SECONDS:10}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

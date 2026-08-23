@@ -51,6 +51,23 @@ mytools:
   encryption:
     key: ${MYTOOLS_ENCRYPTION_KEY:}
     previous-key: ${MYTOOLS_ENCRYPTION_PREVIOUS_KEY:}
+  ebook:
+    cover-cache-dir: ${MYTOOLS_EBOOK_COVER_CACHE_DIR:/opt/extend/resource/.mytools/ebook-covers}
+    archive-cache-dir: ${MYTOOLS_EBOOK_ARCHIVE_CACHE_DIR:/opt/extend/resource/.mytools/ebook-archives}
+    index-enabled: ${MYTOOLS_EBOOK_INDEX_ENABLED:true}
+    index-batch-size: ${MYTOOLS_EBOOK_INDEX_BATCH_SIZE:50}
+    index-delay-ms: ${MYTOOLS_EBOOK_INDEX_DELAY_MS:30000}
+    index-initial-delay-ms: ${MYTOOLS_EBOOK_INDEX_INITIAL_DELAY_MS:15000}
+  reader-runtime:
+    enabled: ${READER_RUNTIME_ENABLED:true}
+    base-url: ${READER_RUNTIME_BASE_URL:http://127.0.0.1:23120}
+    secure-key: ${READER_RUNTIME_SECURE_KEY:}
+    connect-timeout-seconds: ${READER_RUNTIME_CONNECT_TIMEOUT_SECONDS:3}
+    request-timeout-seconds: ${READER_RUNTIME_REQUEST_TIMEOUT_SECONDS:25}
+    search-concurrency: ${READER_RUNTIME_SEARCH_CONCURRENCY:20}
+    chapter-cache-dir: ${READER_RUNTIME_CHAPTER_CACHE_DIR:/opt/extend/resource/.mytools/reader-chapters}
+    chapter-cache-ttl-hours: ${READER_RUNTIME_CHAPTER_CACHE_TTL_HOURS:168}
+    chapter-cache-max-entries: ${READER_RUNTIME_CHAPTER_CACHE_MAX_ENTRIES:20000}
 
 logging:
   path: logs
@@ -88,6 +105,11 @@ alist:
 
 # 文件扫描配置
 file:
+  resource:
+    mount-path: ${FILE_RESOURCE_MOUNT_PATH:/opt/extend}
+    require-mount: ${FILE_RESOURCE_REQUIRE_MOUNT:true}
+  directory-name-cleanup:
+    model-batch-size: ${DIRECTORY_NAME_MODEL_BATCH_SIZE:8}
   scan:
     path: /opt/extend/resource
     extensions: jpg,jpeg,png,gif,bmp,webp,mp4,avi,mov,wmv,mkv,flv,mp3,wav,flac,aac,ogg,m4a,txt,md,pdf,doc,docx,epub,mobi

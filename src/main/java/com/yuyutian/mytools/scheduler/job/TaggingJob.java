@@ -38,8 +38,11 @@ public class TaggingJob {
                 successCount = taggerService.processUntaggedFiles(BATCH_SIZE);
                 totalSuccessCount += successCount;
             } while (successCount == BATCH_SIZE);
-            // 成人内容判断使用独立模型请求和独立状态，避免与普通标签结果互相污染。
-            taggerService.processAdultClassifications(BATCH_SIZE);
+            // 成人内容判断使用独立模型请求和独立状态，并持续消费本轮全部待识别资源。
+            int adultSuccessCount;
+            do {
+                adultSuccessCount = taggerService.processAdultClassifications(BATCH_SIZE);
+            } while (adultSuccessCount == BATCH_SIZE);
             log.info("定时打标签任务完成，成功处理: {} 个文件", totalSuccessCount);
         } catch (Exception e) {
             log.error("定时打标签任务执行失败", e);

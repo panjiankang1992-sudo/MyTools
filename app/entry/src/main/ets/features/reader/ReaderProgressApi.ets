@@ -48,6 +48,15 @@ export class ReaderProgressApi {
     return this.normalizer.progressList(envelope.data, keyMap);
   }
 
+  /** 按本地图书稳定标识读取服务端单条进度，支持远程目录首次打开恢复。 */
+  async find(bookId: string, cancellation?: DownloadCancellationToken): Promise<ReadingProgress | undefined> {
+    const key = await this.syncKey(bookId);
+    this.throwIfCancelled(cancellation);
+    const envelope = await this.client.get(`/api/app/v1/reader/progress/${encodeURIComponent(key)}`, cancellation);
+    this.throwIfCancelled(cancellation);
+    return this.normalizer.progressOne(envelope.data, bookId);
+  }
+
   /**
    * 保存单本书进度，并返回服务端权威版本。
    */

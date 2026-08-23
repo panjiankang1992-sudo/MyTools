@@ -2,6 +2,7 @@ package com.yuyutian.mytools.localfile.job;
 
 import com.yuyutian.mytools.localfile.entity.LocalFile;
 import com.yuyutian.mytools.localfile.mapper.LocalFileMapper;
+import com.yuyutian.mytools.localfile.service.ResourceStorageGuard;
 import com.yuyutian.mytools.media.service.importer.MediaPackageTagImportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ public class FileScanJob {
 
     private final LocalFileMapper localFileMapper;
     private final MediaPackageTagImportService mediaPackageTagImportService;
+    private final ResourceStorageGuard resourceStorageGuard;
 
     /** 扫描目录路径 */
     @Value("${file.scan.path:D:/MyFiles}")
@@ -71,12 +73,8 @@ public class FileScanJob {
     public void scanFiles() {
         log.info("开始扫描文件目录: {}", scanPath);
         Path rootPath = Paths.get(scanPath);
-
-        if (!Files.exists(rootPath)) {
-            log.warn("扫描目录不存在: {}", scanPath);
-            int deletedCount = localFileMapper.markDirectoryDeleted(
-                    rootPath.toAbsolutePath().normalize().toString(), LocalDateTime.now());
-            log.info("目录不存在，已标记删除 {} 条文件记录", deletedCount);
+        if (!resourceStorageGuard.isAvailable()) {
+            log.error("资源盘不可用，跳过定时扫描及历史路径清理");
             return;
         }
 
@@ -128,6 +126,8 @@ public class FileScanJob {
      * 标记扫描目录中已明确不存在的文件。
      */
     private int markMissingFiles(String directoryPath) {
+        // 再次检查挂载状态，防止扫描过程中资源盘掉线后误删记录。
+        resourceStorageGuard.requireAvailableForCleanup(Paths.get(directoryPath));
         List<Long> missingIds = localFileMapper.selectActiveByDirectory(directoryPath).stream()
                 // 仅处理能够明确确认不存在的路径，避免权限问题造成误标记。
                 .filter(file -> Files.notExists(Paths.get(file.getFilePath())))

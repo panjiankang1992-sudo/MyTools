@@ -27,8 +27,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class BookSourceSyncService {
-    private static final long MAX_SOURCES_PER_USER = 500;
-    private static final int MAX_SOURCE_BYTES = 128 * 1024;
+    private static final int MAX_SOURCE_BYTES = 512 * 1024;
     private static final Set<String> SENSITIVE_FIELDS = Set.of(
             "authorization", "cookie", "proxy-authorization", "x-api-key", "password", "token");
     private final SyncedBookSourceMapper mapper;
@@ -56,9 +55,6 @@ public class BookSourceSyncService {
         validate(request);
         SyncedBookSource existing = mapper.findById(userId, request.getSyncKey());
         if (existing == null && request.getRevision() == 0) {
-            if (mapper.countByUserId(userId) >= MAX_SOURCES_PER_USER) {
-                throw new BusinessException(ErrorCode.READER_005);
-            }
             try {
                 mapper.insert(fromRequest(userId, request));
                 return new BookSourceSyncResponse(true, mapper.findById(userId, request.getSyncKey()));
@@ -72,6 +68,44 @@ public class BookSourceSyncService {
         }
         int affected = mapper.updateIfRevisionMatches(fromRequest(userId, request), request.getRevision());
         return new BookSourceSyncResponse(affected == 1, mapper.findById(userId, request.getSyncKey()));
+    }
+
+    /**
+     * 批量保存后端发现任务解析出的用户书源。
+     *
+     * @param userId 用户ID
+     * @param snapshots 书源JSON快照
+     * @return 成功保存数量
+     */
+    @Transactional
+    public int saveDiscoveredSources(Long userId, List<String> snapshots) {
+        int saved = 0;
+        for (String snapshot : snapshots) {
+            try {
+                JsonNode root = objectMapper.readTree(snapshot);
+                String sourceUrl = root.path("bookSourceUrl").asText("");
+                SaveBookSourceRequest request = new SaveBookSourceRequest();
+                request.setSyncKey("sha256:" + sha256(sourceUrl));
+                request.setSourceUrl(sourceUrl);
+                request.setSnapshotJson(snapshot);
+                request.setUpdatedAt(System.currentTimeMillis());
+                request.setRevision(0L);
+                validate(request);
+                SyncedBookSource source = fromRequest(userId, request);
+                if (mapper.updateDiscovered(source) == 0) {
+                    try {
+                        mapper.insert(source);
+                    } catch (DuplicateKeyException ignored) {
+                        // 并发导入同一书源时转为覆盖最新快照。
+                        mapper.updateDiscovered(source);
+                    }
+                }
+                saved++;
+            } catch (BusinessException | com.fasterxml.jackson.core.JsonProcessingException ignored) {
+                // 单个非法书源不会阻断同一合集的其余书源。
+            }
+        }
+        return saved;
     }
 
     private void validate(SaveBookSourceRequest request) {

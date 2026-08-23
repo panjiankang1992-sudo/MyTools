@@ -1,0 +1,22 @@
+services:
+  reader-runtime:
+    image: givenge/reader-rust@sha256:9977f66f09aca5adfb23d33496a18e0aedfb421d6a49be7f5351e5427e91f096
+    container_name: mytools-reader-runtime
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:23120:8080"
+    environment:
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 8080
+      DATABASE_URL: sqlite:/app/storage/reader.db?mode=rwc
+      STORAGE_DIR: /app/storage
+      ASSETS_DIR: /app/storage/assets
+      LOG_LEVEL: info
+      REQUEST_TIMEOUT_SECS: 20
+      SECURE: "true"
+      SECURE_KEY: ${READER_RUNTIME_SECURE_KEY:?READER_RUNTIME_SECURE_KEY is required}
+      USER_LIMIT: 0
+      USER_BOOK_LIMIT: 0
+      USER_LOCAL_BOOK_LIMIT: 0
+    volumes:
+      - ./storage:/app/storage

@@ -12,7 +12,7 @@ grep -Fq 'cancellation?.bind(cancelHandler);' "$engine"
 grep -Fq 'cancellation?.unbind(cancelHandler);' "$engine"
 
 grep -Fq 'private activeSourceChapterCancellation?: DownloadCancellationToken = undefined;' "$page"
-grep -Fq 'loadChapter(source, chapter, cancellation)' "$page"
+grep -Fq '.content(source.bookSourceUrl, chapter, this.readerChapterIndex, cancellation)' "$page"
 grep -Fq 'if (cancellation.isCancelled()) return;' "$page"
 grep -Fq 'if (this.activeSourceChapterCancellation === cancellation)' "$page"
 

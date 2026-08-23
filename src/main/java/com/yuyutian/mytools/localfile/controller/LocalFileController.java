@@ -9,6 +9,7 @@ import com.yuyutian.mytools.localfile.entity.LocalFile;
 import com.yuyutian.mytools.localfile.service.LocalFileService;
 import com.yuyutian.mytools.localfile.service.LocalFileScanTaskService;
 import com.yuyutian.mytools.localfile.service.FileMaintenanceService;
+import com.yuyutian.mytools.localfile.service.DirectoryNameCleanupTaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import com.yuyutian.mytools.localfile.dto.ScanTask;
 import com.yuyutian.mytools.localfile.dto.FileMaintenanceTask;
 import com.yuyutian.mytools.localfile.dto.LocalMediaMutationRequest;
+import com.yuyutian.mytools.localfile.dto.DirectoryNameCleanupTask;
 import com.yuyutian.mytools.localfile.entity.LocalDirectory;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +52,7 @@ public class LocalFileController {
     private final LocalFileScanTaskService localFileScanTaskService;
     private final CloudFileService cloudFileService;
     private final FileMaintenanceService fileMaintenanceService;
+    private final DirectoryNameCleanupTaskService directoryNameCleanupTaskService;
 
     /**
      * 分页获取文件列表。
@@ -65,11 +68,13 @@ public class LocalFileController {
             @RequestParam(required = false) List<String> tagNames,
             @RequestParam(defaultValue = "false") boolean matchAllTags,
             @RequestParam(required = false) String fileType,
-            @RequestParam(required = false) String keyword) {
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "false") boolean excludeAdult) {
         List<LocalFile> files = localFileService.getFilePage(
-                directoryId, subdirectory, tagName, tagNames, matchAllTags, fileType, keyword, page, pageSize);
+                directoryId, subdirectory, tagName, tagNames, matchAllTags, fileType, keyword,
+                excludeAdult, page, pageSize);
         long total = localFileService.countFiles(
-                directoryId, subdirectory, tagName, tagNames, matchAllTags, fileType, keyword);
+                directoryId, subdirectory, tagName, tagNames, matchAllTags, fileType, keyword, excludeAdult);
 
         Map<String, Object> data = new HashMap<>();
         data.put("list", files);
@@ -308,5 +313,27 @@ public class LocalFileController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Result<FileMaintenanceTask>> getMaintenanceTask(@PathVariable String taskId) {
         return ResponseEntity.ok(Result.success(fileMaintenanceService.getTask(taskId)));
+    }
+
+    /**
+     * 提交媒体目录名称净化预览或应用任务。
+     */
+    @PostMapping("/directory-name-cleanup")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Result<DirectoryNameCleanupTask>> cleanupDirectoryNames(
+            @RequestParam Long directoryId,
+            @RequestParam(defaultValue = "false") boolean apply) {
+        return ResponseEntity.accepted().body(Result.success(
+                directoryNameCleanupTaskService.submit(directoryId, apply)));
+    }
+
+    /**
+     * 获取媒体目录名称净化任务状态和建议清单。
+     */
+    @GetMapping("/directory-name-cleanup/tasks/{taskId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Result<DirectoryNameCleanupTask>> getDirectoryNameCleanupTask(
+            @PathVariable String taskId) {
+        return ResponseEntity.ok(Result.success(directoryNameCleanupTaskService.getTask(taskId)));
     }
 }

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mytools.local/contracts/task-context.schema.json",
+  "title": "TaskStepContext",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["taskInstanceId", "stepExecutionId", "taskName", "attempt", "parameters"],
+  "properties": {
+    "taskInstanceId": { "type": "string", "format": "uuid" },
+    "stepExecutionId": { "type": "string", "format": "uuid" },
+    "parentTaskInstanceId": { "type": ["string", "null"], "format": "uuid" },
+    "taskName": { "type": "string" },
+    "stepName": { "type": "string" },
+    "attempt": { "type": "integer", "minimum": 1 },
+    "correlationId": { "type": ["string", "null"] },
+    "businessType": { "type": ["string", "null"] },
+    "businessId": { "type": ["string", "null"] },
+    "parameters": { "type": "object" }
+  }
+}

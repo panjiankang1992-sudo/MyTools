@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +38,18 @@ public class ReadingProgressController {
     @GetMapping
     public ResponseEntity<Result<List<ReadingProgress>>> list(HttpServletRequest request) {
         return ResponseEntity.ok(Result.success(service.list(requireUserId(request))));
+    }
+
+    /**
+     * 获取单本远程图书的阅读进度。
+     *
+     * @param bookId 图书稳定哈希
+     * @param request HTTP请求
+     * @return 阅读进度，不存在时数据为空
+     */
+    @GetMapping("/{bookId}")
+    public ResponseEntity<Result<ReadingProgress>> find(@PathVariable String bookId, HttpServletRequest request) {
+        return ResponseEntity.ok(Result.success(service.find(requireUserId(request), bookId)));
     }
 
     /**

@@ -5,6 +5,7 @@ import com.yuyutian.mytools.localfile.service.tagging.TaggerClient;
 import com.yuyutian.mytools.media.model.VideoDescription;
 import com.yuyutian.mytools.media.model.VideoMetadata;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VideoDescriptionService {
 
     private static final int MAX_SUMMARY_LENGTH = 80;
@@ -40,7 +42,15 @@ public class VideoDescriptionService {
         String bestSummary = "";
         String bestDescription = "";
         for (int attempt = 0; attempt < 2; attempt++) {
-            JsonNode result = taggerClient.analyzeVideoDescription(prompt, screenshots);
+            JsonNode result;
+            try {
+                result = taggerClient.analyzeVideoDescription(prompt, screenshots);
+            } catch (RuntimeException ex) {
+                // 模型暂时不可用时仍需生成可展示的元数据简介，避免截图成功但整包长期失败。
+                log.warn("视频介绍模型调用失败，使用元数据简介：file={}, error={}",
+                        filename, ex.getClass().getSimpleName());
+                break;
+            }
             String summary = normalize(result.path("summary").asText(""));
             String description = normalize(result.path("description").asText(""));
             if (summary.length() > bestSummary.length()) {
@@ -65,7 +75,31 @@ public class VideoDescriptionService {
         if (!bestSummary.isBlank() && !bestDescription.isBlank()) {
             return boundedDescription(bestSummary, bestDescription, metadata, tags);
         }
-        throw new IOException("Video description response does not satisfy the contract");
+        return fallbackDescription(filename, metadata, tags);
+    }
+
+    private VideoDescription fallbackDescription(String filename, VideoMetadata metadata, List<String> tags) {
+        String normalizedFilename = normalize(filename == null ? "" : filename)
+                .replaceFirst("(?i)\\.[a-z0-9]{2,5}$", "");
+        String summary = normalizedFilename.isBlank() ? "视频内容概览" : normalizedFilename;
+        if (summary.length() > MAX_SUMMARY_LENGTH) {
+            summary = summary.substring(0, MAX_SUMMARY_LENGTH);
+        }
+        String description = "当前简介由视频文件信息和已有标签自动整理。"
+                + "视频时长约" + Math.max(1L, Math.round(metadata.durationMs() / 1000D)) + "秒，"
+                + "画面分辨率为" + metadata.width() + "×" + metadata.height() + "，"
+                + "封装格式为" + metadata.format() + "，视频编码为" + metadata.videoCodec()
+                + "，音频编码为" + metadata.audioCodec() + "。";
+        if (tags != null && !tags.isEmpty()) {
+            description += "已有内容标签包括" + String.join("、", tags) + "。";
+        }
+        description += "详情页中的十二张截图按视频时间线均匀抽取，可用于快速了解开头、中段和结尾的画面变化。"
+                + "由于本次视觉模型暂时未能返回稳定结果，本段文字不推断截图中无法确认的人物、地点或事件，"
+                + "仅提供可核实的媒体属性、标签和时间序列截图说明。模型恢复后可以重新执行分析，生成更具体的内容介绍。";
+        while (description.length() < MIN_DESCRIPTION_LENGTH) {
+            description += "当前信息以本地视频文件和已生成截图为准。";
+        }
+        return new VideoDescription(summary, description.substring(0, Math.min(description.length(), MAX_DESCRIPTION_LENGTH)));
     }
 
     private VideoDescription boundedDescription(String summary, String description, VideoMetadata metadata,

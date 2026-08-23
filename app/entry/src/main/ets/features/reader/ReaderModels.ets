@@ -21,6 +21,8 @@ export interface Book {
   format: BookFormat;
   resourceUri: string;
   sourceId: string;
+  cacheVersion?: string;
+  tags?: string[];
   progress: number;
   sourceAlternatives?: BookSourceAlternative[];
   updatedAt?: number;
@@ -226,7 +228,7 @@ export interface SourceChapterContent {
  */
 export function defaultReaderSettings(): ReaderSettings {
   return {
-    fontFamily: 'system',
+    fontFamily: 'serif',
     fontSize: 19,
     lineHeight: 1.8,
     paragraphSpacing: 14,

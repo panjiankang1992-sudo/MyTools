@@ -8,6 +8,7 @@ import com.yuyutian.mytools.common.ErrorCode;
 import com.yuyutian.mytools.common.Result;
 import com.yuyutian.mytools.localfile.service.LocalFileService;
 import com.yuyutian.mytools.localfile.service.LocalMediaTicketService;
+import com.yuyutian.mytools.reader.service.EbookArchiveNormalizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRange;
@@ -39,6 +40,7 @@ public class LocalMediaStreamController {
 
     private final LocalFileService localFileService;
     private final LocalMediaTicketService ticketService;
+    private final EbookArchiveNormalizationService ebookArchiveNormalizationService;
     private final JwtUtils jwtUtils;
     private final TokenMapper tokenMapper;
 
@@ -65,6 +67,32 @@ public class LocalMediaStreamController {
     }
 
     /**
+     * 为电子书签发短期票据，必要时先生成跨平台安全的EPUB副本。
+     *
+     * @param auth Authorization请求头。
+     * @param fileId 文件ID。
+     * @return 指向原文件或安全派生副本的短期票据。
+     * @throws IOException EPUB副本生成失败。
+     */
+    @PostMapping("/api/app/v1/local-media/ebook-tickets")
+    public ResponseEntity<Result<LocalMediaTicketService.TicketResult>> issueEbookTicket(
+            @RequestHeader("Authorization") String auth,
+            @RequestParam Long fileId) throws IOException {
+        String accessToken = auth != null && auth.startsWith("Bearer ") ? auth.substring(7) : auth;
+        Long userId = jwtUtils.getUserIdFromToken(accessToken);
+        Token session = tokenMapper.findByAccessToken(accessToken);
+        if (!activeSession(session, userId)) {
+            throw new BusinessException(ErrorCode.AUTH_002);
+        }
+        var file = localFileService.getFileById(fileId);
+        Path source = localFileService.getReadableFilePath(fileId);
+        Path readable = ebookArchiveNormalizationService.prepareReadableArchive(file, source);
+        String derivedPath = readable.equals(source) ? null : readable.toString();
+        return ResponseEntity.ok(Result.success(ticketService.issue(
+                userId, session.getId(), fileId, derivedPath)));
+    }
+
+    /**
      * 使用短期票据读取支持Range的本地媒体。
      *
      * @param ticket 随机票据。
@@ -84,7 +112,9 @@ public class LocalMediaStreamController {
         if (!activeSession(session, binding.userId())) {
             throw new BusinessException(ErrorCode.MEDIA_004);
         }
-        Path path = localFileService.getReadableFilePath(binding.fileId());
+        Path path = binding.derivedPath() == null
+                ? localFileService.getReadableFilePath(binding.fileId())
+                : ebookArchiveNormalizationService.requireCachedArchive(binding.derivedPath());
         MediaType mediaType = resolveMediaType(path);
         List<org.springframework.http.HttpRange> ranges = requestHeaders.getRange();
         if (!ranges.isEmpty()) {

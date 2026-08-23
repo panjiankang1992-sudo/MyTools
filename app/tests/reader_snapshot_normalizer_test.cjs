@@ -11,13 +11,16 @@ const baseBook = {
 };
 const books = normalizer.normalizeBooks([
   baseBook,
-  Object.assign({}, baseBook, { name: 'Latest', progress: 0.4 }),
+  Object.assign({}, baseBook, { name: 'Latest', progress: 0.4,
+    tags: ['history', 'history', '\u0000bad', 'x'.repeat(41), 'finished'] }),
   Object.assign({}, baseBook, { id: 'bad', origin: 'forged' }),
   null,
   { id: 'missing-fields' }
 ]);
 assert(books.length === 1 && books[0].name === 'Latest', 'books should deduplicate and isolate invalid records');
 assert(books[0].progress === 0.4, 'valid progress should restore');
+assert(books[0].tags.length === 2 && books[0].tags[0] === 'history' && books[0].tags[1] === 'finished',
+  'book tags should deduplicate and isolate invalid values');
 
 const progress = normalizer.normalizeProgress([
   { bookId: 'book-1', chapterTitle: 'Chapter', locator: Infinity, percentage: -3, updatedAt: NaN, revision: -1 },
@@ -44,7 +47,7 @@ assert(settings.lineHeight === 2.4 && settings.brightness === 0.35, 'numeric set
 assert(settings.paragraphSpacing === 32, 'paragraph spacing should clamp');
 assert(settings.theme === 'paper' && settings.pageTurnMode === 'slide', 'unknown enums should use defaults');
 assert(settings.orientation === 'system', 'unknown orientation should use default');
-assert(settings.fontFamily === 'system', 'unknown font should use default');
+assert(settings.fontFamily === 'serif', 'unknown font should use default');
 assert(settings.comicScale === 3 && settings.comicPreload === 5, 'comic settings should clamp');
 assert(normalizer.normalizeSettings({ lineHeight: 1.5 }).paragraphSpacing === 14,
   'legacy settings should migrate default paragraph spacing');

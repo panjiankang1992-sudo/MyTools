@@ -45,7 +45,8 @@ class LocalFileServicePathTest {
 
         LocalFileService service = new LocalFileService(fileMapper, mock(FileTagMapper.class), directoryMapper,
                 mock(TaggerService.class),
-                mock(com.yuyutian.mytools.media.service.importer.MediaPackageTagImportService.class));
+                mock(com.yuyutian.mytools.media.service.importer.MediaPackageTagImportService.class),
+                mock(ResourceStorageGuard.class));
         ReflectionTestUtils.setField(service, "scanPath", scanRoot.toString());
 
         assertEquals(actualFile.toAbsolutePath().normalize(), service.getReadableFilePath(1L));

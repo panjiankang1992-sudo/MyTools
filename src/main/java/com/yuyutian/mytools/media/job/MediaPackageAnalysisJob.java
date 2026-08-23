@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class MediaPackageAnalysisJob {
 
     private static final int BATCH_SIZE = 20;
+    private static final int CANDIDATE_QUERY_LIMIT = 2000;
 
     private final LocalDirectoryMapper localDirectoryMapper;
     private final LocalFileMapper localFileMapper;
@@ -46,13 +47,18 @@ public class MediaPackageAnalysisJob {
             return;
         }
         String root = Path.of(directory.getDirectoryPath()).toAbsolutePath().normalize().toString();
-        for (LocalFile file : localFileMapper.selectMediaPackageCandidates(root, BATCH_SIZE)) {
+        int submitted = 0;
+        for (LocalFile file : localFileMapper.selectMediaPackageCandidates(root, CANDIDATE_QUERY_LIMIT)) {
+            if (submitted >= BATCH_SIZE) {
+                break;
+            }
             Path packageDirectory = Path.of(file.getFilePath()).toAbsolutePath().normalize().getParent();
             if (packageDirectory == null || !analysisService.needsAnalysis(packageDirectory)
                     || !activePackages.add(packageDirectory)) {
                 continue;
             }
             analysisExecutor.submit(() -> analyze(packageDirectory));
+            submitted++;
         }
     }
 

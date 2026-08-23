@@ -119,12 +119,14 @@ public class TaggerServiceImpl implements TaggerService {
     }
 
     @Override
+    @Transactional
     public int processAdultClassifications(int batchSize) {
         int successCount = 0;
         for (LocalFile file : localFileMapper.selectAdultClassificationCandidates(batchSize)) {
             try {
                 TaggerClient.AdultResult result = classifyAdult(file);
                 localFileMapper.updateAdultClassification(file.getId(), 1, result.adult(), result.confidence());
+                saveAdultClassificationTag(file.getId(), result);
                 successCount++;
             } catch (Exception ex) {
                 localFileMapper.updateAdultClassification(file.getId(), 2, null, null);
@@ -132,6 +134,20 @@ public class TaggerServiceImpl implements TaggerService {
             }
         }
         return successCount;
+    }
+
+    private void saveAdultClassificationTag(Long fileId, TaggerClient.AdultResult result) {
+        LocalDateTime now = LocalDateTime.now();
+        FileTag tag = new FileTag();
+        tag.setFileId(fileId);
+        tag.setTagName(Boolean.TRUE.equals(result.adult()) ? "R18-是" : "R18-否");
+        tag.setTagType("adult");
+        tag.setConfidence(result.confidence());
+        tag.setTaggingTime(now);
+        tag.setCreateTime(now);
+        // 每个资源只能存在一个R18结论，重跑模型时原子替换旧结论。
+        fileTagMapper.deleteAdultClassificationByFileId(fileId);
+        fileTagMapper.insert(tag);
     }
 
     private TaggerClient.AdultResult classifyAdult(LocalFile file) throws IOException {

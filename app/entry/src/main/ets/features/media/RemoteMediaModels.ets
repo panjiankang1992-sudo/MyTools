@@ -26,6 +26,17 @@ export interface RemoteMediaItem {
   size: number;
   lastModified: string;
   tags?: RemoteMediaTag[];
+  bookTitle?: string;
+  bookAuthor?: string;
+  bookDescription?: string;
+  bookCategory?: string;
+  bookCompletionStatus?: string;
+  bookChapterCount?: number;
+  bookWordCount?: number;
+  bookFileHash?: string;
+  bookCoverAvailable?: boolean;
+  bookCoverUri?: string;
+  bookMetadataStatus?: string;
 }
 
 export interface RemoteDirectory {

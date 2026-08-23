@@ -92,7 +92,8 @@ export class RemoteMediaApi {
   async listDirectory(accountId: string, path: string,
     cancellation?: DownloadCancellationToken, localRootPath: string = '', page: number = 1,
     pageSize: number = 24, subdirectory: string = '', fileType: string = '',
-    tagNames: string[] = [], matchAllTags: boolean = false, keyword: string = ''): Promise<RemoteDirectory> {
+    tagNames: string[] = [], matchAllTags: boolean = false, keyword: string = '',
+    excludeAdult: boolean = false): Promise<RemoteDirectory> {
     if (accountId.startsWith('local:')) {
       const directoryId = this.requestPolicy.accountId(accountId.substring(6));
       const queryTags = tagNames.slice(0, 20).map((name: string) =>
@@ -100,7 +101,8 @@ export class RemoteMediaApi {
       const envelope = await this.client.get(`/api/localfiles?directoryId=${encodeURIComponent(directoryId)}` +
         `&page=${encodeURIComponent(`${page}`)}&pageSize=${encodeURIComponent(`${pageSize}`)}` +
         `&subdirectory=${encodeURIComponent(subdirectory)}&fileType=${encodeURIComponent(fileType)}` +
-        `&matchAllTags=${matchAllTags ? 'true' : 'false'}&keyword=${encodeURIComponent(keyword)}${queryTags}`,
+        `&matchAllTags=${matchAllTags ? 'true' : 'false'}&keyword=${encodeURIComponent(keyword)}` +
+        `&excludeAdult=${excludeAdult ? 'true' : 'false'}${queryTags}`,
       cancellation);
       return this.normalizer.normalizeLocalFiles(envelope.data, localRootPath, page, pageSize);
     }
@@ -109,6 +111,25 @@ export class RemoteMediaApi {
     const envelope = await this.client.get(`/api/cloud/files?path=${encodeURIComponent(safePath)}` +
       `&depth=1&accountId=${encodeURIComponent(safeAccountId)}`, cancellation);
     return this.normalizer.normalizeDirectory(envelope.data, safePath);
+  }
+
+  /** 使用电子书领域接口搜索MyTools书库，旧后端自动回退通用文件目录。 */
+  async listBookDirectory(accountId: string, path: string,
+    cancellation?: DownloadCancellationToken, localRootPath: string = '', page: number = 1,
+    pageSize: number = 40, keyword: string = '', excludeAdult: boolean = false): Promise<RemoteDirectory> {
+    if (!accountId.startsWith('local:')) {
+      return this.listDirectory(accountId, path, cancellation, localRootPath, page, pageSize);
+    }
+    const directoryId = this.requestPolicy.accountId(accountId.substring(6));
+    try {
+      const envelope = await this.client.get(`/api/ebooks?directoryId=${encodeURIComponent(directoryId)}` +
+        `&page=${encodeURIComponent(`${page}`)}&pageSize=${encodeURIComponent(`${pageSize}`)}` +
+        `&keyword=${encodeURIComponent(keyword)}&excludeAdult=${excludeAdult ? 'true' : 'false'}`, cancellation);
+      return this.normalizer.normalizeEbookCatalog(envelope.data, page, pageSize);
+    } catch (_) {
+      return this.listDirectory(accountId, path, cancellation, localRootPath, page, pageSize,
+        '', '', [], false, keyword, excludeAdult);
+    }
   }
 
   /** 获取MyTools媒体目录的完整目录与标签筛选项。 */
@@ -138,6 +159,17 @@ export class RemoteMediaApi {
     const ticketEnvelope = await this.client.post(
       `/api/app/v1/media/tickets?path=${encodeURIComponent(safePath)}&accountId=${encodeURIComponent(safeAccountId)}`,
       cancellation);
+    return this.normalizer.normalizePlayback(ticketEnvelope.data, this.baseUrl, source.type);
+  }
+
+  /** 为电子书申请票据，MyTools本地EPUB由后端按需提供安全归一化副本。 */
+  async resolveBookPlayback(source: RemoteMediaSource, path: string,
+    cancellation?: DownloadCancellationToken): Promise<RemotePlaybackDescriptor> {
+    if (source.type !== 'MYTOOLS_LOCAL') return this.resolvePlayback(source, path, cancellation);
+    const match = /^\/local\/([1-9]\d{0,18})$/.exec(path);
+    if (match === null) throw new Error('MyTools本地电子书标识无效');
+    const ticketEnvelope = await this.client.post(
+      '/api/app/v1/local-media/ebook-tickets?fileId=' + encodeURIComponent(match[1]), cancellation);
     return this.normalizer.normalizePlayback(ticketEnvelope.data, this.baseUrl, source.type);
   }
 
@@ -292,6 +324,15 @@ export class RemoteMediaApi {
     cancellation?: DownloadCancellationToken): Promise<number> {
     const fileId = this.localFileId(path);
     return this.client.downloadImageToUri(`/api/localfiles/${fileId}/content`, targetUri, cancellation);
+  }
+
+  /** 下载MyTools电子书索引提取的真实封面到应用缓存。 */
+  async downloadEbookCover(fileId: string, directoryId: string, targetUri: string,
+    excludeAdult: boolean, cancellation?: DownloadCancellationToken): Promise<number> {
+    const safeFileId = this.requestPolicy.accountId(fileId);
+    const safeDirectoryId = this.requestPolicy.accountId(directoryId);
+    return this.client.downloadImageToUri(`/api/ebooks/${safeFileId}/cover?directoryId=${safeDirectoryId}` +
+      `&excludeAdult=${excludeAdult ? 'true' : 'false'}`, targetUri, cancellation);
   }
 
   /** 下载最大2048像素的安全JPEG用于系统分享。 */

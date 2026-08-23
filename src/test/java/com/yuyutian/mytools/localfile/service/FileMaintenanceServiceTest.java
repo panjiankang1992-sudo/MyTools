@@ -27,7 +27,8 @@ class FileMaintenanceServiceTest {
     void setUp() {
         Executor directExecutor = Runnable::run;
         service = new FileMaintenanceService(mock(LocalFileMapper.class), mock(LocalDirectoryMapper.class),
-                mock(FileMaintenanceLogMapper.class), mock(TaggerClient.class), directExecutor);
+                mock(FileMaintenanceLogMapper.class), mock(TaggerClient.class), directExecutor,
+                mock(ResourceStorageGuard.class));
     }
 
     @Test

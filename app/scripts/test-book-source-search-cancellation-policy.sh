@@ -14,7 +14,7 @@ grep -Fq 'if (cancellation?.isCancelled()) return { results: [] };' "$engine"
 grep -Fq 'private activeBookSourceSearchCancellation?: DownloadCancellationToken = undefined;' "$page"
 grep -Fq 'this.activeBookSourceSearchCancellation?.cancel();' "$page"
 grep -Fq 'this.activeBookSourceSearchCancellation = undefined;' "$page"
-grep -Fq 'CacheSourceSearchCovers(results, cancellation)' "$page"
+grep -Fq 'CacheSourceSearchCovers(Array.from(merged.values()).slice(0, 500), cancellation)' "$page"
 grep -Fq 'remoteCoverUrl, headers, cancellation)' "$page"
 
 echo 'book source search cancellation policy tests passed'

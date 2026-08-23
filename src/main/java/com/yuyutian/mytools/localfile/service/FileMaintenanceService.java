@@ -68,6 +68,7 @@ public class FileMaintenanceService {
     private final FileMaintenanceLogMapper maintenanceLogMapper;
     private final TaggerClient taggerClient;
     private final Executor executor;
+    private final ResourceStorageGuard resourceStorageGuard;
     private final Map<String, FileMaintenanceTask> tasks = new ConcurrentHashMap<>();
     private final Map<Long, String> activeTasks = new ConcurrentHashMap<>();
 
@@ -82,17 +83,20 @@ public class FileMaintenanceService {
      * @param maintenanceLogMapper 维护操作记录Mapper
      * @param taggerClient 本地模型客户端
      * @param executor 文件扫描执行器
+     * @param resourceStorageGuard 资源盘清理保护器
      */
     public FileMaintenanceService(LocalFileMapper localFileMapper,
                                   LocalDirectoryMapper localDirectoryMapper,
                                   FileMaintenanceLogMapper maintenanceLogMapper,
                                   TaggerClient taggerClient,
-                                  @Qualifier("localFileScanExecutor") Executor executor) {
+                                  @Qualifier("localFileScanExecutor") Executor executor,
+                                  ResourceStorageGuard resourceStorageGuard) {
         this.localFileMapper = localFileMapper;
         this.localDirectoryMapper = localDirectoryMapper;
         this.maintenanceLogMapper = maintenanceLogMapper;
         this.taggerClient = taggerClient;
         this.executor = executor;
+        this.resourceStorageGuard = resourceStorageGuard;
     }
 
     /**
@@ -113,6 +117,8 @@ public class FileMaintenanceService {
         if (MODE_EBOOK_ORGANIZE.equals(mode) && !"EBOOK".equals(directory.getDirectoryType())) {
             throw new BusinessException(ErrorCode.FILE_009);
         }
+        // 去重和整理会移动文件并修改数据库，执行前必须确认资源盘可用。
+        resourceStorageGuard.requireAvailableForCleanup(Path.of(directory.getDirectoryPath()));
 
         String activeTaskId = activeTasks.get(directoryId);
         if (activeTaskId != null) {

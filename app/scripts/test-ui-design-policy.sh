@@ -11,9 +11,9 @@ fail() {
 }
 
 tabs_block="$(sed -n '/private readonly tabs:/,/^  ];/p' "$SOURCE")"
-expected_tabs=$'电子书\n工具\nCopilot\n多媒体\n网盘'
+expected_tabs=$'阅读\n工具\nDSH\n多媒体\n网盘'
 actual_tabs="$(printf '%s\n' "$tabs_block" | sed -n "s/.*{ title: '\([^']*\)'.*/\1/p")"
-[[ "$actual_tabs" == "$expected_tabs" ]] || fail "bottom tabs must be 电子书/工具/Copilot/多媒体/网盘"
+[[ "$actual_tabs" == "$expected_tabs" ]] || fail "bottom tabs must be 阅读/工具/DSH/多媒体/网盘"
 
 page_header="$(sed -n '/private PageHeader(title: string)/,/^  }/p' "$SOURCE")"
 printf '%s\n' "$page_header" | rg -q -F '.fontSize(21).fontWeight(FontWeight.Bold)' ||
@@ -28,10 +28,10 @@ printf '%s\n' "$book_selector" | rg -q -F "ForEach(['书源', '远程', '本地'
   fail "ebook modes must remain 书源/远程/本地"
 printf '%s\n' "$book_selector" | rg -q -F 'this.bookModeIndex = index;' ||
   fail "ebook mode selector must update the active mode"
-printf '%s\n' "$book_selector" | rg -q -F 'SymbolGlyph($r(index === 0 ?' ||
-  fail "ebook modes must use native symbols"
-printf '%s\n' "$book_selector" | rg -q -F 'Button() {' ||
+printf '%s\n' "$book_selector" | rg -q -F 'Button(item)' ||
   fail "ebook mode selector must use focusable buttons"
+printf '%s\n' "$page_header" | rg -q -F 'this.BookModeSelector()' ||
+  fail "ebook modes must stay in the fixed page header"
 printf '%s\n' "$book_selector" | rg -q -F '.accessibilityDescription(this.bookModeIndex === index ?' ||
   fail "ebook mode selector must expose selected state"
 printf '%s\n' "$book_selector" | rg -q -F 'if (index === 1 && this.authenticated) this.LoadRemoteBooks();' ||
@@ -40,33 +40,59 @@ printf '%s\n' "$book_selector" | rg -q -F 'if (index === 1 && this.authenticated
 books_page="$(sed -n '/private BooksPage()/,/^  }/p' "$SOURCE")"
 printf '%s\n' "$books_page" | rg -q -F "this.BookActionCard('连接远程书库'" ||
   fail "remote ebook mode needs a connection action"
-printf '%s\n' "$books_page" | rg -q -F "this.BookActionCard('从本地添加'" ||
-  fail "local ebook mode needs an explicit picker action"
-printf '%s\n' "$books_page" | rg -q -F 'this.PickLocalBooks();' ||
-  fail "local ebook picker action is not wired"
-printf '%s\n' "$books_page" | rg -q -F 'this.RemoteBookSourceSelector()' ||
-  fail "remote ebook mode must use its own source selector"
+printf '%s\n' "$books_page" | rg -q -F 'this.BookShelfHeader()' ||
+  fail "each ebook shelf needs its contextual header action"
+if printf '%s\n' "$books_page" | rg -q -F 'this.BookModeSelector()'; then
+  fail "ebook modes must not consume a second content row"
+fi
+if printf '%s\n' "$books_page" | rg -q -F '.columnsTemplate('; then
+  fail "ebook shelf must use a vertical information list"
+fi
+book_shelf_section="$(sed -n '/private BookShelfSection()/,/^  }/p' "$SOURCE")"
+printf '%s\n' "$book_shelf_section" | rg -q -F 'this.BookShelfCard(book)' ||
+  fail "ebook shelf list must render a row for each book"
 
-remote_book_selector="$(sed -n '/private RemoteBookSourceSelector()/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$remote_book_selector" | rg -q -F 'this.CurrentRemoteBookSourceLabel()' ||
-  fail "remote ebook selector must expose the current source"
-printf '%s\n' "$remote_book_selector" | rg -q -F 'this.OpenRemoteBookSourceSelector()' ||
-  fail "remote ebook selector must open the source wheel"
-rg -q -F 'this.remoteBookSources.map((source: RemoteMediaSource)' "$SOURCE" ||
-  fail "remote ebook selector must use its isolated source list"
-rg -q -F 'private RemoteBookSourceSelectorSheet()' "$SOURCE" ||
-  fail "remote ebook selector wheel is missing"
 rg -q -F "source.localDirectoryType === 'EBOOK'" "$SOURCE" ||
   fail "MyTools EBOOK directory must be available to the remote ebook page"
 
-book_source_summary="$(sed -n '/private BookSourceSummaryRow()/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$book_source_summary" | rg -q -F "Button(this.bookSourceManagementVisible ? '收起' : '管理 ›')" ||
-  fail "book source mode must expose its management panel"
+book_shelf_header="$(sed -n '/private BookShelfHeader()/,/^  }/p' "$SOURCE")"
+printf '%s\n' "$book_shelf_header" | rg -q -F 'this.BookShelfHeaderAction()' ||
+  fail "ebook shelf header must expose a mode-specific action"
+rg -q -F 'private RunBookShelfHeaderAction(): void' "$SOURCE" ||
+  fail "ebook shelf header action is not wired"
+rg -q -F 'private BookSourceManagementPage()' "$SOURCE" ||
+  fail "book source management must use a standalone page"
+if printf '%s\n' "$books_page" | rg -q -F 'this.BookSourceSummaryRow()'; then
+  fail "ebook home must not render the book source summary card"
+fi
+if printf '%s\n' "$books_page" | rg -q -F 'this.ContinueReadingCard('; then
+  fail "ebook home must not render the duplicate recent-reading card"
+fi
+[[ "$(printf '%s\n' "$books_page" | rg -c -F 'this.BookShelfSearchField()')" -eq 1 ]] ||
+  fail "local shelf must render exactly one search field"
 book_source_management="$(sed -n '/private BookSourceManagementPanel()/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$book_source_management" | rg -q -F "Button('导入书源')" ||
-  fail "book source management needs a real import action"
-printf '%s\n' "$book_source_management" | rg -q -F 'this.ImportBookSources()' ||
-  fail "book source import action is not wired"
+book_source_tools="$(sed -n '/private BookSourceManageToolsSheet()/,/^  }/p' "$SOURCE")"
+printf '%s\n' "$book_source_tools" | rg -q -F "Text('导入 JSON')" ||
+  fail "book source tools sheet needs a real import action"
+printf '%s\n' "$book_source_tools" | rg -q -F 'this.ImportBookSources()' ||
+  fail "book source tools import action is not wired"
+printf '%s\n' "$book_source_tools" | rg -q -F 'this.DiscoverBookSource()' ||
+  fail "book source tools website discovery is not wired"
+printf '%s\n' "$book_source_management" | rg -q -F 'this.FilteredManagedBookSources()' ||
+  fail "book source management list must preserve filtering"
+book_source_row="$(sed -n '/private BookSourceManageRow(source: BookSource)/,/^  }/p' "$SOURCE")"
+printf '%s\n' "$book_source_row" | rg -q -F '.maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis })' ||
+  fail "book source names must stay horizontal and truncate safely"
+[[ "$(printf '%s\n' "$book_source_row" | rg -c -F '.layoutWeight(1).height(44)')" -ge 2 ]] ||
+  fail "book source actions must use a dedicated balanced action row"
+network_loading="$(sed -n '/private NetworkLoadingRows(label: string)/,/^  }/p' "$SOURCE")"
+printf '%s\n' "$network_loading" | rg -q -F 'Text(label)' ||
+  fail "network loading state must display the current operation"
+if printf '%s\n' "$network_loading" | rg -q -F 'ForEach([0, 1, 2]'; then
+  fail "network loading state must not render three duplicate placeholders"
+fi
+printf '%s\n' "$books_page" | rg -q -F "!(this.bookModeIndex === 0 && this.sourceSearchLoading)" ||
+  fail "book source loading must not duplicate the operation status below the spinner"
 
 book_detail="$(sed -n '/private BookDetailPage()/,/^  }/p' "$SOURCE")"
 printf '%s\n' "$book_detail" | rg -q -F "Button(this.DetailBookInShelf() ? '书架中' : '试读')" ||
@@ -79,23 +105,25 @@ printf '%s\n' "$book_detail" | rg -q -F '.accessibilityText(`书源：${candidat
   fail "book source switching must expose the candidate name"
 
 reader_page="$(sed -n '/private ReaderPage()/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$reader_page" | rg -q -F '.parallelGesture(TapGesture({ count: 1 }).onAction(() => {' ||
-  fail "reader middle tap must work in parallel with child content gestures"
+printf '%s\n' "$reader_page" | rg -q -F '.parallelGesture(TapGesture({ count: 1, distanceThreshold: 6 }).onAction(() => {' ||
+  fail "reader tap must cancel after a scroll-sized movement"
 printf '%s\n' "$reader_page" | rg -q -F 'this.readerControlsVisible = !this.readerControlsVisible;' ||
   fail "reader middle tap must toggle controls"
 printf '%s\n' "$reader_page" | rg -q -F 'if (this.readerControlsVisible) this.ReaderControls()' ||
   fail "reader operation overlay state is missing"
-printf '%s\n' "$reader_page" | rg -q -F 'if (this.readerSettingsVisible) this.ReaderSettingsPanel()' ||
+rg -q -F 'this.ReaderSettingsPanel()' "$SOURCE" ||
   fail "reader settings state is missing"
+rg -q -F "backgroundColor('#52000000')" "$SOURCE" ||
+  fail "reader settings need an outside-click backdrop"
 
 reader_controls="$(sed -n '/private ReaderControls()/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$reader_controls" | rg -q -F "Button('搜索')" ||
+printf '%s\n' "$reader_controls" | rg -q -F "this.ReaderMoreButton('搜索正文'" ||
   fail "reader search must exist only in the opened-book controls"
-printf '%s\n' "$reader_controls" | rg -q -F "Button('更多')" ||
+printf '%s\n' "$reader_controls" | rg -q -F ".accessibilityText('更多')" ||
   fail "reader controls need a real more action"
-printf '%s\n' "$reader_controls" | rg -q -F "this.ReaderToolButton('设置'" ||
+printf '%s\n' "$reader_controls" | rg -q -F 'this.ReaderFontQuickAction()' ||
   fail "reader controls must open the settings state"
-printf '%s\n' "$reader_controls" | rg -q -F "this.readerSearchVisible ? '关闭本书搜索'" ||
+printf '%s\n' "$reader_controls" | rg -q -F 'this.readerSearchVisible = true;' ||
   fail "reader search must expose its open state"
 printf '%s\n' "$reader_controls" | rg -q -F "this.readerMoreVisible ? '关闭更多操作'" ||
   fail "reader more action must expose its open state"
@@ -122,11 +150,12 @@ printf '%s\n' "$reader_catalog" | rg -q -F "Button('下一页').layoutWeight(1)"
   fail "PDF catalog navigation must use semantic 48 vp targets"
 
 media_page="$(sed -n '/private MediaPage()/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$media_page" | rg -q -F "this.MediaCatalogFilterButton('directory')" ||
+media_toolbar="$(sed -n '/private MediaCatalogToolbar()/,/^  }/p' "$SOURCE")"
+printf '%s\n' "$media_toolbar" | rg -q -F "this.MediaCatalogFilterButton('directory')" ||
   fail "media directory filter must share the search row"
-printf '%s\n' "$media_page" | rg -q -F "this.MediaCatalogFilterButton('tag')" ||
+printf '%s\n' "$media_toolbar" | rg -q -F "this.MediaCatalogFilterButton('tag')" ||
   fail "media tag filter must share the search row"
-printf '%s\n' "$media_page" | rg -q -F "placeholder: '搜索媒体'" ||
+printf '%s\n' "$media_toolbar" | rg -q -F "placeholder: '搜索媒体'" ||
   fail "media page needs fuzzy search"
 if printf '%s\n' "$media_page" | rg -q -F 'CurrentMediaSourceLabel'; then
   fail "media page must not expose Alist or WebDAV source selection"
@@ -267,22 +296,22 @@ printf '%s\n' "$tab_bar" | rg -q -F '.accessibilityDescription(`主导航第${in
 
 rg -q -F 'private readonly tabScrollers: Scroller[]' "$SOURCE" || fail "tabs need independent scrollers"
 rg -q -F 'Scroll(this.tabScrollers[index])' "$SOURCE" || fail "tab content must bind its own scroller"
-page_content="$(sed -n '/private PageContent(/,/private PageHeader(/p' "$SOURCE")"
-printf '%s\n' "$page_content" | rg -q -F ".constraintSize({ minHeight: '100%' })" ||
+standard_tab_page="$(sed -n '/private StandardTabPage(/,/private PageHeader(/p' "$SOURCE")"
+printf '%s\n' "$standard_tab_page" | rg -q -F ".height('100%')" ||
   fail "short tab content must reserve the viewport height and remain top-aligned"
 tabs_scroll="$(sed -n '/Scroll(this.tabScrollers\[index\])/,/.scrollBar(BarState.Off)/p' "$SOURCE")"
 printf '%s\n' "$tabs_scroll" | rg -q -F ".width('100%')" ||
   fail "tab scroll must fill width so short states stay top-aligned"
-printf '%s\n' "$tabs_scroll" | rg -q -F ".height('100%')" ||
-  fail "tab scroll must fill height so short states stay top-aligned"
+printf '%s\n' "$tabs_scroll" | rg -q -F '.layoutWeight(1)' ||
+  fail "tab scroll must fill the remaining height so short states stay top-aligned"
+printf '%s\n' "$tabs_scroll" | rg -q -F '.align(Alignment.TopStart)' ||
+  fail "tab scroll must align short states to the top"
 printf '%s\n' "$tabs_scroll" | rg -q -F '.edgeEffect(EdgeEffect.None)' ||
   fail "tab scroll must reject picker gesture overscroll"
-printf '%s\n' "$tabs_scroll" | rg -q -F '.enableScrollInteraction((index !== 3 || this.mediaSelectorMode.length === 0 &&' ||
+printf '%s\n' "$media_page" | rg -q -F '.enableScrollInteraction(this.mediaSelectorMode.length === 0 &&' ||
   fail "media page scroll must pause while a wheel selector owns the gesture"
-printf '%s\n' "$tabs_scroll" | rg -q -F '!this.mediaCatalogDirectorySelectorVisible && !this.mediaCatalogTagSelectorVisible)' ||
+printf '%s\n' "$media_page" | rg -q -F '!this.mediaCatalogDirectorySelectorVisible && !this.mediaCatalogTagSelectorVisible)' ||
   fail "media page scroll must pause while the catalog selector owns the gesture"
-printf '%s\n' "$tabs_scroll" | rg -q -F '(index !== 0 || !this.remoteBookSourceSelectorVisible))' ||
-  fail "ebook page scroll must pause while the source wheel owns the gesture"
 rg -q -F 'private CloseMediaSelector(): void' "$SOURCE" ||
   fail "media selector must use the shared close-and-reset path"
 rg -q -F 'this.tabScrollers[3].scrollTo({ xOffset: 0, yOffset: 0, animation: false });' "$SOURCE" ||

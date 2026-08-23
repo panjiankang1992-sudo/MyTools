@@ -14,5 +14,7 @@ equal(policy.metadata('book_name_tags_fantasy|completed_user.epub', [
   { name: 'Fantasy', type: 'manual', confidence: 1 },
   { name: '精选', type: 'ai', confidence: 0.9 }
 ]), { title: 'book name', tags: ['fantasy', 'completed', '精选'] }, 'Tag merge and deduplication');
+equal(policy.metadata('《待李子成熟时》排版01 84连载 作品作者：JJandG.txt'),
+  { title: '《待李子成熟时》', tags: [] }, 'Noisy transfer suffix cleanup');
 
 console.log('Remote book display metadata policy tests passed');

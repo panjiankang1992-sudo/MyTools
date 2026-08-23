@@ -1,234 +1,299 @@
-# MyTools HarmonyOS Multimedia Design QA
+# Reader Shelf Isolation And Resume QA — 2026-08-20
 
-## Protected gallery cache iteration (2026-08-15 09:46 CST)
+## Scope
 
-- Follow-up race correction: browse thumbnails visible in the current gallery are now pinned inside `RemoteMediaThumbnailCache`. Full-screen high-resolution downloads and previous/next preload tasks cannot evict those files while the gallery still references them.
-- Pin lifecycle: each browse projection update republishes the protected URI set; source/filter refresh, logout, delete, or explicit cache clearing releases obsolete pins. The cache still removes the oldest unprotected files to stay near its 256-file limit.
-- Return restoration remains active: the viewer snapshot is merged on return, dead files are rejected, and only missing paths are downloaded again.
-- Verification: all App regression scripts passed, including thumbnail pipeline, cancellation, and return-restoration tests. A clean ArkTS/native build, signed packaging, code-sign verification, and SHA-256 digest verification passed.
-- Latest signed HAP: `/Users/pankang/mycode/MyTools/app/entry/build/default/outputs/default/entry-default-signed.hap`.
-- Latest HAP SHA-256: `babd5e10cfce1c2ea8ec666ec712e6fb90415e413681d1ff8a58b00f3266dcf1`.
-- Device and visual verification: blocked for the third consecutive goal turn because `hdc list targets -v` returns `[Empty]`. The package cannot be installed, interacted with, captured, or compared against the selected source until a physical target is online.
-- Final result: blocked
+- Source visual truth: `/var/folders/18/m880fd0x23b5pp66h8631x9c0000gn/T/codex-clipboard-4e2aa97d-6ddf-4100-b7cb-36a85714e76d.jpg`.
+- Final local shelf: `/Users/pankang/mycode/MyTools/app/build/design-audit/reader-shelf-20260820/local-shelf.jpeg`.
+- Final remote shelf: `/Users/pankang/mycode/MyTools/app/build/design-audit/reader-shelf-20260820/remote-shelf-final.jpeg`.
+- Final restored reader: `/Users/pankang/mycode/MyTools/app/build/design-audit/reader-shelf-20260820/reader-final.jpeg`.
+- Runtime: HarmonyOS virtual device `127.0.0.1:5555`, viewport `1320 x 2856`.
 
-## Current QA status
+## Visible Findings
 
-The historical blocked entries above describe earlier builds and disconnected-device states. The current evidence and comparison are recorded in `DSH mobile controls and media interactions (2026-08-16 23:15 CST)`.
+- P0: none.
+- P1: none.
+- P2: none after the final iteration.
+- The duplicated reader status header and all persistent previous/next page actions are absent. The body starts with one chapter heading and ends with one compact status line.
+- The remote page contains one `远程书库` heading with an adjacent `上传书籍` action; the earlier duplicate root heading was removed.
+- Source, remote, and local modes expose independent content. The local mode contains one `添加书籍` action and no source-management or duplicate import card.
+- Missing covers use the existing bundled indigo book asset. Title, author or format metadata, chapter count, tags, and progress remain readable without overlap.
+- Remote list rows show restored progress before a detail page is opened.
 
-final result: passed
+## Interaction Verification
 
-## DSH mobile controls and media interactions (2026-08-16 23:15 CST)
+- A vertical swipe advanced exactly from section 1 to section 2 and did not open reader controls. A short continuation cooldown prevents one swipe from skipping several short chapters.
+- A stationary middle tap opened the controls. The controls contain catalog, theme, speech, typography, more, progress, and seek actions without previous/next buttons.
+- Tapping above the reading-settings sheet closed it and persisted the selected settings.
+- TTS was started while the reader was at section 2; the implementation slices continuous text from the current chapter fraction rather than restarting the chapter.
+- After closing and reinstalling the app, the remote shelf showed non-zero progress and the same remote book reopened at section `2/40`, `3%`.
+- The local add action opened the system document picker in multi-select mode and displayed `已选 (0)`; the picker policy allows up to 50 supported ebook files.
 
-- Source visual truth paths:
-  - `/var/folders/18/m880fd0x23b5pp66h8631x9c0000gn/T/codex-clipboard-83e9494f-c964-45c2-8999-84cde611637d.png`
-  - `/var/folders/18/m880fd0x23b5pp66h8631x9c0000gn/T/codex-clipboard-512df325-756d-475c-bf09-37dcd59c554f.png`
-- Source pixels: `536 x 98` for the DSH composer control row and `302 x 120` for the collapsed-sidebar header crop.
-- Implementation screenshots:
-  - `/Users/pankang/mycode/MyTools/app/build/vm-dsh-spacing.jpeg`
-  - `/Users/pankang/mycode/MyTools/app/build/vm-dsh-model-menu.jpeg`
-  - `/Users/pankang/mycode/MyTools/app/build/vm-media-pull-refresh.jpeg`
-  - `/Users/pankang/mycode/MyTools/app/build/vm-video-pull-refresh.jpeg`
-  - `/Users/pankang/mycode/MyTools/app/build/vm-video-longpress-final.jpeg`
-  - `/Users/pankang/mycode/MyTools/app/build/vm-video-single-tap.jpeg`
-- Implementation viewport: HarmonyOS emulator at `1320 x 2856` physical pixels. The app uses ArkUI vp scaling and the embedded DSH page uses the mobile `max-width: 600px` CSS breakpoint.
-- Density normalization: focused source and implementation crops were scaled to equal `196px` or `240px` comparison heights. No visual finding is based on status-bar, crop, or density differences.
-- State: authenticated DSH conversation with the composer visible; collapsed DSH sidebar header; authenticated multimedia gallery and video directory list at the top scroll edge.
-- Combined focused comparisons:
-  - `/Users/pankang/mycode/MyTools/app/build/qa-dsh-input-row-comparison.png`
-  - `/Users/pankang/mycode/MyTools/app/build/qa-dsh-sidebar-header-comparison.png`
+## Backend And Build Verification
 
-**Full-view comparison evidence**
-
-- The implementation keeps the DSH composer on one line without overlapping controls. The permission selector, truncated model label, effort value, context meter, and send button retain separate tap targets.
-- The collapsed sidebar occupies zero layout width. Only its `40px` floating toggle remains, while the DSH header reserves enough left padding to keep the session title and mode controls clear.
-- Both media modes retain the fixed toolbar while only the resource list participates in pull-to-refresh.
-
-**Focused region comparison evidence**
-
-- The composer comparison shows the same control order as the source while reducing label width, font size, and inter-control gaps. The model selector opens its menu in the emulator, proving its visible hit area is no longer clipped.
-- The header comparison shows the source overlap removed: the floating sidebar toggle and `你好` title no longer share the same horizontal area.
-- Video long press opens only the resource action sheet. Video single tap opens only the detail page. Gallery and video pull gestures both render the native refresh indicator and reload their current queries.
-
-**Findings**
-
-- No actionable P0, P1, or P2 visual or interaction mismatch remains for the two supplied screenshot regions.
-- [P3] The model name is intentionally ellipsized on narrow screens. This preserves distinct tap targets and is preferable to the source overlap.
-
-**Required fidelity surfaces**
-
-- Fonts and typography: DSH keeps its supplied typeface; mobile control text is reduced to `11px` with `10px` effort text, and long model names truncate instead of colliding.
-- Spacing and layout rhythm: the composer uses compact `3px` to `4px` gaps; the header reserves `56px` at the left only where the floating toggle can overlap.
-- Colors and visual tokens: existing DSH and MyTools semantic colors, disabled opacity, borders, and blue primary actions are unchanged.
-- Image quality and asset fidelity: no raster asset was replaced or regenerated; supplied DSH icons and media thumbnails remain intact.
-- Copy and content: dynamic session, model, directory, tag, and media text is preserved; no prompt or debug copy was introduced.
-- Accessibility and interactions: the visible controls remain semantic buttons/selectors, the sidebar has a dedicated toggle target, and pull-to-refresh uses the native ArkUI refresh state.
-
-**Comparison history**
-
-1. Initial source captures showed a clipped/overlapping composer row and a sidebar toggle covering the title.
-2. The DSH mobile override was changed to use bounded selector widths, smaller typography, visible popup overflow, compact gaps, and header-only left clearance.
-3. Post-fix emulator captures confirmed the model menu opens and the header regions no longer overlap.
-4. The initial video gesture change stopped duplicate navigation but allowed the scroll container to consume long press.
-5. The video gesture group was promoted to a high-priority exclusive recognizer. Post-fix evidence shows long press opens the action sheet and single tap opens the detail page independently.
-6. Native ArkUI refresh wrappers were added around the shared media scroll area. Separate gallery and video captures show the active refresh indicator.
-
-**Implementation checklist**
-
-- DSH Nginx mobile override deployed and configuration test passed.
-- ArkTS type check and signed HAP packaging passed.
-- DSH selector, sidebar, media refresh, video long press, and video single tap verified on the emulator.
-- Install the final signed HAP on the connected physical device.
+- `mvn test`: passed, including new duplicate-name multi-upload and unsupported-extension ebook import coverage.
+- Reader, source, local-picker, remote-book, upload, and UI policy suites: passed.
+- ArkTS type check and signed HAP build: passed without ArkTS warnings.
+- Latest signed HAP overwrite installation and cold launch on `127.0.0.1:5555`: passed.
+- Backend import endpoints support authenticated multipart local uploads, collision-safe filenames, asynchronous full source downloads, task status, resource-disk guarding, and post-import indexing.
 
 final result: passed
 
-## Full-screen return thumbnail restoration (2026-08-15 09:42 CST)
+---
 
-- Reported device defect: gallery thumbnails disappeared after opening a visual item full-screen and returning.
-- Root-state correction: entering the viewer now snapshots the active source's browse-thumbnail projection. Returning merges the live projection with that snapshot, republishes the state array so rebuilt ArkUI `Image` components rebind, rejects deleted cache files, and automatically reloads only missing image/video thumbnails.
-- Gesture isolation remains intact: gallery tap/long-press stays parallel with outer scrolling; image tap/zoom/pan and video controls stay parallel with vertical viewer paging.
-- Regression evidence: the new `RemoteMediaThumbnailRestorePolicy` unit test proves snapshot restoration, stale-path rejection, duplicate replacement, and missing-path detection. Every App regression script passed afterward, followed by a clean ArkTS/native build and signed packaging.
-- Latest signed HAP: `/Users/pankang/mycode/MyTools/app/entry/build/default/outputs/default/entry-default-signed.hap`.
-- Latest HAP SHA-256: `5fe7d23f99cc2d1bd4cdc4a7b90611a8a9054987b7b03264c92e25d2b3554f2c`.
-- Signature verification: code-sign and SHA-256 digest verification passed.
-- Device verification: blocked because `hdc list targets -v` returns `[Empty]`; this fix is not yet installed or reproduced on the physical device.
-- Final result: blocked
+# Ebook Reader Design QA
 
-## Wheel-selector and signed-build iteration (2026-08-15 09:33 CST)
+## Scope
 
-- Source visual truth: `/Users/pankang/.codex/generated_images/019ff016-e8dc-7791-9a6e-091a4b309673/exec-46baab5e-b721-45bc-a98b-460eff9aca79.png`.
-- Latest signed HAP: `/Users/pankang/mycode/MyTools/app/entry/build/default/outputs/default/entry-default-signed.hap`.
-- Latest HAP SHA-256: `714556bd5944f5b44a1f8499309bef690a5b43777836d637a7da82ee31c7e669`.
-- Gallery hierarchy: the legacy remote-library heading is absent; the page opens with the source selector at the left of search, followed by type, date-directory, and tag selectors, friendly date groups, and the approved two-column 176vp preview grid.
-- Picker interaction: source, media type, directory, and tag all use the same bottom-sheet `TextPicker` wheel. The tag wheel keeps a pending multi-selection and provides add/remove, clear, and OR/AND controls before confirmation.
-- Data and loading: the app requests `MEDIA` for the unfiltered MyTools source so the server total excludes non-media files; filename/path/tag search and directory/type/multi-tag filters stay in the server pagination query. Failed thumbnails are isolated and can be retried without blocking the gallery.
-- Viewer behavior: the rendered swipe instruction is absent. Images and videos open in the visual viewer while the system status area remains reserved; image tap/zoom/pan and video native controls now recognize in parallel with vertical paging; the current item starts previous/next five-item preload and videos warm only bytes `0-262143`.
-- Verification: every `app/scripts/test-*.sh` regression passed, followed by a clean ArkTS/native build, signed HAP packaging, code-sign verification, certificate/profile extraction, and SHA-256 verification.
-- Visual comparison: blocked because `hdc list targets -v` still returns `[Empty]`. No current authenticated implementation screenshot can be captured at the same state and viewport as the reference.
-- Final result: blocked
+- Reference: `/Users/pankang/.codex/generated_images/01a005a6-cb9a-7322-8c7e-a77c719a7245/exec-f7ca44cb-9779-44f3-9fc9-1bdd00b5eba5.png`
+- Implementation capture: `/Users/pankang/mycode/MyTools/app/build/ebook-reading-redesign/reader-controls-final-loaded.jpeg`
+- Combined comparison: `/Users/pankang/mycode/MyTools/app/build/ebook-reading-redesign/design-qa-comparison.png`
+- Ebook page baseline: `/Users/pankang/mycode/MyTools/app/build/ebook-reading-redesign/ebook-page-before-header-redesign.jpeg`
+- Ebook page redesign: `/Users/pankang/mycode/MyTools/app/build/ebook-reading-redesign/ebook-page-header-redesign-final.jpeg`
+- Ebook page comparison: `/Users/pankang/mycode/MyTools/app/build/ebook-reading-redesign/ebook-page-header-redesign-comparison.png`
+- Shelf grid baseline: `/Users/pankang/mycode/MyTools/app/build/ebook-reading-redesign/ebook-shelf-grid-before.jpeg`
+- Shelf list redesign: `/Users/pankang/mycode/MyTools/app/build/ebook-reading-redesign/ebook-shelf-list-final.jpeg`
+- Shelf list comparison: `/Users/pankang/mycode/MyTools/app/build/ebook-reading-redesign/ebook-shelf-list-comparison.png`
+- Runtime: HarmonyOS virtual device `127.0.0.1:5555`
+- State: paper theme, local TXT book opened, reading controls visible
 
-## Large-thumbnail and picker iteration
+The reference and implementation were normalized to a 390 x 844 viewport and inspected together. The comparison includes the complete header, reading surface, progress area, and bottom control bar.
 
-- Source visual truth: `/Users/pankang/.codex/generated_images/019ff016-e8dc-7791-9a6e-091a4b309673/exec-46baab5e-b721-45bc-a98b-460eff9aca79.png`
-- Implementation build: `/Users/pankang/mycode/MyTools/app/entry/build/default/outputs/default/entry-default-signed.hap`
-- Build state: ArkTS type checking, media preload tests, response normalization tests, signed packaging all passed.
-- Implemented changes: two-column 176vp thumbnails, separate browse/viewer caches, four-way thumbnail loading, 512px preview then high-resolution upgrade, source dropdown beside search, kind/directory/tag picker sheets, server-backed complete directory/tag options, accurate server total preservation, previous/next five-item preload, 256KB video warmup, removed the full-view swipe instruction.
-- Visual comparison: blocked because `hdc list targets` currently returns `[Empty]`; no current device implementation screenshot can be captured at the reference state.
-- Final result: blocked
+## Visible Findings
 
-## Server-side search and current signed build iteration
+- P0: none.
+- P1: none.
+- P2: none.
+- P3: the system CJK serif typeface is less calligraphic than the generated reference. The implementation intentionally uses the platform font stack to preserve legibility and avoid bundling an unlicensed display font.
+- Ebook page comparison: the redundant full-width mode selector is gone; the fixed header now matches the multimedia page hierarchy, while search, source status, and continue-reading surfaces use consistent compact radii and spacing.
+- Shelf comparison: the cover wall no longer truncates nearly all metadata; each row now keeps a stable cover column and exposes title, author, chapter, tags, and progress without overlap.
+- The real device keeps the system status bar while the reference omits it. This is an expected runtime difference.
+- The floating annotation action appears only after text selection, matching the selected-text state in the reference without obscuring ordinary reading.
 
-- Source visual truth: `/Users/pankang/.codex/generated_images/019ff016-e8dc-7791-9a6e-091a4b309673/exec-46baab5e-b721-45bc-a98b-460eff9aca79.png`.
-- Latest signed HAP: `/Users/pankang/mycode/MyTools/app/entry/build/default/outputs/default/entry-default-signed.hap`.
-- Latest HAP SHA-256: `ada5dee3fbf3d570f1ac5bb9fea9f9ceb12f81fb8e9b37af26e80e1e1bd821e2`.
-- Search correction: the search field now debounces for 450ms and sends the committed keyword to the MyTools backend. Filename, directory path, and every tag are searched in the same SQL query as media type, directory, and multi-tag OR/AND filters. Pagination and total therefore describe the complete matching dataset instead of only the first 40 loaded cards.
-- Production state: backend checksum `1e36071c757369cf83408a6e029b3e5ae43ca7c7a15b8d9404b161bb104d2036` is deployed, the service is active on port 23110, and the unauthenticated profile contract returns HTTP 401 as expected.
-- Verification: full Maven tests, all app policy and integration scripts, ArkTS type checking, signed HAP packaging, and HAP digest/code-sign verification passed.
-- Visual comparison: blocked. HDC briefly reported the physical target as `Offline`; after restarting the HDC server it reports `[Empty]`. No current authenticated same-state screenshot can be captured, so visual fidelity cannot be marked passed.
-- Final result: blocked
+## Iterations
 
-## Multi-tag timeline iteration
+1. Replaced the previous dark control blocks with a paper-colored control surface and compact icon-first actions.
+2. Removed the duplicated chapter heading from the body when it matches the current chapter title.
+3. Reduced toolbar density, added previous/next symbols, and aligned progress information with the reference hierarchy.
+4. Added functional night mode, typography settings, catalog, more menu, TTS entry, and progress seeking.
+5. Added a selected-text annotation shortcut using the HarmonyOS system symbol library.
+6. Added on-demand server progress restoration before opening remote books, so the first rendered chapter can resume from another device.
+7. Added a compact URL-to-book-source card inside source management while retaining JSON import and health checking.
+8. Reworked each managed source into a compact two-row card so long source names cannot be squeezed into vertical text, and consolidated the three decorative loading placeholders into one truthful operation state.
+9. Moved source, remote, and local modes into the fixed ebook header, then tightened search, source status, continue-reading, and shelf components into a consistent three-column mobile layout.
+10. Replaced the shelf cover grid with a vertical information list that prioritizes cover, title, author, chapter, tags, and progress; remote metadata tags now persist in the local reader snapshot.
 
-- Source visual truth: `/Users/pankang/.codex/generated_images/019ff016-e8dc-7791-9a6e-091a4b309673/exec-d0b5fbdc-b670-47a5-9182-b33953c35ce9.png`
-- Implementation build: `/Users/pankang/mycode/MyTools/app/entry/build/default/outputs/default/entry-default-signed.hap`
-- Installation evidence: `/Users/pankang/mycode/MyTools/app/build/acceptance/device-acceptance-20260814T055716Z.json`
-- Current device screenshot: `/Users/pankang/mycode/MyTools/app/build/acceptance/screenshots/mytools-current.jpeg`
-- State: the signed HAP passed overwrite installation, cold start, and process checks on the connected HarmonyOS device. The device currently has no recoverable v2 Asset Store login session, so the authenticated multimedia state is unavailable.
-- Implemented surfaces: multi-tag chips, OR/AND matching, up to two thumbnail tags plus `+N`, mixed-media grid, long-press selection sheet, rename, move, tag management, details, delete confirmation.
-- Interaction verification: code and build verification passed; authenticated tag filtering and long-press verification remain blocked until the user completes one fresh login.
-- Visual comparison: the installed login page renders correctly at 1216 x 2688, but a like-for-like authenticated multimedia comparison remains blocked.
-- Final result: blocked
+## Interaction Verification
 
-- Source visual truth: `/Users/pankang/.codex/generated_images/019ff016-e8dc-7791-9a6e-091a4b309673/exec-332c6aa5-937e-4043-9c79-8556c985f012.png`
-- Implementation screenshot: `/Users/pankang/mycode/MyTools/app/build/acceptance/screenshots/mytools-media-final.jpeg`
-- Viewport: HarmonyOS device, 1216 x 2688 physical pixels.
-- State: source is authenticated multimedia home; implementation is unauthenticated multimedia home.
-- Density normalization: no normalized fidelity comparison was made because the two captures represent different authentication states.
+- Night mode switches the reading surface and controls together.
+- The more menu opens and exposes search, bookmark, and annotation actions.
+- Typography settings expose font, size, line spacing, paragraph spacing, margins, theme, and page-turn controls.
+- Dragging the progress slider moves from the first chapter to the second chapter and updates chapter/progress labels.
+- The TTS entry remains connected to the existing reader speech workflow.
+- Reader progress continues to use the existing server synchronization flow.
+- Remote directory books query their stable hashed progress before content rendering and apply the server revision only when the active account and open operation still match.
+- The URL analysis control stays at the top of the source-management content, uses a full-width input/action row, and reports the asynchronous DSH task state without vertically centering sparse content.
+- Virtual-device end-to-end verification generated and enabled one source from `https://tw.hjwzw.com/index.html`; searching the generated source returned `三國演義`.
+- Virtual-device layout verification confirmed the source name occupies a single horizontal line, all three actions have separate equal-width targets, and an initial source search renders exactly one loading row without a duplicate status label.
+- Virtual-device long press on a real image card opened the six-action sheet and kept the gallery visible, confirming that the fullscreen tap path was not fired.
 
-## Full-view comparison evidence
+## Build Verification
 
-The source uses a search-led multimedia dashboard with a featured resume card, recent media cards, categorized media rows, and the five-item bottom navigation. The current authenticated implementation has been restructured to the same information hierarchy, but the installed device capture only exposes the unauthenticated hero because no recoverable Asset Store session is currently available.
+- `scripts/test-ebook-ui-policy.sh`: passed.
+- `scripts/test-reader-pagination-policy.sh`: passed.
+- `scripts/test-reader-progress-sync-policy.sh`: passed.
+- `scripts/test-book-source-discovery-policy.sh`: passed.
+- ArkTS HAP build: passed.
+- Latest signed HAP installation on the virtual device: passed; layout dump confirmed the URL source card, action button, JSON import, and health check are visible without overlap.
+- Ebook header redesign installation on the virtual device: passed; layout dump confirmed all three header modes remain clickable and remote and local mode content switches correctly.
+- Shelf list installation on the virtual device: passed; long-title and missing-cover rows remained readable, row taps opened book details, and snapshot tests confirmed remote tags are deduplicated and bounded before persistence.
+- Production backend and Ubuntu DSH skill deployment: passed; source discovery, JSON import, and real source search completed through the installed virtual-device app.
 
-## Focused interaction evidence
+final result: passed
 
-- The bottom multimedia tab responds to a coordinate click.
-- The multimedia login CTA responds and opens the login page.
-- The electronic-book page produces different before/after captures after an injected upward swipe, confirming that the outer tab Scroll now moves.
-- The prior P0 cause was the fixed `height('100%')` on scroll content, which caused overflowing rows to paint outside the measured content and prevented scrolling and hit testing.
+# Reading Shelf Compact List QA — 2026-08-20
+
+## Scope
+
+- Source visual truth: `/Users/pankang/.codex/generated_images/01a005a6-cb9a-7322-8c7e-a77c719a7245/exec-7616c77f-c5d0-4b67-9e7d-8377342486bc.png`
+- Implementation capture: `/Users/pankang/mycode/MyTools/app/build/design-audit/ebook-ui-20260820/10-emulator-compact-final-latest.jpeg`
+- Combined comparison: `/Users/pankang/mycode/MyTools/app/build/design-audit/ebook-ui-20260820/11-reference-vs-latest.png`
+- Runtime: HarmonyOS virtual device `127.0.0.1:5555`
+- State: reading home, source mode, one real cover and two books without covers
+
+The source and implementation were normalized to the same `1844` pixel height and inspected in one side-by-side comparison input.
+
+## Visible Findings
+
+- P0: none.
+- P1: none.
+- P2: none.
+- P3: the runtime keeps the HarmonyOS status bar and has fewer sample books than the generated reference; neither difference changes the requested layout.
+- The continue-reading feature card is absent. Search is followed directly by the shelf heading and compact book list.
+- Each book row uses a `50 x 74 vp` cover inside a `94 vp` row, approximately sixty percent of the previous card height.
+- Missing covers consistently render the bundled indigo default cover; real covers continue to render unchanged.
+- Title, author, current chapter, source or format, progress, and row navigation remain readable without overlap.
+- The main navigation label is `阅读`, and the selected and unselected tab states remain visually distinct.
+
+## Interaction And Build Verification
+
+- Policy tests for ebook UI, app UI design, compact shelf layout, reader pagination, and progress synchronization: passed.
+- ArkTS type check and signed HAP build: passed.
+- Latest signed HAP installation and launch on HarmonyOS virtual device `127.0.0.1:5555`: passed.
+- Source inspection confirms the unused continue-reading builder and its helper methods were removed; a policy test prevents reintroduction.
+- Emulator screenshot confirms both no-cover samples use the same default asset and the shelf starts immediately below its heading.
+
+final result: passed
+
+---
+
+# Ebook Continuous Reader QA — 2026-08-20
+
+## Scope
+
+- Source visual truth: `/var/folders/18/m880fd0x23b5pp66h8631x9c0000gn/T/codex-clipboard-79a7f6ab-cac1-46fb-a860-1d8e18a492cc.png`
+- Implementation screenshot: `/Users/pankang/mycode/MyTools/app/build/ebook-continuous-reader/catalog-drawer-final.jpeg`
+- Reader-body screenshot: `/Users/pankang/mycode/MyTools/app/build/ebook-continuous-reader/reader-body-final.jpeg`
+- Combined comparison: `/Users/pankang/mycode/MyTools/app/build/ebook-continuous-reader/catalog-comparison.png`
+- Runtime: HarmonyOS virtual device `127.0.0.1:5555`
+- State: paper theme, local TXT book, catalog visible with the second chapter selected
+- Source pixels: `590 x 848`; implementation pixels: `1320 x 2856`; implementation CSS/runtime viewport: `1320 x 2856` physical pixels at the emulator density
+- Density normalization: both artifacts were scaled to `848` pixels high for the combined comparison; the implementation keeps its narrower phone aspect ratio and system bars.
+
+## Full-view Comparison Evidence
+
+- The reference establishes the catalog typography, selected-tab treatment, chapter-selection color, and spacious reading theme.
+- The implementation intentionally changes the reference bottom sheet into the requested full-height left drawer. It preserves the paper surface, blue selected state, rounded tabs, readable chapter hierarchy, and dimmed reading context.
+- The drawer begins at the physical left edge, occupies `86%` of the viewport, keeps a visible scrim/close target on the right, and does not cover the device home indicator with controls.
+
+## Focused Comparison Evidence
+
+- The catalog header and tabs were inspected in the combined comparison because they carry the primary visual hierarchy.
+- The first two chapter rows were inspected in the emulator capture. They start immediately below the tabs, use a stable single-line layout, and distinguish the active chapter in blue.
+- No image assets are present in this state; image-quality fidelity is therefore not applicable.
+
+## Required Fidelity Surfaces
+
+- Fonts and typography: the platform CJK font remains consistent with the existing app; title, tabs, and chapter rows have distinct weights and readable line heights.
+- Spacing and layout: full-height drawer alignment, top padding, tab spacing, chapter-row rhythm, right scrim, and rounded right corners are stable with no overlap or clipping.
+- Colors and tokens: the implementation uses the existing primary blue, paper/surface white, primary text, and translucent scrim tokens.
+- Image quality: no visible raster or decorative assets are required for the catalog state.
+- Copy and content: `目录`, `书签`, `关闭`, and real chapter names are concise and match the reading flow.
 
 ## Findings
 
-- [P0 fixed] Main tab content could not scroll and overflow controls could not receive clicks.
-  - Fix: removed the fixed full-screen height from `PageContent`, allowing ArkUI to measure the complete content height.
-- [P1 fixed in code, pending authenticated capture] Multimedia home looked like a diagnostic file list.
-  - Fix: added search-first hierarchy, continue card, recent preview cards, image/audio/video category cards, remote library section, and remote thumbnail loading.
-- [P1 blocked] Authenticated visual fidelity cannot be verified on the connected device.
-  - Blocker: the device currently has no recoverable MyTools session, so the authenticated multimedia dashboard cannot be captured without a fresh login.
+- P0: none.
+- P1: none.
+- P2: none after iteration.
+- P3: the implementation is intentionally narrower than the reference modal because the requested interaction is a side drawer and the emulator has a taller aspect ratio.
 
-## Comparison history
+## Comparison History
 
-1. Initial implementation capture showed an overflowing flat list and nonfunctional scrolling/hit testing.
-2. Removed the fixed content height and rebuilt the media hierarchy.
-3. Signed build and overwrite installation passed; click navigation and swipe movement were verified on device.
-4. The device reconnected and the signed HAP passed overwrite installation and cold start on 2026-08-14.
-5. The overwrite install preserved application data, but no v2 Asset Store session was present. A fresh login is required once; subsequent v2 sessions are stored in Asset Store and survive overwrite installs.
-6. Final authenticated screenshot comparison remains blocked by missing device login state.
+1. Initial virtual-device capture placed the chapter list near the vertical center of the remaining drawer space. This was a P2 hierarchy issue for sparse catalogs.
+2. The catalog scroll container was top-aligned and its content column explicitly changed to start alignment.
+3. The revised capture shows chapter rows directly below the mode tabs, with the drawer anchored at `x = 0`; the earlier P2 issue is no longer present.
 
-## Final result
+## Interaction Verification
 
-final result: blocked
+- Tapping the catalog action opens the full-height left drawer; tapping the right scrim closes it.
+- Selecting the second chapter closes the drawer and updates the fixed chapter label and body chapter heading.
+- In vertical-scroll mode, an upward content swipe at the first chapter boundary automatically advances from chapter `1/2` to `2/2`.
+- A downward content swipe at the second chapter boundary automatically returns from chapter `2/2` to `1/2`.
+- Chapter transitions continue to schedule the existing server progress-save flow.
 
-## Server-filtered gallery iteration
+## Build Verification
 
-- Source visual truth: `/Users/pankang/.codex/generated_images/019ff016-e8dc-7791-9a6e-091a4b309673/exec-46baab5e-b721-45bc-a98b-460eff9aca79.png`
-- Implementation build: `/Users/pankang/mycode/MyTools/app/entry/build/default/outputs/default/entry-default-signed.hap`
-- Build SHA-256: `707065cb5c5ef2f613fe4f4398bba51fee22c4e4c008b81fdee8ae629175ff6c`
-- Build verification: ArkTS type check, signed HAP packaging, HAP certificate/profile/digest verification, media regression scripts, Maven compilation, and focused local-media tests passed.
-- Data correction: directory, media type, multi-tag OR/AND, and root-directory filters now execute in the MyTools SQL pagination query; the returned total is the actual filtered media total and excludes non-media files.
-- Interaction correction: source remains left of search; type, directory, and tags open modal picker sheets in the original filter location; tag changes use a pending selection until confirmation; the legacy swipe instruction is no longer rendered in either visual or nonvisual viewers.
-- Loading correction: the gallery uses two-column 176vp previews, four concurrent thumbnail requests, independent browse/viewer cancellation, 256 cached previews, two-attempt recovery, and metadata-first rendering. The viewer preloads five resources before and after the current item, warming only the first 256KB for video.
-- Visual comparison: blocked because `hdc list targets -v` returns `[Empty]`; a current authenticated implementation screenshot cannot be captured or compared against the source at the same viewport and state.
-- Final result: blocked
+- ArkTS type check: passed.
+- Signed debug HAP build: passed.
+- Signed HAP installation on HarmonyOS virtual device `127.0.0.1:5555`: passed.
+- Layout dump and emulator screenshot inspection: passed.
 
-## Production thumbnail recovery iteration
+final result: passed
 
-- Source visual truth: `/Users/pankang/.codex/generated_images/019ff016-e8dc-7791-9a6e-091a4b309673/exec-46baab5e-b721-45bc-a98b-460eff9aca79.png`
-- Source pixels: `852 x 1846`.
-- Pre-fix authenticated implementation screenshot: `/Users/pankang/mycode/MyTools/app/build/acceptance/screenshots/media-v3-real-20260814T0733.jpeg`.
-- Pre-fix implementation pixels: `1216 x 2688`; HarmonyOS physical device capture with the search keyboard open.
-- Combined comparison: `/Users/pankang/mycode/MyTools/app/build/acceptance/screenshots/media-design-comparison-pre-latest.jpg`, normalized to a shared `1846px` height. This is baseline evidence only because the interaction state and build revision differ.
-- Latest implementation build: `/Users/pankang/mycode/MyTools/app/entry/build/default/outputs/default/entry-default-signed.hap`.
-- Latest HAP SHA-256: `6c2dc90bab351d3230aa0bd731225715d2e2ff364a8790551f4208bb05a7422e`.
-- Production backend state: deployed and active. Real database aggregate checks prove `10471` media records out of `10472` total files; two-tag sample filters return different OR (`2072`) and AND (`170`) totals.
-- Thumbnail correction: short videos now use a compatible first frame instead of a fixed one-second seek; FFmpeg 8 JPEG output uses full-range `yuvj420p`; thumbnails are 640px, written atomically, and zero-byte cache entries are regenerated. Valid short-video samples produced real JPEG files between about 32KB and 59KB on the production host.
-- Reliability correction: corrupt assets enter exponential retry backoff rather than launching FFmpeg every ten seconds. The first production pass reported six corrupt assets and no immediate repeated batch afterward.
-- Visual correction: the authenticated profile image is now used in the header when the server returns a valid safe URL or data image, with a letter fallback after image failure.
+---
 
-**Findings**
+# Ebook Home Simplification QA — 2026-08-20
 
-- [P1] The pre-fix capture replaces real media thumbnails with schematic placeholders and shows source/tag chips as permanent rows, while the source design is image-led and compact. The latest code and production backend replace these with real large previews and modal selectors, but there is no post-fix device screenshot yet.
-- [P1] Final visual fidelity remains unproven because `hdc list targets -v` returns `[Empty]`; the latest authenticated build cannot be captured at the same viewport and state.
-- [P2] The source uses three compact columns; the latest implementation intentionally uses two larger columns following the user's later request to enlarge thumbnails. This is treated as an approved product deviation, not a fidelity defect.
-- [P2] The source selector is intentionally placed to the left of search and the remote-library heading is removed following the user's later instruction.
+## Scope
 
-**Required fidelity surfaces**
+- Reference: `/var/folders/18/m880fd0x23b5pp66h8631x9c0000gn/T/codex-clipboard-1ec694dc-2c42-4b9d-8a56-9f7759cf4fb5.png`
+- Homepage capture: `/Users/pankang/mycode/MyTools/app/build/ebook-home-redesign.jpeg`
+- Source-management capture: `/Users/pankang/mycode/MyTools/app/build/book-source-management.jpeg`
+- Combined comparison: `/Users/pankang/mycode/MyTools/app/build/ebook-home-redesign-comparison.png`
+- Runtime: HarmonyOS virtual device `127.0.0.1:5555`
 
-- Fonts and typography: HarmonyOS Sans, title weight, and primary hierarchy are implemented; post-fix wrapping and optical weight remain pending device capture.
-- Spacing and layout rhythm: two-column 176vp cards and compact modal filter triggers are implemented; same-state device measurement remains pending.
-- Colors and visual tokens: the light neutral background, white surfaces, blue primary, dividers, and dark media viewer remain aligned in code; rendered comparison remains pending.
-- Image quality and asset fidelity: production now emits 640px real JPEG thumbnails and the client caches 512px previews before high-resolution viewer upgrades. Corrupt source files keep a typed fallback rather than a fake image.
-- Copy and content: the full-view swipe instruction has been removed; source, directory, type, and multi-tag filter labels reflect real state.
+## Findings
 
-**Implementation checklist**
+- P0: none.
+- P1: none.
+- P2: none.
+- The enabled-source summary card, recent-reading card, and second shelf search field are absent from the rendered homepage.
+- The single search field is followed immediately by the shelf heading and vertical book list.
+- The shelf heading keeps the book count and exposes a separate source-management action without crowding the title.
+- Source management opens as a top-aligned standalone page with a fixed header and independently scrollable content.
 
-- Connect the physical HarmonyOS device and overwrite-install the latest signed HAP.
-- Restore the persisted session or log in once, then capture the default multimedia state without the keyboard.
-- Verify source/directory/type/tag pickers, long press, rename/move/tag/delete, vertical viewer paging, video autoplay, and five-item preload.
-- Produce an equal-state combined comparison, fix remaining P0/P1/P2 differences, and repeat until passed.
+## Interaction And Build Verification
 
-- Final result: blocked
+- The source-management action opened the standalone page in the virtual device.
+- Layout inspection confirmed the source-management title, enabled/total count, URL analysis, JSON import, health check, filters, source row, credentials, and delete actions.
+- `scripts/test-ui-design-policy.sh`: passed.
+- `scripts/test-ebook-ui-policy.sh`: passed.
+- ArkTS type check and signed HAP build: passed.
+- Signed HAP installation on the virtual device: passed.
 
-## Current QA status (2026-08-16 23:15 CST)
+final result: passed
 
-The blocked result immediately above is retained as historical evidence for an earlier build. The current same-state comparisons, interaction captures, fixes, and required fidelity checks are documented in `DSH mobile controls and media interactions (2026-08-16 23:15 CST)`.
+---
+
+# Reading Detail And Source List QA — 2026-08-20
+
+## Scope
+
+- Book-detail baseline: `/Users/pankang/mycode/MyTools/app/build/ebook-ui-20260819/yidai-detail-current.jpeg`
+- Book-detail final capture: `/Users/pankang/mycode/MyTools/app/build/design-audit/reading-detail-source-20260820/04-book-detail-final.jpeg`
+- Book-detail comparison: `/Users/pankang/mycode/MyTools/app/build/design-audit/reading-detail-source-20260820/06-detail-before-vs-final.png`
+- Source-list baseline: `/Users/pankang/mycode/MyTools/app/build/design-audit/ebook-ui-20260820/05-redesigned-sources.jpeg`
+- Source-list final capture: `/Users/pankang/mycode/MyTools/app/build/design-audit/reading-detail-source-20260820/05-source-list-final.jpeg`
+- Source-list comparison: `/Users/pankang/mycode/MyTools/app/build/design-audit/reading-detail-source-20260820/07-source-before-vs-final.png`
+- Runtime: HarmonyOS virtual device `127.0.0.1:5555`, viewport `1320 x 2856`.
+- Installation target: HarmonyOS real device `9CN0224A11031537`.
+
+## Visual Review
+
+- Typography: detail and source titles establish a consistent hierarchy; metadata and secondary descriptions use compact single-line treatment.
+- Spacing and layout: the detail cover is `92 x 138 vp`; source rows are `72 vp` high; redundant card nesting and excessive vertical gaps were removed.
+- Color and surfaces: flat white surfaces, subtle dividers, tinted metadata pills, and the existing blue accent follow the Reading homepage language.
+- Images: available covers keep aspect-fit presentation; missing covers continue to use the application default cover.
+- Copy and controls: the detail header uses `书籍详情`; the destructive text that previously clipped into an ellipsis was replaced by a stable icon action.
+
+## Findings
+
+- P0: none.
+- P1: none.
+- P2: none after the final icon correction.
+- P3: source counts and emoji in source names come from current backend data and do not cause layout overflow.
+- The final source list shows materially more records per screen while preserving readable names, status, switches, and expansion controls.
+- The final detail page removes the oversized hero treatment and keeps the fixed header, scrollable content, and fixed bottom actions visually distinct.
+
+## Interaction Verification
+
+- Opening a shelf row enters the book-detail page.
+- The `书籍详情` header remains fixed after content scrolling.
+- The bottom reading actions remain fixed after content scrolling.
+- Source search and status filtering remain available above the list.
+- Source switch and row expansion use separate hit targets.
+- Expanding a source displays the credentials and delete actions without overlapping adjacent rows.
+- No source state or user data was changed during visual verification.
+
+## Build And Installation Verification
+
+- `scripts/test-ebook-ui-policy.sh`: passed.
+- `scripts/test-ui-design-policy.sh`: passed.
+- `scripts/test-book-source-layout-policy.sh`: passed.
+- `scripts/test-reader-pagination-policy.sh`: passed.
+- `scripts/test-reader-progress-sync-policy.sh`: passed.
+- ArkTS type check and signed HAP build: passed.
+- Signed HAP installation on virtual device `127.0.0.1:5555`: passed.
+- Signed HAP installation on real device `9CN0224A11031537`: passed.
+- `git diff --check`: passed.
 
 final result: passed

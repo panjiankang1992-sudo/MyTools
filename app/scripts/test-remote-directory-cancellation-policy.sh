@@ -40,7 +40,7 @@ grep -Fq 'private activeMediaOpenCancellation?: DownloadCancellationToken = unde
 grep -Fq 'api.resolvePlayback(source, item.path, cancellation)' "$page"
 grep -Fq 'this.activeMediaOpenCancellation?.cancel();' "$page"
 grep -Fq 'private activeReaderTicketCancellation?: DownloadCancellationToken = undefined;' "$page"
-grep -Fq '.resolvePlayback(source, book.resourceUri, ticketCancellation);' "$page"
+grep -Fq '.resolveBookPlayback(source, book.resourceUri, ticketCancellation);' "$page"
 grep -Fq 'this.activeReaderTicketCancellation?.cancel();' "$page"
 grep -Fq 'getPlaybackMetrics(ticket: string,' "$api"
 grep -Fq 'metrics`, cancellation)' "$api"

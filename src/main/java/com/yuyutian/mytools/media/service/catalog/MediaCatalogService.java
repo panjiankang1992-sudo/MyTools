@@ -339,9 +339,22 @@ public class MediaCatalogService {
             if (name.isEmpty() || name.length() > MAX_TAG_LENGTH
                     || name.chars().anyMatch(character -> character < 32 || character == 127)) continue;
             List<String> fileTags = grouped.computeIfAbsent(value.getFileId(), ignored -> new ArrayList<>());
+            if (name.startsWith("R18-")) {
+                fileTags.removeIf(existing -> existing.startsWith("R18-"));
+                fileTags.add(0, name);
+                if (fileTags.size() > MAX_ITEM_TAGS) fileTags.remove(fileTags.size() - 1);
+                continue;
+            }
             // 同一文件只返回有限数量的唯一标签，避免历史脏数据导致整个媒体分页无法解析。
             if (fileTags.size() < MAX_ITEM_TAGS && !fileTags.contains(name)) fileTags.add(name);
         }
+        // R18结论属于全局安全标签，必须在所有普通业务标签之前展示。
+        grouped.values().forEach(fileTags -> fileTags.sort((left, right) -> {
+            boolean leftAdult = left.startsWith("R18-");
+            boolean rightAdult = right.startsWith("R18-");
+            if (leftAdult == rightAdult) return 0;
+            return leftAdult ? -1 : 1;
+        }));
         return grouped;
     }
 

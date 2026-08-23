@@ -35,10 +35,11 @@ class LocalFileServiceFilterTest {
         when(directoryMapper.selectById(7L)).thenReturn(directory);
         when(fileMapper.selectPageByDirectory(
                 "/srv/media", "album", List.of("travel", "family"), 2,
-                true, "VIDEO", "sunset", 40, 40)).thenReturn(List.of());
+                true, "VIDEO", "sunset", false, 40, 40)).thenReturn(List.of());
         service = new LocalFileService(fileMapper, mock(FileTagMapper.class), directoryMapper,
                 mock(TaggerService.class),
-                mock(com.yuyutian.mytools.media.service.importer.MediaPackageTagImportService.class));
+                mock(com.yuyutian.mytools.media.service.importer.MediaPackageTagImportService.class),
+                mock(ResourceStorageGuard.class));
     }
 
     /**
@@ -51,7 +52,7 @@ class LocalFileServiceFilterTest {
 
         verify(fileMapper).selectPageByDirectory(
                 "/srv/media", "album", List.of("travel", "family"), 2,
-                true, "VIDEO", "sunset", 40, 40);
+                true, "VIDEO", "sunset", false, 40, 40);
     }
 
     /**
@@ -62,6 +63,20 @@ class LocalFileServiceFilterTest {
         service.countFiles(7L, ".", null, List.of("travel", "family"), false, "MEDIA", " family ");
 
         verify(fileMapper).countByDirectory(
-                "/srv/media", ".", List.of("travel", "family"), 2, false, "MEDIA", "family");
+                "/srv/media", ".", List.of("travel", "family"), 2, false, "MEDIA", "family", false);
+    }
+
+    /**
+     * 验证成人内容过滤条件同时传递给分页和计数查询。
+     */
+    @Test
+    void shouldForwardAdultContentFilter() {
+        service.getFilePage(7L, ".", null, List.of(), false, null, "", true, 1, 40);
+        service.countFiles(7L, ".", null, List.of(), false, null, "", true);
+
+        verify(fileMapper).selectPageByDirectory(
+                "/srv/media", ".", List.of(), 0, false, null, "", true, 0, 40);
+        verify(fileMapper).countByDirectory(
+                "/srv/media", ".", List.of(), 0, false, null, "", true);
     }
 }

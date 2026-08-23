@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: task-scheduler-service
+server:
+  port: 23210
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

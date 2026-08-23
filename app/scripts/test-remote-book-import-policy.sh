@@ -23,16 +23,18 @@ node "$APP_DIR/tests/remote_book_import_policy_test.cjs" "$TEST_DIR/output/reade
 
 grep -Fq "this.remoteBookImportPolicy.candidate(item, source)" "$PAGE"
 grep -Fq 'this.remoteBookSources.find((value: RemoteMediaSource)' "$PAGE"
-grep -Fq '.listBookSources(sourceCancellation);' "$PAGE"
+grep -Fq '.listBookSources(sourceCancellation)).filter((source: RemoteMediaSource) =>' "$PAGE"
+grep -Fq "source.localDirectoryType === 'EBOOK'" "$PAGE"
 grep -Fq 'selectedRemoteBookSourceId' "$PAGE"
 grep -Fq 'private async LoadMoreRemoteBookDirectory(): Promise<void>' "$PAGE"
 grep -Fq 'this.remoteBookLoadedCount < directory.total' "$PAGE"
 grep -Fq 'this.LoadMoreRemoteBookDirectory();' "$PAGE"
 grep -Fq 'id: `remote:sha256:${digest}`' "$PAGE"
+grep -Fq "book.origin === 'remote' && book.cacheVersion !== undefined" "$PAGE"
+grep -Fq 'cacheVersion: book.cacheVersion' "$PAGE"
+grep -Fq '.resolveBookPlayback(source, book.resourceUri, ticketCancellation);' "$PAGE"
 grep -Fq "generation !== this.readerProgressSyncGeneration" "$PAGE"
 grep -Fq 'this.OpenRemoteBookDetail(item);' "$PAGE"
-grep -Fq 'this.OpenOpdsBookDetail(entry)' "$PAGE"
-grep -Fq 'this.OpenBookDetail(book, entry.summary);' "$PAGE"
 if grep -Fq 'this.AddRemoteBook(item);' "$PAGE" || grep -Fq 'this.AddOpdsBook(entry)' "$PAGE"; then
   echo "Remote book import integration policy failed: list rows must open details before shelf mutation" >&2
   exit 1

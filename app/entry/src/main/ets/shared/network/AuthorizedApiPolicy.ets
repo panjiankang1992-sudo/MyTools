@@ -40,21 +40,22 @@ export class AuthorizedApiPolicy {
     if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
       throw new Error('认证API响应信封无效');
     }
-    const code = parsed['code'];
-    const message = parsed['message'];
+    const rawCode = parsed['code'] ?? parsed['status'];
+    const code = typeof rawCode === 'number' && Number.isSafeInteger(rawCode) ? `${rawCode}` : rawCode;
+    const rawMessage = parsed['message'] ?? parsed['error'];
+    const message = typeof rawMessage === 'string' ? rawMessage
+      .replace(/[\u0000-\u001F\u007F]/g, ' ').trim().substring(0, 4096) : '';
     const traceId = parsed['traceId'];
     if (typeof code !== 'string' || code.length < 1 || code.length > 32 ||
       /[\u0000-\u001F\u007F]/.test(code) ||
-      (message !== undefined && (typeof message !== 'string' || message.length > 4096 ||
-        /[\u0000-\u001F\u007F]/.test(message))) ||
-      (traceId !== undefined && (typeof traceId !== 'string' || traceId.length > 128 ||
-        !/^[A-Za-z0-9_.:-]*$/.test(traceId)))) throw new Error('认证API响应信封无效');
+      (traceId !== undefined && typeof traceId !== 'string')) throw new Error('认证API响应信封无效');
     const data = parsed['data'];
     return {
       code: code,
-      message: typeof message === 'string' ? message : '',
+      message: message,
       data: data === undefined || data === null ? undefined : data,
-      traceId: typeof traceId === 'string' ? traceId : undefined
+      traceId: typeof traceId === 'string' && traceId.length <= 128 && /^[A-Za-z0-9_.:-]*$/.test(traceId) ?
+        traceId : undefined
     };
   }
 }

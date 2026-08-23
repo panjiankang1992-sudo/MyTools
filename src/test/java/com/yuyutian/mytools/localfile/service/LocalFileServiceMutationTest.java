@@ -88,7 +88,7 @@ class LocalFileServiceMutationTest {
     }
 
     /**
-     * 验证删除物理文件后软删除对应索引记录。
+     * 验证删除物理文件后清除对应索引及关联数据。
      */
     @Test
     void shouldDeleteManagedFileAndMarkIndexDeleted() throws Exception {
@@ -97,7 +97,12 @@ class LocalFileServiceMutationTest {
         fixture.service().deleteFile(41L);
 
         assertFalse(Files.exists(fixture.source()));
-        verify(fixture.fileMapper()).markDeletedByIds(eq(List.of(41L)), any(LocalDateTime.class));
+        verify(fixture.fileMapper()).clearMediaPackagePrimaryFileIds(List.of(41L));
+        verify(fixture.fileMapper()).deleteMediaPackageAssetsByFileIds(List.of(41L));
+        verify(fixture.fileMapper()).deleteMediaTagArtifactsByFileIds(List.of(41L));
+        verify(fixture.fileMapper()).deleteMaintenanceLogsByFileIds(List.of(41L));
+        verify(fixture.fileTagMapper()).deleteByFileIds(List.of(41L));
+        verify(fixture.fileMapper()).deleteByIds(List.of(41L));
     }
 
     private MutationFixture fixture(String filename) throws Exception {
@@ -122,7 +127,8 @@ class LocalFileServiceMutationTest {
 
         LocalFileService service = new LocalFileService(fileMapper, fileTagMapper, directoryMapper,
                 mock(TaggerService.class),
-                mock(com.yuyutian.mytools.media.service.importer.MediaPackageTagImportService.class));
+                mock(com.yuyutian.mytools.media.service.importer.MediaPackageTagImportService.class),
+                mock(ResourceStorageGuard.class));
         ReflectionTestUtils.setField(service, "scanPath", root.toString());
         return new MutationFixture(service, fileMapper, fileTagMapper, root, source);
     }

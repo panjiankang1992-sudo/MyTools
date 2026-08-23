@@ -94,6 +94,24 @@ class MediaPackageAnalysisServiceTest {
         assertThat(service.needsAnalysis(packageDirectory)).isFalse();
     }
 
+    @Test
+    void shouldAnalyzeWhenDownloadBotTaggingStateIsStale() throws Exception {
+        Files.writeString(packageDirectory.resolve("metadata.json"), """
+                {"schemaVersion":1,"tagStatus":"PENDING","updatedAt":"2025-01-01T00:00:00Z"}
+                """);
+
+        assertThat(service.needsAnalysis(packageDirectory)).isTrue();
+    }
+
+    @Test
+    void shouldSkipUnrecoverablePackage() throws Exception {
+        Files.writeString(packageDirectory.resolve("metadata.json"), """
+                {"schemaVersion":1,"tagStatus":"SKIPPED","analysisStatus":"UNRECOVERABLE"}
+                """);
+
+        assertThat(service.needsAnalysis(packageDirectory)).isFalse();
+    }
+
     private MediaPackageManifest manifest() {
         return new MediaPackageManifest(1, "package-1", "READY", "DOWNLOAD_BOT", 1L,
                 "event-1", "original.mp4", "video.mp4", "a".repeat(64), 3L, "video/mp4",

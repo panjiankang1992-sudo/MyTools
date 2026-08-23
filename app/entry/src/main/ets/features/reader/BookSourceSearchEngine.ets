@@ -185,7 +185,6 @@ export class BookSourceSearchEngine {
   private async requestSource(source: BookSource, urlTemplate: string, rules: Record<string, Object>, keyword: string,
     page: number, cancellation?: DownloadCancellationToken): Promise<BookSourceSearchResult[]> {
     if (cancellation?.isCancelled()) throw new Error('书源搜索已取消');
-    this.validateRestrictedScripts(rules);
     const requestSpec = this.buildRequest(source, urlTemplate, keyword, page);
     await this.urlPolicy.assertSafe(requestSpec.url);
     if (cancellation?.isCancelled()) throw new Error('书源搜索已取消');
@@ -271,10 +270,6 @@ export class BookSourceSearchEngine {
     throw new Error(`${source.bookSourceName}搜索失败`);
   }
 
-  private validateRestrictedScripts(rules: Record<string, Object>): void {
-    Object.keys(rules).forEach((key: string) => this.rulePolicy.jsonRule(rules, key));
-  }
-
   private async sanitizeCoverUrls(results: BookSourceSearchResult[],
     cancellation?: DownloadCancellationToken): Promise<void> {
     const checked = new Map<string, boolean>();
@@ -336,11 +331,11 @@ export class BookSourceSearchEngine {
       if (name.length === 0 || bookUrlRaw.length === 0) return;
       results.push({
         name: name,
-        author: this.jsonTextAt(item, rules, 'author', ['author', 'writer']),
-        intro: this.jsonTextAt(item, rules, 'intro', ['intro', 'description', 'desc']),
-        lastChapter: this.jsonTextAt(item, rules, 'lastChapter', ['lastChapter', 'latestChapter']),
+        author: this.safeJsonTextAt(item, rules, 'author', ['author', 'writer']),
+        intro: this.safeJsonTextAt(item, rules, 'intro', ['intro', 'description', 'desc']),
+        lastChapter: this.safeJsonTextAt(item, rules, 'lastChapter', ['lastChapter', 'latestChapter']),
         coverUrl: this.absoluteUrl(responseUrl,
-          this.jsonTextAt(item, rules, 'coverUrl', ['coverUrl', 'cover'])),
+          this.safeJsonTextAt(item, rules, 'coverUrl', ['coverUrl', 'cover'])),
         bookUrl: this.urlResolver.resolveRequest(responseUrl, bookUrlRaw),
         sourceUrl: source.bookSourceUrl,
         sourceName: source.bookSourceName
@@ -361,11 +356,11 @@ export class BookSourceSearchEngine {
       if (name.length === 0 || bookUrlRaw.length === 0) return;
       results.push({
         name: name,
-        author: this.htmlTextAt(fragment, rules, 'author'),
-        intro: this.htmlTextAt(fragment, rules, 'intro'),
-        lastChapter: this.htmlTextAt(fragment, rules, 'lastChapter'),
+        author: this.safeHtmlTextAt(fragment, rules, 'author'),
+        intro: this.safeHtmlTextAt(fragment, rules, 'intro'),
+        lastChapter: this.safeHtmlTextAt(fragment, rules, 'lastChapter'),
         coverUrl: this.absoluteUrl(responseUrl,
-          this.htmlTextAt(fragment, rules, 'coverUrl')),
+          this.safeHtmlTextAt(fragment, rules, 'coverUrl')),
         bookUrl: this.urlResolver.resolveRequest(responseUrl, bookUrlRaw),
         sourceUrl: source.bookSourceUrl,
         sourceName: source.bookSourceName
@@ -395,9 +390,28 @@ export class BookSourceSearchEngine {
     return this.rulePolicy.transform(rules, key, value);
   }
 
+  private safeJsonTextAt(item: Object, rules: Record<string, Object>, key: string,
+    fallbackKeys: string[]): string {
+    try {
+      return this.jsonTextAt(item, rules, key, fallbackKeys);
+    } catch (_) {
+      // 可选元数据包含Legado脚本时降级为空，不阻断名称和详情地址等核心结果。
+      return '';
+    }
+  }
+
   private htmlTextAt(fragment: string, rules: Record<string, Object>, key: string): string {
     const value = this.htmlParser.selectText(fragment, this.rulePolicy.htmlRule(rules, key));
     return this.rulePolicy.transform(rules, key, value);
+  }
+
+  private safeHtmlTextAt(fragment: string, rules: Record<string, Object>, key: string): string {
+    try {
+      return this.htmlTextAt(fragment, rules, key);
+    } catch (_) {
+      // 封面、作者等非核心字段不执行脚本，无法声明式解析时安全降级。
+      return '';
+    }
   }
 
   private absoluteUrl(baseUrl: string, value: string): string {

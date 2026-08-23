@@ -24,6 +24,10 @@ rg -q -F '.filter((value: ReadingProgress) => value.bookId !== progress.bookId).
   fail "pending checkpoints must coalesce by book"
 rg -q -F 'this.pendingReaderProgress = [progress].concat(this.pendingReaderProgress);' "$INDEX_SOURCE" ||
   fail "failed checkpoints must be retained for retry"
+rg -q -F 'private ScheduleReaderProgressSave(): void {' "$INDEX_SOURCE" ||
+  fail "page changes must schedule a near-real-time server checkpoint"
+rg -q -F 'this.ClearScheduledReaderProgressSave();' "$INDEX_SOURCE" ||
+  fail "background and close must flush without leaving a stale delayed checkpoint"
 rg -q -F 'private readerProgressSyncGeneration: number = 0;' "$INDEX_SOURCE" ||
   fail "account and session changes must invalidate stale asynchronous results"
 rg -q -F 'private readingProgressTombstones: ReadingProgressTombstone[] = [];' "$INDEX_SOURCE" ||
@@ -58,7 +62,7 @@ rg -q -F 'this.bookSourceImporter.importJson(item.snapshotJson)' "$INDEX_SOURCE"
   fail "downloaded book sources must pass the current importer again"
 rg -q -F 'this.PullBookSources();' "$INDEX_SOURCE" ||
   fail "login must restore sources before shelf and reading data"
-rg -q -F "this.ProfileInfoRow('阅读同步', this.readerSyncStatus)" "$INDEX_SOURCE" ||
+rg -q -F "this.ProfileActionRow('阅读同步'" "$INDEX_SOURCE" ||
   fail "the profile page must expose reading sync state"
 rg -q -F 'this.HandleSyncedBookSourceRemoval(item.sourceUrl);' "$INDEX_SOURCE" ||
   fail "remote source deletion must migrate affected shelf books"

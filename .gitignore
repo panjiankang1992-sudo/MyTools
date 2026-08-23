@@ -15,6 +15,7 @@ target/
 *.swo
 .DS_Store
 .playwright-mcp/
+.playwright-cli/
 
 # Logs
 *.log
@@ -23,9 +24,16 @@ logs/
 # Java
 *.class
 
+# Python
+__pycache__/
+*.py[cod]
+
 # Gradle
 .gradle/
 build/
+
+# HarmonyOS native build cache
+app/entry/.cxx/
 
 # Environment
 .env

@@ -21,7 +21,7 @@ public class SaveBookSourceRequest {
     private String sourceUrl;
 
     @NotBlank
-    @Size(max = 131072)
+    @Size(max = 524288)
     private String snapshotJson;
 
     @NotNull

@@ -160,14 +160,12 @@ export class BookSourceReaderEngine {
   }
 
   private requireDeclarativeRules(source: BookSource): void {
-    const text = (`${JSON.stringify(source.ruleBookInfo)}\n${JSON.stringify(source.ruleToc)}\n` +
-      `${JSON.stringify(source.ruleContent)}`).toLowerCase();
-    if (text.includes('javascript:') || text.includes('##')) {
-      throw new Error('该书源详情、目录或正文需要受限脚本运行时');
-    }
-    [source.ruleBookInfo, source.ruleToc, source.ruleContent].forEach((rules: Record<string, Object>) => {
-      Object.keys(rules).forEach((key: string) => this.rulePolicy.jsonRule(rules, key));
-    });
+    // 仅校验阅读链路实际使用的字段；书源中的wordCount等可选脚本元数据不会被执行。
+    this.rulePolicy.jsonRule(source.ruleBookInfo, 'tocUrl');
+    this.rulePolicy.jsonRule(source.ruleToc, 'chapterList');
+    this.rulePolicy.jsonRule(source.ruleToc, 'chapterName');
+    this.rulePolicy.jsonRule(source.ruleToc, 'chapterUrl');
+    this.rulePolicy.jsonRule(source.ruleContent, 'content');
   }
 
   private async fetch(source: BookSource, value: string,

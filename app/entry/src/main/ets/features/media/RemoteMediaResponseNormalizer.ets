@@ -75,6 +75,46 @@ export class RemoteMediaResponseNormalizer {
     return { path: '/', items, total, page, pageSize };
   }
 
+  /** 将电子书领域分页结果转换为兼容现有远程书库页面的数据。 */
+  normalizeEbookCatalog(value: Object | undefined, page: number = 1, pageSize: number = 40): RemoteDirectory {
+    const record = this.record(value);
+    const rawItems = record?.['list'];
+    if (!Array.isArray(rawItems)) return { path: '/', items: [], total: 0, page, pageSize };
+    const total = this.nonNegativeInteger(record?.['total']);
+    const items: RemoteMediaItem[] = [];
+    rawItems.slice(0, 1000).forEach((item: Object) => {
+      const child = this.record(item);
+      const id = this.identifier(child?.['localFileId']);
+      const name = this.text(child?.['filename'], 1024);
+      const filePath = this.path(child?.['filePath']);
+      const extension = this.text(child?.['extension'], 32, true) ?? '';
+      const size = child?.['fileSize'];
+      const title = this.text(child?.['title'], 500, true) ?? name;
+      const author = this.text(child?.['author'], 300, true) ?? '';
+      const description = this.text(child?.['description'], 5000, true) ?? '';
+      const category = this.text(child?.['category'], 100, true) ?? '';
+      const completionStatus = this.text(child?.['completionStatus'], 32, true) ?? '';
+      const fileHash = this.text(child?.['fileHash'], 128, true) ?? '';
+      const coverAvailable = this.flag(child?.['coverAvailable']);
+      const metadataStatus = this.text(child?.['metadataStatus'], 20, true) ?? 'PENDING';
+      const lastModified = this.text(child?.['updateTime'], 256, true) ?? '';
+      if (child === undefined || id === undefined || !/^[1-9]\d{0,18}$/.test(id) || name === undefined ||
+        /[\\/]/.test(name) || typeof size !== 'number' || !Number.isFinite(size) || size < 0 ||
+        size > 9007199254740991) return;
+      const chapterCount = this.nonNegativeInteger(child['chapterCount']);
+      const wordCount = this.nonNegativeInteger(child['wordCount']);
+      const normalized: RemoteMediaItem = { id, name, path: `/local/${id}`,
+        directoryName: filePath === undefined ? undefined : filePath,
+        kind: 'other', contentType: this.ebookContentType(extension), size: Math.floor(size), lastModified,
+        bookTitle: title, bookAuthor: author, bookDescription: description, bookCategory: category,
+        bookCompletionStatus: completionStatus, bookChapterCount: chapterCount, bookWordCount: wordCount,
+        bookCoverAvailable: coverAvailable, bookMetadataStatus: metadataStatus, tags: this.tags(child['tags']) };
+      if (/^[a-fA-F0-9]{16,128}$/.test(fileHash)) normalized.bookFileHash = fileHash.toLowerCase();
+      items.push(normalized);
+    });
+    return { path: '/', items, total, page, pageSize };
+  }
+
   /** 将服务端完整目录与标签集合转换为有界筛选选项。 */
   normalizeLocalFilters(value: Object | undefined): RemoteMediaFilterOptions {
     const record = this.record(value);
@@ -193,10 +233,23 @@ export class RemoteMediaResponseNormalizer {
     return 'other';
   }
 
+  private ebookContentType(extension: string): string {
+    const normalized = extension.toLowerCase();
+    if (normalized === 'pdf') return 'application/pdf';
+    if (normalized === 'epub') return 'application/epub+zip';
+    if (normalized === 'txt' || normalized === 'md') return 'text/plain';
+    return 'application/octet-stream';
+  }
+
   private tags(value: Object | undefined): RemoteMediaTag[] {
     if (!Array.isArray(value)) return [];
     const tags = new Map<string, RemoteMediaTag>();
     value.slice(0, 64).forEach((item: Object) => {
+      if (typeof item === 'string') {
+        const plainName = this.text(item, 32);
+        if (plainName !== undefined) tags.set(plainName, { name: plainName, type: '', confidence: 1 });
+        return;
+      }
       const record = this.record(item);
       const name = this.text(record?.['tagName'], 32);
       const type = this.text(record?.['tagType'], 32, true) ?? '';

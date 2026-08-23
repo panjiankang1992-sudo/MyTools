@@ -111,7 +111,7 @@ export class ReaderRepository {
       const sourceUrl = record['sourceUrl'];
       const snapshotJson = record['snapshotJson'];
       if (typeof sourceUrl !== 'string' || sourceUrl.length === 0 || sourceUrl.length > 4096 ||
-        typeof snapshotJson !== 'string' || snapshotJson.length === 0 || snapshotJson.length > 128 * 1024 ||
+        typeof snapshotJson !== 'string' || snapshotJson.length === 0 || snapshotJson.length > 512 * 1024 ||
         /[\u0000-\u001F\u007F]/.test(sourceUrl)) return;
       try {
         const restored = this.sourceNormalizer.normalize([JSON.parse(snapshotJson) as Object]);

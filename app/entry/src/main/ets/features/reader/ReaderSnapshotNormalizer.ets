@@ -46,11 +46,14 @@ export class ReaderSnapshotNormalizer {
         id, name, author,
         coverUrl: this.string(record['coverUrl'], 4096, true) ?? '',
         origin, format, resourceUri, sourceId,
+        tags: this.tags(record['tags']),
         progress: this.number(record['progress'], 0, 1),
         sourceAlternatives: this.alternatives(record['sourceAlternatives'])
       };
       const remoteCover = this.string(record['remoteCoverUrl'], 4096, true);
       if (remoteCover !== undefined) book.remoteCoverUrl = remoteCover;
+      const cacheVersion = this.string(record['cacheVersion'], 128, true);
+      if (cacheVersion !== undefined && /^[a-f0-9]{16,128}$/.test(cacheVersion)) book.cacheVersion = cacheVersion;
       book.updatedAt = this.integer(record['updatedAt'], 0, ReaderSnapshotNormalizer.MAX_SAFE_VALUE);
       book.revision = this.integer(record['revision'], 0, ReaderSnapshotNormalizer.MAX_SAFE_VALUE);
       books.set(id, book);
@@ -277,6 +280,16 @@ export class ReaderSnapshotNormalizer {
       alternatives.push(alternative);
     });
     return alternatives;
+  }
+
+  private tags(value: Object | undefined): string[] {
+    if (!Array.isArray(value)) return [];
+    const tags: string[] = [];
+    value.slice(0, 24).forEach((item: Object) => {
+      const tag = this.string(item, 40, false);
+      if (tag !== undefined && !tags.includes(tag)) tags.push(tag);
+    });
+    return tags.slice(0, 12);
   }
 
   private record(value: Object | undefined): Record<string, Object> | undefined {

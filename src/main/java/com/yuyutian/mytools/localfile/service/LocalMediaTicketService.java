@@ -25,10 +25,23 @@ public class LocalMediaTicketService {
      * @return 票据描述。
      */
     public TicketResult issue(Long userId, Long sessionId, Long fileId) {
+        return issue(userId, sessionId, fileId, null);
+    }
+
+    /**
+     * 为当前登录会话签发可指向受控派生文件的短期票据。
+     *
+     * @param userId 用户ID。
+     * @param sessionId 会话ID。
+     * @param fileId 原始文件ID。
+     * @param derivedPath 服务端生成的受控派生文件路径。
+     * @return 票据描述。
+     */
+    public TicketResult issue(Long userId, Long sessionId, Long fileId, String derivedPath) {
         cleanup();
         String ticket = UUID.randomUUID().toString().replace("-", "");
         Instant expiresAt = Instant.now().plusSeconds(TICKET_TTL_SECONDS);
-        tickets.put(ticket, new TicketBinding(userId, sessionId, fileId, expiresAt));
+        tickets.put(ticket, new TicketBinding(userId, sessionId, fileId, derivedPath, expiresAt));
         return new TicketResult(ticket, "/api/app/v1/local-media/tickets/" + ticket, expiresAt);
     }
 
@@ -64,6 +77,6 @@ public class LocalMediaTicketService {
     /**
      * 本地媒体票据与用户会话的绑定。
      */
-    public record TicketBinding(Long userId, Long sessionId, Long fileId, Instant expiresAt) {
+    public record TicketBinding(Long userId, Long sessionId, Long fileId, String derivedPath, Instant expiresAt) {
     }
 }

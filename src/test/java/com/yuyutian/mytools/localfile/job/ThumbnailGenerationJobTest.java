@@ -3,6 +3,7 @@ package com.yuyutian.mytools.localfile.job;
 import com.yuyutian.mytools.localfile.entity.LocalFile;
 import com.yuyutian.mytools.localfile.mapper.LocalFileMapper;
 import com.yuyutian.mytools.localfile.service.LocalFileService;
+import com.yuyutian.mytools.localfile.service.ResourceStorageGuard;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -46,7 +47,9 @@ class ThumbnailGenerationJobTest {
         when(mapper.selectThumbnailCandidates(anyString(), anyString(), anyLong(), eq(24)))
                 .thenReturn(List.of(file));
         when(service.generateAndPersistThumbnail(99L)).thenThrow(new IOException("broken"));
-        job = new ThumbnailGenerationJob(mapper, service);
+        ResourceStorageGuard storageGuard = mock(ResourceStorageGuard.class);
+        when(storageGuard.isAvailable()).thenReturn(true);
+        job = new ThumbnailGenerationJob(mapper, service, storageGuard);
         ReflectionTestUtils.setField(job, "scanPath", "/srv");
         ReflectionTestUtils.setField(job, "thumbnailPath", "/srv/.thumbnails");
 

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mytools.local/contracts/task-result.schema.json",
+  "title": "TaskStepResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "outputs"],
+  "properties": {
+    "status": { "enum": ["SUCCEEDED", "FAILED", "CANCELLED", "TIMED_OUT"] },
+    "outputs": { "type": "object" },
+    "errorCode": { "type": ["string", "null"], "maxLength": 128 },
+    "errorMessage": { "type": ["string", "null"], "maxLength": 2048 },
+    "checkpoint": { "type": ["object", "null"] }
+  }
+}

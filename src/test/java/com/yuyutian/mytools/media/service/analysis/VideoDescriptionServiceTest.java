@@ -71,4 +71,20 @@ class VideoDescriptionServiceTest {
         assertThat(result.description()).hasSizeBetween(200, 500).contains("十二个时间点");
         verify(client, times(2)).analyzeVideoDescription(contains("Filename: sample.mp4"), anyList());
     }
+
+    @Test
+    void shouldFallbackToMetadataWhenModelIsUnavailable() throws Exception {
+        TaggerClient client = mock(TaggerClient.class);
+        when(client.analyzeVideoDescription(contains("Filename: sample.mp4"), anyList()))
+                .thenThrow(new IllegalStateException("model unavailable"));
+        VideoDescriptionService service = new VideoDescriptionService(client);
+
+        VideoDescription result = service.generate("sample.mp4",
+                new VideoMetadata(90_000L, "mp4", "h264", "aac", 1280, 720, 25D, 800_000L),
+                List.of("测试标签"), List.of(Path.of("01.jpg")));
+
+        assertThat(result.summary()).isEqualTo("sample");
+        assertThat(result.description()).hasSizeBetween(200, 500)
+                .contains("1280×720", "测试标签", "视觉模型暂时未能返回稳定结果");
+    }
 }

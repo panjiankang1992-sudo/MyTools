@@ -59,4 +59,22 @@ public interface FileTagMapper {
      */
     @Delete("DELETE FROM file_tag WHERE file_id = #{fileId}")
     void deleteByFileId(Long fileId);
+
+    /**
+     * 删除文件已有的成人内容分类标签。
+     *
+     * @param fileId 文件ID
+     */
+    @Delete("DELETE FROM file_tag WHERE file_id = #{fileId} AND tag_name IN ('R18-是', 'R18-否')")
+    void deleteAdultClassificationByFileId(@Param("fileId") Long fileId);
+
+    /**
+     * 批量删除文件的所有标签。
+     *
+     * @param fileIds 文件ID集合
+     */
+    @Delete("<script>DELETE FROM file_tag WHERE file_id IN " +
+            "<foreach collection='fileIds' item='fileId' open='(' separator=',' close=')'>#{fileId}</foreach>" +
+            "</script>")
+    void deleteByFileIds(@Param("fileIds") List<Long> fileIds);
 }

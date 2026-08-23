@@ -199,6 +199,31 @@ CREATE TABLE IF NOT EXISTS media_tag_artifact (
     UNIQUE (content_hash, prompt_version, input_fingerprint)
 );
 
+CREATE TABLE IF NOT EXISTS ebook_metadata (
+    local_file_id BIGINT PRIMARY KEY,
+    file_hash VARCHAR(64),
+    metadata_version INT NOT NULL DEFAULT 1,
+    status VARCHAR(20) NOT NULL,
+    error_message VARCHAR(500),
+    failure_count INT NOT NULL DEFAULT 0,
+    retry_after TIMESTAMP,
+    title VARCHAR(500) NOT NULL,
+    author VARCHAR(300) NOT NULL DEFAULT '',
+    description CLOB,
+    language VARCHAR(32) NOT NULL DEFAULT '',
+    category VARCHAR(100) NOT NULL DEFAULT '',
+    completion_status VARCHAR(32) NOT NULL DEFAULT '',
+    chapter_count INT,
+    word_count BIGINT,
+    cover_path VARCHAR(1024),
+    parser_name VARCHAR(100) NOT NULL,
+    model_name VARCHAR(100) NOT NULL DEFAULT '',
+    model_version VARCHAR(100) NOT NULL DEFAULT '',
+    indexed_at TIMESTAMP NOT NULL,
+    create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- 错误码表
 CREATE TABLE IF NOT EXISTS t_error_code (
     id BIGINT PRIMARY KEY,
@@ -243,4 +268,19 @@ CREATE TABLE IF NOT EXISTS t_dsh_session_binding (
     last_seq BIGINT NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS t_book_source_search_cache (
+    user_id BIGINT NOT NULL,
+    normalized_keyword VARCHAR(255) NOT NULL,
+    query_mode VARCHAR(16) NOT NULL,
+    source_id VARCHAR(80) NOT NULL,
+    page INT NOT NULL,
+    source_revision BIGINT NOT NULL,
+    cache_status VARCHAR(24) NOT NULL DEFAULT 'EMPTY',
+    results_json CLOB NOT NULL,
+    result_count INT NOT NULL DEFAULT 0,
+    created_at BIGINT NOT NULL,
+    expires_at BIGINT NOT NULL,
+    PRIMARY KEY (user_id, normalized_keyword, query_mode, source_id, page)
 );

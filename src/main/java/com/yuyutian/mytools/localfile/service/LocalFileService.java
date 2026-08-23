@@ -54,6 +54,7 @@ public class LocalFileService {
     private final LocalDirectoryMapper localDirectoryMapper;
     private final TaggerService taggerService;
     private final MediaPackageTagImportService mediaPackageTagImportService;
+    private final ResourceStorageGuard resourceStorageGuard;
 
     /** 扫描目录路径 */
     @Value("${file.scan.path:D:/MyFiles}")
@@ -92,12 +93,23 @@ public class LocalFileService {
     public List<LocalFile> getFilePage(Long directoryId, String subdirectory, String tagName,
                                        List<String> tagNames, boolean matchAllTags, String fileType,
                                        String keyword, long page, long pageSize) {
+        return getFilePage(directoryId, subdirectory, tagName, tagNames, matchAllTags, fileType,
+                keyword, false, page, pageSize);
+    }
+
+    /**
+     * 使用目录、类型、多标签和成人内容条件分页获取文件列表。
+     */
+    public List<LocalFile> getFilePage(Long directoryId, String subdirectory, String tagName,
+                                       List<String> tagNames, boolean matchAllTags, String fileType,
+                                       String keyword, boolean excludeAdult, long page, long pageSize) {
         LocalDirectory directory = requireDirectory(directoryId);
         long offset = (page - 1) * pageSize;
         List<String> normalizedTagNames = normalizeTagNames(tagName, tagNames);
         List<LocalFile> files = localFileMapper.selectPageByDirectory(
                 normalizeDirectoryPath(directory.getDirectoryPath()), subdirectory, normalizedTagNames,
-                normalizedTagNames.size(), matchAllTags, fileType, normalizeKeyword(keyword), offset, pageSize);
+                normalizedTagNames.size(), matchAllTags, fileType, normalizeKeyword(keyword), excludeAdult,
+                offset, pageSize);
         // 列表直接携带标签，页面无需逐个文件再次请求。
         files.forEach(file -> file.setTags(fileTagMapper.selectByFileId(file.getId())));
         return files;
@@ -115,11 +127,20 @@ public class LocalFileService {
      */
     public long countFiles(Long directoryId, String subdirectory, String tagName,
                            List<String> tagNames, boolean matchAllTags, String fileType, String keyword) {
+        return countFiles(directoryId, subdirectory, tagName, tagNames, matchAllTags, fileType, keyword, false);
+    }
+
+    /**
+     * 使用目录、类型、多标签和成人内容条件统计文件总数。
+     */
+    public long countFiles(Long directoryId, String subdirectory, String tagName,
+                           List<String> tagNames, boolean matchAllTags, String fileType, String keyword,
+                           boolean excludeAdult) {
         LocalDirectory directory = requireDirectory(directoryId);
         List<String> normalizedTagNames = normalizeTagNames(tagName, tagNames);
         return localFileMapper.countByDirectory(normalizeDirectoryPath(directory.getDirectoryPath()),
                 subdirectory, normalizedTagNames, normalizedTagNames.size(), matchAllTags, fileType,
-                normalizeKeyword(keyword));
+                normalizeKeyword(keyword), excludeAdult);
     }
 
     private String normalizeKeyword(String keyword) {
@@ -475,14 +496,14 @@ public class LocalFileService {
     }
 
     /**
-     * 删除受管媒体文件并软删除索引记录。
+     * 删除受管媒体文件及其索引和关联数据。
      */
     @Transactional
     public void deleteFile(Long fileId) {
         Path source = getReadableFilePath(fileId);
         try {
             Files.delete(source);
-            localFileMapper.markDeletedByIds(List.of(fileId), LocalDateTime.now());
+            purgeFileRecords(List.of(fileId));
         } catch (IOException ex) {
             throw new BusinessException(ErrorCode.FILE_003);
         }
@@ -549,13 +570,11 @@ public class LocalFileService {
         log.info("开始扫描目录：{}, 全量扫描：{}", directory.getDirectoryPath(), fullScan);
 
         Path rootPath = Paths.get(directory.getDirectoryPath());
+        // 扫描前先确认资源盘真实挂载，目录消失时不再将数据库记录删除。
+        resourceStorageGuard.requireAvailableForCleanup(rootPath);
         if (!Files.exists(rootPath)) {
             log.warn("扫描目录不存在：{}", directory.getDirectoryPath());
-            // 根目录明确不存在时，将其下全部有效记录软删除。
-            int deletedCount = localFileMapper.markDirectoryDeleted(
-                    normalizeDirectoryPath(directory.getDirectoryPath()), LocalDateTime.now());
-            log.info("目录不存在，已标记删除 {} 条文件记录", deletedCount);
-            return new ScanResult(0, 0);
+            throw new BusinessException(ErrorCode.FILE_012);
         }
 
         try {
@@ -687,9 +706,11 @@ public class LocalFileService {
     }
 
     /**
-     * 将数据库中已明确不存在的文件标记为已删除。
+     * 将数据库中已明确不存在的文件及其关联数据彻底清除。
      */
     private int markMissingFiles(String directoryPath) {
+        // 清理前再次确认挂载，覆盖扫描中途掉盘的竞态场景。
+        resourceStorageGuard.requireAvailableForCleanup(Paths.get(directoryPath));
         List<Long> missingIds = localFileMapper.selectActiveByDirectory(directoryPath).stream()
                 // Files.notExists 仅在能够明确确认不存在时返回 true，权限异常不会误删记录。
                 .filter(file -> Files.notExists(Paths.get(file.getFilePath())))
@@ -698,8 +719,18 @@ public class LocalFileService {
         if (missingIds.isEmpty()) {
             return 0;
         }
-        localFileMapper.markDeletedByIds(missingIds, LocalDateTime.now());
+        purgeFileRecords(missingIds);
         return missingIds.size();
+    }
+
+    private void purgeFileRecords(List<Long> fileIds) {
+        // 删除主记录前先清理所有业务关联，确保数据库不保留孤立历史路径。
+        localFileMapper.clearMediaPackagePrimaryFileIds(fileIds);
+        localFileMapper.deleteMediaPackageAssetsByFileIds(fileIds);
+        localFileMapper.deleteMediaTagArtifactsByFileIds(fileIds);
+        localFileMapper.deleteMaintenanceLogsByFileIds(fileIds);
+        fileTagMapper.deleteByFileIds(fileIds);
+        localFileMapper.deleteByIds(fileIds);
     }
 
     /**
@@ -713,7 +744,8 @@ public class LocalFileService {
 
         // 根据目录类型进一步过滤
         if ("MULTIMEDIA".equals(directoryType)) {
-            return IMAGE_EXTENSIONS.contains(extension) || VIDEO_EXTENSIONS.contains(extension) || AUDIO_EXTENSIONS.contains(extension);
+            // media目录保留配置允许的全部资源类型，不只包含图片、视频和音频。
+            return true;
         } else if ("EBOOK".equals(directoryType)) {
             return Set.of("pdf", "doc", "docx", "txt", "md", "epub", "mobi").contains(extension);
         } else if ("LARGE_MEDIA".equals(directoryType)) {

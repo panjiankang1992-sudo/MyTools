@@ -20,6 +20,9 @@ const candidate = policy.candidate(item('三体.EPUB', '/books/三体.EPUB', 102
 equal([candidate.name, candidate.author, candidate.format, candidate.resourceUri, candidate.sourceId],
   ['三体', 'My WebDAV', 'epub', '/books/三体.EPUB', '12'], 'Remote book projection');
 equal(candidate.identityMaterial, 'remote:v1\u000012\u0000/books/三体.EPUB', 'Stable identity material');
+equal(policy.candidate(Object.assign(item('cached.epub', '/cached.epub', 2048),
+  { bookFileHash: 'ABCDEF0123456789ABCDEF0123456789' }), source).cacheVersion,
+  'abcdef0123456789abcdef0123456789', 'Validated cache version');
 equal(policy.candidate(item('large.txt', '/large.txt', 500 * 1024 * 1024), source).format,
   'txt', 'TXT maximum accepted');
 const tagged = policy.candidate(Object.assign(item('反派：我的母亲是大帝_tags_玄幻,穿越_user.txt',

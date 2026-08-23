@@ -3,6 +3,7 @@ package com.yuyutian.mytools.localfile.job;
 import com.yuyutian.mytools.localfile.entity.LocalFile;
 import com.yuyutian.mytools.localfile.mapper.LocalFileMapper;
 import com.yuyutian.mytools.localfile.service.LocalFileService;
+import com.yuyutian.mytools.localfile.service.ResourceStorageGuard;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class ThumbnailGenerationJob {
 
     private final LocalFileMapper localFileMapper;
     private final LocalFileService localFileService;
+    private final ResourceStorageGuard resourceStorageGuard;
     private final ExecutorService thumbnailExecutor = Executors.newFixedThreadPool(4);
     private final Map<Long, Integer> thumbnailFailureCounts = new ConcurrentHashMap<>();
     private final Map<Long, Long> thumbnailRetryAfter = new ConcurrentHashMap<>();
@@ -47,6 +49,10 @@ public class ThumbnailGenerationJob {
      */
     @Scheduled(fixedDelay = 5000, initialDelay = 15000)
     public void generateMissingThumbnails() {
+        if (!resourceStorageGuard.isAvailable()) {
+            // 资源盘掉线时不启动 FFmpeg，避免无意义的失败重试。
+            return;
+        }
         String mediaPath = Paths.get(scanPath, "media").toAbsolutePath().normalize().toString();
         String normalizedThumbnailPath = Paths.get(thumbnailPath).toAbsolutePath().normalize().toString();
         List<LocalFile> candidates = localFileMapper.selectThumbnailCandidates(

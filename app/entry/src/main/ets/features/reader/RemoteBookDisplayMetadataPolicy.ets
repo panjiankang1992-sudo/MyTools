@@ -20,7 +20,12 @@ export class RemoteBookDisplayMetadataPolicy {
     const userMarker = rawTagSection.toLowerCase().lastIndexOf('_user');
     const filenameTags = this.tagNames(userMarker >= 0 ? rawTagSection.substring(0, userMarker) : rawTagSection);
     const apiTags = (serverTags ?? []).map((tag: RemoteMediaTag) => tag.name);
-    const title = rawTitle.replace(/_+/g, ' ').replace(/\s+/g, ' ').trim();
+    const normalizedTitle = rawTitle.replace(/_+/g, ' ').replace(/\s+/g, ' ').trim();
+    const bracketStart = normalizedTitle.indexOf('《');
+    const bracketEnd = normalizedTitle.indexOf('》', bracketStart + 1);
+    // 传输文件名常在书名后拼接排版、连载与作者信息，优先保留明确的中文书名边界。
+    const title = bracketStart >= 0 && bracketEnd > bracketStart ?
+      normalizedTitle.substring(bracketStart, bracketEnd + 1) : normalizedTitle;
     return { title: title.length > 0 ? title : base, tags: this.uniqueTags(filenameTags.concat(apiTags)) };
   }
 
@@ -45,6 +50,11 @@ export class RemoteBookDisplayMetadataPolicy {
       seen.add(key);
       result.push(normalized);
     });
-    return result;
+    return result.sort((left: string, right: string) => {
+      const leftAdult = left.startsWith('R18-');
+      const rightAdult = right.startsWith('R18-');
+      if (leftAdult === rightAdult) return 0;
+      return leftAdult ? -1 : 1;
+    });
   }
 }

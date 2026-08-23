@@ -7,6 +7,7 @@ import { ReaderBlock, ReaderChapter, ReaderDocument } from './ReaderModels';
 import { MobiReaderNative } from './MobiReaderNative';
 import { RemoteBookDownloadPolicy, RemoteBookHeaderResult, RemoteBookPayloadKind } from './RemoteBookDownloadPolicy';
 import { TextPayloadPolicy } from './TextPayloadPolicy';
+import { ReaderTextMetadataPolicy } from './ReaderTextMetadataPolicy';
 
 interface DecodedText {
   text: string;
@@ -60,12 +61,14 @@ export class ReaderContentLoader {
   private static readonly MAX_LARGE_TEXT_BYTES: number = 500 * 1024 * 1024;
   private static readonly TEXT_CHUNK_BYTES: number = 1024 * 1024;
   private static readonly MAX_TEXT_CHAPTERS: number = 5000;
-  private static readonly FALLBACK_CHAPTER_CHARS: number = 100000;
+  private static readonly FALLBACK_CHAPTER_CHARS: number = 24000;
   private static readonly SEARCH_BLOOM_BYTES: number = 16384;
   private static readonly SEARCH_INDEX_VERSION: number = 1;
   private static readonly MAX_ARCHIVE_BYTES: number = 100 * 1024 * 1024;
   private static readonly MAX_EXTRACTED_BYTES: number = 300 * 1024 * 1024;
   private static readonly MAX_ARCHIVE_FILES: number = 5000;
+  private static readonly MAX_REMOTE_ARCHIVE_CACHE_FILES: number = 8;
+  private static readonly REMOTE_ARCHIVE_CACHE_VERSION: string = 'v3';
   private static readonly MAX_CENTRAL_DIRECTORY_BYTES: number = 16 * 1024 * 1024;
   private static readonly MAX_COMPRESSION_RATIO: number = 1000;
   private static readonly MAX_IMAGE_DIMENSION: number = 20000;
@@ -85,6 +88,7 @@ export class ReaderContentLoader {
   private readonly mobiReader: MobiReaderNative = new MobiReaderNative();
   private readonly remoteDownloadPolicy: RemoteBookDownloadPolicy = new RemoteBookDownloadPolicy();
   private readonly textPayloadPolicy: TextPayloadPolicy = new TextPayloadPolicy();
+  private readonly textMetadataPolicy: ReaderTextMetadataPolicy = new ReaderTextMetadataPolicy();
   private activeRequest?: http.HttpRequest = undefined;
   private cancelled: boolean = false;
   private searchIndexWriteRevision: number = 0;
@@ -153,7 +157,9 @@ export class ReaderContentLoader {
         const buffer = new ArrayBuffer(reference.length);
         const readBytes = fs.readSync(file.fd, buffer, { offset: reference.offset, length: reference.length });
         if (readBytes !== reference.length) throw new Error('TXT章节读取不完整');
-        return this.decodeWithEncoding(new Uint8Array(buffer), reference.encoding).replace(/^\uFEFF/, '').trim();
+        const decoded = this.decodeWithEncoding(new Uint8Array(buffer), reference.encoding).replace(/^\uFEFF/, '');
+        // 只有首个磁盘分块可能包含维护流程写入的原文件名元数据。
+        return (reference.offset === 0 ? this.textMetadataPolicy.sanitize(decoded).content : decoded).trim();
       } finally {
         fs.closeSync(file);
       }
@@ -492,8 +498,9 @@ export class ReaderContentLoader {
 
   private parseTextBytes(bytes: Uint8Array): ReaderDocument {
     const decoded = this.decodeText(bytes);
-    this.validateDecodedText(decoded.text);
-    const chapters = this.splitTextChapters(decoded.text);
+    const sanitized = this.textMetadataPolicy.sanitize(decoded.text).content;
+    this.validateDecodedText(sanitized);
+    const chapters = this.splitTextChapters(sanitized);
     if (chapters.length === 0) throw new Error('TXT中没有可显示的正文');
     return { kind: 'text', chapters: chapters, imageUris: [], encoding: decoded.encoding };
   }
@@ -513,8 +520,10 @@ export class ReaderContentLoader {
       const preferredEnd = Math.min(size, offset + ReaderContentLoader.TEXT_CHUNK_BYTES);
       const end = preferredEnd >= size ? size : this.findNextLineBoundary(path, preferredEnd, size, encoding);
       const length = Math.max(1, end - offset);
-      const decodedChunk = this.decodeWithEncoding(this.readFileRange(path, offset, length), encoding)
+      const rawChunk = this.decodeWithEncoding(this.readFileRange(path, offset, length), encoding)
         .replace(/^\uFEFF/, '');
+      // 大型TXT按磁盘分块读取，首块同样不能把内部追溯标记带入标题和正文。
+      const decodedChunk = offset === 0 ? this.textMetadataPolicy.sanitize(rawChunk).content : rawChunk;
       this.validateDecodedText(decodedChunk);
       const preview = decodedChunk.substring(0, 8192);
       const title = this.firstHeading(preview, chapters.length);
@@ -874,7 +883,7 @@ export class ReaderContentLoader {
     const flush = (): void => {
       const content = contentLines.join('\n').trim();
       if (content.length > 0) {
-        chapters.push({ title: title.length > 0 ? title : `第${chapters.length + 1}节`, content: content });
+        this.appendBoundedTextChapters(chapters, title, content);
       }
       contentLines = [];
     };
@@ -891,6 +900,29 @@ export class ReaderContentLoader {
     flush();
     if (chapters.length > 1) return chapters;
     return this.splitLargeText(normalized);
+  }
+
+  /**
+   * 将过长章节分成可稳定渲染的文本块，避免单个Text组件丢失后半部正文。
+   */
+  private appendBoundedTextChapters(chapters: ReaderChapter[], title: string, content: string): void {
+    let offset = 0;
+    let part = 0;
+    while (offset < content.length && chapters.length < ReaderContentLoader.MAX_TEXT_CHAPTERS) {
+      let end = Math.min(content.length, offset + ReaderContentLoader.FALLBACK_CHAPTER_CHARS);
+      if (end < content.length) {
+        const paragraph = content.lastIndexOf('\n\n', end);
+        if (paragraph > offset + ReaderContentLoader.FALLBACK_CHAPTER_CHARS / 2) end = paragraph + 2;
+      }
+      const chunk = content.substring(offset, end).trim();
+      if (chunk.length > 0) {
+        const baseTitle = title.length > 0 ? title : `第${chapters.length + 1}节`;
+        chapters.push({ title: part === 0 ? baseTitle : `${baseTitle}（续${part + 1}）`, content: chunk });
+      }
+      offset = end;
+      part++;
+    }
+    if (offset < content.length) throw new Error('TXT分段数量超过5000');
   }
 
   private splitLargeText(text: string): ReaderChapter[] {
@@ -931,15 +963,82 @@ export class ReaderContentLoader {
    * 下载到应用缓存后解析远程EPUB或CBZ，不把远程凭证写入文件名。
    */
   async loadRemoteArchive(context: common.UIAbilityContext, url: string,
-    format: string, requestHeaders?: Record<string, string>): Promise<ReaderDocument> {
+    format: string, requestHeaders?: Record<string, string>, cacheIdentity?: string,
+    cacheVersion?: string): Promise<ReaderDocument> {
     const archivePath = this.prepareWorkspace(context, format);
+    const cachePath = this.remoteArchiveCachePath(context, format, cacheIdentity, cacheVersion);
     try {
+      if (cachePath.length > 0 && this.validRemoteArchiveCache(cachePath, format)) {
+        return await this.extractAndParse(cachePath, format);
+      }
       await this.downloadBinaryStream(url, archivePath, ReaderContentLoader.MAX_ARCHIVE_BYTES, '远程图书',
         'archive', requestHeaders);
-      return await this.extractAndParse(archivePath, format);
+      const persistedPath = cachePath.length > 0 ? this.persistRemoteArchiveCache(archivePath, cachePath) : '';
+      return await this.extractAndParse(persistedPath.length > 0 ? persistedPath : archivePath, format);
     } catch (error) {
       if (error instanceof Error) throw error;
       throw new Error('远程图书容器读取失败');
+    }
+  }
+
+  private remoteArchiveCachePath(context: common.UIAbilityContext, format: string,
+    cacheIdentity?: string, cacheVersion?: string): string {
+    const identity = /^remote:sha256:([a-f0-9]{64})$/.exec(cacheIdentity ?? '');
+    if (identity === null || !/^[a-f0-9]{16,128}$/.test(cacheVersion ?? '') ||
+      (format !== 'epub' && format !== 'cbz')) return '';
+    try {
+      const directory = `${context.cacheDir}/remote-ebook-archives`;
+      if (!fs.accessSync(directory)) fs.mkdirSync(directory, true);
+      return `${directory}/${ReaderContentLoader.REMOTE_ARCHIVE_CACHE_VERSION}-${identity[1]}-${cacheVersion}.${format}`;
+    } catch (_) {
+      return '';
+    }
+  }
+
+  private validRemoteArchiveCache(path: string, format: string): boolean {
+    try {
+      const size = fs.statSync(path).size;
+      if (size <= 0 || size > ReaderContentLoader.MAX_ARCHIVE_BYTES) throw new Error('缓存大小无效');
+      this.validatePayloadSignature(path, size, 'archive');
+      this.inspectZipArchive(path, format);
+      return true;
+    } catch (_) {
+      try { if (fs.accessSync(path)) fs.unlinkSync(path); } catch (_) {}
+      return false;
+    }
+  }
+
+  private persistRemoteArchiveCache(source: string, target: string): string {
+    const temporary = `${target}.part`;
+    try {
+      if (fs.accessSync(temporary)) fs.unlinkSync(temporary);
+      fs.copyFileSync(source, temporary);
+      if (fs.accessSync(target)) fs.unlinkSync(target);
+      fs.renameSync(temporary, target);
+      this.pruneRemoteArchiveCache(target);
+      return target;
+    } catch (_) {
+      try { if (fs.accessSync(temporary)) fs.unlinkSync(temporary); } catch (_) {}
+      return '';
+    }
+  }
+
+  private pruneRemoteArchiveCache(currentPath: string): void {
+    try {
+      const separator = currentPath.lastIndexOf('/');
+      const directory = currentPath.substring(0, separator);
+      const paths = fs.listFileSync(directory)
+        .filter((name: string) => /^(?:v[1-9]\d*-)?[a-f0-9]{64}-[a-f0-9]{16,128}\.(?:epub|cbz)$/.test(name))
+        .map((name: string) => `${directory}/${name}`)
+        .sort((left: string, right: string) => fs.statSync(left).mtime - fs.statSync(right).mtime);
+      while (paths.length > ReaderContentLoader.MAX_REMOTE_ARCHIVE_CACHE_FILES) {
+        const index = paths.findIndex((path: string) => path !== currentPath);
+        if (index < 0) break;
+        const candidate = paths.splice(index, 1)[0];
+        if (candidate !== undefined && fs.accessSync(candidate)) fs.unlinkSync(candidate);
+      }
+    } catch (_) {
+      // 缓存回收失败不能影响当前阅读。
     }
   }
 
@@ -1370,22 +1469,26 @@ export class ReaderContentLoader {
     }
   }
 
-  private readImageDimensions(bytes: Uint8Array, path: string): number[] {
-    const lower = path.toLowerCase();
-    if (lower.endsWith('.png') && bytes.length >= 24 && this.readUInt32BE(bytes, 0) === 0x89504E47) {
+  private readImageDimensions(bytes: Uint8Array, _path: string): number[] {
+    // EPUB资源的扩展名经常与真实编码不一致，必须按文件头识别后再校验尺寸。
+    if (bytes.length >= 24 && this.readUInt32BE(bytes, 0) === 0x89504E47 &&
+      this.readUInt32BE(bytes, 4) === 0x0D0A1A0A) {
       return [this.readUInt32BE(bytes, 16), this.readUInt32BE(bytes, 20)];
     }
-    if (lower.endsWith('.gif') && bytes.length >= 10) {
+    if (bytes.length >= 10 && bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 &&
+      bytes[3] === 0x38 && (bytes[4] === 0x37 || bytes[4] === 0x39) && bytes[5] === 0x61) {
       return [this.readUInt16LE(bytes, 6), this.readUInt16LE(bytes, 8)];
     }
-    if (lower.endsWith('.bmp') && bytes.length >= 26) {
+    if (bytes.length >= 26 && bytes[0] === 0x42 && bytes[1] === 0x4D) {
       return [this.readUInt32LE(bytes, 18), Math.abs(this.readInt32LE(bytes, 22))];
     }
-    if ((lower.endsWith('.jpg') || lower.endsWith('.jpeg')) && bytes.length >= 4) {
+    if (bytes.length >= 4 && bytes[0] === 0xFF && bytes[1] === 0xD8) {
       return this.readJpegDimensions(bytes);
     }
-    if (lower.endsWith('.webp') && bytes.length >= 30) return this.readWebpDimensions(bytes);
-    throw new Error('图书容器图片头损坏或格式不匹配');
+    if (bytes.length >= 30 && bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 &&
+      bytes[3] === 0x46 && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 &&
+      bytes[11] === 0x50) return this.readWebpDimensions(bytes);
+    throw new Error('图书容器图片头损坏或格式不支持');
   }
 
   private readJpegDimensions(bytes: Uint8Array): number[] {
@@ -1548,7 +1651,10 @@ export class ReaderContentLoader {
         content: content.length > 0 ? content : '图片章节',
         blocks: blocks
       });
-      await new Promise<void>((resolve: () => void) => setTimeout(resolve, 0));
+      // 大型EPUB不应为每一章都切换事件循环；每16章让出一次即可维持取消响应。
+      if ((index + 1) % 16 === 0) {
+        await new Promise<void>((resolve: () => void) => setTimeout(resolve, 0));
+      }
     }
     this.assertNotCancelled();
     if (chapters.length === 0) throw new Error('EPUB中没有可阅读章节');
@@ -1618,10 +1724,18 @@ export class ReaderContentLoader {
     }
   }
 
-  /** 拒绝DTD和实体声明，避免EPUB XML语义歧义及未来解析器引入XXE。 */
+  /** 拒绝实体及内部DTD；章节仅兼容不参与解析的标准XHTML文档声明。 */
   private assertSafeEpubMarkup(value: string, label: string): void {
-    if (/<!DOCTYPE\b/i.test(value) || /<!ENTITY\b/i.test(value)) {
+    if (/<!ENTITY\b/i.test(value) || /<!DOCTYPE\b[^>]*[\[\]]/i.test(value)) {
       throw new Error(`EPUB${label}不允许DTD或实体声明`);
+    }
+    const doctypes = value.match(/<!DOCTYPE\b[^>]*>/gi) ?? [];
+    if (doctypes.length === 0) return;
+    const doctype = doctypes[0] ?? '';
+    if (label !== '章节' || doctypes.length > 1 ||
+      !/^<!DOCTYPE\s+html(?:\s+(?:PUBLIC|SYSTEM)\s+["'][^"']+["'](?:\s+["'][^"']+["'])?)?\s*>$/i
+        .test(doctype)) {
+      throw new Error(`EPUB${label}包含不受支持的DTD声明`);
     }
   }
 

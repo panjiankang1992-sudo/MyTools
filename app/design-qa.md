@@ -126,3 +126,153 @@
 - Post-fix evidence: `mytools-media-polish-viewer-chrome2.jpeg`.
 
 final result: passed
+
+---
+
+# Reading Experience Polish Round 2 QA (2026-08-21)
+
+## Comparison target
+
+- Source visual truth: `/Users/pankang/.codex/generated_images/01a005a6-cb9a-7322-8c7e-a77c719a7245/exec-f7ca44cb-9779-44f3-9fc9-1bdd00b5eba5.png`.
+- Final emulator reading surface: `/Users/pankang/mycode/MyTools/app/build/design-qa-reading-experience/vm-reader-round2.jpeg`.
+- Final emulator reading settings: `/Users/pankang/mycode/MyTools/app/build/design-qa-reading-experience/vm-reader-settings-round2.jpeg`.
+- Final emulator catalog jump: `/Users/pankang/mycode/MyTools/app/build/design-qa-reading-experience/vm-reader-catalog-jump-rebuild.jpeg`.
+- Side-by-side comparison: `/Users/pankang/mycode/MyTools/app/build/design-qa-reading-experience/reader-round2-comparison.jpg`.
+
+## Findings and fixes
+
+- Plain-text paragraphs now use a consistent two-character first-line indent, while scene-break markers are centered and visually quieter.
+- Chapter metadata uses a compact `current/total` format; chapter titles remain larger and bold without an extra decorative rule competing with the text.
+- Reading settings add compact, comfortable, and large-text typography presets while retaining fine-grained size, line-height, paragraph-spacing, margin, brightness, theme, and system-font controls.
+- Text-selection offsets now match the rendered indented text instead of drifting by the inserted indentation.
+- Catalog chapter selection rebuilds the scroll container before anchoring the selected chapter, preventing a reused pixel offset from placing the reader in the middle of the target chapter.
+- The footer remains a single, compact line containing chapter, whole-book progress, and current/total page information.
+
+## Interaction verification
+
+- Emulator: remote book trial reading opened and rendered long-form content continuously with stable paragraph rhythm and the compact footer.
+- Emulator: center tap opened reader controls; the font action opened the settings sheet and displayed all three typography presets without overlap.
+- Emulator overwrite installation passed with the signed HAP.
+- Reader cross-chapter, pagination, progress-sync, ebook UI policy checks, ArkTS type check, signed packaging, and whitespace validation passed.
+- A physical device was not connected during this round, so installation was verified on the configured HarmonyOS emulator only.
+
+final result: passed
+
+---
+
+# Reading Experience Polish QA (2026-08-21)
+
+## Comparison target
+
+- Visual target: `/Users/pankang/.codex/generated_images/01a005a6-cb9a-7322-8c7e-a77c719a7245/exec-f7ca44cb-9779-44f3-9fc9-1bdd00b5eba5.png`.
+- Physical-device implementation: `/Users/pankang/mycode/MyTools/app/build/design-qa-reading-experience/reader-jump-final2.jpeg`.
+- Side-by-side comparison: `/Users/pankang/mycode/MyTools/app/build/design-qa-reading-experience/reader-comparison-final.jpg`.
+- Compact controls verification: `/Users/pankang/mycode/MyTools/app/build/design-qa-reading-experience/reader-controls-final.jpeg`.
+
+## Findings and fixes
+
+- Plain text chapters now render as independent paragraphs instead of one oversized text node. This prevents long native text nodes from truncating content and gives the selected line height and paragraph spacing a predictable visual rhythm.
+- Chapter boundaries now use a clear hierarchy: section position, bold chapter title, restrained accent rule, then body content. The implementation continues to respect the user's selected system theme font.
+- Empty prefetched source chapters no longer create large placeholder gaps in the continuous reading stream.
+- Hidden controls retain a single 22 vp status line. The status is compacted to chapter name, whole-book progress, and current/total page estimate without wrapping.
+- Visible reader controls use a shorter top bar, progress region, slider row, and action row so more text remains readable while controls are open.
+- Catalog selection now anchors the selected chapter at the top of the reading surface after layout settles, closes the catalog and reader controls, and preserves continuous scrolling into adjacent chapters.
+
+## Interaction verification
+
+- Physical device: selected chapter 5 from the side catalog and verified that the chapter metadata, full title, accent rule, and first paragraph start at the top of the reader.
+- Physical device: continuous vertical swipes move by the actual gesture distance; paragraph spacing remains stable and the one-line status updates without opening controls.
+- Physical device: center tap opens the compact controls; catalog, night mode, speech, font settings, and more actions remain reachable.
+- Emulator and physical device overwrite installation succeeded.
+- Reader cross-chapter, pagination, progress-sync, UI policy checks, ArkTS type check, and signed HAP packaging passed.
+
+final result: passed
+
+---
+
+# Reading Search and Reader Polish QA (2026-08-21)
+
+## Comparison target
+
+- User issue reference: `/Users/pankang/Pictures/Screenshot_2026-08-21T141435.png`.
+- Emulator implementation: `/Users/pankang/mycode/MyTools/app/build/design-qa-reading/search-mode-final.jpeg`.
+- Side-by-side comparison: `/Users/pankang/mycode/MyTools/app/build/design-qa-reading/search-mode-comparison.jpg`.
+- Physical-device reader prompt: `/Users/pankang/mycode/MyTools/app/build/design-qa-reading/reader-shelf-prompt.jpeg`.
+- Physical-device local reader: `/Users/pankang/mycode/MyTools/app/build/design-qa-reading/local-reader-final.jpeg`.
+
+## Findings and fixes
+
+- The search mode is now a compact, labelled control inside the unified search field. Its open menu uses a narrow three-row hierarchy with descriptions and a native selected checkmark instead of three full-width pills.
+- The search action is now a native magnifying-glass icon in a 42 vp rounded-square target. The loading state replaces it with a similarly sized stop action, preventing layout movement.
+- Chapter headings use a larger bold type scale in continuous and paged reader layouts.
+- Trial reading from a network source displays a focused add-to-shelf confirmation on exit, while the secondary action still permits leaving without changing the shelf.
+- Asynchronous source verification preserves an existing, richer introduction instead of replacing it with empty, placeholder, or shorter metadata.
+- Remote books with real progress sort by progress update time descending; unread entries remain after the viewed group.
+- Local TXT chapters are divided into bounded render blocks so a single oversized native Text component cannot truncate the remaining book content.
+
+## Interaction verification
+
+- Emulator: mode control opens, all three options are visible and non-overlapping, search action remains aligned, and the page stays top-aligned.
+- Physical device: fuzzy search returned live results, result selection opened a verified catalog, and the introduction remained visible after asynchronous catalog validation.
+- Physical device: trial reading loaded chapter content and the enlarged chapter title, then system Back displayed the add-to-shelf confirmation; choosing `暂不加入` returned to the existing result list.
+- Physical device: remote progress prefetch reordered viewed books above unread books.
+- ArkTS type check, signed HAP packaging, overwrite installation, cold start, and policy checks pass.
+
+final result: passed
+
+---
+
+# Book Source Management Design QA
+
+## Comparison target
+
+- Source visual truth: `/Users/pankang/.codex/generated_images/01a005a6-cb9a-7322-8c7e-a77c719a7245/exec-cec53524-0809-491d-b4c5-344b2ad014e7.png`.
+- Final emulator implementation: `/Users/pankang/mycode/MyTools/app/build/design-qa-book-source/book-source-tools.jpeg`.
+- Source pixels: `853 x 1844`.
+- Implementation pixels and viewport: `1320 x 2856`, captured from the DevEco HarmonyOS emulator with the system status bar and gesture area retained.
+- Density normalization: the source was scaled to `1320 x 2856` with Lanczos filtering; the implementation remained at native capture size. The two normalized views were joined side by side without stretching the implementation.
+- State: authenticated ebook page, one enabled live source, source action row expanded, add-tools bottom sheet open, light theme.
+
+## Evidence
+
+- Full-view comparison: `/Users/pankang/mycode/MyTools/app/build/design-qa-book-source/book-source-full-comparison.png`.
+- Focused header/list comparison: `/Users/pankang/mycode/MyTools/app/build/design-qa-book-source/book-source-header-comparison.png`.
+- Focused add-tools comparison: `/Users/pankang/mycode/MyTools/app/build/design-qa-book-source/book-source-sheet-comparison.png`.
+- Closed management page: `/Users/pankang/mycode/MyTools/app/build/design-qa-book-source/book-source-main.jpeg`.
+- Expanded source actions: `/Users/pankang/mycode/MyTools/app/build/design-qa-book-source/book-source-expanded.jpeg`.
+- Filter interaction result: `/Users/pankang/mycode/MyTools/app/build/design-qa-book-source/book-source-filter.jpeg`.
+
+## Findings
+
+- No actionable P0, P1, or P2 mismatch remains in the verified emulator state.
+- Typography uses HarmonyOS Sans with the same title, subtitle, source-name, metadata, and action hierarchy as the source visual. Long search copy truncates safely within the live device width.
+- Spacing and layout preserve the fixed header, search/filter row, grouped source surface, compact expanded actions, and bottom-sheet hierarchy. Content remains top-aligned when the source list is short.
+- Colors and visual tokens use the existing MyTools neutral background, white surfaces, primary blue, subtle lavender controls, dividers, and semantic red delete action.
+- Icons use native HarmonyOS system symbols. The generated mock's decorative filter and source-type icons are represented by the closest available native symbols rather than handcrafted assets.
+- Copy and content retain the live product actions: source discovery, JSON import, health checking, secure credentials, enable/disable, and delete. The source mock contains a second sample row, while the implementation truthfully displays the one source currently present in app state.
+- The tools sheet is slightly taller than the source mock because the native device text and controls use larger accessible touch targets; all actions and the URL field remain visible without scrolling.
+
+## Interaction verification
+
+- The top-right add button opens the tools sheet.
+- Tapping the dimmed backdrop closes the sheet.
+- The source chevron expands and collapses the action row without triggering another action.
+- The compact filter advances from `全部` to `已启用` and updates the list.
+- Enable/disable was not toggled during visual QA to avoid mutating the live source configuration; its existing handler remains wired and is covered by the policy/build checks.
+- Import, health check, discovery, credentials, and delete destructive/network effects were not executed during visual QA; their existing handlers remain wired and are asserted by source policy tests.
+
+## Comparison history
+
+- First normalized comparison found no actionable P0/P1/P2 issue, so no visual fix iteration was required after the emulator capture.
+- The implementation intentionally uses live source count and native HarmonyOS symbols instead of the mock's fabricated second source and non-system illustrative icons.
+
+## Implementation checklist
+
+- [x] Keep page header, search, filter, and list fixed to a top-down hierarchy.
+- [x] Move secondary creation and maintenance operations into the top-right add sheet.
+- [x] Use a compact source row with icon, metadata, state, native switch, and disclosure action.
+- [x] Reveal discovery, credentials, and delete only for the selected source.
+- [x] Preserve the existing source business handlers and empty/filter states.
+- [x] Pass ArkTS type checking, policy tests, signed HAP packaging, emulator installation, and visual comparison.
+
+final result: passed

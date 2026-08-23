@@ -73,7 +73,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/tokens/validate").permitAll()
                         .requestMatchers("/api/market/files/**").permitAll()
                         .requestMatchers("/market-files/**").permitAll()
-                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/public/connectivity/challenge").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/app/v1/media/tickets/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/app/v1/local-media/tickets/*").permitAll()

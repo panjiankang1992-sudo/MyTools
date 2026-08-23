@@ -33,7 +33,7 @@ class RcloneRcGatewayTest {
                 "ModTime":"2026-08-15T10:20:30Z","IsDir":true,"OrigID":"folder-1"}]}
                 """));
         server.createContext("/operations/size", exchange -> respond(exchange, "{\"count\":12,\"bytes\":4096}"));
-        server.createContext("/movies/a.mp4", exchange -> respondBytes(exchange,
+        server.createContext("/family/movies/a.mp4", exchange -> respondBytes(exchange,
                 "segment".getBytes(StandardCharsets.UTF_8)));
         server.start();
         gateway = new RcloneRcGateway(objectMapper);

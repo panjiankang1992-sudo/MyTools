@@ -8,11 +8,11 @@ export class BookSourceSnapshotNormalizer {
   private readonly importer = new BookSourceImporter();
 
   /**
-   * 最多恢复500个合法来源，并安全继承有界健康状态。
+   * 恢复后端允许的合法来源，并安全继承有界健康状态。
    */
   normalize(values: Object[]): BookSource[] {
     const sources = new Map<string, BookSource>();
-    values.slice(0, 500).forEach((value: Object) => {
+    values.slice(0, 5000).forEach((value: Object) => {
       if (value === null || typeof value !== 'object' || Array.isArray(value)) return;
       try {
         const imported = this.importer.importJson(JSON.stringify(value)).sources[0];

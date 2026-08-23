@@ -47,6 +47,7 @@ public class VideoStoryboardService {
         Files.createDirectories(stagingDirectory);
         clearGeneratedFiles(stagingDirectory);
 
+        List<Path> stagedFiles = new ArrayList<>();
         List<Path> generated = new ArrayList<>();
         try {
             for (int index = 1; index <= SCREENSHOT_COUNT; index++) {
@@ -67,8 +68,13 @@ public class VideoStoryboardService {
                             plannedTimestampMs + Math.round(durationMs * (attempt + 1) * 0.03D));
                 }
                 Path target = targetDirectory.resolve(fileName);
-                fileWriter.copy(temporary, target);
+                stagedFiles.add(temporary);
                 generated.add(target);
+            }
+            // 十二张新截图全部成功后再替换旧故事板，避免失败重试留下混合时间轴或多余文件。
+            clearGeneratedFiles(targetDirectory);
+            for (int index = 0; index < stagedFiles.size(); index++) {
+                fileWriter.copy(stagedFiles.get(index), generated.get(index));
             }
             fileWriter.copy(generated.getFirst(), packageDirectory.resolve("thumbnail.jpg"));
             return List.copyOf(generated);

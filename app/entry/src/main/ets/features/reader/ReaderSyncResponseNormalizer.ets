@@ -40,6 +40,16 @@ export class ReaderSyncResponseNormalizer {
     return { accepted: accepted, progress: progress };
   }
 
+  /** 解析按图书标识查询的单条阅读进度。 */
+  progressOne(value: Object | undefined, localBookId: string): ReadingProgress | undefined {
+    if (value === undefined || value === null) return undefined;
+    const record = this.record(value);
+    if (record === undefined) throw new Error('单本阅读进度响应无效');
+    const progress = this.progress(record, localBookId);
+    if (progress === undefined) throw new Error('单本阅读进度响应无效');
+    return progress;
+  }
+
   /** 解析书源快照列表，损坏项逐条隔离并按来源地址去重。 */
   sourceList(value: Object | undefined): BookSourceSyncItem[] {
     if (!Array.isArray(value)) return [];
@@ -130,7 +140,7 @@ export class ReaderSyncResponseNormalizer {
 
   private source(value: Record<string, Object>): BookSourceSyncItem | undefined {
     const sourceUrl = this.text(value['sourceUrl'], 4096, false);
-    const snapshotJson = this.text(value['snapshotJson'], 131072, false, true);
+    const snapshotJson = this.text(value['snapshotJson'], 524288, false, true);
     const updatedAt = this.optionalInteger(value['clientUpdatedAt']);
     const revision = this.optionalInteger(value['revision']);
     const deleted = value['deleted'];

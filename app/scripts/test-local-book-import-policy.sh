@@ -18,6 +18,9 @@ node "$APP_DIR/tests/local_book_import_policy_test.cjs" "$TEST_DIR/output/LocalB
 
 grep -Fq "this.importPolicy.normalize(uris)" "$PICKER"
 grep -Fq "options.maxSelectNumber = 50" "$PICKER"
+grep -Fq 'fileShare.OperationMode.READ_MODE | fileShare.OperationMode.WRITE_MODE' "$PICKER"
+grep -Fq 'async delete(uri: string): Promise<void>' "$PICKER"
+grep -Fq 'await this.localBookPicker.delete(book.resourceUri);' "$PAGE"
 grep -Fq "if (!merged.has(book.id)) addedCount++" "$PAGE"
 grep -Fq "所选图书已在书架中" "$PAGE"
 

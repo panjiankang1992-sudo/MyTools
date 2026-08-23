@@ -46,8 +46,9 @@ export class AuthorizedApiClient {
   /**
    * 发起带 JSON 请求体的 POST 请求。
    */
-  async postJson(path: string, body: Object): Promise<ApiEnvelope> {
-    return this.execute(path, http.RequestMethod.POST, JSON.stringify(body));
+  async postJson(path: string, body: Object,
+    cancellation?: DownloadCancellationToken): Promise<ApiEnvelope> {
+    return this.execute(path, http.RequestMethod.POST, JSON.stringify(body), cancellation);
   }
 
   /**
@@ -318,7 +319,7 @@ export class AuthorizedApiClient {
       });
       this.throwIfCancelled(cancellation);
       if (responseError.length > 0) throw new Error(responseError);
-      const text = typeof response.result === 'string' ? response.result : `${response.result}`;
+      const text = this.ResponseText(response.result);
       const bytes = new util.TextEncoder().encodeInto(text).length;
       return {
         status: response.responseCode,
@@ -334,5 +335,14 @@ export class AuthorizedApiClient {
       request.off('headersReceive');
       request.destroy();
     }
+  }
+
+  /** 统一不同HarmonyOS版本返回的字符串、JSON对象和二进制响应。 */
+  private ResponseText(result: string | Object | ArrayBuffer): string {
+    if (typeof result === 'string') return result;
+    if (result instanceof ArrayBuffer) {
+      return util.TextDecoder.create('utf-8', { fatal: true }).decodeToString(new Uint8Array(result));
+    }
+    return JSON.stringify(result);
   }
 }

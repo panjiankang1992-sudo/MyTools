@@ -1,0 +1,10 @@
+[Unit]
+Description=MyTools resource storage remount check
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/mytools-resource-remount
+
+[Install]
+WantedBy=multi-user.target

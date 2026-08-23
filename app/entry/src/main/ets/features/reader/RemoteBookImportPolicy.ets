@@ -12,6 +12,7 @@ export interface RemoteBookCandidate {
   tags: string[];
   size: number;
   lastModified: string;
+  cacheVersion: string;
 }
 
 /**
@@ -48,8 +49,14 @@ export class RemoteBookImportPolicy {
       identityMaterial: `remote:v1\u0000${sourceId}\u0000${path}`,
       tags: metadata.tags,
       size: item.size,
-      lastModified: this.text(item.lastModified, 256, true, '远程图书更新时间')
+      lastModified: this.text(item.lastModified, 256, true, '远程图书更新时间'),
+      cacheVersion: this.cacheVersion(item.bookFileHash)
     };
+  }
+
+  private cacheVersion(value: string | undefined): string {
+    if (value === undefined || !/^[a-fA-F0-9]{16,128}$/.test(value)) return '';
+    return value.toLowerCase();
   }
 
   private path(value: string): string {

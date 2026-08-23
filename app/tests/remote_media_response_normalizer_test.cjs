@@ -118,6 +118,22 @@ const localFilesWithoutTotal = normalizer.normalizeLocalFiles({ list: [
 ] }, '/opt/media');
 equal(localFilesWithoutTotal.total, undefined, 'Missing server total should remain unknown for page-size fallback');
 
+const ebookCatalog = normalizer.normalizeEbookCatalog({ total: 1, page: 1, pageSize: 40, list: [
+  { localFileId: 101, filename: 'download_hash.txt', filePath: '/opt/extend/resource/ebook/download_hash.txt',
+    fileSize: 2048, extension: 'txt', title: '示例小说', author: '作者', description: '简介',
+    category: '奇幻', completionStatus: 'completed', chapterCount: 12, wordCount: 34567,
+    fileHash: '0123456789abcdef0123456789abcdef', metadataStatus: 'READY', coverAvailable: true,
+    updateTime: '2026-08-17T10:00:00' }
+] }, 1, 40);
+equal(ebookCatalog.items.length, 1, 'Ebook catalog item count');
+equal(ebookCatalog.items[0].path, '/local/101', 'Ebook catalog opaque local path');
+equal(ebookCatalog.items[0].bookTitle, '示例小说', 'Ebook catalog parsed title');
+equal(ebookCatalog.items[0].bookAuthor, '作者', 'Ebook catalog parsed author');
+equal(ebookCatalog.items[0].bookChapterCount, 12, 'Ebook catalog chapter count');
+equal(ebookCatalog.items[0].bookFileHash, '0123456789abcdef0123456789abcdef', 'Ebook cache version');
+equal(ebookCatalog.items[0].bookCoverAvailable, true, 'Ebook catalog cover availability');
+equal(ebookCatalog.items[0].contentType, 'text/plain', 'Ebook content type');
+
 let rejected = false;
 try {
   normalizer.normalizePlayback({ ticket, streamPath: `/api/app/v1/media/tickets/${ticket}extra`,

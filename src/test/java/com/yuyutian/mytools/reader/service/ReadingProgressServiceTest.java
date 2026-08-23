@@ -1,5 +1,6 @@
 package com.yuyutian.mytools.reader.service;
 
+import com.yuyutian.mytools.common.BusinessException;
 import com.yuyutian.mytools.reader.mapper.ReadingProgressMapper;
 import com.yuyutian.mytools.reader.model.ReadingProgress;
 import com.yuyutian.mytools.reader.model.ReadingProgressSyncResponse;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -70,6 +72,30 @@ class ReadingProgressServiceTest {
 
         assertTrue(response.isAccepted());
         assertTrue(response.getProgress().isDeleted());
+    }
+
+    /**
+     * 验证远程目录可按稳定哈希恢复单本进度。
+     */
+    @Test
+    void shouldFindProgressByStableHash() {
+        ReadingProgressMapper mapper = mock(ReadingProgressMapper.class);
+        ReadingProgress stored = progress(5L);
+        when(mapper.findByUserIdAndBookId(7L, bookKey())).thenReturn(stored);
+
+        ReadingProgress result = new ReadingProgressService(mapper).find(7L, bookKey());
+
+        assertSame(stored, result);
+    }
+
+    /**
+     * 验证非法图书标识不会进入数据库查询。
+     */
+    @Test
+    void shouldRejectInvalidProgressHash() {
+        ReadingProgressMapper mapper = mock(ReadingProgressMapper.class);
+
+        assertThrows(BusinessException.class, () -> new ReadingProgressService(mapper).find(7L, "remote-path"));
     }
 
     private SaveReadingProgressRequest request(Long revision) {

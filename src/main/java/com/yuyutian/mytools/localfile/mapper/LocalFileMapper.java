@@ -48,7 +48,7 @@ public interface LocalFileMapper {
 
     /** 查询等待成人内容识别的资源。 */
     @Select("SELECT * FROM local_file WHERE deleted = 0 AND adult_status IN (0, 2) " +
-            "ORDER BY update_time ASC, id ASC LIMIT #{limit}")
+            "ORDER BY adult_status ASC, update_time ASC, id ASC LIMIT #{limit}")
     List<LocalFile> selectAdultClassificationCandidates(@Param("limit") int limit);
 
     /** 保存成人内容识别结果。 */
@@ -97,6 +97,7 @@ public interface LocalFileMapper {
             "<if test='fileType == \"VIDEO\"'>AND lf.mime_type LIKE 'video/%' </if>" +
             "<if test='fileType == \"AUDIO\"'>AND lf.mime_type LIKE 'audio/%' </if>" +
             "<if test='fileType == \"MEDIA\"'>AND (lf.mime_type LIKE 'image/%' OR lf.mime_type LIKE 'video/%' OR lf.mime_type LIKE 'audio/%') </if>" +
+            "<if test='excludeAdult'>AND NOT (lf.adult_status = 1 AND lf.adult_content = 1) </if>" +
             "<if test='keyword != null and keyword != \"\"'>AND (" +
             "LOCATE(LOWER(#{keyword}), LOWER(lf.filename)) > 0 OR " +
             "LOCATE(LOWER(#{keyword}), LOWER(lf.file_path)) > 0 OR " +
@@ -116,6 +117,7 @@ public interface LocalFileMapper {
                                           @Param("matchAllTags") boolean matchAllTags,
                                           @Param("fileType") String fileType,
                                           @Param("keyword") String keyword,
+                                          @Param("excludeAdult") boolean excludeAdult,
                                           @Param("offset") long offset,
                                           @Param("limit") long limit);
 
@@ -136,6 +138,7 @@ public interface LocalFileMapper {
             "<if test='fileType == \"VIDEO\"'>AND lf.mime_type LIKE 'video/%' </if>" +
             "<if test='fileType == \"AUDIO\"'>AND lf.mime_type LIKE 'audio/%' </if>" +
             "<if test='fileType == \"MEDIA\"'>AND (lf.mime_type LIKE 'image/%' OR lf.mime_type LIKE 'video/%' OR lf.mime_type LIKE 'audio/%') </if>" +
+            "<if test='excludeAdult'>AND NOT (lf.adult_status = 1 AND lf.adult_content = 1) </if>" +
             "<if test='keyword != null and keyword != \"\"'>AND (" +
             "LOCATE(LOWER(#{keyword}), LOWER(lf.filename)) > 0 OR " +
             "LOCATE(LOWER(#{keyword}), LOWER(lf.file_path)) > 0 OR " +
@@ -148,7 +151,8 @@ public interface LocalFileMapper {
                           @Param("tagCount") int tagCount,
                           @Param("matchAllTags") boolean matchAllTags,
                           @Param("fileType") String fileType,
-                          @Param("keyword") String keyword);
+                          @Param("keyword") String keyword,
+                          @Param("excludeAdult") boolean excludeAdult);
 
     /**
      * 查询目录下全部文件路径，用于生成目录筛选项。
@@ -219,11 +223,27 @@ public interface LocalFileMapper {
     /**
      * 更新文件重命名后的名称和路径。
      */
-    @Update("UPDATE local_file SET filename = #{filename}, file_path = #{filePath}, " +
-            "update_time = #{updateTime} WHERE id = #{id}")
+    @Update("UPDATE local_file SET filename = #{filename}, " +
+            "thumbnail_path = CASE WHEN mime_type LIKE 'image/%' OR thumbnail_path = file_path " +
+            "THEN #{filePath} ELSE thumbnail_path END, " +
+            "file_path = #{filePath}, update_time = #{updateTime} WHERE id = #{id}")
     void updateFileLocation(@Param("id") Long id, @Param("filename") String filename,
                             @Param("filePath") String filePath,
                             @Param("updateTime") java.time.LocalDateTime updateTime);
+
+    /**
+     * 批量替换目录重命名后的文件路径前缀。
+     */
+    @Update("UPDATE local_file SET " +
+            "file_path = CONCAT(#{newPrefix}, SUBSTRING(file_path, CHAR_LENGTH(#{oldPrefix}) + 1)), " +
+            "thumbnail_path = CASE WHEN thumbnail_path = #{oldPrefix} " +
+            "OR thumbnail_path LIKE CONCAT(#{oldPrefix}, '/%') " +
+            "THEN CONCAT(#{newPrefix}, SUBSTRING(thumbnail_path, CHAR_LENGTH(#{oldPrefix}) + 1)) " +
+            "ELSE thumbnail_path END, update_time = #{updateTime} " +
+            "WHERE deleted = 0 AND (file_path = #{oldPrefix} OR file_path LIKE CONCAT(#{oldPrefix}, '/%'))")
+    int replaceDirectoryPrefix(@Param("oldPrefix") String oldPrefix,
+                               @Param("newPrefix") String newPrefix,
+                               @Param("updateTime") java.time.LocalDateTime updateTime);
 
     /**
      * 更新写入文件名元数据后的文件内容标识。
@@ -265,4 +285,54 @@ public interface LocalFileMapper {
      */
     @Delete("DELETE FROM local_file WHERE id = #{id}")
     void deleteById(Long id);
+
+    /**
+     * 清除文件对应的媒体标签产物记录。
+     *
+     * @param fileIds 文件ID集合
+     */
+    @Delete("<script>DELETE FROM media_tag_artifact WHERE local_file_id IN " +
+            "<foreach collection='fileIds' item='fileId' open='(' separator=',' close=')'>#{fileId}</foreach>" +
+            "</script>")
+    void deleteMediaTagArtifactsByFileIds(@Param("fileIds") List<Long> fileIds);
+
+    /**
+     * 清除文件对应的媒体资源关联记录。
+     *
+     * @param fileIds 文件ID集合
+     */
+    @Delete("<script>DELETE FROM media_package_asset WHERE local_file_id IN " +
+            "<foreach collection='fileIds' item='fileId' open='(' separator=',' close=')'>#{fileId}</foreach>" +
+            "</script>")
+    void deleteMediaPackageAssetsByFileIds(@Param("fileIds") List<Long> fileIds);
+
+    /**
+     * 清除文件对应的维护日志。
+     *
+     * @param fileIds 文件ID集合
+     */
+    @Delete("<script>DELETE FROM file_maintenance_log WHERE file_id IN " +
+            "<foreach collection='fileIds' item='fileId' open='(' separator=',' close=')'>#{fileId}</foreach>" +
+            "</script>")
+    void deleteMaintenanceLogsByFileIds(@Param("fileIds") List<Long> fileIds);
+
+    /**
+     * 解除媒体资源包对待删除文件的主文件引用。
+     *
+     * @param fileIds 文件ID集合
+     */
+    @Update("<script>UPDATE media_package SET primary_file_id = NULL WHERE primary_file_id IN " +
+            "<foreach collection='fileIds' item='fileId' open='(' separator=',' close=')'>#{fileId}</foreach>" +
+            "</script>")
+    void clearMediaPackagePrimaryFileIds(@Param("fileIds") List<Long> fileIds);
+
+    /**
+     * 批量彻底删除文件索引记录。
+     *
+     * @param fileIds 文件ID集合
+     */
+    @Delete("<script>DELETE FROM local_file WHERE id IN " +
+            "<foreach collection='fileIds' item='fileId' open='(' separator=',' close=')'>#{fileId}</foreach>" +
+            "</script>")
+    void deleteByIds(@Param("fileIds") List<Long> fileIds);
 }

@@ -1,5 +1,7 @@
 package com.yuyutian.mytools.reader.service;
 
+import com.yuyutian.mytools.common.BusinessException;
+import com.yuyutian.mytools.common.ErrorCode;
 import com.yuyutian.mytools.reader.mapper.ReadingProgressMapper;
 import com.yuyutian.mytools.reader.model.ReadingProgress;
 import com.yuyutian.mytools.reader.model.ReadingProgressSyncResponse;
@@ -27,6 +29,20 @@ public class ReadingProgressService {
      */
     public List<ReadingProgress> list(Long userId) {
         return mapper.findAllByUserId(userId);
+    }
+
+    /**
+     * 按稳定哈希读取单本书进度，用于远程目录首次打开时恢复跨设备位置。
+     *
+     * @param userId 用户ID
+     * @param bookId 图书稳定哈希
+     * @return 阅读进度，不存在时返回空
+     */
+    public ReadingProgress find(Long userId, String bookId) {
+        if (bookId == null || !bookId.matches("sha256:[a-f0-9]{64}")) {
+            throw new BusinessException(ErrorCode.READER_006);
+        }
+        return mapper.findByUserIdAndBookId(userId, bookId);
     }
 
     /**

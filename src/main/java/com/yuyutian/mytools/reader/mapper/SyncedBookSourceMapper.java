@@ -22,7 +22,7 @@ public interface SyncedBookSourceMapper {
     /** 查询用户书源及墓碑。 @param userId 用户ID @return 书源列表 */
     @Select("SELECT user_id AS userId, sync_key AS syncKey, source_url AS sourceUrl, snapshot_json AS snapshotJson, "
             + "client_updated_at AS clientUpdatedAt, server_updated_at AS serverUpdatedAt, deleted, revision "
-            + "FROM t_synced_book_source WHERE user_id = #{userId} ORDER BY server_updated_at LIMIT 500")
+            + "FROM t_synced_book_source WHERE user_id = #{userId} ORDER BY server_updated_at")
     List<SyncedBookSource> findAllByUserId(Long userId);
 
     /** 查询单个书源。 @param userId 用户ID @param syncKey 摘要键 @return 书源记录 */
@@ -48,4 +48,10 @@ public interface SyncedBookSourceMapper {
             + "AND sync_key = #{source.syncKey} AND revision = #{expectedRevision}")
     int updateIfRevisionMatches(@Param("source") SyncedBookSource source,
                                 @Param("expectedRevision") Long expectedRevision);
+
+    /** 后端发现任务更新已有书源。 @param source 书源记录 @return 影响行数 */
+    @Update("UPDATE t_synced_book_source SET source_url = #{sourceUrl}, snapshot_json = #{snapshotJson}, "
+            + "client_updated_at = #{clientUpdatedAt}, server_updated_at = #{serverUpdatedAt}, deleted = FALSE, "
+            + "revision = revision + 1 WHERE user_id = #{userId} AND sync_key = #{syncKey}")
+    int updateDiscovered(SyncedBookSource source);
 }

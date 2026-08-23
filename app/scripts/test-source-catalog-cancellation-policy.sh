@@ -9,7 +9,7 @@ grep -Fq 'loadCatalog(source: BookSource, bookUrl: string,' "$engine"
 grep -Fq 'const detail = await this.fetch(source, bookUrl, cancellation);' "$engine"
 grep -Fq 'this.urlResolver.resolveRequest(detail.url, rawTocUrl), cancellation);' "$engine"
 grep -Fq 'private activeSourceCatalogCancellation?: DownloadCancellationToken = undefined;' "$page"
-grep -Fq 'loadCatalog(source, book.resourceUri, cancellation)' "$page"
+grep -Fq '.catalog(source.bookSourceUrl, book.resourceUri)' "$page"
 grep -Fq 'if (cancellation.isCancelled()) return;' "$page"
 
 cancel_count="$(grep -Fc 'this.activeSourceCatalogCancellation?.cancel();' "$page")"

@@ -62,7 +62,8 @@ class LocalFileServiceThumbnailTest {
 
         LocalFileService service = new LocalFileService(fileMapper, mock(FileTagMapper.class), directoryMapper,
                 mock(TaggerService.class),
-                mock(com.yuyutian.mytools.media.service.importer.MediaPackageTagImportService.class));
+                mock(com.yuyutian.mytools.media.service.importer.MediaPackageTagImportService.class),
+                mock(ResourceStorageGuard.class));
         ReflectionTestUtils.setField(service, "scanPath", mediaRoot.toString());
         ReflectionTestUtils.setField(service, "thumbnailPath", thumbnailRoot.toString());
 
