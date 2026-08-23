@@ -22,6 +22,8 @@ Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 
 
 `POST /api/internal/v1/storage/operations` 当前开放已落地的 `SCAN_ROOT`。它创建 `storage_scan_root` 调度实例，Executor 广度遍历远端目录并以最多 500 项的批次幂等回写 `storage_operation_item`；对象总量受 `maximumObjects` 硬限制。成功、失败、超时和取消都会回写稳定终态，任务参数只携带 Provider UUID，不携带 remote 键或密钥。
 
+内部调用方可通过 `POST /api/internal/v1/storage/access-tickets` 为已存在的受管本地对象创建最长一小时的单用途下载票据，并通过撤销接口提前失效。数据库仅保存 Token SHA-256，原始 Token 只出现在创建响应的 `accessUrl` 中；公共下载端点采用条件更新原子消费，并发请求最多一个成功。该能力默认不替换任何旧下载 URL。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。

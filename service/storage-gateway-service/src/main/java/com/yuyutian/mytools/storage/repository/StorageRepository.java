@@ -5,6 +5,7 @@ import com.yuyutian.mytools.storage.model.StorageProvider;
 import com.yuyutian.mytools.storage.model.StorageOperation;
 import com.yuyutian.mytools.storage.model.RemoteObjectView;
 import com.yuyutian.mytools.storage.model.ErrorCode;
+import com.yuyutian.mytools.storage.model.AccessTicketRecord;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -139,6 +140,74 @@ public class StorageRepository {
      */
     public Optional<StorageOperation> findOperationById(UUID id) {
         return queryOperation("id = ?", id.toString());
+    }
+
+    /**
+     * 新增只保存摘要的访问票据。
+     *
+     * @param ticket 票据
+     */
+    public void insertAccessTicket(AccessTicketRecord ticket) {
+        jdbcTemplate.update("""
+                INSERT INTO storage_access_ticket
+                    (id, token_sha256, root_id, relative_path, permission, expires_at,
+                     consumed_at, revoked_at, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, NULL, NULL, ?)
+                """, ticket.id().toString(), ticket.tokenSha256(), ticket.rootId().toString(),
+                ticket.relativePath(), ticket.permission(), Timestamp.from(ticket.expiresAt()),
+                Timestamp.from(ticket.createdAt()));
+    }
+
+    /**
+     * 原子消费一个尚未过期、撤销或使用的票据。
+     *
+     * @param tokenSha256 Token 摘要
+     * @param now 当前时间
+     * @return 已消费票据
+     */
+    @Transactional
+    public Optional<AccessTicketRecord> consumeAccessTicket(String tokenSha256, Instant now) {
+        int updated = jdbcTemplate.update("""
+                UPDATE storage_access_ticket SET consumed_at = ?
+                WHERE token_sha256 = ? AND consumed_at IS NULL AND revoked_at IS NULL AND expires_at > ?
+                """, Timestamp.from(now), tokenSha256, Timestamp.from(now));
+        if (updated != 1) {
+            return Optional.empty();
+        }
+        return queryAccessTicket("sat.token_sha256 = ?", tokenSha256);
+    }
+
+    /**
+     * 撤销一个尚未消费的访问票据。
+     *
+     * @param id 票据标识
+     * @return 是否找到且处于可撤销状态
+     */
+    public boolean revokeAccessTicket(UUID id) {
+        return jdbcTemplate.update("""
+                UPDATE storage_access_ticket SET revoked_at = ?
+                WHERE id = ? AND consumed_at IS NULL AND revoked_at IS NULL
+                """, Timestamp.from(Instant.now()), id.toString()) == 1;
+    }
+
+    /**
+     * 查询访问票据是否存在。
+     *
+     * @param id 票据标识
+     * @return 票据
+     */
+    public Optional<AccessTicketRecord> findAccessTicket(UUID id) {
+        return queryAccessTicket("sat.id = ?", id.toString());
+    }
+
+    /**
+     * 按 Token 摘要查询访问票据。
+     *
+     * @param tokenSha256 Token 摘要
+     * @return 票据
+     */
+    public Optional<AccessTicketRecord> findAccessTicketByHash(String tokenSha256) {
+        return queryAccessTicket("sat.token_sha256 = ?", tokenSha256);
     }
 
     /**
@@ -341,6 +410,22 @@ public class StorageRepository {
                 && java.util.Objects.equals(item.modifiedAt() == null ? null : normalizeInstant(item.modifiedAt()),
                 modified == null ? null : normalizeInstant(modified.toInstant()))
                 && java.util.Objects.equals(item.contentSha256(), existing.get("content_sha256"));
+    }
+
+    private Optional<AccessTicketRecord> queryAccessTicket(String condition, Object argument) {
+        return jdbcTemplate.query("""
+                SELECT sat.*, sr.name AS root_name
+                FROM storage_access_ticket sat JOIN storage_root sr ON sr.id = sat.root_id
+                WHERE """ + " " + condition, (resultSet, rowNumber) -> new AccessTicketRecord(
+                UUID.fromString(resultSet.getString("id")), resultSet.getString("token_sha256"),
+                UUID.fromString(resultSet.getString("root_id")), resultSet.getString("root_name"),
+                resultSet.getString("relative_path"), resultSet.getString("permission"),
+                resultSet.getTimestamp("expires_at").toInstant(),
+                resultSet.getTimestamp("consumed_at") == null ? null
+                        : resultSet.getTimestamp("consumed_at").toInstant(),
+                resultSet.getTimestamp("revoked_at") == null ? null
+                        : resultSet.getTimestamp("revoked_at").toInstant(),
+                resultSet.getTimestamp("created_at").toInstant()), argument).stream().findFirst();
     }
 
     private Instant normalizeInstant(Instant value) {
