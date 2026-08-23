@@ -23,6 +23,7 @@ import java.util.Set;
  * @param capabilities 节点能力
  * @param labels 节点标签
  * @param clusterNames 节点自动加入的集群名称
+ * @param scriptEnvironments 按脚本包隔离的节点级环境变量
  */
 @Validated
 @ConfigurationProperties(prefix = "executor")
@@ -37,6 +38,7 @@ public record ExecutorProperties(
         @Min(1) int maxConcurrentTasks,
         Map<String, Object> capabilities,
         Map<String, Object> labels,
-        Set<String> clusterNames
+        Set<String> clusterNames,
+        Map<String, Map<String, String>> scriptEnvironments
 ) {
 }

@@ -178,16 +178,19 @@ public class TaskExecutionWorker {
         writeLeaseToken(task, leaseTokenFile);
         Path entrypoint = safeEntrypoint(step);
         List<String> command = buildCommand(entrypoint, step.argumentsTemplate(), task.parameters());
-        Map<String, String> environment = Map.of(
-                "PATH", "/usr/local/bin:/usr/bin:/bin",
-                "LANG", "C.UTF-8",
-                "TASK_API_URL", normalizedSchedulerUrl(),
-                "TASK_EXECUTION_ID", task.executionId().toString(),
-                "TASK_CONTEXT_FILE", contextFile.toString(),
-                "TASK_RESULT_FILE", resultFile.toString(),
-                "TASK_LEASE_TOKEN_FILE", leaseTokenFile.toString(),
-                "TASK_WORK_DIR", workingDirectory.toString()
-        );
+        Map<String, String> environment = new LinkedHashMap<>();
+        if (properties.scriptEnvironments() != null) {
+            environment.putAll(properties.scriptEnvironments().getOrDefault(step.scriptPackage(), Map.of()));
+        }
+        // Executor 保留变量覆盖节点配置，避免 Secret 配置伪造任务身份或结果路径。
+        environment.put("PATH", "/usr/local/bin:/usr/bin:/bin");
+        environment.put("LANG", "C.UTF-8");
+        environment.put("TASK_API_URL", normalizedSchedulerUrl());
+        environment.put("TASK_EXECUTION_ID", task.executionId().toString());
+        environment.put("TASK_CONTEXT_FILE", contextFile.toString());
+        environment.put("TASK_RESULT_FILE", resultFile.toString());
+        environment.put("TASK_LEASE_TOKEN_FILE", leaseTokenFile.toString());
+        environment.put("TASK_WORK_DIR", workingDirectory.toString());
         ScriptExecutionResult result = processRunner.run(new ScriptExecutionRequest(
                 command, workingDirectory, environment, Duration.ofSeconds(step.timeoutSeconds()), cancellationRequested));
         Map<String, Object> outputs = readResult(resultFile);

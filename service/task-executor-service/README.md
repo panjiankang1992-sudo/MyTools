@@ -23,6 +23,7 @@ ${TASK_EXECUTOR_SCRIPT_ROOT}/
 
 Executor 只执行 Scheduler 下发的已配置入口，不接受调用方提交任意命令字符串。
 每个步骤的结构化输出会作为下一步骤上下文中的 `stepOutputs.{stepName}` 提供，用于对账、汇总和条件处理。
+节点 Secret 使用 `executor.script-environments.{scriptPackage}` 按脚本包隔离注入，任务参数和 Scheduler 数据库不保存运行密钥。
 
 ## 实施要求
 

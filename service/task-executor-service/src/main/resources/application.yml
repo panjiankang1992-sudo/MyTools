@@ -17,6 +17,11 @@ executor:
   labels: {}
   cluster-names:
     - media
+    - reader
+  script-environments:
+    reader_source_search:
+      READER_RUNTIME_BASE_URL: ${READER_RUNTIME_BASE_URL:http://127.0.0.1:23120}
+      READER_RUNTIME_SECURE_KEY: ${READER_RUNTIME_SECURE_KEY:}
 server:
   port: ${TASK_EXECUTOR_MANAGEMENT_PORT:23211}
 management:

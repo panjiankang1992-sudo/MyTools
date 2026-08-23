@@ -43,7 +43,7 @@ class SchedulerNodeClientTest {
         ExecutorProperties properties = new ExecutorProperties(
                 "executor-test", "http://127.0.0.1:" + server.getAddress().getPort(), Path.of("runtime/tasks"),
                 Path.of("scripts"), 10, 1, 60, 4, Map.of("runtimes", "python3.12"), Map.of("gpu", false),
-                java.util.Set.of("media")
+                java.util.Set.of("media"), Map.of()
         );
         SchedulerNodeClient client = new SchedulerNodeClient(properties, new ObjectMapper());
         UUID instanceId = UUID.randomUUID();

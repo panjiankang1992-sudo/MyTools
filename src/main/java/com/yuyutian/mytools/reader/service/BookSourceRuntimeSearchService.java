@@ -10,10 +10,12 @@ import com.yuyutian.mytools.reader.mapper.SyncedBookSourceMapper;
 import com.yuyutian.mytools.reader.model.BookSourceSearchCache;
 import com.yuyutian.mytools.reader.model.BookSourceRuntimeSearchModels;
 import com.yuyutian.mytools.reader.model.SyncedBookSource;
+import com.yuyutian.mytools.reader.task.ReaderSearchSidecarRequested;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -51,6 +53,7 @@ public class BookSourceRuntimeSearchService {
     private final ReaderRuntimeClient runtimeClient;
     private final ReaderRuntimeProperties properties;
     private final BookSourceProbeQueryService probeQueryService;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final Counter cacheHitCounter;
     private final Counter cacheReadFailureCounter;
     private final Counter cacheWriteSuccessCounter;
@@ -74,18 +77,21 @@ public class BookSourceRuntimeSearchService {
      * @param properties 执行器配置
      * @param probeQueryService DSH探测词分析服务
      * @param meterRegistry 指标注册器
+     * @param applicationEventPublisher 应用事件发布器
      */
     public BookSourceRuntimeSearchService(SyncedBookSourceMapper mapper, BookSourceSearchCacheMapper cacheMapper,
                                           ObjectMapper objectMapper,
                                           ReaderRuntimeClient runtimeClient, ReaderRuntimeProperties properties,
                                           BookSourceProbeQueryService probeQueryService,
-                                          MeterRegistry meterRegistry) {
+                                          MeterRegistry meterRegistry,
+                                          ApplicationEventPublisher applicationEventPublisher) {
         this.mapper = mapper;
         this.cacheMapper = cacheMapper;
         this.objectMapper = objectMapper;
         this.runtimeClient = runtimeClient;
         this.properties = properties;
         this.probeQueryService = probeQueryService;
+        this.applicationEventPublisher = applicationEventPublisher;
         this.cacheHitCounter = cacheCounter(meterRegistry, "hit");
         this.cacheReadFailureCounter = cacheCounter(meterRegistry, "read_failure");
         this.cacheWriteSuccessCounter = cacheCounter(meterRegistry, "write_success");
@@ -111,6 +117,8 @@ public class BookSourceRuntimeSearchService {
         SearchTask active = activeTaskId == null ? null : tasks.get(activeTaskId);
         if (active != null && "RUNNING".equals(active.status)) return snapshot(active, 0, MAX_POLL_RESULTS);
         List<SourceSnapshot> sources = loadEnabledSources(userId);
+        applicationEventPublisher.publishEvent(new ReaderSearchSidecarRequested(
+                userId, normalizedKeyword, page, normalizedMode, sources.stream().map(this::sidecarSource).toList()));
         SearchTask task = new SearchTask(UUID.randomUUID().toString(), userId, normalizedKeyword, normalizedMode, page,
                 sources.size(), activeKey);
         tasks.put(task.taskId, task);
@@ -425,6 +433,16 @@ public class BookSourceRuntimeSearchService {
                 // 数据库中的单个损坏快照不会阻断其他书源搜索。
             }
         }
+        return output;
+    }
+
+    private Map<String, Object> sidecarSource(SourceSnapshot source) {
+        Map<String, Object> output = new java.util.LinkedHashMap<>();
+        output.put("id", source.id());
+        output.put("url", source.url());
+        output.put("name", source.name());
+        output.put("revision", source.revision());
+        output.put("snapshot", source.json().deepCopy());
         return output;
     }
 

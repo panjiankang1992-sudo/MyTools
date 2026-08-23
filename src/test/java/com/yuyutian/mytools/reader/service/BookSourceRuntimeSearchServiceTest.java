@@ -9,6 +9,7 @@ import com.yuyutian.mytools.reader.model.BookSourceRuntimeReaderModels;
 import com.yuyutian.mytools.reader.model.BookSourceRuntimeSearchModels;
 import com.yuyutian.mytools.reader.model.SyncedBookSource;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.springframework.context.ApplicationEventPublisher;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -295,7 +296,8 @@ class BookSourceRuntimeSearchServiceTest {
                                                    ReaderRuntimeClient runtimeClient,
                                                    BookSourceProbeQueryService probeQueryService) {
         return new BookSourceRuntimeSearchService(sourceMapper, cacheMapper, new ObjectMapper(), runtimeClient,
-                new ReaderRuntimeProperties(), probeQueryService, new SimpleMeterRegistry());
+                new ReaderRuntimeProperties(), probeQueryService, new SimpleMeterRegistry(),
+                mock(ApplicationEventPublisher.class));
     }
 
     private BookSourceRuntimeSearchModels.Task awaitCompleted(BookSourceRuntimeSearchService service, String taskId) {

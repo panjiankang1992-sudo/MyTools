@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["keyword", "mode", "page", "totalSources", "successfulSources", "failedSources", "results"],
+  "properties": {
+    "keyword": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "mode": { "enum": ["FUZZY", "EXACT"] },
+    "page": { "type": "integer", "minimum": 1 },
+    "totalSources": { "type": "integer", "minimum": 0 },
+    "successfulSources": { "type": "integer", "minimum": 0 },
+    "failedSources": { "type": "integer", "minimum": 0 },
+    "errors": { "type": "array", "maxItems": 500, "items": { "type": "object" } },
+    "results": { "type": "array", "maxItems": 500, "items": { "type": "object" } }
+  },
+  "additionalProperties": false
+}

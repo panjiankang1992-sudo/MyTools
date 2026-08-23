@@ -34,6 +34,7 @@ class TaskExecutionWorkerTest {
         Path script = scriptRoot.resolve("sample/1.0.0/main.sh");
         Files.createDirectories(script.getParent());
         Files.writeString(script, """
+                [ "$CUSTOM_ENV" = "enabled" ] || exit 9
                 counter="$(dirname "$TASK_WORK_DIR")/counter"
                 if [ ! -f "$counter" ]; then touch "$counter"; exit 7; fi
                 printf '{"value":"ok"}' > "$TASK_RESULT_FILE"
@@ -47,7 +48,8 @@ class TaskExecutionWorkerTest {
                 """, StandardCharsets.UTF_8);
         ExecutorProperties properties = new ExecutorProperties(
                 "executor-test", "http://127.0.0.1:23210", temporaryDirectory.resolve("work"), scriptRoot,
-                10, 1, 60, 2, Map.of(), Map.of(), java.util.Set.of()
+                10, 1, 60, 2, Map.of(), Map.of(), java.util.Set.of(),
+                Map.of("sample", Map.of("CUSTOM_ENV", "enabled"))
         );
         UUID nodeId = UUID.randomUUID();
         ClaimedStep step = new ClaimedStep(
