@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * 媒体探测与缩略图旁路任务发布器。
+ * 媒体探测、缩略图与视频分析旁路任务发布器。
  */
 @Slf4j
 @Component
@@ -54,6 +54,9 @@ public class MediaProcessingSidecarPublisher {
         common.put("legacyThumbnailPath", event.legacyThumbnailPath());
         create("media_probe", properties.getProbeVersion(), event, common);
         create("media_generate_thumbnail", properties.getThumbnailVersion(), event, common);
+        if (event.mimeType() != null && event.mimeType().startsWith("video/")) {
+            create("media_analyze_video", properties.getVideoAnalysisVersion(), event, common);
+        }
     }
 
     private void create(String taskName, String policyVersion, MediaProcessingSidecarRequested event,

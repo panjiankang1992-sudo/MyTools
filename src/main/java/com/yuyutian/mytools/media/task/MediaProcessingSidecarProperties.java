@@ -15,4 +15,5 @@ public class MediaProcessingSidecarProperties {
     private int priority = 30;
     private String probeVersion = "media-probe-v1";
     private String thumbnailVersion = "media-thumbnail-v1";
+    private String videoAnalysisVersion = "media-video-analysis-v1";
 }

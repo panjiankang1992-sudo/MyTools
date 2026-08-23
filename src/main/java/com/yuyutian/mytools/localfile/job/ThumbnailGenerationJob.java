@@ -84,7 +84,8 @@ public class ThumbnailGenerationJob {
                             thumbnailRetryAfter.remove(file.getId());
                             // 旧缩略图仍为权威结果，旁路任务只做独立生成与对账准备。
                             applicationEventPublisher.publishEvent(new MediaProcessingSidecarRequested(
-                                    file.getId(), file.getFilePath(), generated.toString(), file.getFileHash()));
+                                    file.getId(), file.getFilePath(), generated.toString(), file.getFileHash(),
+                                    file.getMimeType()));
                         } catch (Exception ex) {
                             recordThumbnailFailure(file.getId());
                             log.warn("后台生成缩略图失败，文件ID：{}，路径：{}", file.getId(), file.getFilePath(), ex);

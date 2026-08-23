@@ -7,11 +7,13 @@ package com.yuyutian.mytools.media.task;
  * @param sourcePath 原文件路径
  * @param legacyThumbnailPath 旧链路缩略图路径
  * @param contentSha256 内容哈希
+ * @param mimeType 媒体类型
  */
 public record MediaProcessingSidecarRequested(
         Long fileId,
         String sourcePath,
         String legacyThumbnailPath,
-        String contentSha256
+        String contentSha256,
+        String mimeType
 ) {
 }
