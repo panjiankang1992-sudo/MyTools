@@ -33,7 +33,11 @@ class TaskExecutionWorkerTest {
         Path scriptRoot = temporaryDirectory.resolve("scripts");
         Path script = scriptRoot.resolve("sample/1.0.0/main.sh");
         Files.createDirectories(script.getParent());
-        Files.writeString(script, "printf '{\"value\":\"ok\"}' > \"$TASK_RESULT_FILE\"\n", StandardCharsets.UTF_8);
+        Files.writeString(script, """
+                counter="$(dirname "$TASK_WORK_DIR")/counter"
+                if [ ! -f "$counter" ]; then touch "$counter"; exit 7; fi
+                printf '{"value":"ok"}' > "$TASK_RESULT_FILE"
+                """, StandardCharsets.UTF_8);
         Path checkScript = scriptRoot.resolve("sample/1.0.0/check.py");
         Files.writeString(checkScript, """
                 import json, os
@@ -48,7 +52,7 @@ class TaskExecutionWorkerTest {
         UUID nodeId = UUID.randomUUID();
         ClaimedStep step = new ClaimedStep(
                 UUID.randomUUID(), "run_sample", "NORMAL", "sample", "1.0.0", "main.sh",
-                List.of(), 10, "FAIL_TASK", 10, 1
+                List.of(), 10, "FAIL_TASK", 10, 2
         );
         ClaimedStep checkStep = new ClaimedStep(
                 UUID.randomUUID(), "check_output", "NORMAL", "sample", "1.0.0", "check.py",
@@ -70,6 +74,7 @@ class TaskExecutionWorkerTest {
         waitForCompletion(schedulerClient);
         assertEquals("SUCCEEDED", schedulerClient.stepStatus);
         assertEquals(Map.of("previous", "ok"), schedulerClient.stepResult);
+        assertEquals(3, schedulerClient.reportCount);
         assertEquals("SUCCEEDED", schedulerClient.completionStatus);
     }
 
@@ -88,6 +93,7 @@ class TaskExecutionWorkerTest {
         private volatile String stepStatus;
         private volatile Map<String, Object> stepResult;
         private volatile String completionStatus;
+        private volatile int reportCount;
 
         private FakeSchedulerClient(UUID nodeId, ClaimedTask task) {
             this.nodeId = nodeId;
@@ -122,6 +128,7 @@ class TaskExecutionWorkerTest {
                                Map<String, Object> result, String errorCode, String errorMessage) {
             this.stepStatus = status;
             this.stepResult = result;
+            this.reportCount++;
         }
 
         @Override
