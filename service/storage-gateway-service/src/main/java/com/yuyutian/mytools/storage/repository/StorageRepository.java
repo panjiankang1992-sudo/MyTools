@@ -90,10 +90,10 @@ public class StorageRepository {
     public void insertProvider(StorageProvider provider) {
         jdbcTemplate.update("""
                 INSERT INTO storage_provider
-                    (id, name, provider_type, remote_key, secret_ref, enabled, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    (id, name, provider_type, remote_key, endpoint_uri, secret_ref, enabled, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, provider.id().toString(), provider.name(), provider.providerType(), provider.remoteKey(),
-                provider.secretRef(), provider.enabled(), Timestamp.from(provider.createdAt()),
+                provider.endpointUri(), provider.secretRef(), provider.enabled(), Timestamp.from(provider.createdAt()),
                 Timestamp.from(provider.updatedAt()));
     }
 
@@ -460,7 +460,8 @@ public class StorageRepository {
         return jdbcTemplate.query("SELECT * FROM storage_provider WHERE " + condition,
                 (resultSet, rowNumber) -> new StorageProvider(UUID.fromString(resultSet.getString("id")),
                         resultSet.getString("name"), resultSet.getString("provider_type"),
-                        resultSet.getString("remote_key"), resultSet.getString("secret_ref"),
+                        resultSet.getString("remote_key"), resultSet.getString("endpoint_uri"),
+                        resultSet.getString("secret_ref"),
                         resultSet.getBoolean("enabled"), resultSet.getTimestamp("created_at").toInstant(),
                         resultSet.getTimestamp("updated_at").toInstant()), argument).stream().findFirst();
     }

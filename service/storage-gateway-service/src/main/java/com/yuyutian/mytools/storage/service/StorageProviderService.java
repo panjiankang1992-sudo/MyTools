@@ -19,17 +19,17 @@ import java.util.UUID;
 @Service
 public class StorageProviderService {
     private final StorageRepository repository;
-    private final RcloneRemoteConnector connector;
+    private final ProviderObjectConnectorRegistry connectorRegistry;
 
     /**
      * 创建 Provider 服务。
      *
      * @param repository 存储仓储
-     * @param connector 受控 rclone 连接器
+     * @param connectorRegistry Provider 连接器注册表
      */
-    public StorageProviderService(StorageRepository repository, RcloneRemoteConnector connector) {
+    public StorageProviderService(StorageRepository repository, ProviderObjectConnectorRegistry connectorRegistry) {
         this.repository = repository;
-        this.connector = connector;
+        this.connectorRegistry = connectorRegistry;
     }
 
     /**
@@ -47,8 +47,10 @@ public class StorageProviderService {
             return ProviderView.from(existing);
         }
         Instant now = Instant.now();
+        validateEndpoint(request);
         StorageProvider provider = new StorageProvider(UUID.randomUUID(), request.name(), request.providerType(),
-                request.remoteKey(), request.secretRef(), request.enabled(), now, now);
+                request.remoteKey(), normalizeEndpoint(request.endpointUri()), request.secretRef(), request.enabled(),
+                now, now);
         try {
             repository.insertProvider(provider);
         } catch (DuplicateKeyException exception) {
@@ -68,13 +70,29 @@ public class StorageProviderService {
         StorageProvider provider = repository.findProviderById(providerId)
                 .filter(StorageProvider::enabled)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
-        return connector.list(provider.remoteKey(), path);
+        return connectorRegistry.list(provider, path);
     }
 
     private boolean equivalent(StorageProvider provider, CreateProviderRequest request) {
         return provider.providerType().equals(request.providerType())
                 && provider.remoteKey().equals(request.remoteKey())
+                && java.util.Objects.equals(provider.endpointUri(), normalizeEndpoint(request.endpointUri()))
                 && provider.secretRef().equals(request.secretRef())
                 && provider.enabled() == request.enabled();
+    }
+
+    private void validateEndpoint(CreateProviderRequest request) {
+        if ("RCLONE".equals(request.providerType()) && normalizeEndpoint(request.endpointUri()) == null) {
+            return;
+        }
+        if ("WEBDAV".equals(request.providerType())) {
+            NativeProviderEndpointValidator.webDav(request.endpointUri());
+            return;
+        }
+        throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
+    }
+
+    private String normalizeEndpoint(String endpointUri) {
+        return endpointUri == null || endpointUri.isBlank() ? null : endpointUri.trim();
     }
 }

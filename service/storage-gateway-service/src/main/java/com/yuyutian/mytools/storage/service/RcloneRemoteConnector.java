@@ -20,7 +20,6 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ import java.util.regex.Pattern;
  * 仅允许回环 rclone RC 白名单操作的远端连接器。
  */
 @Component
-public class RcloneRemoteConnector {
+public class RcloneRemoteConnector implements ProviderObjectConnector {
     private static final Pattern REMOTE_KEY = Pattern.compile("^[A-Za-z0-9._-]{1,128}$");
     private static final int MAXIMUM_RESPONSE_BYTES = 8 * 1024 * 1024;
     private final ObjectMapper objectMapper;
@@ -116,6 +115,28 @@ public class RcloneRemoteConnector {
         } catch (IOException exception) {
             throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
         }
+    }
+
+    /**
+     * 返回 rclone Provider 类型。
+     *
+     * @return 固定类型
+     */
+    @Override
+    public String providerType() {
+        return "RCLONE";
+    }
+
+    /**
+     * 使用 Provider 内部 remote 键列目录。
+     *
+     * @param provider Provider 配置
+     * @param path 相对路径
+     * @return 标准化对象列表
+     */
+    @Override
+    public List<RemoteObjectView> list(com.yuyutian.mytools.storage.model.StorageProvider provider, String path) {
+        return list(provider.remoteKey(), path);
     }
 
     /**
@@ -309,12 +330,6 @@ public class RcloneRemoteConnector {
     }
 
     private String validPath(String value, boolean allowEmpty) {
-        String path = value == null ? "" : value.trim();
-        if ((path.isEmpty() && !allowEmpty) || path.length() > 2048 || path.startsWith("/")
-                || path.contains(":") || path.contains("\\")
-                || Arrays.asList(path.split("/", -1)).contains("..")) {
-            throw new IllegalArgumentException(ErrorCode.PATH_INVALID.code());
-        }
-        return path;
+        return RemotePathValidator.validate(value, allowEmpty);
     }
 }

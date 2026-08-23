@@ -2,7 +2,7 @@
 
 ## 职责
 
-统一本地受管目录、rclone、WebDAV、S3、PikPak 等存储后端，提供安全的流式读写、原子移动、列目录、复制、删除、校验和短期访问票据。
+统一本地受管目录、rclone、WebDAV、S3、PikPak 等存储后端，提供安全的流式读写、原子移动、列目录、复制、删除、校验和短期访问票据。Provider 查询通过类型化连接器注册表路由，避免领域服务绑定具体后端。
 
 ## 数据模型
 
@@ -20,6 +20,8 @@
 
 当前已实现 `storage_scan_root`、`storage_copy_tree`、`storage_move_tree`、`storage_compute_checksum` 和 `storage_sync_remote`。复制与同步只允许服务端登记的来源/目标 Provider 和相对路径，rclone remote 键不会进入 Scheduler 参数；远端 RC job 标识持久化到操作聚合，特殊步骤负责停止远端 job 并回写失败、超时或取消终态。校验和任务只携带不透明操作 UUID，Scheduler 使用 Storage Root 服务端登记的 `storage.mount.<rootName>` 约束选择挂载节点，再通过节点本地 Storage Gateway 流式读取。
 
+原生 WebDAV 连接器已实现单级目录查询：Provider 只保存 HTTPS 端点和 `secretRef`，凭据按调用从密钥解析器获取；协议层禁用重定向和 XML 外部实体，限制响应大小、对象数以及返回对象必须是请求目录的直接子项。现有 rclone Provider 契约保持兼容且仍是所有耗时远端任务的默认执行后端。S3 原生列表和原生异步写操作尚待实现。
+
 远端移动采用持久化阶段状态机：对目标 Provider 和规范化路径建立排他写入栅栏，确认目标不存在后执行复制，通过 `operations/check` 下载比对来源和目标，再清理来源。复制或验证阶段失败、超时和取消会停止当前 job 并清理目标；来源清理开始后不再回滚已验证目标，而是前向重试来源清理。特殊步骤截止前仍无法收敛时记录 `PURGE_SOURCE` 或 `PURGE_TARGET` 恢复动作并自动创建独立高优先级恢复任务。恢复完成前写入栅栏不会释放。
 
 ## 脚本与 DML
@@ -30,7 +32,7 @@
 
 1. 已完成独立 `mytools_storage` schema、本地受管根、幂等流式上传、摘要校验和同文件系统原子发布 MVP；继续以 MyTools `drive/rclone` 为目标扩展统一接口。
 2. 让 DownloadBot staging 和发布脚本改用受管根配置。
-3. 迁移旧 WebDAV/Alist 账户到 rclone provider。
+3. 迁移旧 WebDAV/Alist 账户：先注册默认关闭的原生 WebDAV Provider 做目录摘要对账，耗时操作继续使用 rclone Provider；验证后再逐项迁移写操作。
 4. 切换播放和下载票据。
 5. 删除旧 `cloudfile/webdav/alist` 通用实现。
 
