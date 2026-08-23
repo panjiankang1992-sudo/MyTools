@@ -8,6 +8,7 @@ import com.yuyutian.mytools.localfile.service.tagging.impl.TaggerServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,10 +36,12 @@ class TaggerServiceAdultClassificationTest {
         LocalFileMapper localFileMapper = mock(LocalFileMapper.class);
         FileTagMapper fileTagMapper = mock(FileTagMapper.class);
         TaggerClient taggerClient = mock(TaggerClient.class);
+        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
         when(localFileMapper.selectAdultClassificationCandidates(10)).thenReturn(List.of(file));
         when(taggerClient.classifyAdultText(anyString(), anyString(), anyString()))
                 .thenReturn(new TaggerClient.AdultResult(true, 0.91));
-        TaggerServiceImpl service = new TaggerServiceImpl(localFileMapper, fileTagMapper, taggerClient);
+        TaggerServiceImpl service = new TaggerServiceImpl(
+                localFileMapper, fileTagMapper, taggerClient, eventPublisher);
 
         assertThat(service.processAdultClassifications(10)).isEqualTo(1);
         verify(localFileMapper).updateAdultClassification(42L, 1, true, 0.91);

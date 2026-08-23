@@ -128,6 +128,17 @@ tagging:
     url: http://127.0.0.1:11434
     model: huihui_ai/qwen3-vl-abliterated:4b
 
+migration:
+  tasks:
+    media-tags:
+      enabled: ${MEDIA_TAG_SIDECAR_ENABLED:false}
+      scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23210}
+      task-name: media_generate_tags
+      policy-version: ${MEDIA_TAG_POLICY_VERSION:media-tags-v1}
+      priority: ${MEDIA_TAG_TASK_PRIORITY:40}
+      service-url: ${TAGGING_SERVICE_URL:http://127.0.0.1:11434}
+      model: ${TAGGING_SERVICE_MODEL:huihui_ai/qwen3-vl-abliterated:4b}
+
 copilot:
   gateway:
     enabled: ${COPILOT_GATEWAY_ENABLED:false}

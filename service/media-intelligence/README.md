@@ -23,3 +23,10 @@ Python 3.12 / Shell
 - `packages/media_generate_tags/1.0.0`：生成版本化标签结果，只写任务结果文件，不修改 MyTools 或 DownloadBot 数据库。
 - 旁路输入使用内容 SHA-256 与策略版本形成幂等键；旧实现继续作为线上权威结果。
 - 双跑期间由后续对账任务比较标签集合、模型、内容哈希和策略版本，不直接覆盖旧标签。
+
+## MyTools 旁路开关
+
+- `MEDIA_TAG_SIDECAR_ENABLED=false`：默认关闭，保持现有运行行为。
+- `TASK_SCHEDULER_URL`：任务调度服务地址。
+- `MEDIA_TAG_POLICY_VERSION`：参与任务幂等键的标签策略版本。
+- 开启后只有旧标签事务提交成功才异步创建任务；调度器不可用只记录告警，不回滚旧标签。

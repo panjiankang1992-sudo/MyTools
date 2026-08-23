@@ -8,8 +8,10 @@ import com.yuyutian.mytools.localfile.mapper.LocalFileMapper;
 import com.yuyutian.mytools.localfile.service.tagging.TaggerClient;
 import com.yuyutian.mytools.localfile.service.tagging.TaggerException;
 import com.yuyutian.mytools.localfile.service.tagging.TaggerService;
+import com.yuyutian.mytools.localfile.service.tagging.MediaTagSidecarTaskRequested;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +44,7 @@ public class TaggerServiceImpl implements TaggerService {
     private final LocalFileMapper localFileMapper;
     private final FileTagMapper fileTagMapper;
     private final TaggerClient taggerClient;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     /** 大文件阈值：100MB */
     private static final long LARGE_FILE_THRESHOLD = 100 * 1024 * 1024;
@@ -92,6 +95,11 @@ public class TaggerServiceImpl implements TaggerService {
 
         // 更新状态为成功
         localFileMapper.updateTaggingStatus(file.getId(), 1, LocalDateTime.now());
+
+        // 旧标签成功后只发出旁路事件，监听器失败不会改变当前事务的权威结果。
+        applicationEventPublisher.publishEvent(new MediaTagSidecarTaskRequested(
+                file.getId(), file.getFilename(), file.getFilePath(), file.getThumbnailPath(),
+                file.getMimeType(), file.getFileHash()));
 
         return savedTags;
     }
