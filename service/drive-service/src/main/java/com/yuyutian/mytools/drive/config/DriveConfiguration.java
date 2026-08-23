@@ -19,4 +19,9 @@ public class DriveConfiguration {
     }
     /** 内部 API 令牌。 */
     public record InternalToken(String value) { }
+    /** 创建存储迁移令牌配置。 @param token 迁移令牌 @return 令牌 */
+    @Bean public StorageMigrationToken storageMigrationToken(
+        @Value("${drive.storage-migration-token:}") String token) { return new StorageMigrationToken(token); }
+    /** 仅用于账户 Provider 迁移的令牌。 */
+    public record StorageMigrationToken(String value) { }
 }

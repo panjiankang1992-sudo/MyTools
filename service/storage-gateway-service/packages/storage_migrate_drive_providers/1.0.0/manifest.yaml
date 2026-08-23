@@ -1,0 +1,13 @@
+name: storage_migrate_drive_providers
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - network_http
+parameters:
+  required: []
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 900
+  maxOutputBytes: 65536

@@ -1,6 +1,7 @@
 package com.yuyutian.mytools.drive.service;
 
 import com.yuyutian.mytools.drive.model.DriveModels.*;
+import com.yuyutian.mytools.drive.repository.DriveRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,6 +14,7 @@ import static org.assertj.core.api.Assertions.*;
 @SpringBootTest
 class DriveServiceTest {
     @Autowired private DriveService service;
+    @Autowired private DriveRepository repository;
 
     @Test
     void shouldResumeBatchesAndDeleteStaleItemsOnlyAfterCompletion() {
@@ -45,6 +47,19 @@ class DriveServiceTest {
         UUID recoveryRun=UUID.randomUUID();
         assertThat(service.ingest(account.id(),new IndexBatchRequest(recoveryRun,"complete",null,true,List.of()))
             .status()).isEqualTo("SUCCEEDED");
+    }
+
+    @Test
+    void shouldExposeOnlySanitizedStorageMigrationFields() {
+        AccountView account=service.register(new RegisterAccountRequest(11L,"external-private","Private Display","RCLONE",
+            "secret://drive/migration-safe","migration_safe",true,true));
+
+        StorageMigrationAccount migrated=repository.listStorageMigrationAccounts(null,500).items().stream()
+            .filter(item -> item.id().equals(account.id())).findFirst().orElseThrow();
+
+        assertThat(migrated.remoteKey()).isEqualTo("migration_safe");
+        assertThat(migrated.providerSecretRef()).isEqualTo("secret://drive/migration-safe");
+        assertThat(migrated.toString()).doesNotContain("Private Display","external-private");
     }
 
     private IndexItem item(String path,String parent,long size) {

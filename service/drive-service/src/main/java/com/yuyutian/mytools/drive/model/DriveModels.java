@@ -16,6 +16,8 @@ public final class DriveModels {
     public record AccountView(UUID id, long ownerId, String externalAccountId, String displayName,
         String providerType, String remoteKey, boolean readOnly, boolean enabled, long indexGeneration) { }
     public record BindStorageProviderRequest(@NotNull UUID storageProviderId) { }
+    public record StorageMigrationAccount(UUID id, String remoteKey, String providerSecretRef, boolean enabled) { }
+    public record StorageMigrationPage(List<StorageMigrationAccount> items, UUID nextAfterId) { }
     public record IndexItem(@Size(max=255) String remoteId, @NotBlank @Size(max=2048) String remotePath,
         @NotBlank @Size(max=2048) String parentPath, @NotBlank @Size(max=512) String displayName,
         @Size(max=255) String mimeType, @PositiveOrZero long sizeBytes, boolean directory, Instant modifiedAt,

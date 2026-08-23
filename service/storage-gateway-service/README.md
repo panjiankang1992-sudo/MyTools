@@ -24,6 +24,8 @@ Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 
 
 内部调用方可通过 `POST /api/internal/v1/storage/access-tickets` 为已存在的受管本地对象创建最长一小时的单用途下载票据，并通过撤销接口提前失效。数据库仅保存 Token SHA-256，原始 Token 只出现在创建响应的 `accessUrl` 中；公共下载端点采用条件更新原子消费，并发请求最多一个成功。该能力默认不替换任何旧下载 URL。
 
+`storage_migrate_drive_providers` 是手工即时迁移任务：它只读取 Drive 的账户 UUID、remote key、Secret 引用和启用状态，注册 Provider 后将 UUID 回绑 Drive；不读取或传输 URL、用户名和密码。任务可安全重跑且不会自动触发。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。

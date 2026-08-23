@@ -61,6 +61,20 @@ public class DriveRepository {
                 (rs, row) -> UUID.fromString(rs.getString(1)), accountId.toString()).stream().findFirst();
     }
 
+    /** 查询待绑定 Storage Provider 的安全账户分页。 @param afterId 游标 @param limit 数量 @return 分页 */
+    public StorageMigrationPage listStorageMigrationAccounts(UUID afterId,int limit) {
+        String sql="""
+                SELECT id, remote_key, provider_secret_ref, enabled FROM drive_account
+                WHERE (? IS NULL OR id > ?) ORDER BY id LIMIT ?
+                """;
+        List<StorageMigrationAccount> items=jdbc.query(sql,(rs,row)->new StorageMigrationAccount(
+            UUID.fromString(rs.getString("id")),rs.getString("remote_key"),
+            rs.getString("provider_secret_ref"),rs.getBoolean("enabled")),
+            afterId==null?null:afterId.toString(),afterId==null?null:afterId.toString(),limit);
+        UUID next=items.size()<limit?null:items.getLast().id();
+        return new StorageMigrationPage(List.copyOf(items),next);
+    }
+
     /** 写入一个幂等索引批次。 @param account 账户 @param request 批次 @return 结果 */
     public IndexBatchView ingest(AccountView account, IndexBatchRequest request) {
         Cursor cursor = cursor(account.id());

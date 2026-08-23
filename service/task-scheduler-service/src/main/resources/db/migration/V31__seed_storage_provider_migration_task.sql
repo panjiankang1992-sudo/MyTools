@@ -1,0 +1,5 @@
+INSERT INTO task_definition (id,name,description,task_type,timeout_seconds,cluster_id,cron_expression,cron_timezone,execution_mode,enabled,max_concurrency,overlap_policy,misfire_policy,parameter_schema,result_schema,version,created_at,updated_at)
+VALUES ('00000000-0000-4000-8000-000000000319','storage_migrate_drive_providers','Register Storage Providers from sanitized Drive account references','IMMEDIATE',900,'00000000-0000-4000-8000-000000000008',NULL,NULL,'SINGLE_NODE',TRUE,1,'SKIP','IGNORE','{}','{}',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+
+INSERT INTO task_step_definition (id,task_definition_id,name,description,step_kind,script_package,script_version,entrypoint,arguments_template,enabled,timeout_seconds,failure_policy,sequence_number,max_attempts,created_at,updated_at)
+VALUES ('00000000-0000-4000-8000-000000000435','00000000-0000-4000-8000-000000000319','migrate_providers','Register and bind sanitized Drive Provider references','NORMAL','storage_migrate_drive_providers','1.0.0','scripts/main.py','[]',TRUE,900,'FAIL_TASK',10,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);

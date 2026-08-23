@@ -1,0 +1,1 @@
+{"type":"object","required":["processed","bound"],"properties":{"processed":{"type":"integer","minimum":0},"bound":{"type":"integer","minimum":0}}}

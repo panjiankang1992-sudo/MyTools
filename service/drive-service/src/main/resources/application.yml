@@ -19,3 +19,4 @@ drive:
   storage-scan-mode: ${DRIVE_STORAGE_SCAN_MODE:LEGACY}
   storage-gateway-url: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
   storage-internal-token: ${STORAGE_INTERNAL_TOKEN:}
+  storage-migration-token: ${DRIVE_STORAGE_MIGRATION_TOKEN:}
