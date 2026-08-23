@@ -17,7 +17,7 @@
 - `reader_source_discovery`、`reader_source_health_check`。
 - `reader_import_ebook`、`reader_extract_metadata`。
 - `reader_build_catalog`、`reader_prefetch_chapters`。
-- `reader_cleanup_cache`、`reader_reindex_library`。
+- `reader_cleanup_chapter_cache`、`reader_reindex_library`。
 
 书源搜索任务由 Scheduler 展开为不可变的多节点分片执行目标，目标按照书源序号确定性分片并允许部分成功；Reader Service 汇总全部目标结果、合并去重并通过事件推送进度。需要独立生命周期的发现、导入等工作仍通过脚本创建子任务。
 
@@ -36,8 +36,9 @@
 1. 将现有书源 Runtime 搜索封装为脚本包。
 2. 已完成单节点旁路验证并保持现有缓存表。
 3. 已使用 Scheduler 原生执行目标完成多节点分片、原始结果暂存和部分成功聚合。
-4. 已将书源发现迁为受限公网脚本和 Reader Service 版本化写入，健康检查迁为原生多节点分片任务，书源电子书导入迁为 Storage Gateway 原子发布任务，TXT/EPUB/PDF/MOBI 元数据解析、持久化目录构建及指定章节预缓存已脚本化；继续迁移缓存清理和书库重建 Job。
-5. 独立 schema 与 Reader Service MVP 已建立；完成对账后再由 Gateway 切换远程接口。
+4. 已将书源发现迁为受限公网脚本和 Reader Service 版本化写入，健康检查迁为原生多节点分片任务，书源电子书导入迁为 Storage Gateway 原子发布任务，TXT/EPUB/PDF/MOBI 元数据解析、持久化目录构建及指定章节预缓存已脚本化。
+5. 已将过期缓存、停用书源缓存和旧书源版本缓存清理迁为受限批次任务，并配置失败、超时、取消终态步骤；书库重建 Job 仍需基于独立快照实现。
+6. 独立 schema 与 Reader Service MVP 已建立；完成对账后再由 Gateway 切换远程接口。
 
 ## 验收
 
@@ -45,3 +46,4 @@
 - 单个书源失败不导致所有有效结果丢失。
 - 重复分片执行不会产生重复书籍记录。
 - 重复章节批次不会产生重复缓存，过期或旧书源版本缓存不会被同步查询返回。
+- 缓存清理每批受限且可重试，任何终态都能在维护记录中审计累计删除数。

@@ -11,6 +11,8 @@ import com.yuyutian.mytools.reader.service.EbookCatalogNotReadyException;
 import com.yuyutian.mytools.reader.service.ChapterCacheInvalidException;
 import com.yuyutian.mytools.reader.service.ChapterCacheNotFoundException;
 import com.yuyutian.mytools.reader.service.ChapterPrefetchNotFoundException;
+import com.yuyutian.mytools.reader.service.CacheMaintenanceConflictException;
+import com.yuyutian.mytools.reader.service.CacheMaintenanceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -143,5 +145,25 @@ public class ReaderExceptionHandler {
     public Map<String, String> handleChapterCacheInvalid(ChapterCacheInvalidException exception) {
         return Map.of("code", ErrorCode.CHAPTER_CACHE_INVALID.code(),
                 "message", ErrorCode.CHAPTER_CACHE_INVALID.message());
+    }
+
+    /**
+     * 转换缓存维护任务不存在异常。
+     */
+    @ExceptionHandler(CacheMaintenanceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleCacheMaintenanceNotFound(CacheMaintenanceNotFoundException exception) {
+        return Map.of("code", ErrorCode.CACHE_MAINTENANCE_NOT_FOUND.code(),
+                "message", ErrorCode.CACHE_MAINTENANCE_NOT_FOUND.message());
+    }
+
+    /**
+     * 转换缓存维护冲突异常。
+     */
+    @ExceptionHandler(CacheMaintenanceConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> handleCacheMaintenanceConflict(CacheMaintenanceConflictException exception) {
+        return Map.of("code", ErrorCode.CACHE_MAINTENANCE_CONFLICT.code(),
+                "message", ErrorCode.CACHE_MAINTENANCE_CONFLICT.message());
     }
 }

@@ -15,7 +15,9 @@ public enum ErrorCode {
     EBOOK_CATALOG_INVALID("READER_009", "Ebook catalog batch is invalid"),
     CHAPTER_PREFETCH_NOT_FOUND("READER_010", "Chapter prefetch request was not found"),
     CHAPTER_CACHE_NOT_FOUND("READER_011", "Chapter cache entry was not found"),
-    CHAPTER_CACHE_INVALID("READER_012", "Chapter cache batch is invalid");
+    CHAPTER_CACHE_INVALID("READER_012", "Chapter cache batch is invalid"),
+    CACHE_MAINTENANCE_NOT_FOUND("READER_013", "Chapter cache maintenance was not found"),
+    CACHE_MAINTENANCE_CONFLICT("READER_014", "Chapter cache maintenance conflicts with existing state");
 
     private final String code;
     private final String message;

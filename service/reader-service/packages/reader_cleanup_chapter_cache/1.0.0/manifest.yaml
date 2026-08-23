@@ -1,0 +1,13 @@
+name: reader_cleanup_chapter_cache
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - reader_internal_write
+parameters:
+  required:
+    - maintenanceId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 1800

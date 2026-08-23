@@ -30,8 +30,11 @@ MyTools 通过默认关闭的 `READER_SEARCH_SIDECAR_ENABLED` 开关提交同一
 
 `reader_extract_metadata` 1.0.0 支持 TXT/Markdown、EPUB OPF、基础 PDF 和 MOBI/AZW3 头解析，保留旧实现的 `READY`/`PARTIAL`/`FAILED` 语义，并限制文本大小、ZIP 条目数、展开大小、单条目大小和压缩比。书源导入任务将其作为第二步骤执行，元数据结果写回 `ebook_asset.metadata_json`；该脚本也注册为可独立创建的任务类型。
 
+章节缓存维护使用 `reader_cleanup_chapter_cache` 1.0.0 即时任务。维护请求冻结清理类型、截止时间和每批上限，只把 `maintenanceId` 交给 Scheduler；Executor 通过需要 `READER_INTERNAL_TOKEN` 的 Reader 内部接口逐批清理过期缓存，或清理书源已停用/版本过时的缓存。每批最多 1000 条并先删除预取关联，成功、失败、超时和取消均写回独立维护记录。该能力只维护新 `mytools_reader` schema，不读取或删除 MyTools 现有缓存。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。
 - 迁移已有能力时保留旧实现和功能开关。
 - 在对账与回归通过前不得切换权威数据或生产流量。
+- 后续使用缓存快照创建 `reader_reindex_library` 子任务，不允许清理任务隐式重建或覆盖用户书架。
