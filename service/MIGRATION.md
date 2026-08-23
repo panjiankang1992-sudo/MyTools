@@ -36,8 +36,9 @@
 
 ## 阶段 4：共享能力
 
+- [ ] Storage Gateway。已建立独立 `mytools_storage` schema 和本地受管根的幂等流式上传、摘要校验、路径隔离及原子发布 MVP；远端 provider、访问票据、复制移动和任务化同步待迁移。
 - [ ] Messaging 和 Message Automation。
-- [ ] Asset Registry 和 Storage Gateway。
+- [ ] Asset Registry。
 - [ ] Media、Drive、Reader、Identity 独立服务。
 
 ## 阶段 5：切流与收尾

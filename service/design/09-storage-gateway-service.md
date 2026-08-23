@@ -24,7 +24,7 @@
 
 ## 迁移
 
-1. 以 MyTools `drive/rclone` 为目标实现统一接口。
+1. 已完成独立 `mytools_storage` schema、本地受管根、幂等流式上传、摘要校验和同文件系统原子发布 MVP；继续以 MyTools `drive/rclone` 为目标扩展统一接口。
 2. 让 DownloadBot staging 和发布脚本改用受管根配置。
 3. 迁移旧 WebDAV/Alist 账户到 rclone provider。
 4. 切换播放和下载票据。
@@ -35,3 +35,5 @@
 - 无法越过受管根或提交任意 rclone 命令。
 - 原子发布只在同文件系统进行，跨文件系统走复制校验再切换。
 - 节点调度遵守存储挂载亲和性。
+
+本地 MVP 已覆盖根内相对路径、目录穿越和符号链接逃逸校验。远端 provider、跨文件系统复制校验和节点挂载亲和调度在对应迁移阶段验收。
