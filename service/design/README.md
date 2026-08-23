@@ -21,6 +21,7 @@
 | [12-drive-service.md](12-drive-service.md) | 网盘账户、索引、文件操作和访问票据 |
 | [13-reader-service.md](13-reader-service.md) | 书架、书源、搜索、章节和电子书导入 |
 | [14-downloadbot-adapter-service.md](14-downloadbot-adapter-service.md) | DownloadBot 默认关闭的旁路迁移防腐层 |
+| [15-msgservice-adapter-service.md](15-msgservice-adapter-service.md) | MsgService 默认关闭的历史数据迁移防腐层 |
 
 ## 共通约束
 
