@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mytools-downloadbot-adapter"
+version = "0.1.0"
+description = "Default-off migration adapter from DownloadBot to Download Ingestion"
+requires-python = ">=3.12"
+dependencies = ["PyMySQL>=1.1,<2"]
+
+[project.scripts]
+mytools-downloadbot-adapter = "mytools_downloadbot_adapter.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

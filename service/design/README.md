@@ -20,6 +20,7 @@
 | [11-media-intelligence-service.md](11-media-intelligence-service.md) | 标签、缩略图、截图、媒体探测与简介脚本 |
 | [12-drive-service.md](12-drive-service.md) | 网盘账户、索引、文件操作和访问票据 |
 | [13-reader-service.md](13-reader-service.md) | 书架、书源、搜索、章节和电子书导入 |
+| [14-downloadbot-adapter-service.md](14-downloadbot-adapter-service.md) | DownloadBot 默认关闭的旁路迁移防腐层 |
 
 ## 共通约束
 
