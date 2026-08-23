@@ -6,6 +6,8 @@ import com.yuyutian.mytools.messaging.service.DeliveryStateInvalidException;
 import com.yuyutian.mytools.messaging.service.DeliveryInvalidException;
 import com.yuyutian.mytools.messaging.service.ProviderNotConfiguredException;
 import com.yuyutian.mytools.messaging.service.InboundMessageNotFoundException;
+import com.yuyutian.mytools.messaging.service.OneBotIngressDisabledException;
+import com.yuyutian.mytools.messaging.service.OneBotPayloadInvalidException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -66,5 +68,25 @@ public class MessagingExceptionHandler {
     public Map<String, String> handleInboundMessageNotFound(InboundMessageNotFoundException exception) {
         return Map.of("code", ErrorCode.INBOUND_NOT_FOUND.code(),
                 "message", ErrorCode.INBOUND_NOT_FOUND.message());
+    }
+
+    /**
+     * 转换 OneBot 入站适配器未启用异常。
+     */
+    @ExceptionHandler(OneBotIngressDisabledException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public Map<String, String> handleOneBotIngressDisabled(OneBotIngressDisabledException exception) {
+        return Map.of("code", ErrorCode.ONEBOT_INGRESS_DISABLED.code(),
+                "message", ErrorCode.ONEBOT_INGRESS_DISABLED.message());
+    }
+
+    /**
+     * 转换 OneBot 负载无效异常。
+     */
+    @ExceptionHandler(OneBotPayloadInvalidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleOneBotPayloadInvalid(OneBotPayloadInvalidException exception) {
+        return Map.of("code", ErrorCode.ONEBOT_PAYLOAD_INVALID.code(),
+                "message", ErrorCode.ONEBOT_PAYLOAD_INVALID.message());
     }
 }

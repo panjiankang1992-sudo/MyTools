@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.messaging.model.ChannelType;
 import com.yuyutian.mytools.messaging.model.CreateInboundMessageRequest;
+import com.yuyutian.mytools.messaging.model.CreateInboundMessagePart;
 import com.yuyutian.mytools.messaging.model.DeliveryRecord;
 import com.yuyutian.mytools.messaging.model.InboundMessageView;
+import com.yuyutian.mytools.messaging.model.InboundMessagePart;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -152,13 +154,14 @@ public class MessagingRepository {
                 """, id.toString(), request.ownerId(), request.channelType().name(), request.externalMessageId(),
                 request.conversationKey(), request.sender(), request.subject(), request.body(),
                 Timestamp.from(request.receivedAt()), Timestamp.from(now));
+        insertInboundParts(id, request.parts(), now);
         appendOutbox("MESSAGE", id, "MessageReceived", Map.of(
                 "messageId", id.toString(), "ownerId", request.ownerId(),
                 "channelType", request.channelType().name(), "conversationKey", request.conversationKey(),
                 "sender", request.sender()));
         return new InboundMessageView(id, request.ownerId(), request.channelType(), request.externalMessageId(),
                 request.conversationKey(), request.sender(), request.subject(), request.body(),
-                request.receivedAt(), now);
+                request.receivedAt(), now, findInboundParts(id));
     }
 
     /**
@@ -216,7 +219,38 @@ public class MessagingRepository {
                 resultSet.getString("external_message_id"), resultSet.getString("conversation_key"),
                 resultSet.getString("sender_ref"), resultSet.getString("subject_text"),
                 resultSet.getString("body_text"), resultSet.getTimestamp("received_at").toInstant(),
-                resultSet.getTimestamp("created_at").toInstant());
+                resultSet.getTimestamp("created_at").toInstant(),
+                findInboundParts(UUID.fromString(resultSet.getString("id"))));
+    }
+
+    private void insertInboundParts(UUID messageId, List<CreateInboundMessagePart> parts, Instant now) {
+        int sequence = 0;
+        for (CreateInboundMessagePart part : parts) {
+            sequence++;
+            jdbcTemplate.update("""
+                    INSERT INTO inbound_message_part
+                        (id, inbound_message_id, sequence_number, part_type, text_content, attachment_type,
+                         provider_file_id, source_url, file_name, mime_type, declared_size, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, UUID.randomUUID().toString(), messageId.toString(), sequence, part.type(), part.text(),
+                    part.attachmentType(), part.providerFileId(), part.sourceUrl(), part.fileName(), part.mimeType(),
+                    part.declaredSize(), Timestamp.from(now));
+        }
+    }
+
+    private List<InboundMessagePart> findInboundParts(UUID messageId) {
+        return jdbcTemplate.query("""
+                SELECT * FROM inbound_message_part WHERE inbound_message_id = ? ORDER BY sequence_number
+                """, (resultSet, rowNumber) -> {
+            long size = resultSet.getLong("declared_size");
+            boolean sizeMissing = resultSet.wasNull();
+            return new InboundMessagePart(UUID.fromString(resultSet.getString("id")),
+                    resultSet.getInt("sequence_number"), resultSet.getString("part_type"),
+                    resultSet.getString("text_content"), resultSet.getString("attachment_type"),
+                    resultSet.getString("provider_file_id"), resultSet.getString("source_url"),
+                    resultSet.getString("file_name"), resultSet.getString("mime_type"),
+                    sizeMissing ? null : size);
+        }, messageId.toString());
     }
 
     private Optional<DeliveryRecord> queryDelivery(String clause, Object... arguments) {

@@ -5,8 +5,10 @@ import com.yuyutian.mytools.messaging.model.CreateInboundMessageRequest;
 import com.yuyutian.mytools.messaging.model.DeliveryView;
 import com.yuyutian.mytools.messaging.model.ExecuteDeliveryResult;
 import com.yuyutian.mytools.messaging.model.InboundMessageView;
+import com.yuyutian.mytools.messaging.model.OneBotInboundRequest;
 import com.yuyutian.mytools.messaging.service.DeliveryService;
 import com.yuyutian.mytools.messaging.service.InternalRequestAuthorizer;
+import com.yuyutian.mytools.messaging.service.OneBotInboundAdapter;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,13 +30,16 @@ public class DeliveryController {
 
     private final DeliveryService service;
     private final InternalRequestAuthorizer authorizer;
+    private final OneBotInboundAdapter oneBotInboundAdapter;
 
     /**
      * 创建消息内部控制器。
      */
-    public DeliveryController(DeliveryService service, InternalRequestAuthorizer authorizer) {
+    public DeliveryController(DeliveryService service, InternalRequestAuthorizer authorizer,
+                              OneBotInboundAdapter oneBotInboundAdapter) {
         this.service = service;
         this.authorizer = authorizer;
+        this.oneBotInboundAdapter = oneBotInboundAdapter;
     }
 
     /**
@@ -78,6 +83,17 @@ public class DeliveryController {
             @Valid @RequestBody CreateInboundMessageRequest request) {
         authorizer.requireAuthorized(authorization);
         return service.receive(request);
+    }
+
+    /**
+     * 接收并标准化 OneBot 11 消息事件。
+     */
+    @PostMapping("/adapters/onebot/events")
+    public InboundMessageView receiveOneBot(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @Valid @RequestBody OneBotInboundRequest request) {
+        authorizer.requireAuthorized(authorization);
+        return oneBotInboundAdapter.receive(request);
     }
 
     /**

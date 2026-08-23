@@ -34,3 +34,4 @@ messaging:
   automation-token: ${MESSAGE_AUTOMATION_INTERNAL_TOKEN:}
   automation-relay-enabled: ${MESSAGE_AUTOMATION_RELAY_ENABLED:false}
   automation-relay-batch-size: ${MESSAGE_AUTOMATION_RELAY_BATCH_SIZE:50}
+  one-bot-ingress-enabled: ${MESSAGING_ONEBOT_INGRESS_ENABLED:false}

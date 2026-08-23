@@ -1,0 +1,84 @@
+package com.yuyutian.mytools.messaging.service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yuyutian.mytools.messaging.model.OneBotInboundRequest;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * OneBot 入站适配器集成测试。
+ */
+@SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:messaging_onebot;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1")
+class OneBotInboundAdapterTest {
+
+    @Autowired
+    private OneBotInboundAdapter adapter;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @MockBean
+    private TaskSchedulerClient schedulerClient;
+
+    @Test
+    void shouldNormalizeAttachmentsAndDeduplicateEvent() throws Exception {
+        var event = objectMapper.readTree("""
+                {
+                  "post_type": "message",
+                  "message_type": "group",
+                  "self_id": 90001,
+                  "message_id": 42,
+                  "group_id": 20002,
+                  "user_id": 10001,
+                  "time": 1710000000,
+                  "message": [
+                    {"type":"text","data":{"text":"hello"}},
+                    {"type":"image","data":{"file":"opaque.jpg","url":"https://cdn.example.test/a.jpg","file_size":"123"}},
+                    {"type":"file","data":{"file_id":"book-1","name":"book.txt","size":456}}
+                  ]
+                }
+                """);
+
+        var first = adapter.receive(new OneBotInboundRequest(9L, "napcat-main", event));
+        var replay = adapter.receive(new OneBotInboundRequest(9L, "napcat-main", event));
+
+        assertThat(replay.id()).isEqualTo(first.id());
+        assertThat(first.body()).isEqualTo("hello");
+        assertThat(first.parts()).hasSize(3);
+        assertThat(first.parts()).extracting("type").containsExactly("TEXT", "ATTACHMENT", "ATTACHMENT");
+        var image = first.parts().stream().filter(part -> "opaque.jpg".equals(part.providerFileId()))
+                .findFirst().orElseThrow();
+        assertThat(image.declaredSize()).isEqualTo(123L);
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM inbound_message WHERE owner_id = 9", Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM inbound_message_part p
+                JOIN inbound_message m ON m.id = p.inbound_message_id WHERE m.owner_id = 9
+                """, Integer.class)).isEqualTo(3);
+    }
+
+    @Test
+    void shouldRemoveCqAttachmentFromFallbackText() throws Exception {
+        var event = objectMapper.readTree("""
+                {
+                  "post_type":"message", "message_type":"private", "self_id":90001,
+                  "message_id":43, "user_id":10002,
+                  "raw_message":"note[CQ:image,file=a.jpg,url=https://cdn.example.test/a.jpg]",
+                  "message":[{"type":"image","data":{"file":"a.jpg","url":"https://cdn.example.test/a.jpg"}}]
+                }
+                """);
+
+        var result = adapter.receive(new OneBotInboundRequest(10L, "napcat-main", event));
+
+        assertThat(result.body()).isEqualTo("note");
+        assertThat(result.parts()).extracting("type").containsExactly("ATTACHMENT", "TEXT");
+    }
+}

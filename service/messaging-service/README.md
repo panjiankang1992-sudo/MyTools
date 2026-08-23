@@ -21,6 +21,9 @@ Java 21 / Spring Boot
 - `POST /internal/v1/deliveries/{id}/execute`：Executor 触发原子 provider 调用。
 - `POST /internal/v1/inbound-messages`：provider adapter 幂等写入标准入站消息。
 - `GET /internal/v1/inbound-messages/{id}`：Automation 按消息标识读取标准消息。
+- `POST /internal/v1/adapters/onebot/events`：接收 OneBot 11 原始消息事件并标准化正文与附件引用。
+
+OneBot 入站默认由 `MESSAGING_ONEBOT_INGRESS_ENABLED=false` 关闭。灰度时由独立 adapter/反向代理携带内部令牌调用，不修改 DownloadBot 的现有事件消费链。事件幂等键包含 account、self、message type、conversation 和 message id；消息正文与附件分段写入 `inbound_message_part`，附件只保存 provider file id、远程 URL、文件名、MIME 和声明大小，不在 HTTP 入站事务中下载文件。合并转发内容需要由上游 OneBot adapter 展开后提交；未展开的 provider 文件引用将在后续附件下载任务中解析。
 
 MyTools 注册验证码已增加默认关闭的 `MESSAGING_REGISTRATION_MAIL_SIDECAR_ENABLED` 旁路。只有旧 SMTP 调用成功且验证码事务提交后才异步创建新投递；旁路异常不回滚旧链路，开发环境仅打印验证码时不会触发真实旁路邮件。旁路幂等键取验证码记录标识，便于双投递审计和后续切换。
 
@@ -28,6 +31,6 @@ MyTools 注册验证码已增加默认关闭的 `MESSAGING_REGISTRATION_MAIL_SID
 
 ## 实施要求
 
-- 扩展 QQ、Telegram、OneBot provider adapter 和附件模型。
+- 扩展 QQ、Telegram provider adapter；将 OneBot 附件下载实现为独立任务。
 - 迁移已有能力时保留旧实现和功能开关。
 - 在对账与回归通过前不得切换权威数据或生产流量。

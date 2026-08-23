@@ -8,5 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "messaging")
 public record MessagingProperties(String schedulerUrl, String internalToken, String mailFrom,
                                   String automationUrl, String automationToken,
-                                  boolean automationRelayEnabled, int automationRelayBatchSize) {
+                                  boolean automationRelayEnabled, int automationRelayBatchSize,
+                                  boolean oneBotIngressEnabled) {
 }

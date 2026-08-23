@@ -36,7 +36,7 @@ class AutomationOutboxRelayTest {
                 .andExpect(jsonPath("$.messageId").value(messageId.toString()))
                 .andRespond(withAccepted());
         MessagingProperties properties = new MessagingProperties("http://scheduler", "messaging-token",
-                "sender@example.com", "http://automation.test", "automation-token", true, 10);
+                "sender@example.com", "http://automation.test", "automation-token", true, 10, false);
 
         new AutomationOutboxRelay(repository, properties, builder).relay();
 

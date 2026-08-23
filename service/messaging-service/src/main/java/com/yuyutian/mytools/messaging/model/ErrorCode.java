@@ -9,7 +9,9 @@ public enum ErrorCode {
     PROVIDER_NOT_CONFIGURED("MESSAGING_003", "Delivery provider is not configured"),
     DELIVERY_STATE_INVALID("MESSAGING_004", "Delivery state does not allow this operation"),
     INBOUND_NOT_FOUND("MESSAGING_005", "Inbound message was not found"),
-    DELIVERY_INVALID("MESSAGING_006", "Delivery request is invalid");
+    DELIVERY_INVALID("MESSAGING_006", "Delivery request is invalid"),
+    ONEBOT_INGRESS_DISABLED("MESSAGING_007", "OneBot ingress adapter is disabled"),
+    ONEBOT_PAYLOAD_INVALID("MESSAGING_008", "OneBot event payload is invalid");
 
     private final String code;
     private final String message;

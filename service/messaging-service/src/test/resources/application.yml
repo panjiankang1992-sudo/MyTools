@@ -17,6 +17,7 @@ messaging:
   automation-token: test-automation-token
   automation-relay-enabled: false
   automation-relay-batch-size: 50
+  one-bot-ingress-enabled: true
 
 management:
   health:
