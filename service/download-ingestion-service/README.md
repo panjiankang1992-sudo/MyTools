@@ -49,6 +49,11 @@ HTML。正文交给 `download_publish_text` 子任务，嵌入媒体交给 `down
 子任务；两类产物复用相同的 Asset Registry 登记与 Download Ingestion 结果回写。
 脚本忽略 script/style 内容，限制页面、正文、媒体数量和单媒体字节数，代理仅由节点环境注入。
 
+`MAGNET` 已映射到默认禁用的 `download_pikpak_magnet` 父任务。任务通过专用 PikPak
+Connector 创建并推进可恢复操作；账户凭据、rclone remote key 和服务端路径不会进入 Scheduler
+参数。本阶段以稳定的云端 `READY` 对象集合为终点，待 Connector API、Storage Gateway 托管传输
+和旧新摘要对账完成后才允许灰度启用。
+
 历史迁移使用 `V3__create_legacy_history_import.sql` 的独立不可变历史表，不把旧完成记录
 伪装成新的 `download_request`，因此不会触发下载。内部接口
 `POST /internal/v1/migrations/downloadbot-history/batches` 支持 dry-run、幂等重放和身份冲突

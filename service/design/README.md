@@ -23,6 +23,7 @@
 | [14-downloadbot-adapter-service.md](14-downloadbot-adapter-service.md) | DownloadBot 默认关闭的旁路迁移防腐层 |
 | [15-msgservice-adapter-service.md](15-msgservice-adapter-service.md) | MsgService 默认关闭的历史数据迁移防腐层 |
 | [16-legacy-asset-adapter-service.md](16-legacy-asset-adapter-service.md) | MyTools local_file 一致性快照与只读资产迁移适配器 |
+| [17-pikpak-connector-service.md](17-pikpak-connector-service.md) | PikPak 离线提交、稳定性观察与受控移动适配器 |
 
 ## 共通约束
 

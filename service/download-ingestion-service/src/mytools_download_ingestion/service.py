@@ -15,6 +15,7 @@ TASK_NAMES = {
     "LOCAL_IMPORT": "download_storage_object",
     "X_POST": "download_x_post",
     "WEB_ARCHIVE": "download_web_archive",
+    "MAGNET": "download_pikpak_magnet",
 }
 
 
