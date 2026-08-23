@@ -13,15 +13,20 @@ def build_payload(context: dict) -> dict:
     outputs = context.get("stepOutputs") or {}
     download = dict(outputs.get("download_asset") or {})
     asset = dict(outputs.get("register_asset") or {})
-    required = ("itemId", "fileName", "contentSha256", "sizeBytes", "relativePath")
+    required = ("itemId", "fileName", "contentSha256", "sizeBytes")
     if any(download.get(key) in (None, "") for key in required) or not asset.get("assetId"):
         raise ValueError("preceding download outputs are incomplete")
+    storage_uri = download.get("storageUri")
+    if not storage_uri and download.get("relativePath"):
+        storage_uri = "download://executor/" + str(download["relativePath"]).lstrip("/")
+    if not storage_uri:
+        raise ValueError("preceding download storage output is incomplete")
     return {
         "itemId": str(download["itemId"]),
         "fileName": str(download["fileName"]),
         "contentSha256": str(download["contentSha256"]).lower(),
         "sizeBytes": int(download["sizeBytes"]),
-        "storageUri": "download://executor/" + str(download["relativePath"]).lstrip("/"),
+        "storageUri": str(storage_uri),
         "assetId": str(asset["assetId"]),
     }
 

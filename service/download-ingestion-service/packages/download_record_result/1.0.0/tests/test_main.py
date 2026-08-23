@@ -24,6 +24,14 @@ class DownloadRecordResultTest(unittest.TestCase):
         self.assertEqual("download://executor/r/a.bin", payload["storageUri"])
         self.assertNotIn("sourcePath", json.dumps(payload))
 
+    def test_preserves_storage_gateway_uri(self):
+        """Managed imports retain their gateway URI instead of fabricating a local URI."""
+        context = {"stepOutputs": {"download_asset": {"itemId": "i2", "fileName": "b.bin",
+                    "contentSha256": "b" * 64, "sizeBytes": 8,
+                    "storageUri": "storage://downloads/r/b.bin"},
+                    "register_asset": {"assetId": "asset-2"}}}
+        self.assertEqual("storage://downloads/r/b.bin", MODULE.build_payload(context)["storageUri"])
+
 
 if __name__ == "__main__":
     unittest.main()

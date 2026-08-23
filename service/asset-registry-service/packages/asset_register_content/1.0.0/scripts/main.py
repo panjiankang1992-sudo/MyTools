@@ -59,6 +59,8 @@ def execute(context: dict, client: AssetRegistryClient) -> dict:
         producer, "text/plain")
     default_provider = {"download": "DOWNLOAD_EXECUTOR", "media": "LEGACY_MEDIA"}.get(
         producer, "STORAGE_GATEWAY")
+    if producer == "download" and str(output.get("storageUri") or "").startswith("storage://"):
+        default_provider = "STORAGE_GATEWAY"
     mime_type = str(parameters.get("assetMimeType") or default_mime)
     provider_type = str(parameters.get("assetProviderType") or default_provider)
     payload = {

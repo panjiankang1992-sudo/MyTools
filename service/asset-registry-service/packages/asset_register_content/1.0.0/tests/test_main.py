@@ -46,6 +46,16 @@ class AssetRegisterContentTest(unittest.TestCase):
         self.assertEqual("download://executor/request/file%20name.bin",
                          client.payload["location"]["storageUri"])
 
+    def test_registers_managed_download_with_storage_gateway_provider(self):
+        client = Client()
+        MODULE.execute({
+            "parameters": {"downloadRequestId": "00000000-0000-4000-8000-000000000004"},
+            "stepOutputs": {"download_asset": {"storageUri": "storage://downloads/r/a.bin",
+                                                 "contentSha256": "d" * 64,
+                                                 "sizeBytes": 12}}
+        }, client)
+        self.assertEqual("STORAGE_GATEWAY", client.payload["location"]["providerType"])
+
     def test_registers_media_probe_without_exposing_source_path(self):
         with __import__("tempfile").TemporaryDirectory() as directory:
             source = Path(directory) / "video.mp4"

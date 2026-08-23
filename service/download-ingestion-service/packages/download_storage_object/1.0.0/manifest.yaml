@@ -1,0 +1,18 @@
+name: download_storage_object
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - storage_read
+  - storage_write
+parameters:
+  required:
+    - downloadRequestId
+    - itemId
+    - sourceStorageUri
+    - fileName
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 1800
+  maxOutputBytes: 65536

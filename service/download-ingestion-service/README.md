@@ -35,6 +35,9 @@ HTTP 下载成功后追加可忽略的 `asset_register_content` 步骤，将摘�
 创建、查询和取消接口均要求内部 Bearer Token。相同幂等键只能重放完全相同的来源、类型和参数，内容变化会被拒绝而不是复用旧请求。
 
 当前线上契约仅开放已注册执行包的 `HTTP_ASSET`。其余下载类型将在对应任务定义、执行包和回归测试完成后逐项开放。
+当前还开放 `LOCAL_IMPORT`：调用方必须先把来源表示为 `storage://` 逻辑 URI，
+`download_storage_object` 任务负责受限读取、摘要校验和向目标托管根的幂等发布；API 和
+下载 schema 不接受任意本机物理路径。
 
 历史迁移使用 `V3__create_legacy_history_import.sql` 的独立不可变历史表，不把旧完成记录
 伪装成新的 `download_request`，因此不会触发下载。内部接口

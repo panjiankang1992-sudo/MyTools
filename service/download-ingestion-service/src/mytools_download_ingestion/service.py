@@ -12,6 +12,7 @@ from .models import CreateDownloadRequest, DownloadRequest, DownloadStatus
 
 TASK_NAMES = {
     "HTTP_ASSET": "download_http_asset",
+    "LOCAL_IMPORT": "download_storage_object",
 }
 
 
@@ -78,7 +79,7 @@ class DownloadRequestService:
             task_name=task_name,
             idempotency_key=f"download:{accepted.idempotency_key}",
             business_id=str(accepted.id),
-            parameters={"downloadRequestId": str(accepted.id), **accepted.parameters},
+            parameters={**accepted.parameters, "downloadRequestId": str(accepted.id)},
         )
         return self._repository.bind_task(accepted.id, task_id)
 

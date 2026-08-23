@@ -70,6 +70,18 @@ class DownloadRequestServiceTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported download request kind"):
             service.create(command)
 
+    def test_routes_managed_local_import_to_storage_task(self):
+        """A local import is represented by a managed URI and a storage copy task."""
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(InMemoryDownloadRequestRepository(), scheduler)
+        command = CreateDownloadRequest(
+            "local:object-1", "LOCAL_IMPORT", "storage://legacy/object-1", "LOCAL_IMPORT",
+            {"itemId": "item-1", "sourceStorageUri": "storage://legacy/object-1",
+             "fileName": "object.bin"})
+        created = service.create(command)
+        self.assertEqual("download_storage_object", scheduler.calls[0]["task_name"])
+        self.assertEqual(str(created.id), scheduler.calls[0]["parameters"]["downloadRequestId"])
+
     def test_retries_scheduler_binding_for_an_accepted_request(self):
         """A transient scheduler failure must not strand the accepted aggregate."""
         repository = InMemoryDownloadRequestRepository()

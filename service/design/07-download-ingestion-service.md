@@ -41,7 +41,8 @@
 ## 迁移
 
 1. 保留 DownloadBot 表和模型，给现有 worker 增加默认关闭的任务适配层。
-2. 将 HTTP/X 下载封装为首批脚本；当前已完成受限 HTTP 下载任务。
+2. 将 HTTP/X 下载封装为首批脚本；当前已完成受限 HTTP 下载任务，以及只接受
+   Storage Gateway 逻辑 URI 的本地导入任务。
 3. 迁移 PikPak、magnet 和消息附件。
 4. 通过 `downloadbot_capture_snapshot` 捕获旧库一致性快照，再由
    `download_migrate_legacy_history` 经受保护 API 导入历史；旧库只读账号与两个 API
