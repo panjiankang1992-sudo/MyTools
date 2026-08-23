@@ -32,18 +32,19 @@
 
 - [ ] 下载任务。已建立 `mytools_download` schema、请求聚合、MySQL 仓储、接入 API 和七类父任务映射；受限 HTTP 下载脚本及状态/取消闭环已完成，HTTP 目标和重定向增加非公网地址防护，成功结果已通过可忽略步骤镜像 Asset Registry；DownloadBot 默认关闭旁路与双写对账待迁移。
 - [ ] 媒体扫描、缩略图、截图和简介。已迁移 ffprobe、缩略图、十二帧截图和视频简介脚本，并加入默认关闭的 MyTools 旁路提交；目录扫描和新资产结果回写待迁移。
-- [ ] 书源搜索、发现、电子书导入和索引。已建立独立 Reader Service、`mytools_reader` schema、原生多节点搜索分片、结果暂存与部分成功合并；书源发现、健康检查、书源电子书导入、TXT/EPUB/PDF/MOBI 元数据解析、持久化目录构建和指定章节预取已迁为受限脚本任务，电子书通过 Storage Gateway 原子发布并登记领域资产；仍保留默认关闭的 MyTools 旁路，新旧结果对账、缓存清理和书库重建待迁移。
+- [ ] 书源搜索、发现、电子书导入和索引。已建立独立 Reader Service、`mytools_reader` schema、原生多节点搜索分片、结果暂存与部分成功合并；发现、健康检查、电子书导入、元数据解析、目录、章节预取和缓存清理均已任务化，书库派生索引已按冻结快照写入不可见 generation 并原子发布；仍保留默认关闭的 MyTools 旁路，新旧结果和不可再生书架数据尚待迁移对账。
 
 ## 阶段 4：共享能力
 
 - [ ] Storage Gateway。已建立独立 `mytools_storage` schema 和本地受管根的幂等流式上传、摘要校验、路径隔离及原子发布 MVP；远端 provider、访问票据、复制移动和任务化同步待迁移。
-- [ ] Messaging 和 Message Automation。已建立独立 `mytools_messaging` schema、幂等投递/尝试、标准入站消息、事务 Outbox、SMTP provider 及只携带 `deliveryId` 的邮件任务，并增加默认关闭、旧事务提交后触发的 MyTools 注册邮件旁路；已建立独立 `mytools_message_automation` schema、授权规则、动作白名单、消息去重运行、只转发消息标识的默认关闭 Outbox relay，以及有界 URL 到 Download Ingestion 请求的编排。历史收信、QQ/Telegram/OneBot adapter、附件动作、状态汇总和新旧规则对账待迁移。
+- [ ] Messaging 和 Message Automation。已建立独立 schema、幂等邮件投递、标准入站消息、OneBot 标准化、事务 Outbox 和默认关闭的旧链路旁路；附件下载已创建 Download Ingestion 子任务。Automation 已实现授权规则、动作白名单、消息去重、动作占位、子任务状态汇总和级联取消。历史收信迁移、provider 文件解析 adapter 和新旧规则对账仍待完成。
 - [ ] Asset Registry。已建立独立 `mytools_asset` schema、按 SHA-256 与大小去重的资产、跨租户业务来源、存储位置、派生关系、乐观版本、幂等写入和事务 Outbox；已建立共享 `asset_register_content` 脚本与 SDK，并以可忽略、可补偿步骤接入 Reader 电子书导入和 HTTP 下载。媒体登记旁路、资源包及旧 ID 映射待迁移。
 - [ ] Media、Drive、Reader、Identity 独立服务。
 
 ## 阶段 5：切流与收尾
 
 - [ ] 分租户或按任务类型灰度。
+- [x] 建立不读取 Secret、不修改运行状态的 schema/开关预检工具，以及放量门禁和回退演练文档。
 - [ ] 校验结果、性能、任务积压和错误率。
 - [ ] 停止旧 Job，但保留快速回退。
 - [ ] 观察期结束后删除旧执行路径。

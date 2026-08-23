@@ -21,3 +21,5 @@
 任何阶段都不得直接修改旧服务的生产入口；切流必须有开关、回退路径和结果对账。
 
 新服务统一使用独立数据库 schema。不可再生数据必须迁移；可再生数据在迁移不可靠或成本过高时通过任务重新生成。
+
+灰度前可运行只读预检：`python3 service/scripts/cutover_preflight.py --env-file <file>`。详细门禁、演练顺序和回退要求见 [灰度与切换设计](design/20-grey-release-and-cutover.md)。
