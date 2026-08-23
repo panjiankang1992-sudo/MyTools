@@ -78,7 +78,7 @@ public class MessageAutomationService {
         try {
             for (int index = 0; index < urls.size(); index++) {
                 String url = urls.get(index);
-                refs.add(downloadClient.create(messageId, rule.id(), index, rule.requestKind(), url,
+                refs.add(downloadClient.create(messageId, message.ownerId(), rule.id(), index, rule.requestKind(), url,
                         fileName(url, index)));
             }
             return transactionTemplate.execute(status -> repository.completeRun(

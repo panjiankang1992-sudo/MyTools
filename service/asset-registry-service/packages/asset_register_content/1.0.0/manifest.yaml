@@ -5,9 +5,7 @@ entrypoint: scripts/main.py
 capabilities:
   - asset_registry_write
 parameters:
-  required:
-    - ownerId
-    - requestId
+  required: []
 result:
   schema: schemas/result.schema.json
 limits:

@@ -33,6 +33,19 @@ class AssetRegisterContentTest(unittest.TestCase):
         self.assertEqual("storage://managed/ebooks/book.txt", client.payload["location"]["storageUri"])
         self.assertNotIn("sourceSnapshot", client.payload)
 
+    def test_normalizes_download_output_without_physical_path(self):
+        client = Client()
+        MODULE.execute({
+            "parameters": {"downloadRequestId": "00000000-0000-4000-8000-000000000003", "ownerId": 9},
+            "stepOutputs": {"download_asset": {"relativePath": "request/file name.bin",
+                                                 "contentSha256": "b" * 64, "sizeBytes": 2048}}
+        }, client)
+
+        self.assertEqual("DOWNLOAD", client.payload["sourceType"])
+        self.assertEqual("DOWNLOAD_EXECUTOR", client.payload["location"]["providerType"])
+        self.assertEqual("download://executor/request/file%20name.bin",
+                         client.payload["location"]["storageUri"])
+
 
 if __name__ == "__main__":
     unittest.main()

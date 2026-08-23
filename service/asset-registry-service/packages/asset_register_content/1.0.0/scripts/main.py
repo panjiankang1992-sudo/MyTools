@@ -7,33 +7,49 @@ import json
 import os
 from pathlib import Path
 import tempfile
+import urllib.parse
 
 from mytools_task_sdk.asset import AssetRegistryClient
 
 
-def import_output(context: dict) -> dict:
-    """Resolve explicit input or the preceding Reader import step output."""
+def verified_output(context: dict) -> tuple[dict, str]:
+    """Resolve explicit, Reader, or HTTP download verified output."""
     parameters = context["parameters"]
     output = dict(parameters.get("assetOutput") or {})
+    producer = "explicit"
     if not output:
         output = dict((context.get("stepOutputs") or {}).get("import_ebook") or {})
+        producer = "reader"
+    if not output:
+        output = dict((context.get("stepOutputs") or {}).get("download_asset") or {})
+        producer = "download"
+    if output.get("contentSha256") and not output.get("sha256"):
+        output["sha256"] = output["contentSha256"]
+    if output.get("sizeBytes") is not None and output.get("size") is None:
+        output["size"] = output["sizeBytes"]
+    if not output.get("storageUri") and output.get("relativePath"):
+        path = urllib.parse.quote(str(output["relativePath"]).lstrip("/"), safe="/")
+        output["storageUri"] = "download://executor/" + path
     required = ("storageUri", "sha256", "size")
     if any(output.get(key) in (None, "") for key in required):
         raise ValueError("verified asset output is missing")
-    return output
+    return output, producer
 
 
 def execute(context: dict, client: AssetRegistryClient) -> dict:
     """Build a stable registration payload from verified task output."""
     parameters = context["parameters"]
-    output = import_output(context)
-    request_id = str(parameters["requestId"])
-    source_type = str(parameters.get("assetSourceType") or "READER_EBOOK")
+    output, producer = verified_output(context)
+    request_id = str(parameters.get("requestId") or parameters["downloadRequestId"])
+    default_source = "DOWNLOAD" if producer == "download" else "READER_EBOOK"
+    source_type = str(parameters.get("assetSourceType") or default_source)
     source_business_id = str(parameters.get("assetSourceBusinessId") or request_id)
-    mime_type = str(parameters.get("assetMimeType") or "text/plain")
-    provider_type = str(parameters.get("assetProviderType") or "STORAGE_GATEWAY")
+    default_mime = "application/octet-stream" if producer == "download" else "text/plain"
+    default_provider = "DOWNLOAD_EXECUTOR" if producer == "download" else "STORAGE_GATEWAY"
+    mime_type = str(parameters.get("assetMimeType") or default_mime)
+    provider_type = str(parameters.get("assetProviderType") or default_provider)
     payload = {
-        "ownerId": int(parameters["ownerId"]),
+        "ownerId": int(parameters.get("ownerId") or 0),
         "idempotencyKey": f"{source_type.lower()}:{source_business_id}",
         "sourceType": source_type,
         "sourceBusinessId": source_business_id,
