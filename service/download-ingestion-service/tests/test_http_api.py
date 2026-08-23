@@ -111,7 +111,10 @@ class DownloadHttpApiTest(unittest.TestCase):
     def test_imports_sanitized_downloadbot_history_batch(self):
         """The protected migration endpoint supports dry-run and apply modes."""
         import hashlib
-        payload = {"legacyJobId": "9", "status": "COMPLETED"}
+        payload = {"legacyJobId": "9", "uriSha256": "a" * 64, "requestKind": "HTTP",
+                   "strategy": "DIRECT", "sourceType": "MESSAGE", "sourceKey": "message-9",
+                   "status": "COMPLETED", "expectedFiles": 1,
+                   "createdAt": None, "completedAt": None}
         digest = hashlib.sha256(json.dumps(payload, sort_keys=True,
                                            separators=(",", ":")).encode()).hexdigest()
         item = {"itemType": "LINK_JOB", "legacyId": "9", "sourceKey": "link:9",

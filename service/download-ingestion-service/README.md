@@ -62,6 +62,11 @@ Connector 创建并推进可恢复操作；账户凭据、rclone remote key 和�
 审计。正式迁移由 `download_migrate_legacy_history` 任务分页读取已封存快照，并校验条目数和
 集合摘要闭合后调用该接口。
 
+导入端支持 `ASSET`、`LINK_JOB`、`LINK_ASSET` 和 `EVENT_ASSET` 四类固定载荷。
+`EVENT_ASSET` 保存普通消息下载与内容资产的脱敏来源关系；服务会校验事件身份摘要、
+内容摘要、来源系统和来源序号，并拒绝任何未知顶层字段，因此原始消息、发送者、会话、
+平台文件 ID 或机器人账号不能经迁移 API 写入下载 schema。
+
 `download_reconcile_legacy_result` 任务按一个旁路事件读取旧快照证据和新结果摘要，比较
 终态、文件数、总字节数和 `contentSetSha256`。适配器对账接口仍默认关闭。
 
