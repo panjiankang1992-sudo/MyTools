@@ -15,6 +15,8 @@ import com.yuyutian.mytools.reader.service.CacheMaintenanceConflictException;
 import com.yuyutian.mytools.reader.service.CacheMaintenanceNotFoundException;
 import com.yuyutian.mytools.reader.service.LibraryRebuildConflictException;
 import com.yuyutian.mytools.reader.service.LibraryRebuildNotFoundException;
+import com.yuyutian.mytools.reader.service.ReaderStateConflictException;
+import com.yuyutian.mytools.reader.service.ReaderStateNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -187,5 +189,25 @@ public class ReaderExceptionHandler {
     public Map<String, String> handleLibraryRebuildConflict(LibraryRebuildConflictException exception) {
         return Map.of("code", ErrorCode.LIBRARY_REBUILD_CONFLICT.code(),
                 "message", ErrorCode.LIBRARY_REBUILD_CONFLICT.message());
+    }
+
+    /**
+     * 转换 Reader 同步状态不存在异常。
+     */
+    @ExceptionHandler(ReaderStateNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleReaderStateNotFound(ReaderStateNotFoundException exception) {
+        return Map.of("code", ErrorCode.READER_STATE_NOT_FOUND.code(),
+                "message", ErrorCode.READER_STATE_NOT_FOUND.message());
+    }
+
+    /**
+     * 转换 Reader 同步状态版本冲突异常。
+     */
+    @ExceptionHandler(ReaderStateConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> handleReaderStateConflict(ReaderStateConflictException exception) {
+        return Map.of("code", ErrorCode.READER_STATE_CONFLICT.code(),
+                "message", ErrorCode.READER_STATE_CONFLICT.message());
     }
 }

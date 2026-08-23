@@ -109,9 +109,11 @@ public class LegacyReaderMigrationService {
     private UUID importShelf(LegacyReaderMigrationItem item, String payload) {
         UUID id = stableId("shelf", item.ownerId(), item.legacyKey());
         jdbcTemplate.update("""
-                INSERT INTO shelf_book (id, owner_id, book_key, metadata_json, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO shelf_book
+                    (id, owner_id, book_key, metadata_json, deleted, version, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, id.toString(), item.ownerId(), item.legacyKey(), payload,
+                item.deleted(), item.revision(),
                 timestamp(item.serverUpdatedAt()), timestamp(item.serverUpdatedAt()));
         jdbcTemplate.update("""
                 INSERT IGNORE INTO legacy_reader_key_map
@@ -125,10 +127,10 @@ public class LegacyReaderMigrationService {
         UUID shelfId = shelfId(item.ownerId(), item.bookId());
         jdbcTemplate.update("""
                 INSERT INTO reading_progress
-                    (shelf_book_id, chapter_index, chapter_url, position_json, version, updated_at)
-                VALUES (?, 0, ?, ?, ?, ?)
+                    (shelf_book_id, chapter_index, chapter_url, position_json, deleted, version, updated_at)
+                VALUES (?, 0, ?, ?, ?, ?, ?)
                 """, shelfId.toString(), stringValue(item.payload(), "chapterTitle"), payload,
-                item.revision(), timestamp(item.serverUpdatedAt()));
+                item.deleted(), item.revision(), timestamp(item.serverUpdatedAt()));
         return shelfId;
     }
 
@@ -137,11 +139,13 @@ public class LegacyReaderMigrationService {
         UUID markerId = stableId("marker", item.ownerId(), item.legacyKey());
         jdbcTemplate.update("""
                 INSERT INTO reader_marker
-                    (id, shelf_book_id, marker_type, chapter_index, position_json, note_text, created_at, updated_at)
-                VALUES (?, ?, ?, 0, ?, ?, ?, ?)
+                    (id, shelf_book_id, marker_type, chapter_index, position_json, note_text,
+                     deleted, version, created_at, updated_at)
+                VALUES (?, ?, ?, 0, ?, ?, ?, ?, ?, ?)
                 """, markerId.toString(), shelfId.toString(), stringValue(item.payload(), "kind"), payload,
-                stringValue(item.payload(), "note"), timestamp(longValue(item.payload(), "createdAt",
-                        item.serverUpdatedAt())), timestamp(item.serverUpdatedAt()));
+                stringValue(item.payload(), "note"), item.deleted(), item.revision(),
+                timestamp(longValue(item.payload(), "createdAt", item.serverUpdatedAt())),
+                timestamp(item.serverUpdatedAt()));
         return markerId;
     }
 
