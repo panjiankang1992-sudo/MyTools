@@ -55,3 +55,30 @@ def test_execute_compensates_when_target_reverification_differs(tmp_path):
 def test_execute_rejects_non_uuid_before_any_request(tmp_path):
     with pytest.raises(ValueError):
         MODULE.execute({"operationId": "../escape"}, Client(), tmp_path, 1024)
+
+
+class Response:
+    def __init__(self, content, maximum):
+        self.content = content
+        self.offset = 0
+        self.headers = {"Content-Length": str(len(content)),
+                        "X-Storage-Maximum-Write-Bytes": str(maximum)}
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        return None
+
+    def read(self, length):
+        value = self.content[self.offset:self.offset + length]
+        self.offset += len(value)
+        return value
+
+
+def test_download_honors_target_connector_limit_before_streaming(tmp_path):
+    client = MODULE.StorageClient("http://storage", "token",
+                                  opener=lambda _request, timeout: Response(b"payload", 6))
+
+    with pytest.raises(RuntimeError, match="length"):
+        client.download(str(uuid4()), "source", tmp_path / "source.bin", 1024)

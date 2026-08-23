@@ -2,6 +2,7 @@ package com.yuyutian.mytools.storage.service;
 
 import com.yuyutian.mytools.storage.model.ErrorCode;
 import com.yuyutian.mytools.storage.model.RemoteObjectView;
+import com.yuyutian.mytools.storage.model.RemoteContent;
 import com.yuyutian.mytools.storage.model.StorageProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,8 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -37,13 +40,15 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * 使用签名版本四原生读取 S3 单级对象列表。
+ * 使用签名版本四原生访问 S3 对象。
  */
 @Component
 public class S3ObjectConnector implements ProviderObjectConnector {
     private static final int MAXIMUM_RESPONSE_BYTES = 8 * 1024 * 1024;
     private static final int MAXIMUM_PAGES = 10;
+    private static final long MAXIMUM_PUT_BYTES = 5L * 1024 * 1024 * 1024;
     private static final String EMPTY_SHA256 = sha256Hex(new byte[0]);
+    private static final String UNSIGNED_PAYLOAD = "UNSIGNED-PAYLOAD";
     private static final DateTimeFormatter REQUEST_TIME = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")
             .withZone(ZoneOffset.UTC);
     private static final DateTimeFormatter REQUEST_DATE = DateTimeFormatter.ofPattern("yyyyMMdd")
@@ -77,6 +82,24 @@ public class S3ObjectConnector implements ProviderObjectConnector {
     @Override
     public String providerType() {
         return "S3";
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean supportsContentRead() {
+        return true;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean supportsContentWrite() {
+        return true;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public long maximumContentWriteBytes() {
+        return MAXIMUM_PUT_BYTES;
     }
 
     /**
@@ -113,6 +136,149 @@ public class S3ObjectConnector implements ProviderObjectConnector {
             }
         }
         throw new IllegalStateException(ErrorCode.REMOTE_LIST_LIMIT.code());
+    }
+
+    /**
+     * 使用 SigV4 GET 打开一个受限普通对象。
+     *
+     * @param provider Provider 配置
+     * @param path 安全相对路径
+     * @param maximumBytes 最大字节数
+     * @return 有界内容流
+     */
+    @Override
+    public RemoteContent openContent(StorageProvider provider, String path, long maximumBytes) {
+        String safePath = RemotePathValidator.validate(path, false);
+        Credentials credentials = credentials(secretResolver.resolve(provider.secretRef()));
+        HttpRequest request = signedObjectBuilder(provider, credentials, "GET", safePath,
+                UNSIGNED_PAYLOAD, Map.of()).GET().build();
+        try {
+            HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            long length = response.headers().firstValueAsLong("Content-Length").orElse(-1);
+            if (response.statusCode() != 200 || length < 0 || length > maximumBytes) {
+                response.body().close();
+                throw new IllegalStateException(length > maximumBytes
+                        ? ErrorCode.REMOTE_CONTENT_TOO_LARGE.code() : ErrorCode.REMOTE_FAILURE.code());
+            }
+            return new RemoteContent(new BoundedInputStream(response.body(), maximumBytes), length);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        } catch (IOException exception) {
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        }
+    }
+
+    /**
+     * 使用条件 SigV4 PUT 创建一个普通对象。
+     *
+     * @param provider Provider 配置
+     * @param path 安全相对路径
+     * @param content 内容流
+     * @param contentLength 精确内容长度
+     * @return 是否由本次请求创建目标
+     */
+    @Override
+    public boolean writeContent(StorageProvider provider, String path, InputStream content, long contentLength) {
+        if (contentLength < 0 || contentLength > MAXIMUM_PUT_BYTES) {
+            throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_TOO_LARGE.code());
+        }
+        String safePath = RemotePathValidator.validate(path, false);
+        Credentials credentials = credentials(secretResolver.resolve(provider.secretRef()));
+        HttpRequest.BodyPublisher publisher = HttpRequest.BodyPublishers.fromPublisher(
+                HttpRequest.BodyPublishers.ofInputStream(() -> content), contentLength);
+        HttpRequest request = signedObjectBuilder(provider, credentials, "PUT", safePath,
+                UNSIGNED_PAYLOAD, Map.of("if-none-match", "*"))
+                .header("Content-Type", "application/octet-stream").PUT(publisher).build();
+        return sendWrite(request);
+    }
+
+    /**
+     * 使用 SigV4 DELETE 补偿删除一个普通对象。
+     *
+     * @param provider Provider 配置
+     * @param path 安全相对路径
+     */
+    @Override
+    public void deleteContent(StorageProvider provider, String path) {
+        String safePath = RemotePathValidator.validate(path, false);
+        Credentials credentials = credentials(secretResolver.resolve(provider.secretRef()));
+        HttpRequest request = signedObjectBuilder(provider, credentials, "DELETE", safePath,
+                UNSIGNED_PAYLOAD, Map.of()).DELETE().build();
+        sendDelete(request);
+    }
+
+    private HttpRequest.Builder signedObjectBuilder(StorageProvider provider, Credentials credentials,
+            String method, String path, String payloadHash, Map<String, String> additionalSignedHeaders) {
+        URI endpoint = NativeProviderEndpointValidator.s3(provider.endpointUri());
+        String objectPath = java.util.Arrays.stream(path.split("/"))
+                .map(this::encode).collect(java.util.stream.Collectors.joining("/"));
+        URI requestUri = URI.create(trimTrailingSlash(endpoint.toString()) + "/"
+                + encode(provider.remoteKey()) + "/" + objectPath);
+        Instant now = clock.instant();
+        String timestamp = REQUEST_TIME.format(now);
+        String date = REQUEST_DATE.format(now);
+        TreeMap<String, String> signedHeaders = new TreeMap<>();
+        signedHeaders.put("host", hostHeader(requestUri));
+        signedHeaders.put("x-amz-content-sha256", payloadHash);
+        signedHeaders.put("x-amz-date", timestamp);
+        if (credentials.sessionToken() != null) {
+            signedHeaders.put("x-amz-security-token", credentials.sessionToken());
+        }
+        signedHeaders.putAll(additionalSignedHeaders);
+        String signedHeaderNames = String.join(";", signedHeaders.keySet());
+        String canonicalHeaders = signedHeaders.entrySet().stream()
+                .map(entry -> entry.getKey() + ":" + entry.getValue().trim() + "\n")
+                .collect(java.util.stream.Collectors.joining());
+        String canonicalRequest = method + "\n" + requestUri.getRawPath() + "\n\n"
+                + canonicalHeaders + "\n" + signedHeaderNames + "\n" + payloadHash;
+        String scope = date + "/" + provider.regionName() + "/s3/aws4_request";
+        String stringToSign = "AWS4-HMAC-SHA256\n" + timestamp + "\n" + scope + "\n"
+                + sha256Hex(canonicalRequest.getBytes(StandardCharsets.UTF_8));
+        String signature = HexFormat.of().formatHex(hmac(signingKey(credentials.secretAccessKey(), date,
+                provider.regionName()), stringToSign.getBytes(StandardCharsets.UTF_8)));
+        String authorization = "AWS4-HMAC-SHA256 Credential=" + credentials.accessKeyId() + "/" + scope
+                + ", SignedHeaders=" + signedHeaderNames + ", Signature=" + signature;
+        HttpRequest.Builder builder = HttpRequest.newBuilder(requestUri).timeout(Duration.ofMinutes(30))
+                .header("Authorization", authorization).header("x-amz-content-sha256", payloadHash)
+                .header("x-amz-date", timestamp);
+        if (credentials.sessionToken() != null) {
+            builder.header("x-amz-security-token", credentials.sessionToken());
+        }
+        additionalSignedHeaders.forEach(builder::header);
+        return builder;
+    }
+
+    private boolean sendWrite(HttpRequest request) {
+        try {
+            HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+            if (Set.of(200, 201, 204).contains(response.statusCode())) {
+                return true;
+            }
+            if (response.statusCode() == 412) {
+                return false;
+            }
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        } catch (IOException exception) {
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        }
+    }
+
+    private void sendDelete(HttpRequest request) {
+        try {
+            HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+            if (!Set.of(200, 204, 404).contains(response.statusCode())) {
+                throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+            }
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        } catch (IOException exception) {
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        }
     }
 
     private Page requestPage(StorageProvider provider, URI endpoint, Credentials credentials,
@@ -295,7 +461,7 @@ public class S3ObjectConnector implements ProviderObjectConnector {
 
     private String encode(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20")
-                .replace("%7E", "~");
+                .replace("*", "%2A").replace("%7E", "~");
     }
 
     private String trimTrailingSlash(String value) {

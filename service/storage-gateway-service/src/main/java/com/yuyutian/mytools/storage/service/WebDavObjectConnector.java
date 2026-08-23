@@ -81,6 +81,12 @@ public class WebDavObjectConnector implements ProviderObjectConnector {
         return true;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public long maximumContentWriteBytes() {
+        return Long.MAX_VALUE;
+    }
+
     /**
      * 使用深度一 PROPFIND 查询并标准化响应。
      *
@@ -164,6 +170,9 @@ public class WebDavObjectConnector implements ProviderObjectConnector {
      */
     @Override
     public boolean writeContent(StorageProvider provider, String path, InputStream content, long contentLength) {
+        if (contentLength < 0) {
+            throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_TOO_LARGE.code());
+        }
         String safePath = RemotePathValidator.validate(path, false);
         HttpRequest.BodyPublisher publisher = HttpRequest.BodyPublishers.fromPublisher(
                 HttpRequest.BodyPublishers.ofInputStream(() -> content), contentLength);

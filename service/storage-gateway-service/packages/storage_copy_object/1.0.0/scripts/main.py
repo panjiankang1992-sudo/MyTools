@@ -31,11 +31,14 @@ class StorageClient:
         total = 0
         with self.opener(request, timeout=3600) as response, target.open("wb") as output:
             declared = int(response.headers.get("Content-Length", "-1"))
-            if declared < 0 or declared > maximum_bytes:
+            provider_limit = int(response.headers.get("X-Storage-Maximum-Write-Bytes", str(maximum_bytes))) \
+                if role == "source" else maximum_bytes
+            effective_limit = min(maximum_bytes, provider_limit)
+            if declared < 0 or provider_limit <= 0 or declared > effective_limit:
                 raise RuntimeError("Storage object length is invalid")
             while chunk := response.read(CHUNK_BYTES):
                 total += len(chunk)
-                if total > maximum_bytes:
+                if total > effective_limit:
                     raise RuntimeError("Storage object exceeds maximumBytes")
                 digest.update(chunk)
                 output.write(chunk)

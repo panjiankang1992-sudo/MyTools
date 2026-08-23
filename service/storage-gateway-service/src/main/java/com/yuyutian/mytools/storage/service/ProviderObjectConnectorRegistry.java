@@ -73,6 +73,11 @@ public class ProviderObjectConnectorRegistry {
         return connector(provider).supportsContentWrite();
     }
 
+    /** 返回 Provider 单次内容写入上限。 @param provider Provider @return 最大字节数 */
+    public long maximumContentWriteBytes(StorageProvider provider) {
+        return connector(provider).maximumContentWriteBytes();
+    }
+
     private ProviderObjectConnector connector(StorageProvider provider) {
         ProviderObjectConnector connector = connectors.get(provider.providerType());
         if (connector == null) {

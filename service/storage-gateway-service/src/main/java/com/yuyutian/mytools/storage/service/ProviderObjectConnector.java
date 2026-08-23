@@ -38,6 +38,15 @@ public interface ProviderObjectConnector {
     }
 
     /**
+     * 返回连接器单次普通文件写入上限。
+     *
+     * @return 最大字节数，不支持写入时为零
+     */
+    default long maximumContentWriteBytes() {
+        return 0;
+    }
+
+    /**
      * 列出 Provider 内一个单级目录。
      *
      * @param provider Provider 配置

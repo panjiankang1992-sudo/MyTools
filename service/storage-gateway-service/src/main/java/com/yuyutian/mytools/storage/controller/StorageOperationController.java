@@ -147,7 +147,13 @@ public class StorageOperationController {
     public ResponseEntity<InputStreamResource> nativeCopySource(@PathVariable UUID id,
             @RequestHeader("Authorization") String authorization) {
         authorizer.require(authorization);
-        return contentResponse(nativeCopyService.source(id));
+        RemoteContent content = nativeCopyService.source(id);
+        ResponseEntity.BodyBuilder response = ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header("X-Storage-Maximum-Write-Bytes", Long.toString(nativeCopyService.maximumWriteBytes(id)));
+        if (content.contentLength() >= 0) {
+            response.contentLength(content.contentLength());
+        }
+        return response.body(new InputStreamResource(content.stream()));
     }
 
     /**

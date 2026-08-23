@@ -56,6 +56,17 @@ public class StorageNativeCopyService {
     }
 
     /**
+     * 返回操作目标连接器和 Gateway 共同允许的单对象写入上限。
+     *
+     * @param operationId 操作标识
+     * @return 最大字节数
+     */
+    public long maximumWriteBytes(UUID operationId) {
+        Context context = context(operationId);
+        return Math.min(maximumBytes, connectorRegistry.maximumContentWriteBytes(context.target()));
+    }
+
+    /**
      * 打开操作定义的目标对象用于复读校验。
      *
      * @param operationId 操作标识
@@ -82,6 +93,9 @@ public class StorageNativeCopyService {
             throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_TOO_LARGE.code());
         }
         Context context = context(operationId);
+        if (contentLength > connectorRegistry.maximumContentWriteBytes(context.target())) {
+            throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_TOO_LARGE.code());
+        }
         DigestInputStream digestInput = new DigestInputStream(
                 new BoundedInputStream(content, contentLength), sha256());
         CountingInputStream counting = new CountingInputStream(digestInput);

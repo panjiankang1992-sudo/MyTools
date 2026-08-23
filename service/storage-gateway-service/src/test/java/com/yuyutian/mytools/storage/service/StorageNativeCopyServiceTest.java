@@ -38,6 +38,7 @@ class StorageNativeCopyServiceTest {
 
         assertThat(service.source(operationId).contentLength()).isEqualTo(1);
         assertThat(service.target(operationId).contentLength()).isEqualTo(1);
+        assertThat(service.maximumWriteBytes(operationId)).isEqualTo(1024);
     }
 
     @Test
@@ -87,6 +88,18 @@ class StorageNativeCopyServiceTest {
         verify(registry, never()).deleteContent(any(), any());
     }
 
+    @Test
+    void shouldRejectConnectorSpecificWriteLimitBeforeReadingRequestBody() {
+        StorageNativeCopyService service = service();
+        when(registry.maximumContentWriteBytes(any())).thenReturn(6L);
+
+        assertThatThrownBy(() -> service.writeTarget(operationId,
+                new ByteArrayInputStream("payload".getBytes()), 7,
+                "239f59ed55e737c77147cf55ad0c1b030b6d7ee748a7426952f9b852d5a935e5"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("STORAGE_029");
+        verify(registry, never()).writeContent(any(), any(), any(), eq(7L));
+    }
+
     private StorageNativeCopyService service() {
         Instant now = Instant.now();
         StorageOperation operation = new StorageOperation(operationId, sourceId, "copy-object:key",
@@ -99,6 +112,7 @@ class StorageNativeCopyServiceTest {
         when(repository.findOperationById(operationId)).thenReturn(Optional.of(operation));
         when(repository.findProviderById(sourceId)).thenReturn(Optional.of(source));
         when(repository.findProviderById(targetId)).thenReturn(Optional.of(target));
+        when(registry.maximumContentWriteBytes(target)).thenReturn(1024L);
         return new StorageNativeCopyService(repository, registry, 1024);
     }
 }
