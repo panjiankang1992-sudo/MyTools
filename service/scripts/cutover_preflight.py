@@ -26,6 +26,7 @@ SAFE_DISABLED_FLAGS = (
     "GATEWAY_IDENTITY_ROUTE_ENABLED",
     "GATEWAY_READER_ROUTE_ENABLED",
     "GATEWAY_DRIVE_ROUTE_ENABLED",
+    "GATEWAY_DOWNLOAD_ROUTE_ENABLED",
     "MEDIA_TAG_SIDECAR_ENABLED",
     "MEDIA_PROCESSING_SIDECAR_ENABLED",
     "READER_SEARCH_SIDECAR_ENABLED",
@@ -85,7 +86,7 @@ def inspect(values: dict[str, str], allow_enabled: bool = False) -> dict[str, ob
             warnings.append(f"{key} is enabled for an approved rehearsal")
 
     tenant_counts: dict[str, int] = {}
-    for domain in ("READER", "DRIVE"):
+    for domain in ("READER", "DRIVE", "DOWNLOAD"):
         allowlist_key = f"GATEWAY_{domain}_TENANT_ALLOWLIST"
         route_key = f"GATEWAY_{domain}_ROUTE_ENABLED"
         allowlist = values.get(allowlist_key, "").strip()
@@ -109,6 +110,7 @@ def inspect(values: dict[str, str], allow_enabled: bool = False) -> dict[str, ob
 
     grey_release = {"readerTenantCount": tenant_counts["READER"],
                     "driveTenantCount": tenant_counts["DRIVE"],
+                    "downloadTenantCount": tenant_counts["DOWNLOAD"],
                     "identityValidationMode": identity_mode}
     return {"ready": not errors, "schemas": schemas, "flags": flags, "greyRelease": grey_release,
             "errors": errors, "warnings": warnings}

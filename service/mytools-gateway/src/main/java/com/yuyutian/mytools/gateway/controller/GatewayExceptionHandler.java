@@ -3,6 +3,7 @@ package com.yuyutian.mytools.gateway.controller;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayBadRequestException;
 import com.yuyutian.mytools.gateway.service.GatewayDownstreamException;
+import com.yuyutian.mytools.gateway.service.GatewayNotFoundException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -55,5 +56,14 @@ public class GatewayExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
     public Map<String, String> downstream(GatewayDownstreamException exception) {
         return Map.of("code", "GATEWAY_004", "message", "Gateway downstream is unavailable");
+    }
+
+    /**
+     * 转换租户资源不存在错误。
+     */
+    @ExceptionHandler(GatewayNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> notFound(GatewayNotFoundException exception) {
+        return Map.of("code", "GATEWAY_005", "message", "Gateway resource was not found");
     }
 }

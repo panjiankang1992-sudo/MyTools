@@ -71,7 +71,7 @@ class ReaderGatewayControllerTest {
 
     private GatewayProperties properties(boolean enabled) {
         return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, false, enabled, Set.of(55L),
-                false, Set.of(), "http://mytools", "http://identity", "http://reader", "http://drive",
-                "gateway-token", "identity-token", "reader-token", "drive-token", 1000, 3000);
+                false, Set.of(), false, Set.of(), "http://mytools", "http://identity", "http://reader", "http://drive",
+                "http://download", "gateway-token", "identity-token", "reader-token", "drive-token", "download-token", 1000, 3000);
     }
 }

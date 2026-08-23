@@ -111,15 +111,31 @@ class GatewayRequestFilterTest {
     }
 
     @Test
+    void shouldInjectAllowlistedPrincipalForEnabledDownloadRoute() throws Exception {
+        PrincipalValidator validator = mock(PrincipalValidator.class);
+        when(validator.validate("token")).thenReturn(new GatewayPrincipal(55L, "user", List.of("USER"), null));
+        GatewayRequestFilter filter = new GatewayRequestFilter(validator, properties(false, false, true));
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/app/v1/downloads/http");
+        request.addHeader("Authorization", "Bearer token");
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, new MockHttpServletResponse(), chain);
+
+        assertThat(chain.getRequest()).isNotNull();
+        assertThat(request.getAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE))
+                .isEqualTo(new GatewayPrincipal(55L, "user", List.of("USER"), null));
+    }
+
+    @Test
     void shouldAuthenticateIdentityLogoutWithoutApplyingTenantAllowlist() throws Exception {
         PrincipalValidator validator = mock(PrincipalValidator.class);
         java.util.UUID sessionId = java.util.UUID.randomUUID();
         when(validator.validate("token"))
                 .thenReturn(new GatewayPrincipal(99L, "user", List.of("USER"), sessionId));
         GatewayProperties properties = new GatewayProperties(GatewayProperties.IdentityMode.DUAL,
-                true, false, Set.of(), false, Set.of(), "http://mytools", "http://identity",
-                "http://reader", "http://drive", "gateway-token", "identity-token",
-                "reader-token", "drive-token", 1000, 3000);
+                true, false, Set.of(), false, Set.of(), false, Set.of(), "http://mytools", "http://identity",
+                "http://reader", "http://drive", "http://download", "gateway-token", "identity-token",
+                "reader-token", "drive-token", "download-token", 1000, 3000);
         GatewayRequestFilter filter = new GatewayRequestFilter(validator, properties);
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/app/v1/identity/logout");
         request.addHeader("Authorization", "Bearer token");
@@ -137,8 +153,12 @@ class GatewayRequestFilterTest {
     }
 
     private GatewayProperties properties(boolean readerEnabled, boolean driveEnabled) {
+        return properties(readerEnabled, driveEnabled, false);
+    }
+
+    private GatewayProperties properties(boolean readerEnabled, boolean driveEnabled, boolean downloadEnabled) {
         return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, false, readerEnabled, Set.of(55L),
-                driveEnabled, Set.of(55L), "http://mytools", "http://identity", "http://reader", "http://drive",
-                "gateway-token", "identity-token", "reader-token", "drive-token", 1000, 3000);
+                driveEnabled, Set.of(55L), downloadEnabled, Set.of(55L), "http://mytools", "http://identity", "http://reader", "http://drive",
+                "http://download", "gateway-token", "identity-token", "reader-token", "drive-token", "download-token", 1000, 3000);
     }
 }

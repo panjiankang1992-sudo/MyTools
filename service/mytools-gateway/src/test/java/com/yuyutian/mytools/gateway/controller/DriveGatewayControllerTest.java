@@ -60,7 +60,7 @@ class DriveGatewayControllerTest {
 
     private GatewayProperties properties(boolean enabled) {
         return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, false, false, Set.of(),
-                enabled, Set.of(55L), "http://mytools", "http://identity", "http://reader", "http://drive",
-                "gateway-token", "identity-token", "reader-token", "drive-token", 1000, 3000);
+                enabled, Set.of(55L), false, Set.of(), "http://mytools", "http://identity", "http://reader", "http://drive",
+                "http://download", "gateway-token", "identity-token", "reader-token", "drive-token", "download-token", 1000, 3000);
     }
 }

@@ -10,6 +10,7 @@ Gateway 是 App、Web、MCP 和管理后台的统一入口，负责认证接入�
 - `/api/app/v1/media/**`：聚合 Media Library 与任务摘要。
 - `/api/app/v1/drive/**`：代理 Drive。
 - `/api/app/v1/reader/**`：聚合 Reader 查询和任务进度。
+- `/api/app/v1/downloads/**`：创建 HTTPS 下载并查询、汇总或取消当前租户任务。
 - `/api/app/v1/tasks/{id}`：返回面向用户裁剪后的任务状态。
 - `/api/app/v1/task-events`：SSE/WebSocket 推送。
 
@@ -21,6 +22,7 @@ Gateway 是 App、Web、MCP 和管理后台的统一入口，负责认证接入�
 - 聚合接口设置独立超时和部分降级，不因任务平台暂时不可用阻塞直接数据查询。
 - 不直接暴露脚本命令、数据库连接、节点地址和内部错误栈。
 - Reader 首批代理已实现可信主体 owner 注入、请求载荷重建、服务令牌、关联标识、默认关闭开关和用户 ID 白名单；全局开关与白名单必须同时命中，客户端不能通过 query/body/header 覆盖 owner。
+- Download 首批代理按相同方式默认关闭并使用独立租户名单；创建载荷由 Gateway 重建，状态、摘要和取消使用 owner 绑定的内部接口，响应排除源 URL 和下游参数。
 - Drive 首批只读代理已实现独立默认关闭开关、独立用户白名单和服务令牌；账户目录查询的 owner 仅从已验证主体注入，客户端只允许提交账户 ID 与父路径。
 - Identity 首批登录、刷新和当前会话注销入口已使用独立默认关闭开关、严格请求模型和稳定错误映射；注销会话 ID 只来自实时令牌校验，客户端不能指定其他会话。开启入口时校验模式必须为 `DUAL` 或 `IDENTITY`，避免签发后无法使用的新令牌。
 

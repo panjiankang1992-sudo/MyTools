@@ -83,7 +83,7 @@ class IdentityGatewayClientTest {
 
     private GatewayProperties properties() {
         return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, true, false, Set.of(),
-                false, Set.of(), "http://mytools", "http://identity", "http://reader", "http://drive",
-                "gateway-token", "identity-token", "reader-token", "drive-token", 1000, 3000);
+                false, Set.of(), false, Set.of(), "http://mytools", "http://identity", "http://reader", "http://drive",
+                "http://download", "gateway-token", "identity-token", "reader-token", "drive-token", "download-token", 1000, 3000);
     }
 }

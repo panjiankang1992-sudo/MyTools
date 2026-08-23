@@ -12,9 +12,11 @@ Java 21 / Spring Boot
 
 该目录属于旁路迁移工作区，不参与现有 MyTools 根工程构建和生产启动。详细设计见 [对应设计文档](../design/01-mytools-gateway.md)。
 
-现已建立可独立构建的 Java 21 / Spring Boot Gateway MVP，默认监听 `127.0.0.1:23200`。Reader 和 Drive 路由分别受 `GATEWAY_READER_ROUTE_ENABLED`、`GATEWAY_DRIVE_ROUTE_ENABLED` 控制，默认均关闭；关闭时直接返回未启用且不会调用认证或领域服务，因此现有 MyTools 入口不受影响。开启灰度后，还必须分别通过 `GATEWAY_READER_TENANT_ALLOWLIST`、`GATEWAY_DRIVE_TENANT_ALLOWLIST` 明确列出允许切流的用户 ID，空名单不会放行任何用户。Gateway 校验 Bearer 会话，从可信主体注入 `ownerId`，并用各领域独立内部令牌调用下游；客户端不能提供或覆盖 owner。
+现已建立可独立构建的 Java 21 / Spring Boot Gateway MVP，默认监听 `127.0.0.1:23200`。Reader、Drive 和 Download 路由分别受独立的 `GATEWAY_*_ROUTE_ENABLED` 与 `GATEWAY_*_TENANT_ALLOWLIST` 控制，默认均关闭；关闭时直接返回未启用且不会调用认证或领域服务，因此现有 MyTools 入口不受影响。空租户名单不会放行任何用户。Gateway 校验 Bearer 会话，从可信主体注入 `ownerId`，并用各领域独立内部令牌调用下游；客户端不能提供或覆盖 owner。
 
 首批路由为 `/api/app/v1/reader/shelves`、`/progress` 和 `/markers`。Gateway 只转发自己重建的载荷、内部令牌和规范化 UUID `X-Correlation-Id`，不转发客户端内部头。Reader 对应领域接口现要求服务令牌，防止绕过 Gateway 伪造 owner。
+
+Download 首批路由为创建 HTTPS 下载、查询状态、查询结果摘要和取消任务。创建入口只接受幂等键、HTTPS URL、安全文件名和大小上限；Gateway 重建下游载荷并绑定可信 owner。查询与取消使用 owner 绑定的内部接口，对错误租户统一返回不存在，响应不包含源 URL 或下游 `parameters`。
 
 Drive 首批只读路由为 `GET /api/app/v1/drive/accounts/{accountId}/items?parentPath=`。Gateway 使用已验证用户 ID 构造内部 `ownerId`，以 `DRIVE_INTERNAL_TOKEN` 调用 Drive Service；该阶段不切换写操作和旧入口。
 

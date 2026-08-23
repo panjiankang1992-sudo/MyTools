@@ -12,8 +12,10 @@ public record GatewayProperties(IdentityMode identityMode, boolean identityRoute
                                 boolean readerRouteEnabled,
                                 Set<Long> readerTenantAllowlist,
                                 boolean driveRouteEnabled, Set<Long> driveTenantAllowlist,
+                                boolean downloadRouteEnabled, Set<Long> downloadTenantAllowlist,
                                 String mytoolsUrl, String identityUrl, String readerUrl, String driveUrl,
-                                String internalToken, String identityToken, String readerToken, String driveToken,
+                                String downloadUrl, String internalToken, String identityToken,
+                                String readerToken, String driveToken, String downloadToken,
                                 int connectTimeoutMillis, int readTimeoutMillis) {
 
     /**
@@ -40,6 +42,17 @@ public record GatewayProperties(IdentityMode identityMode, boolean identityRoute
      */
     public boolean driveTenantAllowed(long userId) {
         return driveRouteEnabled && driveTenantAllowlist != null && driveTenantAllowlist.contains(userId);
+    }
+
+    /**
+     * 判断 Download 灰度路由是否允许指定主体。
+     *
+     * @param userId 用户标识
+     * @return 是否允许
+     */
+    public boolean downloadTenantAllowed(long userId) {
+        return downloadRouteEnabled && downloadTenantAllowlist != null
+                && downloadTenantAllowlist.contains(userId);
     }
 
     /**

@@ -14,6 +14,7 @@ class CutoverPreflightTest(unittest.TestCase):
         self.assertTrue(report["ready"])
         self.assertEqual(0, report["greyRelease"]["readerTenantCount"])
         self.assertEqual(0, report["greyRelease"]["driveTenantCount"])
+        self.assertEqual(0, report["greyRelease"]["downloadTenantCount"])
         self.assertEqual("LEGACY", report["greyRelease"]["identityValidationMode"])
         self.assertEqual([], report["errors"])
 
@@ -38,6 +39,12 @@ class CutoverPreflightTest(unittest.TestCase):
         report = MODULE.inspect({"GATEWAY_DRIVE_ROUTE_ENABLED": "true"}, allow_enabled=True)
         self.assertFalse(report["ready"])
         self.assertTrue(any("DRIVE_TENANT_ALLOWLIST is required" in error
+                            for error in report["errors"]))
+
+    def test_download_route_requires_explicit_tenant_allowlist(self):
+        report = MODULE.inspect({"GATEWAY_DOWNLOAD_ROUTE_ENABLED": "true"}, allow_enabled=True)
+        self.assertFalse(report["ready"])
+        self.assertTrue(any("DOWNLOAD_TENANT_ALLOWLIST is required" in error
                             for error in report["errors"]))
 
     def test_identity_route_requires_new_token_validation_mode(self):

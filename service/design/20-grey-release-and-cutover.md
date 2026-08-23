@@ -14,7 +14,7 @@
 ## 演练阶段
 
 1. 创建独立 schema 与最小权限账号，执行各服务 Flyway；不启动旧库双写。
-2. 运行 `python3 service/scripts/cutover_preflight.py --env-file <file>`。工具只输出 schema 名、开关布尔值、Reader/Drive 灰度租户数量、认证校验模式和错误，不输出租户 ID、账号、令牌或密码。Reader/Drive 切流时必须同时设置各自全局开关和非空租户名单；Identity 登录入口启用时校验模式必须为 `DUAL` 或 `IDENTITY`。
+2. 运行 `python3 service/scripts/cutover_preflight.py --env-file <file>`。工具只输出 schema 名、开关布尔值、Reader/Drive/Download 灰度租户数量、认证校验模式和错误，不输出租户 ID、账号、令牌或密码。Reader、Drive、Download 切流时必须同时设置各自全局开关和非空租户名单；Identity 登录入口启用时校验模式必须为 `DUAL` 或 `IDENTITY`。
 3. 以 dry-run 执行不可再生数据迁移，保存源数量、目标数量、拒绝数量、游标和摘要；确认后使用同一幂等键正式执行并对账。
 4. 对可再生数据创建任务，验证成功率、延迟、积压、超时、取消、重试和资源占用；重建结果在完整发布前不得进入查询路径。
 5. 开启单一旁路开关做双跑，只比较结果，不改变用户响应。差异必须能够关联领域请求、任务实例、步骤和脚本包版本。
