@@ -38,7 +38,7 @@
 
 - [ ] Storage Gateway。已建立独立 `mytools_storage` schema 和本地受管根的幂等流式上传、摘要校验、路径隔离及原子发布 MVP；远端 provider、访问票据、复制移动和任务化同步待迁移。
 - [ ] Messaging 和 Message Automation。已建立独立 `mytools_messaging` schema、幂等投递/尝试、标准入站消息、事务 Outbox、SMTP provider 及只携带 `deliveryId` 的邮件任务，并增加默认关闭、旧事务提交后触发的 MyTools 注册邮件旁路；已建立独立 `mytools_message_automation` schema、授权规则、动作白名单、消息去重运行、只转发消息标识的默认关闭 Outbox relay，以及有界 URL 到 Download Ingestion 请求的编排。历史收信、QQ/Telegram/OneBot adapter、附件动作、状态汇总和新旧规则对账待迁移。
-- [ ] Asset Registry。
+- [ ] Asset Registry。已建立独立 `mytools_asset` schema、按 SHA-256 与大小去重的资产、跨租户业务来源、存储位置、派生关系、乐观版本、幂等写入和事务 Outbox；下载、媒体、Reader 默认关闭登记旁路、资源包及旧 ID 映射待迁移。
 - [ ] Media、Drive、Reader、Identity 独立服务。
 
 ## 阶段 5：切流与收尾
