@@ -6,10 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "mytools-onebot-connector"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = ["PyMySQL>=1.1,<2"]
+dependencies = ["PyMySQL>=1.1,<2", "PyYAML>=6,<7"]
 
 [project.scripts]
 mytools-onebot-connector = "mytools_onebot_connector.main:main"
+mytools-onebot-account-migration = "mytools_onebot_connector.config_migration:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

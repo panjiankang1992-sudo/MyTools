@@ -24,6 +24,13 @@ Provider requests contain only `channelType`, `accountKey`, `attachmentType`, an
 
 Apply `db/migrations/V1__create_onebot_connector_schema.sql` to a new schema before startup. Register accounts disabled first, validate path mapping and `get_file`, then enable the account and finally the global gate.
 
+旧 DownloadBot 配置可先生成不含凭据值的 dry-run 清单；`--apply` 只向回环地址 Connector 幂等登记强制禁用的账户，清单存在任何拒绝项时不会写入：
+
+```bash
+mytools-onebot-account-migration --config /path/to/downloadbot/config.yaml
+mytools-onebot-account-migration --config /path/to/downloadbot/config.yaml --apply
+```
+
 ## Verification
 
 ```bash
