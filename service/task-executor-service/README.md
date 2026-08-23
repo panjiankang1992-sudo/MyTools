@@ -12,6 +12,17 @@ Java 21
 
 该目录属于旁路迁移工作区，不参与现有 MyTools 根工程构建和生产启动。详细设计见 [对应设计文档](../design/06-task-executor-service.md)。
 
+当前已实现节点注册与心跳、任务领取、执行租约续期、取消感知、脚本入口安全解析、任务上下文/结果文件、普通及场景步骤顺序执行、步骤重试和结果回传。脚本包发布目录结构：
+
+```text
+${TASK_EXECUTOR_SCRIPT_ROOT}/
+└── {scriptPackage}/
+    └── {scriptVersion}/
+        └── {entrypoint}
+```
+
+Executor 只执行 Scheduler 下发的已配置入口，不接受调用方提交任意命令字符串。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。

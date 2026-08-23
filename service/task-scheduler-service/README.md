@@ -14,6 +14,8 @@ Java 21 / Spring Boot
 
 当前已经实现独立 `mytools_task` schema 的 Flyway 基础结构，以及任务定义、脚本步骤、任务实例、集群、节点和多对多节点分配接口。创建 schema：
 
+任务执行内部协议同时支持按节点集群领取、租约续期、取消状态返回、步骤结果上报和执行完成。领取通过任务状态条件更新保证同一任务实例只产生一个有效领取者。
+
 ```bash
 mysql -u root -p < deploy/create-schema.sql
 ```

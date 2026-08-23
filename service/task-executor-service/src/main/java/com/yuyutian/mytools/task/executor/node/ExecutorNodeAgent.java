@@ -1,7 +1,7 @@
 package com.yuyutian.mytools.task.executor.node;
 
 import com.yuyutian.mytools.task.executor.client.ExecutorNodeRegistration;
-import com.yuyutian.mytools.task.executor.client.SchedulerNodeClient;
+import com.yuyutian.mytools.task.executor.client.SchedulerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ExecutorNodeAgent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutorNodeAgent.class);
-    private final SchedulerNodeClient schedulerNodeClient;
+    private final SchedulerClient schedulerNodeClient;
     private final UUID instanceId = UUID.randomUUID();
     private final AtomicReference<ExecutorNodeRegistration> registration = new AtomicReference<>();
     private final AtomicInteger runningTasks = new AtomicInteger();
@@ -29,7 +29,7 @@ public class ExecutorNodeAgent {
      *
      * @param schedulerNodeClient 调度服务客户端
      */
-    public ExecutorNodeAgent(SchedulerNodeClient schedulerNodeClient) {
+    public ExecutorNodeAgent(SchedulerClient schedulerNodeClient) {
         this.schedulerNodeClient = schedulerNodeClient;
     }
 

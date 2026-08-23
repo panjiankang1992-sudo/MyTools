@@ -10,12 +10,14 @@ import java.time.Duration;
  * @param standardError 标准错误
  * @param duration 执行时长
  * @param timedOut 是否超时
+ * @param cancelled 是否取消
  */
 public record ScriptExecutionResult(
         int exitCode,
         String standardOutput,
         String standardError,
         Duration duration,
-        boolean timedOut
+        boolean timedOut,
+        boolean cancelled
 ) {
 }

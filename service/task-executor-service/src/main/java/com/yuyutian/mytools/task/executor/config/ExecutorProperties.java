@@ -14,7 +14,10 @@ import java.util.Map;
  * @param nodeName 节点名称
  * @param schedulerUrl 调度服务地址
  * @param workRoot 任务工作根目录
+ * @param scriptRoot 脚本包根目录
  * @param heartbeatSeconds 心跳间隔
+ * @param pollSeconds 任务轮询间隔
+ * @param leaseSeconds 执行租约秒数
  * @param maxConcurrentTasks 最大并发任务数
  * @param capabilities 节点能力
  * @param labels 节点标签
@@ -25,7 +28,10 @@ public record ExecutorProperties(
         @NotBlank String nodeName,
         @NotBlank String schedulerUrl,
         Path workRoot,
+        Path scriptRoot,
         @Min(1) long heartbeatSeconds,
+        @Min(1) long pollSeconds,
+        @Min(10) int leaseSeconds,
         @Min(1) int maxConcurrentTasks,
         Map<String, Object> capabilities,
         Map<String, Object> labels

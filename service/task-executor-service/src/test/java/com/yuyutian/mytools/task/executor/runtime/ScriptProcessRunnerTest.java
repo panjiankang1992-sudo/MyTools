@@ -28,5 +28,20 @@ class ScriptProcessRunnerTest {
         assertEquals(0, result.exitCode());
         assertEquals("task-ok", result.standardOutput());
         assertFalse(result.timedOut());
+        assertFalse(result.cancelled());
+    }
+
+    @Test
+    void shouldTerminateProcessWhenCancellationIsRequested() throws Exception {
+        ScriptProcessRunner runner = new ScriptProcessRunner();
+        ScriptExecutionRequest request = new ScriptExecutionRequest(
+                List.of("/bin/sh", "-c", "sleep 10"), workDirectory, Map.of("PATH", "/usr/bin:/bin"),
+                Duration.ofSeconds(20), () -> true
+        );
+
+        ScriptExecutionResult result = runner.run(request);
+
+        assertFalse(result.timedOut());
+        org.junit.jupiter.api.Assertions.assertTrue(result.cancelled());
     }
 }

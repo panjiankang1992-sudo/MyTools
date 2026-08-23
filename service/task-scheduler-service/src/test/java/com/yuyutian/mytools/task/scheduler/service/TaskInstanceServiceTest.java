@@ -8,6 +8,10 @@ import com.yuyutian.mytools.task.scheduler.model.ExecutionMode;
 import com.yuyutian.mytools.task.scheduler.model.FailurePolicy;
 import com.yuyutian.mytools.task.scheduler.model.RegisterExecutorNodeRequest;
 import com.yuyutian.mytools.task.scheduler.model.AssignClusterNodeRequest;
+import com.yuyutian.mytools.task.scheduler.model.ClaimTaskRequest;
+import com.yuyutian.mytools.task.scheduler.model.CompleteExecutionRequest;
+import com.yuyutian.mytools.task.scheduler.model.LeaseHeartbeatRequest;
+import com.yuyutian.mytools.task.scheduler.model.ReportStepExecutionRequest;
 import com.yuyutian.mytools.task.scheduler.model.StepKind;
 import com.yuyutian.mytools.task.scheduler.model.TaskStatus;
 import com.yuyutian.mytools.task.scheduler.model.TaskType;
@@ -37,6 +41,9 @@ class TaskInstanceServiceTest {
     @Autowired
     private ExecutionTopologyService topologyService;
 
+    @Autowired
+    private TaskDispatchService dispatchService;
+
     @Test
     void shouldCreateIdempotentlyAndCancel() {
         String suffix = UUID.randomUUID().toString().replace("-", "");
@@ -62,22 +69,38 @@ class TaskInstanceServiceTest {
         var cluster = topologyService.createCluster(new CreateExecutionClusterRequest(
                 "media_cluster_" + suffix, "Media workers", "LEAST_RUNNING", 20, Map.of("gpu", true), true
         ));
+        UUID nodeInstanceId = UUID.randomUUID();
         var node = topologyService.registerNode(new RegisterExecutorNodeRequest(
-                "media-node-" + suffix, "instance-1", Map.of("python", "3.12"), Map.of("gpu", true), 4
+                "media-node-" + suffix, nodeInstanceId.toString(), Map.of("python", "3.12"), Map.of("gpu", true), 4
         ));
         topologyService.assignNode(cluster.id(), new AssignClusterNodeRequest(node.id(), 100, 0, true));
-        assertEquals(node.id(), topologyService.heartbeat(node.id(), "instance-1", 1).id());
+        assertEquals(node.id(), topologyService.heartbeat(node.id(), nodeInstanceId.toString(), 1).id());
 
         var definition = definitionService.create(new CreateTaskDefinitionRequest(
                 "media_probe_" + suffix, "Probe media", TaskType.IMMEDIATE, 120, cluster.id(), null, null,
                 ExecutionMode.SINGLE_NODE, true, 10, "SKIP", "IGNORE", Map.of(), Map.of()
         ));
-        stepService.create(definition.id(), new CreateTaskStepRequest(
+        var step = stepService.create(definition.id(), new CreateTaskStepRequest(
                 "probe", "Run ffprobe", StepKind.NORMAL, "media_probe", "1.0.0", "scripts/main.py",
                 List.of("--asset-id", "${parameters.assetId}"), true, 90, FailurePolicy.FAIL_TASK, 10, 2
         ));
 
+        var task = service.create(new CreateTaskRequest(
+                definition.name(), "probe_" + suffix, "MEDIA_ASSET", "asset-1", null, 50, Map.of("assetId", "asset-1")
+        ));
+        var claimed = dispatchService.claim(new ClaimTaskRequest(node.id(), nodeInstanceId, 60)).orElseThrow();
+        assertEquals(task.id(), claimed.taskInstanceId());
+        assertEquals(1, claimed.steps().size());
+        assertTrue(!dispatchService.heartbeat(claimed.executionId(),
+                new LeaseHeartbeatRequest(claimed.leaseToken(), 60)).cancelRequested());
+        dispatchService.reportStep(claimed.executionId(), new ReportStepExecutionRequest(
+                claimed.leaseToken(), step.id(), 1, TaskStatus.SUCCEEDED, 0, Map.of("duration", 12), null, null
+        ));
+        dispatchService.complete(claimed.executionId(),
+                new CompleteExecutionRequest(claimed.leaseToken(), TaskStatus.SUCCEEDED));
+
         assertEquals(1, stepService.list(definition.id()).size());
+        assertEquals(TaskStatus.SUCCEEDED, service.get(task.id()).status());
         assertTrue(topologyService.listClusters().stream().anyMatch(item -> item.id().equals(cluster.id())));
         assertTrue(topologyService.listNodes().stream().anyMatch(item -> item.id().equals(node.id())));
     }
