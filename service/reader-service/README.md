@@ -18,7 +18,7 @@ MyTools 通过默认关闭的 `READER_SEARCH_SIDECAR_ENABLED` 开关提交同一
 
 服务默认监听 `127.0.0.1:23230`，使用 `READER_DB_*` 连接独立 `mytools_reader` schema，并通过 `TASK_SCHEDULER_URL` 调用 Scheduler。`POST /api/v1/book-searches` 创建搜索，`GET /api/v1/book-searches/{id}` 查询并聚合分片结果，`POST /api/v1/book-searches/{id}/cancel` 取消执行。所有接口仍处于旁路阶段。
 
-书架、阅读进度和阅读标记属于直接数据查询与短事务写入，不创建任务。`/api/v1/reader-state/shelves`、`/progress`、`/markers` 提供同步查询和乐观版本写入，墓碑通过 `includeDeleted=true` 参与跨设备同步。进度和标记必须绑定同一 owner 的已有书架，陈旧 `expectedVersion` 返回 `READER_018`，不存在返回 `READER_017`。服务只监听回环地址；生产请求必须由 Gateway 从已验证身份注入 owner，不能将这些 owner 参数接口直接暴露到公网。在 Gateway 切换前，MyTools 现有 Reader API 仍是用户请求的权威入口。
+书架、阅读进度和阅读标记属于直接数据查询与短事务写入，不创建任务。`/api/v1/reader-state/shelves`、`/progress`、`/markers` 提供同步查询和乐观版本写入，墓碑通过 `includeDeleted=true` 参与跨设备同步。进度和标记必须绑定同一 owner 的已有书架，陈旧 `expectedVersion` 返回 `READER_018`，不存在返回 `READER_017`。这些接口要求 `READER_INTERNAL_TOKEN` 且服务只监听回环地址；生产请求必须由 Gateway 从已验证身份注入 owner。在 Gateway 切换前，MyTools 现有 Reader API 仍是用户请求的权威入口。
 
 书源发现已迁移为 `reader_source_discovery` 1.0.0 脚本任务。脚本只访问经过公网地址校验、响应大小限制和重定向重验的仓库，并以最多 100 条一批调用 Reader Service 内部接口；服务以内容摘要维护不可变书源版本。公开编排接口为 `POST /api/v1/source-discoveries`、`GET /api/v1/source-discoveries/{id}` 和取消接口，内部写入接口必须使用 `READER_INTERNAL_TOKEN`。
 

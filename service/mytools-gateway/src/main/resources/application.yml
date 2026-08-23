@@ -1,0 +1,28 @@
+server:
+  address: ${GATEWAY_HTTP_HOST:127.0.0.1}
+  port: ${GATEWAY_HTTP_PORT:23200}
+
+spring:
+  application:
+    name: mytools-gateway
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+
+gateway:
+  identity-mode: ${IDENTITY_VALIDATION_MODE:LEGACY}
+  reader-route-enabled: ${GATEWAY_READER_ROUTE_ENABLED:false}
+  mytools-url: ${MYTOOLS_INTERNAL_URL:http://127.0.0.1:23110}
+  identity-url: ${IDENTITY_SERVICE_URL:http://127.0.0.1:23290}
+  reader-url: ${READER_SERVICE_URL:http://127.0.0.1:23230}
+  internal-token: ${GATEWAY_INTERNAL_TOKEN:}
+  identity-token: ${IDENTITY_INTERNAL_TOKEN:}
+  reader-token: ${READER_INTERNAL_TOKEN:}
+  connect-timeout-millis: ${GATEWAY_CONNECT_TIMEOUT_MILLIS:1000}
+  read-timeout-millis: ${GATEWAY_READ_TIMEOUT_MILLIS:3000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

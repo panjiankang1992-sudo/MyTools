@@ -81,6 +81,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/internal/v1/migration/drive-accounts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/internal/v1/migration/identity-users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/internal/v1/migration/reader-state").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/internal/v1/gateway/tokens/validate").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception
