@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * 任务执行节点配置。
@@ -14,6 +15,9 @@ import java.nio.file.Path;
  * @param schedulerUrl 调度服务地址
  * @param workRoot 任务工作根目录
  * @param heartbeatSeconds 心跳间隔
+ * @param maxConcurrentTasks 最大并发任务数
+ * @param capabilities 节点能力
+ * @param labels 节点标签
  */
 @Validated
 @ConfigurationProperties(prefix = "executor")
@@ -21,6 +25,9 @@ public record ExecutorProperties(
         @NotBlank String nodeName,
         @NotBlank String schedulerUrl,
         Path workRoot,
-        @Min(1) long heartbeatSeconds
+        @Min(1) long heartbeatSeconds,
+        @Min(1) int maxConcurrentTasks,
+        Map<String, Object> capabilities,
+        Map<String, Object> labels
 ) {
 }

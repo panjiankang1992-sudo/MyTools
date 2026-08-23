@@ -6,6 +6,14 @@ executor:
   scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23210}
   work-root: ${TASK_EXECUTOR_WORK_ROOT:./runtime/tasks}
   heartbeat-seconds: ${TASK_EXECUTOR_HEARTBEAT_SECONDS:10}
+  max-concurrent-tasks: ${TASK_EXECUTOR_MAX_CONCURRENT_TASKS:4}
+  capabilities:
+    runtimes:
+      - shell
+      - python3.12
+  labels: {}
+server:
+  port: ${TASK_EXECUTOR_MANAGEMENT_PORT:23211}
 management:
   endpoints:
     web:
