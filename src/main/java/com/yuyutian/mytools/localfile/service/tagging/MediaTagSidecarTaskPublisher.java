@@ -68,6 +68,7 @@ public class MediaTagSidecarTaskPublisher {
         parameters.put("policyVersion", properties.getPolicyVersion());
         parameters.put("serviceUrl", properties.getServiceUrl());
         parameters.put("model", properties.getModel());
+        parameters.put("legacyTags", event.legacyTags());
         if (event.thumbnailPath() != null && !event.thumbnailPath().isBlank()) {
             parameters.put("thumbnailPath", event.thumbnailPath());
         }

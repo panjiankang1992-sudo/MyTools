@@ -114,22 +114,24 @@ public class TaskExecutionWorker {
 
     private StepOutcome executeNormalSteps(ClaimedTask task, AtomicBoolean cancellationRequested) throws IOException {
         List<ClaimedStep> normalSteps = stepsOfKind(task, "NORMAL");
+        Map<String, Object> stepOutputs = new LinkedHashMap<>();
         for (ClaimedStep step : normalSteps) {
             if (cancellationRequested.get()) {
-                return new StepOutcome("CANCELLED", step, null);
+                return new StepOutcome("CANCELLED", step, null, stepOutputs);
             }
-            StepRun run = executeWithRetry(task, step, cancellationRequested::get);
+            StepRun run = executeWithRetry(task, step, cancellationRequested::get, stepOutputs);
+            stepOutputs.put(step.name(), run.outputs());
             if (run.status().equals("TIMED_OUT")) {
-                return new StepOutcome("TIMED_OUT", step, run);
+                return new StepOutcome("TIMED_OUT", step, run, stepOutputs);
             }
             if (run.status().equals("CANCELLED")) {
-                return new StepOutcome("CANCELLED", step, run);
+                return new StepOutcome("CANCELLED", step, run, stepOutputs);
             }
             if (run.status().equals("FAILED") && !"IGNORE".equals(step.failurePolicy())) {
-                return new StepOutcome("FAILED", step, run);
+                return new StepOutcome("FAILED", step, run, stepOutputs);
             }
         }
-        return new StepOutcome("SUCCEEDED", null, null);
+        return new StepOutcome("SUCCEEDED", null, null, stepOutputs);
     }
 
     private void executeScenarioSteps(ClaimedTask task, StepOutcome outcome,
@@ -144,15 +146,16 @@ public class TaskExecutionWorker {
             return;
         }
         for (ClaimedStep step : stepsOfKind(task, kind)) {
-            executeWithRetry(task, step, () -> false);
+            executeWithRetry(task, step, () -> false, outcome.stepOutputs());
         }
     }
 
     private StepRun executeWithRetry(ClaimedTask task, ClaimedStep step,
-                                     java.util.function.BooleanSupplier cancellationRequested) throws IOException {
+                                     java.util.function.BooleanSupplier cancellationRequested,
+                                     Map<String, Object> stepOutputs) throws IOException {
         StepRun last = null;
         for (int attempt = 1; attempt <= step.maxAttempts(); attempt++) {
-            last = executeStep(task, step, attempt, cancellationRequested);
+            last = executeStep(task, step, attempt, cancellationRequested, stepOutputs);
             schedulerClient.reportStep(task, step, attempt, last.status(), last.result().exitCode(),
                     last.outputs(), last.errorCode(), last.errorMessage());
             if (last.status().equals("SUCCEEDED") || last.status().equals("CANCELLED")
@@ -164,13 +167,14 @@ public class TaskExecutionWorker {
     }
 
     private StepRun executeStep(ClaimedTask task, ClaimedStep step, int attempt,
-                                java.util.function.BooleanSupplier cancellationRequested) throws IOException {
+                                java.util.function.BooleanSupplier cancellationRequested,
+                                Map<String, Object> stepOutputs) throws IOException {
         Path workingDirectory = safeWorkDirectory(task, step, attempt);
         Path contextFile = workingDirectory.resolve("task-context.json");
         Path resultFile = workingDirectory.resolve("task-result.json");
         Path leaseTokenFile = workingDirectory.resolve("task-lease-token");
         Files.createDirectories(workingDirectory);
-        writeContext(task, step, attempt, contextFile);
+        writeContext(task, step, attempt, stepOutputs, contextFile);
         writeLeaseToken(task, leaseTokenFile);
         Path entrypoint = safeEntrypoint(step);
         List<String> command = buildCommand(entrypoint, step.argumentsTemplate(), task.parameters());
@@ -274,7 +278,8 @@ public class TaskExecutionWorker {
         return resolved;
     }
 
-    private void writeContext(ClaimedTask task, ClaimedStep step, int attempt, Path contextFile) throws IOException {
+    private void writeContext(ClaimedTask task, ClaimedStep step, int attempt, Map<String, Object> stepOutputs,
+                              Path contextFile) throws IOException {
         Map<String, Object> context = new LinkedHashMap<>();
         context.put("taskInstanceId", task.taskInstanceId());
         context.put("executionId", task.executionId());
@@ -284,6 +289,7 @@ public class TaskExecutionWorker {
         context.put("stepName", step.name());
         context.put("attempt", attempt);
         context.put("parameters", task.parameters());
+        context.put("stepOutputs", stepOutputs);
         Files.writeString(contextFile, objectMapper.writeValueAsString(context), StandardCharsets.UTF_8);
     }
 
@@ -324,6 +330,6 @@ public class TaskExecutionWorker {
                            String errorCode, String errorMessage) {
     }
 
-    private record StepOutcome(String status, ClaimedStep step, StepRun run) {
+    private record StepOutcome(String status, ClaimedStep step, StepRun run, Map<String, Object> stepOutputs) {
     }
 }

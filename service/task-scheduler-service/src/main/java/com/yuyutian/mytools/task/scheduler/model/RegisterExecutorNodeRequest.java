@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 注册执行节点请求。
@@ -15,12 +16,14 @@ import java.util.Map;
  * @param capabilities 能力
  * @param labels 标签
  * @param maxConcurrentTasks 最大并发数
+ * @param clusterNames 自动加入的执行集群名称
  */
 public record RegisterExecutorNodeRequest(
         @NotBlank @Pattern(regexp = "^[a-z][a-z0-9_-]{0,127}$") String name,
         @NotBlank String instanceId,
         @NotNull Map<String, Object> capabilities,
         @NotNull Map<String, Object> labels,
-        @Min(1) int maxConcurrentTasks
+        @Min(1) int maxConcurrentTasks,
+        Set<@Pattern(regexp = "^[a-z][a-z0-9_-]{0,127}$") String> clusterNames
 ) {
 }

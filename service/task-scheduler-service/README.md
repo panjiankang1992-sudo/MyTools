@@ -16,6 +16,8 @@ Java 21 / Spring Boot
 
 任务执行内部协议同时支持按节点集群领取、租约续期、取消状态返回、步骤结果上报和执行完成。领取通过任务状态条件更新保证同一任务实例只产生一个有效领取者。
 
+执行节点注册时可以声明 `clusterNames` 自动加入多个已存在集群。新 schema 会创建 `media` 集群以及版本化的 `media_generate_tags` 双步骤任务定义。任务完成后可通过 `GET /api/v1/task-instances/{id}/results` 查询生成结果和对账结果。
+
 ```bash
 mysql -u root -p < deploy/create-schema.sql
 ```

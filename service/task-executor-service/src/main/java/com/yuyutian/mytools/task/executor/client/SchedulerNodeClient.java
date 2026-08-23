@@ -58,6 +58,7 @@ public class SchedulerNodeClient implements SchedulerClient {
         payload.put("capabilities", safeMap(properties.capabilities()));
         payload.put("labels", safeMap(properties.labels()));
         payload.put("maxConcurrentTasks", properties.maxConcurrentTasks());
+        payload.put("clusterNames", properties.clusterNames() == null ? java.util.Set.of() : properties.clusterNames());
         JsonNode response = sendJson("/api/v1/execution-topology/nodes/register", payload, Map.of());
         return new ExecutorNodeRegistration(
                 UUID.fromString(response.path("id").asText()),

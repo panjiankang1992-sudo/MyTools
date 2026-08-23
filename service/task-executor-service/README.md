@@ -22,6 +22,7 @@ ${TASK_EXECUTOR_SCRIPT_ROOT}/
 ```
 
 Executor 只执行 Scheduler 下发的已配置入口，不接受调用方提交任意命令字符串。
+每个步骤的结构化输出会作为下一步骤上下文中的 `stepOutputs.{stepName}` 提供，用于对账、汇总和条件处理。
 
 ## 实施要求
 

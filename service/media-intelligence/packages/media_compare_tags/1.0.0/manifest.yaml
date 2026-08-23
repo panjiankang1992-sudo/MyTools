@@ -1,0 +1,12 @@
+name: media_compare_tags
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities: []
+parameters:
+  required:
+    - legacyTags
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 10

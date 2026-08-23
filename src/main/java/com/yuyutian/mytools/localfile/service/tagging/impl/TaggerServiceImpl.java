@@ -99,7 +99,7 @@ public class TaggerServiceImpl implements TaggerService {
         // 旧标签成功后只发出旁路事件，监听器失败不会改变当前事务的权威结果。
         applicationEventPublisher.publishEvent(new MediaTagSidecarTaskRequested(
                 file.getId(), file.getFilename(), file.getFilePath(), file.getThumbnailPath(),
-                file.getMimeType(), file.getFileHash()));
+                file.getMimeType(), file.getFileHash(), savedTags.stream().map(FileTag::getTagName).toList()));
 
         return savedTags;
     }

@@ -1,5 +1,7 @@
 package com.yuyutian.mytools.localfile.service.tagging;
 
+import java.util.List;
+
 /**
  * 旧标签成功后请求创建旁路标签任务的不可变事件。
  *
@@ -9,6 +11,7 @@ package com.yuyutian.mytools.localfile.service.tagging;
  * @param thumbnailPath 缩略图路径
  * @param mimeType MIME 类型
  * @param contentSha256 内容哈希
+ * @param legacyTags 旧链路已提交的标签名称
  */
 public record MediaTagSidecarTaskRequested(
         Long fileId,
@@ -16,6 +19,7 @@ public record MediaTagSidecarTaskRequested(
         String sourcePath,
         String thumbnailPath,
         String mimeType,
-        String contentSha256
+        String contentSha256,
+        List<String> legacyTags
 ) {
 }

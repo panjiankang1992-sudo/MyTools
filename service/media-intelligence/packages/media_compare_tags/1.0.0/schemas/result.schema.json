@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["legacyTags", "generatedTags", "matchedTags", "exactMatch", "jaccardSimilarity"],
+  "properties": {
+    "legacyTags": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "generatedTags": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "matchedTags": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "exactMatch": { "type": "boolean" },
+    "jaccardSimilarity": { "type": "number", "minimum": 0, "maximum": 1 }
+  },
+  "additionalProperties": false
+}

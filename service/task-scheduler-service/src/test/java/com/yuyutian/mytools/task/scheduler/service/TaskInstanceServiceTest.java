@@ -7,7 +7,6 @@ import com.yuyutian.mytools.task.scheduler.model.CreateExecutionClusterRequest;
 import com.yuyutian.mytools.task.scheduler.model.ExecutionMode;
 import com.yuyutian.mytools.task.scheduler.model.FailurePolicy;
 import com.yuyutian.mytools.task.scheduler.model.RegisterExecutorNodeRequest;
-import com.yuyutian.mytools.task.scheduler.model.AssignClusterNodeRequest;
 import com.yuyutian.mytools.task.scheduler.model.ClaimTaskRequest;
 import com.yuyutian.mytools.task.scheduler.model.CompleteExecutionRequest;
 import com.yuyutian.mytools.task.scheduler.model.CreateChildTaskRequest;
@@ -25,6 +24,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Map;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -53,6 +53,9 @@ class TaskInstanceServiceTest {
 
     @Autowired
     private TaskLeaseRecoveryService leaseRecoveryService;
+
+    @Autowired
+    private TaskResultQueryService resultQueryService;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -84,9 +87,9 @@ class TaskInstanceServiceTest {
         ));
         UUID nodeInstanceId = UUID.randomUUID();
         var node = topologyService.registerNode(new RegisterExecutorNodeRequest(
-                "media-node-" + suffix, nodeInstanceId.toString(), Map.of("python", "3.12"), Map.of("gpu", true), 4
+                "media-node-" + suffix, nodeInstanceId.toString(), Map.of("python", "3.12"),
+                Map.of("gpu", true), 4, Set.of(cluster.name())
         ));
-        topologyService.assignNode(cluster.id(), new AssignClusterNodeRequest(node.id(), 100, 0, true));
         assertEquals(node.id(), topologyService.heartbeat(node.id(), nodeInstanceId.toString(), 1).id());
 
         var definition = definitionService.create(new CreateTaskDefinitionRequest(
@@ -127,6 +130,9 @@ class TaskInstanceServiceTest {
 
         assertEquals(1, stepService.list(definition.id()).size());
         assertEquals(TaskStatus.SUCCEEDED, service.get(task.id()).status());
+        var executionResult = resultQueryService.get(task.id());
+        assertEquals(TaskStatus.SUCCEEDED, executionResult.status());
+        assertEquals(Map.of("duration", 12), executionResult.steps().getFirst().result());
         assertTrue(topologyService.listClusters().stream().anyMatch(item -> item.id().equals(cluster.id())));
         assertTrue(topologyService.listNodes().stream().anyMatch(item -> item.id().equals(node.id())));
     }
@@ -139,9 +145,9 @@ class TaskInstanceServiceTest {
         ));
         UUID nodeInstanceId = UUID.randomUUID();
         var node = topologyService.registerNode(new RegisterExecutorNodeRequest(
-                "recovery-node-" + suffix, nodeInstanceId.toString(), Map.of("shell", true), Map.of(), 1
+                "recovery-node-" + suffix, nodeInstanceId.toString(), Map.of("shell", true), Map.of(), 1,
+                Set.of(cluster.name())
         ));
-        topologyService.assignNode(cluster.id(), new AssignClusterNodeRequest(node.id(), 100, 0, true));
         var definition = definitionService.create(new CreateTaskDefinitionRequest(
                 "lease_recovery_" + suffix, "Recover expired lease", TaskType.IMMEDIATE, 60, cluster.id(), null, null,
                 ExecutionMode.SINGLE_NODE, true, 1, "SKIP", "IGNORE", Map.of(), Map.of()

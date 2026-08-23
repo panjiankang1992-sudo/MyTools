@@ -28,10 +28,12 @@ class MediaTagSidecarTaskPublisherTest {
                 .andExpect(jsonPath("$.idempotencyKey")
                         .value("media_generate_tags:" + hash + ":media-tags-v1"))
                 .andExpect(jsonPath("$.parameters.contentSha256").value(hash))
+                .andExpect(jsonPath("$.parameters.legacyTags[0]").value("legacy"))
                 .andRespond(withSuccess("{}", MediaType.APPLICATION_JSON));
 
         publisher.publish(new MediaTagSidecarTaskRequested(
-                42L, "sample.jpg", "/data/sample.jpg", "/data/thumb.jpg", "image/jpeg", hash));
+                42L, "sample.jpg", "/data/sample.jpg", "/data/thumb.jpg", "image/jpeg", hash,
+                java.util.List.of("legacy")));
 
         server.verify();
     }
@@ -44,7 +46,7 @@ class MediaTagSidecarTaskPublisherTest {
                 restTemplate, new MediaTagSidecarProperties());
 
         publisher.publish(new MediaTagSidecarTaskRequested(
-                42L, "sample.jpg", "/data/sample.jpg", null, "image/jpeg", "a".repeat(64)));
+                42L, "sample.jpg", "/data/sample.jpg", null, "image/jpeg", "a".repeat(64), java.util.List.of()));
 
         server.verify();
     }

@@ -34,18 +34,29 @@ class TaskExecutionWorkerTest {
         Path script = scriptRoot.resolve("sample/1.0.0/main.sh");
         Files.createDirectories(script.getParent());
         Files.writeString(script, "printf '{\"value\":\"ok\"}' > \"$TASK_RESULT_FILE\"\n", StandardCharsets.UTF_8);
+        Path checkScript = scriptRoot.resolve("sample/1.0.0/check.py");
+        Files.writeString(checkScript, """
+                import json, os
+                context = json.load(open(os.environ["TASK_CONTEXT_FILE"], encoding="utf-8"))
+                json.dump({"previous": context["stepOutputs"]["run_sample"]["value"]},
+                          open(os.environ["TASK_RESULT_FILE"], "w", encoding="utf-8"))
+                """, StandardCharsets.UTF_8);
         ExecutorProperties properties = new ExecutorProperties(
                 "executor-test", "http://127.0.0.1:23210", temporaryDirectory.resolve("work"), scriptRoot,
-                10, 1, 60, 2, Map.of(), Map.of()
+                10, 1, 60, 2, Map.of(), Map.of(), java.util.Set.of()
         );
         UUID nodeId = UUID.randomUUID();
         ClaimedStep step = new ClaimedStep(
                 UUID.randomUUID(), "run_sample", "NORMAL", "sample", "1.0.0", "main.sh",
                 List.of(), 10, "FAIL_TASK", 10, 1
         );
+        ClaimedStep checkStep = new ClaimedStep(
+                UUID.randomUUID(), "check_output", "NORMAL", "sample", "1.0.0", "check.py",
+                List.of(), 10, "FAIL_TASK", 20, 1
+        );
         ClaimedTask task = new ClaimedTask(
                 UUID.randomUUID(), UUID.randomUUID(), null, "sample_task", UUID.randomUUID(),
-                Instant.now().plusSeconds(60), Map.of(), List.of(step)
+                Instant.now().plusSeconds(60), Map.of(), List.of(step, checkStep)
         );
         FakeSchedulerClient schedulerClient = new FakeSchedulerClient(nodeId, task);
         ExecutorNodeAgent nodeAgent = new ExecutorNodeAgent(schedulerClient);
@@ -58,7 +69,7 @@ class TaskExecutionWorkerTest {
 
         waitForCompletion(schedulerClient);
         assertEquals("SUCCEEDED", schedulerClient.stepStatus);
-        assertEquals(Map.of("value", "ok"), schedulerClient.stepResult);
+        assertEquals(Map.of("previous", "ok"), schedulerClient.stepResult);
         assertEquals("SUCCEEDED", schedulerClient.completionStatus);
     }
 

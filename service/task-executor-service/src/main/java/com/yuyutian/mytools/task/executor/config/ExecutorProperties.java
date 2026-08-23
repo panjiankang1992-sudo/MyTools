@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 任务执行节点配置。
@@ -21,6 +22,7 @@ import java.util.Map;
  * @param maxConcurrentTasks 最大并发任务数
  * @param capabilities 节点能力
  * @param labels 节点标签
+ * @param clusterNames 节点自动加入的集群名称
  */
 @Validated
 @ConfigurationProperties(prefix = "executor")
@@ -34,6 +36,7 @@ public record ExecutorProperties(
         @Min(10) int leaseSeconds,
         @Min(1) int maxConcurrentTasks,
         Map<String, Object> capabilities,
-        Map<String, Object> labels
+        Map<String, Object> labels,
+        Set<String> clusterNames
 ) {
 }

@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -87,6 +88,7 @@ public class ExecutionTopologyService {
                     """, request.instanceId(), NodeStatus.ONLINE.name(),
                     jsonColumnMapper.write(request.capabilities()), jsonColumnMapper.write(request.labels()),
                     request.maxConcurrentTasks(), Timestamp.from(now), Timestamp.from(now), id.toString());
+            assignConfiguredClusters(id, request.clusterNames());
             return getNode(id);
         }
         UUID id = UUID.randomUUID();
@@ -98,6 +100,7 @@ public class ExecutionTopologyService {
                 """, id.toString(), request.name(), request.instanceId(), NodeStatus.ONLINE.name(),
                 jsonColumnMapper.write(request.capabilities()), jsonColumnMapper.write(request.labels()),
                 request.maxConcurrentTasks(), 0, true, Timestamp.from(now), Timestamp.from(now), Timestamp.from(now));
+        assignConfiguredClusters(id, request.clusterNames());
         return getNode(id);
     }
 
@@ -164,6 +167,31 @@ public class ExecutionTopologyService {
     private ExecutorNodeView getNode(UUID id) {
         return jdbcTemplate.query("SELECT * FROM executor_node WHERE id = ?", this::mapNode, id.toString())
                 .stream().findFirst().orElseThrow(() -> new IllegalArgumentException("Executor node does not exist"));
+    }
+
+    private void assignConfiguredClusters(UUID nodeId, Set<String> clusterNames) {
+        if (clusterNames == null) {
+            return;
+        }
+        for (String clusterName : clusterNames) {
+            List<String> clusterIds = jdbcTemplate.query(
+                    "SELECT id FROM execution_cluster WHERE name = ? AND enabled = TRUE",
+                    (resultSet, rowNumber) -> resultSet.getString(1), clusterName);
+            if (clusterIds.isEmpty()) {
+                throw new IllegalArgumentException("Configured execution cluster does not exist: " + clusterName);
+            }
+            try {
+                jdbcTemplate.update("""
+                        INSERT INTO cluster_node (cluster_id, node_id, weight, priority, enabled, joined_at)
+                        VALUES (?, ?, 100, 0, TRUE, ?)
+                        """, clusterIds.getFirst(), nodeId.toString(), Timestamp.from(Instant.now()));
+            } catch (DuplicateKeyException exception) {
+                jdbcTemplate.update("""
+                        UPDATE cluster_node SET enabled = TRUE
+                        WHERE cluster_id = ? AND node_id = ?
+                        """, clusterIds.getFirst(), nodeId.toString());
+            }
+        }
     }
 
     private ExecutionClusterView mapCluster(ResultSet resultSet, int rowNumber) throws SQLException {
