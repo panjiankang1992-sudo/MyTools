@@ -3,6 +3,8 @@ package com.yuyutian.mytools.auth.filter;
 import com.yuyutian.mytools.auth.Model.Token;
 import com.yuyutian.mytools.auth.mapper.TokenMapper;
 import com.yuyutian.mytools.auth.utils.JwtUtils;
+import com.yuyutian.mytools.auth.identity.IdentityValidationGateway;
+import com.yuyutian.mytools.auth.identity.IdentityValidationProperties;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
@@ -15,6 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * JWT请求头鉴权边界回归测试。
@@ -71,5 +76,29 @@ class JwtAuthenticationFilterTest {
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertNotNull(request.getAttribute("jwtAuthenticationFailed"));
+    }
+
+    /**
+     * Dual 模式应在旧 JWT 失败后接受 Identity 会话。
+     */
+    @Test
+    void dualModeFallsBackToIdentityValidation() throws Exception {
+        JwtUtils jwtUtils = mock(JwtUtils.class);
+        TokenMapper tokenMapper = mock(TokenMapper.class);
+        IdentityValidationGateway gateway = mock(IdentityValidationGateway.class);
+        IdentityValidationProperties properties = new IdentityValidationProperties();
+        properties.setMode(IdentityValidationProperties.Mode.DUAL);
+        UUID sessionId = UUID.randomUUID();
+        when(gateway.validate("identity-token")).thenReturn(new IdentityValidationGateway.Principal(
+                true, 77L, "identity-user", List.of("USER"), sessionId, Instant.now().plusSeconds(600)));
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/users/me");
+        request.addHeader("Authorization", "Bearer identity-token");
+
+        new JwtAuthenticationFilter(jwtUtils, tokenMapper, gateway, properties).doFilterInternal(
+                request, new MockHttpServletResponse(), new MockFilterChain());
+
+        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+        org.junit.jupiter.api.Assertions.assertEquals(77L, request.getAttribute("userId"));
+        org.junit.jupiter.api.Assertions.assertEquals(sessionId, request.getAttribute("identitySessionId"));
     }
 }

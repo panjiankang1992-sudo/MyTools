@@ -129,6 +129,10 @@ tagging:
     model: huihui_ai/qwen3-vl-abliterated:4b
 
 migration:
+  identity-validation:
+    mode: ${IDENTITY_VALIDATION_MODE:LEGACY}
+    service-url: ${IDENTITY_SERVICE_URL:http://127.0.0.1:23290}
+    internal-token: ${IDENTITY_INTERNAL_TOKEN:}
   drive-accounts:
     internal-token: ${DRIVE_MIGRATION_INTERNAL_TOKEN:}
   identity-users:

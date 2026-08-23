@@ -23,7 +23,7 @@ Gateway 是 App、Web、MCP 和管理后台的统一入口，负责认证接入�
 
 ## 迁移
 
-1. 保留现有 Controller 路径，内部改为领域 Facade。
+1. 保留现有 Controller 路径，内部改为领域 Facade；JWT 过滤器已支持默认 `LEGACY`、迁移期 `DUAL` 和最终 `IDENTITY` 三种显式模式，默认模式完全不调用远端服务。
 2. 为耗时接口增加异步版本，返回任务 ID。
 3. 客户端适配任务查询和取消。
 4. 领域服务拆出后把 Facade 替换为 HTTP/gRPC 客户端。
