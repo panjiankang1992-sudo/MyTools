@@ -2,6 +2,7 @@ package com.yuyutian.mytools.webdav.mapper;
 
 import com.yuyutian.mytools.webdav.model.WebdavAccount;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -29,4 +30,7 @@ public interface WebdavAccountMapper {
     int deleteById(Long id);
 
     int updatePasswordById(Long id, String password);
+
+    /** 按主键游标导出旧 WebDAV 账户元数据。 */
+    List<WebdavAccount> selectMigrationBatch(@Param("afterId") Long afterId, @Param("limit") int limit);
 }

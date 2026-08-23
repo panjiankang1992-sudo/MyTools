@@ -129,6 +129,8 @@ tagging:
     model: huihui_ai/qwen3-vl-abliterated:4b
 
 migration:
+  drive-accounts:
+    internal-token: ${DRIVE_MIGRATION_INTERNAL_TOKEN:}
   messaging:
     registration-mail:
       enabled: ${MESSAGING_REGISTRATION_MAIL_SIDECAR_ENABLED:false}

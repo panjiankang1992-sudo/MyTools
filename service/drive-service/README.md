@@ -15,6 +15,8 @@
 
 Scheduler V25 为失败、超时和取消配置 `drive_finish_index` 特殊步骤，使未完成游标进入明确终态，后续补偿运行可以安全接管；收尾失败采用 `IGNORE`，不会掩盖任务原始终态。
 
+`drive_migrate_legacy_accounts` 任务通过 MyTools 只读分页接口迁移旧 `drive_account` 与 `webdav_account` 元数据。接口只返回 `secret://mytools/...` 引用，不返回加密密码、URL 或用户名；WebDAV/Alist 账户默认禁用，完成 provider 配置和对账后才能启用。Scheduler V26 提供手工即时迁移任务，不会自动执行。
+
 ## 技术栈
 
 Java 21 / Spring Boot

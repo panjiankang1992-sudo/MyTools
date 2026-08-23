@@ -70,4 +70,8 @@
     UPDATE webdav_account SET password = #{password} WHERE id = #{id}
   </update>
 
+  <select id="selectMigrationBatch" resultMap="WebdavAccountResultMap">
+    SELECT * FROM webdav_account WHERE id &gt; #{afterId} ORDER BY id ASC LIMIT #{limit}
+  </select>
+
 </mapper>

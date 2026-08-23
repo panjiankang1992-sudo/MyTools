@@ -78,6 +78,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/app/v1/media/tickets/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/app/v1/local-media/tickets/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/app/v1/drive-tickets/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/internal/v1/migration/drive-accounts").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception

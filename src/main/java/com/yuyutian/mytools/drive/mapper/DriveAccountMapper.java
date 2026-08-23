@@ -20,4 +20,8 @@ public interface DriveAccountMapper {
     /** 查询用户有权访问的网盘。 */
     @Select("SELECT * FROM drive_account WHERE id = #{driveId} AND user_id = #{userId} AND enabled = 1")
     DriveAccount selectOwned(@Param("driveId") Long driveId, @Param("userId") Long userId);
+
+    /** 按主键游标导出旧网盘账户元数据。 */
+    @Select("SELECT * FROM drive_account WHERE id > #{afterId} ORDER BY id ASC LIMIT #{limit}")
+    List<DriveAccount> selectMigrationBatch(@Param("afterId") Long afterId, @Param("limit") int limit);
 }
