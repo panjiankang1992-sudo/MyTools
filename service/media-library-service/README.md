@@ -25,3 +25,7 @@ Scheduler V28 在 `media_probe` 的 Asset Registry 登记之后追加 `media_reg
 Scheduler V47 新增 `media_scan_directory` 父任务和 `media_ingest_scanned_file` 子任务。父任务只允许扫描 `MEDIA_SCAN_ALLOWED_ROOTS` JSON 数组内的目录，不跟随文件符号链接，单批最多创建 1000 个直接子任务。子任务自动继承父任务实际执行节点的 `executor.node` 亲和值，避免把宿主机路径分发到未挂载该目录的节点。每个子任务依次执行 ffprobe、Asset Registry 登记和 Media Library 回写，三步全部成功后父任务才发布 generation。发布事务会把本目录未出现在新 generation 的旧目录关系标记为 `MISSING`；只有资产不再属于任何就绪目录时才把媒体项标记为 `MISSING`。不完整、被取消或失败的批次保持 `STAGING`，不会影响上一批权威结果。媒体执行节点至少需要两个并发槽，保证等待子任务的父任务不会占满唯一执行槽。
 
 当前未把该任务接入 MyTools 的旧扫描入口，也没有默认 Cron；只有显式创建任务且执行节点配置非空 `MEDIA_SCAN_ALLOWED_ROOTS` 后才会读取目录。
+
+Scheduler V48 将 `media_analyze_video` 升级为版本化业务闭环。任务首先用 `mediaItemId + assetRegistryId + analysisVersion + taskInstanceId` 建立唯一绑定，随后执行探测、缩略图、故事板、可选标签和简介生成。缩略图及故事板先发布到 Storage Gateway，再登记为 Asset Registry 派生资产；最终步骤把标签、简介和派生资产 ID 在一个 Media Library 事务中提交。任何必需步骤失败、超时或取消时，场景步骤分别写入 `FAILED`、`TIMED_OUT` 或 `CANCELLED`，不会留下永久 `RUNNING` 分析。
+
+`media_analyze_video` 没有默认定时触发，也没有替换旧 MyTools 分析入口。调用方必须使用 Media Library 返回的真实 `mediaItemId` 和 `assetRegistryId` 显式创建任务；相同媒体和分析版本不能绑定不同任务。

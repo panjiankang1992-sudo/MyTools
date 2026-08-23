@@ -1,0 +1,10 @@
+name: asset_register_media_storyboard
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities: [storage_write, asset_registry_write]
+parameters:
+  required: [assetRegistryId, ownerId, analysisVersion]
+result:
+  schema: schemas/result.schema.json
+limits: {timeoutSeconds: 300, maxOutputBytes: 131072}

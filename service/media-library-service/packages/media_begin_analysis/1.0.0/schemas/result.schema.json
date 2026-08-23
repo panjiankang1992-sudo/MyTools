@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","required":["analysisId","mediaItemId","status"],"properties":{"analysisId":{"type":"string","format":"uuid"},"mediaItemId":{"type":"string","format":"uuid"},"status":{"const":"RUNNING"}},"additionalProperties":false}

@@ -10,14 +10,15 @@ Media Intelligence 主要是一组版本化脚本包和模型配置，而不是�
 - `media_generate_thumbnail`：缩略图。
 - `media_generate_storyboard`：约 12 张截图。
 - `media_generate_tags`：视觉标签。
-- `media_generate_summary`：短摘要。
-- `media_generate_description`：长简介。
+- `media_describe_video`：模型或确定性降级的短摘要与长简介。
+- `asset_register_media_thumbnail`、`asset_register_media_storyboard`：将临时产物发布并登记为版本化派生资产。
+- `media_begin_analysis`、`media_commit_analysis`、`media_fail_analysis`：建立业务绑定、提交聚合结果和回写异常终态。
 
-每个结果包含 `assetId`、内容哈希、生产者、脚本版本、模型、Prompt 版本、输入指纹和生成时间。
+原子生成结果至少携带资产逻辑身份和内容摘要；涉及模型的结果额外携带模型或策略版本。业务聚合只引用已经持久化的 Asset Registry ID，不把执行器临时路径写入 Media Library。
 
 ## 执行流程
 
-目标态脚本从 Storage Gateway 获取只读输入，在工作目录生成产物，校验后上传，再调用 Asset Registry 登记 artifact，最后调用 Media Library 更新分析结果。当前过渡实现仍从旧媒体路径读取输入：`media_probe` 后按内容摘要和实际大小登记原媒体的逻辑位置；`media_generate_thumbnail` 后将缩略图上传 Storage Gateway，登记为独立资产并建立 `THUMBNAIL` 派生关系。旁路登记失败不会改变原任务结果。模型任务创建时应匹配 GPU/模型能力节点。
+目标态脚本从 Storage Gateway 获取只读输入，在工作目录生成产物，校验后上传，再调用 Asset Registry 登记 artifact，最后调用 Media Library 更新分析结果。当前过渡实现仍从受控媒体节点的旧路径读取输入。V48 在耗时步骤前建立 `mediaItemId + assetRegistryId + analysisVersion + taskInstanceId` 绑定，缩略图和每一帧故事板均先持久化并登记派生关系，最后一次性提交标签、简介和领域资产 ID。标签模型失败可忽略，必需步骤失败、超时和取消会执行独立场景步骤关闭分析。模型任务创建时应匹配 GPU/模型能力节点。
 
 ## DML
 

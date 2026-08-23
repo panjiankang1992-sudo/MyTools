@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","required":["mediaItemId","status","tagCount","artifactCount"],"properties":{"mediaItemId":{"type":"string","format":"uuid"},"status":{"const":"SUCCEEDED"},"tagCount":{"type":"integer","minimum":0,"maximum":32},"artifactCount":{"type":"integer","minimum":0,"maximum":64}},"additionalProperties":false}

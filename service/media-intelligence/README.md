@@ -28,7 +28,7 @@ Python 3.12 / Shell
 Scheduler V23 在媒体探测后旁路登记原媒体，并在缩略图生成后通过 Storage Gateway 持久化产物、登记独立资产及 `THUMBNAIL` 派生关系。两个步骤均采用 `IGNORE` 失败策略，旧媒体表、旧缩略图和现有查询链路仍为迁移期权威实现。
 - `packages/media_generate_storyboard/1.0.0`：按视频时长均匀生成最多十二帧可校验截图。
 - `packages/media_describe_video/1.0.0`：读取探测和故事板步骤结果，生成模型简介；模型不可用时输出确定性的元数据简介。
-- `media_analyze_video` 组合任务按探测、故事板、简介三个原子步骤执行，后续步骤通过 `stepOutputs` 读取前序结构化结果。
+- Scheduler V48 将 `media_analyze_video` 升级为分析绑定、探测、缩略图、持久化、故事板、可选标签、简介和领域聚合的完整流水线。原子脚本只产生有界结果和执行器临时文件；长期产物由 Asset Registry 脚本通过 Storage Gateway 发布，最终业务状态由 Media Library 原子提交。
 - 旁路输入使用内容 SHA-256 与策略版本形成幂等键；旧实现继续作为线上权威结果。
 - 双跑期间由后续对账任务比较标签集合、模型、内容哈希和策略版本，不直接覆盖旧标签。
 

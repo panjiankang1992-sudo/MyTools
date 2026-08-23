@@ -32,6 +32,8 @@ V2 新增位置失效审计和不可变资源包。资源包发布在事务内�
 
 V3 新增 `asset_legacy_mapping`。`legacy_asset_capture_snapshot` 1.0.0 通过旧 MyTools 数据库只读账号，在单个一致性事务中把 `local_file` 物化到独立适配器 schema；`asset_migrate_legacy_mappings` 1.0.0 必须显式指定已封存 `sourceSnapshotId`。dry-run 在真实目标事务中执行资产、来源、位置和 URI 校验后回滚，正式迁移才创建或复用内容资产并绑定旧 ID。相同旧身份和摘要重放为 skipped，载荷变化为 rejected；映射计数和摘要已纳入 Registry 对账报告。
 
+V48 的 `asset_register_media_thumbnail` 和 `asset_register_media_storyboard` 负责把分析临时产物发布到 Storage Gateway，并按分析版本登记不可变派生资产关系。故事板按帧序号使用不同 `artifactKind`，相同任务重试通过幂等键恢复，父资产版本在每个新关系写入后顺序推进。
+
 ## 实施要求
 
 - 根据真实旧 schema 实现只读源适配器，并执行生产副本 dry-run、正式迁移和对账。

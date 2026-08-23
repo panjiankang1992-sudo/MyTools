@@ -27,7 +27,8 @@ def execute(context: dict, storage: StorageGatewayClient, assets: AssetRegistryC
         "sourceBusinessId": media_id,
         "contentSha256": str(parameters["contentSha256"]).lower(),
         "sizeBytes": Path(str(parameters["sourcePath"])).stat().st_size,
-        "mimeType": str(parameters.get("assetMimeType") or "application/octet-stream"),
+        "mimeType": str(parameters.get("assetMimeType") or parameters.get("mimeType")
+                        or "application/octet-stream"),
         "location": {
             "idempotencyKey": f"media_file-location:{media_id}",
             "providerType": "LEGACY_MEDIA",
@@ -35,6 +36,10 @@ def execute(context: dict, storage: StorageGatewayClient, assets: AssetRegistryC
             "providerVersion": "v1",
         },
     })
+    requested_parent = parameters.get("assetRegistryId")
+    if requested_parent and str(parent["id"]) != str(requested_parent):
+        raise ValueError("registered parent asset identity conflicts with Media Library")
+    generator_version = str(parameters.get("analysisVersion") or "1.0.0")
     artifact_sha = str(generated["artifactSha256"]).lower()
     relative_path = f"media/thumbnails/{parameters['contentSha256']}/{artifact_sha}.jpg"
     storage_uri = storage.publish(artifact_path, str(parameters.get("storageRoot") or "managed"),
@@ -42,14 +47,14 @@ def execute(context: dict, storage: StorageGatewayClient, assets: AssetRegistryC
                                   int(generated["size"]), artifact_sha)
     artifact = assets.register({
         "ownerId": int(parameters.get("ownerId") or 0),
-        "idempotencyKey": f"media_thumbnail:{media_id}:{artifact_sha}",
+        "idempotencyKey": f"media_thumbnail:{media_id}:{generator_version}:{artifact_sha}",
         "sourceType": "MEDIA_THUMBNAIL",
-        "sourceBusinessId": f"{media_id}:{artifact_sha}",
+        "sourceBusinessId": f"{media_id}:{generator_version}:{artifact_sha}",
         "contentSha256": artifact_sha,
         "sizeBytes": int(generated["size"]),
         "mimeType": "image/jpeg",
         "location": {
-            "idempotencyKey": f"media_thumbnail-location:{media_id}:{artifact_sha}",
+            "idempotencyKey": f"media_thumbnail-location:{media_id}:{generator_version}:{artifact_sha}",
             "providerType": "STORAGE_GATEWAY",
             "storageUri": storage_uri,
             "providerVersion": "v1",
@@ -58,10 +63,10 @@ def execute(context: dict, storage: StorageGatewayClient, assets: AssetRegistryC
     linked = assets.register_artifact(str(parent["id"]), {
         "expectedAssetVersion": int(parent["version"]),
         "artifactAssetId": str(artifact["id"]),
-        "idempotencyKey": f"media_thumbnail-artifact:{media_id}:{artifact_sha}",
+        "idempotencyKey": f"media_thumbnail-artifact:{media_id}:{generator_version}:{artifact_sha}",
         "artifactKind": "THUMBNAIL",
         "generatorName": "media_generate_thumbnail",
-        "generatorVersion": "1.0.0",
+        "generatorVersion": generator_version,
     })
     return {"parentAssetId": str(parent["id"]), "artifactAssetId": str(artifact["id"]),
             "parentVersion": int(linked["version"]), "storageUri": storage_uri}

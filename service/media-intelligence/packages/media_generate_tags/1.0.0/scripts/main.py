@@ -20,9 +20,12 @@ def load_parameters() -> dict:
     """Load task parameters from the executor context file."""
     context_path = Path(os.environ["TASK_CONTEXT_FILE"])
     context = json.loads(context_path.read_text(encoding="utf-8"))
-    parameters = context.get("parameters")
+    parameters = dict(context.get("parameters") or {})
     if not isinstance(parameters, dict):
         raise ValueError("task parameters are missing")
+    generated = (context.get("stepOutputs") or {}).get("generate_thumbnail") or {}
+    if generated.get("artifactPath") and not parameters.get("thumbnailPath"):
+        parameters["thumbnailPath"] = generated["artifactPath"]
     return parameters
 
 
