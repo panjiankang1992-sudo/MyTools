@@ -34,7 +34,9 @@ def create_handler(service: SnapshotService, internal_token: str) -> type[BaseHT
                 query = parse_qs(parsed.query, keep_blank_values=True)
                 limit = int(query.get("limit", ["200"])[0])
                 after_id = query.get("afterId", [None])[0]
-                self._json(HTTPStatus.OK, service.export_page(after_id, limit))
+                snapshot_high_water = query.get("snapshotHighWater", [None])[0]
+                self._json(HTTPStatus.OK, service.export_page(
+                    after_id, limit, snapshot_high_water))
             except PermissionError as exception:
                 self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": str(exception)})
             except (TypeError, ValueError) as exception:

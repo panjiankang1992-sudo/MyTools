@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import hashlib
 from typing import Protocol
 
 from .models import Snapshot
@@ -26,7 +27,13 @@ class SnapshotRepository(Protocol):
     def insert(self, snapshot: Snapshot, payload_sha256: str) -> StoredSnapshot:
         """插入快照并返回持久化结果。"""
 
-    def page(self, after_sequence: int, limit: int) -> list[StoredSnapshot]:
+    def high_water(self) -> int:
+        """读取当前追加日志高水位。"""
+
+    def evidence(self, high_water: int) -> tuple[int, str]:
+        """计算冻结高水位内的数量和集合摘要。"""
+
+    def page(self, after_sequence: int, high_water: int, limit: int) -> list[StoredSnapshot]:
         """按稳定序号读取一页。"""
 
 
@@ -35,6 +42,7 @@ class InMemorySnapshotRepository:
 
     def __init__(self) -> None:
         self._values: list[StoredSnapshot] = []
+        self._evidence: dict[int, tuple[int, str]] = {}
 
     def find(self, source_system: str, legacy_message_id: str) -> StoredSnapshot | None:
         """按旧身份查询快照。"""
@@ -50,6 +58,32 @@ class InMemorySnapshotRepository:
         self._values.append(stored)
         return stored
 
-    def page(self, after_sequence: int, limit: int) -> list[StoredSnapshot]:
+    def high_water(self) -> int:
+        """读取当前追加日志高水位。"""
+        return self._values[-1].sequence_id if self._values else 0
+
+    def evidence(self, high_water: int) -> tuple[int, str]:
+        """计算冻结高水位内的数量和集合摘要。"""
+        if high_water in self._evidence:
+            return self._evidence[high_water]
+        values = [item for item in self._values if item.sequence_id <= high_water]
+        digest = hashlib.sha256()
+        for item in values:
+            update_evidence_digest(digest, item)
+        result = (len(values), digest.hexdigest())
+        self._evidence[high_water] = result
+        return result
+
+    def page(self, after_sequence: int, high_water: int, limit: int) -> list[StoredSnapshot]:
         """读取稳定有界页。"""
-        return [item for item in self._values if item.sequence_id > after_sequence][:limit]
+        return [item for item in self._values
+                if after_sequence < item.sequence_id <= high_water][:limit]
+
+
+def update_evidence_digest(digest, item: StoredSnapshot) -> None:
+    """按旧身份和不可变载荷摘要更新集合摘要。"""
+    for value in (item.snapshot.source_system, item.snapshot.legacy_message_id,
+                  item.payload_sha256):
+        encoded = value.encode("utf-8")
+        digest.update(len(encoded).to_bytes(4, "big"))
+        digest.update(encoded)

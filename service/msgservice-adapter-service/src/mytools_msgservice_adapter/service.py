@@ -57,18 +57,25 @@ class SnapshotService:
                 rejected += 1
         return ImportResult(accepted, skipped, rejected, digest.hexdigest())
 
-    def export_page(self, after_id: str | None, limit: int) -> dict[str, Any]:
+    def export_page(self, after_id: str | None, limit: int,
+                    snapshot_high_water: str | None = None) -> dict[str, Any]:
         """按稳定游标导出 Messaging 迁移契约。"""
         if not self._export_enabled:
             raise PermissionError("snapshot export is disabled")
         if limit < 1 or limit > 200:
             raise ValueError("limit is invalid")
         after_sequence = decode_cursor(after_id)
-        values = self._repository.page(after_sequence, limit + 1)
+        high_water = self._repository.high_water() if snapshot_high_water is None \
+            else decode_cursor(snapshot_high_water)
+        if after_sequence > high_water:
+            raise ValueError("afterId exceeds snapshot high water")
+        item_count, collection_digest = self._repository.evidence(high_water)
+        values = self._repository.page(after_sequence, high_water, limit + 1)
         page = values[:limit]
         next_after_id = encode_cursor(page[-1].sequence_id) if len(values) > limit and page else None
         return {"items": [item.snapshot.document() for item in page],
-                "nextAfterId": next_after_id}
+                "nextAfterId": next_after_id, "snapshotHighWater": encode_cursor(high_water),
+                "itemCount": item_count, "collectionSha256": collection_digest}
 
 
 def encode_cursor(sequence_id: int) -> str:

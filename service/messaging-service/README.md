@@ -36,7 +36,7 @@ MyTools 注册验证码已增加默认关闭的 `MESSAGING_REGISTRATION_MAIL_SID
 
 `MESSAGE_AUTOMATION_RELAY_ENABLED` 默认关闭。启用后，Messaging 分批转发未发布的 `MessageReceived` Outbox 事件，Automation 返回成功后才标记 `published_at`；中继失败不丢弃事件，重复发送由下游消息唯一键去重。
 
-历史消息使用 `message_migrate_history` 1.0.0 即时任务迁移。脚本从独立旧服务适配器分页读取脱敏记录，通过内部批次接口写入 `inbound_message` 和 `inbound_history_migration` 审计表；dry-run 不写库，正式导入按来源系统与旧消息标识幂等，并校验载荷摘要。历史导入不会生成 `MessageReceived` Outbox，避免重放实时自动化规则。独立 MsgService 快照适配器已实现且装载、导出默认关闭；旧 schema 的只读字段映射和生产副本对账仍待实施。
+历史消息使用 `message_migrate_history` 1.1.0 即时任务迁移。脚本从独立旧服务适配器首屏冻结高水位，随后分页读取同一批脱敏记录，并在每页校验来源条目数和集合摘要不变；通过内部批次接口写入 `inbound_message` 和 `inbound_history_migration` 审计表。dry-run 不写库，正式导入按来源系统与旧消息标识幂等，并校验载荷摘要。历史导入不会生成 `MessageReceived` Outbox，避免重放实时自动化规则。独立 MsgService 快照适配器已实现且装载、导出默认关闭；旧 schema 的只读字段映射和生产副本对账仍待实施。
 
 ## 实施要求
 

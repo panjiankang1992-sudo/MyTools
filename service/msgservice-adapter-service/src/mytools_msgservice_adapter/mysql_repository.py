@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+import hashlib
 import json
 from typing import Callable
 
@@ -49,13 +50,57 @@ class MySqlSnapshotRepository:
             raise RuntimeError("snapshot insert did not persist")
         return stored
 
-    def page(self, after_sequence: int, limit: int) -> list[StoredSnapshot]:
+    def high_water(self) -> int:
+        """读取当前追加日志高水位。"""
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT COALESCE(MAX(sequence_id),0) AS high_water "
+                               "FROM legacy_inbound_snapshot")
+                return int(cursor.fetchone()["high_water"])
+        finally:
+            connection.close()
+
+    def evidence(self, high_water: int) -> tuple[int, str]:
+        """只计算一次冻结高水位证据，后续分页读取不可变缓存。"""
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT item_count,collection_sha256 "
+                               "FROM legacy_inbound_export_snapshot WHERE high_water_sequence=%s",
+                               (high_water,))
+                existing = cursor.fetchone()
+                if existing is not None:
+                    return int(existing["item_count"]), str(existing["collection_sha256"])
+                cursor.execute("SELECT source_system,legacy_message_id,payload_sha256 "
+                               "FROM legacy_inbound_snapshot WHERE sequence_id<=%s "
+                               "ORDER BY sequence_id ASC", (high_water,))
+                rows = cursor.fetchall()
+                digest = hashlib.sha256()
+                for row in rows:
+                    for value in (row["source_system"], row["legacy_message_id"],
+                                  row["payload_sha256"]):
+                        encoded = str(value).encode("utf-8")
+                        digest.update(len(encoded).to_bytes(4, "big"))
+                        digest.update(encoded)
+                value = digest.hexdigest()
+                cursor.execute("INSERT IGNORE INTO legacy_inbound_export_snapshot "
+                               "(high_water_sequence,item_count,collection_sha256) VALUES (%s,%s,%s)",
+                               (high_water, len(rows), value))
+            connection.commit()
+        finally:
+            connection.close()
+        return self.evidence(high_water)
+
+    def page(self, after_sequence: int, high_water: int, limit: int) -> list[StoredSnapshot]:
         """按自增序号读取稳定页。"""
         connection = self._connection_factory()
         try:
             with connection.cursor() as cursor:
-                cursor.execute("SELECT * FROM legacy_inbound_snapshot WHERE sequence_id>%s "
-                               "ORDER BY sequence_id ASC LIMIT %s", (after_sequence, limit))
+                cursor.execute("SELECT * FROM legacy_inbound_snapshot "
+                               "WHERE sequence_id>%s AND sequence_id<=%s "
+                               "ORDER BY sequence_id ASC LIMIT %s",
+                               (after_sequence, high_water, limit))
                 return [self._map(row) for row in cursor.fetchall()]
         finally:
             connection.close()

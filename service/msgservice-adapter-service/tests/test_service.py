@@ -41,13 +41,28 @@ def test_export_uses_bounded_stable_cursor_and_exact_migration_shape() -> None:
     service = SnapshotService(InMemorySnapshotRepository(), True, True)
     service.import_snapshots([message("mail-1"), message("mail-2"), message("mail-3")])
     first = service.export_page(None, 2)
-    second = service.export_page(first["nextAfterId"], 2)
+    second = service.export_page(first["nextAfterId"], 2, first["snapshotHighWater"])
     assert [item["legacyMessageId"] for item in first["items"]] == ["mail-1", "mail-2"]
     assert [item["legacyMessageId"] for item in second["items"]] == ["mail-3"]
     assert second["nextAfterId"] is None
+    assert first["itemCount"] == second["itemCount"] == 3
+    assert first["collectionSha256"] == second["collectionSha256"]
     assert set(first["items"][0]) == {"sourceSystem", "legacyMessageId", "ownerId",
                                              "channelType", "conversationKey", "sender", "subject",
                                              "body", "receivedAt", "parts"}
+
+
+def test_export_high_water_excludes_concurrent_appends() -> None:
+    service = SnapshotService(InMemorySnapshotRepository(), True, True)
+    service.import_snapshots([message("mail-1"), message("mail-2")])
+    first = service.export_page(None, 1)
+    service.import_snapshots([message("mail-3")])
+
+    second = service.export_page(first["nextAfterId"], 1, first["snapshotHighWater"])
+
+    assert [item["legacyMessageId"] for item in second["items"]] == ["mail-2"]
+    assert second["itemCount"] == 2
+    assert second["collectionSha256"] == first["collectionSha256"]
 
 
 def test_unknown_fields_and_unbounded_pages_are_rejected() -> None:
@@ -57,7 +72,7 @@ def test_unknown_fields_and_unbounded_pages_are_rejected() -> None:
     unsafe["password"] = "secret"
     with pytest.raises(ValueError, match="unsupported fields"):
         service.import_snapshots([message("valid-before-error"), unsafe])
-    assert repository.page(0, 200) == []
+    assert repository.page(0, repository.high_water(), 200) == []
     with pytest.raises(ValueError, match="limit is invalid"):
         service.export_page(None, 201)
 
