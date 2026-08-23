@@ -175,6 +175,46 @@ def normalize_link_asset(row: dict[str, Any]) -> SnapshotItem | SnapshotRejectio
     })
 
 
+def normalize_event_asset(row: dict[str, Any]) -> SnapshotItem | SnapshotRejection:
+    """将普通消息事件与资产关系映射为脱敏历史来源。"""
+    legacy_id = str(row.get("id", ""))
+    asset_id = str(row.get("asset_id") or "")
+    sha256 = str(row.get("sha256") or "").lower()
+    platform = str(row.get("platform") or "").lower()
+    account_id = str(row.get("bot_account_id") or "")
+    event_id = str(row.get("event_id") or "")
+    source_index = int(row.get("source_index") or 0)
+    if not asset_id or not legacy_id:
+        return SnapshotRejection("EVENT_ASSET", legacy_id, "MISSING_RELATION",
+                                 "event asset relation is incomplete")
+    if len(sha256) != 64 or any(char not in "0123456789abcdef" for char in sha256):
+        return SnapshotRejection("EVENT_ASSET", legacy_id, "INVALID_SHA256",
+                                 "event asset checksum is invalid")
+    if (not platform or len(platform) > 32
+            or any(char not in "abcdefghijklmnopqrstuvwxyz0123456789_-" for char in platform)
+            or not account_id or not event_id):
+        return SnapshotRejection("EVENT_ASSET", legacy_id, "MISSING_EVENT_IDENTITY",
+                                 "event identity is incomplete")
+    if source_index < 0:
+        return SnapshotRejection("EVENT_ASSET", legacy_id, "INVALID_SOURCE_INDEX",
+                                 "event source index is negative")
+    event_key = hashlib.sha256(canonical_json({
+        "platform": platform,
+        "botAccountId": account_id,
+        "eventId": event_id,
+    })).hexdigest()
+    return SnapshotItem("EVENT_ASSET", legacy_id,
+                        f"event-asset:{event_key}:{source_index}", {
+        "legacyAssetSourceId": legacy_id,
+        "legacyAssetId": asset_id,
+        "eventKeySha256": event_key,
+        "sourceSystem": f"DOWNLOADBOT_{platform.upper()}",
+        "sourceIndex": source_index,
+        "contentSha256": sha256,
+        "receivedAt": row.get("received_at"),
+    })
+
+
 def _json_object(value: Any) -> Any:
     """安全解析旧 JSON 列，失败时保留空对象。"""
     if isinstance(value, (dict, list)):

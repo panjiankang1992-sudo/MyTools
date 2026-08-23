@@ -1,0 +1,15 @@
+name: downloadbot_capture_snapshot
+version: 1.1.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - legacy_downloadbot_read
+  - migration_snapshot_write
+parameters:
+  required:
+    - snapshotId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 3600
+  maxOutputBytes: 65536

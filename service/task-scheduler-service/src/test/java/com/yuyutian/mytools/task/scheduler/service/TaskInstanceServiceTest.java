@@ -482,4 +482,16 @@ class TaskInstanceServiceTest {
         assertEquals(1, taskDeadlineService.expireDeadlines(Instant.now()));
         assertEquals(TaskStatus.TIMED_OUT, service.get(task.id()).status());
     }
+
+    @Test
+    void shouldUseMessageAssetAwareDownloadBotSnapshotPackage() {
+        Map<String, Object> definition = jdbcTemplate.queryForMap(
+                "SELECT d.version,s.script_version FROM task_definition d "
+                        + "JOIN task_step_definition s ON s.task_definition_id=d.id "
+                        + "WHERE d.name=? AND s.name=?",
+                "downloadbot_capture_snapshot", "capture_snapshot");
+
+        assertEquals(2, ((Number) definition.get("version")).intValue());
+        assertEquals("1.1.0", definition.get("script_version"));
+    }
 }

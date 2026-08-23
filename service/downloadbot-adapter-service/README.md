@@ -13,6 +13,12 @@ DownloadBot 到 Download Ingestion 的独立旁路适配器，使用 Python 3.12
 权限的单独账号开启一致性只读事务，先固定相关表高水位，再将
 标准化结果写入适配器 schema 并原子封存。
 
+`1.1.0` 根据 DownloadBot 当前真实表结构新增 `asset_sources` 捕获，覆盖普通
+QQ、Telegram 和 OneBot 消息管线的 `ingress_events → asset_sources → assets` 关系。
+事件身份由 `platform + bot_account_id + event_id` 计算 SHA-256；快照不保存这些原值，
+也不保存 `raw_payload`、`platform_file_id`、发送者、会话或机器人账号。原 `1.0.0`
+脚本包保持不可变，Scheduler V65 只让新建任务使用 `1.1.0`。
+
 快照不会导出旧物理路径、原始下载 URL、消息回复路由、Cookie 或 Token。校验失败的
 记录进入 `legacy_snapshot_rejection`，不会因为单条脏数据中止整个捕获。只有状态为
 `SEALED` 且集合摘要匹配的快照才允许进入后续导入任务。
@@ -23,7 +29,7 @@ DownloadBot 到 Download Ingestion 的独立旁路适配器，使用 Python 3.12
 实时旁路仍默认关闭。历史快照捕获不修改旧任务状态，也不接管旧服务流量。
 
 生产迁移通过任务调度服务创建 `downloadbot_capture_snapshot`，由迁移执行集群运行
-`downloadbot_capture_snapshot/1.0.0` 脚本包。快照导出还需显式设置
+`downloadbot_capture_snapshot/1.1.0` 脚本包。快照导出还需显式设置
 `DOWNLOADBOT_SNAPSHOT_EXPORT_ENABLED=true`；缺省状态下只允许捕获，不允许读取快照内容。
 导出接口使用独立的 `DOWNLOADBOT_SNAPSHOT_EXPORT_TOKEN`，不得复用实时事件接入令牌。
 单事件结果证据接口还需显式设置 `DOWNLOADBOT_RECONCILIATION_ENABLED=true`；它只读取

@@ -52,13 +52,14 @@ WebArchive 同样采用解析父任务。解析器逐跳校验公网地址、限
 2. 将 HTTP/X 下载封装为首批脚本；当前已完成受限 HTTP 下载任务，以及只接受
    Storage Gateway 逻辑 URI 的本地导入任务。
 3. 迁移 PikPak、magnet 和消息附件。
-4. 通过 `downloadbot_capture_snapshot` 捕获旧库一致性快照，再由
-   `download_migrate_legacy_history` 经受保护 API 导入历史；旧库只读账号与两个 API
+4. 通过 `downloadbot_capture_snapshot` 1.1.0 捕获旧库一致性快照；快照同时覆盖链接任务和
+   普通消息下载的脱敏资产来源关系，再由 `download_migrate_legacy_history` 经受保护 API
+   导入历史；旧库只读账号与两个 API
    令牌相互隔离。实时双跑仍使用新服务按文件项稳定排序的摘要契约。
 5. 使用 `download_reconcile_legacy_result` 比较终态、文件数、总字节数和内容集合摘要；
    不匹配只产出任务证据，不自动切换流量。
-5. 关闭旧 worker loop，保留 API、MCP 和业务查询。
-6. 渠道接入迁往 Messaging/Automation。
+6. 关闭旧 worker loop，保留 API、MCP 和业务查询。
+7. 渠道接入迁往 Messaging/Automation。
 
 ## 验收
 

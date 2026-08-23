@@ -6,6 +6,7 @@ from mytools_downloadbot_adapter.snapshot import (
     collection_digest,
     content_set_digest,
     normalize_asset,
+    normalize_event_asset,
     normalize_link_asset,
     normalize_link_job,
 )
@@ -54,6 +55,31 @@ def test_link_asset_normalization_preserves_only_stable_relation():
     assert isinstance(result, SnapshotItem)
     assert result.source_key == "link-asset:2:3"
     assert result.payload["contentSha256"] == "c" * 64
+
+
+def test_event_asset_normalization_hashes_message_identity_and_omits_routing_fields():
+    result = normalize_event_asset({
+        "id": 8, "asset_id": 3, "sha256": "e" * 64, "source_index": 1,
+        "platform": "telegram", "bot_account_id": "private-bot",
+        "event_id": "private-event", "status": "COMPLETED",
+        "platform_file_id": "private-file", "raw_payload": {"sender": "private"},
+        "received_at": datetime(2026, 1, 1, tzinfo=UTC),
+    })
+    assert isinstance(result, SnapshotItem)
+    assert result.item_type == "EVENT_ASSET"
+    assert result.payload["sourceSystem"] == "DOWNLOADBOT_TELEGRAM"
+    encoded = str(result.payload)
+    assert "private-bot" not in encoded
+    assert "private-event" not in encoded
+    assert "private-file" not in encoded
+    assert "sender" not in encoded
+
+
+def test_event_asset_rejects_incomplete_event_identity():
+    result = normalize_event_asset({"id": 9, "asset_id": 3, "sha256": "f" * 64,
+                                    "source_index": 0, "platform": "qq"})
+    assert isinstance(result, SnapshotRejection)
+    assert result.reason_code == "MISSING_EVENT_IDENTITY"
 
 
 def test_content_set_digest_ignores_executor_item_identity():

@@ -36,7 +36,10 @@ DownloadBot 数据表，也不共享数据库账号。旧 DownloadBot 在整个�
 
 1. 当前阶段：只新增独立服务和 schema；不改 DownloadBot，实时旁路和快照导出均默认关闭。
 2. 快照阶段：由 Scheduler 创建 `downloadbot_capture_snapshot`，Executor 使用旧库只读账号
-   捕获 `assets`、`link_jobs` 和 `link_asset_sources`，无效记录进入拒绝审计。
+   捕获 `assets`、`link_jobs`、`link_asset_sources`，以及普通消息管线的
+   `ingress_events → asset_sources → assets` 关系，无效记录进入拒绝审计。消息事件只输出
+   平台类别、来源序号、内容摘要和事件身份摘要，不输出原始载荷、平台文件 ID、发送者、
+   会话或机器人账号。`1.0.0` 保持不可变，新任务由 V65 切换到 `1.1.0`。
 3. 基线阶段：待 DownloadBot 工作区形成干净基线，在旧请求落库后提交脱敏事件；投递失败不得影响旧事务。
 4. 旁路阶段：小范围启用 `SHADOW`，按旧任务标识关联新请求，比较文件数量、总字节数和集合摘要。
 5. 灰度阶段：仅对已验证下载类型逐项选择新执行路径；保留旧路径快速回退。
