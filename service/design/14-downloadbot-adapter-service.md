@@ -4,7 +4,12 @@
 
 该服务是旧 DownloadBot 与新 Download Ingestion 之间的防腐层，不是新的下载实现。它只负责旧事件标准化、幂等收件箱、受控旁路转发和后续结果对账；下载计划和业务生命周期归 Download Ingestion，脚本执行归 Executor。
 
-适配器独立部署、独立使用 `mytools_downloadbot_adapter` schema，不引用 DownloadBot 数据表，也不共享数据库账号。旧 DownloadBot 在整个旁路阶段继续处理原请求并返回结果。
+适配器独立部署、独立使用 `mytools_downloadbot_adapter` schema。实时旁路不引用
+DownloadBot 数据表，也不共享数据库账号。旧 DownloadBot 在整个旁路阶段继续处理原请求并返回结果。
+
+历史迁移例外使用独立的只读账号对旧 `downloadbot` schema 执行 `SELECT`。捕获任务在
+一致性只读事务内固定表高水位，将标准化数据写入适配器独立 schema 并封存；后续导入
+只消费封存快照，不允许直接从旧库写入新业务服务。
 
 ## 模式与安全门禁
 
