@@ -1,9 +1,8 @@
 package com.yuyutian.mytools.storage.controller;
 
-import com.yuyutian.mytools.storage.config.StorageProperties;
 import com.yuyutian.mytools.storage.model.CreateUploadRequest;
-import com.yuyutian.mytools.storage.model.ErrorCode;
 import com.yuyutian.mytools.storage.model.UploadView;
+import com.yuyutian.mytools.storage.service.InternalAuthorizer;
 import com.yuyutian.mytools.storage.service.StorageUploadService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -18,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.UUID;
 
 /**
@@ -30,17 +27,17 @@ import java.util.UUID;
 public class StorageUploadController {
 
     private final StorageUploadService uploadService;
-    private final StorageProperties properties;
+    private final InternalAuthorizer authorizer;
 
     /**
      * 创建存储上传控制器。
      *
      * @param uploadService 上传服务
-     * @param properties 存储配置
+     * @param authorizer 内部鉴权器
      */
-    public StorageUploadController(StorageUploadService uploadService, StorageProperties properties) {
+    public StorageUploadController(StorageUploadService uploadService, InternalAuthorizer authorizer) {
         this.uploadService = uploadService;
-        this.properties = properties;
+        this.authorizer = authorizer;
     }
 
     /**
@@ -53,7 +50,7 @@ public class StorageUploadController {
     @PostMapping
     public ResponseEntity<UploadView> create(@RequestHeader("Authorization") String authorization,
                                              @Valid @RequestBody CreateUploadRequest request) {
-        requireToken(authorization);
+        authorizer.require(authorization);
         return ResponseEntity.accepted().body(uploadService.create(request));
     }
 
@@ -69,7 +66,7 @@ public class StorageUploadController {
     @PutMapping("/{id}/content")
     public UploadView upload(@PathVariable UUID id, @RequestHeader("Authorization") String authorization,
                              HttpServletRequest request) throws IOException {
-        requireToken(authorization);
+        authorizer.require(authorization);
         return uploadService.upload(id, request.getInputStream());
     }
 
@@ -82,17 +79,7 @@ public class StorageUploadController {
      */
     @GetMapping("/{id}")
     public UploadView get(@PathVariable UUID id, @RequestHeader("Authorization") String authorization) {
-        requireToken(authorization);
+        authorizer.require(authorization);
         return uploadService.get(id);
-    }
-
-    private void requireToken(String authorization) {
-        String expected = properties.internalToken();
-        String supplied = authorization != null && authorization.startsWith("Bearer ")
-                ? authorization.substring(7) : "";
-        if (expected == null || expected.isBlank() || !MessageDigest.isEqual(
-                expected.getBytes(StandardCharsets.UTF_8), supplied.getBytes(StandardCharsets.UTF_8))) {
-            throw new IllegalArgumentException(ErrorCode.INTERNAL_UNAUTHORIZED.code());
-        }
     }
 }

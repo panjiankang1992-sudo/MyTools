@@ -1,0 +1,151 @@
+package com.yuyutian.mytools.storage.service;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yuyutian.mytools.storage.model.ErrorCode;
+import com.yuyutian.mytools.storage.model.RemoteObjectView;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+/**
+ * 仅允许回环 rclone RC 白名单操作的远端连接器。
+ */
+@Component
+public class RcloneRemoteConnector {
+    private static final Pattern REMOTE_KEY = Pattern.compile("^[A-Za-z0-9._-]{1,128}$");
+    private static final int MAXIMUM_RESPONSE_BYTES = 8 * 1024 * 1024;
+    private final ObjectMapper objectMapper;
+    private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
+    private final String configuredUrl;
+    private final String user;
+    private final String password;
+    private URI baseUri;
+
+    /**
+     * 创建受控 rclone 连接器。
+     *
+     * @param objectMapper JSON 映射器
+     * @param configuredUrl rclone RC 地址
+     * @param user RC 用户名
+     * @param password RC 密码
+     */
+    public RcloneRemoteConnector(ObjectMapper objectMapper,
+                                 @Value("${storage.rclone-rc-url:http://127.0.0.1:5572}") String configuredUrl,
+                                 @Value("${storage.rclone-rc-user:}") String user,
+                                 @Value("${storage.rclone-rc-password:}") String password) {
+        this.objectMapper = objectMapper;
+        this.configuredUrl = configuredUrl;
+        this.user = user;
+        this.password = password;
+    }
+
+    /**
+     * 验证 RC 地址不得离开本机信任边界。
+     */
+    @PostConstruct
+    public void validateConfiguration() {
+        URI candidate = URI.create(configuredUrl);
+        String host = candidate.getHost();
+        boolean loopback = "127.0.0.1".equals(host) || "localhost".equalsIgnoreCase(host);
+        if (!"http".equals(candidate.getScheme()) || !loopback || candidate.getUserInfo() != null
+                || candidate.getQuery() != null || candidate.getFragment() != null
+                || !(candidate.getPath().isEmpty() || "/".equals(candidate.getPath()))) {
+            throw new IllegalStateException("rclone RC must use a loopback HTTP endpoint");
+        }
+        baseUri = URI.create(configuredUrl.endsWith("/") ? configuredUrl : configuredUrl + "/");
+    }
+
+    /**
+     * 列出服务端 Provider 配置的单级目录。
+     *
+     * @param remoteKey 服务端 remote 键
+     * @param path Provider 内相对路径
+     * @return 标准化对象列表
+     */
+    public List<RemoteObjectView> list(String remoteKey, String path) {
+        if (!REMOTE_KEY.matcher(remoteKey).matches()) {
+            throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
+        }
+        String safePath = validPath(path, true);
+        try {
+            byte[] requestBody = objectMapper.writeValueAsBytes(Map.of("fs", remoteKey + ":", "remote", safePath,
+                    "opt", Map.of("recurse", false, "showHash", true)));
+            HttpRequest.Builder builder = HttpRequest.newBuilder(baseUri.resolve("operations/list"))
+                    .timeout(Duration.ofMinutes(2)).header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(requestBody));
+            if (!user.isBlank() || !password.isBlank()) {
+                builder.header("Authorization", "Basic " + Base64.getEncoder().encodeToString(
+                        (user + ":" + password).getBytes(StandardCharsets.UTF_8)));
+            }
+            HttpResponse<byte[]> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
+            if (response.statusCode() < 200 || response.statusCode() >= 300
+                    || response.body().length > MAXIMUM_RESPONSE_BYTES) {
+                throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+            }
+            JsonNode values = objectMapper.readTree(response.body()).path("list");
+            if (!values.isArray() || values.size() > 10000) {
+                throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+            }
+            List<RemoteObjectView> result = new ArrayList<>();
+            for (JsonNode value : values) {
+                result.add(normalize(value));
+            }
+            return List.copyOf(result);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        } catch (IOException exception) {
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        }
+    }
+
+    private RemoteObjectView normalize(JsonNode value) {
+        String path = validPath(value.path("Path").asText(), false);
+        String name = value.path("Name").asText("").trim();
+        if (name.isBlank() || name.length() > 512 || name.contains("/") || name.contains("\\")) {
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+        }
+        Instant modifiedAt = null;
+        try {
+            if (value.hasNonNull("ModTime")) {
+                modifiedAt = OffsetDateTime.parse(value.path("ModTime").asText()).toInstant();
+            }
+        } catch (DateTimeParseException ignored) {
+            // 远端时间缺失不阻断目录读取。
+        }
+        String digest = value.path("Hashes").path("SHA-256").asText(null);
+        if (digest != null && !digest.matches("^[a-fA-F0-9]{64}$")) {
+            digest = null;
+        }
+        return new RemoteObjectView(path, name, value.path("IsDir").asBoolean(),
+                Math.max(0, value.path("Size").asLong()), modifiedAt, digest);
+    }
+
+    private String validPath(String value, boolean allowEmpty) {
+        String path = value == null ? "" : value.trim();
+        if ((path.isEmpty() && !allowEmpty) || path.length() > 2048 || path.startsWith("/")
+                || path.contains(":") || path.contains("\\")
+                || Arrays.asList(path.split("/", -1)).contains("..")) {
+            throw new IllegalArgumentException(ErrorCode.PATH_INVALID.code());
+        }
+        return path;
+    }
+}

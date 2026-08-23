@@ -1,7 +1,6 @@
 package com.yuyutian.mytools.storage.controller;
 
-import com.yuyutian.mytools.storage.config.StorageProperties;
-import com.yuyutian.mytools.storage.model.ErrorCode;
+import com.yuyutian.mytools.storage.service.InternalAuthorizer;
 import com.yuyutian.mytools.storage.service.StorageObjectService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
@@ -13,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.security.MessageDigest;
 
 /**
  * 内部受管对象流式读取接口。
@@ -25,17 +22,17 @@ import java.security.MessageDigest;
 public class StorageObjectController {
 
     private final StorageObjectService objectService;
-    private final StorageProperties properties;
+    private final InternalAuthorizer authorizer;
 
     /**
      * 创建对象读取控制器。
      *
      * @param objectService 对象服务
-     * @param properties 存储配置
+     * @param authorizer 内部鉴权器
      */
-    public StorageObjectController(StorageObjectService objectService, StorageProperties properties) {
+    public StorageObjectController(StorageObjectService objectService, InternalAuthorizer authorizer) {
         this.objectService = objectService;
-        this.properties = properties;
+        this.authorizer = authorizer;
     }
 
     /**
@@ -52,19 +49,10 @@ public class StorageObjectController {
             @RequestHeader("Authorization") String authorization,
             @RequestParam String rootName,
             @RequestParam String path) throws IOException {
-        requireToken(authorization);
+        authorizer.require(authorization);
         var object = objectService.requireReadable(rootName, path);
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .contentLength(object.size()).body(new InputStreamResource(Files.newInputStream(object.path())));
     }
 
-    private void requireToken(String authorization) {
-        String expected = properties.internalToken();
-        String supplied = authorization != null && authorization.startsWith("Bearer ")
-                ? authorization.substring(7) : "";
-        if (expected == null || expected.isBlank() || !MessageDigest.isEqual(
-                expected.getBytes(StandardCharsets.UTF_8), supplied.getBytes(StandardCharsets.UTF_8))) {
-            throw new IllegalArgumentException(ErrorCode.INTERNAL_UNAUTHORIZED.code());
-        }
-    }
 }

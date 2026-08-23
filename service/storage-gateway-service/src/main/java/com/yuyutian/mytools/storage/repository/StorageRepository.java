@@ -1,6 +1,7 @@
 package com.yuyutian.mytools.storage.repository;
 
 import com.yuyutian.mytools.storage.model.UploadRecord;
+import com.yuyutian.mytools.storage.model.StorageProvider;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -62,6 +63,41 @@ public class StorageRepository {
                 (resultSet, rowNumber) -> new ManagedRoot(UUID.fromString(resultSet.getString("id")),
                         resultSet.getString("name"), resultSet.getString("base_path")), name)
                 .stream().findFirst();
+    }
+
+    /**
+     * 新增远端 Provider。
+     *
+     * @param provider Provider
+     */
+    public void insertProvider(StorageProvider provider) {
+        jdbcTemplate.update("""
+                INSERT INTO storage_provider
+                    (id, name, provider_type, remote_key, secret_ref, enabled, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """, provider.id().toString(), provider.name(), provider.providerType(), provider.remoteKey(),
+                provider.secretRef(), provider.enabled(), Timestamp.from(provider.createdAt()),
+                Timestamp.from(provider.updatedAt()));
+    }
+
+    /**
+     * 按名称查询远端 Provider。
+     *
+     * @param name 名称
+     * @return Provider
+     */
+    public Optional<StorageProvider> findProviderByName(String name) {
+        return queryProvider("name = ?", name);
+    }
+
+    /**
+     * 按标识查询远端 Provider。
+     *
+     * @param id 标识
+     * @return Provider
+     */
+    public Optional<StorageProvider> findProviderById(UUID id) {
+        return queryProvider("id = ?", id.toString());
     }
 
     /**
@@ -157,6 +193,15 @@ public class StorageRepository {
                 resultSet.getString("status"), resultSet.getString("temporary_path"),
                 resultSet.getString("final_path"), resultSet.getTimestamp("created_at").toInstant(),
                 resultSet.getTimestamp("updated_at").toInstant()), argument).stream().findFirst();
+    }
+
+    private Optional<StorageProvider> queryProvider(String condition, Object argument) {
+        return jdbcTemplate.query("SELECT * FROM storage_provider WHERE " + condition,
+                (resultSet, rowNumber) -> new StorageProvider(UUID.fromString(resultSet.getString("id")),
+                        resultSet.getString("name"), resultSet.getString("provider_type"),
+                        resultSet.getString("remote_key"), resultSet.getString("secret_ref"),
+                        resultSet.getBoolean("enabled"), resultSet.getTimestamp("created_at").toInstant(),
+                        resultSet.getTimestamp("updated_at").toInstant()), argument).stream().findFirst();
     }
 
     /**
