@@ -39,9 +39,9 @@
 
 1. 已建立 provider-neutral 投递、投递尝试、标准入站消息与 Outbox schema，并实现 SMTP 原子 provider。
 2. 已建立只携带 `deliveryId` 的 `message_send_email` 任务，并接入默认关闭、旧事务提交后触发的 MyTools 注册邮件旁路。
-3. 已迁移 OneBot 消息解析和附件标准模型，开关默认关闭；附件父任务只携带不透明作业标识，先在 Messaging 信任边界内解析 provider file id，再转入 Download Ingestion。当前只接受不含签名参数的公开 HTTPS 解析结果，需要鉴权的来源不得降级透传。
+3. 已迁移 OneBot 消息解析和附件标准模型，开关默认关闭；附件父任务只携带不透明作业标识，先在 Messaging 信任边界内解析 provider file id，再转入 Download Ingestion。解析器可返回无签名参数的 `PUBLIC_URL` 或不暴露来源的 `STREAM` 模式；后者由 `download_message_attachment` 通过 Messaging 有界内容流执行并复用统一资产登记链路。
 4. 已建立历史入站消息批次迁移表、dry-run/幂等导入接口和 `message_migrate_history` 脚本任务；历史记录不产生实时自动化事件。独立快照适配器已提供默认关闭的装载和稳定分页导出；下一步基于旧 MsgService 真实 schema 实现只读映射，并执行生产副本摘要对账。
-5. 为签名 URL 和内网来源实现不暴露凭据的受控流式代理，并扩展 QQ、Telegram adapter；渠道凭据只能由隔离 adapter 使用。
+5. 扩展 QQ、Telegram adapter，并对真实 provider 解析器执行流式中断、超限、重试和内容摘要对账；渠道凭据只能由隔离 adapter 使用。
 6. 先双投递到审计通道，再切换真实发送。
 7. 删除 MyTools SMTP 和 DownloadBot 渠道发送逻辑。
 

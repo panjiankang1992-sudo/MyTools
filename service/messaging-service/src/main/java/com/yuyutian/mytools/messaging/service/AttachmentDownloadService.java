@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
+import java.io.OutputStream;
 import java.util.UUID;
 
 /**
@@ -85,9 +86,15 @@ public class AttachmentDownloadService {
             return new ExecuteAttachmentDownloadResult(job.id(), job.downloadRequestId(), job.status());
         }
         MessagingRepository.AttachmentSource source = requiredSource(job.messageId(), job.partId());
-        String sourceUrl = effectiveSourceUrl(source);
-        UUID downloadId = downloadClient.createHttpAttachment(job.id(), source.ownerId(), source.partId(),
-                sourceUrl, safeFileName(source), source.declaredSize());
+        UUID downloadId;
+        if ("STREAM".equals(source.resolutionMode())) {
+            downloadId = downloadClient.createStreamedAttachment(job.id(), source.ownerId(), source.partId(),
+                    safeFileName(source), source.declaredSize());
+        } else {
+            String sourceUrl = effectiveSourceUrl(source);
+            downloadId = downloadClient.createHttpAttachment(job.id(), source.ownerId(), source.partId(),
+                    sourceUrl, safeFileName(source), source.declaredSize());
+        }
         transactionTemplate.executeWithoutResult(status -> repository.bindDownloadRequest(job.id(), downloadId));
         AttachmentDownloadRecord updated = required(job.id());
         return new ExecuteAttachmentDownloadResult(updated.id(), updated.downloadRequestId(), updated.status());
@@ -99,7 +106,8 @@ public class AttachmentDownloadService {
     public ResolveAttachmentResult resolve(UUID jobId) {
         AttachmentDownloadRecord job = required(jobId);
         MessagingRepository.AttachmentSource source = requiredSource(job.messageId(), job.partId());
-        if (isHttp(source.sourceUrl()) || isHttp(source.resolvedSourceUrl())) {
+        if (isHttp(source.sourceUrl()) || isHttp(source.resolvedSourceUrl())
+                || "STREAM".equals(source.resolutionMode())) {
             return new ResolveAttachmentResult(jobId, job.status(), true);
         }
         if (!"ONEBOT".equals(source.channelType())
@@ -108,10 +116,28 @@ public class AttachmentDownloadService {
                 || source.attachmentType() == null) {
             throw new AttachmentDownloadInvalidException();
         }
-        String resolvedUrl = resolverClient.resolve(source.providerAccountKey(), source.attachmentType(),
+        ProviderFileResolverClient.Resolution resolution = resolverClient.resolve(
+                source.providerAccountKey(), source.attachmentType(),
                 source.providerFileId());
-        transactionTemplate.executeWithoutResult(status -> repository.bindResolvedSource(jobId, resolvedUrl));
+        transactionTemplate.executeWithoutResult(status -> repository.bindResolvedSource(jobId,
+                resolution.mode(), resolution.downloadUrl()));
         return new ResolveAttachmentResult(jobId, required(jobId).status(), true);
+    }
+
+    /**
+     * 将 STREAM 模式的 provider 内容转发给受控下载执行器。
+     *
+     * @param jobId 附件作业标识
+     * @param output HTTP 响应输出流
+     */
+    public void stream(UUID jobId, OutputStream output) {
+        AttachmentDownloadRecord job = required(jobId);
+        MessagingRepository.AttachmentSource source = requiredSource(job.messageId(), job.partId());
+        if (!"STREAM".equals(source.resolutionMode()) || !"ONEBOT".equals(source.channelType())) {
+            throw new AttachmentDownloadInvalidException();
+        }
+        resolverClient.stream(source.providerAccountKey(), source.attachmentType(), source.providerFileId(),
+                output, byteLimit(source.declaredSize()));
     }
 
     private AttachmentDownloadRecord insert(UUID messageId, UUID partId) {
@@ -153,6 +179,11 @@ public class AttachmentDownloadService {
 
     private boolean isHttp(String value) {
         return value != null && (value.startsWith("https://") || value.startsWith("http://"));
+    }
+
+    private long byteLimit(Long declaredSize) {
+        return declaredSize == null ? 2L * 1024 * 1024 * 1024
+                : Math.min(20L * 1024 * 1024 * 1024, Math.max(declaredSize, 1024 * 1024));
     }
 
     private String safeFileName(MessagingRepository.AttachmentSource source) {

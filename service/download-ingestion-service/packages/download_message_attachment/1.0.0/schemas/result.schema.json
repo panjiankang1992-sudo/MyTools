@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["requestId", "itemId", "fileName", "relativePath", "sizeBytes", "contentSha256"],
+  "properties": {
+    "requestId": {"type": "string", "format": "uuid"},
+    "itemId": {"type": "string", "minLength": 1, "maxLength": 255},
+    "fileName": {"type": "string", "minLength": 1, "maxLength": 255},
+    "relativePath": {"type": "string", "minLength": 1, "maxLength": 1024},
+    "sizeBytes": {"type": "integer", "minimum": 0},
+    "contentSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}

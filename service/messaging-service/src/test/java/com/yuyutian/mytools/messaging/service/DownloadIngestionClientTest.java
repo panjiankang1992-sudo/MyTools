@@ -63,4 +63,26 @@ class DownloadIngestionClientTest {
         assertThat(snapshot.status()).isEqualTo("SUCCEEDED");
         server.verify();
     }
+
+    @Test
+    void shouldCreateOpaqueStreamDownloadWithoutProviderReference() {
+        UUID jobId = UUID.randomUUID();
+        UUID partId = UUID.randomUUID();
+        UUID downloadId = UUID.randomUUID();
+        RestClient.Builder builder = RestClient.builder().baseUrl("http://download.test");
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(requestTo("http://download.test/api/v1/download-requests"))
+                .andExpect(jsonPath("$.requestKind").value("MESSAGE_ATTACHMENT"))
+                .andExpect(jsonPath("$.parameters.attachmentJobId").value(jobId.toString()))
+                .andExpect(jsonPath("$.parameters.url").doesNotExist())
+                .andExpect(jsonPath("$.parameters.providerFileId").doesNotExist())
+                .andRespond(withAccepted().contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .body("{\"id\":\"" + downloadId + "\"}"));
+        DownloadIngestionClient client = new DownloadIngestionClient(builder.build(), "download-token");
+
+        UUID created = client.createStreamedAttachment(jobId, 19L, partId, "private.bin", 1024L);
+
+        assertThat(created).isEqualTo(downloadId);
+        server.verify();
+    }
 }

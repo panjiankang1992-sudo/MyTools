@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.util.UUID;
 
@@ -145,6 +146,18 @@ public class DeliveryController {
             @PathVariable UUID jobId) {
         authorizer.requireAuthorized(authorization);
         return attachmentDownloadService.resolve(jobId);
+    }
+
+    /**
+     * 向受控下载执行器流式转发 provider 内容。
+     */
+    @PostMapping("/attachment-downloads/{jobId}/content")
+    public ResponseEntity<StreamingResponseBody> streamAttachment(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable UUID jobId) {
+        authorizer.requireAuthorized(authorization);
+        StreamingResponseBody body = output -> attachmentDownloadService.stream(jobId, output);
+        return ResponseEntity.ok().header("Content-Type", "application/octet-stream").body(body);
     }
 
     /**

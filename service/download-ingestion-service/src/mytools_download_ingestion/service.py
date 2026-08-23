@@ -16,6 +16,7 @@ TASK_NAMES = {
     "X_POST": "download_x_post",
     "WEB_ARCHIVE": "download_web_archive",
     "MAGNET": "download_pikpak_magnet",
+    "MESSAGE_ATTACHMENT": "download_message_attachment",
 }
 
 

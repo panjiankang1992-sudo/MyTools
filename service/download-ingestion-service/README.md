@@ -12,7 +12,7 @@ Python 3.12
 
 该目录属于旁路迁移工作区，不参与现有 MyTools 根工程构建和生产启动。详细设计见 [对应设计文档](../design/07-download-ingestion-service.md)。
 
-已建立独立 `mytools_download` schema 的首版迁移、下载请求聚合、任务类型映射、MySQL 仓储、HTTP 接入 API 和幂等父任务编排，并提供受大小限制、校验摘要、临时文件原子落盘的 HTTP 下载任务包。HTTP 任务会拒绝凭据 URL、非公网 DNS 地址，并在每次重定向时重新校验目标，防止消息自动化等不可信入口访问本机或内网服务。现阶段 DownloadBot 旧 worker 仍是权威执行路径，新任务仅供旁路验证。
+已建立独立 `mytools_download` schema 的首版迁移、下载请求聚合、任务类型映射、MySQL 仓储、HTTP 接入 API 和幂等父任务编排，并提供受大小限制、校验摘要、临时文件原子落盘的 HTTP 下载任务包。HTTP 任务会拒绝凭据 URL、非公网 DNS 地址，并在每次重定向时重新校验目标，防止消息自动化等不可信入口访问本机或内网服务。`MESSAGE_ATTACHMENT` 类型只携带 Messaging 附件作业 UUID，通过内部内容流取得鉴权 provider 内容，复用相同的大小限制、原子发布、资产登记和结果回写链路。现阶段 DownloadBot 旧 worker 仍是权威执行路径，新任务仅供旁路验证。
 
 HTTP 下载成功后追加可忽略的 `asset_register_content` 步骤，将摘要、大小及相对位置转换为不暴露物理根目录的 `download://executor/...` URI，并镜像到 Asset Registry。消息自动化创建下载请求时会透传标准消息的 `ownerId`；其他尚未完成身份映射的旧来源暂以系统所有者 `0` 登记，后续迁移任务再绑定真实租户。
 

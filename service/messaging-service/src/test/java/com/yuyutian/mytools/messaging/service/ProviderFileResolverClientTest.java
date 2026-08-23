@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
+import java.io.ByteArrayOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -28,11 +29,11 @@ class ProviderFileResolverClientTest {
                 .andExpect(jsonPath("$.channelType").value("ONEBOT"))
                 .andExpect(jsonPath("$.accountKey").value("napcat-main"))
                 .andExpect(jsonPath("$.providerFileId").value("opaque-file"))
-                .andRespond(withSuccess("{\"downloadUrl\":\"https://cdn.example.test/a.bin\"}",
+                .andRespond(withSuccess("{\"mode\":\"PUBLIC_URL\",\"downloadUrl\":\"https://cdn.example.test/a.bin\"}",
                         org.springframework.http.MediaType.APPLICATION_JSON));
         ProviderFileResolverClient client = new ProviderFileResolverClient(builder.build(), "resolver-token");
 
-        assertThat(client.resolve("napcat-main", "FILE", "opaque-file"))
+        assertThat(client.resolve("napcat-main", "FILE", "opaque-file").downloadUrl())
                 .isEqualTo("https://cdn.example.test/a.bin");
         server.verify();
     }
@@ -42,7 +43,7 @@ class ProviderFileResolverClientTest {
         RestClient.Builder builder = RestClient.builder().baseUrl("http://resolver.test");
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
         server.expect(requestTo("http://resolver.test/internal/v1/provider-files/resolve"))
-                .andRespond(withSuccess("{\"downloadUrl\":\"https://user:pass@example.test/a\"}",
+                .andRespond(withSuccess("{\"mode\":\"PUBLIC_URL\",\"downloadUrl\":\"https://user:pass@example.test/a\"}",
                         org.springframework.http.MediaType.APPLICATION_JSON));
         ProviderFileResolverClient client = new ProviderFileResolverClient(builder.build(), "resolver-token");
 
@@ -55,11 +56,32 @@ class ProviderFileResolverClientTest {
         RestClient.Builder builder = RestClient.builder().baseUrl("http://resolver.test");
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
         server.expect(requestTo("http://resolver.test/internal/v1/provider-files/resolve"))
-                .andRespond(withSuccess("{\"downloadUrl\":\"https://example.test/a?token=secret\"}",
+                .andRespond(withSuccess("{\"mode\":\"PUBLIC_URL\",\"downloadUrl\":\"https://example.test/a?token=secret\"}",
                         org.springframework.http.MediaType.APPLICATION_JSON));
         ProviderFileResolverClient client = new ProviderFileResolverClient(builder.build(), "resolver-token");
 
         assertThatThrownBy(() -> client.resolve("main", "FILE", "opaque"))
                 .isInstanceOf(IllegalStateException.class).hasMessageContaining("invalid");
+    }
+
+    @Test
+    void shouldStreamAuthenticatedContentWithoutReturningProviderCredential() {
+        RestClient.Builder builder = RestClient.builder().baseUrl("http://resolver.test");
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(requestTo("http://resolver.test/internal/v1/provider-files/resolve"))
+                .andRespond(withSuccess("{\"mode\":\"STREAM\"}",
+                        org.springframework.http.MediaType.APPLICATION_JSON));
+        server.expect(requestTo("http://resolver.test/internal/v1/provider-files/content"))
+                .andExpect(header("Authorization", "Bearer resolver-token"))
+                .andExpect(jsonPath("$.providerFileId").value("private-file"))
+                .andRespond(withSuccess("private-content", org.springframework.http.MediaType.APPLICATION_OCTET_STREAM));
+        ProviderFileResolverClient client = new ProviderFileResolverClient(builder.build(), "resolver-token");
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+        assertThat(client.resolve("main", "FILE", "private-file").mode()).isEqualTo("STREAM");
+        client.stream("main", "FILE", "private-file", output, 1024);
+
+        assertThat(output.toString()).isEqualTo("private-content");
+        server.verify();
     }
 }

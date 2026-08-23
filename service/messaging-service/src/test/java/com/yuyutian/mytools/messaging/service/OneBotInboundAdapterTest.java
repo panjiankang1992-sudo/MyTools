@@ -9,11 +9,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.UUID;
+import java.io.ByteArrayOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -149,7 +151,8 @@ class OneBotInboundAdapterTest {
         UUID downloadRequestId = UUID.randomUUID();
         when(schedulerClient.createAttachmentDownloadTask(any())).thenReturn(schedulerTaskId);
         when(providerFileResolverClient.resolve("napcat-main", "FILE", "opaque-book"))
-                .thenReturn("https://cdn.example.test/book.txt");
+                .thenReturn(new ProviderFileResolverClient.Resolution(
+                        "PUBLIC_URL", "https://cdn.example.test/book.txt"));
         when(downloadIngestionClient.createHttpAttachment(any(), anyLong(), any(), anyString(), anyString(), any()))
                 .thenReturn(downloadRequestId);
 
@@ -165,5 +168,40 @@ class OneBotInboundAdapterTest {
         verify(providerFileResolverClient, times(1)).resolve("napcat-main", "FILE", "opaque-book");
         verify(downloadIngestionClient).createHttpAttachment(any(), anyLong(), any(),
                 org.mockito.ArgumentMatchers.eq("https://cdn.example.test/book.txt"), anyString(), any());
+    }
+
+    @Test
+    void shouldKeepAuthenticatedProviderStreamOutsideSchedulerParameters() throws Exception {
+        var event = objectMapper.readTree("""
+                {
+                  "post_type":"message", "message_type":"private", "self_id":90001,
+                  "message_id":46, "user_id":10005,
+                  "message":[{"type":"file","data":{"file_id":"private-book","name":"private.txt"}}]
+                }
+                """);
+        var message = adapter.receive(new OneBotInboundRequest(13L, "napcat-private", event));
+        var part = message.parts().getFirst();
+        UUID downloadRequestId = UUID.randomUUID();
+        when(schedulerClient.createAttachmentDownloadTask(any())).thenReturn(UUID.randomUUID());
+        when(providerFileResolverClient.resolve("napcat-private", "FILE", "private-book"))
+                .thenReturn(new ProviderFileResolverClient.Resolution("STREAM", null));
+        when(downloadIngestionClient.createStreamedAttachment(any(), anyLong(), any(), anyString(), any()))
+                .thenReturn(downloadRequestId);
+        doAnswer(invocation -> {
+            ((java.io.OutputStream) invocation.getArgument(3)).write("private".getBytes());
+            return null;
+        }).when(providerFileResolverClient).stream(anyString(), anyString(), anyString(), any(), anyLong());
+
+        var job = attachmentDownloadService.create(message.id(), part.id());
+        attachmentDownloadService.resolve(job.id());
+        var submitted = attachmentDownloadService.execute(job.id());
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        attachmentDownloadService.stream(job.id(), output);
+
+        assertThat(submitted.downloadRequestId()).isEqualTo(downloadRequestId);
+        assertThat(output.toString()).isEqualTo("private");
+        verify(downloadIngestionClient).createStreamedAttachment(any(), anyLong(), any(), anyString(), any());
+        verify(downloadIngestionClient, times(0)).createHttpAttachment(
+                org.mockito.ArgumentMatchers.eq(job.id()), anyLong(), any(), anyString(), anyString(), any());
     }
 }

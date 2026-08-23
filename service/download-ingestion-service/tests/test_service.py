@@ -62,13 +62,14 @@ class DownloadRequestServiceTest(unittest.TestCase):
         self.assertEqual(1, len(scheduler.calls))
         self.assertEqual("download_http_asset", scheduler.calls[0]["task_name"])
 
-    def test_rejects_task_kind_without_registered_scheduler_definition(self):
-        """Planned download kinds stay closed until their executable package is registered."""
-        service = DownloadRequestService(InMemoryDownloadRequestRepository(), FakeScheduler())
+    def test_routes_message_attachment_to_controlled_stream_task(self):
+        """Provider attachment content is fetched by opaque job id instead of a signed URL."""
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(InMemoryDownloadRequestRepository(), scheduler)
         command = CreateDownloadRequest("message:key", "MESSAGE", "attachment-1",
-                                        "MESSAGE_ATTACHMENT", {"mediaIndex": 0})
-        with self.assertRaisesRegex(ValueError, "unsupported download request kind"):
-            service.create(command)
+                                        "MESSAGE_ATTACHMENT", {"attachmentJobId": "job-1"})
+        service.create(command)
+        self.assertEqual("download_message_attachment", scheduler.calls[0]["task_name"])
 
     def test_routes_managed_local_import_to_storage_task(self):
         """A local import is represented by a managed URI and a storage copy task."""
