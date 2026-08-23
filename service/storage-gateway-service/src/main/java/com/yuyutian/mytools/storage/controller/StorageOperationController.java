@@ -5,6 +5,7 @@ import com.yuyutian.mytools.storage.model.FinishOperationRequest;
 import com.yuyutian.mytools.storage.model.OperationItemBatch;
 import com.yuyutian.mytools.storage.model.StorageOperation;
 import com.yuyutian.mytools.storage.model.ReconciliationDigest;
+import com.yuyutian.mytools.storage.model.RemoteJobView;
 import com.yuyutian.mytools.storage.service.InternalAuthorizer;
 import com.yuyutian.mytools.storage.service.StorageOperationService;
 import jakarta.validation.Valid;
@@ -71,6 +72,47 @@ public class StorageOperationController {
     public ReconciliationDigest digest(@PathVariable UUID id,
         @RequestHeader("Authorization") String authorization) {
         authorizer.require(authorization); return operationService.digest(id);
+    }
+
+    /**
+     * 启动跨 Provider 后台任务。
+     *
+     * @param id 操作标识
+     * @param authorization 授权头
+     * @return 最新操作
+     */
+    @PostMapping("/{id}/remote-job/start")
+    public StorageOperation startRemoteJob(@PathVariable UUID id,
+            @RequestHeader("Authorization") String authorization) {
+        authorizer.require(authorization);
+        return operationService.startRemoteJob(id);
+    }
+
+    /**
+     * 查询跨 Provider 后台任务并对账终态。
+     *
+     * @param id 操作标识
+     * @param authorization 授权头
+     * @return 远端任务状态
+     */
+    @GetMapping("/{id}/remote-job")
+    public RemoteJobView remoteJob(@PathVariable UUID id,
+            @RequestHeader("Authorization") String authorization) {
+        authorizer.require(authorization);
+        return operationService.remoteJob(id);
+    }
+
+    /**
+     * 停止跨 Provider 后台任务。
+     *
+     * @param id 操作标识
+     * @param authorization 授权头
+     */
+    @PostMapping("/{id}/remote-job/stop")
+    public void stopRemoteJob(@PathVariable UUID id,
+            @RequestHeader("Authorization") String authorization) {
+        authorizer.require(authorization);
+        operationService.stopRemoteJob(id);
     }
 
     /**

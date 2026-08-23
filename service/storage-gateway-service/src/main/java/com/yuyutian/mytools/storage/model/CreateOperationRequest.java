@@ -16,12 +16,16 @@ import java.util.UUID;
  * @param providerId Provider 标识
  * @param operationType 操作类型
  * @param sourcePath 起始路径
+ * @param targetProviderId 目标 Provider 标识
+ * @param targetPath 目标路径
  * @param maximumObjects 最大对象数
  */
 public record CreateOperationRequest(
         @NotBlank @Size(max = 255) String idempotencyKey,
         @NotNull UUID providerId,
-        @NotBlank @Pattern(regexp = "^SCAN_ROOT$") String operationType,
+        @NotBlank @Pattern(regexp = "^(SCAN_ROOT|COPY_TREE|SYNC_REMOTE)$") String operationType,
         @Size(max = 2048) String sourcePath,
+        UUID targetProviderId,
+        @Size(max = 2048) String targetPath,
         @Min(1) @Max(1000000) int maximumObjects) {
 }

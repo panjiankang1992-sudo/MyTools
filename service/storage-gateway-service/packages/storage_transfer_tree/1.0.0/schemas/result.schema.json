@@ -1,0 +1,1 @@
+{"type":"object","required":["operationId","remoteJobId","status"],"properties":{"operationId":{"type":"string","format":"uuid"},"remoteJobId":{"type":"integer","minimum":1},"status":{"const":"SUCCEEDED"}}}

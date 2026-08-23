@@ -27,7 +27,7 @@ class StorageOperationRepositoryTest {
                 "RCLONE", "remote-" + suffix, "secret://storage/" + suffix, true, now, now);
         repository.insertProvider(provider);
         StorageOperation operation = new StorageOperation(UUID.randomUUID(), provider.id(), "scan-" + suffix,
-                "SCAN_ROOT", "", "CREATED", null, 0, 10, null, now, now);
+                "SCAN_ROOT", "", null, null, "CREATED", null, null, 0, 10, null, now, now);
         repository.insertOperation(operation);
         repository.bindOperationTask(operation.id(), UUID.randomUUID());
         RemoteObjectView item = new RemoteObjectView("books/a.txt", "a.txt", false, 3, null, "a".repeat(64));
@@ -49,7 +49,7 @@ class StorageOperationRepositoryTest {
             "digest-"+suffix,"secret://storage/"+suffix,true,now,now);
         repository.insertProvider(provider);
         StorageOperation operation=new StorageOperation(UUID.randomUUID(),provider.id(),"digest-"+suffix,
-            "SCAN_ROOT","","CREATED",null,0,10,null,now,now);
+            "SCAN_ROOT","",null,null,"CREATED",null,null,0,10,null,now,now);
         repository.insertOperation(operation); repository.bindOperationTask(operation.id(),UUID.randomUUID());
         repository.mergeOperationItems(operation.id(),List.of(new RemoteObjectView("a.txt","a.txt",false,3,
             Instant.parse("2026-01-01T00:00:00Z"),null)));

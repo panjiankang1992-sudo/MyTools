@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.storage.model.ErrorCode;
 import com.yuyutian.mytools.storage.model.RemoteObjectView;
+import com.yuyutian.mytools.storage.model.RemoteJobView;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -109,6 +110,93 @@ public class RcloneRemoteConnector {
                 result.add(normalize(value));
             }
             return List.copyOf(result);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        } catch (IOException exception) {
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        }
+    }
+
+    /**
+     * 启动白名单中的跨 Provider 树复制或同步。
+     *
+     * @param operationType 操作类型
+     * @param sourceRemoteKey 来源 remote 键
+     * @param sourcePath 来源路径
+     * @param targetRemoteKey 目标 remote 键
+     * @param targetPath 目标路径
+     * @return rclone 后台任务标识
+     */
+    public long startTransfer(String operationType, String sourceRemoteKey, String sourcePath,
+                              String targetRemoteKey, String targetPath) {
+        if (!REMOTE_KEY.matcher(sourceRemoteKey).matches() || !REMOTE_KEY.matcher(targetRemoteKey).matches()) {
+            throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
+        }
+        String action = switch (operationType) {
+            case "COPY_TREE" -> "sync/copy";
+            case "SYNC_REMOTE" -> "sync/sync";
+            default -> throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
+        };
+        JsonNode response = call(action, Map.of(
+                "srcFs", sourceRemoteKey + ":", "srcRemote", validPath(sourcePath, true),
+                "dstFs", targetRemoteKey + ":", "dstRemote", validPath(targetPath, true),
+                "_async", true), Duration.ofSeconds(30));
+        long jobId = response.path("jobid").asLong(0);
+        if (jobId <= 0) {
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+        }
+        return jobId;
+    }
+
+    /**
+     * 查询受控 rclone 后台任务状态。
+     *
+     * @param jobId rclone 任务标识
+     * @return 标准状态
+     */
+    public RemoteJobView jobStatus(long jobId) {
+        if (jobId <= 0) {
+            throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
+        }
+        JsonNode response = call("job/status", Map.of("jobid", jobId), Duration.ofSeconds(30));
+        boolean finished = response.path("finished").asBoolean(false);
+        boolean success = finished && response.path("success").asBoolean(false);
+        String errorCode = finished && !success ? ErrorCode.REMOTE_FAILURE.code() : null;
+        return new RemoteJobView(jobId, finished, success, errorCode);
+    }
+
+    /**
+     * 请求停止受控 rclone 后台任务。
+     *
+     * @param jobId rclone 任务标识
+     */
+    public void stopJob(long jobId) {
+        if (jobId > 0) {
+            call("job/stop", Map.of("jobid", jobId), Duration.ofSeconds(30));
+        }
+    }
+
+    private JsonNode call(String action, Map<String, Object> payload, Duration timeout) {
+        try {
+            byte[] requestBody = objectMapper.writeValueAsBytes(payload);
+            HttpRequest.Builder builder = HttpRequest.newBuilder(baseUri.resolve(action))
+                    .timeout(timeout).header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(requestBody));
+            if (!user.isBlank() || !password.isBlank()) {
+                builder.header("Authorization", "Basic " + Base64.getEncoder().encodeToString(
+                        (user + ":" + password).getBytes(StandardCharsets.UTF_8)));
+            }
+            HttpResponse<byte[]> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
+            if (response.statusCode() < 200 || response.statusCode() >= 300
+                    || response.body().length > MAXIMUM_RESPONSE_BYTES) {
+                throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+            }
+            JsonNode document = objectMapper.readTree(response.body());
+            if (!document.isObject()) {
+                throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+            }
+            return document;
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);

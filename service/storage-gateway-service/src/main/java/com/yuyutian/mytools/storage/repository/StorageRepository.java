@@ -116,12 +116,15 @@ public class StorageRepository {
     public void insertOperation(StorageOperation operation) {
         jdbcTemplate.update("""
                 INSERT INTO storage_operation
-                    (id, provider_id, idempotency_key, operation_type, source_path, target_path,
-                     status, task_instance_id, result_json, error_code, item_count, maximum_objects,
+                    (id, provider_id, target_provider_id, idempotency_key, operation_type,
+                     source_path, target_path, status, task_instance_id, remote_job_id,
+                     result_json, error_code, item_count, maximum_objects,
                      created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, NULL, ?, NULL, NULL, NULL, 0, ?, ?, ?)
-                """, operation.id().toString(), operation.providerId().toString(), operation.idempotencyKey(),
-                operation.operationType(), operation.sourcePath(), operation.status(), operation.maximumObjects(),
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 0, ?, ?, ?)
+                """, operation.id().toString(), operation.providerId().toString(),
+                operation.targetProviderId() == null ? null : operation.targetProviderId().toString(),
+                operation.idempotencyKey(), operation.operationType(), operation.sourcePath(),
+                operation.targetPath(), operation.status(), operation.maximumObjects(),
                 Timestamp.from(operation.createdAt()), Timestamp.from(operation.updatedAt()));
     }
 
@@ -253,6 +256,26 @@ public class StorageRepository {
                 UPDATE storage_operation SET task_instance_id = COALESCE(task_instance_id, ?),
                     status = 'RUNNING', updated_at = ? WHERE id = ? AND status IN ('CREATED', 'RUNNING')
                 """, taskId.toString(), Timestamp.from(Instant.now()), id.toString());
+    }
+
+    /**
+     * 绑定幂等启动的 rclone 后台任务。
+     *
+     * @param id 操作标识
+     * @param remoteJobId rclone 任务标识
+     */
+    public void bindRemoteJob(UUID id, long remoteJobId) {
+        int updated = jdbcTemplate.update("""
+                UPDATE storage_operation SET remote_job_id = ?, updated_at = ?
+                WHERE id = ? AND status = 'RUNNING' AND remote_job_id IS NULL
+                """, remoteJobId, Timestamp.from(Instant.now()), id.toString());
+        if (updated != 1) {
+            StorageOperation current = findOperationById(id)
+                    .orElseThrow(() -> new IllegalArgumentException(ErrorCode.OPERATION_NOT_FOUND.code()));
+            if (!java.util.Objects.equals(current.remoteJobId(), remoteJobId)) {
+                throw new IllegalStateException(ErrorCode.OPERATION_CONFLICT.code());
+            }
+        }
     }
 
     /**
@@ -425,9 +448,13 @@ public class StorageRepository {
                 (resultSet, rowNumber) -> new StorageOperation(UUID.fromString(resultSet.getString("id")),
                         UUID.fromString(resultSet.getString("provider_id")),
                         resultSet.getString("idempotency_key"), resultSet.getString("operation_type"),
-                        resultSet.getString("source_path"), resultSet.getString("status"),
+                        resultSet.getString("source_path"),
+                        resultSet.getString("target_provider_id") == null ? null
+                                : UUID.fromString(resultSet.getString("target_provider_id")),
+                        resultSet.getString("target_path"), resultSet.getString("status"),
                         resultSet.getString("task_instance_id") == null ? null
                                 : UUID.fromString(resultSet.getString("task_instance_id")),
+                        resultSet.getObject("remote_job_id", Long.class),
                         resultSet.getLong("item_count"), resultSet.getInt("maximum_objects"),
                         resultSet.getString("error_code"),
                         resultSet.getTimestamp("created_at").toInstant(),

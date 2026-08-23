@@ -6,6 +6,7 @@ import com.yuyutian.mytools.storage.model.RemoteObjectView;
 import com.yuyutian.mytools.storage.model.StorageOperation;
 import com.yuyutian.mytools.storage.model.StorageProvider;
 import com.yuyutian.mytools.storage.model.ReconciliationDigest;
+import com.yuyutian.mytools.storage.model.RemoteJobView;
 import com.yuyutian.mytools.storage.repository.StorageRepository;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +24,20 @@ public class StorageOperationService {
     private static final Set<String> TERMINAL_STATUSES = Set.of("SUCCEEDED", "FAILED", "TIMED_OUT", "CANCELLED");
     private final StorageRepository repository;
     private final StorageTaskSchedulerClient schedulerClient;
+    private final RcloneRemoteConnector remoteConnector;
 
     /**
      * 创建异步操作服务。
      *
      * @param repository 存储仓储
      * @param schedulerClient 调度客户端
+     * @param remoteConnector 远程存储连接器
      */
-    public StorageOperationService(StorageRepository repository, StorageTaskSchedulerClient schedulerClient) {
+    public StorageOperationService(StorageRepository repository, StorageTaskSchedulerClient schedulerClient,
+                                   RcloneRemoteConnector remoteConnector) {
         this.repository = repository;
         this.schedulerClient = schedulerClient;
+        this.remoteConnector = remoteConnector;
     }
 
     /**
@@ -43,8 +48,14 @@ public class StorageOperationService {
      */
     public StorageOperation create(CreateOperationRequest request) {
         String sourcePath = normalizePath(request.sourcePath());
+        String targetPath = normalizeTarget(request.operationType(), request.targetPath());
+        UUID targetProviderId = targetProvider(request.operationType(), request.targetProviderId());
+        if (targetProviderId != null && request.providerId().equals(targetProviderId)
+                && sourcePath.equals(targetPath)) {
+            throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
+        }
         StorageOperation existing = repository.findOperationByKey(request.idempotencyKey()).orElse(null);
-        if (existing != null && !equivalent(existing, request, sourcePath)) {
+        if (existing != null && !equivalent(existing, request, sourcePath, targetProviderId, targetPath)) {
             throw new IllegalStateException(ErrorCode.OPERATION_CONFLICT.code());
         }
         if (existing != null && existing.taskInstanceId() != null) {
@@ -53,15 +64,20 @@ public class StorageOperationService {
         StorageProvider provider = repository.findProviderById(request.providerId())
                 .filter(StorageProvider::enabled)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
+        if (targetProviderId != null) {
+            repository.findProviderById(targetProviderId).filter(StorageProvider::enabled)
+                    .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
+        }
         Instant now = Instant.now();
         StorageOperation operation = existing == null
                 ? new StorageOperation(UUID.randomUUID(), provider.id(), request.idempotencyKey(),
-                request.operationType(), sourcePath, "CREATED", null, 0, request.maximumObjects(), null, now, now)
+                request.operationType(), sourcePath, targetProviderId, targetPath,
+                "CREATED", null, null, 0, request.maximumObjects(), null, now, now)
                 : existing;
         if (existing == null) {
             repository.insertOperation(operation);
         }
-        UUID taskId = schedulerClient.createScanTask(operation, operation.maximumObjects());
+        UUID taskId = schedulerClient.createOperationTask(operation);
         repository.bindOperationTask(operation.id(), taskId);
         return require(operation.id());
     }
@@ -119,11 +135,100 @@ public class StorageOperationService {
     /** 计算成功扫描快照的对账摘要。 @param id 操作标识 @return 摘要 */
     public ReconciliationDigest digest(UUID id) { return repository.operationDigest(id); }
 
-    private boolean equivalent(StorageOperation operation, CreateOperationRequest request, String sourcePath) {
+    /**
+     * 幂等启动一个跨 Provider rclone 后台任务。
+     *
+     * @param id 操作标识
+     * @return 最新操作
+     */
+    public StorageOperation startRemoteJob(UUID id) {
+        StorageOperation operation = require(id);
+        requireTransferShape(operation);
+        if (operation.remoteJobId() != null) {
+            return operation;
+        }
+        if (!"RUNNING".equals(operation.status())) {
+            throw new IllegalStateException(ErrorCode.OPERATION_STATE_INVALID.code());
+        }
+        StorageProvider source = repository.findProviderById(operation.providerId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
+        StorageProvider target = repository.findProviderById(operation.targetProviderId())
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
+        long jobId = remoteConnector.startTransfer(operation.operationType(), source.remoteKey(),
+                operation.sourcePath(), target.remoteKey(), operation.targetPath());
+        repository.bindRemoteJob(operation.id(), jobId);
+        return require(id);
+    }
+
+    /**
+     * 查询并对账跨 Provider rclone 后台任务。
+     *
+     * @param id 操作标识
+     * @return 远端任务状态
+     */
+    public RemoteJobView remoteJob(UUID id) {
+        StorageOperation operation = require(id);
+        requireTransferShape(operation);
+        if (operation.remoteJobId() == null) {
+            throw new IllegalStateException(ErrorCode.OPERATION_STATE_INVALID.code());
+        }
+        RemoteJobView view = remoteConnector.jobStatus(operation.remoteJobId());
+        if (view.finished() && !TERMINAL_STATUSES.contains(operation.status())) {
+            repository.finishOperation(id, view.success() ? "SUCCEEDED" : "FAILED", view.errorCode());
+        }
+        return view;
+    }
+
+    /**
+     * 停止跨 Provider 后台任务，供超时、失败和取消步骤调用。
+     *
+     * @param id 操作标识
+     */
+    public void stopRemoteJob(UUID id) {
+        StorageOperation operation = require(id);
+        if (operation.remoteJobId() != null && !TERMINAL_STATUSES.contains(operation.status())) {
+            remoteConnector.stopJob(operation.remoteJobId());
+        }
+    }
+
+    private boolean equivalent(StorageOperation operation, CreateOperationRequest request, String sourcePath,
+                               UUID targetProviderId, String targetPath) {
         return operation.providerId().equals(request.providerId())
                 && operation.operationType().equals(request.operationType())
                 && operation.sourcePath().equals(sourcePath)
+                && java.util.Objects.equals(operation.targetProviderId(), targetProviderId)
+                && java.util.Objects.equals(operation.targetPath(), targetPath)
                 && operation.maximumObjects() == request.maximumObjects();
+    }
+
+    private UUID targetProvider(String operationType, UUID targetProviderId) {
+        if ("SCAN_ROOT".equals(operationType)) {
+            if (targetProviderId != null) {
+                throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
+            }
+            return null;
+        }
+        if (targetProviderId == null) {
+            throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
+        }
+        return targetProviderId;
+    }
+
+    private String normalizeTarget(String operationType, String value) {
+        if ("SCAN_ROOT".equals(operationType)) {
+            if (value != null && !value.isBlank()) {
+                throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
+            }
+            return null;
+        }
+        return normalizePath(value);
+    }
+
+    private void requireTransferShape(StorageOperation operation) {
+        if (!("COPY_TREE".equals(operation.operationType()) || "SYNC_REMOTE".equals(operation.operationType()))
+                || operation.targetProviderId() == null) {
+            throw new IllegalStateException(ErrorCode.OPERATION_STATE_INVALID.code());
+        }
     }
 
     private String normalizePath(String value) {

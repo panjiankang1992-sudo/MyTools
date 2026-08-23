@@ -18,6 +18,8 @@
 - `storage_scan_root`、`storage_copy_tree`、`storage_move_tree`。
 - `storage_compute_checksum`、`storage_sync_remote`。
 
+当前已实现 `storage_scan_root`、`storage_copy_tree` 和 `storage_sync_remote`。复制与同步只允许服务端登记的来源/目标 Provider 和相对路径，rclone remote 键不会进入 Scheduler 参数；远端 RC job 标识持久化到操作聚合，特殊步骤负责停止远端 job 并回写失败、超时或取消终态。`storage_move_tree` 仍需补齐源删除后的补偿和回退语义后开放。
+
 ## 脚本与 DML
 
 脚本使用 Storage 内部 API 或受控 CLI，不接收用户提供的任意 remote 或 shell 命令。操作记录可由服务 API 更新；批量索引可以写暂存表后合并。
@@ -36,4 +38,4 @@
 - 原子发布只在同文件系统进行，跨文件系统走复制校验再切换。
 - 节点调度遵守存储挂载亲和性。
 
-本地 MVP 已覆盖根内相对路径、目录穿越和符号链接逃逸校验。远端 provider、跨文件系统复制校验和节点挂载亲和调度在对应迁移阶段验收。
+本地 MVP 已覆盖根内相对路径、目录穿越和符号链接逃逸校验。远端 Provider 已覆盖受控目录读取、树复制、镜像同步和单用途访问票据；跨文件系统本地复制校验、远端移动补偿和节点挂载亲和调度仍在对应迁移阶段验收。

@@ -11,8 +11,11 @@ import java.util.UUID;
  * @param idempotencyKey 幂等键
  * @param operationType 类型
  * @param sourcePath 来源路径
+ * @param targetProviderId 目标 Provider 标识
+ * @param targetPath 目标路径
  * @param status 状态
  * @param taskInstanceId 任务实例标识
+ * @param remoteJobId rclone 远端任务标识
  * @param itemCount 已合并对象数
  * @param maximumObjects 最大对象数
  * @param errorCode 错误码
@@ -20,6 +23,7 @@ import java.util.UUID;
  * @param updatedAt 更新时间
  */
 public record StorageOperation(UUID id, UUID providerId, String idempotencyKey, String operationType,
-                               String sourcePath, String status, UUID taskInstanceId, long itemCount,
+                               String sourcePath, UUID targetProviderId, String targetPath,
+                               String status, UUID taskInstanceId, Long remoteJobId, long itemCount,
                                int maximumObjects, String errorCode, Instant createdAt, Instant updatedAt) {
 }
