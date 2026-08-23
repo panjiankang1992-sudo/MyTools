@@ -2,6 +2,7 @@ package com.yuyutian.mytools.drive.controller;
 
 import com.yuyutian.mytools.drive.config.DriveConfiguration.StorageMigrationToken;
 import com.yuyutian.mytools.drive.model.DriveModels.StorageMigrationPage;
+import com.yuyutian.mytools.drive.model.DriveModels.IndexDigest;
 import com.yuyutian.mytools.drive.repository.DriveRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -34,6 +35,13 @@ public class DriveStorageMigrationController {
         authorize(authorization);
         if(limit<1||limit>500) throw new IllegalArgumentException("drive migration page size is invalid");
         return repository.listStorageMigrationAccounts(afterId,limit);
+    }
+
+    /** 读取当前 Drive 索引摘要。 @param authorization 授权头 @param id 账户 @return 摘要 */
+    @GetMapping("/storage-accounts/{id}/digest")
+    public IndexDigest digest(@RequestHeader("Authorization") String authorization,
+        @org.springframework.web.bind.annotation.PathVariable UUID id) {
+        authorize(authorization); return repository.indexDigest(id);
     }
 
     private void authorize(String authorization) {

@@ -62,6 +62,17 @@ class DriveServiceTest {
         assertThat(migrated.toString()).doesNotContain("Private Display","external-private");
     }
 
+    @Test
+    void shouldProduceTheSharedReconciliationGoldenDigest() {
+        AccountView account=service.register(new RegisterAccountRequest(12L,"digest-account","Digest","RCLONE",
+            "secret://drive/digest","digest_remote",true,true));
+        UUID runId=UUID.randomUUID();
+        service.ingest(account.id(),new IndexBatchRequest(runId,"complete",null,true,List.of(item("a.txt","",3))));
+
+        assertThat(repository.indexDigest(account.id()).contentSha256())
+            .isEqualTo("8501ff9beb116985f2ad48e3e4417e85c1f0121b8498a344a7fb307b51314879");
+    }
+
     private IndexItem item(String path,String parent,long size) {
         return new IndexItem(path,path,parent,path,"text/plain",size,false,Instant.parse("2026-01-01T00:00:00Z"),null);
     }

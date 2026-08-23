@@ -22,6 +22,8 @@ Scheduler V25 为失败、超时和取消配置 `drive_finish_index` 特殊步�
 
 `storage_migrate_drive_providers` 手工任务通过独立 `DRIVE_STORAGE_MIGRATION_TOKEN` 分页读取账户 UUID、remote key、Secret 引用和启用状态，幂等注册 Storage Provider 后回绑 Drive。迁移接口不返回 URL、用户名或密码；Scheduler V31 不会自动执行。
 
+`drive_reconcile_index` 手工任务按共享长度前缀协议比较 Drive 当前有效索引与一次成功的 Storage 扫描快照，同时校验对象数和 SHA-256 集合摘要。结果中的 `matched` 必须为 `true` 才能作为 `STORAGE` 模式切换证据；协议见 `service/contracts/reconciliation-digest.md`。
+
 ## 技术栈
 
 Java 21 / Spring Boot

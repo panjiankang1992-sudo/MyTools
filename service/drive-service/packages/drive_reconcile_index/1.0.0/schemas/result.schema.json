@@ -1,0 +1,1 @@
+{"type":"object","required":["accountId","storageOperationId","matched","drive","storage"],"properties":{"matched":{"type":"boolean"},"drive":{"type":"object"},"storage":{"type":"object"}}}

@@ -5,6 +5,7 @@ import com.yuyutian.mytools.storage.model.ErrorCode;
 import com.yuyutian.mytools.storage.model.RemoteObjectView;
 import com.yuyutian.mytools.storage.model.StorageOperation;
 import com.yuyutian.mytools.storage.model.StorageProvider;
+import com.yuyutian.mytools.storage.model.ReconciliationDigest;
 import com.yuyutian.mytools.storage.repository.StorageRepository;
 import org.springframework.stereotype.Service;
 
@@ -114,6 +115,9 @@ public class StorageOperationService {
         repository.finishOperation(id, status, errorCode);
         return require(id);
     }
+
+    /** 计算成功扫描快照的对账摘要。 @param id 操作标识 @return 摘要 */
+    public ReconciliationDigest digest(UUID id) { return repository.operationDigest(id); }
 
     private boolean equivalent(StorageOperation operation, CreateOperationRequest request, String sourcePath) {
         return operation.providerId().equals(request.providerId())

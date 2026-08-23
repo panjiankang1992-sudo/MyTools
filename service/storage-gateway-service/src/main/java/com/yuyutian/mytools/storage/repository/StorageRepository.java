@@ -6,11 +6,14 @@ import com.yuyutian.mytools.storage.model.StorageOperation;
 import com.yuyutian.mytools.storage.model.RemoteObjectView;
 import com.yuyutian.mytools.storage.model.ErrorCode;
 import com.yuyutian.mytools.storage.model.AccessTicketRecord;
+import com.yuyutian.mytools.storage.model.ReconciliationDigest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -208,6 +211,35 @@ public class StorageRepository {
      */
     public Optional<AccessTicketRecord> findAccessTicketByHash(String tokenSha256) {
         return queryAccessTicket("sat.token_sha256 = ?", tokenSha256);
+    }
+
+    /**
+     * 计算已成功扫描快照的确定性摘要。
+     *
+     * @param operationId 操作标识
+     * @return 数量和摘要
+     */
+    public ReconciliationDigest operationDigest(UUID operationId) {
+        StorageOperation operation = findOperationById(operationId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.OPERATION_NOT_FOUND.code()));
+        if (!"SUCCEEDED".equals(operation.status())) {
+            throw new IllegalStateException(ErrorCode.OPERATION_STATE_INVALID.code());
+        }
+        MessageDigest digest = sha256Digest();
+        long[] count = {0};
+        jdbcTemplate.query("""
+                SELECT object_path, object_name, directory, size_bytes, modified_at, content_sha256
+                FROM storage_operation_item WHERE operation_id = ? ORDER BY object_path
+                """, resultSet -> {
+            updateDigest(digest, resultSet.getString("object_path"), resultSet.getString("object_name"),
+                    Boolean.toString(resultSet.getBoolean("directory")),
+                    Long.toString(resultSet.getLong("size_bytes")),
+                    resultSet.getTimestamp("modified_at") == null ? ""
+                            : normalizeInstant(resultSet.getTimestamp("modified_at").toInstant()).toString(),
+                    java.util.Objects.toString(resultSet.getString("content_sha256"), ""));
+            count[0]++;
+        }, operationId.toString());
+        return new ReconciliationDigest(count[0], java.util.HexFormat.of().formatHex(digest.digest()));
     }
 
     /**
@@ -430,6 +462,22 @@ public class StorageRepository {
 
     private Instant normalizeInstant(Instant value) {
         return value.truncatedTo(java.time.temporal.ChronoUnit.MICROS);
+    }
+
+    private MessageDigest sha256Digest() {
+        try {
+            return MessageDigest.getInstance("SHA-256");
+        } catch (java.security.NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 is unavailable", exception);
+        }
+    }
+
+    private void updateDigest(MessageDigest digest, String... values) {
+        for (String value : values) {
+            byte[] bytes = value.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            digest.update(ByteBuffer.allocate(Integer.BYTES).putInt(bytes.length).array());
+            digest.update(bytes);
+        }
     }
 
     /**

@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
@@ -73,6 +74,22 @@ public class DriveRepository {
             afterId==null?null:afterId.toString(),afterId==null?null:afterId.toString(),limit);
         UUID next=items.size()<limit?null:items.getLast().id();
         return new StorageMigrationPage(List.copyOf(items),next);
+    }
+
+    /** 计算当前有效索引的确定性摘要。 @param accountId 账户 @return 数量和摘要 */
+    public IndexDigest indexDigest(UUID accountId) {
+        MessageDigest digest=digest(); long[] count={0};
+        jdbc.query("""
+                SELECT remote_path,display_name,directory,size_bytes,modified_at,content_sha256
+                FROM drive_item_index WHERE account_id=? AND deleted=FALSE ORDER BY remote_path
+                """,rs->{
+            updateDigest(digest,rs.getString("remote_path"),rs.getString("display_name"),
+                Boolean.toString(rs.getBoolean("directory")),Long.toString(rs.getLong("size_bytes")),
+                rs.getTimestamp("modified_at")==null?"":rs.getTimestamp("modified_at").toInstant()
+                    .truncatedTo(java.time.temporal.ChronoUnit.MICROS).toString(),
+                Objects.toString(rs.getString("content_sha256"),"")); count[0]++;
+        },accountId.toString());
+        return new IndexDigest(count[0],HexFormat.of().formatHex(digest.digest()));
     }
 
     /** 写入一个幂等索引批次。 @param account 账户 @param request 批次 @return 结果 */
@@ -160,6 +177,16 @@ public class DriveRepository {
                 .digest(value.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException exception) {
             throw new IllegalStateException("SHA-256 is unavailable", exception);
+        }
+    }
+    private MessageDigest digest() {
+        try { return MessageDigest.getInstance("SHA-256"); }
+        catch(NoSuchAlgorithmException exception) { throw new IllegalStateException("SHA-256 is unavailable",exception); }
+    }
+    private void updateDigest(MessageDigest digest,String... values) {
+        for(String value:values) {
+            byte[] bytes=value.getBytes(StandardCharsets.UTF_8);
+            digest.update(ByteBuffer.allocate(Integer.BYTES).putInt(bytes.length).array()); digest.update(bytes);
         }
     }
     private Cursor cursor(UUID id) {

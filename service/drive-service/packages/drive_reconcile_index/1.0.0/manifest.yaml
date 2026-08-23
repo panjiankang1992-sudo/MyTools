@@ -1,0 +1,15 @@
+name: drive_reconcile_index
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - network_http
+parameters:
+  required:
+    - accountId
+    - storageOperationId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 60
+  maxOutputBytes: 65536

@@ -26,6 +26,8 @@ Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 
 
 `storage_migrate_drive_providers` 是手工即时迁移任务：它只读取 Drive 的账户 UUID、remote key、Secret 引用和启用状态，注册 Provider 后将 UUID 回绑 Drive；不读取或传输 URL、用户名和密码。任务可安全重跑且不会自动触发。
 
+成功的 `SCAN_ROOT` 操作可读取稳定排序的对象集合摘要，供 `drive_reconcile_index` 同时比较数量与 SHA-256。摘要采用共享长度前缀协议和黄金向量，避免仅按数量判断造成误切换。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。

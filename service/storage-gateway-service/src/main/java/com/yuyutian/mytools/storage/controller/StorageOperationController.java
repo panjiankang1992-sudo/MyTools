@@ -4,6 +4,7 @@ import com.yuyutian.mytools.storage.model.CreateOperationRequest;
 import com.yuyutian.mytools.storage.model.FinishOperationRequest;
 import com.yuyutian.mytools.storage.model.OperationItemBatch;
 import com.yuyutian.mytools.storage.model.StorageOperation;
+import com.yuyutian.mytools.storage.model.ReconciliationDigest;
 import com.yuyutian.mytools.storage.service.InternalAuthorizer;
 import com.yuyutian.mytools.storage.service.StorageOperationService;
 import jakarta.validation.Valid;
@@ -63,6 +64,13 @@ public class StorageOperationController {
     public StorageOperation get(@PathVariable UUID id, @RequestHeader("Authorization") String authorization) {
         authorizer.require(authorization);
         return operationService.require(id);
+    }
+
+    /** 读取成功扫描快照摘要。 @param id 操作标识 @param authorization 授权头 @return 摘要 */
+    @GetMapping("/{id}/digest")
+    public ReconciliationDigest digest(@PathVariable UUID id,
+        @RequestHeader("Authorization") String authorization) {
+        authorizer.require(authorization); return operationService.digest(id);
     }
 
     /**
