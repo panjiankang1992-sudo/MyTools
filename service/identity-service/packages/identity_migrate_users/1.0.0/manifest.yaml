@@ -1,0 +1,11 @@
+name: identity_migrate_users
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities: [mytools_identity_migration_read, identity_internal_api]
+parameters:
+  required: []
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 900

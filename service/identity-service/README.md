@@ -2,6 +2,8 @@
 
 独立身份与会话服务，使用 `mytools_identity` schema。当前 MVP 提供用户导入、BCrypt 登录、短期 JWT、刷新令牌轮换、会话校验和实时撤销。旧 MyTools 登录与 JWT 过滤器仍为权威路径，尚未启用流量切换。
 
+`identity_migrate_users` 是手工即时任务，通过 MyTools 受保护分页接口迁移用户、BCrypt 哈希和角色。旧 access/refresh token 不导出、不复制，新会话必须重新登录生成。任务输出仅包含数量和不含密码哈希的身份摘要。
+
 ## 技术栈
 
 Java 21 / Spring Boot

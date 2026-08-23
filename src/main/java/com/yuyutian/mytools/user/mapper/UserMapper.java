@@ -153,4 +153,7 @@ public interface UserMapper {
      */
     List<User> selectPage(@Param("keyword") String keyword, @Param("status") String status,
                          @Param("offset") int offset, @Param("limit") int limit);
+
+    /** 按主键游标导出身份迁移数据。 */
+    List<User> selectIdentityMigrationBatch(@Param("afterId") Long afterId, @Param("limit") int limit);
 }

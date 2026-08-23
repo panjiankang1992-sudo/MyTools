@@ -124,4 +124,9 @@
         WHERE id = #{id}
     </update>
 
+    <select id="selectIdentityMigrationBatch" resultMap="UserResultMap">
+        SELECT id, username, password, email, role, status, create_time, update_time
+        FROM t_user WHERE id &gt; #{afterId} ORDER BY id ASC LIMIT #{limit}
+    </select>
+
 </mapper>

@@ -1,0 +1,6 @@
+INSERT INTO execution_cluster (id,name,description,dispatch_strategy,max_concurrent_tasks,labels_json,enabled,created_at,updated_at)
+VALUES ('00000000-0000-4000-8000-000000000007','identity','Identity maintenance workers','LEAST_RUNNING',2,'{"workload":"identity"}',TRUE,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+INSERT INTO task_definition (id,name,description,task_type,timeout_seconds,cluster_id,cron_expression,cron_timezone,execution_mode,enabled,max_concurrency,overlap_policy,misfire_policy,parameter_schema,result_schema,version,created_at,updated_at)
+VALUES ('00000000-0000-4000-8000-000000000317','identity_migrate_users','Migrate MyTools users and roles without reusable tokens','IMMEDIATE',900,'00000000-0000-4000-8000-000000000007',NULL,NULL,'SINGLE_NODE',TRUE,1,'SKIP','IGNORE','{}','{}',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+INSERT INTO task_step_definition (id,task_definition_id,name,description,step_kind,script_package,script_version,entrypoint,arguments_template,enabled,timeout_seconds,failure_policy,sequence_number,max_attempts,created_at,updated_at)
+VALUES ('00000000-0000-4000-8000-000000000428','00000000-0000-4000-8000-000000000317','migrate_users','Import users and roles through Identity API','NORMAL','identity_migrate_users','1.0.0','scripts/main.py','[]',TRUE,900,'FAIL_TASK',10,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
