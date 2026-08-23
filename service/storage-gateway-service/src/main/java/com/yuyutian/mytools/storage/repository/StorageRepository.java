@@ -2,8 +2,12 @@ package com.yuyutian.mytools.storage.repository;
 
 import com.yuyutian.mytools.storage.model.UploadRecord;
 import com.yuyutian.mytools.storage.model.StorageProvider;
+import com.yuyutian.mytools.storage.model.StorageOperation;
+import com.yuyutian.mytools.storage.model.RemoteObjectView;
+import com.yuyutian.mytools.storage.model.ErrorCode;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -98,6 +102,117 @@ public class StorageRepository {
      */
     public Optional<StorageProvider> findProviderById(UUID id) {
         return queryProvider("id = ?", id.toString());
+    }
+
+    /**
+     * 新增异步操作。
+     *
+     * @param operation 操作
+     */
+    public void insertOperation(StorageOperation operation) {
+        jdbcTemplate.update("""
+                INSERT INTO storage_operation
+                    (id, provider_id, idempotency_key, operation_type, source_path, target_path,
+                     status, task_instance_id, result_json, error_code, item_count, maximum_objects,
+                     created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, NULL, ?, NULL, NULL, NULL, 0, ?, ?, ?)
+                """, operation.id().toString(), operation.providerId().toString(), operation.idempotencyKey(),
+                operation.operationType(), operation.sourcePath(), operation.status(), operation.maximumObjects(),
+                Timestamp.from(operation.createdAt()), Timestamp.from(operation.updatedAt()));
+    }
+
+    /**
+     * 按幂等键查询异步操作。
+     *
+     * @param key 幂等键
+     * @return 操作
+     */
+    public Optional<StorageOperation> findOperationByKey(String key) {
+        return queryOperation("idempotency_key = ?", key);
+    }
+
+    /**
+     * 按标识查询异步操作。
+     *
+     * @param id 标识
+     * @return 操作
+     */
+    public Optional<StorageOperation> findOperationById(UUID id) {
+        return queryOperation("id = ?", id.toString());
+    }
+
+    /**
+     * 绑定任务实例并进入运行态。
+     *
+     * @param id 操作标识
+     * @param taskId 任务标识
+     */
+    public void bindOperationTask(UUID id, UUID taskId) {
+        jdbcTemplate.update("""
+                UPDATE storage_operation SET task_instance_id = COALESCE(task_instance_id, ?),
+                    status = 'RUNNING', updated_at = ? WHERE id = ? AND status IN ('CREATED', 'RUNNING')
+                """, taskId.toString(), Timestamp.from(Instant.now()), id.toString());
+    }
+
+    /**
+     * 幂等合并一个扫描批次并刷新准确计数。
+     *
+     * @param operationId 操作标识
+     * @param items 对象批次
+     */
+    @Transactional
+    public void mergeOperationItems(UUID operationId, List<RemoteObjectView> items) {
+        Instant now = Instant.now();
+        Map<String, Object> operation = jdbcTemplate.queryForMap(
+                "SELECT status, maximum_objects FROM storage_operation WHERE id = ?", operationId.toString());
+        if (!"RUNNING".equals(operation.get("status"))) {
+            throw new IllegalStateException(ErrorCode.OPERATION_STATE_INVALID.code());
+        }
+        for (RemoteObjectView item : items) {
+            List<Map<String, Object>> existing = jdbcTemplate.queryForList("""
+                    SELECT object_name, directory, size_bytes, modified_at, content_sha256
+                    FROM storage_operation_item WHERE operation_id = ? AND object_path = ?
+                    """, operationId.toString(), item.path());
+            if (!existing.isEmpty()) {
+                if (!sameItem(existing.getFirst(), item)) {
+                    throw new IllegalStateException(ErrorCode.OPERATION_CONFLICT.code());
+                }
+                continue;
+            }
+            jdbcTemplate.update("""
+                    INSERT INTO storage_operation_item
+                        (operation_id, object_path, object_name, directory, size_bytes,
+                         modified_at, content_sha256, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, operationId.toString(), item.path(), item.name(), item.directory(), item.sizeBytes(),
+                    item.modifiedAt() == null ? null : Timestamp.from(normalizeInstant(item.modifiedAt())),
+                    item.contentSha256(),
+                    Timestamp.from(now), Timestamp.from(now));
+        }
+        long count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM storage_operation_item WHERE operation_id = ?", Long.class,
+                operationId.toString());
+        if (count > ((Number) operation.get("maximum_objects")).longValue()) {
+            throw new IllegalStateException(ErrorCode.OPERATION_STATE_INVALID.code());
+        }
+        jdbcTemplate.update("""
+                UPDATE storage_operation SET item_count = ?, updated_at = ?
+                WHERE id = ? AND status = 'RUNNING'
+                """, count, Timestamp.from(now), operationId.toString());
+    }
+
+    /**
+     * 将异步操作标记为终态，终态不可被后续回调覆盖。
+     *
+     * @param id 操作标识
+     * @param status 终态
+     * @param errorCode 错误码
+     */
+    public void finishOperation(UUID id, String status, String errorCode) {
+        jdbcTemplate.update("""
+                UPDATE storage_operation SET status = ?, error_code = ?, updated_at = ?
+                WHERE id = ? AND status IN ('CREATED', 'RUNNING')
+                """, status, errorCode, Timestamp.from(Instant.now()), id.toString());
     }
 
     /**
@@ -202,6 +317,34 @@ public class StorageRepository {
                         resultSet.getString("remote_key"), resultSet.getString("secret_ref"),
                         resultSet.getBoolean("enabled"), resultSet.getTimestamp("created_at").toInstant(),
                         resultSet.getTimestamp("updated_at").toInstant()), argument).stream().findFirst();
+    }
+
+    private Optional<StorageOperation> queryOperation(String condition, Object argument) {
+        return jdbcTemplate.query("SELECT * FROM storage_operation WHERE " + condition,
+                (resultSet, rowNumber) -> new StorageOperation(UUID.fromString(resultSet.getString("id")),
+                        UUID.fromString(resultSet.getString("provider_id")),
+                        resultSet.getString("idempotency_key"), resultSet.getString("operation_type"),
+                        resultSet.getString("source_path"), resultSet.getString("status"),
+                        resultSet.getString("task_instance_id") == null ? null
+                                : UUID.fromString(resultSet.getString("task_instance_id")),
+                        resultSet.getLong("item_count"), resultSet.getInt("maximum_objects"),
+                        resultSet.getString("error_code"),
+                        resultSet.getTimestamp("created_at").toInstant(),
+                        resultSet.getTimestamp("updated_at").toInstant()), argument).stream().findFirst();
+    }
+
+    private boolean sameItem(Map<String, Object> existing, RemoteObjectView item) {
+        Timestamp modified = (Timestamp) existing.get("modified_at");
+        return item.name().equals(existing.get("object_name"))
+                && item.directory() == (Boolean) existing.get("directory")
+                && item.sizeBytes() == ((Number) existing.get("size_bytes")).longValue()
+                && java.util.Objects.equals(item.modifiedAt() == null ? null : normalizeInstant(item.modifiedAt()),
+                modified == null ? null : normalizeInstant(modified.toInstant()))
+                && java.util.Objects.equals(item.contentSha256(), existing.get("content_sha256"));
+    }
+
+    private Instant normalizeInstant(Instant value) {
+        return value.truncatedTo(java.time.temporal.ChronoUnit.MICROS);
     }
 
     /**

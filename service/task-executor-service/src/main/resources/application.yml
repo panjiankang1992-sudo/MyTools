@@ -22,6 +22,7 @@ executor:
     - download
     - messaging
     - asset
+    - storage
   script-environments:
     download_http_asset:
       DOWNLOAD_DESTINATION_ROOT: ${DOWNLOAD_DESTINATION_ROOT:./runtime/downloads}
@@ -84,6 +85,12 @@ executor:
     asset_register_content:
       ASSET_REGISTRY_URL: ${ASSET_REGISTRY_URL:http://127.0.0.1:23270}
       ASSET_REGISTRY_INTERNAL_TOKEN: ${ASSET_REGISTRY_INTERNAL_TOKEN:}
+    storage_scan_root:
+      STORAGE_GATEWAY_URL: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
+      STORAGE_INTERNAL_TOKEN: ${STORAGE_INTERNAL_TOKEN:}
+    storage_finish_operation:
+      STORAGE_GATEWAY_URL: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
+      STORAGE_INTERNAL_TOKEN: ${STORAGE_INTERNAL_TOKEN:}
 server:
   port: ${TASK_EXECUTOR_MANAGEMENT_PORT:23211}
 management:

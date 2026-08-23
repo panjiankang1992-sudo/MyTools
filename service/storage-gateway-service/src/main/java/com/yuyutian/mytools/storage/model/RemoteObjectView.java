@@ -1,5 +1,10 @@
 package com.yuyutian.mytools.storage.model;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 import java.time.Instant;
 
 /**
@@ -12,6 +17,11 @@ import java.time.Instant;
  * @param modifiedAt 修改时间
  * @param contentSha256 SHA-256 摘要
  */
-public record RemoteObjectView(String path, String name, boolean directory, long sizeBytes,
-                               Instant modifiedAt, String contentSha256) {
+public record RemoteObjectView(
+        @NotBlank @Size(max = 2048) @Pattern(regexp = "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^:\\\\]+$") String path,
+        @NotBlank @Size(max = 512) @Pattern(regexp = "^[^/\\\\]+$") String name,
+        boolean directory,
+        @Min(0) long sizeBytes,
+        Instant modifiedAt,
+        @Pattern(regexp = "^[a-fA-F0-9]{64}$") String contentSha256) {
 }

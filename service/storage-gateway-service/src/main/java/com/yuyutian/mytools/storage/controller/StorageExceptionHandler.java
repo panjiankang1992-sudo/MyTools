@@ -24,9 +24,10 @@ public class StorageExceptionHandler {
         String code = exception.getMessage() != null && exception.getMessage().matches("STORAGE_\\d{3}")
                 ? exception.getMessage() : "STORAGE_007";
         HttpStatus status = switch (code) {
-            case "STORAGE_001", "STORAGE_009", "STORAGE_011" -> HttpStatus.NOT_FOUND;
+            case "STORAGE_001", "STORAGE_009", "STORAGE_011", "STORAGE_015" -> HttpStatus.NOT_FOUND;
             case "STORAGE_010" -> HttpStatus.UNAUTHORIZED;
-            case "STORAGE_002", "STORAGE_005", "STORAGE_008", "STORAGE_012" -> HttpStatus.CONFLICT;
+            case "STORAGE_002", "STORAGE_005", "STORAGE_008", "STORAGE_012", "STORAGE_016",
+                    "STORAGE_017" -> HttpStatus.CONFLICT;
             case "STORAGE_014" -> HttpStatus.BAD_GATEWAY;
             default -> HttpStatus.BAD_REQUEST;
         };

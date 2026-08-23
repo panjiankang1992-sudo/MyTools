@@ -20,6 +20,8 @@ Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 
 
 远端账户通过 `POST /api/internal/v1/storage/providers` 注册，只持久化 `secretRef`，响应不返回 remote 键或密钥引用。`GET /api/internal/v1/storage/providers/{id}/objects` 只允许调用服务端配置的回环 rclone RC `operations/list`，调用方不能提交 remote 名称或任意 RC 命令。递归扫描、复制、移动和同步仍必须走异步任务。
 
+`POST /api/internal/v1/storage/operations` 当前开放已落地的 `SCAN_ROOT`。它创建 `storage_scan_root` 调度实例，Executor 广度遍历远端目录并以最多 500 项的批次幂等回写 `storage_operation_item`；对象总量受 `maximumObjects` 硬限制。成功、失败、超时和取消都会回写稳定终态，任务参数只携带 Provider UUID，不携带 remote 键或密钥。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。
