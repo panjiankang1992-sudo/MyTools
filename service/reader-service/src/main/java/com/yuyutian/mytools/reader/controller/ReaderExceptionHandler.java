@@ -4,6 +4,8 @@ import com.yuyutian.mytools.reader.model.ErrorCode;
 import com.yuyutian.mytools.reader.service.SearchNotFoundException;
 import com.yuyutian.mytools.reader.service.DiscoveryNotFoundException;
 import com.yuyutian.mytools.reader.service.HealthCheckNotFoundException;
+import com.yuyutian.mytools.reader.service.EbookImportNotFoundException;
+import com.yuyutian.mytools.reader.service.EbookSourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -54,5 +56,31 @@ public class ReaderExceptionHandler {
     public Map<String, String> handleHealthCheckNotFound(HealthCheckNotFoundException exception) {
         return Map.of("code", ErrorCode.HEALTH_CHECK_NOT_FOUND.code(),
                 "message", ErrorCode.HEALTH_CHECK_NOT_FOUND.message());
+    }
+
+    /**
+     * 转换电子书导入请求不存在异常。
+     *
+     * @param exception 业务异常
+     * @return 标准错误响应
+     */
+    @ExceptionHandler(EbookImportNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleEbookImportNotFound(EbookImportNotFoundException exception) {
+        return Map.of("code", ErrorCode.EBOOK_IMPORT_NOT_FOUND.code(),
+                "message", ErrorCode.EBOOK_IMPORT_NOT_FOUND.message());
+    }
+
+    /**
+     * 转换电子书书源不存在异常。
+     *
+     * @param exception 业务异常
+     * @return 标准错误响应
+     */
+    @ExceptionHandler(EbookSourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleEbookSourceNotFound(EbookSourceNotFoundException exception) {
+        return Map.of("code", ErrorCode.EBOOK_SOURCE_NOT_FOUND.code(),
+                "message", ErrorCode.EBOOK_SOURCE_NOT_FOUND.message());
     }
 }

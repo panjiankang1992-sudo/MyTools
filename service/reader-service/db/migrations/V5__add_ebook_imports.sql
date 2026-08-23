@@ -1,0 +1,43 @@
+CREATE TABLE ebook_import_request (
+    id CHAR(36) PRIMARY KEY,
+    owner_id BIGINT NOT NULL,
+    idempotency_key VARCHAR(255) NOT NULL,
+    source_id CHAR(36) NOT NULL,
+    source_version INT NOT NULL,
+    book_url VARCHAR(4096) NOT NULL,
+    requested_title VARCHAR(300) NOT NULL,
+    requested_author VARCHAR(200),
+    storage_root VARCHAR(128) NOT NULL,
+    status VARCHAR(32) NOT NULL,
+    task_instance_id CHAR(36),
+    parameters_json JSON NOT NULL,
+    result_title VARCHAR(300),
+    result_author VARCHAR(200),
+    storage_uri VARCHAR(4096),
+    output_size BIGINT,
+    output_sha256 CHAR(64),
+    chapter_count INT,
+    created_at TIMESTAMP(6) NOT NULL,
+    updated_at TIMESTAMP(6) NOT NULL,
+    CONSTRAINT fk_ebook_import_source FOREIGN KEY (source_id) REFERENCES book_source(id),
+    UNIQUE KEY uk_ebook_import_idempotency (owner_id, idempotency_key)
+);
+
+CREATE TABLE ebook_asset (
+    id CHAR(36) PRIMARY KEY,
+    import_request_id CHAR(36) NOT NULL UNIQUE,
+    owner_id BIGINT NOT NULL,
+    source_id CHAR(36) NOT NULL,
+    title VARCHAR(300) NOT NULL,
+    author VARCHAR(200),
+    format VARCHAR(32) NOT NULL,
+    storage_uri VARCHAR(4096) NOT NULL,
+    size_bytes BIGINT NOT NULL,
+    content_sha256 CHAR(64) NOT NULL,
+    chapter_count INT NOT NULL,
+    metadata_json JSON NOT NULL,
+    created_at TIMESTAMP(6) NOT NULL,
+    updated_at TIMESTAMP(6) NOT NULL,
+    CONSTRAINT fk_ebook_asset_import FOREIGN KEY (import_request_id) REFERENCES ebook_import_request(id),
+    CONSTRAINT fk_ebook_asset_source FOREIGN KEY (source_id) REFERENCES book_source(id)
+);

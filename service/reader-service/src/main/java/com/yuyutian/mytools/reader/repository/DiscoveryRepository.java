@@ -168,6 +168,25 @@ public class DiscoveryRepository {
         return new SourceIngestResult(saved, rejected);
     }
 
+    /**
+     * 查询所有者拥有的书源当前执行快照。
+     *
+     * @param ownerId 所有者标识
+     * @param sourceId 书源标识
+     * @return 书源执行快照
+     */
+    public Optional<SourceExecutionSnapshot> findExecutionSnapshot(long ownerId, UUID sourceId) {
+        return jdbcTemplate.query("""
+                SELECT bs.id, bs.source_url, bs.current_version, bsv.snapshot_json
+                FROM book_source bs JOIN book_source_version bsv
+                  ON bsv.book_source_id = bs.id AND bsv.version = bs.current_version
+                WHERE bs.owner_id = ? AND bs.id = ? AND bs.enabled = TRUE
+                """, (resultSet, rowNumber) -> new SourceExecutionSnapshot(
+                UUID.fromString(resultSet.getString("id")), resultSet.getString("source_url"),
+                resultSet.getInt("current_version"), readJson(resultSet.getString("snapshot_json"))),
+                ownerId, sourceId.toString()).stream().findFirst();
+    }
+
     private Optional<DiscoveryRecord> query(String sql, Object... arguments) {
         return jdbcTemplate.query(sql, (resultSet, rowNumber) -> {
             String taskId = resultSet.getString("task_instance_id");
@@ -209,5 +228,29 @@ public class DiscoveryRepository {
 
     private String text(Object value) {
         return value instanceof String text ? text.strip() : "";
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> readJson(String value) {
+        try {
+            var node = objectMapper.readTree(value);
+            if (node.isTextual()) {
+                node = objectMapper.readTree(node.asText());
+            }
+            return objectMapper.convertValue(node, Map.class);
+        } catch (JsonProcessingException exception) {
+            throw new IllegalArgumentException("Stored book source snapshot is invalid", exception);
+        }
+    }
+
+    /**
+     * 任务使用的不可变书源版本。
+     *
+     * @param id 书源标识
+     * @param sourceUrl 书源地址
+     * @param version 当前版本
+     * @param snapshot 规则快照
+     */
+    public record SourceExecutionSnapshot(UUID id, String sourceUrl, int version, Map<String, Object> snapshot) {
     }
 }

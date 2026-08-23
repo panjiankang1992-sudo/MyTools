@@ -9,3 +9,4 @@ spring:
 reader:
   scheduler-url: http://127.0.0.1:23210
   internal-token: test-reader-token
+  ebook-storage-root: managed

@@ -1,0 +1,23 @@
+name: reader_import_ebook
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - http_reader_runtime
+  - storage_gateway_upload
+parameters:
+  required:
+    - requestId
+    - ownerId
+    - sourceId
+    - sourceUrl
+    - sourceSnapshot
+    - bookUrl
+    - title
+    - storageRoot
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 7200
+  maxChapters: 20000
+  maxOutputBytes: 536870912

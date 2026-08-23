@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["requestId", "sourceId", "title", "chapterCount", "size", "sha256", "storageUri"],
+  "properties": {
+    "requestId": {"type": "string", "format": "uuid"},
+    "sourceId": {"type": "string", "format": "uuid"},
+    "title": {"type": "string"},
+    "author": {"type": "string"},
+    "chapterCount": {"type": "integer", "minimum": 1},
+    "size": {"type": "integer", "minimum": 1},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "storageUri": {"type": "string", "pattern": "^storage://"}
+  },
+  "additionalProperties": false
+}

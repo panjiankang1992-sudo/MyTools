@@ -8,7 +8,9 @@ public enum ErrorCode {
     DISCOVERY_NOT_FOUND("READER_002", "Source discovery request was not found"),
     INTERNAL_UNAUTHORIZED("READER_003", "Internal service token is invalid"),
     HEALTH_CHECK_NOT_FOUND("READER_004", "Source health check was not found"),
-    HEALTH_SOURCE_LIMIT("READER_005", "Enabled source count exceeds health check limit");
+    HEALTH_SOURCE_LIMIT("READER_005", "Enabled source count exceeds health check limit"),
+    EBOOK_IMPORT_NOT_FOUND("READER_006", "Ebook import request was not found"),
+    EBOOK_SOURCE_NOT_FOUND("READER_007", "Enabled book source was not found");
 
     private final String code;
     private final String message;
