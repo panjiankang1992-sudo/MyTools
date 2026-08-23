@@ -8,6 +8,9 @@ import com.yuyutian.mytools.reader.service.EbookImportNotFoundException;
 import com.yuyutian.mytools.reader.service.EbookSourceNotFoundException;
 import com.yuyutian.mytools.reader.service.EbookCatalogInvalidException;
 import com.yuyutian.mytools.reader.service.EbookCatalogNotReadyException;
+import com.yuyutian.mytools.reader.service.ChapterCacheInvalidException;
+import com.yuyutian.mytools.reader.service.ChapterCacheNotFoundException;
+import com.yuyutian.mytools.reader.service.ChapterPrefetchNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -110,5 +113,35 @@ public class ReaderExceptionHandler {
     public Map<String, String> handleEbookCatalogInvalid(EbookCatalogInvalidException exception) {
         return Map.of("code", ErrorCode.EBOOK_CATALOG_INVALID.code(),
                 "message", ErrorCode.EBOOK_CATALOG_INVALID.message());
+    }
+
+    /**
+     * 转换章节预取请求不存在异常。
+     */
+    @ExceptionHandler(ChapterPrefetchNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleChapterPrefetchNotFound(ChapterPrefetchNotFoundException exception) {
+        return Map.of("code", ErrorCode.CHAPTER_PREFETCH_NOT_FOUND.code(),
+                "message", ErrorCode.CHAPTER_PREFETCH_NOT_FOUND.message());
+    }
+
+    /**
+     * 转换章节缓存不存在异常。
+     */
+    @ExceptionHandler(ChapterCacheNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleChapterCacheNotFound(ChapterCacheNotFoundException exception) {
+        return Map.of("code", ErrorCode.CHAPTER_CACHE_NOT_FOUND.code(),
+                "message", ErrorCode.CHAPTER_CACHE_NOT_FOUND.message());
+    }
+
+    /**
+     * 转换章节缓存批次无效异常。
+     */
+    @ExceptionHandler(ChapterCacheInvalidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleChapterCacheInvalid(ChapterCacheInvalidException exception) {
+        return Map.of("code", ErrorCode.CHAPTER_CACHE_INVALID.code(),
+                "message", ErrorCode.CHAPTER_CACHE_INVALID.message());
     }
 }

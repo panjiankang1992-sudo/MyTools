@@ -1,0 +1,22 @@
+name: reader_prefetch_chapters
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - http_reader_runtime
+  - reader_internal_write
+parameters:
+  required:
+    - requestId
+    - ownerId
+    - sourceId
+    - sourceUrl
+    - sourceSnapshot
+    - bookUrl
+    - chapterIndexes
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 900
+  maxRequestedChapters: 100
+  maxChapterBytes: 10485760
