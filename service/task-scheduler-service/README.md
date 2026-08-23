@@ -18,6 +18,10 @@ Java 21 / Spring Boot
 
 定时定义由持久化 `task_schedule_cursor` 驱动；Scheduler 多副本通过数据库租约抢占到期游标。支持 `IGNORE`、`RUN_ONCE`、受单轮上限保护的 `CATCH_UP` misfire 策略，以及 `ALLOW`、`SKIP`、`QUEUE`、`REPLACE` 重叠策略。任务领取会在事务锁内同时检查定义、集群和节点并发上限。
 
+`MULTI_NODE_BROADCAST` 和 `MULTI_NODE_SHARD` 会在首次领取时把在线集群成员固化为执行目标。每个节点只领取自己的目标；分片信息位于 `parameters.taskExecutionTarget`，包含 `mode`、`index`、`count` 和 `nodeId`。目标独立租约、重试和取消，全部结束后按失败、超时、取消、成功的优先级聚合实例终态。结果查询同时返回节点和目标序号。
+
+任务第一次进入执行态后固化 `started_at`，Scheduler 下发总截止时间。Executor 以任务剩余时间限制普通步骤，超时后仍执行独立受限的 `ON_TIMEOUT` 步骤；已开始后重新排队但长期无人领取的任务，以及多节点任务未领取的目标，由持久化截止时间扫描回收。
+
 执行节点注册时可以声明 `clusterNames` 自动加入多个已存在集群。新 schema 会创建 `media` 集群以及版本化的 `media_generate_tags` 双步骤任务定义。任务完成后可通过 `GET /api/v1/task-instances/{id}/results` 查询生成结果和对账结果。
 
 ```bash
@@ -33,6 +37,7 @@ TASK_DB_PASSWORD=通过部署 Secret 注入
 TASK_CRON_SCAN_DELAY_MS=1000
 TASK_CRON_LEASE_SECONDS=30
 TASK_CRON_MAX_CATCH_UP=100
+TASK_DEADLINE_SCAN_DELAY_MS=1000
 ```
 
 数据库账号的创建和授权由部署系统完成，不在仓库中保存生产用户名之外的凭据。

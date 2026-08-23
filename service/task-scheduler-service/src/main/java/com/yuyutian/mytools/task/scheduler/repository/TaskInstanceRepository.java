@@ -129,6 +129,33 @@ public class TaskInstanceRepository {
                 """, this::mapRow, definitionId.toString());
     }
 
+    /**
+     * 将尚未领取的多节点执行目标标记为取消。
+     *
+     * @param taskInstanceId 任务实例标识
+     * @return 取消的目标数量
+     */
+    public int cancelQueuedTargets(UUID taskInstanceId) {
+        return jdbcTemplate.update("""
+                UPDATE task_execution_target SET status = 'CANCELLED', updated_at = ?
+                WHERE task_instance_id = ? AND status = 'QUEUED'
+                """, Timestamp.from(Instant.now()), taskInstanceId.toString());
+    }
+
+    /**
+     * 统计任务实例当前仍在运行的执行租约。
+     *
+     * @param taskInstanceId 任务实例标识
+     * @return 运行中执行数量
+     */
+    public int countRunningExecutions(UUID taskInstanceId) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM task_execution
+                WHERE task_instance_id = ? AND status = 'RUNNING'
+                """, Integer.class, taskInstanceId.toString());
+        return count == null ? 0 : count;
+    }
+
     private TaskInstanceView mapRow(ResultSet resultSet, int rowNumber) throws SQLException {
         String parentId = resultSet.getString("parent_task_instance_id");
         return new TaskInstanceView(
@@ -136,7 +163,9 @@ public class TaskInstanceRepository {
                 resultSet.getString("idempotency_key"), parentId == null ? null : UUID.fromString(parentId),
                 resultSet.getString("business_type"), resultSet.getString("business_id"),
                 resultSet.getInt("priority"), jsonColumnMapper.read(resultSet.getString("parameters_json")),
-                TaskStatus.valueOf(resultSet.getString("status")), resultSet.getTimestamp("created_at").toInstant(),
+                TaskStatus.valueOf(resultSet.getString("status")),
+                resultSet.getTimestamp("started_at") == null ? null : resultSet.getTimestamp("started_at").toInstant(),
+                resultSet.getTimestamp("created_at").toInstant(),
                 resultSet.getTimestamp("updated_at").toInstant()
         );
     }

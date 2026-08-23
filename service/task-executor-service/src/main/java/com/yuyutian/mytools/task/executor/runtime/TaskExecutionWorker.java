@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -119,7 +120,7 @@ public class TaskExecutionWorker {
             if (cancellationRequested.get()) {
                 return new StepOutcome("CANCELLED", step, null, stepOutputs);
             }
-            StepRun run = executeWithRetry(task, step, cancellationRequested::get, stepOutputs);
+            StepRun run = executeWithRetry(task, step, cancellationRequested::get, stepOutputs, true);
             stepOutputs.put(step.name(), run.outputs());
             if (run.status().equals("TIMED_OUT")) {
                 return new StepOutcome("TIMED_OUT", step, run, stepOutputs);
@@ -146,16 +147,16 @@ public class TaskExecutionWorker {
             return;
         }
         for (ClaimedStep step : stepsOfKind(task, kind)) {
-            executeWithRetry(task, step, () -> false, outcome.stepOutputs());
+            executeWithRetry(task, step, () -> false, outcome.stepOutputs(), false);
         }
     }
 
     private StepRun executeWithRetry(ClaimedTask task, ClaimedStep step,
                                      java.util.function.BooleanSupplier cancellationRequested,
-                                     Map<String, Object> stepOutputs) throws IOException {
+                                     Map<String, Object> stepOutputs, boolean enforceTaskDeadline) throws IOException {
         StepRun last = null;
         for (int attempt = 1; attempt <= step.maxAttempts(); attempt++) {
-            last = executeStep(task, step, attempt, cancellationRequested, stepOutputs);
+            last = executeStep(task, step, attempt, cancellationRequested, stepOutputs, enforceTaskDeadline);
             schedulerClient.reportStep(task, step, attempt, last.status(), last.result().exitCode(),
                     last.outputs(), last.errorCode(), last.errorMessage());
             if (last.status().equals("SUCCEEDED") || last.status().equals("CANCELLED")
@@ -168,7 +169,7 @@ public class TaskExecutionWorker {
 
     private StepRun executeStep(ClaimedTask task, ClaimedStep step, int attempt,
                                 java.util.function.BooleanSupplier cancellationRequested,
-                                Map<String, Object> stepOutputs) throws IOException {
+                                Map<String, Object> stepOutputs, boolean enforceTaskDeadline) throws IOException {
         Path workingDirectory = safeWorkDirectory(task, step, attempt);
         Path contextFile = workingDirectory.resolve("task-context.json");
         Path resultFile = workingDirectory.resolve("task-result.json");
@@ -191,8 +192,20 @@ public class TaskExecutionWorker {
         environment.put("TASK_RESULT_FILE", resultFile.toString());
         environment.put("TASK_LEASE_TOKEN_FILE", leaseTokenFile.toString());
         environment.put("TASK_WORK_DIR", workingDirectory.toString());
+        Duration timeout = Duration.ofSeconds(step.timeoutSeconds());
+        if (enforceTaskDeadline) {
+            Duration remaining = Duration.between(Instant.now(), task.deadlineAt());
+            if (remaining.isNegative() || remaining.isZero()) {
+                ScriptExecutionResult expired = new ScriptExecutionResult(
+                        -1, "", "Task deadline exceeded", Duration.ZERO, true, false);
+                return new StepRun("TIMED_OUT", expired, Map.of(), "TASK_TIMEOUT", "Task deadline exceeded");
+            }
+            if (remaining.compareTo(timeout) < 0) {
+                timeout = remaining;
+            }
+        }
         ScriptExecutionResult result = processRunner.run(new ScriptExecutionRequest(
-                command, workingDirectory, environment, Duration.ofSeconds(step.timeoutSeconds()), cancellationRequested));
+                command, workingDirectory, environment, timeout, cancellationRequested));
         Map<String, Object> outputs = readResult(resultFile);
         if (result.cancelled()) {
             return new StepRun("CANCELLED", result, outputs, "TASK_CANCELLED", limitedError(result.standardError()));
@@ -288,6 +301,7 @@ public class TaskExecutionWorker {
         context.put("executionId", task.executionId());
         context.put("parentTaskInstanceId", task.parentTaskInstanceId());
         context.put("taskName", task.taskName());
+        context.put("taskDeadlineAt", task.deadlineAt().toString());
         context.put("stepDefinitionId", step.stepDefinitionId());
         context.put("stepName", step.name());
         context.put("attempt", attempt);

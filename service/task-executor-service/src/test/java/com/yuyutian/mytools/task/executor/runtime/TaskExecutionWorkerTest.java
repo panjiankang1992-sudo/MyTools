@@ -62,7 +62,7 @@ class TaskExecutionWorkerTest {
         );
         ClaimedTask task = new ClaimedTask(
                 UUID.randomUUID(), UUID.randomUUID(), null, "sample_task", UUID.randomUUID(),
-                Instant.now().plusSeconds(60), Map.of(), List.of(step, checkStep)
+                Instant.now().plusSeconds(60), Instant.now().plusSeconds(60), Map.of(), List.of(step, checkStep)
         );
         FakeSchedulerClient schedulerClient = new FakeSchedulerClient(nodeId, task);
         ExecutorNodeAgent nodeAgent = new ExecutorNodeAgent(schedulerClient);
@@ -78,6 +78,49 @@ class TaskExecutionWorkerTest {
         assertEquals(Map.of("previous", "ok"), schedulerClient.stepResult);
         assertEquals(3, schedulerClient.reportCount);
         assertEquals("SUCCEEDED", schedulerClient.completionStatus);
+    }
+
+    @Test
+    void shouldRunTimeoutScenarioWhenTaskDeadlineHasExpired() throws Exception {
+        Path scriptRoot = temporaryDirectory.resolve("deadline-scripts");
+        Path packageRoot = scriptRoot.resolve("deadline/1.0.0");
+        Files.createDirectories(packageRoot);
+        Path marker = temporaryDirectory.resolve("normal-ran");
+        Files.writeString(packageRoot.resolve("main.sh"),
+                "touch '" + marker + "'\n", StandardCharsets.UTF_8);
+        Files.writeString(packageRoot.resolve("timeout.sh"),
+                "printf '{\"handled\":true}' > \"$TASK_RESULT_FILE\"\n", StandardCharsets.UTF_8);
+        ExecutorProperties properties = new ExecutorProperties(
+                "executor-test", "http://127.0.0.1:23210", temporaryDirectory.resolve("deadline-work"), scriptRoot,
+                10, 1, 60, 2, Map.of(), Map.of(), java.util.Set.of(), Map.of()
+        );
+        ClaimedStep normal = new ClaimedStep(
+                UUID.randomUUID(), "run", "NORMAL", "deadline", "1.0.0", "main.sh",
+                List.of(), 30, "FAIL_TASK", 10, 1
+        );
+        ClaimedStep timeout = new ClaimedStep(
+                UUID.randomUUID(), "handle_timeout", "ON_TIMEOUT", "deadline", "1.0.0", "timeout.sh",
+                List.of(), 30, "IGNORE", 20, 1
+        );
+        UUID nodeId = UUID.randomUUID();
+        ClaimedTask task = new ClaimedTask(
+                UUID.randomUUID(), UUID.randomUUID(), null, "deadline_task", UUID.randomUUID(),
+                Instant.now().plusSeconds(60), Instant.now().minusSeconds(1), Map.of(), List.of(normal, timeout)
+        );
+        FakeSchedulerClient schedulerClient = new FakeSchedulerClient(nodeId, task);
+        ExecutorNodeAgent nodeAgent = new ExecutorNodeAgent(schedulerClient);
+        nodeAgent.maintainRegistration();
+        TaskExecutionWorker worker = new TaskExecutionWorker(
+                properties, nodeAgent, schedulerClient, new ScriptProcessRunner(), new ObjectMapper()
+        );
+
+        worker.poll();
+
+        waitForCompletion(schedulerClient);
+        assertEquals(false, Files.exists(marker));
+        assertEquals(2, schedulerClient.reportCount);
+        assertEquals(Map.of("handled", true), schedulerClient.stepResult);
+        assertEquals("TIMED_OUT", schedulerClient.completionStatus);
     }
 
     private void waitForCompletion(FakeSchedulerClient schedulerClient) throws InterruptedException {

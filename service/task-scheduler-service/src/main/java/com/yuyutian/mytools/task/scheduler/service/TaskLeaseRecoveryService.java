@@ -17,14 +17,18 @@ import java.util.UUID;
 public class TaskLeaseRecoveryService {
 
     private final JdbcTemplate jdbcTemplate;
+    private final MultiNodeTaskAggregationService multiNodeTaskAggregationService;
 
     /**
      * 创建过期执行租约回收服务。
      *
      * @param jdbcTemplate JDBC 模板
+     * @param multiNodeTaskAggregationService 多节点聚合服务
      */
-    public TaskLeaseRecoveryService(JdbcTemplate jdbcTemplate) {
+    public TaskLeaseRecoveryService(JdbcTemplate jdbcTemplate,
+                                    MultiNodeTaskAggregationService multiNodeTaskAggregationService) {
         this.jdbcTemplate = jdbcTemplate;
+        this.multiNodeTaskAggregationService = multiNodeTaskAggregationService;
     }
 
     /**
@@ -67,16 +71,27 @@ public class TaskLeaseRecoveryService {
 
     private void recoverTaskInstance(UUID executionId, Instant now) {
         RecoveryCandidate candidate = jdbcTemplate.queryForObject("""
-                SELECT ti.id, ti.status, ti.dispatch_attempts, ti.max_dispatch_attempts
+                SELECT ti.id, ti.status, ti.dispatch_attempts, ti.max_dispatch_attempts,
+                       te.execution_target_id, et.dispatch_attempts AS target_dispatch_attempts,
+                       et.max_dispatch_attempts AS target_max_dispatch_attempts
                 FROM task_execution te
                 JOIN task_instance ti ON ti.id = te.task_instance_id
+                LEFT JOIN task_execution_target et ON et.id = te.execution_target_id
                 WHERE te.id = ?
                 """, (resultSet, rowNumber) -> new RecoveryCandidate(
                         UUID.fromString(resultSet.getString("id")),
                         resultSet.getString("status"),
                         resultSet.getInt("dispatch_attempts"),
-                        resultSet.getInt("max_dispatch_attempts")), executionId.toString());
+                        resultSet.getInt("max_dispatch_attempts"),
+                        resultSet.getString("execution_target_id") == null ? null
+                                : UUID.fromString(resultSet.getString("execution_target_id")),
+                        resultSet.getInt("target_dispatch_attempts"),
+                        resultSet.getInt("target_max_dispatch_attempts")), executionId.toString());
         if (candidate == null) {
+            return;
+        }
+        if (candidate.targetId() != null) {
+            recoverExecutionTarget(candidate, now);
             return;
         }
         String targetStatus;
@@ -93,7 +108,24 @@ public class TaskLeaseRecoveryService {
                 """, targetStatus, Timestamp.from(now), candidate.taskInstanceId().toString());
     }
 
+    private void recoverExecutionTarget(RecoveryCandidate candidate, Instant now) {
+        String targetStatus;
+        if ("CANCELLING".equals(candidate.status())) {
+            targetStatus = "CANCELLED";
+        } else if (candidate.targetDispatchAttempts() < candidate.targetMaxDispatchAttempts()) {
+            targetStatus = "QUEUED";
+        } else {
+            targetStatus = "TIMED_OUT";
+        }
+        jdbcTemplate.update("""
+                UPDATE task_execution_target SET status = ?, updated_at = ?
+                WHERE id = ? AND status = 'RUNNING'
+                """, targetStatus, Timestamp.from(now), candidate.targetId().toString());
+        multiNodeTaskAggregationService.aggregate(candidate.taskInstanceId(), now);
+    }
+
     private record RecoveryCandidate(UUID taskInstanceId, String status, int dispatchAttempts,
-                                     int maxDispatchAttempts) {
+                                     int maxDispatchAttempts, UUID targetId, int targetDispatchAttempts,
+                                     int targetMaxDispatchAttempts) {
     }
 }

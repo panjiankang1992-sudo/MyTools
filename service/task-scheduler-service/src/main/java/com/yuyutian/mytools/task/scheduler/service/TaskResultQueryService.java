@@ -44,17 +44,26 @@ public class TaskResultQueryService {
     public TaskExecutionResultView get(UUID taskInstanceId) {
         var instance = taskInstanceService.get(taskInstanceId);
         List<StepExecutionResultView> steps = jdbcTemplate.query("""
-                SELECT te.id AS execution_id, ts.name AS step_name, se.attempt, se.status,
+                SELECT te.id AS execution_id, te.node_id, td.execution_mode,
+                       et.target_index, et.target_count, ts.name AS step_name, se.attempt, se.status,
                        se.result_json, se.error_code, se.error_message, se.finished_at
                 FROM task_execution te
                 JOIN step_execution se ON se.task_execution_id = te.id
                 JOIN task_step_definition ts ON ts.id = se.step_definition_id
+                JOIN task_instance ti ON ti.id = te.task_instance_id
+                JOIN task_definition td ON td.id = ti.task_definition_id
+                LEFT JOIN task_execution_target et ON et.id = te.execution_target_id
                 WHERE te.task_instance_id = ?
                 ORDER BY te.created_at, ts.sequence_number, se.attempt
                 """, (resultSet, rowNumber) -> {
             String resultJson = resultSet.getString("result_json");
             return new StepExecutionResultView(
-                    UUID.fromString(resultSet.getString("execution_id")), resultSet.getString("step_name"),
+                    UUID.fromString(resultSet.getString("execution_id")),
+                    UUID.fromString(resultSet.getString("node_id")),
+                    com.yuyutian.mytools.task.scheduler.model.ExecutionMode.valueOf(
+                            resultSet.getString("execution_mode")),
+                    resultSet.getObject("target_index", Integer.class),
+                    resultSet.getObject("target_count", Integer.class), resultSet.getString("step_name"),
                     resultSet.getInt("attempt"), TaskStatus.valueOf(resultSet.getString("status")),
                     resultJson == null ? Map.of() : jsonColumnMapper.read(resultJson),
                     resultSet.getString("error_code"), resultSet.getString("error_message"),

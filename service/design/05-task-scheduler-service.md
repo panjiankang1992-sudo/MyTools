@@ -65,6 +65,8 @@ POST /internal/v1/task-instances/{id}/cancel
 
 执行模式：`SINGLE_NODE`、`MULTI_NODE_BROADCAST`、`MULTI_NODE_SHARD`。调度必须匹配集群成员、在线状态、脚本运行时、能力标签、存储亲和性和剩余容量。
 
+广播与分片实例在首次领取时生成不可变 `task_execution_target` 快照。广播目标表示每个节点执行完整参数；分片目标在任务参数中增加 `taskExecutionTarget.index/count/nodeId`，脚本据此处理互斥数据区间。每个目标拥有独立状态和重试次数，实例在全部目标结束后聚合终态。
+
 ## 6. API
 
 - 任务定义、步骤、版本、启停和手动触发 CRUD。
@@ -81,6 +83,7 @@ POST /internal/v1/task-instances/{id}/cancel
 - 按任务、租户、集群和节点配置并发与队列上限。
 - 每个定时定义持久化 `next_fire_at` 游标，Scheduler 多副本通过短租约抢占；实例幂等键包含定义版本触发时间，崩溃重放不会产生第二个实例。
 - `CATCH_UP` 每轮有硬上限，超出部分保留到后续扫描，避免长时间停机后一次性压垮执行集群。
+- 总超时从实例首次进入执行态开始，普通步骤取步骤超时和任务剩余时间的较小值；场景超时步骤使用自身超时，保证补偿仍有执行窗口。
 
 ## 8. 实现
 

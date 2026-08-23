@@ -16,6 +16,7 @@ import java.util.UUID;
  * @param priority 优先级
  * @param parameters 参数
  * @param status 状态
+ * @param startedAt 首次开始执行时间
  * @param createdAt 创建时间
  * @param updatedAt 更新时间
  */
@@ -29,6 +30,7 @@ public record TaskInstanceView(
         int priority,
         Map<String, Object> parameters,
         TaskStatus status,
+        Instant startedAt,
         Instant createdAt,
         Instant updatedAt
 ) {

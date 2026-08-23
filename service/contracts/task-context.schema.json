@@ -4,17 +4,17 @@
   "title": "TaskStepContext",
   "type": "object",
   "additionalProperties": false,
-  "required": ["taskInstanceId", "stepExecutionId", "taskName", "attempt", "parameters"],
+  "required": ["taskInstanceId", "executionId", "taskName", "taskDeadlineAt", "stepDefinitionId", "stepName", "attempt", "parameters", "stepOutputs"],
   "properties": {
     "taskInstanceId": { "type": "string", "format": "uuid" },
-    "stepExecutionId": { "type": "string", "format": "uuid" },
+    "executionId": { "type": "string", "format": "uuid" },
     "parentTaskInstanceId": { "type": ["string", "null"], "format": "uuid" },
     "taskName": { "type": "string" },
+    "taskDeadlineAt": { "type": "string", "format": "date-time" },
+    "stepDefinitionId": { "type": "string", "format": "uuid" },
     "stepName": { "type": "string" },
     "attempt": { "type": "integer", "minimum": 1 },
-    "correlationId": { "type": ["string", "null"] },
-    "businessType": { "type": ["string", "null"] },
-    "businessId": { "type": ["string", "null"] },
-    "parameters": { "type": "object" }
+    "parameters": { "type": "object" },
+    "stepOutputs": { "type": "object" }
   }
 }

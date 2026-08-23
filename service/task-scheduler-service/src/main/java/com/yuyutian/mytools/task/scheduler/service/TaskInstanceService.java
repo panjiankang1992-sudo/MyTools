@@ -20,17 +20,21 @@ public class TaskInstanceService {
 
     private final TaskInstanceRepository instanceRepository;
     private final TaskDefinitionRepository definitionRepository;
+    private final MultiNodeTaskAggregationService multiNodeTaskAggregationService;
 
     /**
      * 创建任务实例服务。
      *
      * @param instanceRepository 实例仓储
      * @param definitionRepository 定义仓储
+     * @param multiNodeTaskAggregationService 多节点聚合服务
      */
     public TaskInstanceService(TaskInstanceRepository instanceRepository,
-                               TaskDefinitionRepository definitionRepository) {
+                               TaskDefinitionRepository definitionRepository,
+                               MultiNodeTaskAggregationService multiNodeTaskAggregationService) {
         this.instanceRepository = instanceRepository;
         this.definitionRepository = definitionRepository;
+        this.multiNodeTaskAggregationService = multiNodeTaskAggregationService;
     }
 
     /**
@@ -82,6 +86,12 @@ public class TaskInstanceService {
                 return current;
             }
             if (instanceRepository.updateStatus(id, current.status(), TaskStatus.CANCELLING, Instant.now())) {
+                instanceRepository.cancelQueuedTargets(id);
+                multiNodeTaskAggregationService.aggregate(id, Instant.now());
+                if (get(id).status() == TaskStatus.CANCELLING
+                        && instanceRepository.countRunningExecutions(id) == 0) {
+                    instanceRepository.updateStatus(id, TaskStatus.CANCELLING, TaskStatus.CANCELLED, Instant.now());
+                }
                 return get(id);
             }
         }

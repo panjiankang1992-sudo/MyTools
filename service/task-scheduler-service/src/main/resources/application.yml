@@ -21,3 +21,4 @@ task:
     cron-scan-delay-ms: ${TASK_CRON_SCAN_DELAY_MS:1000}
     cron-lease-seconds: ${TASK_CRON_LEASE_SECONDS:30}
     cron-max-catch-up: ${TASK_CRON_MAX_CATCH_UP:100}
+    deadline-scan-delay-ms: ${TASK_DEADLINE_SCAN_DELAY_MS:1000}

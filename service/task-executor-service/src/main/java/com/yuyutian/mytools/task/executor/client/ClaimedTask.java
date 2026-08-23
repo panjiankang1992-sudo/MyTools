@@ -14,6 +14,7 @@ import java.util.UUID;
  * @param taskName 任务名称
  * @param leaseToken 租约令牌
  * @param leaseUntil 租约截止时间
+ * @param deadlineAt 任务总超时截止时间
  * @param parameters 参数
  * @param steps 步骤
  */
@@ -24,6 +25,7 @@ public record ClaimedTask(
         String taskName,
         UUID leaseToken,
         Instant leaseUntil,
+        Instant deadlineAt,
         Map<String, Object> parameters,
         List<ClaimedStep> steps
 ) {

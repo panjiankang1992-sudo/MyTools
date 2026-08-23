@@ -18,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,6 +34,7 @@ public class TaskDispatchService {
     private final TaskInstanceRepository instanceRepository;
     private final TaskStepRepository stepRepository;
     private final JsonColumnMapper jsonColumnMapper;
+    private final MultiNodeTaskAggregationService multiNodeTaskAggregationService;
 
     /**
      * 创建任务分发服务。
@@ -40,13 +43,16 @@ public class TaskDispatchService {
      * @param instanceRepository 任务实例仓储
      * @param stepRepository 任务步骤仓储
      * @param jsonColumnMapper JSON 转换器
+     * @param multiNodeTaskAggregationService 多节点聚合服务
      */
     public TaskDispatchService(JdbcTemplate jdbcTemplate, TaskInstanceRepository instanceRepository,
-                               TaskStepRepository stepRepository, JsonColumnMapper jsonColumnMapper) {
+                               TaskStepRepository stepRepository, JsonColumnMapper jsonColumnMapper,
+                               MultiNodeTaskAggregationService multiNodeTaskAggregationService) {
         this.jdbcTemplate = jdbcTemplate;
         this.instanceRepository = instanceRepository;
         this.stepRepository = stepRepository;
         this.jsonColumnMapper = jsonColumnMapper;
+        this.multiNodeTaskAggregationService = multiNodeTaskAggregationService;
     }
 
     /**
@@ -58,6 +64,15 @@ public class TaskDispatchService {
     @Transactional
     public Optional<ClaimedTaskView> claim(ClaimTaskRequest request) {
         validateNodeInstance(request.nodeId(), request.instanceId());
+        Optional<ClaimedTaskView> existingTarget = claimExecutionTarget(request);
+        if (existingTarget.isPresent()) {
+            return existingTarget;
+        }
+        expandNextMultiNodeTask(request.nodeId());
+        Optional<ClaimedTaskView> expandedTarget = claimExecutionTarget(request);
+        if (expandedTarget.isPresent()) {
+            return expandedTarget;
+        }
         List<UUID> candidates = jdbcTemplate.query("""
                 SELECT ti.id
                 FROM task_instance ti
@@ -65,6 +80,7 @@ public class TaskDispatchService {
                 JOIN execution_cluster ec ON ec.id = td.cluster_id AND ec.enabled = TRUE
                 JOIN cluster_node cn ON cn.cluster_id = ec.id AND cn.enabled = TRUE
                 WHERE ti.status = 'QUEUED' AND cn.node_id = ?
+                  AND td.execution_mode = 'SINGLE_NODE'
                   AND EXISTS (
                       SELECT 1 FROM task_step_definition ts
                       WHERE ts.task_definition_id = td.id AND ts.enabled = TRUE AND ts.step_kind = 'NORMAL'
@@ -78,19 +94,125 @@ public class TaskDispatchService {
             }
             int claimed = jdbcTemplate.update("""
                     UPDATE task_instance
-                    SET status = 'RUNNING', dispatch_attempts = dispatch_attempts + 1, updated_at = ?
+                    SET status = 'RUNNING', dispatch_attempts = dispatch_attempts + 1,
+                        started_at = COALESCE(started_at, ?), updated_at = ?
                     WHERE id = ? AND status = 'QUEUED'
-                    """, Timestamp.from(Instant.now()), taskId.toString());
+                    """, Timestamp.from(Instant.now()), Timestamp.from(Instant.now()), taskId.toString());
             if (claimed == 1) {
-                return Optional.of(createExecution(request, taskId));
+                return Optional.of(createExecution(request, taskId, null, null));
             }
         }
         return Optional.empty();
     }
 
+    private Optional<ClaimedTaskView> claimExecutionTarget(ClaimTaskRequest request) {
+        List<ExecutionTarget> targets = jdbcTemplate.query("""
+                SELECT et.id, et.task_instance_id, et.target_index, et.target_count, td.execution_mode
+                FROM task_execution_target et
+                JOIN task_instance ti ON ti.id = et.task_instance_id
+                JOIN task_definition td ON td.id = ti.task_definition_id
+                WHERE et.node_id = ? AND et.status = 'QUEUED' AND ti.status IN ('RUNNING', 'CANCELLING')
+                ORDER BY ti.priority DESC, et.created_at
+                LIMIT 10
+                """, (resultSet, rowNumber) -> new ExecutionTarget(
+                UUID.fromString(resultSet.getString("id")),
+                UUID.fromString(resultSet.getString("task_instance_id")),
+                resultSet.getInt("target_index"), resultSet.getInt("target_count"),
+                resultSet.getString("execution_mode")
+        ), request.nodeId().toString());
+        for (ExecutionTarget target : targets) {
+            if (!hasExecutionCapacity(target.taskInstanceId(), request.nodeId())) {
+                continue;
+            }
+            int claimed = jdbcTemplate.update("""
+                    UPDATE task_execution_target
+                    SET status = 'RUNNING', dispatch_attempts = dispatch_attempts + 1, updated_at = ?
+                    WHERE id = ? AND status = 'QUEUED'
+                    """, Timestamp.from(Instant.now()), target.id().toString());
+            if (claimed == 1) {
+                return Optional.of(createExecution(request, target.taskInstanceId(), target.id(), target));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private void expandNextMultiNodeTask(UUID requestingNodeId) {
+        List<UUID> candidates = jdbcTemplate.query("""
+                SELECT ti.id
+                FROM task_instance ti
+                JOIN task_definition td ON td.id = ti.task_definition_id
+                JOIN cluster_node cn ON cn.cluster_id = td.cluster_id AND cn.enabled = TRUE
+                WHERE ti.status = 'QUEUED' AND cn.node_id = ?
+                  AND td.execution_mode IN ('MULTI_NODE_BROADCAST', 'MULTI_NODE_SHARD')
+                  AND EXISTS (
+                      SELECT 1 FROM task_step_definition ts
+                      WHERE ts.task_definition_id = td.id AND ts.enabled = TRUE AND ts.step_kind = 'NORMAL'
+                  )
+                ORDER BY ti.priority DESC, ti.created_at
+                LIMIT 10
+                """, (resultSet, rowNumber) -> UUID.fromString(resultSet.getString(1)),
+                requestingNodeId.toString());
+        for (UUID taskId : candidates) {
+            if (!hasDefinitionCapacity(taskId)) {
+                continue;
+            }
+            int claimed = jdbcTemplate.update("""
+                    UPDATE task_instance
+                    SET status = 'RUNNING', dispatch_attempts = dispatch_attempts + 1,
+                        started_at = COALESCE(started_at, ?), updated_at = ?
+                    WHERE id = ? AND status = 'QUEUED'
+                    """, Timestamp.from(Instant.now()), Timestamp.from(Instant.now()), taskId.toString());
+            if (claimed == 1) {
+                int expanded = createExecutionTargets(taskId);
+                if (expanded == 0) {
+                    jdbcTemplate.update("UPDATE task_instance SET status = 'QUEUED', updated_at = ? WHERE id = ?",
+                            Timestamp.from(Instant.now()), taskId.toString());
+                }
+                return;
+            }
+        }
+    }
+
+    private int createExecutionTargets(UUID taskId) {
+        List<UUID> nodeIds = jdbcTemplate.query("""
+                SELECT en.id
+                FROM task_instance ti
+                JOIN task_definition td ON td.id = ti.task_definition_id
+                JOIN cluster_node cn ON cn.cluster_id = td.cluster_id AND cn.enabled = TRUE
+                JOIN executor_node en ON en.id = cn.node_id
+                WHERE ti.id = ? AND en.enabled = TRUE AND en.status IN ('ONLINE', 'BUSY')
+                  AND en.last_heartbeat_at >= ?
+                ORDER BY cn.priority DESC, cn.weight DESC, en.id
+                """, (resultSet, rowNumber) -> UUID.fromString(resultSet.getString(1)), taskId.toString(),
+                Timestamp.from(Instant.now().minusSeconds(60)));
+        Instant now = Instant.now();
+        for (int index = 0; index < nodeIds.size(); index++) {
+            jdbcTemplate.update("""
+                    INSERT INTO task_execution_target
+                    (id, task_instance_id, node_id, target_index, target_count, status, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, 'QUEUED', ?, ?)
+                    """, UUID.randomUUID().toString(), taskId.toString(), nodeIds.get(index).toString(), index,
+                    nodeIds.size(), Timestamp.from(now), Timestamp.from(now));
+        }
+        return nodeIds.size();
+    }
+
     private boolean hasCapacity(UUID taskId, UUID nodeId) {
+        CapacityDefinition definition = lockCapacityDefinition(taskId);
+        if (definition == null || !hasDefinitionCapacity(definition)) {
+            return false;
+        }
+        return hasExecutionCapacity(definition, nodeId);
+    }
+
+    private boolean hasDefinitionCapacity(UUID taskId) {
+        CapacityDefinition definition = lockCapacityDefinition(taskId);
+        return definition != null && hasDefinitionCapacity(definition);
+    }
+
+    private CapacityDefinition lockCapacityDefinition(UUID taskId) {
         // 锁定定义和集群容量行，确保多副本并发领取不会突破共享上限。
-        CapacityDefinition definition = jdbcTemplate.queryForObject("""
+        return jdbcTemplate.queryForObject("""
                 SELECT td.id AS definition_id, td.cluster_id, td.max_concurrency,
                        ec.max_concurrent_tasks AS cluster_max_concurrency
                 FROM task_instance ti
@@ -104,17 +226,27 @@ public class TaskDispatchService {
                 resultSet.getInt("max_concurrency"),
                 resultSet.getInt("cluster_max_concurrency")
         ), taskId.toString());
-        if (definition == null) {
-            return false;
-        }
+    }
+
+    private boolean hasDefinitionCapacity(CapacityDefinition definition) {
         int definitionRunning = count("""
                 SELECT COUNT(*) FROM task_instance
                 WHERE task_definition_id = ? AND status = 'RUNNING'
                 """, definition.definitionId().toString());
+        return definitionRunning < definition.maxConcurrency();
+    }
+
+    private boolean hasExecutionCapacity(UUID taskId, UUID nodeId) {
+        CapacityDefinition definition = lockCapacityDefinition(taskId);
+        return definition != null && hasExecutionCapacity(definition, nodeId);
+    }
+
+    private boolean hasExecutionCapacity(CapacityDefinition definition, UUID nodeId) {
         int clusterRunning = count("""
-                SELECT COUNT(*) FROM task_instance ti
+                SELECT COUNT(*) FROM task_execution te
+                JOIN task_instance ti ON ti.id = te.task_instance_id
                 JOIN task_definition td ON td.id = ti.task_definition_id
-                WHERE td.cluster_id = ? AND ti.status = 'RUNNING'
+                WHERE td.cluster_id = ? AND te.status = 'RUNNING'
                 """, definition.clusterId().toString());
         Integer nodeLimit = jdbcTemplate.queryForObject(
                 "SELECT max_concurrent_tasks FROM executor_node WHERE id = ? FOR UPDATE",
@@ -122,8 +254,7 @@ public class TaskDispatchService {
         int nodeRunning = count(
                 "SELECT COUNT(*) FROM task_execution WHERE node_id = ? AND status = 'RUNNING'",
                 nodeId.toString());
-        return definitionRunning < definition.maxConcurrency()
-                && clusterRunning < definition.clusterMaxConcurrency()
+        return clusterRunning < definition.clusterMaxConcurrency()
                 && nodeLimit != null && nodeRunning < nodeLimit;
     }
 
@@ -205,20 +336,39 @@ public class TaskDispatchService {
         if (updated != 1) {
             throw new IllegalStateException("Execution state changed concurrently");
         }
-        String taskInstanceId = jdbcTemplate.queryForObject(
-                "SELECT task_instance_id FROM task_execution WHERE id = ?", String.class, executionId.toString());
+        ExecutionIdentity identity = jdbcTemplate.queryForObject("""
+                SELECT task_instance_id, execution_target_id FROM task_execution WHERE id = ?
+                """, (resultSet, rowNumber) -> new ExecutionIdentity(
+                UUID.fromString(resultSet.getString("task_instance_id")),
+                resultSet.getString("execution_target_id") == null ? null
+                        : UUID.fromString(resultSet.getString("execution_target_id"))
+        ), executionId.toString());
+        if (identity == null) {
+            throw new IllegalStateException("Execution identity does not exist");
+        }
+        if (identity.targetId() != null) {
+            jdbcTemplate.update("""
+                    UPDATE task_execution_target SET status = ?, updated_at = ?
+                    WHERE id = ? AND status = 'RUNNING'
+                    """, request.status().name(), Timestamp.from(now), identity.targetId().toString());
+            multiNodeTaskAggregationService.aggregate(identity.taskInstanceId(), now);
+            return;
+        }
         jdbcTemplate.update("""
                 UPDATE task_instance SET status = ?, progress = ?, updated_at = ?
                 WHERE id = ? AND status IN ('RUNNING', 'CANCELLING')
                 """, request.status().name(), request.status() == TaskStatus.SUCCEEDED ? 100 : 0,
-                Timestamp.from(now), taskInstanceId);
+                Timestamp.from(now), identity.taskInstanceId().toString());
     }
 
-    private ClaimedTaskView createExecution(ClaimTaskRequest request, UUID taskId) {
+    private ClaimedTaskView createExecution(ClaimTaskRequest request, UUID taskId, UUID targetId,
+                                            ExecutionTarget target) {
         var task = instanceRepository.findById(taskId).orElseThrow();
         String definitionIdText = jdbcTemplate.queryForObject(
                 "SELECT task_definition_id FROM task_instance WHERE id = ?", String.class, taskId.toString());
         UUID definitionId = UUID.fromString(definitionIdText);
+        Long timeoutSeconds = jdbcTemplate.queryForObject(
+                "SELECT timeout_seconds FROM task_definition WHERE id = ?", Long.class, definitionId.toString());
         List<ClaimedStepView> steps = stepRepository.list(definitionId).stream()
                 .filter(step -> step.enabled())
                 .map(step -> new ClaimedStepView(
@@ -232,12 +382,24 @@ public class TaskDispatchService {
         Instant leaseUntil = now.plusSeconds(request.leaseSeconds());
         jdbcTemplate.update("""
                 INSERT INTO task_execution
-                (id, task_instance_id, node_id, status, lease_token, lease_until, started_at, created_at, updated_at)
-                VALUES (?, ?, ?, 'RUNNING', ?, ?, ?, ?, ?)
+                (id, task_instance_id, node_id, status, lease_token, lease_until, started_at, created_at, updated_at,
+                 execution_target_id)
+                VALUES (?, ?, ?, 'RUNNING', ?, ?, ?, ?, ?, ?)
                 """, executionId.toString(), taskId.toString(), request.nodeId().toString(), leaseToken.toString(),
-                Timestamp.from(leaseUntil), Timestamp.from(now), Timestamp.from(now), Timestamp.from(now));
+                Timestamp.from(leaseUntil), Timestamp.from(now), Timestamp.from(now), Timestamp.from(now),
+                targetId == null ? null : targetId.toString());
+        Map<String, Object> parameters = new LinkedHashMap<>(task.parameters());
+        if (target != null) {
+            Map<String, Object> executionTarget = new LinkedHashMap<>();
+            executionTarget.put("mode", target.executionMode());
+            executionTarget.put("index", target.targetIndex());
+            executionTarget.put("count", target.targetCount());
+            executionTarget.put("nodeId", request.nodeId().toString());
+            parameters.put("taskExecutionTarget", executionTarget);
+        }
         return new ClaimedTaskView(executionId, task.id(), task.parentTaskInstanceId(), task.taskName(), leaseToken,
-                leaseUntil, task.parameters(), steps);
+                leaseUntil, task.startedAt().plusSeconds(timeoutSeconds == null ? 1 : timeoutSeconds),
+                parameters, steps);
     }
 
     private void validateNodeInstance(UUID nodeId, UUID instanceId) {
@@ -270,4 +432,12 @@ public class TaskDispatchService {
     private record CapacityDefinition(UUID definitionId, UUID clusterId, int maxConcurrency,
                                       int clusterMaxConcurrency) {
     }
+
+    private record ExecutionTarget(UUID id, UUID taskInstanceId, int targetIndex, int targetCount,
+                                   String executionMode) {
+    }
+
+    private record ExecutionIdentity(UUID taskInstanceId, UUID targetId) {
+    }
+
 }
