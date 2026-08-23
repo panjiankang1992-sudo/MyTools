@@ -79,9 +79,44 @@ class GatewayRequestFilterTest {
                 .isEqualTo(new GatewayPrincipal(55L, "user", List.of("USER")));
     }
 
+    @Test
+    void shouldNotValidateDriveRequestWhenDriveRouteIsDisabled() throws Exception {
+        PrincipalValidator validator = mock(PrincipalValidator.class);
+        GatewayRequestFilter filter = new GatewayRequestFilter(validator, properties(false, false));
+        MockHttpServletRequest request = new MockHttpServletRequest(
+                "GET", "/api/app/v1/drive/accounts/00000000-0000-0000-0000-000000000001/items");
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, new MockHttpServletResponse(), chain);
+
+        assertThat(chain.getRequest()).isNotNull();
+        verify(validator, never()).validate(org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
+    void shouldInjectAllowlistedPrincipalForEnabledDriveRoute() throws Exception {
+        PrincipalValidator validator = mock(PrincipalValidator.class);
+        when(validator.validate("token")).thenReturn(new GatewayPrincipal(55L, "user", List.of("USER")));
+        GatewayRequestFilter filter = new GatewayRequestFilter(validator, properties(false, true));
+        MockHttpServletRequest request = new MockHttpServletRequest(
+                "GET", "/api/app/v1/drive/accounts/00000000-0000-0000-0000-000000000001/items");
+        request.addHeader("Authorization", "Bearer token");
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, new MockHttpServletResponse(), chain);
+
+        assertThat(chain.getRequest()).isNotNull();
+        assertThat(request.getAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE))
+                .isEqualTo(new GatewayPrincipal(55L, "user", List.of("USER")));
+    }
+
     private GatewayProperties properties(boolean enabled) {
-        return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, enabled, Set.of(55L), "http://mytools",
-                "http://identity", "http://reader", "gateway-token", "identity-token", "reader-token",
-                1000, 3000);
+        return properties(enabled, false);
+    }
+
+    private GatewayProperties properties(boolean readerEnabled, boolean driveEnabled) {
+        return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, readerEnabled, Set.of(55L),
+                driveEnabled, Set.of(55L), "http://mytools", "http://identity", "http://reader", "http://drive",
+                "gateway-token", "identity-token", "reader-token", "drive-token", 1000, 3000);
     }
 }

@@ -35,7 +35,7 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
     }
 
     /**
-     * 仅在 Reader 灰度路由启用时校验客户端令牌。
+     * 仅在对应领域灰度路由启用时校验客户端令牌。
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -43,7 +43,8 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
         String correlationId = correlation(request.getHeader("X-Correlation-Id"));
         request.setAttribute(CORRELATION_ATTRIBUTE, correlationId);
         response.setHeader("X-Correlation-Id", correlationId);
-        if (properties.readerRouteEnabled() && request.getRequestURI().startsWith("/api/app/v1/reader/")) {
+        Route route = route(request.getRequestURI());
+        if (route.enabled()) {
             String authorization = request.getHeader("Authorization");
             if (authorization == null || !authorization.startsWith("Bearer ")
                     || authorization.length() <= 7) {
@@ -52,7 +53,7 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
             }
             try {
                 GatewayPrincipal principal = validator.validate(authorization.substring(7));
-                if (!properties.readerTenantAllowed(principal.userId())) {
+                if (!route.allowed(principal.userId())) {
                     routeDisabled(response, correlationId);
                     return;
                 }
@@ -63,6 +64,16 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private Route route(String uri) {
+        if (uri.startsWith("/api/app/v1/reader/")) {
+            return new Route(properties.readerRouteEnabled(), properties::readerTenantAllowed);
+        }
+        if (uri.startsWith("/api/app/v1/drive/")) {
+            return new Route(properties.driveRouteEnabled(), properties::driveTenantAllowed);
+        }
+        return new Route(false, ignored -> false);
     }
 
     private String correlation(String supplied) {
@@ -90,5 +101,11 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setHeader("X-Correlation-Id", correlationId);
         response.getWriter().write("{\"code\":\"GATEWAY_002\",\"message\":\"Gateway route is not enabled\"}");
+    }
+
+    private record Route(boolean enabled, java.util.function.LongPredicate tenantPolicy) {
+        private boolean allowed(long userId) {
+            return tenantPolicy.test(userId);
+        }
     }
 }

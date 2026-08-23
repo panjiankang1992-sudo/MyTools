@@ -10,8 +10,9 @@ import java.util.Set;
 @ConfigurationProperties(prefix = "gateway")
 public record GatewayProperties(IdentityMode identityMode, boolean readerRouteEnabled,
                                 Set<Long> readerTenantAllowlist,
-                                String mytoolsUrl, String identityUrl, String readerUrl,
-                                String internalToken, String identityToken, String readerToken,
+                                boolean driveRouteEnabled, Set<Long> driveTenantAllowlist,
+                                String mytoolsUrl, String identityUrl, String readerUrl, String driveUrl,
+                                String internalToken, String identityToken, String readerToken, String driveToken,
                                 int connectTimeoutMillis, int readTimeoutMillis) {
 
     /**
@@ -19,6 +20,16 @@ public record GatewayProperties(IdentityMode identityMode, boolean readerRouteEn
      */
     public boolean readerTenantAllowed(long userId) {
         return readerRouteEnabled && readerTenantAllowlist != null && readerTenantAllowlist.contains(userId);
+    }
+
+    /**
+     * 判断 Drive 灰度路由是否允许指定主体。
+     *
+     * @param userId 用户标识
+     * @return 是否允许
+     */
+    public boolean driveTenantAllowed(long userId) {
+        return driveRouteEnabled && driveTenantAllowlist != null && driveTenantAllowlist.contains(userId);
     }
 
     /**
