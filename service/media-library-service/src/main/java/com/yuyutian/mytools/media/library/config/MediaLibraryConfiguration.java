@@ -1,0 +1,3 @@
+package com.yuyutian.mytools.media.library.config;
+import org.springframework.beans.factory.annotation.Value;import org.springframework.context.annotation.*;import org.springframework.transaction.PlatformTransactionManager;import org.springframework.transaction.support.TransactionTemplate;
+/** Media Library 配置。 */ @Configuration public class MediaLibraryConfiguration { /** 创建事务模板。 @param manager 管理器 @return 模板 */ @Bean public TransactionTemplate transactions(PlatformTransactionManager manager){return new TransactionTemplate(manager);} /** 创建内部令牌。 @param value 值 @return 令牌 */ @Bean public InternalToken internalToken(@Value("${media-library.internal-token:}")String value){return new InternalToken(value);} /** 内部令牌。 */ public record InternalToken(String value){} }

@@ -1,0 +1,11 @@
+name: media_register_item
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities: [media_library_write]
+parameters:
+  required: [assetId, contentSha256, sourcePath]
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 60

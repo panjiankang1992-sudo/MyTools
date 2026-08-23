@@ -1,0 +1,12 @@
+server:
+  address: ${MEDIA_LIBRARY_HTTP_HOST:127.0.0.1}
+  port: ${MEDIA_LIBRARY_HTTP_PORT:23300}
+spring:
+  application.name: media-library-service
+  datasource:
+    url: jdbc:mysql://${MEDIA_LIBRARY_DB_HOST:127.0.0.1}:${MEDIA_LIBRARY_DB_PORT:3306}/${MEDIA_LIBRARY_DB_NAME:mytools_media}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: ${MEDIA_LIBRARY_DB_USER:}
+    password: ${MEDIA_LIBRARY_DB_PASSWORD:}
+  flyway.locations: classpath:db/migration
+management.endpoints.web.exposure.include: health,info
+media-library.internal-token: ${MEDIA_LIBRARY_INTERNAL_TOKEN:}

@@ -1,0 +1,2 @@
+INSERT INTO task_step_definition (id,task_definition_id,name,description,step_kind,script_package,script_version,entrypoint,arguments_template,enabled,timeout_seconds,failure_policy,sequence_number,max_attempts,created_at,updated_at)
+VALUES ('00000000-0000-4000-8000-000000000429','00000000-0000-4000-8000-000000000301','register_media_item','Mirror the probed asset into Media Library','NORMAL','media_register_item','1.0.0','scripts/main.py','[]',TRUE,60,'IGNORE',30,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);

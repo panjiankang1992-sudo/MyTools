@@ -27,8 +27,8 @@
 
 1. 在现有 MyTools 内建立 Task Client，替换 `TaggingJob`、扫描和媒体分析 Job。
 2. 保持现有表为权威，先只替换执行方式。
-3. 接入 Asset Registry ID并回填映射。
-4. 拆独立 schema和服务进程。
+3. 已接入 Asset Registry ID 领域模型和幂等事件收件箱，下一步从现有媒体表回填映射。
+4. 已建立独立 `mytools_media` schema和服务进程 MVP，覆盖分析版本唯一性、标签/派生物合并和乐观锁播放进度；旧接口仍为权威。
 5. Gateway 改为远程调用。
 
 ## 验收
