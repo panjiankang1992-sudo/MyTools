@@ -22,6 +22,8 @@ Java 21 / Spring Boot
 
 任务第一次进入执行态后固化 `started_at`，Scheduler 下发总截止时间。Executor 以任务剩余时间限制普通步骤，超时后仍执行独立受限的 `ON_TIMEOUT` 步骤；已开始后重新排队但长期无人领取的任务，以及多节点任务未领取的目标，由持久化截止时间扫描回收。
 
+任务实例可以通过可选 `requiredNodeLabels` 声明最多 16 个不可变的节点标签约束。单节点领取和多节点目标展开均执行精确包含匹配；节点标签缺失或在目标固化后发生漂移时拒绝领取。相同幂等键不能改变标签约束。未设置该字段的现有调用保持原调度行为。
+
 执行节点注册时可以声明 `clusterNames` 自动加入多个已存在集群。新 schema 会创建 `media` 集群以及版本化的 `media_generate_tags` 双步骤任务定义。任务完成后可通过 `GET /api/v1/task-instances/{id}/results` 查询生成结果和对账结果。
 
 ```bash

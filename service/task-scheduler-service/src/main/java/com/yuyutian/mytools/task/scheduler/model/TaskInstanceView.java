@@ -15,6 +15,7 @@ import java.util.UUID;
  * @param businessId 业务标识
  * @param priority 优先级
  * @param parameters 参数
+ * @param requiredNodeLabels 执行节点标签约束
  * @param status 状态
  * @param startedAt 首次开始执行时间
  * @param createdAt 创建时间
@@ -29,6 +30,7 @@ public record TaskInstanceView(
         String businessId,
         int priority,
         Map<String, Object> parameters,
+        Map<String, Object> requiredNodeLabels,
         TaskStatus status,
         Instant startedAt,
         Instant createdAt,

@@ -64,17 +64,18 @@ public class TaskDispatchService {
     @Transactional
     public Optional<ClaimedTaskView> claim(ClaimTaskRequest request) {
         validateNodeInstance(request.nodeId(), request.instanceId());
+        Map<String, Object> nodeLabels = nodeLabels(request.nodeId());
         Optional<ClaimedTaskView> existingTarget = claimExecutionTarget(request);
         if (existingTarget.isPresent()) {
             return existingTarget;
         }
-        expandNextMultiNodeTask(request.nodeId());
+        expandNextMultiNodeTask(request.nodeId(), nodeLabels);
         Optional<ClaimedTaskView> expandedTarget = claimExecutionTarget(request);
         if (expandedTarget.isPresent()) {
             return expandedTarget;
         }
-        List<UUID> candidates = jdbcTemplate.query("""
-                SELECT ti.id
+        List<PlacementCandidate> candidates = jdbcTemplate.query("""
+                SELECT ti.id, ti.required_node_labels_json
                 FROM task_instance ti
                 JOIN task_definition td ON td.id = ti.task_definition_id
                 JOIN execution_cluster ec ON ec.id = td.cluster_id AND ec.enabled = TRUE
@@ -84,11 +85,17 @@ public class TaskDispatchService {
                   AND EXISTS (
                       SELECT 1 FROM task_step_definition ts
                       WHERE ts.task_definition_id = td.id AND ts.enabled = TRUE AND ts.step_kind = 'NORMAL'
-                  )
+                )
                 ORDER BY ti.priority DESC, ti.created_at
-                LIMIT 10
-                """, (resultSet, rowNumber) -> UUID.fromString(resultSet.getString(1)), request.nodeId().toString());
-        for (UUID taskId : candidates) {
+                """, (resultSet, rowNumber) -> new PlacementCandidate(
+                UUID.fromString(resultSet.getString("id")),
+                jsonColumnMapper.read(resultSet.getString("required_node_labels_json"))),
+                request.nodeId().toString());
+        for (PlacementCandidate candidate : candidates) {
+            if (!matchesRequiredLabels(candidate.requiredLabels(), nodeLabels)) {
+                continue;
+            }
+            UUID taskId = candidate.taskId();
             if (!hasCapacity(taskId, request.nodeId())) {
                 continue;
             }
@@ -106,21 +113,26 @@ public class TaskDispatchService {
     }
 
     private Optional<ClaimedTaskView> claimExecutionTarget(ClaimTaskRequest request) {
+        Map<String, Object> nodeLabels = nodeLabels(request.nodeId());
         List<ExecutionTarget> targets = jdbcTemplate.query("""
-                SELECT et.id, et.task_instance_id, et.target_index, et.target_count, td.execution_mode
+                SELECT et.id, et.task_instance_id, et.target_index, et.target_count, td.execution_mode,
+                       ti.required_node_labels_json
                 FROM task_execution_target et
                 JOIN task_instance ti ON ti.id = et.task_instance_id
                 JOIN task_definition td ON td.id = ti.task_definition_id
                 WHERE et.node_id = ? AND et.status = 'QUEUED' AND ti.status IN ('RUNNING', 'CANCELLING')
                 ORDER BY ti.priority DESC, et.created_at
-                LIMIT 10
                 """, (resultSet, rowNumber) -> new ExecutionTarget(
                 UUID.fromString(resultSet.getString("id")),
                 UUID.fromString(resultSet.getString("task_instance_id")),
                 resultSet.getInt("target_index"), resultSet.getInt("target_count"),
-                resultSet.getString("execution_mode")
+                resultSet.getString("execution_mode"),
+                jsonColumnMapper.read(resultSet.getString("required_node_labels_json"))
         ), request.nodeId().toString());
         for (ExecutionTarget target : targets) {
+            if (!matchesRequiredLabels(target.requiredLabels(), nodeLabels)) {
+                continue;
+            }
             if (!hasExecutionCapacity(target.taskInstanceId(), request.nodeId())) {
                 continue;
             }
@@ -136,9 +148,9 @@ public class TaskDispatchService {
         return Optional.empty();
     }
 
-    private void expandNextMultiNodeTask(UUID requestingNodeId) {
-        List<UUID> candidates = jdbcTemplate.query("""
-                SELECT ti.id
+    private void expandNextMultiNodeTask(UUID requestingNodeId, Map<String, Object> nodeLabels) {
+        List<PlacementCandidate> candidates = jdbcTemplate.query("""
+                SELECT ti.id, ti.required_node_labels_json
                 FROM task_instance ti
                 JOIN task_definition td ON td.id = ti.task_definition_id
                 JOIN cluster_node cn ON cn.cluster_id = td.cluster_id AND cn.enabled = TRUE
@@ -147,12 +159,17 @@ public class TaskDispatchService {
                   AND EXISTS (
                       SELECT 1 FROM task_step_definition ts
                       WHERE ts.task_definition_id = td.id AND ts.enabled = TRUE AND ts.step_kind = 'NORMAL'
-                  )
+                )
                 ORDER BY ti.priority DESC, ti.created_at
-                LIMIT 10
-                """, (resultSet, rowNumber) -> UUID.fromString(resultSet.getString(1)),
+                """, (resultSet, rowNumber) -> new PlacementCandidate(
+                UUID.fromString(resultSet.getString("id")),
+                jsonColumnMapper.read(resultSet.getString("required_node_labels_json"))),
                 requestingNodeId.toString());
-        for (UUID taskId : candidates) {
+        for (PlacementCandidate candidate : candidates) {
+            if (!matchesRequiredLabels(candidate.requiredLabels(), nodeLabels)) {
+                continue;
+            }
+            UUID taskId = candidate.taskId();
             if (!hasDefinitionCapacity(taskId)) {
                 continue;
             }
@@ -174,8 +191,8 @@ public class TaskDispatchService {
     }
 
     private int createExecutionTargets(UUID taskId) {
-        List<UUID> nodeIds = jdbcTemplate.query("""
-                SELECT en.id
+        List<EligibleNode> nodes = jdbcTemplate.query("""
+                SELECT en.id, en.labels_json, ti.required_node_labels_json
                 FROM task_instance ti
                 JOIN task_definition td ON td.id = ti.task_definition_id
                 JOIN cluster_node cn ON cn.cluster_id = td.cluster_id AND cn.enabled = TRUE
@@ -183,8 +200,15 @@ public class TaskDispatchService {
                 WHERE ti.id = ? AND en.enabled = TRUE AND en.status IN ('ONLINE', 'BUSY')
                   AND en.last_heartbeat_at >= ?
                 ORDER BY cn.priority DESC, cn.weight DESC, en.id
-                """, (resultSet, rowNumber) -> UUID.fromString(resultSet.getString(1)), taskId.toString(),
+                """, (resultSet, rowNumber) -> new EligibleNode(
+                UUID.fromString(resultSet.getString("id")),
+                jsonColumnMapper.read(resultSet.getString("labels_json")),
+                jsonColumnMapper.read(resultSet.getString("required_node_labels_json"))), taskId.toString(),
                 Timestamp.from(Instant.now().minusSeconds(60)));
+        List<UUID> nodeIds = nodes.stream()
+                .filter(node -> matchesRequiredLabels(node.requiredLabels(), node.labels()))
+                .map(EligibleNode::nodeId)
+                .toList();
         Instant now = Instant.now();
         for (int index = 0; index < nodeIds.size(); index++) {
             jdbcTemplate.update("""
@@ -412,6 +436,17 @@ public class TaskDispatchService {
         }
     }
 
+    private Map<String, Object> nodeLabels(UUID nodeId) {
+        String labels = jdbcTemplate.queryForObject(
+                "SELECT labels_json FROM executor_node WHERE id = ?", String.class, nodeId.toString());
+        return jsonColumnMapper.read(labels);
+    }
+
+    private boolean matchesRequiredLabels(Map<String, Object> required, Map<String, Object> actual) {
+        return required == null || required.entrySet().stream()
+                .allMatch(entry -> java.util.Objects.equals(actual.get(entry.getKey()), entry.getValue()));
+    }
+
     private void requireLease(UUID executionId, UUID leaseToken) {
         Integer count = jdbcTemplate.queryForObject("""
                 SELECT COUNT(*) FROM task_execution
@@ -434,7 +469,13 @@ public class TaskDispatchService {
     }
 
     private record ExecutionTarget(UUID id, UUID taskInstanceId, int targetIndex, int targetCount,
-                                   String executionMode) {
+                                   String executionMode, Map<String, Object> requiredLabels) {
+    }
+
+    private record PlacementCandidate(UUID taskId, Map<String, Object> requiredLabels) {
+    }
+
+    private record EligibleNode(UUID nodeId, Map<String, Object> labels, Map<String, Object> requiredLabels) {
     }
 
     private record ExecutionIdentity(UUID taskInstanceId, UUID targetId) {

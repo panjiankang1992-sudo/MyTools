@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,12 +50,13 @@ public class TaskInstanceRepository {
                 INSERT INTO task_instance (
                     id, task_definition_id, task_definition_version, task_name, idempotency_key,
                     parent_task_instance_id, business_type, business_id, priority, parameters_json,
-                    status, progress, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    required_node_labels_json, status, progress, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 id.toString(), definition.id().toString(), definition.version(), definition.name(),
                 request.idempotencyKey(), uuidText(request.parentTaskInstanceId()), request.businessType(),
                 request.businessId(), request.priority(), jsonColumnMapper.write(request.parameters()),
+                jsonColumnMapper.write(request.requiredNodeLabels() == null ? Map.of() : request.requiredNodeLabels()),
                 TaskStatus.QUEUED.name(), 0, Timestamp.from(now), Timestamp.from(now));
         return findById(id).orElseThrow();
     }
@@ -163,6 +165,7 @@ public class TaskInstanceRepository {
                 resultSet.getString("idempotency_key"), parentId == null ? null : UUID.fromString(parentId),
                 resultSet.getString("business_type"), resultSet.getString("business_id"),
                 resultSet.getInt("priority"), jsonColumnMapper.read(resultSet.getString("parameters_json")),
+                jsonColumnMapper.read(resultSet.getString("required_node_labels_json")),
                 TaskStatus.valueOf(resultSet.getString("status")),
                 resultSet.getTimestamp("started_at") == null ? null : resultSet.getTimestamp("started_at").toInstant(),
                 resultSet.getTimestamp("created_at").toInstant(),

@@ -65,6 +65,8 @@ POST /internal/v1/task-instances/{id}/cancel
 
 执行模式：`SINGLE_NODE`、`MULTI_NODE_BROADCAST`、`MULTI_NODE_SHARD`。调度必须匹配集群成员、在线状态、脚本运行时、能力标签、存储亲和性和剩余容量。
 
+任务实例可携带不可变的 `requiredNodeLabels` 调度约束。Scheduler 对单节点候选和多节点目标快照执行标签精确包含匹配；幂等重放不得改变约束。存储挂载使用 `storage.mount.<rootName>` 形式的节点标签，具体根服务只提交服务端登记的约束，不能由脚本拼接任意节点标识。
+
 广播与分片实例在首次领取时生成不可变 `task_execution_target` 快照。广播目标表示每个节点执行完整参数；分片目标在任务参数中增加 `taskExecutionTarget.index/count/nodeId`，脚本据此处理互斥数据区间。每个目标拥有独立状态和重试次数，实例在全部目标结束后聚合终态。
 
 ## 6. API

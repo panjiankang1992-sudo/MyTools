@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -45,8 +46,13 @@ public class TaskInstanceService {
      */
     @Transactional
     public TaskInstanceView create(CreateTaskRequest request) {
+        Map<String, Object> requestedLabels = normalizedRequiredLabels(request.requiredNodeLabels());
         TaskInstanceView existing = instanceRepository.findByIdempotencyKey(request.idempotencyKey()).orElse(null);
         if (existing != null) {
+            if (!existing.taskName().equals(request.taskName())
+                    || !existing.requiredNodeLabels().equals(requestedLabels)) {
+                throw new IllegalStateException("Task idempotency key conflicts with placement constraints");
+            }
             return existing;
         }
         if (request.parentTaskInstanceId() != null && instanceRepository.findById(request.parentTaskInstanceId()).isEmpty()) {
@@ -101,5 +107,24 @@ public class TaskInstanceService {
     private boolean isTerminal(TaskStatus status) {
         return status == TaskStatus.CANCELLED || status == TaskStatus.SUCCEEDED
                 || status == TaskStatus.FAILED || status == TaskStatus.TIMED_OUT;
+    }
+
+    private Map<String, Object> normalizedRequiredLabels(Map<String, Object> labels) {
+        if (labels == null || labels.isEmpty()) {
+            return Map.of();
+        }
+        if (labels.size() > 16) {
+            throw new IllegalArgumentException("Task node affinity has too many labels");
+        }
+        labels.forEach((key, value) -> {
+            if (key == null || !key.matches("^[A-Za-z][A-Za-z0-9_.-]{0,127}$")) {
+                throw new IllegalArgumentException("Task node affinity label key is invalid");
+            }
+            if (!(value instanceof String || value instanceof Number || value instanceof Boolean)
+                    || value instanceof String text && text.length() > 256) {
+                throw new IllegalArgumentException("Task node affinity label value is invalid");
+            }
+        });
+        return Map.copyOf(labels);
     }
 }

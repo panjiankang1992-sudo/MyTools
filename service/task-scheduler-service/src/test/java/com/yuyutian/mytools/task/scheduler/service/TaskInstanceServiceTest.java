@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -194,6 +195,87 @@ class TaskInstanceServiceTest {
 
         assertTrue(dispatchService.claim(new ClaimTaskRequest(node.id(), nodeInstanceId, 60)).isPresent());
         assertTrue(dispatchService.claim(new ClaimTaskRequest(node.id(), nodeInstanceId, 60)).isEmpty());
+    }
+
+    @Test
+    void shouldClaimSingleNodeTaskOnlyOnMatchingNodeLabels() {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        var cluster = topologyService.createCluster(new CreateExecutionClusterRequest(
+                "affinity_cluster_" + suffix, "Affinity workers", "LEAST_RUNNING", 2, Map.of(), true
+        ));
+        UUID firstInstanceId = UUID.randomUUID();
+        UUID secondInstanceId = UUID.randomUUID();
+        var firstNode = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "affinity-node-a-" + suffix, firstInstanceId.toString(), Map.of("shell", true),
+                Map.of("storage.mount.library", "absent"), 1, Set.of(cluster.name())
+        ));
+        var secondNode = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "affinity-node-b-" + suffix, secondInstanceId.toString(), Map.of("shell", true),
+                Map.of("storage.mount.library", "present"), 1, Set.of(cluster.name())
+        ));
+        var definition = definitionService.create(new CreateTaskDefinitionRequest(
+                "affinity_task_" + suffix, "Affinity task", TaskType.IMMEDIATE, 60, cluster.id(), null, null,
+                ExecutionMode.SINGLE_NODE, true, 1, "QUEUE", "IGNORE", Map.of(), Map.of()
+        ));
+        stepService.create(definition.id(), new CreateTaskStepRequest(
+                "run", "Run affinity task", StepKind.NORMAL, "affinity_task", "1.0.0", "scripts/main.sh",
+                List.of(), true, 30, FailurePolicy.FAIL_TASK, 10, 1
+        ));
+        var task = service.create(new CreateTaskRequest(
+                definition.name(), "affinity_" + suffix, "TEST", suffix, null, 50, Map.of(),
+                Map.of("storage.mount.library", "present")
+        ));
+
+        assertTrue(dispatchService.claim(new ClaimTaskRequest(firstNode.id(), firstInstanceId, 60)).isEmpty());
+        var claimed = dispatchService.claim(
+                new ClaimTaskRequest(secondNode.id(), secondInstanceId, 60)).orElseThrow();
+
+        assertEquals(task.id(), claimed.taskInstanceId());
+        assertEquals(Map.of("storage.mount.library", "present"), service.get(task.id()).requiredNodeLabels());
+        assertThrows(IllegalStateException.class, () -> service.create(new CreateTaskRequest(
+                definition.name(), "affinity_" + suffix, "TEST", suffix, null, 50, Map.of(),
+                Map.of("storage.mount.library", "other")
+        )));
+    }
+
+    @Test
+    void shouldExpandMultiNodeTaskOnlyToMatchingNodes() {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        var cluster = topologyService.createCluster(new CreateExecutionClusterRequest(
+                "affinity_broadcast_" + suffix, "Affinity broadcast", "LEAST_RUNNING", 2, Map.of(), true
+        ));
+        UUID firstInstanceId = UUID.randomUUID();
+        UUID secondInstanceId = UUID.randomUUID();
+        var firstNode = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "affinity-broadcast-a-" + suffix, firstInstanceId.toString(), Map.of("shell", true),
+                Map.of("zone", "cold"), 1, Set.of(cluster.name())
+        ));
+        var secondNode = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "affinity-broadcast-b-" + suffix, secondInstanceId.toString(), Map.of("shell", true),
+                Map.of("zone", "hot"), 1, Set.of(cluster.name())
+        ));
+        var definition = definitionService.create(new CreateTaskDefinitionRequest(
+                "affinity_broadcast_task_" + suffix, "Affinity broadcast task", TaskType.IMMEDIATE, 60,
+                cluster.id(), null, null, ExecutionMode.MULTI_NODE_BROADCAST, true, 1,
+                "QUEUE", "IGNORE", Map.of(), Map.of()
+        ));
+        stepService.create(definition.id(), new CreateTaskStepRequest(
+                "run", "Run affinity broadcast", StepKind.NORMAL, "affinity_broadcast", "1.0.0",
+                "scripts/main.sh", List.of(), true, 30, FailurePolicy.FAIL_TASK, 10, 1
+        ));
+        service.create(new CreateTaskRequest(
+                definition.name(), "affinity_broadcast_" + suffix, "TEST", suffix, null, 50, Map.of(),
+                Map.of("zone", "hot")
+        ));
+
+        assertTrue(dispatchService.claim(new ClaimTaskRequest(firstNode.id(), firstInstanceId, 60)).isEmpty());
+        var claimed = dispatchService.claim(
+                new ClaimTaskRequest(secondNode.id(), secondInstanceId, 60)).orElseThrow();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> target = (Map<String, Object>) claimed.parameters().get("taskExecutionTarget");
+
+        assertEquals(1, target.get("count"));
+        assertEquals(secondNode.id().toString(), target.get("nodeId"));
     }
 
     @Test
