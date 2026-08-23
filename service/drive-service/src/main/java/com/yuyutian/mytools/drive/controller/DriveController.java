@@ -33,6 +33,14 @@ public class DriveController {
         @RequestParam long ownerId, @RequestParam(defaultValue="") String parentPath) {
         authorize(authorization); return service.list(id,ownerId,parentPath);
     }
+    /** 扫描一个受控远端目录。 @param authorization 授权头 @param id 账户 @param path 路径 @return 索引候选 */
+    @GetMapping("/accounts/{id}/scan")
+    public List<IndexItem> scan(@RequestHeader("Authorization") String authorization,@PathVariable UUID id,
+        @RequestParam(defaultValue="") String path) { authorize(authorization); return service.scan(id,path); }
+    /** 结束索引运行。 @param authorization 授权头 @param id 账户 @param runId 运行 @param status 终态 */
+    @PostMapping("/accounts/{id}/index-runs/{runId}/{status}") @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void finishRun(@RequestHeader("Authorization") String authorization,@PathVariable UUID id,
+        @PathVariable UUID runId,@PathVariable String status) { authorize(authorization); service.finishRun(id,runId,status); }
     private void authorize(String authorization) {
         byte[] expected=("Bearer "+token.value()).getBytes(StandardCharsets.UTF_8);
         if(token.value().isBlank() || !MessageDigest.isEqual(expected,authorization.getBytes(StandardCharsets.UTF_8)))

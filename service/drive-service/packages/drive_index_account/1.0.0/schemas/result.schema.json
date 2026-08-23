@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","required":["accountId","directoryCount","itemCount","status"],"properties":{"accountId":{"type":"string","format":"uuid"},"directoryCount":{"type":"integer","minimum":1},"itemCount":{"type":"integer","minimum":0},"status":{"const":"SUCCEEDED"}},"additionalProperties":false}

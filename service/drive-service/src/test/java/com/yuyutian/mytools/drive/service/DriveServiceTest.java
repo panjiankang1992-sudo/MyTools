@@ -25,12 +25,26 @@ class DriveServiceTest {
             item("old.txt","",3))));
         assertThat(duplicate.acceptedItems()).isZero();
         service.ingest(account.id(),new IndexBatchRequest(firstRun,"batch-2",null,true,List.of(item("keep.txt","",4))));
+        assertThat(service.ingest(account.id(),new IndexBatchRequest(firstRun,"batch-1","cursor-1",false,List.of(
+            item("old.txt","",3)))).acceptedItems()).isZero();
         assertThat(service.list(account.id(),7L," ")).extracting(ItemView::displayName).containsExactly("keep.txt","old.txt");
 
         UUID secondRun=UUID.randomUUID();
         service.ingest(account.id(),new IndexBatchRequest(secondRun,"batch-1",null,true,List.of(item("keep.txt","",5))));
         assertThat(service.list(account.id(),7L,"")).extracting(ItemView::displayName).containsExactly("keep.txt");
         assertThatThrownBy(() -> service.list(account.id(),8L,"")).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void shouldAllowNewRunAfterFailureHook() {
+        AccountView account=service.register(new RegisterAccountRequest(9L,"legacy-2","Backup","RCLONE",
+            "secret://drive/legacy-2","backup",true,true));
+        UUID failedRun=UUID.randomUUID();
+        service.ingest(account.id(),new IndexBatchRequest(failedRun,"batch-1",null,false,List.of(item("partial.txt","",1))));
+        service.finishRun(account.id(),failedRun,"FAILED");
+        UUID recoveryRun=UUID.randomUUID();
+        assertThat(service.ingest(account.id(),new IndexBatchRequest(recoveryRun,"complete",null,true,List.of()))
+            .status()).isEqualTo("SUCCEEDED");
     }
 
     private IndexItem item(String path,String parent,long size) {

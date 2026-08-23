@@ -43,6 +43,14 @@ public class DriveRepository {
     /** 写入一个幂等索引批次。 @param account 账户 @param request 批次 @return 结果 */
     public IndexBatchView ingest(AccountView account, IndexBatchRequest request) {
         Cursor cursor = cursor(account.id());
+        Integer accepted = jdbc.queryForObject("SELECT COUNT(*) FROM drive_index_batch WHERE account_id=? AND run_id=? AND batch_key=?",
+            Integer.class, account.id().toString(), request.runId().toString(), request.batchKey());
+        if (accepted != null && accepted > 0) {
+            long existingGeneration = cursor == null ? account.indexGeneration() : cursor.generation();
+            String existingStatus = cursor == null ? "SUCCEEDED" : cursor.status();
+            return new IndexBatchView(request.runId(), existingGeneration,
+                cursor == null ? null : cursor.nextCursor(), existingStatus, 0);
+        }
         long generation;
         if (cursor == null || !cursor.runId().equals(request.runId())) {
             if (cursor != null && "RUNNING".equals(cursor.status())) throw new IllegalStateException("index run is active");
@@ -63,6 +71,8 @@ public class DriveRepository {
         }
         Instant now = Instant.now();
         for (IndexItem item : request.items()) upsert(account.id(), generation, item, now);
+        jdbc.update("INSERT INTO drive_index_batch VALUES (?,?,?,?,?)", account.id().toString(),
+            request.runId().toString(), request.batchKey(), request.items().size(), Timestamp.from(now));
         String status = request.complete() ? "SUCCEEDED" : "RUNNING";
         jdbc.update("UPDATE drive_index_cursor SET last_batch_key=?,next_cursor=?,status=?,updated_at=? WHERE account_id=?",
             request.batchKey(), request.nextCursor(), status, Timestamp.from(now), account.id().toString());
@@ -82,6 +92,16 @@ public class DriveRepository {
                 rs.getString("parent_path"), rs.getString("display_name"), rs.getString("mime_type"), rs.getLong("size_bytes"),
                 rs.getBoolean("directory"), rs.getTimestamp("modified_at") == null ? null : rs.getTimestamp("modified_at").toInstant(),
                 rs.getString("content_sha256")), accountId.toString(), parentPath);
+    }
+    /** 结束未完成的索引运行。 @param accountId 账户 @param runId 运行 @param status 终态 */
+    public void finishRun(UUID accountId,UUID runId,String status) {
+        int updated=jdbc.update("UPDATE drive_index_cursor SET status=?,updated_at=? WHERE account_id=? AND run_id=? AND status='RUNNING'",
+            status,Timestamp.from(Instant.now()),accountId.toString(),runId.toString());
+        if(updated==0) {
+            Cursor cursor=cursor(accountId);
+            if(cursor==null||!cursor.runId().equals(runId)||!status.equals(cursor.status()))
+                throw new IllegalStateException("drive index run is not active");
+        }
     }
 
     private void upsert(UUID accountId, long generation, IndexItem item, Instant now) {

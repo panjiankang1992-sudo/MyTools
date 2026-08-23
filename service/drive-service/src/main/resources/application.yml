@@ -11,4 +11,8 @@ spring:
   flyway:
     locations: classpath:db/migration
 management.endpoints.web.exposure.include: health,info
-drive.internal-token: ${DRIVE_INTERNAL_TOKEN:}
+drive:
+  internal-token: ${DRIVE_INTERNAL_TOKEN:}
+  rclone-rc-url: ${DRIVE_RCLONE_RC_URL:http://127.0.0.1:5572}
+  rclone-rc-user: ${DRIVE_RCLONE_RC_USER:}
+  rclone-rc-password: ${DRIVE_RCLONE_RC_PASSWORD:}

@@ -1,0 +1,12 @@
+name: drive_finish_index
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - drive_internal_api
+parameters:
+  required: [accountId]
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 30

@@ -27,7 +27,7 @@
 
 1. 已创建独立 `mytools_drive` schema 和 Drive Service MVP，覆盖 Secret 引用账户、权限、索引、可恢复游标、操作、任务绑定、短期票据及 Outbox；现有 `drive` 模块和 rclone 接口仍为主路径。
 2. 将旧 WebDAV、Alist 账号迁移为统一账户。
-3. 已提供按 run/batch 幂等的索引批次 API，下一步由 `drive_index_account` 任务通过 Drive 内部 connector API 分批写入；批次完成前不会删除旧索引。
+3. 已提供按 run/batch ledger 幂等的索引批次 API和 `drive_index_account` 任务；任务通过仅限回环地址和 `operations/list` 的 connector 递归扫描，批次完成前不会删除旧索引，且脚本无法读取远端凭据或提交任意命令。
 4. 新旧接口并行验证后切换 App。
 5. 拆独立服务并删除兼容模块。
 
