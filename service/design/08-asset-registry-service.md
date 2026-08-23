@@ -31,7 +31,7 @@
 
 ## 迁移
 
-1. 已建立独立 schema、按内容去重的资产、来源/位置/派生关系、乐观版本、幂等写入和 Outbox；继续从 DownloadBot `assets` 建立初始映射。
+1. 已建立独立 schema、按内容去重的资产、来源/位置/派生关系、乐观版本、幂等写入和 Outbox；Reader、HTTP 下载、媒体探测和缩略图已通过失败忽略的任务步骤旁路登记，继续从 DownloadBot `assets` 建立初始映射。
 2. 导入 MyTools `local_file`，按路径和哈希对账。
 3. 建立旧 ID 到新 asset ID 的映射表。
 4. 双写新资产，验证后切换 Media Library 查询。

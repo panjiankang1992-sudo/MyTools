@@ -1,0 +1,16 @@
+name: asset_register_media_thumbnail
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - storage_write
+  - asset_registry_write
+parameters:
+  required:
+    - assetId
+    - contentSha256
+    - sourcePath
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 90

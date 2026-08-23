@@ -24,6 +24,8 @@ Python 3.12 / Shell
 - `packages/media_compare_tags/1.0.0`：读取前一步生成结果与旧链路标签快照，生成精确匹配和 Jaccard 相似度。
 - `packages/media_probe/1.0.0`：通过受超时和输出大小约束的 ffprobe 生成媒体元数据。
 - `packages/media_generate_thumbnail/1.0.0`：在 Executor 工作目录生成内容哈希可校验的 JPEG 缩略图。
+
+Scheduler V23 在媒体探测后旁路登记原媒体，并在缩略图生成后通过 Storage Gateway 持久化产物、登记独立资产及 `THUMBNAIL` 派生关系。两个步骤均采用 `IGNORE` 失败策略，旧媒体表、旧缩略图和现有查询链路仍为迁移期权威实现。
 - `packages/media_generate_storyboard/1.0.0`：按视频时长均匀生成最多十二帧可校验截图。
 - `packages/media_describe_video/1.0.0`：读取探测和故事板步骤结果，生成模型简介；模型不可用时输出确定性的元数据简介。
 - `media_analyze_video` 组合任务按探测、故事板、简介三个原子步骤执行，后续步骤通过 `stepOutputs` 读取前序结构化结果。

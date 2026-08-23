@@ -21,7 +21,7 @@ Java 21 / Spring Boot
 - `POST /internal/v1/assets/{id}/locations`：按乐观版本登记位置。
 - `POST /internal/v1/assets/{id}/artifacts`：按生成器版本登记派生资产。
 
-`asset_register_content` 1.0.0 脚本包可从明确的 `assetOutput`、前序 `import_ebook` 或 `download_asset` 步骤读取已经校验的 URI、摘要和大小，并通过共享 Executor SDK 登记资产。Reader 电子书导入和 HTTP 下载已追加该步骤；迁移期使用 `IGNORE` 失败策略，因此 Registry 故障不会改变已经成功的领域任务状态，独立任务可用于补偿重放。
+`asset_register_content` 1.0.0 脚本包可从明确的 `assetOutput`、前序 `import_ebook`、`download_asset` 或媒体 `probe` 步骤读取已经校验的 URI、摘要和大小，并通过共享 Executor SDK 登记资产。`asset_register_media_thumbnail` 会先通过 Storage Gateway 持久化缩略图，再把它作为独立资产登记并建立 `THUMBNAIL` 派生关系。Reader 电子书导入、HTTP 下载、媒体探测及缩略图任务均已追加旁路登记步骤；迁移期使用 `IGNORE` 失败策略，因此 Registry 或 Storage Gateway 故障不会改变已经成功的领域任务状态，独立任务可用于补偿重放。
 
 ## 实施要求
 

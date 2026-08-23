@@ -46,6 +46,22 @@ class AssetRegisterContentTest(unittest.TestCase):
         self.assertEqual("download://executor/request/file%20name.bin",
                          client.payload["location"]["storageUri"])
 
+    def test_registers_media_probe_without_exposing_source_path(self):
+        with __import__("tempfile").TemporaryDirectory() as directory:
+            source = Path(directory) / "video.mp4"
+            source.write_bytes(b"media")
+            client = Client()
+            MODULE.execute({
+                "parameters": {"assetId": "42", "contentSha256": "c" * 64,
+                               "sourcePath": str(source), "assetMimeType": "video/mp4"},
+                "stepOutputs": {"probe": {"durationMs": 1000}},
+            }, client)
+
+            self.assertEqual("MEDIA_FILE", client.payload["sourceType"])
+            self.assertEqual(5, client.payload["sizeBytes"])
+            self.assertEqual("media://legacy/42", client.payload["location"]["storageUri"])
+            self.assertNotIn(str(source), client.payload["location"]["storageUri"])
+
 
 if __name__ == "__main__":
     unittest.main()

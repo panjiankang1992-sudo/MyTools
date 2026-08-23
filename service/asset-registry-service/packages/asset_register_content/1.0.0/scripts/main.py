@@ -23,6 +23,16 @@ def verified_output(context: dict) -> tuple[dict, str]:
     if not output:
         output = dict((context.get("stepOutputs") or {}).get("download_asset") or {})
         producer = "download"
+    if not output and (context.get("stepOutputs") or {}).get("probe"):
+        source = Path(str(parameters.get("sourcePath") or ""))
+        if not source.is_file():
+            raise ValueError("verified media source does not exist")
+        output = {
+            "storageUri": "media://legacy/" + urllib.parse.quote(str(parameters["assetId"]), safe=""),
+            "sha256": parameters.get("contentSha256"),
+            "size": source.stat().st_size,
+        }
+        producer = "media"
     if output.get("contentSha256") and not output.get("sha256"):
         output["sha256"] = output["contentSha256"]
     if output.get("sizeBytes") is not None and output.get("size") is None:
@@ -40,12 +50,15 @@ def execute(context: dict, client: AssetRegistryClient) -> dict:
     """Build a stable registration payload from verified task output."""
     parameters = context["parameters"]
     output, producer = verified_output(context)
-    request_id = str(parameters.get("requestId") or parameters["downloadRequestId"])
-    default_source = "DOWNLOAD" if producer == "download" else "READER_EBOOK"
+    request_id = str(parameters.get("requestId") or parameters.get("downloadRequestId")
+                     or parameters.get("assetId"))
+    default_source = {"download": "DOWNLOAD", "media": "MEDIA_FILE"}.get(producer, "READER_EBOOK")
     source_type = str(parameters.get("assetSourceType") or default_source)
     source_business_id = str(parameters.get("assetSourceBusinessId") or request_id)
-    default_mime = "application/octet-stream" if producer == "download" else "text/plain"
-    default_provider = "DOWNLOAD_EXECUTOR" if producer == "download" else "STORAGE_GATEWAY"
+    default_mime = {"download": "application/octet-stream", "media": "application/octet-stream"}.get(
+        producer, "text/plain")
+    default_provider = {"download": "DOWNLOAD_EXECUTOR", "media": "LEGACY_MEDIA"}.get(
+        producer, "STORAGE_GATEWAY")
     mime_type = str(parameters.get("assetMimeType") or default_mime)
     provider_type = str(parameters.get("assetProviderType") or default_provider)
     payload = {

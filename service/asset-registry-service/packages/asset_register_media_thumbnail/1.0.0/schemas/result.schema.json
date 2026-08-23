@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["parentAssetId", "artifactAssetId", "parentVersion", "storageUri"],
+  "properties": {
+    "parentAssetId": {"type": "string", "format": "uuid"},
+    "artifactAssetId": {"type": "string", "format": "uuid"},
+    "parentVersion": {"type": "integer", "minimum": 1},
+    "storageUri": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

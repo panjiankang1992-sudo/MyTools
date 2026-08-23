@@ -52,6 +52,7 @@ public class MediaProcessingSidecarPublisher {
         common.put("contentSha256", event.contentSha256().toLowerCase());
         common.put("sourcePath", event.sourcePath());
         common.put("legacyThumbnailPath", event.legacyThumbnailPath());
+        common.put("assetMimeType", event.mimeType());
         create("media_probe", properties.getProbeVersion(), event, common);
         create("media_generate_thumbnail", properties.getThumbnailVersion(), event, common);
         if (event.mimeType() != null && event.mimeType().startsWith("video/")) {

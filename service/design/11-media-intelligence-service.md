@@ -17,7 +17,7 @@ Media Intelligence 主要是一组版本化脚本包和模型配置，而不是�
 
 ## 执行流程
 
-脚本从 Storage Gateway 获取只读输入，在工作目录生成产物，校验后上传，再调用 Asset Registry 登记 artifact，最后调用 Media Library 更新分析结果。模型任务创建时应匹配 GPU/模型能力节点。
+目标态脚本从 Storage Gateway 获取只读输入，在工作目录生成产物，校验后上传，再调用 Asset Registry 登记 artifact，最后调用 Media Library 更新分析结果。当前过渡实现仍从旧媒体路径读取输入：`media_probe` 后按内容摘要和实际大小登记原媒体的逻辑位置；`media_generate_thumbnail` 后将缩略图上传 Storage Gateway，登记为独立资产并建立 `THUMBNAIL` 派生关系。旁路登记失败不会改变原任务结果。模型任务创建时应匹配 GPU/模型能力节点。
 
 ## DML
 

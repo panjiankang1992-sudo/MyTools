@@ -27,3 +27,16 @@ class AssetRegistryClient:
         if not isinstance(result, dict) or not result.get("id") or not result.get("version"):
             raise RuntimeError("Asset Registry returned an invalid response")
         return result
+
+    def register_artifact(self, asset_id: str, payload: dict) -> dict:
+        """Idempotently link a derived asset to its parent content asset."""
+        body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        request = urllib.request.Request(
+            self._base_url + f"/internal/v1/assets/{asset_id}/artifacts", data=body,
+            headers={"Authorization": f"Bearer {self._token}", "Content-Type": "application/json",
+                     "Accept": "application/json"}, method="POST")
+        with urllib.request.urlopen(request, timeout=30) as response:
+            result = json.loads(response.read().decode("utf-8"))
+        if not isinstance(result, dict) or not result.get("id") or not result.get("version"):
+            raise RuntimeError("Asset Registry returned an invalid artifact response")
+        return result
