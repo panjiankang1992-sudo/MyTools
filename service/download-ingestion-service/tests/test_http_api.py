@@ -7,6 +7,7 @@ import sys
 from threading import Thread
 import unittest
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 from uuid import uuid4
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
@@ -78,6 +79,34 @@ class DownloadHttpApiTest(unittest.TestCase):
         self.assertEqual("PLANNING", queried["status"])
         self.assertEqual("CANCELLING", cancelled["status"])
         self.assertEqual(created["task_instance_id"], queried["task_instance_id"])
+
+    def test_owner_bound_routes_hide_other_tenant_requests(self):
+        """Internal owner-bound routes return not found across tenant boundaries."""
+        created = self._request("POST", "/api/v1/download-requests", {
+            "ownerId": 55, "idempotencyKey": "gateway:55:event-1", "sourceType": "GATEWAY",
+            "sourceKey": "55:event-1", "requestKind": "HTTP_ASSET",
+            "parameters": {"url": "https://example.invalid/file", "fileName": "file.bin"}})
+
+        owned = self._request(
+            "GET", f"/internal/v1/download-requests/{created['id']}?ownerId=55")
+        with self.assertRaises(HTTPError) as query_error:
+            self._request("GET", f"/internal/v1/download-requests/{created['id']}?ownerId=56")
+        with self.assertRaises(HTTPError) as cancel_error:
+            self._request("POST", f"/internal/v1/download-requests/{created['id']}/cancel?ownerId=56", {})
+
+        self.assertEqual(55, owned["owner_id"])
+        self.assertEqual(404, query_error.exception.code)
+        self.assertEqual(404, cancel_error.exception.code)
+
+    def test_create_rejects_conflicting_owner_fields(self):
+        """Top-level and legacy nested ownership must not disagree."""
+        with self.assertRaises(HTTPError) as raised:
+            self._request("POST", "/api/v1/download-requests", {
+                "ownerId": 55, "idempotencyKey": "gateway:55:event-2", "sourceType": "GATEWAY",
+                "sourceKey": "55:event-2", "requestKind": "HTTP_ASSET",
+                "parameters": {"ownerId": 56, "url": "https://example.invalid/file",
+                               "fileName": "file.bin"}})
+        self.assertEqual(400, raised.exception.code)
 
     def test_rejects_missing_internal_token(self):
         """Business endpoints are closed when no internal bearer token is supplied."""

@@ -30,6 +30,7 @@ class CreateDownloadRequest:
     source_key: str
     request_kind: str
     parameters: dict[str, Any]
+    owner_id: int = 0
 
     def __post_init__(self) -> None:
         """Validate stable request identity and scheduler-compatible fields."""
@@ -40,6 +41,8 @@ class CreateDownloadRequest:
             raise ValueError("download request identity exceeds maximum length")
         if len(self.source_type) > 64 or len(self.request_kind) > 64:
             raise ValueError("download request type exceeds maximum length")
+        if not isinstance(self.owner_id, int) or isinstance(self.owner_id, bool) or self.owner_id < 0:
+            raise ValueError("download request owner is invalid")
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,6 +56,7 @@ class DownloadRequest:
     request_kind: str
     parameters: dict[str, Any]
     status: DownloadStatus
+    owner_id: int = 0
     task_instance_id: UUID | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
@@ -68,4 +72,5 @@ class DownloadRequest:
             request_kind=request.request_kind,
             parameters=dict(request.parameters),
             status=DownloadStatus.ACCEPTED,
+            owner_id=request.owner_id,
         )

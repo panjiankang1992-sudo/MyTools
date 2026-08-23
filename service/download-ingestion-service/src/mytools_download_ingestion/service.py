@@ -83,14 +83,26 @@ class DownloadRequestService:
             task_name=task_name,
             idempotency_key=f"download:{accepted.idempotency_key}",
             business_id=str(accepted.id),
-            parameters={**accepted.parameters, "downloadRequestId": str(accepted.id)},
+            parameters={**accepted.parameters, "ownerId": accepted.owner_id,
+                        "downloadRequestId": str(accepted.id)},
         )
         return self._repository.bind_task(accepted.id, task_id)
 
     def get(self, request_id: UUID) -> DownloadRequest | None:
         """Return a request after reconciling its scheduler lifecycle state."""
         current = self._repository.find_by_id(request_id)
-        if current is None or current.task_instance_id is None:
+        return None if current is None else self._reconcile(current)
+
+    def get_for_owner(self, request_id: UUID, owner_id: int) -> DownloadRequest | None:
+        """仅在所有者匹配时查询并对账下载请求。"""
+        current = self._repository.find_by_id(request_id)
+        if current is None or current.owner_id != owner_id:
+            return None
+        return self._reconcile(current)
+
+    def _reconcile(self, current: DownloadRequest) -> DownloadRequest:
+        """使用 Scheduler 状态推进一个已经授权的聚合。"""
+        if current.task_instance_id is None:
             return current
         scheduler_task = self._scheduler.get_task(current.task_instance_id)
         status = transition(current.status, scheduler_status(str(scheduler_task["status"])))
@@ -99,6 +111,17 @@ class DownloadRequestService:
     def cancel(self, request_id: UUID) -> DownloadRequest | None:
         """Cancel the bound scheduler task and reconcile the returned state."""
         current = self._repository.find_by_id(request_id)
+        return self._cancel(current)
+
+    def cancel_for_owner(self, request_id: UUID, owner_id: int) -> DownloadRequest | None:
+        """仅在所有者匹配时取消绑定的 Scheduler 任务。"""
+        current = self._repository.find_by_id(request_id)
+        if current is None or current.owner_id != owner_id:
+            return None
+        return self._cancel(current)
+
+    def _cancel(self, current: DownloadRequest | None) -> DownloadRequest | None:
+        """取消一个已经授权的下载聚合。"""
         if current is None or current.task_instance_id is None:
             return current
         if current.status in {DownloadStatus.CANCELLED, DownloadStatus.SUCCEEDED, DownloadStatus.FAILED}:
@@ -128,6 +151,19 @@ class DownloadRequestService:
         if current is None:
             return None
         items = sorted(self._repository.list_results(request_id), key=lambda item: str(item["itemId"]))
+        return self._summary(current, items)
+
+    def result_summary_for_owner(self, request_id: UUID, owner_id: int) -> dict | None:
+        """仅向匹配所有者返回不含来源 Secret 的结果摘要。"""
+        current = self.get_for_owner(request_id, owner_id)
+        if current is None:
+            return None
+        items = sorted(self._repository.list_results(request_id), key=lambda item: str(item["itemId"]))
+        return self._summary(current, items)
+
+    @staticmethod
+    def _summary(current: DownloadRequest, items: list[dict]) -> dict:
+        """构造稳定结果摘要。"""
         return {
             "downloadRequestId": str(current.id),
             "status": current.status.value,
@@ -188,6 +224,7 @@ def equivalent(existing: DownloadRequest, command: CreateDownloadRequest) -> boo
     return (existing.source_type == command.source_type
             and existing.source_key == command.source_key
             and existing.request_kind == command.request_kind
+            and existing.owner_id == command.owner_id
             and existing.parameters == command.parameters)
 
 

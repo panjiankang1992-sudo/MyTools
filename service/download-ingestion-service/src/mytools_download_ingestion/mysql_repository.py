@@ -31,10 +31,11 @@ class MySqlDownloadRequestRepository:
             with connection.cursor() as cursor:
                 cursor.execute(
                     """INSERT INTO download_request (
-                       id, idempotency_key, source_type, source_key, request_kind, parameters_json,
+                       id, owner_id, idempotency_key, source_type, source_key, request_kind, parameters_json,
                        status, task_instance_id, created_at, updated_at
-                       ) VALUES (%s, %s, %s, %s, %s, %s, %s, NULL, %s, %s)""",
-                    (str(request.id), request.idempotency_key, request.source_type, request.source_key,
+                       ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NULL, %s, %s)""",
+                    (str(request.id), request.owner_id, request.idempotency_key,
+                     request.source_type, request.source_key,
                      request.request_kind, json.dumps(request.parameters, separators=(",", ":")),
                      request.status.value, request.created_at, request.updated_at),
                 )
@@ -237,6 +238,7 @@ class MySqlDownloadRequestRepository:
             request_kind=row["request_kind"],
             parameters=parameters,
             status=DownloadStatus(row["status"]),
+            owner_id=int(row.get("owner_id") or 0),
             task_instance_id=None if task_id is None else UUID(str(task_id)),
             created_at=row["created_at"],
             updated_at=row["updated_at"],

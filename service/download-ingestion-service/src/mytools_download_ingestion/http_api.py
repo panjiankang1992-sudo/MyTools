@@ -7,7 +7,7 @@ from datetime import datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler
 import json
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 from uuid import UUID
 import hmac
 
@@ -44,6 +44,26 @@ def create_handler(service: DownloadRequestService,
                 return
             if not self._authorized():
                 self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
+                return
+            internal_prefix = "/internal/v1/download-requests/"
+            if path.startswith(internal_prefix):
+                summary_suffix = "/result-summary"
+                identifier = path.removeprefix(internal_prefix)
+                try:
+                    owner_id = self._query_owner()
+                    if identifier.endswith(summary_suffix):
+                        result = service.result_summary_for_owner(
+                            UUID(identifier.removesuffix(summary_suffix).rstrip("/")), owner_id)
+                    else:
+                        result = service.get_for_owner(UUID(identifier), owner_id)
+                except ValueError:
+                    self._json(HTTPStatus.BAD_REQUEST, {"error": "invalid owner-bound request"})
+                    return
+                if result is None:
+                    self._json(HTTPStatus.NOT_FOUND, {"error": "download request does not exist"})
+                    return
+                self._json(HTTPStatus.OK, result if isinstance(result, dict)
+                           else request_document(result))
                 return
             prefix = "/api/v1/download-requests/"
             if path.startswith(prefix):
@@ -109,6 +129,22 @@ def create_handler(service: DownloadRequestService,
                     return
                 self._json(HTTPStatus.OK, result)
                 return
+            if path.startswith(internal_prefix) and path.endswith("/cancel"):
+                identifier = path.removeprefix(internal_prefix).removesuffix("/cancel").rstrip("/")
+                try:
+                    result = service.cancel_for_owner(UUID(identifier), self._query_owner())
+                except ValueError:
+                    self._json(HTTPStatus.BAD_REQUEST, {"error": "invalid owner-bound request"})
+                    return
+                except Exception:
+                    self._json(HTTPStatus.SERVICE_UNAVAILABLE,
+                               {"error": "download orchestration unavailable"})
+                    return
+                if result is None:
+                    self._json(HTTPStatus.NOT_FOUND, {"error": "download request does not exist"})
+                    return
+                self._json(HTTPStatus.OK, request_document(result))
+                return
             if path.startswith(prefix) and path.endswith("/cancel"):
                 identifier = path.removeprefix(prefix).removesuffix("/cancel").rstrip("/")
                 try:
@@ -129,12 +165,15 @@ def create_handler(service: DownloadRequestService,
                 return
             try:
                 payload = self._read_json()
+                parameters = dict(payload.get("parameters") or {})
+                owner_id = self._owner_id(payload, parameters)
                 command = CreateDownloadRequest(
                     idempotency_key=str(payload["idempotencyKey"]),
                     source_type=str(payload["sourceType"]),
                     source_key=str(payload["sourceKey"]),
                     request_kind=str(payload["requestKind"]),
-                    parameters=dict(payload.get("parameters") or {}),
+                    parameters=parameters,
+                    owner_id=owner_id,
                 )
                 result = service.create(command)
             except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exception:
@@ -160,6 +199,29 @@ def create_handler(service: DownloadRequestService,
                 return False
             return hmac.compare_digest(self.headers.get("Authorization", ""),
                                        f"Bearer {internal_token}")
+
+        @staticmethod
+        def _owner_id(payload: dict, parameters: dict) -> int:
+            """兼容旧调用并拒绝两个 owner 字段互相冲突。"""
+            top_level = payload.get("ownerId")
+            nested = parameters.get("ownerId")
+            if top_level is not None and nested is not None and top_level != nested:
+                raise ValueError("download request owner conflict")
+            value = top_level if top_level is not None else nested
+            value = 0 if value is None else value
+            if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                raise ValueError("download request owner is invalid")
+            return value
+
+        def _query_owner(self) -> int:
+            """读取严格的单值 owner 查询参数。"""
+            values = parse_qs(urlparse(self.path).query, keep_blank_values=True).get("ownerId", [])
+            if len(values) != 1 or not values[0].isdigit():
+                raise ValueError("download request owner is invalid")
+            owner_id = int(values[0])
+            if owner_id < 0:
+                raise ValueError("download request owner is invalid")
+            return owner_id
 
         def _json(self, status: HTTPStatus, payload: dict) -> None:
             body = json.dumps(payload, separators=(",", ":"), default=str).encode("utf-8")

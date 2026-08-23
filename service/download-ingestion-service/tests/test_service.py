@@ -19,6 +19,8 @@ class FakeScheduler:
         self.task_id = uuid4()
         self.failures_remaining = 0
         self.status = "QUEUED"
+        self.get_calls = 0
+        self.cancel_calls = 0
 
     def create_task(self, **request):
         """Return a stable task ID for idempotency tests."""
@@ -30,10 +32,12 @@ class FakeScheduler:
 
     def get_task(self, _task_id):
         """Return the configured scheduler state."""
+        self.get_calls += 1
         return {"id": str(self.task_id), "status": self.status}
 
     def cancel_task(self, _task_id):
         """Move the fake task into cancellation."""
+        self.cancel_calls += 1
         self.status = "CANCELLING"
         return self.get_task(_task_id)
 
@@ -82,6 +86,36 @@ class DownloadRequestServiceTest(unittest.TestCase):
         created = service.create(command)
         self.assertEqual("download_storage_object", scheduler.calls[0]["task_name"])
         self.assertEqual(str(created.id), scheduler.calls[0]["parameters"]["downloadRequestId"])
+
+    def test_owner_is_persisted_and_overrides_untrusted_scheduler_parameter(self):
+        """The aggregate owner is authoritative for every task parameter."""
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(InMemoryDownloadRequestRepository(), scheduler)
+        command = CreateDownloadRequest(
+            "http:owner-7", "HTTP", "owner-7", "HTTP_ASSET",
+            {"url": "https://example.invalid/7", "fileName": "7.bin", "ownerId": 99},
+            owner_id=7)
+
+        created = service.create(command)
+
+        self.assertEqual(7, created.owner_id)
+        self.assertEqual(7, scheduler.calls[0]["parameters"]["ownerId"])
+
+    def test_owner_bound_query_and_cancel_fail_before_scheduler_access(self):
+        """A mismatched owner cannot observe or cancel another tenant task."""
+        repository = InMemoryDownloadRequestRepository()
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(repository, scheduler)
+        created = service.create(CreateDownloadRequest(
+            "http:owner-8", "HTTP", "owner-8", "HTTP_ASSET",
+            {"url": "https://example.invalid/8", "fileName": "8.bin"}, owner_id=8))
+
+        self.assertIsNone(service.get_for_owner(created.id, 9))
+        self.assertIsNone(service.cancel_for_owner(created.id, 9))
+        self.assertEqual(0, scheduler.get_calls)
+        self.assertEqual(0, scheduler.cancel_calls)
+        self.assertEqual(created.id, service.get_for_owner(created.id, 8).id)
+        self.assertEqual(1, scheduler.get_calls)
 
     def test_routes_x_post_to_child_task_orchestrator(self):
         """An X request binds to the resolver parent instead of duplicating HTTP download logic."""
@@ -135,6 +169,18 @@ class DownloadRequestServiceTest(unittest.TestCase):
         service.create(first)
         with self.assertRaisesRegex(ValueError, "idempotency conflict"):
             service.create(second)
+
+    def test_rejects_reused_idempotency_key_for_another_owner(self):
+        """Global idempotency cannot silently alias another tenant."""
+        service = DownloadRequestService(InMemoryDownloadRequestRepository(), FakeScheduler())
+        service.create(CreateDownloadRequest(
+            "shared:key", "HTTP", "source", "HTTP_ASSET",
+            {"url": "https://example.invalid/a", "fileName": "a"}, owner_id=7))
+
+        with self.assertRaisesRegex(ValueError, "idempotency conflict"):
+            service.create(CreateDownloadRequest(
+                "shared:key", "HTTP", "source", "HTTP_ASSET",
+                {"url": "https://example.invalid/a", "fileName": "a"}, owner_id=8))
 
     def test_reconciles_bound_scheduler_task(self):
         """Query must mirror scheduler state into the aggregate."""

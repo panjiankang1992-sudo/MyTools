@@ -40,6 +40,7 @@ public class DownloadIngestionClient {
                 "fileName", fileName,
                 "maxBytes", maximum);
         Map<String, Object> request = Map.of(
+                "ownerId", ownerId,
                 "idempotencyKey", "message_attachment:" + jobId + ":v1",
                 "sourceType", "MESSAGE_ATTACHMENT",
                 "sourceKey", partId.toString(),
@@ -77,6 +78,7 @@ public class DownloadIngestionClient {
             throw new IllegalStateException("Download Ingestion internal token is missing");
         }
         Map<String, Object> request = Map.of(
+                "ownerId", parameters.get("ownerId"),
                 "idempotencyKey", "message_attachment:" + jobId + ":" + version,
                 "sourceType", "MESSAGE_ATTACHMENT",
                 "sourceKey", partId.toString(),

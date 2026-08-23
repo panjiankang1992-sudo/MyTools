@@ -26,6 +26,11 @@
 
 首版服务使用 Python 3.12，业务数据写入独立 `mytools_download` schema。Scheduler 短暂不可用时业务请求保留为 `ACCEPTED`，相同幂等键重放会继续创建并绑定任务，不产生第二条下载请求。
 
+下载聚合使用独立 `owner_id` 作为权限边界。旧请求优先从合法的参数 owner 回填，无法映射
+的记录归系统所有者 `0` 并等待后续绑定。面向 Gateway 的查询、摘要和取消接口同时匹配
+请求 UUID 与 owner；不匹配时在访问 Scheduler 前返回不存在。Scheduler 参数中的 owner
+由聚合覆盖，不能被调用方在通用参数对象中替换。
+
 ## 任务类型
 
 - `download_http_asset`、`download_x_media`、`download_web_archive`。
