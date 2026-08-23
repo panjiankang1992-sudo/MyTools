@@ -44,6 +44,11 @@ HTTP 下载成功后追加可忽略的 `asset_register_content` 步骤，将摘�
 终态。父任务运行在独立 `download-orchestration` 集群，避免占用实际下载集群造成子任务
 饥饿；Cookie 文件和代理只允许由执行节点环境注入，不进入任务参数或下载 schema。
 
+`WEB_ARCHIVE` 使用 `download_web_archive` 父任务逐跳验证公网 HTTP(S) 地址并抓取有界
+HTML。正文交给 `download_publish_text` 子任务，嵌入媒体交给 `download_http_asset`
+子任务；两类产物复用相同的 Asset Registry 登记与 Download Ingestion 结果回写。
+脚本忽略 script/style 内容，限制页面、正文、媒体数量和单媒体字节数，代理仅由节点环境注入。
+
 历史迁移使用 `V3__create_legacy_history_import.sql` 的独立不可变历史表，不把旧完成记录
 伪装成新的 `download_request`，因此不会触发下载。内部接口
 `POST /internal/v1/migrations/downloadbot-history/batches` 支持 dry-run、幂等重放和身份冲突

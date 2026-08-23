@@ -91,6 +91,16 @@ class DownloadRequestServiceTest(unittest.TestCase):
         self.assertEqual("download_x_post", scheduler.calls[0]["task_name"])
         self.assertEqual(str(created.id), scheduler.calls[0]["parameters"]["downloadRequestId"])
 
+    def test_routes_web_archive_to_resource_orchestrator(self):
+        """A web archive request binds to the public-page resolver parent."""
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(InMemoryDownloadRequestRepository(), scheduler)
+        created = service.create(CreateDownloadRequest(
+            "web:page-1", "WEB", "page-1", "WEB_ARCHIVE",
+            {"url": "https://example.invalid/page"}))
+        self.assertEqual("download_web_archive", scheduler.calls[0]["task_name"])
+        self.assertEqual(str(created.id), scheduler.calls[0]["parameters"]["downloadRequestId"])
+
     def test_retries_scheduler_binding_for_an_accepted_request(self):
         """A transient scheduler failure must not strand the accepted aggregate."""
         repository = InMemoryDownloadRequestRepository()

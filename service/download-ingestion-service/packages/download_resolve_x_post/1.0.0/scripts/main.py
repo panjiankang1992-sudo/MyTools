@@ -15,6 +15,7 @@ from urllib.parse import urlparse
 from uuid import UUID
 
 from mytools_task_sdk.context import TaskContext
+from mytools_task_sdk.orchestration import wait_all_or_cancel
 
 X_PATH = re.compile(r"^/(?:[^/]+/status|i/(?:web/)?status)/(\d{1,24})(?:/.*)?$", re.I)
 SAFE_PART = re.compile(r"[^A-Za-z0-9_-]+")
@@ -123,17 +124,7 @@ def execute(context: TaskContext, parameters: dict, resources: list[dict], tweet
             f"x-media:{request_id}:{resource['tweetId']}:{resource['index']}:{fingerprint}",
             business_type="DOWNLOAD_REQUEST", business_id=request_id)
         children.append(child)
-    try:
-        completed = [context.wait_child(child.id, 1500) for child in children]
-        failed = [child for child in completed if child.status != "SUCCEEDED"]
-        if failed:
-            raise RuntimeError("one or more X media child tasks failed")
-    except Exception:
-        for child in children:
-            current = context.get_task(child.id)
-            if current.status not in context.TERMINAL_STATUSES:
-                context.cancel_child(child.id)
-        raise
+    wait_all_or_cancel(context, children, 1500)
     return {"requestId": request_id, "tweetId": tweet_id,
             "mediaCount": len(children), "childTaskIds": [child.id for child in children]}
 

@@ -14,6 +14,7 @@ TASK_NAMES = {
     "HTTP_ASSET": "download_http_asset",
     "LOCAL_IMPORT": "download_storage_object",
     "X_POST": "download_x_post",
+    "WEB_ARCHIVE": "download_web_archive",
 }
 
 
