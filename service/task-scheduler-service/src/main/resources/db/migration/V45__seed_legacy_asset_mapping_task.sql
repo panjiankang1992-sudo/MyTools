@@ -7,7 +7,7 @@ INSERT INTO task_definition (
     'Dry-run or migrate normalized legacy asset identities into Asset Registry',
     'IMMEDIATE', 1800, '00000000-0000-4000-8000-000000000005', NULL, NULL, 'SINGLE_NODE', TRUE,
     1, 'SKIP', 'IGNORE',
-    '{"type":"object","required":["migrationKey","dryRun"],"properties":{"migrationKey":{"type":"string","pattern":"^[A-Za-z0-9._:-]{1,128}$"},"dryRun":{"type":"boolean"},"afterId":{"type":"string","maxLength":255}},"additionalProperties":false}',
+    '{"type":"object","required":["migrationKey","sourceSnapshotId","dryRun"],"properties":{"migrationKey":{"type":"string","pattern":"^[A-Za-z0-9._:-]{1,128}$"},"sourceSnapshotId":{"type":"string","pattern":"^[A-Za-z0-9._:-]{1,128}$"},"dryRun":{"type":"boolean"},"afterId":{"type":"string","maxLength":255}},"additionalProperties":false}',
     '{"type":"object","required":["migrationKey","dryRun","sourceSnapshotId","exported","accepted","skipped","rejected","digestSha256","lastAfterId"]}',
     1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 );

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["snapshotId", "ownerId", "highWaterId", "captured", "rejected", "digestSha256"],
+  "properties": {
+    "snapshotId": {"type": "string", "pattern": "^[A-Za-z0-9._:-]{1,128}$"},
+    "ownerId": {"type": "integer", "minimum": 0},
+    "highWaterId": {"type": "integer", "minimum": 0},
+    "captured": {"type": "integer", "minimum": 0},
+    "rejected": {"type": "integer", "minimum": 0},
+    "digestSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}

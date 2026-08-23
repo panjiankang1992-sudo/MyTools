@@ -31,9 +31,9 @@ class Client:
         self.asset_token = asset_token
         self.opener = opener
 
-    def page(self, after_id: str | None) -> dict:
+    def page(self, source_snapshot_id: str, after_id: str | None) -> dict:
         """Read one stable normalized legacy asset page."""
-        query = {"limit": PAGE_SIZE}
+        query = {"snapshotId": source_snapshot_id, "limit": PAGE_SIZE}
         if after_id:
             query["afterId"] = after_id
         return self._request(self.legacy_url + "/internal/v1/migration/assets?" + urlencode(query),
@@ -62,24 +62,23 @@ class Client:
         return value
 
 
-def execute(client: Client, migration_key: str, dry_run: bool,
+def execute(client: Client, migration_key: str, source_snapshot_id: str, dry_run: bool,
             start_after_id: str | None = None) -> dict:
     """Migrate all stable pages and aggregate target evidence."""
     if not MIGRATION_KEY.fullmatch(migration_key):
         raise ValueError("Asset migration key is invalid")
+    if not MIGRATION_KEY.fullmatch(source_snapshot_id):
+        raise ValueError("Asset source snapshot id is invalid")
     totals = {"exported": 0, "accepted": 0, "skipped": 0, "rejected": 0}
     digest = hashlib.sha256()
     after_id = start_after_id
     last_after_id = start_after_id
-    source_snapshot_id = None
     while True:
-        page = client.page(after_id)
+        page = client.page(source_snapshot_id, after_id)
         page_snapshot_id = page.get("snapshotId")
         if not isinstance(page_snapshot_id, str) or not page_snapshot_id or len(page_snapshot_id) > 128:
             raise RuntimeError("Legacy asset snapshot is invalid")
-        if source_snapshot_id is None:
-            source_snapshot_id = page_snapshot_id
-        elif page_snapshot_id != source_snapshot_id:
+        if page_snapshot_id != source_snapshot_id:
             raise RuntimeError("Legacy asset snapshot changed during migration")
         items = page.get("items")
         if not isinstance(items, list) or len(items) > PAGE_SIZE:
@@ -138,7 +137,8 @@ def main() -> None:
                     os.getenv("ASSET_REGISTRY_URL", "http://127.0.0.1:23270"),
                     os.getenv("ASSET_REGISTRY_INTERNAL_TOKEN", ""))
     after_id = parameters.get("afterId")
-    write_result(execute(client, str(parameters["migrationKey"]), bool(parameters["dryRun"]),
+    write_result(execute(client, str(parameters["migrationKey"]), str(parameters["sourceSnapshotId"]),
+                         bool(parameters["dryRun"]),
                          None if after_id is None else str(after_id)))
 
 

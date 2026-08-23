@@ -22,6 +22,7 @@
 | [13-reader-service.md](13-reader-service.md) | 书架、书源、搜索、章节和电子书导入 |
 | [14-downloadbot-adapter-service.md](14-downloadbot-adapter-service.md) | DownloadBot 默认关闭的旁路迁移防腐层 |
 | [15-msgservice-adapter-service.md](15-msgservice-adapter-service.md) | MsgService 默认关闭的历史数据迁移防腐层 |
+| [16-legacy-asset-adapter-service.md](16-legacy-asset-adapter-service.md) | MyTools local_file 一致性快照与只读资产迁移适配器 |
 
 ## 共通约束
 

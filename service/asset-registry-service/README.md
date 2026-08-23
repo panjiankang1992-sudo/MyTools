@@ -30,7 +30,7 @@ Java 21 / Spring Boot
 
 V2 新增位置失效审计和不可变资源包。资源包发布在事务内按资产 ID 顺序锁定全部引用资产并校验预期版本，每个成功的幂等键都写入独立绑定；规范清单摘要相同的请求只返回原资源包，后续资产增加位置或关系不会改变已发布清单。全库关系对账通过 `asset_reconcile_registry` 1.0.0 即时任务分页执行，同步 API 始终保持有界；所有关系写入推进单调修订号，扫描期间修订变化会使任务失败，避免输出混合时点报告。
 
-V3 新增 `asset_legacy_mapping`。`asset_migrate_legacy_mappings` 1.0.0 从冻结且带 `snapshotId` 的只读源适配器分页读取标准载荷；dry-run 在真实目标事务中执行资产、来源、位置和 URI 校验后回滚，正式迁移才创建或复用内容资产并绑定旧 ID。相同旧身份和摘要重放为 skipped，载荷变化为 rejected；映射计数和摘要已纳入 Registry 对账报告。
+V3 新增 `asset_legacy_mapping`。`legacy_asset_capture_snapshot` 1.0.0 通过旧 MyTools 数据库只读账号，在单个一致性事务中把 `local_file` 物化到独立适配器 schema；`asset_migrate_legacy_mappings` 1.0.0 必须显式指定已封存 `sourceSnapshotId`。dry-run 在真实目标事务中执行资产、来源、位置和 URI 校验后回滚，正式迁移才创建或复用内容资产并绑定旧 ID。相同旧身份和摘要重放为 skipped，载荷变化为 rejected；映射计数和摘要已纳入 Registry 对账报告。
 
 ## 实施要求
 

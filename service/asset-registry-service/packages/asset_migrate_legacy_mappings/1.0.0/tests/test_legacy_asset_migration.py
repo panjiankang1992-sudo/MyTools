@@ -13,7 +13,7 @@ class FakeClient:
     def __init__(self, pages):
         self.pages = iter(pages)
 
-    def page(self, _after_id):
+    def page(self, _source_snapshot_id, _after_id):
         return next(self.pages)
 
     def import_batch(self, _migration_key, _source_snapshot_id, dry_run, items):
@@ -26,7 +26,7 @@ def test_aggregates_pages_and_target_evidence():
                           "nextAfterId": "cursor-1"},
                          {"snapshotId": "snapshot-1", "items": [{"legacyAssetId": "2"}],
                           "nextAfterId": None}])
-    result = MODULE.execute(client, "asset-migration-1", True)
+    result = MODULE.execute(client, "asset-migration-1", "snapshot-1", True)
     assert result["exported"] == 2
     assert result["accepted"] == 2
     assert result["lastAfterId"] == "cursor-1"
@@ -36,7 +36,7 @@ def test_aggregates_pages_and_target_evidence():
 def test_rejects_non_advancing_cursor_and_unclosed_counts():
     with pytest.raises(RuntimeError, match="did not advance"):
         MODULE.execute(FakeClient([{"snapshotId": "snapshot-2", "items": [], "nextAfterId": "same"}]),
-                       "asset-migration-2", True, "same")
+                       "asset-migration-2", "snapshot-2", True, "same")
 
     class InvalidClient(FakeClient):
         def import_batch(self, _migration_key, _source_snapshot_id, dry_run, _items):
@@ -45,11 +45,11 @@ def test_rejects_non_advancing_cursor_and_unclosed_counts():
 
     with pytest.raises(RuntimeError, match="counts do not close"):
         MODULE.execute(InvalidClient([{"snapshotId": "snapshot-3", "items": [{}], "nextAfterId": None}]),
-                       "asset-migration-3", False)
+                       "asset-migration-3", "snapshot-3", False)
 
 
 def test_rejects_source_snapshot_change():
     pages = [{"snapshotId": "snapshot-a", "items": [], "nextAfterId": "cursor-1"},
              {"snapshotId": "snapshot-b", "items": [], "nextAfterId": None}]
     with pytest.raises(RuntimeError, match="snapshot changed"):
-        MODULE.execute(FakeClient(pages), "asset-migration-4", True)
+        MODULE.execute(FakeClient(pages), "asset-migration-4", "snapshot-a", True)
