@@ -78,4 +78,21 @@ class StorageProviderServiceTest {
                 "env://WEBDAV_SECRET", true)))
                 .isInstanceOf(IllegalArgumentException.class).hasMessage("STORAGE_013");
     }
+
+    @Test
+    void shouldRegisterS3BucketAndRegionWithoutReturningConnectionDetails() {
+        StorageRepository repository = mock(StorageRepository.class);
+        ProviderObjectConnectorRegistry connector = mock(ProviderObjectConnectorRegistry.class);
+        StorageProviderService service = new StorageProviderService(repository, connector);
+        CreateProviderRequest request = new CreateProviderRequest(
+                "native_s3", "S3", "reader-bucket", "https://s3.example.com", "test-region-1",
+                "env://S3_SECRET", true);
+
+        var view = service.create(request);
+        var captured = org.mockito.ArgumentCaptor.forClass(com.yuyutian.mytools.storage.model.StorageProvider.class);
+        verify(repository).insertProvider(captured.capture());
+
+        assertThat(captured.getValue().regionName()).isEqualTo("test-region-1");
+        assertThat(view.toString()).doesNotContain("reader-bucket", "s3.example.com", "test-region-1", "S3_SECRET");
+    }
 }

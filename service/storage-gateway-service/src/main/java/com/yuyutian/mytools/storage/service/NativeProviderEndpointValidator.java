@@ -18,6 +18,20 @@ public final class NativeProviderEndpointValidator {
      * @return 规范化地址
      */
     public static URI webDav(String value) {
+        return validate(value, true);
+    }
+
+    /**
+     * 校验 S3 或兼容服务地址。
+     *
+     * @param value 配置地址
+     * @return 规范化地址
+     */
+    public static URI s3(String value) {
+        return validate(value, false);
+    }
+
+    private static URI validate(String value, boolean directoryEndpoint) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
         }
@@ -30,7 +44,10 @@ public final class NativeProviderEndpointValidator {
                 throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
             }
             String normalized = uri.toString();
-            return URI.create(normalized.endsWith("/") ? normalized : normalized + "/");
+            if (directoryEndpoint && !normalized.endsWith("/")) {
+                normalized += "/";
+            }
+            return URI.create(normalized);
         } catch (IllegalArgumentException exception) {
             throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code(), exception);
         }

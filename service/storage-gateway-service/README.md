@@ -6,7 +6,7 @@ Java 21 / Spring Boot
 
 ## 服务职责
 
-本地文件、rclone 与原生 WebDAV 等存储后端的安全操作。
+本地文件、rclone、原生 WebDAV 与原生 S3 等存储后端的安全操作。
 
 ## 当前阶段
 
@@ -20,7 +20,7 @@ Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 
 
 远端账户通过 `POST /api/internal/v1/storage/providers` 注册，只持久化 `secretRef`，响应不返回 remote 键、端点或密钥引用。`GET /api/internal/v1/storage/providers/{id}/objects` 按 Provider 类型选择受控连接器：`RCLONE` 调用服务端配置的回环 RC `operations/list`；`WEBDAV` 使用原生 `PROPFIND Depth: 1`，只允许 HTTPS 或测试用回环 HTTP、禁止重定向并限制 XML 响应大小和对象数。WebDAV 凭据当前从 `env://ENVIRONMENT_NAME` 引用的 JSON 对象按需读取，至少包含 `username` 和 `password`，不会写入数据库或响应。
 
-原生 WebDAV 首版只负责轻量单级目录查询。递归扫描、复制、移动和同步仍必须走异步任务与现有 rclone 后端；S3 原生连接器及原生远端写入将在后续迁移中逐项开放。
+原生 WebDAV 和 S3 首版只负责轻量单级目录查询。S3 使用路径风格 ListObjectsV2 和 SigV4，支持临时会话令牌，单页最多 1000 项、最多 10 页；继续截断时返回稳定上限错误并要求改走扫描任务。S3 Provider 的 `remoteKey` 表示 bucket，`regionName` 表示签名区域，凭据 JSON 至少包含 `accessKeyId` 和 `secretAccessKey`，可选 `sessionToken`。递归扫描、复制、移动和同步仍必须走异步任务与现有 rclone 后端；原生远端写入将在后续迁移中逐项开放。
 
 `POST /api/internal/v1/storage/operations` 当前开放已落地的 `SCAN_ROOT`。它创建 `storage_scan_root` 调度实例，Executor 广度遍历远端目录并以最多 500 项的批次幂等回写 `storage_operation_item`；对象总量受 `maximumObjects` 硬限制。成功、失败、超时和取消都会回写稳定终态，任务参数只携带 Provider UUID，不携带 remote 键或密钥。
 

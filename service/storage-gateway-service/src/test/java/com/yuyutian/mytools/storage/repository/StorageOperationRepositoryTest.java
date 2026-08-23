@@ -91,6 +91,22 @@ class StorageOperationRepositoryTest {
                 provider.id(), targetPath, "CREATED", null, null, 0, 100, null, now, now);
     }
 
+    @Test
+    void shouldPersistNativeProviderRoutingWithoutSecretMaterial() {
+        Instant now = Instant.now();
+        String suffix = UUID.randomUUID().toString();
+        StorageProvider provider = new StorageProvider(UUID.randomUUID(), "s3-" + suffix, "S3",
+                "bucket-" + suffix, "https://s3.example.com", "test-region-1",
+                "env://S3_SECRET", true, now, now);
+
+        repository.insertProvider(provider);
+        StorageProvider restored = repository.findProviderById(provider.id()).orElseThrow();
+
+        assertThat(restored.endpointUri()).isEqualTo("https://s3.example.com");
+        assertThat(restored.regionName()).isEqualTo("test-region-1");
+        assertThat(restored.secretRef()).isEqualTo("env://S3_SECRET");
+    }
+
     private String digest(String value) throws Exception {
         return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                 .digest(value.getBytes(StandardCharsets.UTF_8)));

@@ -20,7 +20,7 @@
 
 当前已实现 `storage_scan_root`、`storage_copy_tree`、`storage_move_tree`、`storage_compute_checksum` 和 `storage_sync_remote`。复制与同步只允许服务端登记的来源/目标 Provider 和相对路径，rclone remote 键不会进入 Scheduler 参数；远端 RC job 标识持久化到操作聚合，特殊步骤负责停止远端 job 并回写失败、超时或取消终态。校验和任务只携带不透明操作 UUID，Scheduler 使用 Storage Root 服务端登记的 `storage.mount.<rootName>` 约束选择挂载节点，再通过节点本地 Storage Gateway 流式读取。
 
-原生 WebDAV 连接器已实现单级目录查询：Provider 只保存 HTTPS 端点和 `secretRef`，凭据按调用从密钥解析器获取；协议层禁用重定向和 XML 外部实体，限制响应大小、对象数以及返回对象必须是请求目录的直接子项。现有 rclone Provider 契约保持兼容且仍是所有耗时远端任务的默认执行后端。S3 原生列表和原生异步写操作尚待实现。
+原生 WebDAV 和 S3 连接器已实现单级目录查询：Provider 只保存服务端端点、必要的非敏感路由参数和 `secretRef`，凭据按调用从密钥解析器获取；协议层禁用重定向和 XML 外部实体，限制响应大小、对象数以及返回对象必须是请求目录的直接子项。S3 使用 SigV4、ListObjectsV2 和有界分页，兼容临时会话令牌。现有 rclone Provider 契约保持兼容且仍是所有耗时远端任务的默认执行后端；WebDAV/S3 原生异步写操作尚待实现。
 
 远端移动采用持久化阶段状态机：对目标 Provider 和规范化路径建立排他写入栅栏，确认目标不存在后执行复制，通过 `operations/check` 下载比对来源和目标，再清理来源。复制或验证阶段失败、超时和取消会停止当前 job 并清理目标；来源清理开始后不再回滚已验证目标，而是前向重试来源清理。特殊步骤截止前仍无法收敛时记录 `PURGE_SOURCE` 或 `PURGE_TARGET` 恢复动作并自动创建独立高优先级恢复任务。恢复完成前写入栅栏不会释放。
 

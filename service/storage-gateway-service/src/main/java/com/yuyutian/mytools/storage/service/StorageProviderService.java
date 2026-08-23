@@ -49,8 +49,8 @@ public class StorageProviderService {
         Instant now = Instant.now();
         validateEndpoint(request);
         StorageProvider provider = new StorageProvider(UUID.randomUUID(), request.name(), request.providerType(),
-                request.remoteKey(), normalizeEndpoint(request.endpointUri()), request.secretRef(), request.enabled(),
-                now, now);
+                request.remoteKey(), normalizeEndpoint(request.endpointUri()), normalizeRegion(request.regionName()),
+                request.secretRef(), request.enabled(), now, now);
         try {
             repository.insertProvider(provider);
         } catch (DuplicateKeyException exception) {
@@ -77,16 +77,30 @@ public class StorageProviderService {
         return provider.providerType().equals(request.providerType())
                 && provider.remoteKey().equals(request.remoteKey())
                 && java.util.Objects.equals(provider.endpointUri(), normalizeEndpoint(request.endpointUri()))
+                && java.util.Objects.equals(provider.regionName(), normalizeRegion(request.regionName()))
                 && provider.secretRef().equals(request.secretRef())
                 && provider.enabled() == request.enabled();
     }
 
     private void validateEndpoint(CreateProviderRequest request) {
-        if ("RCLONE".equals(request.providerType()) && normalizeEndpoint(request.endpointUri()) == null) {
+        if ("RCLONE".equals(request.providerType()) && normalizeEndpoint(request.endpointUri()) == null
+                && normalizeRegion(request.regionName()) == null) {
             return;
         }
         if ("WEBDAV".equals(request.providerType())) {
             NativeProviderEndpointValidator.webDav(request.endpointUri());
+            if (normalizeRegion(request.regionName()) != null) {
+                throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
+            }
+            return;
+        }
+        if ("S3".equals(request.providerType())) {
+            NativeProviderEndpointValidator.s3(request.endpointUri());
+            String region = normalizeRegion(request.regionName());
+            if (!validBucket(request.remoteKey())
+                    || region == null || !region.matches("^[a-z0-9-]{1,64}$")) {
+                throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
+            }
             return;
         }
         throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
@@ -94,5 +108,15 @@ public class StorageProviderService {
 
     private String normalizeEndpoint(String endpointUri) {
         return endpointUri == null || endpointUri.isBlank() ? null : endpointUri.trim();
+    }
+
+    private String normalizeRegion(String regionName) {
+        return regionName == null || regionName.isBlank() ? null : regionName.trim();
+    }
+
+    private boolean validBucket(String value) {
+        return value.matches("^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$")
+                && !value.contains("..") && !value.contains(".-") && !value.contains("-.")
+                && !value.matches("^[0-9]{1,3}(?:\\.[0-9]{1,3}){3}$");
     }
 }
