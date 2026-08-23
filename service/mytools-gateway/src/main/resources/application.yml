@@ -11,6 +11,7 @@ spring:
 
 gateway:
   identity-mode: ${IDENTITY_VALIDATION_MODE:LEGACY}
+  identity-route-enabled: ${GATEWAY_IDENTITY_ROUTE_ENABLED:false}
   reader-route-enabled: ${GATEWAY_READER_ROUTE_ENABLED:false}
   reader-tenant-allowlist: ${GATEWAY_READER_TENANT_ALLOWLIST:}
   drive-route-enabled: ${GATEWAY_DRIVE_ROUTE_ENABLED:false}

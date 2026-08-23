@@ -1,8 +1,13 @@
 package com.yuyutian.mytools.gateway.controller;
 
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
+import com.yuyutian.mytools.gateway.service.GatewayBadRequestException;
+import com.yuyutian.mytools.gateway.service.GatewayDownstreamException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -31,5 +36,24 @@ public class GatewayExceptionHandler {
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     public Map<String, String> routeDisabled(GatewayRouteDisabledException exception) {
         return Map.of("code", "GATEWAY_002", "message", "Gateway route is not enabled");
+    }
+
+    /**
+     * 转换稳定契约请求错误。
+     */
+    @ExceptionHandler({GatewayBadRequestException.class, MethodArgumentNotValidException.class,
+            HttpMessageNotReadableException.class, ConstraintViolationException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> badRequest(Exception exception) {
+        return Map.of("code", "GATEWAY_003", "message", "Gateway request is invalid");
+    }
+
+    /**
+     * 转换下游不可用错误。
+     */
+    @ExceptionHandler(GatewayDownstreamException.class)
+    @ResponseStatus(HttpStatus.BAD_GATEWAY)
+    public Map<String, String> downstream(GatewayDownstreamException exception) {
+        return Map.of("code", "GATEWAY_004", "message", "Gateway downstream is unavailable");
     }
 }

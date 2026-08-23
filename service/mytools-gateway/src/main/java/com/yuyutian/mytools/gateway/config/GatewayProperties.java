@@ -8,12 +8,22 @@ import java.util.Set;
  * Gateway 路由、认证和下游连接配置。
  */
 @ConfigurationProperties(prefix = "gateway")
-public record GatewayProperties(IdentityMode identityMode, boolean readerRouteEnabled,
+public record GatewayProperties(IdentityMode identityMode, boolean identityRouteEnabled,
+                                boolean readerRouteEnabled,
                                 Set<Long> readerTenantAllowlist,
                                 boolean driveRouteEnabled, Set<Long> driveTenantAllowlist,
                                 String mytoolsUrl, String identityUrl, String readerUrl, String driveUrl,
                                 String internalToken, String identityToken, String readerToken, String driveToken,
                                 int connectTimeoutMillis, int readTimeoutMillis) {
+
+    /**
+     * 判断 Identity 登录入口与令牌校验模式是否形成可用组合。
+     *
+     * @return 是否允许签发新令牌
+     */
+    public boolean identityRouteUsable() {
+        return identityRouteEnabled && identityMode != IdentityMode.LEGACY;
+    }
 
     /**
      * 判断 Reader 灰度路由是否允许指定主体。

@@ -23,7 +23,9 @@ DEFAULT_SCHEMAS = {
 }
 
 SAFE_DISABLED_FLAGS = (
+    "GATEWAY_IDENTITY_ROUTE_ENABLED",
     "GATEWAY_READER_ROUTE_ENABLED",
+    "GATEWAY_DRIVE_ROUTE_ENABLED",
     "MEDIA_TAG_SIDECAR_ENABLED",
     "MEDIA_PROCESSING_SIDECAR_ENABLED",
     "READER_SEARCH_SIDECAR_ENABLED",
@@ -82,20 +84,32 @@ def inspect(values: dict[str, str], allow_enabled: bool = False) -> dict[str, ob
         elif enabled:
             warnings.append(f"{key} is enabled for an approved rehearsal")
 
-    reader_tenant_count = 0
-    reader_allowlist = values.get("GATEWAY_READER_TENANT_ALLOWLIST", "").strip()
-    if reader_allowlist:
-        if TENANT_ALLOWLIST_PATTERN.fullmatch(reader_allowlist) is None:
-            errors.append("GATEWAY_READER_TENANT_ALLOWLIST must be comma-separated positive numeric IDs")
-        else:
-            reader_tenants = reader_allowlist.split(",")
-            if len(reader_tenants) != len(set(reader_tenants)):
-                errors.append("GATEWAY_READER_TENANT_ALLOWLIST contains duplicate IDs")
-            reader_tenant_count = len(reader_tenants)
-    if flags["GATEWAY_READER_ROUTE_ENABLED"] and reader_tenant_count == 0:
-        errors.append("GATEWAY_READER_TENANT_ALLOWLIST is required when Reader routing is enabled")
+    tenant_counts: dict[str, int] = {}
+    for domain in ("READER", "DRIVE"):
+        allowlist_key = f"GATEWAY_{domain}_TENANT_ALLOWLIST"
+        route_key = f"GATEWAY_{domain}_ROUTE_ENABLED"
+        allowlist = values.get(allowlist_key, "").strip()
+        tenant_count = 0
+        if allowlist and TENANT_ALLOWLIST_PATTERN.fullmatch(allowlist) is None:
+            errors.append(f"{allowlist_key} must be comma-separated positive numeric IDs")
+        elif allowlist:
+            tenants = allowlist.split(",")
+            if len(tenants) != len(set(tenants)):
+                errors.append(f"{allowlist_key} contains duplicate IDs")
+            tenant_count = len(tenants)
+        if flags[route_key] and tenant_count == 0:
+            errors.append(f"{allowlist_key} is required when {domain.title()} routing is enabled")
+        tenant_counts[domain] = tenant_count
 
-    grey_release = {"readerTenantCount": reader_tenant_count}
+    identity_mode = values.get("IDENTITY_VALIDATION_MODE", "LEGACY").strip().upper()
+    if identity_mode not in {"LEGACY", "DUAL", "IDENTITY"}:
+        errors.append("IDENTITY_VALIDATION_MODE must be LEGACY, DUAL or IDENTITY")
+    if flags["GATEWAY_IDENTITY_ROUTE_ENABLED"] and identity_mode == "LEGACY":
+        errors.append("IDENTITY_VALIDATION_MODE must be DUAL or IDENTITY when Identity routing is enabled")
+
+    grey_release = {"readerTenantCount": tenant_counts["READER"],
+                    "driveTenantCount": tenant_counts["DRIVE"],
+                    "identityValidationMode": identity_mode}
     return {"ready": not errors, "schemas": schemas, "flags": flags, "greyRelease": grey_release,
             "errors": errors, "warnings": warnings}
 

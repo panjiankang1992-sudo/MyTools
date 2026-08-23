@@ -18,6 +18,8 @@ Java 21 / Spring Boot
 
 Drive 首批只读路由为 `GET /api/app/v1/drive/accounts/{accountId}/items?parentPath=`。Gateway 使用已验证用户 ID 构造内部 `ownerId`，以 `DRIVE_INTERNAL_TOKEN` 调用 Drive Service；该阶段不切换写操作和旧入口。
 
+Identity 首批入口为 `POST /api/app/v1/identity/login` 和 `/refresh`，由 `GATEWAY_IDENTITY_ROUTE_ENABLED=false` 独立控制。Gateway 使用严格请求模型重建载荷，不转发客户端内部头或 Cookie；Identity 的认证失败、请求错误和服务不可用分别映射为稳定 Gateway 错误。启用该入口时，`IDENTITY_VALIDATION_MODE` 必须至少为 `DUAL`，否则运行时门禁仍拒绝签发新令牌，避免新令牌无法用于受保护路由。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。

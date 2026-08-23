@@ -115,7 +115,7 @@ class GatewayRequestFilterTest {
     }
 
     private GatewayProperties properties(boolean readerEnabled, boolean driveEnabled) {
-        return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, readerEnabled, Set.of(55L),
+        return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, false, readerEnabled, Set.of(55L),
                 driveEnabled, Set.of(55L), "http://mytools", "http://identity", "http://reader", "http://drive",
                 "gateway-token", "identity-token", "reader-token", "drive-token", 1000, 3000);
     }
