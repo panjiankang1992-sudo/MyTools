@@ -48,6 +48,7 @@ class TaskExecutionWorkerTest {
                 """, StandardCharsets.UTF_8);
         ExecutorProperties properties = new ExecutorProperties(
                 "executor-test", "http://127.0.0.1:23210", temporaryDirectory.resolve("work"), scriptRoot,
+                temporaryDirectory.resolve("sdk"),
                 10, 1, 60, 2, Map.of(), Map.of(), java.util.Set.of(),
                 Map.of("sample", Map.of("CUSTOM_ENV", "enabled"))
         );
@@ -92,6 +93,7 @@ class TaskExecutionWorkerTest {
                 "printf '{\"handled\":true}' > \"$TASK_RESULT_FILE\"\n", StandardCharsets.UTF_8);
         ExecutorProperties properties = new ExecutorProperties(
                 "executor-test", "http://127.0.0.1:23210", temporaryDirectory.resolve("deadline-work"), scriptRoot,
+                temporaryDirectory.resolve("sdk"),
                 10, 1, 60, 2, Map.of(), Map.of(), java.util.Set.of(), Map.of()
         );
         ClaimedStep normal = new ClaimedStep(

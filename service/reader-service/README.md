@@ -24,6 +24,8 @@ MyTools 通过默认关闭的 `READER_SEARCH_SIDECAR_ENABLED` 开关提交同一
 
 书源电子书导入使用 `reader_import_ebook` 1.0.0 长任务。Reader Service 固化书源版本和任务参数，脚本逐章读取并在任务工作目录中流式生成有大小边界的 UTF-8 文本，通过 Storage Gateway 校验摘要并原子发布，成功后在 `ebook_asset` 登记稳定 `storage://` URI。编排接口为 `POST /api/v1/ebook-imports`、`GET /api/v1/ebook-imports/{id}` 和取消接口；客户端不能指定物理目录或任意输出路径。
 
+`reader_extract_metadata` 1.0.0 支持 TXT/Markdown、EPUB OPF、基础 PDF 和 MOBI/AZW3 头解析，保留旧实现的 `READY`/`PARTIAL`/`FAILED` 语义，并限制文本大小、ZIP 条目数、展开大小、单条目大小和压缩比。书源导入任务将其作为第二步骤执行，元数据结果写回 `ebook_asset.metadata_json`；该脚本也注册为可独立创建的任务类型。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。

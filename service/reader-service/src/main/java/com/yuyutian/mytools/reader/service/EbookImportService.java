@@ -83,6 +83,12 @@ public class EbookImportService {
                     .map(SchedulerResult.StepResult::result)
                     .orElseThrow(() -> new IllegalStateException("Successful ebook task has no result"));
             repository.succeed(record, result);
+            schedulerResult.steps().stream()
+                    .filter(step -> "extract_metadata".equals(step.stepName())
+                            && "SUCCEEDED".equals(step.status()))
+                    .max(Comparator.comparingInt(SchedulerResult.StepResult::attempt))
+                    .map(SchedulerResult.StepResult::result)
+                    .ifPresent(metadata -> repository.updateMetadata(requestId, metadata));
         } else {
             repository.updateStatus(requestId, schedulerResult.status());
         }

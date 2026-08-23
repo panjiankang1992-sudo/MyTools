@@ -133,6 +133,18 @@ public class EbookImportRepository {
                 Timestamp.from(now), Timestamp.from(now));
     }
 
+    /**
+     * 保存导入任务后续步骤产生的确定性元数据。
+     *
+     * @param requestId 导入请求标识
+     * @param metadata 元数据结果
+     */
+    public void updateMetadata(UUID requestId, Map<String, Object> metadata) {
+        jdbcTemplate.update("""
+                UPDATE ebook_asset SET metadata_json = ?, updated_at = ? WHERE import_request_id = ?
+                """, writeJson(metadata), Timestamp.from(Instant.now()), requestId.toString());
+    }
+
     private Optional<EbookImportRecord> query(String condition, Object... arguments) {
         return jdbcTemplate.query("SELECT * FROM ebook_import_request " + condition, (resultSet, rowNumber) -> {
             String taskId = resultSet.getString("task_instance_id");

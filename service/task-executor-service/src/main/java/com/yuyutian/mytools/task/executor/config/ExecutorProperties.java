@@ -16,6 +16,7 @@ import java.util.Set;
  * @param schedulerUrl 调度服务地址
  * @param workRoot 任务工作根目录
  * @param scriptRoot 脚本包根目录
+ * @param pythonSdkRoot Python 任务 SDK 根目录
  * @param heartbeatSeconds 心跳间隔
  * @param pollSeconds 任务轮询间隔
  * @param leaseSeconds 执行租约秒数
@@ -32,6 +33,7 @@ public record ExecutorProperties(
         @NotBlank String schedulerUrl,
         Path workRoot,
         Path scriptRoot,
+        Path pythonSdkRoot,
         @Min(1) long heartbeatSeconds,
         @Min(1) long pollSeconds,
         @Min(10) int leaseSeconds,

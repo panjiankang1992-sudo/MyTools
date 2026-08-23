@@ -186,6 +186,7 @@ public class TaskExecutionWorker {
         // Executor 保留变量覆盖节点配置，避免 Secret 配置伪造任务身份或结果路径。
         environment.put("PATH", "/usr/local/bin:/usr/bin:/bin");
         environment.put("LANG", "C.UTF-8");
+        environment.put("PYTHONPATH", properties.pythonSdkRoot().toAbsolutePath().normalize().toString());
         environment.put("TASK_API_URL", normalizedSchedulerUrl());
         environment.put("TASK_EXECUTION_ID", task.executionId().toString());
         environment.put("TASK_CONTEXT_FILE", contextFile.toString());

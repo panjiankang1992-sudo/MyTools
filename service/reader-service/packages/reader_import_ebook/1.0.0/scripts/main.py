@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import hashlib
 import html
-import http.client
 import json
 import os
 from pathlib import Path
@@ -13,6 +12,8 @@ import re
 import tempfile
 import urllib.parse
 import urllib.request
+
+from mytools_task_sdk.storage import StorageGatewayClient
 
 MAX_CHAPTERS = 20_000
 MAX_CHAPTER_BYTES = 10 * 1024 * 1024
@@ -78,62 +79,6 @@ class ReaderRuntimeClient:
         if not isinstance(payload, dict) or not payload.get("isSuccess"):
             raise RuntimeError("Reader Runtime rejected request")
         return payload
-
-
-class StorageGatewayClient:
-    """Storage Gateway streaming upload client."""
-
-    def __init__(self, base_url: str, token: str):
-        if not token:
-            raise ValueError("Storage Gateway token is missing")
-        self._base_url = base_url.rstrip("/")
-        self._token = token
-
-    def publish(self, path: Path, root_name: str, relative_path: str,
-                idempotency_key: str, size: int, sha256: str) -> str:
-        """Create an idempotent upload and stream the artifact body."""
-        body = json.dumps({"rootName": root_name, "relativePath": relative_path,
-                           "expectedSize": size, "expectedSha256": sha256,
-                           "idempotencyKey": idempotency_key}, separators=(",", ":")).encode()
-        request = urllib.request.Request(f"{self._base_url}/api/internal/v1/storage/uploads", data=body,
-                                         method="POST", headers=self._headers("application/json"))
-        with urllib.request.urlopen(request, timeout=30) as response:
-            upload = json.loads(response.read().decode("utf-8"))
-        if upload.get("status") != "SUCCEEDED":
-            self._stream(upload["id"], path, size)
-        status_request = urllib.request.Request(
-            f"{self._base_url}/api/internal/v1/storage/uploads/{upload['id']}",
-            headers=self._headers(None))
-        with urllib.request.urlopen(status_request, timeout=30) as response:
-            completed = json.loads(response.read().decode("utf-8"))
-        if completed.get("status") != "SUCCEEDED" or not completed.get("storageUri"):
-            raise RuntimeError("Storage Gateway did not publish artifact")
-        return str(completed["storageUri"])
-
-    def _stream(self, upload_id: str, path: Path, size: int) -> None:
-        parsed = urllib.parse.urlsplit(self._base_url)
-        connection_type = http.client.HTTPSConnection if parsed.scheme == "https" else http.client.HTTPConnection
-        connection = connection_type(parsed.hostname, parsed.port, timeout=60)
-        target = (parsed.path.rstrip("/") + f"/api/internal/v1/storage/uploads/{upload_id}/content")
-        connection.putrequest("PUT", target)
-        connection.putheader("Authorization", f"Bearer {self._token}")
-        connection.putheader("Content-Type", "application/octet-stream")
-        connection.putheader("Content-Length", str(size))
-        connection.endheaders()
-        with path.open("rb") as source:
-            while chunk := source.read(64 * 1024):
-                connection.send(chunk)
-        response = connection.getresponse()
-        response.read()
-        connection.close()
-        if response.status < 200 or response.status >= 300:
-            raise RuntimeError(f"Storage Gateway upload failed: {response.status}")
-
-    def _headers(self, content_type: str | None) -> dict[str, str]:
-        headers = {"Authorization": f"Bearer {self._token}", "Accept": "application/json"}
-        if content_type:
-            headers["Content-Type"] = content_type
-        return headers
 
 
 def safe_title(value: object) -> str:

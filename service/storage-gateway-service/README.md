@@ -16,6 +16,8 @@ Java 21 / Spring Boot
 
 Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 幂等创建上传会话，再通过 `PUT /api/internal/v1/storage/uploads/{id}/content` 流式写入。Storage Gateway 负责限制大小、校验 SHA-256、拒绝绝对路径、目录穿越和符号链接逃逸，并在同一受管根中原子发布；响应只暴露 `storage://root/path`，不暴露物理路径。rclone、WebDAV、S3 和访问票据仍待后续阶段实现。
 
+内部任务可通过 `GET /api/internal/v1/storage/objects/content?rootName=...&path=...` 流式读取已发布对象。读取与写入执行相同的真实路径和符号链接边界检查，物理路径不会进入 Scheduler 参数或脚本结果。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。

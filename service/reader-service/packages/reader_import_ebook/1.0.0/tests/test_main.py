@@ -1,10 +1,13 @@
 import importlib.util
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 
 
 SCRIPT = Path(__file__).parents[1] / "scripts" / "main.py"
+SDK = Path(__file__).parents[5] / "task-executor-service" / "sdk" / "python"
+sys.path.insert(0, str(SDK))
 SPEC = importlib.util.spec_from_file_location("reader_import_ebook", SCRIPT)
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)

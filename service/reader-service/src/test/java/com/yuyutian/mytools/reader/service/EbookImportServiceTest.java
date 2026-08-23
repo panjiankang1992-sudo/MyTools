@@ -61,7 +61,10 @@ class EbookImportServiceTest {
                 new SchedulerResult.StepResult(UUID.randomUUID(), null, null, "import_ebook", 1, "SUCCEEDED",
                         Map.of("title", "Example Book", "author", "Author", "chapterCount", 10,
                                 "size", 1024L, "sha256", "a".repeat(64),
-                                "storageUri", "storage://managed/ebooks/imports/example.txt")))));
+                                "storageUri", "storage://managed/ebooks/imports/example.txt")),
+                new SchedulerResult.StepResult(UUID.randomUUID(), null, null, "extract_metadata", 1,
+                        "SUCCEEDED", Map.of("status", "READY", "parserName", "txt-utf8-v1",
+                                "chapterCount", 10)))));
 
         var completed = importService.get(created.id());
 
@@ -73,6 +76,9 @@ class EbookImportServiceTest {
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM ebook_asset WHERE import_request_id = ?",
                 Integer.class, created.id().toString())).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT metadata_json FROM ebook_asset WHERE import_request_id = ?",
+                String.class, created.id().toString())).contains("txt-utf8-v1");
         verify(schedulerClient).createTask(anyString(), anyString(), anyString(), any(), anyInt(), anyMap());
     }
 }

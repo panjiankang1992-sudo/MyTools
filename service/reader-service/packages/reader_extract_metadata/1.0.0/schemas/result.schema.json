@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["requestId", "status", "format", "title", "author", "chapterCount", "parserName"],
+  "properties": {
+    "requestId": {"type": "string", "format": "uuid"},
+    "status": {"enum": ["READY", "PARTIAL", "FAILED"]},
+    "format": {"type": "string"},
+    "title": {"type": "string"},
+    "author": {"type": "string"},
+    "description": {"type": "string"},
+    "language": {"type": "string"},
+    "chapterCount": {"type": "integer", "minimum": 1},
+    "wordCount": {"type": "integer", "minimum": 0},
+    "parserName": {"type": "string"},
+    "coverStorageUri": {"type": ["string", "null"]},
+    "errorCode": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}

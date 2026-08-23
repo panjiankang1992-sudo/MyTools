@@ -6,6 +6,7 @@ executor:
   scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23210}
   work-root: ${TASK_EXECUTOR_WORK_ROOT:./runtime/tasks}
   script-root: ${TASK_EXECUTOR_SCRIPT_ROOT:./scripts}
+  python-sdk-root: ${TASK_EXECUTOR_PYTHON_SDK_ROOT:./sdk/python}
   heartbeat-seconds: ${TASK_EXECUTOR_HEARTBEAT_SECONDS:10}
   poll-seconds: ${TASK_EXECUTOR_POLL_SECONDS:1}
   lease-seconds: ${TASK_EXECUTOR_LEASE_SECONDS:60}
@@ -38,6 +39,9 @@ executor:
     reader_import_ebook:
       READER_RUNTIME_BASE_URL: ${READER_RUNTIME_BASE_URL:http://127.0.0.1:23120}
       READER_RUNTIME_SECURE_KEY: ${READER_RUNTIME_SECURE_KEY:}
+      STORAGE_GATEWAY_URL: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
+      STORAGE_INTERNAL_TOKEN: ${STORAGE_INTERNAL_TOKEN:}
+    reader_extract_metadata:
       STORAGE_GATEWAY_URL: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
       STORAGE_INTERNAL_TOKEN: ${STORAGE_INTERNAL_TOKEN:}
 server:

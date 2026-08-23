@@ -1,0 +1,17 @@
+name: reader_extract_metadata
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - storage_gateway_read
+  - storage_gateway_upload
+parameters:
+  required:
+    - requestId
+    - storageRoot
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 600
+  maxInputBytes: 536870912
+  maxArchiveEntries: 10000

@@ -24,6 +24,9 @@ class StorageUploadServiceTest {
     private StorageUploadService uploadService;
 
     @Autowired
+    private StorageObjectService objectService;
+
+    @Autowired
     private StorageProperties properties;
 
     private Path published;
@@ -60,6 +63,7 @@ class StorageUploadServiceTest {
         assertThat(completed.status()).isEqualTo("SUCCEEDED");
         assertThat(completed.storageUri()).isEqualTo("storage://managed/" + relativePath);
         assertThat(Files.readAllBytes(published)).isEqualTo(content);
+        assertThat(objectService.requireReadable("managed", relativePath).path()).isEqualTo(published);
     }
 
     @Test

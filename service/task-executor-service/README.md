@@ -26,6 +26,8 @@ Executor 只执行 Scheduler 下发的已配置入口，不接受调用方提交
 节点 Secret 使用 `executor.script-environments.{scriptPackage}` 按脚本包隔离注入，任务参数和 Scheduler 数据库不保存运行密钥。
 Executor 会取任务总截止时间与步骤超时的较小值；总截止时间到达时普通步骤按 `TIMED_OUT` 上报，并继续执行不受原截止时间限制、但仍有自身超时的 `ON_TIMEOUT` 场景步骤。
 
+Python 脚本通过 `TASK_EXECUTOR_PYTHON_SDK_ROOT` 自动获得 `mytools_task_sdk`。共享 SDK 已集中提供任务控制和 Storage Gateway 流式读写客户端，领域脚本不再复制上传、下载、授权和 `storage://` URI 解析逻辑。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。
