@@ -154,6 +154,7 @@ public class AssetRegistryService {
         int invalidLocationCount = 0;
         int artifactCount = 0;
         int bundleReferenceCount = 0;
+        int legacyMappingCount = 0;
         for (AssetRepository.ReconciliationAssetSnapshot snapshot : page) {
             AssetRecord asset = snapshot.asset();
             update(pageDigest, asset.id().toString(), asset.contentSha256(), Long.toString(asset.sizeBytes()),
@@ -162,17 +163,20 @@ public class AssetRegistryService {
             snapshot.locations().forEach(value -> update(pageDigest, "LOCATION", value));
             snapshot.artifacts().forEach(value -> update(pageDigest, "ARTIFACT", value));
             snapshot.bundleReferences().forEach(value -> update(pageDigest, "BUNDLE", value));
+            snapshot.legacyMappings().forEach(value -> update(pageDigest, "LEGACY", value));
             sourceCount += snapshot.sources().size();
             availableLocationCount += snapshot.availableLocationCount();
             invalidLocationCount += snapshot.invalidLocationCount();
             artifactCount += snapshot.artifacts().size();
             bundleReferenceCount += snapshot.bundleReferences().size();
+            legacyMappingCount += snapshot.legacyMappings().size();
         }
         String nextAfterId = values.size() > limit && !page.isEmpty()
                 ? page.getLast().asset().id().toString() : null;
         return new AssetReconciliationPage(nextAfterId, repository.registryRevision(), page.size(), sourceCount,
                 availableLocationCount,
                 invalidLocationCount, artifactCount, bundleReferenceCount,
+                legacyMappingCount,
                 HexFormat.of().formatHex(pageDigest.digest()));
     }
 

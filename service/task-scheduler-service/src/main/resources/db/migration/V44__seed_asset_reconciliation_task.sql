@@ -8,7 +8,7 @@ INSERT INTO task_definition (
     'IMMEDIATE', 1800, '00000000-0000-4000-8000-000000000005', NULL, NULL, 'SINGLE_NODE', TRUE,
     1, 'SKIP', 'IGNORE',
     '{"type":"object","properties":{"afterId":{"type":"string","format":"uuid"}},"additionalProperties":false}',
-    '{"type":"object","required":["registryRevision","assetCount","sourceCount","availableLocationCount","invalidLocationCount","artifactCount","bundleReferenceCount","pageCount","digestSha256","lastAfterId"]}',
+    '{"type":"object","required":["registryRevision","assetCount","sourceCount","availableLocationCount","invalidLocationCount","artifactCount","bundleReferenceCount","legacyMappingCount","pageCount","digestSha256","lastAfterId"]}',
     1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 );
 

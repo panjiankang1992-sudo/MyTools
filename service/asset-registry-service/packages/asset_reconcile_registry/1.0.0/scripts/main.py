@@ -16,6 +16,7 @@ PAGE_SIZE = 200
 DIGEST = re.compile(r"^[a-f0-9]{64}$")
 COUNTS = ("assetCount", "sourceCount", "availableLocationCount", "invalidLocationCount",
           "artifactCount", "bundleReferenceCount")
+COUNTS = COUNTS + ("legacyMappingCount",)
 
 
 class Client:

@@ -7,5 +7,6 @@ public record AssetReconciliationPage(String nextAfterId, long registryRevision,
                                       int assetCount, int sourceCount,
                                       int availableLocationCount, int invalidLocationCount,
                                       int artifactCount, int bundleReferenceCount,
+                                      int legacyMappingCount,
                                       String digestSha256) {
 }

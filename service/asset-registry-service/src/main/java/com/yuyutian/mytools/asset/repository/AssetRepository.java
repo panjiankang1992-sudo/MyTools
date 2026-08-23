@@ -337,6 +337,38 @@ public class AssetRepository {
     }
 
     /**
+     * 按旧系统身份查询资产映射。
+     */
+    public Optional<LegacyAssetMappingRecord> findLegacyMapping(String sourceSystem, String legacyAssetId) {
+        return jdbcTemplate.query("""
+                SELECT migration_key, source_snapshot_id, source_system, legacy_asset_id, asset_id,
+                    payload_sha256, created_at
+                FROM asset_legacy_mapping WHERE source_system=? AND legacy_asset_id=?
+                """, (rs, row) -> new LegacyAssetMappingRecord(rs.getString("migration_key"),
+                rs.getString("source_snapshot_id"), rs.getString("source_system"), rs.getString("legacy_asset_id"),
+                UUID.fromString(rs.getString("asset_id")), rs.getString("payload_sha256"),
+                rs.getTimestamp("created_at").toInstant()), sourceSystem, legacyAssetId).stream().findFirst();
+    }
+
+    /**
+     * 写入旧资产映射及事务事件。
+     */
+    public void insertLegacyMapping(LegacyAssetMappingRecord mapping) {
+        jdbcTemplate.update("""
+                INSERT INTO asset_legacy_mapping
+                    (id, migration_key, source_snapshot_id, source_system, legacy_asset_id, asset_id,
+                     payload_sha256, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """, UUID.randomUUID().toString(), mapping.migrationKey(), mapping.sourceSnapshotId(),
+                mapping.sourceSystem(),
+                mapping.legacyAssetId(), mapping.assetId().toString(), mapping.payloadSha256(),
+                Timestamp.from(mapping.createdAt()));
+        appendOutbox(mapping.assetId(), "AssetLegacyMappingRegistered", Map.of(
+                "assetId", mapping.assetId().toString(), "sourceSystem", mapping.sourceSystem(),
+                "legacyAssetId", mapping.legacyAssetId(), "sourceSnapshotId", mapping.sourceSnapshotId()));
+    }
+
+    /**
      * 查询完整资产视图。
      */
     public AssetView view(UUID id) {
@@ -405,9 +437,18 @@ public class AssetRepository {
                 """, (rs, row) -> rs.getString("bundle_id") + "\u0000" + rs.getLong("asset_version")
                 + "\u0000" + rs.getString("logical_path") + "\u0000" + rs.getString("item_role"),
                 asset.id().toString());
+        List<String> legacyMappings = jdbcTemplate.query("""
+                SELECT source_snapshot_id, source_system, legacy_asset_id, payload_sha256
+                FROM asset_legacy_mapping
+                WHERE asset_id=? ORDER BY source_system, legacy_asset_id
+                """, (rs, row) -> rs.getString("source_snapshot_id") + "\u0000"
+                + rs.getString("source_system") + "\u0000"
+                + rs.getString("legacy_asset_id") + "\u0000" + rs.getString("payload_sha256"),
+                asset.id().toString());
         int availableLocationCount = countLocations(asset.id(), "AVAILABLE");
         int invalidLocationCount = countLocations(asset.id(), "INVALID");
         return new ReconciliationAssetSnapshot(asset, sources, locations, artifacts, bundleReferences,
+                legacyMappings,
                 availableLocationCount, invalidLocationCount);
     }
 
@@ -628,6 +669,15 @@ public class AssetRepository {
     public record ReconciliationAssetSnapshot(AssetRecord asset, List<String> sources,
                                                List<String> locations, List<String> artifacts,
                                                List<String> bundleReferences,
+                                               List<String> legacyMappings,
                                                int availableLocationCount, int invalidLocationCount) {
+    }
+
+    /**
+     * 旧资产到新资产的不可变映射审计。
+     */
+    public record LegacyAssetMappingRecord(String migrationKey, String sourceSnapshotId,
+                                           String sourceSystem, String legacyAssetId, UUID assetId,
+                                           String payloadSha256, Instant createdAt) {
     }
 }

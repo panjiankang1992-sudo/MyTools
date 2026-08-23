@@ -9,6 +9,7 @@
     "invalidLocationCount",
     "artifactCount",
     "bundleReferenceCount",
+    "legacyMappingCount",
     "pageCount",
     "digestSha256",
     "lastAfterId"
@@ -21,6 +22,7 @@
     "invalidLocationCount": {"type": "integer", "minimum": 0},
     "artifactCount": {"type": "integer", "minimum": 0},
     "bundleReferenceCount": {"type": "integer", "minimum": 0},
+    "legacyMappingCount": {"type": "integer", "minimum": 0},
     "pageCount": {"type": "integer", "minimum": 1},
     "digestSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
     "lastAfterId": {"type": ["string", "null"], "format": "uuid"}

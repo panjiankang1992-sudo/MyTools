@@ -21,7 +21,7 @@ def page(next_after_id=None, asset_count=2):
     return {"nextAfterId": next_after_id, "registryRevision": 7,
             "assetCount": asset_count, "sourceCount": 3,
             "availableLocationCount": 1, "invalidLocationCount": 1, "artifactCount": 2,
-            "bundleReferenceCount": 1, "digestSha256": "a" * 64}
+            "bundleReferenceCount": 1, "legacyMappingCount": 1, "digestSha256": "a" * 64}
 
 
 def test_aggregates_bounded_pages():
