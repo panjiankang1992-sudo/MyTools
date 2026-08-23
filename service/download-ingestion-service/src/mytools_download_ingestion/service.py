@@ -62,6 +62,8 @@ class DownloadRequestService:
     def create(self, command: CreateDownloadRequest) -> DownloadRequest:
         """Idempotently create a request and its scheduler task binding."""
         existing = self._repository.find_by_idempotency_key(command.idempotency_key)
+        if existing is not None and not equivalent(existing, command):
+            raise ValueError("download request idempotency conflict")
         if existing is not None and existing.task_instance_id is not None:
             return existing
         task_name = TASK_NAMES.get(command.request_kind)
@@ -84,7 +86,7 @@ class DownloadRequestService:
         if current is None or current.task_instance_id is None:
             return current
         scheduler_task = self._scheduler.get_task(current.task_instance_id)
-        status = scheduler_status(str(scheduler_task["status"]))
+        status = transition(current.status, scheduler_status(str(scheduler_task["status"])))
         return current if status == current.status else self._repository.update_status(current.id, status)
 
     def cancel(self, request_id: UUID) -> DownloadRequest | None:
@@ -95,7 +97,8 @@ class DownloadRequestService:
         if current.status in {DownloadStatus.CANCELLED, DownloadStatus.SUCCEEDED, DownloadStatus.FAILED}:
             return current
         scheduler_task = self._scheduler.cancel_task(current.task_instance_id)
-        return self._repository.update_status(current.id, scheduler_status(str(scheduler_task["status"])))
+        return self._repository.update_status(
+            current.id, transition(current.status, scheduler_status(str(scheduler_task["status"]))))
 
 
 def scheduler_status(value: str) -> DownloadStatus:
@@ -115,6 +118,25 @@ def scheduler_status(value: str) -> DownloadStatus:
         return mapping[value]
     except KeyError as exception:
         raise ValueError(f"unsupported scheduler status: {value}") from exception
+
+
+def equivalent(existing: DownloadRequest, command: CreateDownloadRequest) -> bool:
+    """Require a replayed idempotency key to carry the exact same business request."""
+    return (existing.source_type == command.source_type
+            and existing.source_key == command.source_key
+            and existing.request_kind == command.request_kind
+            and existing.parameters == command.parameters)
+
+
+def transition(current: DownloadStatus, proposed: DownloadStatus) -> DownloadStatus:
+    """Prevent scheduler reconciliation from regressing terminal or cancelling requests."""
+    terminal = {DownloadStatus.CANCELLED, DownloadStatus.SUCCEEDED, DownloadStatus.FAILED}
+    if current in terminal:
+        return current
+    if current == DownloadStatus.CANCELLING and proposed in {
+            DownloadStatus.ACCEPTED, DownloadStatus.PLANNING, DownloadStatus.RUNNING}:
+        return current
+    return proposed
 
 
 class InMemoryDownloadRequestRepository:

@@ -30,7 +30,8 @@ def main() -> None:
 
     repository = MySqlDownloadRequestRepository(connection_factory)
     scheduler = TaskSchedulerHttpClient(os.environ.get("TASK_SCHEDULER_URL", "http://127.0.0.1:23210"))
-    handler = create_handler(DownloadRequestService(repository, scheduler), repository)
+    handler = create_handler(DownloadRequestService(repository, scheduler), repository,
+                             os.environ.get("DOWNLOAD_INTERNAL_TOKEN", ""))
     server = ThreadingHTTPServer((os.environ.get("DOWNLOAD_HTTP_HOST", "127.0.0.1"),
                                   int(os.environ.get("DOWNLOAD_HTTP_PORT", "23220"))), handler)
     server.serve_forever()

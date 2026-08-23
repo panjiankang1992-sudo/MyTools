@@ -30,6 +30,9 @@ HTTP 下载成功后追加可忽略的 `asset_register_content` 步骤，将摘�
 | `DOWNLOAD_DB_USER` | 无 | 最小权限账号 |
 | `DOWNLOAD_DB_PASSWORD` | 无 | 数据库密码 |
 | `TASK_SCHEDULER_URL` | `http://127.0.0.1:23210` | Scheduler 地址 |
+| `DOWNLOAD_INTERNAL_TOKEN` | 无 | 内部 API Bearer Token；为空时除健康检查外拒绝所有请求 |
+
+创建、查询和取消接口均要求内部 Bearer Token。相同幂等键只能重放完全相同的来源、类型和参数，内容变化会被拒绝而不是复用旧请求。
 
 ## 实施要求
 

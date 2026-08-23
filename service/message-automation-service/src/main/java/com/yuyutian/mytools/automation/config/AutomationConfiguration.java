@@ -29,6 +29,7 @@ public class AutomationConfiguration {
     @Bean
     public DownloadIngestionClient downloadIngestionClient(RestClient.Builder builder,
                                                             AutomationProperties properties) {
-        return new DownloadIngestionClient(builder.clone().baseUrl(properties.downloadUrl()).build());
+        return new DownloadIngestionClient(builder.clone().baseUrl(properties.downloadUrl()).build(),
+                properties.downloadToken());
     }
 }

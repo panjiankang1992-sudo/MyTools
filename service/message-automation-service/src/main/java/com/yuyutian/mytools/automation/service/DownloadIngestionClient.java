@@ -13,12 +13,14 @@ import java.util.UUID;
 public class DownloadIngestionClient {
 
     private final RestClient restClient;
+    private final String internalToken;
 
     /**
      * 创建下载接入客户端。
      */
-    public DownloadIngestionClient(RestClient restClient) {
+    public DownloadIngestionClient(RestClient restClient, String internalToken) {
         this.restClient = restClient;
+        this.internalToken = internalToken;
     }
 
     /**
@@ -37,6 +39,7 @@ public class DownloadIngestionClient {
                 "parameters", Map.of("ownerId", ownerId, "itemId", messageId + "-" + index,
                         "url", url, "fileName", fileName));
         JsonNode response = restClient.post().uri("/api/v1/download-requests")
+                .header("Authorization", "Bearer " + internalToken)
                 .contentType(MediaType.APPLICATION_JSON).body(payload).retrieve().body(JsonNode.class);
         if (response == null || response.path("id").isMissingNode()) {
             throw new IllegalStateException("Download Ingestion returned an invalid response");

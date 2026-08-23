@@ -23,3 +23,4 @@ automation:
   messaging-url: ${MESSAGING_SERVICE_URL:http://127.0.0.1:23250}
   messaging-token: ${MESSAGING_INTERNAL_TOKEN:}
   download-url: ${DOWNLOAD_INGESTION_URL:http://127.0.0.1:23220}
+  download-token: ${DOWNLOAD_INTERNAL_TOKEN:}

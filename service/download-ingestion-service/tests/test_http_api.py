@@ -42,7 +42,7 @@ class DownloadHttpApiTest(unittest.TestCase):
     def setUp(self):
         repository = InMemoryDownloadRequestRepository()
         scheduler = FakeScheduler()
-        handler = create_handler(DownloadRequestService(repository, scheduler), repository)
+        handler = create_handler(DownloadRequestService(repository, scheduler), repository, "test-token")
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
         self.thread = Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -75,11 +75,20 @@ class DownloadHttpApiTest(unittest.TestCase):
         self.assertEqual("CANCELLING", cancelled["status"])
         self.assertEqual(created["task_instance_id"], queried["task_instance_id"])
 
+    def test_rejects_missing_internal_token(self):
+        """Business endpoints are closed when no internal bearer token is supplied."""
+        request = Request(f"{self.base_url}/api/v1/download-requests", data=b"{}", method="POST",
+                          headers={"Content-Type": "application/json"})
+        with self.assertRaises(__import__("urllib.error").error.HTTPError) as raised:
+            urlopen(request, timeout=2)
+        self.assertEqual(401, raised.exception.code)
+
     def _request(self, method, path, payload=None):
         body = None if payload is None else json.dumps(payload).encode("utf-8")
         request = Request(
             f"{self.base_url}{path}", data=body, method=method,
             headers={"Content-Type": "application/json"},
         )
+        request.add_header("Authorization", "Bearer test-token")
         with urlopen(request, timeout=2) as response:
             return json.loads(response.read().decode("utf-8"))

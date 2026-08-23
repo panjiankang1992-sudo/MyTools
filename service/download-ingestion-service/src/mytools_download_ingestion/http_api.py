@@ -9,6 +9,7 @@ from http.server import BaseHTTPRequestHandler
 import json
 from urllib.parse import urlparse
 from uuid import UUID
+import hmac
 
 from .models import CreateDownloadRequest, DownloadRequest
 from .service import DownloadRequestRepository, DownloadRequestService
@@ -26,7 +27,8 @@ def request_document(request: DownloadRequest) -> dict:
 
 
 def create_handler(service: DownloadRequestService,
-                   repository: DownloadRequestRepository) -> type[BaseHTTPRequestHandler]:
+                   repository: DownloadRequestRepository,
+                   internal_token: str) -> type[BaseHTTPRequestHandler]:
     """Create a request handler bound to application dependencies."""
 
     class DownloadRequestHandler(BaseHTTPRequestHandler):
@@ -37,6 +39,9 @@ def create_handler(service: DownloadRequestService,
             path = urlparse(self.path).path
             if path == "/health":
                 self._json(HTTPStatus.OK, {"status": "UP"})
+                return
+            if not self._authorized():
+                self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
                 return
             prefix = "/api/v1/download-requests/"
             if path.startswith(prefix):
@@ -54,6 +59,9 @@ def create_handler(service: DownloadRequestService,
 
         def do_POST(self) -> None:  # noqa: N802
             """Accept one idempotent download request."""
+            if not self._authorized():
+                self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
+                return
             path = urlparse(self.path).path
             prefix = "/api/v1/download-requests/"
             if path.startswith(prefix) and path.endswith("/cancel"):
@@ -100,6 +108,13 @@ def create_handler(service: DownloadRequestService,
             if not isinstance(payload, dict):
                 raise ValueError("request body must be an object")
             return payload
+
+        def _authorized(self) -> bool:
+            """Validate the internal bearer token in constant time."""
+            if not internal_token:
+                return False
+            return hmac.compare_digest(self.headers.get("Authorization", ""),
+                                       f"Bearer {internal_token}")
 
         def _json(self, status: HTTPStatus, payload: dict) -> None:
             body = json.dumps(payload, separators=(",", ":"), default=str).encode("utf-8")

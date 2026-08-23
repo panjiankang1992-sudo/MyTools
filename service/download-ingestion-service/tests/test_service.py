@@ -84,6 +84,18 @@ class DownloadRequestServiceTest(unittest.TestCase):
         self.assertEqual(2, len(scheduler.calls))
         self.assertEqual(str(recovered.id), scheduler.calls[1]["parameters"]["downloadRequestId"])
 
+    def test_rejects_reused_idempotency_key_with_different_payload(self):
+        """An idempotency key cannot silently alias another download target."""
+        repository = InMemoryDownloadRequestRepository()
+        service = DownloadRequestService(repository, FakeScheduler())
+        first = CreateDownloadRequest("http:key", "HTTP", "source", "HTTP_ASSET",
+                                      {"url": "https://example.invalid/a", "fileName": "a"})
+        second = CreateDownloadRequest("http:key", "HTTP", "source", "HTTP_ASSET",
+                                       {"url": "https://example.invalid/b", "fileName": "b"})
+        service.create(first)
+        with self.assertRaisesRegex(ValueError, "idempotency conflict"):
+            service.create(second)
+
     def test_reconciles_bound_scheduler_task(self):
         """Query must mirror scheduler state into the aggregate."""
         repository = InMemoryDownloadRequestRepository()
@@ -118,6 +130,20 @@ class DownloadRequestServiceTest(unittest.TestCase):
 
         cancelled = service.cancel(created.id)
         self.assertEqual(DownloadStatus.CANCELLING, cancelled.status)
+
+    def test_does_not_regress_cancelling_request_to_running(self):
+        """A delayed scheduler RUNNING snapshot cannot undo cancellation intent."""
+        repository = InMemoryDownloadRequestRepository()
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(repository, scheduler)
+        command = CreateDownloadRequest("http:event-11", "HTTP", "source-11", "HTTP_ASSET",
+                                        {"itemId": "11", "url": "https://example.invalid/11",
+                                         "fileName": "11.bin"})
+        created = service.create(command)
+        repository.update_status(created.id, DownloadStatus.CANCELLING)
+        scheduler.status = "RUNNING"
+
+        self.assertEqual(DownloadStatus.CANCELLING, service.get(created.id).status)
 
 
 if __name__ == "__main__":
