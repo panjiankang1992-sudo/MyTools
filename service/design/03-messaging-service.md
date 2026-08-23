@@ -24,7 +24,7 @@
 ## 任务化操作
 
 - `message_send_email`、`message_send_channel_message`。
-- `message_download_attachment`。
+- `message_download_attachment`、`message_reconcile_attachment_download`。
 - `message_migrate_history`、`message_cleanup_retention`。
 
 步骤脚本调用 Messaging 内部 API 领取经过解析和授权的投递载荷，不能把 SMTP 密码或 Bot Token放进任务参数。
@@ -40,7 +40,7 @@
 1. 已建立 provider-neutral 投递、投递尝试、标准入站消息与 Outbox schema，并实现 SMTP 原子 provider。
 2. 已建立只携带 `deliveryId` 的 `message_send_email` 任务，并接入默认关闭、旧事务提交后触发的 MyTools 注册邮件旁路。
 3. 已迁移 OneBot 消息解析和附件标准模型，开关默认关闭；附件父任务只携带不透明作业标识，先在 Messaging 信任边界内调用独立 OneBot Connector 解析 provider file id，再转入 Download Ingestion。Connector 可返回无签名参数的 `PUBLIC_URL` 或不暴露来源的 `STREAM` 模式；后者由 `download_message_attachment` 通过 Messaging 和 Connector 两级有界内容流执行并复用统一资产登记链路。
-   创建请求同时携带权威 owner 字段和兼容嵌套字段，状态对账使用 owner-bound 内部接口，附件作业不能读取其他租户的下载状态。
+   创建请求同时携带权威 owner 字段和兼容嵌套字段，状态对账使用 owner-bound 内部接口，附件作业不能读取其他租户的下载状态。提交脚本 1.1.0 会创建独立终态对账子任务，避免只在用户查询时才发现失败或取消。
 4. 已建立历史入站消息批次迁移表、dry-run/幂等导入接口和 `message_migrate_history` 脚本任务；历史记录不产生实时自动化事件。独立快照适配器已提供默认关闭的装载和稳定分页导出；下一步基于旧 MsgService 真实 schema 实现只读映射，并执行生产副本摘要对账。
 5. 使用 NapCat 生产副本联调 OneBot Connector，并执行流式中断、超限、重试和内容摘要对账；继续扩展 Telegram adapter，渠道凭据只能由隔离 connector 使用。
 6. 先双投递到审计通道，再切换真实发送。

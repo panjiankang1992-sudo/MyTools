@@ -103,6 +103,8 @@ POST /internal/v1/task-instances/{id}/cancel
 5. 实现 Cron、多节点分片和管理后台。
 6. 逐项替换 MyTools `@Scheduled` 和 DownloadBot 内部 worker 队列。
 
+消息附件提交采用 `DO_NOT_WAIT` 风格的独立对账子任务：提交步骤通过脚本 SDK 使用稳定幂等键创建 `message_reconcile_attachment_download`，终态、网络失败和超时均由独立任务实例记录，不延长入站消息事务。
+
 ## 10. 验收
 
 - Scheduler 多实例切换不重复分配有效租约。

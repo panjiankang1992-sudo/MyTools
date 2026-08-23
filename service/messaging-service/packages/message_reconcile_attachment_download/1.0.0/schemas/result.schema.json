@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["jobId", "status", "checks"],
+  "properties": {
+    "jobId": {"type": "string", "format": "uuid"},
+    "downloadRequestId": {"type": ["string", "null"], "format": "uuid"},
+    "status": {"enum": ["SUCCEEDED", "FAILED", "CANCELLED"]},
+    "lastErrorCode": {"type": ["string", "null"]},
+    "checks": {"type": "integer", "minimum": 1}
+  },
+  "additionalProperties": false
+}

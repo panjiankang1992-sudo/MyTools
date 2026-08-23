@@ -1,0 +1,13 @@
+name: message_reconcile_attachment_download
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - messaging_internal_read
+parameters:
+  required:
+    - attachmentJobId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 1800

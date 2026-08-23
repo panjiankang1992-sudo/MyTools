@@ -494,4 +494,22 @@ class TaskInstanceServiceTest {
         assertEquals(2, ((Number) definition.get("version")).intValue());
         assertEquals("1.1.0", definition.get("script_version"));
     }
+
+    @Test
+    void shouldSeedIndependentMessageAttachmentReconciliation() {
+        Map<String, Object> submission = jdbcTemplate.queryForMap(
+                "SELECT d.version,s.script_version FROM task_definition d "
+                        + "JOIN task_step_definition s ON s.task_definition_id=d.id "
+                        + "WHERE d.name=? AND s.name=?",
+                "message_download_attachment", "submit_download");
+        Integer reconciliation = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM task_definition d JOIN task_step_definition s "
+                        + "ON s.task_definition_id=d.id WHERE d.name=? AND s.script_package=?",
+                Integer.class, "message_reconcile_attachment_download",
+                "message_reconcile_attachment_download");
+
+        assertEquals(3, ((Number) submission.get("version")).intValue());
+        assertEquals("1.1.0", submission.get("script_version"));
+        assertEquals(1, reconciliation);
+    }
 }
