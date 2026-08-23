@@ -11,9 +11,12 @@ import java.nio.file.Path;
  * @param defaultRootName 默认受管根名称
  * @param defaultRootPurpose 默认受管根用途
  * @param defaultRootPath 默认受管根路径
+ * @param defaultRootNodeLabel 默认受管根节点亲和标签
+ * @param defaultRootNodeValue 默认受管根节点亲和值
  * @param maximumUploadBytes 单次上传最大字节数
  */
 @ConfigurationProperties(prefix = "storage")
 public record StorageProperties(String internalToken, String defaultRootName, String defaultRootPurpose,
-                                Path defaultRootPath, long maximumUploadBytes) {
+                                Path defaultRootPath, String defaultRootNodeLabel, String defaultRootNodeValue,
+                                long maximumUploadBytes) {
 }

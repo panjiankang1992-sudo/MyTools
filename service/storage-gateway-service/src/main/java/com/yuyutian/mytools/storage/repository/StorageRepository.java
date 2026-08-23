@@ -43,21 +43,26 @@ public class StorageRepository {
      * @param name 根名称
      * @param purpose 根用途
      * @param basePath 绝对路径
+     * @param nodeAffinityLabel 节点亲和标签
+     * @param nodeAffinityValue 节点亲和值
      */
-    public void ensureRoot(String name, String purpose, String basePath) {
+    public void ensureRoot(String name, String purpose, String basePath, String nodeAffinityLabel,
+                           String nodeAffinityValue) {
         List<Map<String, Object>> roots = jdbcTemplate.queryForList("SELECT id FROM storage_root WHERE name = ?", name);
         Instant now = Instant.now();
         if (roots.isEmpty()) {
             jdbcTemplate.update("""
-                    INSERT INTO storage_root (id, name, purpose, base_path, enabled, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, TRUE, ?, ?)
-                    """, UUID.randomUUID().toString(), name, purpose, basePath,
+                    INSERT INTO storage_root (id, name, purpose, base_path, node_affinity_label,
+                                              node_affinity_value, enabled, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, TRUE, ?, ?)
+                    """, UUID.randomUUID().toString(), name, purpose, basePath, nodeAffinityLabel, nodeAffinityValue,
                     Timestamp.from(now), Timestamp.from(now));
             return;
         }
         jdbcTemplate.update("""
-                UPDATE storage_root SET purpose = ?, base_path = ?, enabled = TRUE, updated_at = ? WHERE name = ?
-                """, purpose, basePath, Timestamp.from(now), name);
+                UPDATE storage_root SET purpose = ?, base_path = ?, node_affinity_label = ?,
+                    node_affinity_value = ?, enabled = TRUE, updated_at = ? WHERE name = ?
+                """, purpose, basePath, nodeAffinityLabel, nodeAffinityValue, Timestamp.from(now), name);
     }
 
     /**
@@ -67,9 +72,13 @@ public class StorageRepository {
      * @return 根标识和路径
      */
     public Optional<ManagedRoot> findRoot(String name) {
-        return jdbcTemplate.query("SELECT id, name, base_path FROM storage_root WHERE name = ? AND enabled = TRUE",
+        return jdbcTemplate.query("""
+                SELECT id, name, base_path, node_affinity_label, node_affinity_value
+                FROM storage_root WHERE name = ? AND enabled = TRUE
+                """,
                 (resultSet, rowNumber) -> new ManagedRoot(UUID.fromString(resultSet.getString("id")),
-                        resultSet.getString("name"), resultSet.getString("base_path")), name)
+                        resultSet.getString("name"), resultSet.getString("base_path"),
+                        resultSet.getString("node_affinity_label"), resultSet.getString("node_affinity_value")), name)
                 .stream().findFirst();
     }
 
@@ -513,7 +522,10 @@ public class StorageRepository {
      * @param id 根标识
      * @param name 根名称
      * @param basePath 根路径
+     * @param nodeAffinityLabel 节点亲和标签
+     * @param nodeAffinityValue 节点亲和值
      */
-    public record ManagedRoot(UUID id, String name, String basePath) {
+    public record ManagedRoot(UUID id, String name, String basePath, String nodeAffinityLabel,
+                              String nodeAffinityValue) {
     }
 }

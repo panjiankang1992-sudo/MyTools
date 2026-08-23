@@ -1,0 +1,1 @@
+{"type":"object","required":["checksumOperationId","sizeBytes","contentSha256","status"],"properties":{"checksumOperationId":{"type":"string","format":"uuid"},"sizeBytes":{"type":"integer","minimum":0},"contentSha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},"status":{"const":"SUCCEEDED"}}}

@@ -33,7 +33,15 @@ public class StorageConfiguration {
             } catch (IOException exception) {
                 throw new IllegalStateException("Managed storage root cannot be created", exception);
             }
-            repository.ensureRoot(properties.defaultRootName(), properties.defaultRootPurpose(), root.toString());
+            String label = properties.defaultRootNodeLabel() == null || properties.defaultRootNodeLabel().isBlank()
+                    ? "storage.mount." + properties.defaultRootName() : properties.defaultRootNodeLabel();
+            String value = properties.defaultRootNodeValue() == null || properties.defaultRootNodeValue().isBlank()
+                    ? "present" : properties.defaultRootNodeValue();
+            if (!label.matches("^[A-Za-z][A-Za-z0-9_.-]{0,127}$") || value.length() > 256) {
+                throw new IllegalStateException("Managed storage root node affinity is invalid");
+            }
+            repository.ensureRoot(properties.defaultRootName(), properties.defaultRootPurpose(), root.toString(),
+                    label, value);
         };
     }
 }

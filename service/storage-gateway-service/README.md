@@ -12,7 +12,7 @@ Java 21 / Spring Boot
 
 该目录属于旁路迁移工作区，不参与现有 MyTools 根工程构建和生产启动。详细设计见 [对应设计文档](../design/09-storage-gateway-service.md)。
 
-已实现 Java 21 / Spring Boot 的本地受管根、远端 Provider、访问票据和异步跨 Provider 操作，并使用独立 `mytools_storage` schema。服务默认监听 `127.0.0.1:23240`，通过 `STORAGE_DB_*`、`STORAGE_DEFAULT_ROOT_*`、`STORAGE_MAXIMUM_UPLOAD_BYTES` 和 `STORAGE_INTERNAL_TOKEN` 配置。
+已实现 Java 21 / Spring Boot 的本地受管根、远端 Provider、访问票据和异步跨 Provider 操作，并使用独立 `mytools_storage` schema。服务默认监听 `127.0.0.1:23240`，通过 `STORAGE_DB_*`、`STORAGE_DEFAULT_ROOT_*`、`STORAGE_DEFAULT_ROOT_NODE_LABEL`、`STORAGE_MAXIMUM_UPLOAD_BYTES` 和 `STORAGE_INTERNAL_TOKEN` 配置。
 
 Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 幂等创建上传会话，再通过 `PUT /api/internal/v1/storage/uploads/{id}/content` 流式写入。Storage Gateway 负责限制大小、校验 SHA-256、拒绝绝对路径、目录穿越和符号链接逃逸；同文件系统直接原子发布，遇到嵌套挂载点导致跨文件系统时，复制到目标侧临时文件并复验大小和摘要后再原子切换。响应只暴露 `storage://root/path`，不暴露物理路径。WebDAV、S3 原生适配仍待后续阶段实现，当前远端操作统一通过受控 rclone RC 执行。
 
@@ -29,6 +29,8 @@ Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 
 `storage_migrate_drive_providers` 是手工即时迁移任务：它只读取 Drive 的账户 UUID、remote key、Secret 引用和启用状态，注册 Provider 后将 UUID 回绑 Drive；不读取或传输 URL、用户名和密码。任务可安全重跑且不会自动触发。
 
 成功的 `SCAN_ROOT` 操作可读取稳定排序的对象集合摘要，供 `drive_reconcile_index` 同时比较数量与 SHA-256。摘要采用共享长度前缀协议和黄金向量，避免仅按数量判断造成误切换。
+
+`POST /api/internal/v1/storage/checksum-operations` 为受管本地对象创建 `storage_compute_checksum` 任务。Storage Root 保存节点亲和标签和值，创建任务时将其写入 Scheduler 的 `requiredNodeLabels`，脚本参数只包含校验操作 UUID。Executor 必须注册匹配标签，并通过同节点的 Storage Gateway 流式读取对象、计算大小和 SHA-256 后幂等回写；失败、超时和取消由独立特殊步骤收敛。默认根使用 `storage.mount.managed=present`，部署多个根时每个挂载节点必须显式声明对应标签。
 
 ## 实施要求
 

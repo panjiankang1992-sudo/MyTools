@@ -3,6 +3,8 @@ package com.yuyutian.mytools.storage.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.yuyutian.mytools.storage.model.ErrorCode;
 import com.yuyutian.mytools.storage.model.StorageOperation;
+import com.yuyutian.mytools.storage.model.ChecksumOperation;
+import com.yuyutian.mytools.storage.repository.StorageRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -56,6 +58,30 @@ public class StorageTaskSchedulerClient {
                 "businessId", operation.id().toString(),
                 "priority", 40,
                 "parameters", parameters);
+        JsonNode response = restClient.post().uri("/api/v1/task-instances")
+                .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
+        if (response == null || response.path("id").isMissingNode()) {
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+        }
+        return UUID.fromString(response.path("id").asText());
+    }
+
+    /**
+     * 幂等创建具备受管根挂载亲和约束的校验和任务。
+     *
+     * @param operation 校验和操作
+     * @param root 受管根
+     * @return 任务实例标识
+     */
+    public UUID createChecksumTask(ChecksumOperation operation, StorageRepository.ManagedRoot root) {
+        Map<String, Object> request = Map.of(
+                "taskName", "storage_compute_checksum",
+                "idempotencyKey", "storage-checksum:" + operation.idempotencyKey(),
+                "businessType", "STORAGE_CHECKSUM_OPERATION",
+                "businessId", operation.id().toString(),
+                "priority", 40,
+                "parameters", Map.of("checksumOperationId", operation.id().toString()),
+                "requiredNodeLabels", Map.of(root.nodeAffinityLabel(), root.nodeAffinityValue()));
         JsonNode response = restClient.post().uri("/api/v1/task-instances")
                 .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
         if (response == null || response.path("id").isMissingNode()) {

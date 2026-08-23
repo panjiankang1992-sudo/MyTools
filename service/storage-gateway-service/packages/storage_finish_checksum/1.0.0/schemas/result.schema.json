@@ -1,0 +1,1 @@
+{"type":"object","required":["status"],"properties":{"status":{"enum":["FAILED","TIMED_OUT","CANCELLED"]}}}

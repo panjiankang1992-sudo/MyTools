@@ -38,7 +38,11 @@ public class StorageObjectService {
         var rootRecord = repository.findRoot(rootName)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.ROOT_NOT_FOUND.code()));
         Path root = Path.of(rootRecord.basePath()).toAbsolutePath().normalize();
-        Path relative = Path.of(relativePath == null ? "" : relativePath).normalize();
+        String pathValue = relativePath == null ? "" : relativePath;
+        if (pathValue.indexOf('\\') >= 0) {
+            throw new IllegalArgumentException(ErrorCode.PATH_INVALID.code());
+        }
+        Path relative = Path.of(pathValue).normalize();
         if (relative.isAbsolute() || relative.getNameCount() == 0 || relative.startsWith("..")) {
             throw new IllegalArgumentException(ErrorCode.PATH_INVALID.code());
         }

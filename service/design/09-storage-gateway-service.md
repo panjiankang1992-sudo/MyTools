@@ -18,7 +18,7 @@
 - `storage_scan_root`、`storage_copy_tree`、`storage_move_tree`。
 - `storage_compute_checksum`、`storage_sync_remote`。
 
-当前已实现 `storage_scan_root`、`storage_copy_tree` 和 `storage_sync_remote`。复制与同步只允许服务端登记的来源/目标 Provider 和相对路径，rclone remote 键不会进入 Scheduler 参数；远端 RC job 标识持久化到操作聚合，特殊步骤负责停止远端 job 并回写失败、超时或取消终态。`storage_move_tree` 仍需补齐源删除后的补偿和回退语义后开放。
+当前已实现 `storage_scan_root`、`storage_copy_tree`、`storage_compute_checksum` 和 `storage_sync_remote`。复制与同步只允许服务端登记的来源/目标 Provider 和相对路径，rclone remote 键不会进入 Scheduler 参数；远端 RC job 标识持久化到操作聚合，特殊步骤负责停止远端 job 并回写失败、超时或取消终态。校验和任务只携带不透明操作 UUID，Scheduler 使用 Storage Root 服务端登记的 `storage.mount.<rootName>` 约束选择挂载节点，再通过节点本地 Storage Gateway 流式读取。`storage_move_tree` 仍需补齐源删除后的补偿和回退语义后开放。
 
 ## 脚本与 DML
 
@@ -38,4 +38,4 @@
 - 原子发布只在同文件系统进行，跨文件系统走复制校验再切换。
 - 节点调度遵守存储挂载亲和性。
 
-本地能力已覆盖根内相对路径、目录穿越、符号链接逃逸及跨文件系统发布：原子移动不可用时，先复制到目标目录临时文件，复验大小与 SHA-256，再在目标文件系统内原子切换。远端 Provider 已覆盖受控目录读取、树复制、镜像同步和单用途访问票据；远端移动补偿和节点挂载亲和调度仍在对应迁移阶段验收。
+本地能力已覆盖根内相对路径、目录穿越、符号链接逃逸及跨文件系统发布：原子移动不可用时，先复制到目标目录临时文件，复验大小与 SHA-256，再在目标文件系统内原子切换。受管根亲和标签已接入任务实例不可变节点约束，并由本地校验和任务完成端到端验证。远端 Provider 已覆盖受控目录读取、树复制、镜像同步和单用途访问票据；远端移动补偿仍在对应迁移阶段验收。

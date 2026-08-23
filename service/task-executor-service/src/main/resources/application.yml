@@ -15,7 +15,8 @@ executor:
     runtimes:
       - shell
       - python3.12
-  labels: {}
+  labels:
+    storage.mount.managed: ${STORAGE_DEFAULT_ROOT_NODE_VALUE:present}
   cluster-names:
     - media
     - reader
@@ -117,6 +118,12 @@ executor:
       STORAGE_GATEWAY_URL: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
       STORAGE_INTERNAL_TOKEN: ${STORAGE_INTERNAL_TOKEN:}
     storage_transfer_tree:
+      STORAGE_GATEWAY_URL: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
+      STORAGE_INTERNAL_TOKEN: ${STORAGE_INTERNAL_TOKEN:}
+    storage_compute_checksum:
+      STORAGE_GATEWAY_URL: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
+      STORAGE_INTERNAL_TOKEN: ${STORAGE_INTERNAL_TOKEN:}
+    storage_finish_checksum:
       STORAGE_GATEWAY_URL: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
       STORAGE_INTERNAL_TOKEN: ${STORAGE_INTERNAL_TOKEN:}
     storage_migrate_drive_providers:

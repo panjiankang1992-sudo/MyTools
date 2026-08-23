@@ -1,0 +1,9 @@
+INSERT INTO task_definition (id,name,description,task_type,timeout_seconds,cluster_id,cron_expression,cron_timezone,execution_mode,enabled,max_concurrency,overlap_policy,misfire_policy,parameter_schema,result_schema,version,created_at,updated_at)
+VALUES ('00000000-0000-4000-8000-000000000327','storage_compute_checksum','Compute a managed local object checksum on a mount-affine node','IMMEDIATE',3600,'00000000-0000-4000-8000-000000000008',NULL,NULL,'SINGLE_NODE',TRUE,2,'SKIP','IGNORE','{}','{}',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+
+INSERT INTO task_step_definition (id,task_definition_id,name,description,step_kind,script_package,script_version,entrypoint,arguments_template,enabled,timeout_seconds,failure_policy,sequence_number,max_attempts,created_at,updated_at)
+VALUES
+('00000000-0000-4000-8000-000000000455','00000000-0000-4000-8000-000000000327','compute_checksum','Stream and hash the opaque managed object','NORMAL','storage_compute_checksum','1.0.0','scripts/main.py','[]',TRUE,3600,'FAIL_TASK',10,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+('00000000-0000-4000-8000-000000000456','00000000-0000-4000-8000-000000000327','on_failure','Mark checksum operation failed','FAILURE','storage_finish_checksum','1.0.0','scripts/main.py','[]',TRUE,30,'IGNORE',10,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+('00000000-0000-4000-8000-000000000457','00000000-0000-4000-8000-000000000327','on_timeout','Mark checksum operation timed out','TIMEOUT','storage_finish_checksum','1.0.0','scripts/main.py','[]',TRUE,30,'IGNORE',10,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+('00000000-0000-4000-8000-000000000458','00000000-0000-4000-8000-000000000327','on_cancel','Mark checksum operation cancelled','CANCEL','storage_finish_checksum','1.0.0','scripts/main.py','[]',TRUE,30,'IGNORE',10,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);

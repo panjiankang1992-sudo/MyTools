@@ -20,6 +20,8 @@ storage:
   default-root-name: ${STORAGE_DEFAULT_ROOT_NAME:managed}
   default-root-purpose: ${STORAGE_DEFAULT_ROOT_PURPOSE:GENERAL}
   default-root-path: ${STORAGE_DEFAULT_ROOT_PATH:./runtime/storage}
+  default-root-node-label: ${STORAGE_DEFAULT_ROOT_NODE_LABEL:storage.mount.managed}
+  default-root-node-value: ${STORAGE_DEFAULT_ROOT_NODE_VALUE:present}
   maximum-upload-bytes: ${STORAGE_MAXIMUM_UPLOAD_BYTES:536870912}
   rclone-rc-url: ${STORAGE_RCLONE_RC_URL:http://127.0.0.1:5572}
   rclone-rc-user: ${STORAGE_RCLONE_RC_USER:}

@@ -77,6 +77,19 @@ class StorageUploadServiceTest {
     }
 
     @Test
+    void shouldRejectBackslashPathBeforePlatformNormalization() {
+        var request = new CreateUploadRequest("managed", "..\\outside.txt", 1, null,
+                "backslash-" + UUID.randomUUID());
+
+        assertThatThrownBy(() -> uploadService.create(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("STORAGE_004");
+        assertThatThrownBy(() -> objectService.requireReadable("managed", "..\\outside.txt"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("STORAGE_004");
+    }
+
+    @Test
     void shouldRejectSymbolicLinkEscapeDuringPublish() throws Exception {
         Path root = properties.defaultRootPath().toAbsolutePath().normalize();
         Files.createDirectories(root);

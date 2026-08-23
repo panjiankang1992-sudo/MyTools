@@ -186,12 +186,15 @@ public class StorageUploadService {
     }
 
     private String safeRelativePath(String value) {
+        if (value.indexOf('\\') >= 0) {
+            throw new IllegalArgumentException(ErrorCode.PATH_INVALID.code());
+        }
         Path path = Path.of(value).normalize();
         if (path.isAbsolute() || path.getNameCount() == 0 || path.startsWith("..")
                 || path.getName(0).toString().equals(".mytools-staging")) {
             throw new IllegalArgumentException(ErrorCode.PATH_INVALID.code());
         }
-        return path.toString().replace('\\', '/');
+        return path.toString();
     }
 
     private void ensureSafeDirectory(Path root, Path directory) throws IOException {
