@@ -14,7 +14,7 @@ Java 21 / Spring Boot
 
 已实现 Java 21 / Spring Boot 的本地受管根、远端 Provider、访问票据和异步跨 Provider 操作，并使用独立 `mytools_storage` schema。服务默认监听 `127.0.0.1:23240`，通过 `STORAGE_DB_*`、`STORAGE_DEFAULT_ROOT_*`、`STORAGE_MAXIMUM_UPLOAD_BYTES` 和 `STORAGE_INTERNAL_TOKEN` 配置。
 
-Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 幂等创建上传会话，再通过 `PUT /api/internal/v1/storage/uploads/{id}/content` 流式写入。Storage Gateway 负责限制大小、校验 SHA-256、拒绝绝对路径、目录穿越和符号链接逃逸，并在同一受管根中原子发布；响应只暴露 `storage://root/path`，不暴露物理路径。WebDAV、S3 原生适配仍待后续阶段实现，当前远端操作统一通过受控 rclone RC 执行。
+Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 幂等创建上传会话，再通过 `PUT /api/internal/v1/storage/uploads/{id}/content` 流式写入。Storage Gateway 负责限制大小、校验 SHA-256、拒绝绝对路径、目录穿越和符号链接逃逸；同文件系统直接原子发布，遇到嵌套挂载点导致跨文件系统时，复制到目标侧临时文件并复验大小和摘要后再原子切换。响应只暴露 `storage://root/path`，不暴露物理路径。WebDAV、S3 原生适配仍待后续阶段实现，当前远端操作统一通过受控 rclone RC 执行。
 
 内部任务可通过 `GET /api/internal/v1/storage/objects/content?rootName=...&path=...` 流式读取已发布对象。读取与写入执行相同的真实路径和符号链接边界检查，物理路径不会进入 Scheduler 参数或脚本结果。
 

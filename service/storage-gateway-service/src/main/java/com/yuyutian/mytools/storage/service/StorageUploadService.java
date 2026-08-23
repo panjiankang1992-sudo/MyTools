@@ -32,16 +32,20 @@ public class StorageUploadService {
 
     private final StorageRepository repository;
     private final StorageProperties properties;
+    private final CrossFileSystemPublisher crossFileSystemPublisher;
 
     /**
      * 创建存储上传服务。
      *
      * @param repository 存储仓储
      * @param properties 存储配置
+     * @param crossFileSystemPublisher 跨文件系统发布服务
      */
-    public StorageUploadService(StorageRepository repository, StorageProperties properties) {
+    public StorageUploadService(StorageRepository repository, StorageProperties properties,
+                                CrossFileSystemPublisher crossFileSystemPublisher) {
         this.repository = repository;
         this.properties = properties;
+        this.crossFileSystemPublisher = crossFileSystemPublisher;
     }
 
     /**
@@ -119,8 +123,10 @@ public class StorageUploadService {
             throw exception;
         } catch (IOException | NoSuchAlgorithmException exception) {
             deleteQuietly(temporary);
-            repository.fail(uploadId, ErrorCode.IO_FAILURE.code());
-            throw new IllegalStateException(ErrorCode.IO_FAILURE.code(), exception);
+            String errorCode = ErrorCode.CONTENT_MISMATCH.code().equals(exception.getMessage())
+                    ? ErrorCode.CONTENT_MISMATCH.code() : ErrorCode.IO_FAILURE.code();
+            repository.fail(uploadId, errorCode);
+            throw new IllegalStateException(errorCode, exception);
         }
     }
 
@@ -164,8 +170,8 @@ public class StorageUploadService {
         try {
             Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE);
         } catch (AtomicMoveNotSupportedException exception) {
-            // 临时文件和目标始终位于同一受管根，回退移动仍不会跨文件系统。
-            Files.move(temporary, target);
+            // 嵌套挂载点可能使同一受管根跨文件系统，必须复制校验后在目标侧原子切换。
+            crossFileSystemPublisher.publish(temporary, target, size, sha256);
         }
     }
 
