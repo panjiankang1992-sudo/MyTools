@@ -1,6 +1,10 @@
 package com.yuyutian.mytools.asset.controller;
 
 import com.yuyutian.mytools.asset.model.AssetView;
+import com.yuyutian.mytools.asset.model.AssetBundleView;
+import com.yuyutian.mytools.asset.model.AssetReconciliationPage;
+import com.yuyutian.mytools.asset.model.InvalidateLocationRequest;
+import com.yuyutian.mytools.asset.model.PublishBundleRequest;
 import com.yuyutian.mytools.asset.model.RegisterArtifactRequest;
 import com.yuyutian.mytools.asset.model.RegisterAssetRequest;
 import com.yuyutian.mytools.asset.model.RegisterLocationRequest;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -77,5 +82,51 @@ public class AssetController {
             @PathVariable UUID id, @Valid @RequestBody RegisterArtifactRequest request) {
         authorizer.requireAuthorized(authorization);
         return service.registerArtifact(id, request);
+    }
+
+    /**
+     * 使用乐观版本显式失效一个存储位置。
+     */
+    @PostMapping("/{id}/locations/{locationId}/invalidate")
+    public AssetView invalidateLocation(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable UUID id, @PathVariable UUID locationId,
+            @Valid @RequestBody InvalidateLocationRequest request) {
+        authorizer.requireAuthorized(authorization);
+        return service.invalidateLocation(id, locationId, request);
+    }
+
+    /**
+     * 原子发布不可变资源包。
+     */
+    @PostMapping("/bundles")
+    public AssetBundleView publishBundle(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @Valid @RequestBody PublishBundleRequest request) {
+        authorizer.requireAuthorized(authorization);
+        return service.publishBundle(request);
+    }
+
+    /**
+     * 查询已发布资源包。
+     */
+    @GetMapping("/bundles/{bundleId}")
+    public AssetBundleView getBundle(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable UUID bundleId) {
+        authorizer.requireAuthorized(authorization);
+        return service.getBundle(bundleId);
+    }
+
+    /**
+     * 为异步对账任务提供有界资产摘要页。
+     */
+    @GetMapping("/reconciliation")
+    public AssetReconciliationPage reconciliationPage(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @RequestParam(required = false) UUID afterId,
+            @RequestParam(defaultValue = "200") int limit) {
+        authorizer.requireAuthorized(authorization);
+        return service.reconciliationPage(afterId, limit);
     }
 }

@@ -2,14 +2,18 @@ package com.yuyutian.mytools.asset.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yuyutian.mytools.asset.model.AssetBundleView;
 import com.yuyutian.mytools.asset.model.AssetRecord;
 import com.yuyutian.mytools.asset.model.AssetView;
+import com.yuyutian.mytools.asset.model.InvalidateLocationRequest;
+import com.yuyutian.mytools.asset.model.PublishBundleRequest;
 import com.yuyutian.mytools.asset.model.RegisterArtifactRequest;
 import com.yuyutian.mytools.asset.model.RegisterAssetRequest;
 import com.yuyutian.mytools.asset.model.RegisterLocationRequest;
 import com.yuyutian.mytools.asset.service.ArtifactCycleException;
 import com.yuyutian.mytools.asset.service.AssetNotFoundException;
 import com.yuyutian.mytools.asset.service.AssetVersionConflictException;
+import com.yuyutian.mytools.asset.service.BundleManifestConflictException;
 import com.yuyutian.mytools.asset.service.IdempotencyConflictException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -155,6 +160,183 @@ public class AssetRepository {
     }
 
     /**
+     * 使用乐观版本显式失效一个存储位置。
+     */
+    public AssetRecord invalidateLocation(UUID assetId, UUID locationId, InvalidateLocationRequest request) {
+        Optional<LocationInvalidationBinding> replay = findLocationInvalidation(request.idempotencyKey());
+        if (replay.isPresent()) {
+            LocationInvalidationBinding binding = replay.get();
+            if (!binding.assetId().equals(assetId) || !binding.locationId().equals(locationId)
+                    || !binding.reason().equals(request.reason())) {
+                throw new IdempotencyConflictException();
+            }
+            return required(assetId);
+        }
+        LocationState location = findLocationState(locationId)
+                .orElseThrow(() -> new AssetNotFoundException(locationId));
+        if (!location.assetId().equals(assetId) || !location.availability().equals("AVAILABLE")) {
+            throw new IdempotencyConflictException();
+        }
+        advanceVersion(assetId, request.expectedAssetVersion());
+        Instant now = Instant.now();
+        int updated = jdbcTemplate.update("""
+                UPDATE asset_location SET availability='INVALID', invalidation_reason=?, invalidated_at=?,
+                    updated_at=? WHERE id=? AND availability='AVAILABLE'
+                """, request.reason(), Timestamp.from(now), Timestamp.from(now), locationId.toString());
+        if (updated != 1) {
+            throw new IdempotencyConflictException();
+        }
+        jdbcTemplate.update("""
+                INSERT INTO asset_location_invalidation
+                    (id, asset_id, location_id, idempotency_key, reason, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """, UUID.randomUUID().toString(), assetId.toString(), locationId.toString(),
+                request.idempotencyKey(), request.reason(), Timestamp.from(now));
+        appendOutbox(assetId, "AssetLocationInvalidated", Map.of("assetId", assetId.toString(),
+                "locationId", locationId.toString(), "reason", request.reason()));
+        return required(assetId);
+    }
+
+    /**
+     * 锁定资源包引用的资产并返回版本快照。
+     */
+    public Map<UUID, AssetRecord> lockBundleAssets(List<PublishBundleRequest.Item> items) {
+        Map<UUID, AssetRecord> result = new LinkedHashMap<>();
+        List<UUID> assetIds = items.stream().map(PublishBundleRequest.Item::assetId).distinct().sorted().toList();
+        for (UUID assetId : assetIds) {
+            result.put(assetId, queryAsset("WHERE id = ? FOR UPDATE", assetId.toString())
+                    .orElseThrow(() -> new AssetNotFoundException(assetId)));
+        }
+        return result;
+    }
+
+    /**
+     * 在校验当前资产版本前解析已发布资源包重放。
+     */
+    public Optional<UUID> findPublishedBundle(PublishBundleRequest request, String manifestSha256) {
+        Optional<BundleBinding> replay = findBundleByIdempotencyKey(request.idempotencyKey());
+        if (replay.isPresent()) {
+            if (replay.get().ownerId() != request.ownerId()
+                    || !replay.get().manifestSha256().equals(manifestSha256)) {
+                throw new BundleManifestConflictException();
+            }
+            return Optional.of(replay.get().id());
+        }
+        Optional<BundleBinding> existingManifest = findBundleByManifest(request.ownerId(), manifestSha256);
+        if (existingManifest.isPresent()) {
+            Optional<BundleBinding> concurrentReplay = findBundleByIdempotencyKey(request.idempotencyKey());
+            if (concurrentReplay.isPresent()) {
+                if (concurrentReplay.get().ownerId() != request.ownerId()
+                        || !concurrentReplay.get().manifestSha256().equals(manifestSha256)) {
+                    throw new BundleManifestConflictException();
+                }
+                return Optional.of(concurrentReplay.get().id());
+            }
+            bindBundleIdempotency(request.idempotencyKey(), existingManifest.get(), Instant.now());
+            return Optional.of(existingManifest.get().id());
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * 幂等发布不可变资源包。
+     */
+    public UUID publishBundle(PublishBundleRequest request, List<PublishBundleRequest.Item> items,
+                              String manifestSha256) {
+        Optional<BundleBinding> replay = findBundleByIdempotencyKey(request.idempotencyKey());
+        if (replay.isPresent()) {
+            if (replay.get().ownerId() != request.ownerId()
+                    || !replay.get().manifestSha256().equals(manifestSha256)) {
+                throw new BundleManifestConflictException();
+            }
+            return replay.get().id();
+        }
+        Optional<BundleBinding> existingManifest = findBundleByManifest(request.ownerId(), manifestSha256);
+        if (existingManifest.isPresent()) {
+            Optional<BundleBinding> concurrentReplay = findBundleByIdempotencyKey(request.idempotencyKey());
+            if (concurrentReplay.isPresent()) {
+                if (concurrentReplay.get().ownerId() != request.ownerId()
+                        || !concurrentReplay.get().manifestSha256().equals(manifestSha256)) {
+                    throw new BundleManifestConflictException();
+                }
+                return concurrentReplay.get().id();
+            }
+            bindBundleIdempotency(request.idempotencyKey(), existingManifest.get(), Instant.now());
+            return existingManifest.get().id();
+        }
+        UUID bundleId = UUID.randomUUID();
+        Instant now = Instant.now();
+        jdbcTemplate.update("""
+                INSERT INTO asset_bundle
+                    (id, owner_id, idempotency_key, name, description, manifest_sha256, status,
+                     created_at, published_at)
+                VALUES (?, ?, ?, ?, ?, ?, 'PUBLISHED', ?, ?)
+                """, bundleId.toString(), request.ownerId(), request.idempotencyKey(), request.name(),
+                request.description(), manifestSha256, Timestamp.from(now), Timestamp.from(now));
+        bindBundleIdempotency(request.idempotencyKey(),
+                new BundleBinding(bundleId, request.ownerId(), manifestSha256), now);
+        int sequence = 0;
+        for (PublishBundleRequest.Item item : items) {
+            jdbcTemplate.update("""
+                    INSERT INTO asset_bundle_item
+                        (id, bundle_id, asset_id, asset_version, logical_path, item_role,
+                         sequence_number, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, UUID.randomUUID().toString(), bundleId.toString(), item.assetId().toString(),
+                    item.expectedAssetVersion(), item.logicalPath(), item.role(), sequence++, Timestamp.from(now));
+        }
+        appendOutbox(bundleId, "AssetBundlePublished", Map.of("bundleId", bundleId.toString(),
+                "ownerId", request.ownerId(), "manifestSha256", manifestSha256, "itemCount", items.size()));
+        return bundleId;
+    }
+
+    /**
+     * 查询已发布资源包及固定清单。
+     */
+    public AssetBundleView bundleView(UUID bundleId) {
+        BundleRecord bundle = jdbcTemplate.query("SELECT * FROM asset_bundle WHERE id=?",
+                (resultSet, rowNumber) -> new BundleRecord(UUID.fromString(resultSet.getString("id")),
+                        resultSet.getLong("owner_id"), resultSet.getString("name"),
+                        resultSet.getString("description"), resultSet.getString("manifest_sha256"),
+                        resultSet.getString("status"), resultSet.getTimestamp("created_at").toInstant(),
+                        resultSet.getTimestamp("published_at").toInstant()), bundleId.toString())
+                .stream().findFirst().orElseThrow(() -> new AssetNotFoundException(bundleId));
+        List<AssetBundleView.ItemView> items = jdbcTemplate.query("""
+                SELECT asset_id, asset_version, logical_path, item_role, sequence_number
+                FROM asset_bundle_item WHERE bundle_id=? ORDER BY sequence_number
+                """, (resultSet, rowNumber) -> new AssetBundleView.ItemView(
+                UUID.fromString(resultSet.getString("asset_id")), resultSet.getLong("asset_version"),
+                resultSet.getString("logical_path"), resultSet.getString("item_role"),
+                resultSet.getInt("sequence_number")), bundleId.toString());
+        return new AssetBundleView(bundle.id(), bundle.ownerId(), bundle.name(), bundle.description(),
+                bundle.manifestSha256(), bundle.status(), items, bundle.createdAt(), bundle.publishedAt());
+    }
+
+    /**
+     * 按稳定资产标识读取有界对账快照。
+     */
+    public List<ReconciliationAssetSnapshot> reconciliationPage(UUID afterId, int limit) {
+        String clause = afterId == null ? "ORDER BY id LIMIT ?" : "WHERE id > ? ORDER BY id LIMIT ?";
+        Object[] arguments = afterId == null ? new Object[]{limit} : new Object[]{afterId.toString(), limit};
+        List<AssetRecord> assets = jdbcTemplate.query("SELECT * FROM asset " + clause,
+                (resultSet, rowNumber) -> new AssetRecord(UUID.fromString(resultSet.getString("id")),
+                        resultSet.getString("content_sha256"), resultSet.getLong("size_bytes"),
+                        resultSet.getString("mime_type"), resultSet.getString("status"),
+                        resultSet.getLong("version"), resultSet.getTimestamp("created_at").toInstant(),
+                        resultSet.getTimestamp("updated_at").toInstant()), arguments);
+        return assets.stream().map(this::reconciliationSnapshot).toList();
+    }
+
+    /**
+     * 返回所有资产关系写入共享的单调修订号。
+     */
+    public long registryRevision() {
+        Long revision = jdbcTemplate.queryForObject(
+                "SELECT revision FROM asset_registry_revision WHERE singleton_id=1", Long.class);
+        return revision == null ? 0 : revision;
+    }
+
+    /**
      * 查询完整资产视图。
      */
     public AssetView view(UUID id) {
@@ -170,7 +352,9 @@ public class AssetRepository {
                 """, (resultSet, rowNumber) -> new AssetView.LocationView(
                 UUID.fromString(resultSet.getString("id")), resultSet.getString("provider_type"),
                 resultSet.getString("storage_uri"), resultSet.getString("provider_version"),
-                resultSet.getString("availability")), id.toString());
+                resultSet.getString("availability"), resultSet.getString("invalidation_reason"),
+                resultSet.getTimestamp("invalidated_at") == null ? null
+                        : resultSet.getTimestamp("invalidated_at").toInstant()), id.toString());
         List<AssetView.ArtifactView> artifacts = jdbcTemplate.query("""
                 SELECT * FROM asset_artifact WHERE parent_asset_id = ? ORDER BY created_at, id
                 """, (resultSet, rowNumber) -> new AssetView.ArtifactView(
@@ -192,6 +376,50 @@ public class AssetRepository {
         appendOutbox(id, "AssetCreated", Map.of("assetId", id.toString(),
                 "contentSha256", request.contentSha256().toLowerCase(), "sizeBytes", request.sizeBytes()));
         return required(id);
+    }
+
+    private ReconciliationAssetSnapshot reconciliationSnapshot(AssetRecord asset) {
+        List<String> sources = jdbcTemplate.query("""
+                SELECT owner_id, source_type, source_business_id, event_key FROM asset_source
+                WHERE asset_id=? ORDER BY owner_id, source_type, source_business_id, event_key
+                """, (rs, row) -> rs.getLong("owner_id") + "\u0000" + rs.getString("source_type") + "\u0000"
+                + rs.getString("source_business_id") + "\u0000" + rs.getString("event_key"), asset.id().toString());
+        List<String> locations = jdbcTemplate.query("""
+                SELECT provider_type, storage_uri, provider_version, availability, invalidation_reason
+                FROM asset_location WHERE asset_id=?
+                ORDER BY provider_type, storage_uri, id
+                """, (rs, row) -> rs.getString("provider_type") + "\u0000" + rs.getString("storage_uri")
+                + "\u0000" + nullable(rs.getString("provider_version")) + "\u0000"
+                + rs.getString("availability") + "\u0000" + nullable(rs.getString("invalidation_reason")),
+                asset.id().toString());
+        List<String> artifacts = jdbcTemplate.query("""
+                SELECT artifact_asset_id, artifact_kind, generator_name, generator_version
+                FROM asset_artifact WHERE parent_asset_id=?
+                ORDER BY artifact_kind, generator_name, generator_version, artifact_asset_id
+                """, (rs, row) -> rs.getString("artifact_asset_id") + "\u0000" + rs.getString("artifact_kind")
+                + "\u0000" + rs.getString("generator_name") + "\u0000" + rs.getString("generator_version"),
+                asset.id().toString());
+        List<String> bundleReferences = jdbcTemplate.query("""
+                SELECT bundle_id, asset_version, logical_path, item_role FROM asset_bundle_item
+                WHERE asset_id=? ORDER BY bundle_id, sequence_number
+                """, (rs, row) -> rs.getString("bundle_id") + "\u0000" + rs.getLong("asset_version")
+                + "\u0000" + rs.getString("logical_path") + "\u0000" + rs.getString("item_role"),
+                asset.id().toString());
+        int availableLocationCount = countLocations(asset.id(), "AVAILABLE");
+        int invalidLocationCount = countLocations(asset.id(), "INVALID");
+        return new ReconciliationAssetSnapshot(asset, sources, locations, artifacts, bundleReferences,
+                availableLocationCount, invalidLocationCount);
+    }
+
+    private int countLocations(UUID assetId, String availability) {
+        Integer value = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM asset_location WHERE asset_id=? AND availability=?
+                """, Integer.class, assetId.toString(), availability);
+        return value == null ? 0 : value;
+    }
+
+    private String nullable(String value) {
+        return value == null ? "" : value;
     }
 
     private Optional<AssetRecord> findByContent(String sha256, long size) {
@@ -273,6 +501,48 @@ public class AssetRepository {
                 storageUri).stream().findFirst();
     }
 
+    private Optional<LocationInvalidationBinding> findLocationInvalidation(String key) {
+        return jdbcTemplate.query("""
+                SELECT asset_id, location_id, reason FROM asset_location_invalidation
+                WHERE idempotency_key=?
+                """, (rs, row) -> new LocationInvalidationBinding(UUID.fromString(rs.getString("asset_id")),
+                UUID.fromString(rs.getString("location_id")), rs.getString("reason")), key)
+                .stream().findFirst();
+    }
+
+    private Optional<LocationState> findLocationState(UUID locationId) {
+        return jdbcTemplate.query("SELECT asset_id, availability FROM asset_location WHERE id=?",
+                (rs, row) -> new LocationState(UUID.fromString(rs.getString("asset_id")),
+                        rs.getString("availability")), locationId.toString()).stream().findFirst();
+    }
+
+    private Optional<BundleBinding> findBundleByIdempotencyKey(String key) {
+        return jdbcTemplate.query("""
+                SELECT bundle_id, owner_id, manifest_sha256 FROM asset_bundle_idempotency
+                WHERE idempotency_key=?
+                """, (rs, row) -> new BundleBinding(UUID.fromString(rs.getString("bundle_id")),
+                rs.getLong("owner_id"), rs.getString("manifest_sha256")), key).stream().findFirst();
+    }
+
+    private Optional<BundleBinding> findBundleByManifest(long ownerId, String manifestSha256) {
+        return queryBundleBinding("WHERE owner_id=? AND manifest_sha256=? FOR UPDATE", ownerId, manifestSha256);
+    }
+
+    private Optional<BundleBinding> queryBundleBinding(String clause, Object... arguments) {
+        return jdbcTemplate.query("SELECT id, owner_id, manifest_sha256 FROM asset_bundle " + clause,
+                (rs, row) -> new BundleBinding(UUID.fromString(rs.getString("id")),
+                        rs.getLong("owner_id"), rs.getString("manifest_sha256")), arguments)
+                .stream().findFirst();
+    }
+
+    private void bindBundleIdempotency(String key, BundleBinding bundle, Instant now) {
+        jdbcTemplate.update("""
+                INSERT INTO asset_bundle_idempotency
+                    (idempotency_key, bundle_id, owner_id, manifest_sha256, created_at)
+                VALUES (?, ?, ?, ?, ?)
+                """, key, bundle.id().toString(), bundle.ownerId(), bundle.manifestSha256(), Timestamp.from(now));
+    }
+
     private Optional<ArtifactBinding> findArtifact(String key) {
         return jdbcTemplate.query("""
                 SELECT parent_asset_id, artifact_asset_id, artifact_kind FROM asset_artifact
@@ -322,6 +592,9 @@ public class AssetRepository {
                     VALUES (?, ?, ?, ?, ?, NULL)
                     """, UUID.randomUUID().toString(), id.toString(), type,
                     objectMapper.writeValueAsString(payload), Timestamp.from(Instant.now()));
+            jdbcTemplate.update("""
+                    UPDATE asset_registry_revision SET revision=revision+1 WHERE singleton_id=1
+                    """);
         } catch (JsonProcessingException exception) {
             throw new IllegalArgumentException("Asset event cannot be serialized", exception);
         }
@@ -334,5 +607,27 @@ public class AssetRepository {
     }
 
     private record ArtifactBinding(UUID parentId, UUID artifactId, String kind) {
+    }
+
+    private record LocationInvalidationBinding(UUID assetId, UUID locationId, String reason) {
+    }
+
+    private record LocationState(UUID assetId, String availability) {
+    }
+
+    private record BundleBinding(UUID id, long ownerId, String manifestSha256) {
+    }
+
+    private record BundleRecord(UUID id, long ownerId, String name, String description,
+                                String manifestSha256, String status, Instant createdAt, Instant publishedAt) {
+    }
+
+    /**
+     * 单资产的内部对账快照。
+     */
+    public record ReconciliationAssetSnapshot(AssetRecord asset, List<String> sources,
+                                               List<String> locations, List<String> artifacts,
+                                               List<String> bundleReferences,
+                                               int availableLocationCount, int invalidLocationCount) {
     }
 }

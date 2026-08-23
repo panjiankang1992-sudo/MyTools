@@ -6,11 +6,12 @@
 
 ## 数据模型
 
-- `assets`：ID、SHA-256、大小、MIME、状态。
-- `asset_sources`：来源类型、来源业务 ID、事件键。
-- `asset_locations`：存储提供方、规范路径、版本和可用性。
-- `asset_packages`：资源包、清单版本、发布状态。
-- `asset_artifacts`：缩略图、标签、截图、简介等派生物。
+- `asset`：ID、SHA-256、大小、MIME、状态。
+- `asset_source`：来源类型、来源业务 ID、事件键。
+- `asset_location`、`asset_location_invalidation`：存储位置、可用性与失效审计。
+- `asset_bundle`、`asset_bundle_item`、`asset_bundle_idempotency`：不可变资源包、资产版本快照和请求绑定。
+- `asset_artifact`：缩略图、标签、截图、简介等派生物。
+- `asset_registry_revision`：关系写入单调修订号。
 - `asset_outbox`。
 
 ## 接口
@@ -30,6 +31,10 @@
 - 禁止脚本直接覆盖资产哈希或把两个不同内容强制合并。
 
 ## 迁移
+
+当前已完成独立资产、来源、位置、派生关系、位置失效审计和不可变资源包。资源包清单固化资产版本，每个成功请求键都有永久绑定，并产生 `AssetBundlePublished` Outbox；位置失效通过资产乐观版本推进并产生 `AssetLocationInvalidated` Outbox。`asset_reconcile_registry` 任务只调用有界摘要页，聚合全库数量与确定性摘要；分页间单调修订号不一致时拒绝报告。
+
+后续旧 ID 映射必须由独立迁移任务写入专用映射表，提供 dry-run、游标、摘要和冲突报告；不得把旧物理路径直接作为新资产身份。
 
 1. 已建立独立 schema、按内容去重的资产、来源/位置/派生关系、乐观版本、幂等写入和 Outbox；Reader、HTTP 下载、媒体探测和缩略图已通过失败忽略的任务步骤旁路登记，继续从 DownloadBot `assets` 建立初始映射。
 2. 导入 MyTools `local_file`，按路径和哈希对账。

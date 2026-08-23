@@ -22,7 +22,7 @@ public record AssetView(UUID id, String contentSha256, long sizeBytes, String mi
      * 资产存储位置。
      */
     public record LocationView(UUID id, String providerType, String storageUri, String providerVersion,
-                               String availability) {
+                               String availability, String invalidationReason, Instant invalidatedAt) {
     }
 
     /**

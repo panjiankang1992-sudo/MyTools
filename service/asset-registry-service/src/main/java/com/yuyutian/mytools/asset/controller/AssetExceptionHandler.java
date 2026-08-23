@@ -4,6 +4,7 @@ import com.yuyutian.mytools.asset.model.ErrorCode;
 import com.yuyutian.mytools.asset.service.ArtifactCycleException;
 import com.yuyutian.mytools.asset.service.AssetNotFoundException;
 import com.yuyutian.mytools.asset.service.AssetVersionConflictException;
+import com.yuyutian.mytools.asset.service.BundleManifestConflictException;
 import com.yuyutian.mytools.asset.service.IdempotencyConflictException;
 import com.yuyutian.mytools.asset.service.AssetInputInvalidException;
 import org.springframework.http.HttpStatus;
@@ -62,6 +63,15 @@ public class AssetExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleInputInvalid(AssetInputInvalidException exception) {
         return response(ErrorCode.INPUT_INVALID);
+    }
+
+    /**
+     * 转换资源包清单冲突异常。
+     */
+    @ExceptionHandler(BundleManifestConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> handleBundleManifestConflict(BundleManifestConflictException exception) {
+        return response(ErrorCode.BUNDLE_MANIFEST_CONFLICT);
     }
 
     private Map<String, String> response(ErrorCode errorCode) {

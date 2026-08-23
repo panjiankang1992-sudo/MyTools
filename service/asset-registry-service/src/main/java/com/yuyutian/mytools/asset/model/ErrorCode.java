@@ -9,7 +9,8 @@ public enum ErrorCode {
     IDEMPOTENCY_CONFLICT("ASSET_003", "Idempotency key is bound to different asset data"),
     VERSION_CONFLICT("ASSET_004", "Asset version does not match"),
     ARTIFACT_CYCLE("ASSET_005", "Asset cannot derive from itself"),
-    INPUT_INVALID("ASSET_006", "Asset request contains an invalid value");
+    INPUT_INVALID("ASSET_006", "Asset request contains an invalid value"),
+    BUNDLE_MANIFEST_CONFLICT("ASSET_007", "Asset bundle manifest conflicts with existing data");
 
     private final String code;
     private final String message;

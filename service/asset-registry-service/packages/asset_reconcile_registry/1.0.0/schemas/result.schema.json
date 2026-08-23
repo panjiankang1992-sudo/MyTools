@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "assetCount",
+    "registryRevision",
+    "sourceCount",
+    "availableLocationCount",
+    "invalidLocationCount",
+    "artifactCount",
+    "bundleReferenceCount",
+    "pageCount",
+    "digestSha256",
+    "lastAfterId"
+  ],
+  "properties": {
+    "registryRevision": {"type": "integer", "minimum": 0},
+    "assetCount": {"type": "integer", "minimum": 0},
+    "sourceCount": {"type": "integer", "minimum": 0},
+    "availableLocationCount": {"type": "integer", "minimum": 0},
+    "invalidLocationCount": {"type": "integer", "minimum": 0},
+    "artifactCount": {"type": "integer", "minimum": 0},
+    "bundleReferenceCount": {"type": "integer", "minimum": 0},
+    "pageCount": {"type": "integer", "minimum": 1},
+    "digestSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "lastAfterId": {"type": ["string", "null"], "format": "uuid"}
+  },
+  "additionalProperties": false
+}

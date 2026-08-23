@@ -20,11 +20,17 @@ Java 21 / Spring Boot
 - `GET /internal/v1/assets/{id}`：查询来源、位置和直接派生关系。
 - `POST /internal/v1/assets/{id}/locations`：按乐观版本登记位置。
 - `POST /internal/v1/assets/{id}/artifacts`：按生成器版本登记派生资产。
+- `POST /internal/v1/assets/{id}/locations/{locationId}/invalidate`：按乐观版本和幂等键显式失效位置。
+- `POST /internal/v1/assets/bundles`：锁定资产版本并原子发布不可变资源包。
+- `GET /internal/v1/assets/bundles/{bundleId}`：读取资源包固定清单。
+- `GET /internal/v1/assets/reconciliation`：为异步任务返回最多 200 个资产的关系数量和确定性摘要。
 
 `asset_register_content` 1.0.0 脚本包可从明确的 `assetOutput`、前序 `import_ebook`、`download_asset` 或媒体 `probe` 步骤读取已经校验的 URI、摘要和大小，并通过共享 Executor SDK 登记资产。`asset_register_media_thumbnail` 会先通过 Storage Gateway 持久化缩略图，再把它作为独立资产登记并建立 `THUMBNAIL` 派生关系。Reader 电子书导入、HTTP 下载、媒体探测及缩略图任务均已追加旁路登记步骤；迁移期使用 `IGNORE` 失败策略，因此 Registry 或 Storage Gateway 故障不会改变已经成功的领域任务状态，独立任务可用于补偿重放。
 
+V2 新增位置失效审计和不可变资源包。资源包发布在事务内按资产 ID 顺序锁定全部引用资产并校验预期版本，每个成功的幂等键都写入独立绑定；规范清单摘要相同的请求只返回原资源包，后续资产增加位置或关系不会改变已发布清单。全库关系对账通过 `asset_reconcile_registry` 1.0.0 即时任务分页执行，同步 API 始终保持有界；所有关系写入推进单调修订号，扫描期间修订变化会使任务失败，避免输出混合时点报告。
+
 ## 实施要求
 
-- 继续实现位置失效、资源包发布、迁移映射和批量对账。
+- 继续实现旧 ID 迁移映射和生产副本对账。
 - 迁移已有能力时保留旧实现和功能开关。
 - 在对账与回归通过前不得切换权威数据或生产流量。
