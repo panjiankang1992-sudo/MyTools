@@ -21,6 +21,8 @@ Java 21 / Spring Boot
 - `POST /internal/v1/deliveries/{id}/execute`：Executor 触发原子 provider 调用。
 - `POST /internal/v1/inbound-messages`：provider adapter 幂等写入标准入站消息。
 
+MyTools 注册验证码已增加默认关闭的 `MESSAGING_REGISTRATION_MAIL_SIDECAR_ENABLED` 旁路。只有旧 SMTP 调用成功且验证码事务提交后才异步创建新投递；旁路异常不回滚旧链路，开发环境仅打印验证码时不会触发真实旁路邮件。旁路幂等键取验证码记录标识，便于双投递审计和后续切换。
+
 ## 实施要求
 
 - 扩展 QQ、Telegram、OneBot provider adapter 和附件模型。

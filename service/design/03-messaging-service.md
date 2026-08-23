@@ -34,7 +34,7 @@
 ## 迁移
 
 1. 已建立 provider-neutral 投递、投递尝试、标准入站消息与 Outbox schema，并实现 SMTP 原子 provider。
-2. 已建立只携带 `deliveryId` 的 `message_send_email` 任务；继续接入 MyTools 注册邮件旁路。
+2. 已建立只携带 `deliveryId` 的 `message_send_email` 任务，并接入默认关闭、旧事务提交后触发的 MyTools 注册邮件旁路。
 3. 迁移 DownloadBot 的 QQ/Telegram/OneBot 适配器。
 4. 先双投递到审计通道，再切换真实发送。
 5. 删除 MyTools SMTP 和 DownloadBot 渠道发送逻辑。

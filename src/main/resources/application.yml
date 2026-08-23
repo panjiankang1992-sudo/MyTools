@@ -129,6 +129,11 @@ tagging:
     model: huihui_ai/qwen3-vl-abliterated:4b
 
 migration:
+  messaging:
+    registration-mail:
+      enabled: ${MESSAGING_REGISTRATION_MAIL_SIDECAR_ENABLED:false}
+      service-url: ${MESSAGING_SERVICE_URL:http://127.0.0.1:23250}
+      internal-token: ${MESSAGING_INTERNAL_TOKEN:}
   tasks:
     scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23210}
     media-tags:

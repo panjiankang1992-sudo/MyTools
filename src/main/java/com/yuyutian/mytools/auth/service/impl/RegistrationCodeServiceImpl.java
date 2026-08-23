@@ -4,6 +4,7 @@ import com.yuyutian.mytools.auth.Model.EmailVerificationCode;
 import com.yuyutian.mytools.auth.Model.RegisterCodeRequest;
 import com.yuyutian.mytools.auth.Model.RegisterRequest;
 import com.yuyutian.mytools.auth.mapper.EmailVerificationCodeMapper;
+import com.yuyutian.mytools.auth.messaging.RegistrationMailSent;
 import com.yuyutian.mytools.auth.service.RegistrationCodeService;
 import com.yuyutian.mytools.common.BusinessException;
 import com.yuyutian.mytools.common.ErrorCode;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +49,7 @@ public class RegistrationCodeServiceImpl implements RegistrationCodeService {
     private final UserMapper userMapper;
     private final SnowflakeIdGenerator snowflakeIdGenerator;
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Value("${registration.mail.from:no-reply@mytools.local}")
@@ -89,6 +92,10 @@ public class RegistrationCodeServiceImpl implements RegistrationCodeService {
         verificationCodeMapper.invalidateUnusedByEmail(request.getEmail(), REGISTER_PURPOSE, now);
         verificationCodeMapper.insert(entity);
         sendMail(request.getEmail(), code);
+        if (!devLogCode) {
+            // 事件仅在旧邮件成功且当前事务提交后触发，旁路失败不会回滚旧链路。
+            applicationEventPublisher.publishEvent(new RegistrationMailSent(entity.getId(), request.getEmail(), code));
+        }
         log.info("Register verification code created: email={}, expiresAt={}", request.getEmail(), entity.getExpireTime());
     }
 
