@@ -16,3 +16,6 @@ drive:
   rclone-rc-url: ${DRIVE_RCLONE_RC_URL:http://127.0.0.1:5572}
   rclone-rc-user: ${DRIVE_RCLONE_RC_USER:}
   rclone-rc-password: ${DRIVE_RCLONE_RC_PASSWORD:}
+  storage-scan-mode: ${DRIVE_STORAGE_SCAN_MODE:LEGACY}
+  storage-gateway-url: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
+  storage-internal-token: ${STORAGE_INTERNAL_TOKEN:}

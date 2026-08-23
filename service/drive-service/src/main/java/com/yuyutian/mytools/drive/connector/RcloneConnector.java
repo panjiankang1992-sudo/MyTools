@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 /** 仅允许回环 RC 和白名单目录列表操作的 rclone connector。 */
 @Component
-public class RcloneConnector {
+public class RcloneConnector implements DirectoryConnector {
     private static final Pattern REMOTE = Pattern.compile("^[A-Za-z0-9._-]{1,128}$");
     private static final int MAX_BODY = 8 * 1024 * 1024;
     private final ObjectMapper mapper;
@@ -42,6 +42,7 @@ public class RcloneConnector {
         baseUri=URI.create(configuredUrl.endsWith("/")?configuredUrl:configuredUrl+"/");
     }
     /** 列出服务端配置账户的一个目录。 @param remoteKey 远端键 @param path 相对路径 @return 索引项 */
+    @Override
     public List<IndexItem> list(String remoteKey,String path) {
         if(!REMOTE.matcher(remoteKey).matches()) throw new IllegalArgumentException("drive remote key is invalid");
         try {

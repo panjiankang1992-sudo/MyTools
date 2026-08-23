@@ -40,6 +40,27 @@ public class DriveRepository {
         return jdbc.query("SELECT * FROM drive_account WHERE id=?", (rs,row)->account(rs), id.toString()).stream().findFirst();
     }
 
+    /** 绑定 Storage Gateway Provider。 @param accountId 账户 @param providerId Provider 标识 */
+    public void bindStorageProvider(UUID accountId, UUID providerId) {
+        List<String> existing = jdbc.query("SELECT storage_provider_id FROM drive_storage_provider_binding WHERE account_id=?",
+                (rs, row) -> rs.getString(1), accountId.toString());
+        if (!existing.isEmpty()) {
+            if (!existing.getFirst().equals(providerId.toString())) {
+                throw new IllegalStateException("drive storage provider binding conflict");
+            }
+            return;
+        }
+        Instant now = Instant.now();
+        jdbc.update("INSERT INTO drive_storage_provider_binding VALUES (?,?,?,?)", accountId.toString(),
+                providerId.toString(), Timestamp.from(now), Timestamp.from(now));
+    }
+
+    /** 查询绑定的 Storage Gateway Provider。 @param accountId 账户 @return Provider 标识 */
+    public Optional<UUID> findStorageProvider(UUID accountId) {
+        return jdbc.query("SELECT storage_provider_id FROM drive_storage_provider_binding WHERE account_id=?",
+                (rs, row) -> UUID.fromString(rs.getString(1)), accountId.toString()).stream().findFirst();
+    }
+
     /** 写入一个幂等索引批次。 @param account 账户 @param request 批次 @return 结果 */
     public IndexBatchView ingest(AccountView account, IndexBatchRequest request) {
         Cursor cursor = cursor(account.id());

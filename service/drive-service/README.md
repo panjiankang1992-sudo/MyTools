@@ -8,6 +8,9 @@
 - `POST /internal/v1/drive/accounts/{id}/index-batches`：按运行标识和批次游标幂等写入索引。
 - `GET /internal/v1/drive/accounts/{id}/items?ownerId=&parentPath=`：按所有者隔离查询索引。
 - `GET /internal/v1/drive/accounts/{id}/scan?path=`：通过服务端账户绑定的白名单 rclone RC 列目录。
+- `PUT /internal/v1/drive/accounts/{id}/storage-provider`：绑定 Storage Gateway Provider UUID，不复制 remote key 或凭据。
+
+目录扫描支持 `DRIVE_STORAGE_SCAN_MODE=LEGACY|DUAL|STORAGE`。默认 `LEGACY` 保持原 rclone 路径；`DUAL` 仍返回旧路径结果，同时调用 Storage Gateway 做影子比对，Gateway 失败或差异只记录告警；完成 Provider 绑定和对账后才可切换为 `STORAGE`。
 
 批次完成时才把旧 generation 中未出现的项目标记删除，因此失败重试不会提前破坏当前索引。
 

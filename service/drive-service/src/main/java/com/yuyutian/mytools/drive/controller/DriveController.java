@@ -37,6 +37,12 @@ public class DriveController {
     @GetMapping("/accounts/{id}/scan")
     public List<IndexItem> scan(@RequestHeader("Authorization") String authorization,@PathVariable UUID id,
         @RequestParam(defaultValue="") String path) { authorize(authorization); return service.scan(id,path); }
+    /** 绑定 Storage Gateway Provider。 @param authorization 授权头 @param id 账户 @param request 绑定请求 */
+    @PutMapping("/accounts/{id}/storage-provider") @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void bindStorageProvider(@RequestHeader("Authorization") String authorization,@PathVariable UUID id,
+        @Valid @RequestBody BindStorageProviderRequest request) {
+        authorize(authorization); service.bindStorageProvider(id,request.storageProviderId());
+    }
     /** 结束索引运行。 @param authorization 授权头 @param id 账户 @param runId 运行 @param status 终态 */
     @PostMapping("/accounts/{id}/index-runs/{runId}/{status}") @ResponseStatus(HttpStatus.NO_CONTENT)
     public void finishRun(@RequestHeader("Authorization") String authorization,@PathVariable UUID id,
