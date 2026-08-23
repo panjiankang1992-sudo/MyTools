@@ -27,7 +27,7 @@
 
 ## 阶段 3：主要耗时任务
 
-- [ ] 下载任务。已建立 `mytools_download` schema、请求聚合和七类父任务映射；实际下载脚本与 DownloadBot 双写待迁移。
+- [ ] 下载任务。已建立 `mytools_download` schema、请求聚合和七类父任务映射；受限 HTTP 下载脚本已完成，DownloadBot 默认关闭旁路与双写对账待迁移。
 - [ ] 媒体扫描、缩略图、截图和简介。已迁移 ffprobe 与缩略图脚本，并加入默认关闭的 MyTools 旁路提交；扫描、截图和简介待迁移。
 - [ ] 书源搜索、发现、电子书导入和索引。已建立 `mytools_reader` schema、单节点 `reader_source_search` 脚本和默认关闭的 MyTools 旁路；分片子任务、结果合并、发现与导入待迁移。
 
