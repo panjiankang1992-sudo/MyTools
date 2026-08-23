@@ -11,6 +11,7 @@
 - `book_search_requests`、`book_search_results`、`book_search_task_bindings`。
 - `ebook_asset`、`ebook_catalog_entry`、`chapter_cache`。
 - `library_rebuild_request`、`library_index_generation`、`library_index_entry`。
+- `legacy_reader_key_map`、`legacy_reader_migration_item`：旧书 ID 映射和幂等迁移审计。
 
 ## 任务类型
 
@@ -40,7 +41,8 @@
 4. 已将书源发现迁为受限公网脚本和 Reader Service 版本化写入，健康检查迁为原生多节点分片任务，书源电子书导入迁为 Storage Gateway 原子发布任务，TXT/EPUB/PDF/MOBI 元数据解析、持久化目录构建及指定章节预缓存已脚本化。
 5. 已将过期缓存、停用书源缓存和旧书源版本缓存清理迁为受限批次任务，并配置失败、超时、取消终态步骤。
 6. 已实现书库索引 generation 重建：冻结成功 `ebook_asset` 快照，按批次写入不可见 generation，完成性检查通过后在事务中原子切换 active generation；异常终态不发布半成品，重建不触碰书架、阅读进度或书签。
-7. 独立 schema 与 Reader Service MVP 已建立；完成对账后再由 Gateway 切换远程接口。
+7. 已实现旧 MyTools 书架、阅读进度和书签的受保护只读导出、dry-run、复合游标、依赖顺序导入、稳定标识、摘要报告和幂等审计；删除墓碑保留在迁移载荷中，不会因迁移重新出现。
+8. 独立 schema 与 Reader Service MVP 已建立；完成实际数据对账后再由 Gateway 切换远程接口。
 
 ## 验收
 
@@ -50,3 +52,4 @@
 - 重复章节批次不会产生重复缓存，过期或旧书源版本缓存不会被同步查询返回。
 - 缓存清理每批受限且可重试，任何终态都能在维护记录中审计累计删除数。
 - 索引重建发布前对同步查询不可见，发布时只有一个 active generation，且不改变用户书架、进度和书签数据。
+- Reader 用户状态 dry-run 与正式迁移导出摘要一致，重跑不增加记录，缺少书架映射的进度或书签进入拒绝报告而不产生孤儿行。

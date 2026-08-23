@@ -137,6 +137,8 @@ migration:
     internal-token: ${DRIVE_MIGRATION_INTERNAL_TOKEN:}
   identity-users:
     internal-token: ${IDENTITY_MIGRATION_INTERNAL_TOKEN:}
+  reader-state:
+    internal-token: ${READER_MIGRATION_INTERNAL_TOKEN:}
   messaging:
     registration-mail:
       enabled: ${MESSAGING_REGISTRATION_MAIL_SIDECAR_ENABLED:false}

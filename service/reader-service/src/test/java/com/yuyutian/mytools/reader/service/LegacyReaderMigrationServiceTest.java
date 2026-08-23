@@ -1,0 +1,71 @@
+package com.yuyutian.mytools.reader.service;
+
+import com.yuyutian.mytools.reader.model.LegacyReaderMigrationBatch;
+import com.yuyutian.mytools.reader.model.LegacyReaderMigrationItem;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:reader_legacy_migration;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE")
+class LegacyReaderMigrationServiceTest {
+
+    @Autowired
+    private LegacyReaderMigrationService service;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Test
+    void shouldDryRunThenIdempotentlyMigrateUserReaderState() {
+        long updatedAt = 1_800_000_000_000L;
+        var shelf = new LegacyReaderMigrationItem("SHELF", 71L, "sync-a", "book-a",
+                Map.of("name", "Book", "deleted", false, "revision", 3), false, 3, updatedAt);
+        var progress = new LegacyReaderMigrationItem("PROGRESS", 71L, "book-a", "book-a",
+                Map.of("chapterTitle", "Chapter 2", "locator", 18, "percentage", 42,
+                        "deleted", false, "revision", 4), false, 4, updatedAt);
+        var marker = new LegacyReaderMigrationItem("MARKER", 71L, "marker-a", "book-a",
+                Map.of("kind", "BOOKMARK", "chapterTitle", "Chapter 2", "locator", 20,
+                        "note", "note", "createdAt", updatedAt - 1000, "deleted", false, "revision", 2),
+                false, 2, updatedAt);
+        var batch = new LegacyReaderMigrationBatch("reader-migration-v1", false,
+                List.of(shelf, progress, marker));
+
+        var dryRun = service.migrate(new LegacyReaderMigrationBatch("reader-migration-v1", true, batch.items()));
+        assertThat(dryRun.accepted()).isEqualTo(3);
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM shelf_book", Integer.class)).isZero();
+
+        var migrated = service.migrate(batch);
+        var replay = service.migrate(batch);
+
+        assertThat(migrated.accepted()).isEqualTo(3);
+        assertThat(migrated.rejected()).isZero();
+        assertThat(replay.skipped()).isEqualTo(3);
+        assertThat(replay.digestSha256()).isEqualTo(migrated.digestSha256());
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM shelf_book", Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject("SELECT metadata_json FROM shelf_book", String.class))
+                .contains("legacyBookId", "book-a");
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM reading_progress", Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM reader_marker", Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM legacy_reader_migration_item",
+                Integer.class)).isEqualTo(3);
+    }
+
+    @Test
+    void shouldRejectDependentRecordUntilShelfMappingExists() {
+        long updatedAt = 1_800_000_000_000L;
+        var progress = new LegacyReaderMigrationItem("PROGRESS", 72L, "missing", "missing",
+                Map.of("deleted", false), false, 1, updatedAt);
+
+        var result = service.migrate(new LegacyReaderMigrationBatch("reader-migration-v1", false,
+                List.of(progress)));
+
+        assertThat(result.rejected()).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM reading_progress", Integer.class)).isZero();
+    }
+}
