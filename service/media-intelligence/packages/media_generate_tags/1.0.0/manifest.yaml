@@ -1,0 +1,23 @@
+name: media_generate_tags
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - filesystem_read
+  - http_ollama
+parameters:
+  required:
+    - sourcePath
+    - filename
+    - mimeType
+    - contentSha256
+  optional:
+    - thumbnailPath
+    - serviceUrl
+    - model
+    - policyVersion
+result:
+  schema: schemas/result.schema.json
+limits:
+  maxInputBytes: 5242880
+  timeoutSeconds: 180
