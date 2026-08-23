@@ -6,8 +6,11 @@ import com.yuyutian.mytools.storage.model.OperationItemBatch;
 import com.yuyutian.mytools.storage.model.StorageOperation;
 import com.yuyutian.mytools.storage.model.ReconciliationDigest;
 import com.yuyutian.mytools.storage.model.RemoteJobView;
+import com.yuyutian.mytools.storage.model.AbortMoveRequest;
+import com.yuyutian.mytools.storage.model.MoveProgress;
 import com.yuyutian.mytools.storage.service.InternalAuthorizer;
 import com.yuyutian.mytools.storage.service.StorageOperationService;
+import com.yuyutian.mytools.storage.service.StorageMoveService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,16 +31,20 @@ import java.util.UUID;
 public class StorageOperationController {
     private final StorageOperationService operationService;
     private final InternalAuthorizer authorizer;
+    private final StorageMoveService moveService;
 
     /**
      * 创建操作控制器。
      *
      * @param operationService 操作服务
      * @param authorizer 内部鉴权器
+     * @param moveService 远端移动服务
      */
-    public StorageOperationController(StorageOperationService operationService, InternalAuthorizer authorizer) {
+    public StorageOperationController(StorageOperationService operationService, InternalAuthorizer authorizer,
+                                      StorageMoveService moveService) {
         this.operationService = operationService;
         this.authorizer = authorizer;
+        this.moveService = moveService;
     }
 
     /**
@@ -113,6 +120,63 @@ public class StorageOperationController {
             @RequestHeader("Authorization") String authorization) {
         authorizer.require(authorization);
         operationService.stopRemoteJob(id);
+    }
+
+    /**
+     * 推进远端移动状态机。
+     *
+     * @param id 操作标识
+     * @param authorization 授权头
+     * @return 移动进度
+     */
+    @PostMapping("/{id}/move/advance")
+    public MoveProgress advanceMove(@PathVariable UUID id,
+            @RequestHeader("Authorization") String authorization) {
+        authorizer.require(authorization);
+        return moveService.advance(id);
+    }
+
+    /**
+     * 中止远端移动并按当前阶段补偿或前向收敛。
+     *
+     * @param id 操作标识
+     * @param authorization 授权头
+     * @param request 中止请求
+     * @return 移动进度
+     */
+    @PostMapping("/{id}/move/abort")
+    public MoveProgress abortMove(@PathVariable UUID id, @RequestHeader("Authorization") String authorization,
+                                  @Valid @RequestBody AbortMoveRequest request) {
+        authorizer.require(authorization);
+        return moveService.abort(id, request.status());
+    }
+
+    /**
+     * 将截止前无法收敛的移动记录为待恢复。
+     *
+     * @param id 操作标识
+     * @param authorization 授权头
+     * @return 恢复状态
+     */
+    @PostMapping("/{id}/move/recovery-required")
+    public MoveProgress markMoveRecoveryRequired(@PathVariable UUID id,
+            @RequestHeader("Authorization") String authorization) {
+        authorizer.require(authorization);
+        return moveService.markRecoveryRequired(id);
+    }
+
+    /**
+     * 推进远端移动恢复清理。
+     *
+     * @param id 操作标识
+     * @param authorization 授权头
+     * @return 恢复进度
+     */
+    @PostMapping("/{id}/move/recover")
+    public MoveProgress recoverMove(@PathVariable UUID id,
+            @RequestHeader("Authorization") String authorization) {
+        authorizer.require(authorization);
+        return moveService.recover(id);
     }
 
     /**

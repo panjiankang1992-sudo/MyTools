@@ -8,9 +8,15 @@ import com.yuyutian.mytools.storage.model.StorageProvider;
 import com.yuyutian.mytools.storage.model.ReconciliationDigest;
 import com.yuyutian.mytools.storage.model.RemoteJobView;
 import com.yuyutian.mytools.storage.repository.StorageRepository;
+import com.yuyutian.mytools.storage.repository.StorageMoveRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.dao.DuplicateKeyException;
 
 import java.time.Instant;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +31,7 @@ public class StorageOperationService {
     private final StorageRepository repository;
     private final StorageTaskSchedulerClient schedulerClient;
     private final RcloneRemoteConnector remoteConnector;
+    private final StorageMoveRepository moveRepository;
 
     /**
      * 创建异步操作服务。
@@ -32,12 +39,14 @@ public class StorageOperationService {
      * @param repository 存储仓储
      * @param schedulerClient 调度客户端
      * @param remoteConnector 远程存储连接器
+     * @param moveRepository 移动状态仓储
      */
     public StorageOperationService(StorageRepository repository, StorageTaskSchedulerClient schedulerClient,
-                                   RcloneRemoteConnector remoteConnector) {
+                                   RcloneRemoteConnector remoteConnector, StorageMoveRepository moveRepository) {
         this.repository = repository;
         this.schedulerClient = schedulerClient;
         this.remoteConnector = remoteConnector;
+        this.moveRepository = moveRepository;
     }
 
     /**
@@ -50,6 +59,9 @@ public class StorageOperationService {
         String sourcePath = normalizePath(request.sourcePath());
         String targetPath = normalizeTarget(request.operationType(), request.targetPath());
         UUID targetProviderId = targetProvider(request.operationType(), request.targetProviderId());
+        if ("MOVE_TREE".equals(request.operationType()) && (sourcePath.isEmpty() || targetPath.isEmpty())) {
+            throw new IllegalArgumentException(ErrorCode.PATH_INVALID.code());
+        }
         if (targetProviderId != null && request.providerId().equals(targetProviderId)
                 && sourcePath.equals(targetPath)) {
             throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
@@ -75,7 +87,27 @@ public class StorageOperationService {
                 "CREATED", null, null, 0, request.maximumObjects(), null, now, now)
                 : existing;
         if (existing == null) {
-            repository.insertOperation(operation);
+            try {
+                repository.insertOperation(operation);
+            } catch (DuplicateKeyException exception) {
+                operation = repository.findOperationByKey(request.idempotencyKey())
+                        .orElseThrow(() -> exception);
+                if (!equivalent(operation, request, sourcePath, targetProviderId, targetPath)) {
+                    throw new IllegalStateException(ErrorCode.OPERATION_CONFLICT.code(), exception);
+                }
+            }
+        }
+        if (operation.targetProviderId() != null) {
+            try {
+                moveRepository.reserveTarget(operation.id(), operation.targetProviderId(), operation.targetPath(),
+                        pathDigest(operation.targetPath()));
+            } catch (IllegalStateException exception) {
+                repository.markWaitingTarget(operation.id());
+                throw exception;
+            }
+        }
+        if ("MOVE_TREE".equals(operation.operationType())) {
+            moveRepository.initialize(operation.id());
         }
         UUID taskId = schedulerClient.createOperationTask(operation);
         repository.bindOperationTask(operation.id(), taskId);
@@ -126,9 +158,15 @@ public class StorageOperationService {
             if (!operation.status().equals(status)) {
                 throw new IllegalStateException(ErrorCode.OPERATION_CONFLICT.code());
             }
+            if (operation.targetProviderId() != null) {
+                moveRepository.releaseTarget(id);
+            }
             return operation;
         }
         repository.finishOperation(id, status, errorCode);
+        if (operation.targetProviderId() != null) {
+            moveRepository.releaseTarget(id);
+        }
         return require(id);
     }
 
@@ -174,7 +212,7 @@ public class StorageOperationService {
         }
         RemoteJobView view = remoteConnector.jobStatus(operation.remoteJobId());
         if (view.finished() && !TERMINAL_STATUSES.contains(operation.status())) {
-            repository.finishOperation(id, view.success() ? "SUCCEEDED" : "FAILED", view.errorCode());
+            finish(id, view.success() ? "SUCCEEDED" : "FAILED", view.errorCode());
         }
         return view;
     }
@@ -237,6 +275,16 @@ public class StorageOperationService {
                 || Arrays.asList(path.split("/", -1)).contains("..")) {
             throw new IllegalArgumentException(ErrorCode.PATH_INVALID.code());
         }
-        return path;
+        String normalized = java.nio.file.Path.of(path).normalize().toString();
+        return ".".equals(normalized) ? "" : normalized;
+    }
+
+    private String pathDigest(String path) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(path.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException(ErrorCode.IO_FAILURE.code(), exception);
+        }
     }
 }

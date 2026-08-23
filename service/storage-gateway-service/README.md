@@ -22,7 +22,9 @@ Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 
 
 `POST /api/internal/v1/storage/operations` 当前开放已落地的 `SCAN_ROOT`。它创建 `storage_scan_root` 调度实例，Executor 广度遍历远端目录并以最多 500 项的批次幂等回写 `storage_operation_item`；对象总量受 `maximumObjects` 硬限制。成功、失败、超时和取消都会回写稳定终态，任务参数只携带 Provider UUID，不携带 remote 键或密钥。
 
-跨 Provider 操作现开放 `COPY_TREE` 和 `SYNC_REMOTE`。创建请求只接受来源/目标 Provider UUID 与受限相对路径，服务端解析 remote 键并调用回环 rclone RC 白名单中的 `sync/copy` 或 `sync/sync`；传给任务脚本的参数只有不透明的操作 UUID，不包含 Provider、路径、remote 名称或 RC 命令。Executor 使用 `storage_transfer_tree` 启动并轮询 rclone 后台 job，成功时自动回写操作终态；失败、超时和取消步骤先请求停止远端 job，再记录稳定终态。相同来源和目标禁止执行。`MOVE_TREE` 在补偿与源删除回退语义完成前保持关闭。
+跨 Provider 操作现开放 `COPY_TREE`、`MOVE_TREE` 和 `SYNC_REMOTE`。创建请求只接受来源/目标 Provider UUID 与受限相对路径，服务端解析 remote 键并调用回环 rclone RC 白名单；传给任务脚本的参数只有不透明的操作 UUID，不包含 Provider、路径、remote 名称或 RC 命令。复制和同步使用正确的 `remote:path` Fs 参数调用 `sync/copy` 或 `sync/sync`。相同来源和目标禁止执行。
+
+`MOVE_TREE` 不直接调用破坏性的 `sync/move`，而是使用 `storage_move_tree` 持久化状态机：目标写入栅栏、目标不存在检查、复制、强制下载校验、来源清理。源删除前失败会清理目标，源删除开始后保留已验证目标并重试来源清理。90 秒特殊步骤仍无法收敛时，操作标记为 `STORAGE_025`，同时创建 `storage_recover_move` 任务继续执行持久化的来源或目标清理动作；恢复前目标栅栏保持占用，防止复制、同步或另一个移动操作写入相同或上下级路径。
 
 内部调用方可通过 `POST /api/internal/v1/storage/access-tickets` 为已存在的受管本地对象创建最长一小时的单用途下载票据，并通过撤销接口提前失效。数据库仅保存 Token SHA-256，原始 Token 只出现在创建响应的 `accessUrl` 中；公共下载端点采用条件更新原子消费，并发请求最多一个成功。该能力默认不替换任何旧下载 URL。
 

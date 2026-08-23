@@ -1,0 +1,1 @@
+{"type":"object","required":["operationId","status"],"properties":{"operationId":{"type":"string","format":"uuid"},"status":{"const":"SUCCEEDED"}}}

@@ -4,6 +4,7 @@ import com.yuyutian.mytools.storage.model.CreateOperationRequest;
 import com.yuyutian.mytools.storage.model.StorageOperation;
 import com.yuyutian.mytools.storage.model.RemoteJobView;
 import com.yuyutian.mytools.storage.repository.StorageRepository;
+import com.yuyutian.mytools.storage.repository.StorageMoveRepository;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -24,7 +25,7 @@ class StorageOperationServiceTest {
         StorageRepository repository = mock(StorageRepository.class);
         StorageTaskSchedulerClient scheduler = mock(StorageTaskSchedulerClient.class);
         StorageOperationService service = new StorageOperationService(
-                repository, scheduler, mock(RcloneRemoteConnector.class));
+                repository, scheduler, mock(RcloneRemoteConnector.class), mock(StorageMoveRepository.class));
         UUID providerId = UUID.randomUUID();
         Instant now = Instant.now();
         StorageOperation existing = new StorageOperation(UUID.randomUUID(), providerId, "scan:key",
@@ -41,7 +42,8 @@ class StorageOperationServiceTest {
     void shouldRejectBatchesAfterOperationIsTerminal() {
         StorageRepository repository = mock(StorageRepository.class);
         StorageOperationService service = new StorageOperationService(
-                repository, mock(StorageTaskSchedulerClient.class), mock(RcloneRemoteConnector.class));
+                repository, mock(StorageTaskSchedulerClient.class), mock(RcloneRemoteConnector.class),
+                mock(StorageMoveRepository.class));
         UUID operationId = UUID.randomUUID();
         Instant now = Instant.now();
         when(repository.findOperationById(operationId)).thenReturn(Optional.of(new StorageOperation(
@@ -56,7 +58,7 @@ class StorageOperationServiceTest {
     void shouldRequireTargetProviderForTransferOperation() {
         StorageOperationService service = new StorageOperationService(
                 mock(StorageRepository.class), mock(StorageTaskSchedulerClient.class),
-                mock(RcloneRemoteConnector.class));
+                mock(RcloneRemoteConnector.class), mock(StorageMoveRepository.class));
 
         assertThatThrownBy(() -> service.create(new CreateOperationRequest(
                 "copy:key", UUID.randomUUID(), "COPY_TREE", "books", null, "backup", 100)))
@@ -68,7 +70,7 @@ class StorageOperationServiceTest {
         StorageRepository repository = mock(StorageRepository.class);
         RcloneRemoteConnector connector = mock(RcloneRemoteConnector.class);
         StorageOperationService service = new StorageOperationService(
-                repository, mock(StorageTaskSchedulerClient.class), connector);
+                repository, mock(StorageTaskSchedulerClient.class), connector, mock(StorageMoveRepository.class));
         UUID operationId = UUID.randomUUID();
         UUID targetId = UUID.randomUUID();
         Instant now = Instant.now();
@@ -89,7 +91,7 @@ class StorageOperationServiceTest {
         StorageRepository repository = mock(StorageRepository.class);
         RcloneRemoteConnector connector = mock(RcloneRemoteConnector.class);
         StorageOperationService service = new StorageOperationService(
-                repository, mock(StorageTaskSchedulerClient.class), connector);
+                repository, mock(StorageTaskSchedulerClient.class), connector, mock(StorageMoveRepository.class));
         UUID operationId = UUID.randomUUID();
         Instant now = Instant.now();
         StorageOperation operation = new StorageOperation(operationId, UUID.randomUUID(), "copy:key",

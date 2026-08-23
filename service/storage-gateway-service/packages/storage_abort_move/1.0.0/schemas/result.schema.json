@@ -1,0 +1,1 @@
+{"type":"object","required":["status","recoveryRequired"],"properties":{"status":{"enum":["FAILED","TIMED_OUT","CANCELLED"]},"recoveryRequired":{"type":"boolean"}}}

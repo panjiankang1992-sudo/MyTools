@@ -61,11 +61,50 @@ class RcloneRemoteConnectorTest {
 
         assertThat(jobId).isEqualTo(77);
         assertThat(path.get()).isEqualTo("/sync/copy");
-        assertThat(body.get()).contains("\"srcFs\":\"source:\"")
-                .contains("\"srcRemote\":\"books\"")
-                .contains("\"dstFs\":\"target:\"")
-                .contains("\"dstRemote\":\"backup\"")
+        assertThat(body.get()).contains("\"srcFs\":\"source:books\"")
+                .contains("\"dstFs\":\"target:backup\"")
+                .doesNotContain("srcRemote", "dstRemote")
                 .contains("\"_async\":true");
         assertThat(connector.jobStatus(jobId).success()).isTrue();
+    }
+
+    @Test
+    void shouldUseWhitelistedVerificationStatAndPurgeContracts() throws Exception {
+        AtomicReference<String> checkBody = new AtomicReference<>();
+        AtomicReference<String> purgeBody = new AtomicReference<>();
+        server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/operations/stat", exchange -> respond(exchange, "{\"item\":null}"));
+        server.createContext("/operations/check", exchange -> {
+            checkBody.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+            respond(exchange, "{\"jobid\":81}");
+        });
+        server.createContext("/operations/purge", exchange -> {
+            purgeBody.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+            respond(exchange, "{\"jobid\":82}");
+        });
+        server.createContext("/job/status", exchange -> respond(exchange,
+                "{\"finished\":true,\"success\":true,\"output\":{\"success\":false}}"));
+        server.start();
+        RcloneRemoteConnector connector = new RcloneRemoteConnector(new ObjectMapper(),
+                "http://127.0.0.1:" + server.getAddress().getPort(), "", "");
+        connector.validateConfiguration();
+
+        assertThat(connector.exists("target", "archive/books")).isFalse();
+        assertThat(connector.startVerification("source", "books", "target", "archive/books")).isEqualTo(81L);
+        assertThat(connector.verificationJobStatus(81L).success()).isFalse();
+        assertThat(connector.startPurge("target", "archive/books")).isEqualTo(82L);
+
+        assertThat(checkBody.get()).contains("\"srcFs\":\"source:books\"")
+                .contains("\"dstFs\":\"target:archive/books\"")
+                .contains("\"download\":true");
+        assertThat(purgeBody.get()).contains("\"fs\":\"target:\"")
+                .contains("\"remote\":\"archive/books\"");
+    }
+
+    private void respond(com.sun.net.httpserver.HttpExchange exchange, String json) throws java.io.IOException {
+        byte[] response = json.getBytes(StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(200, response.length);
+        exchange.getResponseBody().write(response);
+        exchange.close();
     }
 }

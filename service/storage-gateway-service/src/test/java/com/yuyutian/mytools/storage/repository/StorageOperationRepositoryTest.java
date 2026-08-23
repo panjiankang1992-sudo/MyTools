@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Instant;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,6 +21,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class StorageOperationRepositoryTest {
     @Autowired
     private StorageRepository repository;
+
+    @Autowired
+    private StorageMoveRepository moveRepository;
 
     @Test
     void shouldReplayIdenticalBatchWithoutInflatingCountAndRejectConflict() {
@@ -57,5 +63,36 @@ class StorageOperationRepositoryTest {
 
         assertThat(repository.operationDigest(operation.id()).contentSha256())
             .isEqualTo("8501ff9beb116985f2ad48e3e4417e85c1f0121b8498a344a7fb307b51314879");
+    }
+
+    @Test
+    void shouldFenceExactAndNestedTransferTargetsPerProvider() throws Exception {
+        Instant now = Instant.now();
+        String suffix = UUID.randomUUID().toString();
+        StorageProvider provider = new StorageProvider(UUID.randomUUID(), "fence-" + suffix, "RCLONE",
+                "fence-" + suffix, "secret://storage/" + suffix, true, now, now);
+        repository.insertProvider(provider);
+        StorageOperation first = transfer(provider, "first-" + suffix, "archive/books", now);
+        StorageOperation second = transfer(provider, "second-" + suffix, "archive/books/new", now);
+        repository.insertOperation(first);
+        repository.insertOperation(second);
+        moveRepository.reserveTarget(first.id(), provider.id(), first.targetPath(), digest(first.targetPath()));
+
+        assertThatThrownBy(() -> moveRepository.reserveTarget(
+                second.id(), provider.id(), second.targetPath(), digest(second.targetPath())))
+                .isInstanceOf(IllegalStateException.class).hasMessage("STORAGE_008");
+
+        moveRepository.releaseTarget(first.id());
+        moveRepository.reserveTarget(second.id(), provider.id(), second.targetPath(), digest(second.targetPath()));
+    }
+
+    private StorageOperation transfer(StorageProvider provider, String key, String targetPath, Instant now) {
+        return new StorageOperation(UUID.randomUUID(), provider.id(), key, "COPY_TREE", "source",
+                provider.id(), targetPath, "CREATED", null, null, 0, 100, null, now, now);
+    }
+
+    private String digest(String value) throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(value.getBytes(StandardCharsets.UTF_8)));
     }
 }

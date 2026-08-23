@@ -139,8 +139,8 @@ public class RcloneRemoteConnector {
             default -> throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
         };
         JsonNode response = call(action, Map.of(
-                "srcFs", sourceRemoteKey + ":", "srcRemote", validPath(sourcePath, true),
-                "dstFs", targetRemoteKey + ":", "dstRemote", validPath(targetPath, true),
+                "srcFs", remotePath(sourceRemoteKey, sourcePath),
+                "dstFs", remotePath(targetRemoteKey, targetPath),
                 "_async", true), Duration.ofSeconds(30));
         long jobId = response.path("jobid").asLong(0);
         if (jobId <= 0) {
@@ -156,14 +156,95 @@ public class RcloneRemoteConnector {
      * @return 标准状态
      */
     public RemoteJobView jobStatus(long jobId) {
+        return jobStatus(jobId, false);
+    }
+
+    /**
+     * 查询复制校验后台任务，并同时要求校验输出成功。
+     *
+     * @param jobId rclone 任务标识
+     * @return 标准状态
+     */
+    public RemoteJobView verificationJobStatus(long jobId) {
+        return jobStatus(jobId, true);
+    }
+
+    /**
+     * 检查受控远端路径是否存在。
+     *
+     * @param remoteKey remote 键
+     * @param path 相对路径
+     * @return 是否存在
+     */
+    public boolean exists(String remoteKey, String path) {
+        requireRemoteKey(remoteKey);
+        JsonNode response = call("operations/stat", Map.of(
+                "fs", remoteKey + ":", "remote", validPath(path, false)), Duration.ofSeconds(30));
+        return !response.path("item").isMissingNode() && !response.path("item").isNull();
+    }
+
+    /**
+     * 启动逐字节下载校验任务。
+     *
+     * @param sourceRemoteKey 来源 remote 键
+     * @param sourcePath 来源路径
+     * @param targetRemoteKey 目标 remote 键
+     * @param targetPath 目标路径
+     * @return 后台任务标识
+     */
+    public long startVerification(String sourceRemoteKey, String sourcePath,
+                                  String targetRemoteKey, String targetPath) {
+        return startAsync("operations/check", Map.of(
+                "srcFs", remotePath(sourceRemoteKey, sourcePath),
+                "dstFs", remotePath(targetRemoteKey, targetPath),
+                "download", true));
+    }
+
+    /**
+     * 启动目录清理任务。
+     *
+     * @param remoteKey remote 键
+     * @param path 非空相对路径
+     * @return 后台任务标识
+     */
+    public long startPurge(String remoteKey, String path) {
+        requireRemoteKey(remoteKey);
+        return startAsync("operations/purge", Map.of(
+                "fs", remoteKey + ":", "remote", validPath(path, false)));
+    }
+
+    private RemoteJobView jobStatus(long jobId, boolean requireOutputSuccess) {
         if (jobId <= 0) {
             throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
         }
         JsonNode response = call("job/status", Map.of("jobid", jobId), Duration.ofSeconds(30));
         boolean finished = response.path("finished").asBoolean(false);
-        boolean success = finished && response.path("success").asBoolean(false);
+        boolean success = finished && response.path("success").asBoolean(false)
+                && (!requireOutputSuccess || response.path("output").path("success").asBoolean(false));
         String errorCode = finished && !success ? ErrorCode.REMOTE_FAILURE.code() : null;
         return new RemoteJobView(jobId, finished, success, errorCode);
+    }
+
+    private long startAsync(String action, Map<String, Object> payload) {
+        Map<String, Object> request = new java.util.LinkedHashMap<>(payload);
+        request.put("_async", true);
+        long jobId = call(action, request, Duration.ofSeconds(30)).path("jobid").asLong(0);
+        if (jobId <= 0) {
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+        }
+        return jobId;
+    }
+
+    private String remotePath(String remoteKey, String path) {
+        requireRemoteKey(remoteKey);
+        String safePath = validPath(path, true);
+        return remoteKey + ":" + safePath;
+    }
+
+    private void requireRemoteKey(String remoteKey) {
+        if (!REMOTE_KEY.matcher(remoteKey).matches()) {
+            throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
+        }
     }
 
     /**

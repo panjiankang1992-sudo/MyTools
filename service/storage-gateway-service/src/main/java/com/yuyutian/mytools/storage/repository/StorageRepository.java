@@ -263,8 +263,21 @@ public class StorageRepository {
     public void bindOperationTask(UUID id, UUID taskId) {
         jdbcTemplate.update("""
                 UPDATE storage_operation SET task_instance_id = COALESCE(task_instance_id, ?),
-                    status = 'RUNNING', updated_at = ? WHERE id = ? AND status IN ('CREATED', 'RUNNING')
+                    status = 'RUNNING', error_code = NULL, updated_at = ?
+                WHERE id = ? AND status IN ('CREATED', 'WAITING_TARGET', 'RUNNING')
                 """, taskId.toString(), Timestamp.from(Instant.now()), id.toString());
+    }
+
+    /**
+     * 将尚未调度的操作标记为等待目标写入栅栏。
+     *
+     * @param id 操作标识
+     */
+    public void markWaitingTarget(UUID id) {
+        jdbcTemplate.update("""
+                UPDATE storage_operation SET status = 'WAITING_TARGET', error_code = ?, updated_at = ?
+                WHERE id = ? AND task_instance_id IS NULL AND status IN ('CREATED', 'WAITING_TARGET')
+                """, ErrorCode.TARGET_CONFLICT.code(), Timestamp.from(Instant.now()), id.toString());
     }
 
     /**

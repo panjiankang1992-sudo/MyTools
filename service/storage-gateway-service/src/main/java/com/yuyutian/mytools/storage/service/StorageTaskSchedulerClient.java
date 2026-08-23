@@ -48,6 +48,7 @@ public class StorageTaskSchedulerClient {
         String taskName = switch (operation.operationType()) {
             case "SCAN_ROOT" -> "storage_scan_root";
             case "COPY_TREE" -> "storage_copy_tree";
+            case "MOVE_TREE" -> "storage_move_tree";
             case "SYNC_REMOTE" -> "storage_sync_remote";
             default -> throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
         };
@@ -82,6 +83,28 @@ public class StorageTaskSchedulerClient {
                 "priority", 40,
                 "parameters", Map.of("checksumOperationId", operation.id().toString()),
                 "requiredNodeLabels", Map.of(root.nodeAffinityLabel(), root.nodeAffinityValue()));
+        JsonNode response = restClient.post().uri("/api/v1/task-instances")
+                .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
+        if (response == null || response.path("id").isMissingNode()) {
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+        }
+        return UUID.fromString(response.path("id").asText());
+    }
+
+    /**
+     * 幂等创建远端移动恢复任务。
+     *
+     * @param operation 移动操作
+     * @return 任务实例标识
+     */
+    public UUID createMoveRecoveryTask(StorageOperation operation) {
+        Map<String, Object> request = Map.of(
+                "taskName", "storage_recover_move",
+                "idempotencyKey", "storage-move-recovery:" + operation.id(),
+                "businessType", "STORAGE_MOVE_RECOVERY",
+                "businessId", operation.id().toString(),
+                "priority", 90,
+                "parameters", Map.of("operationId", operation.id().toString()));
         JsonNode response = restClient.post().uri("/api/v1/task-instances")
                 .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
         if (response == null || response.path("id").isMissingNode()) {
