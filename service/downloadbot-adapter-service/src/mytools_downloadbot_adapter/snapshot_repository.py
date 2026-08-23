@@ -8,7 +8,7 @@ from typing import Callable
 from uuid import UUID, uuid4
 
 from .snapshot import (LegacySnapshot, SnapshotItem, SnapshotRejection, SnapshotStatus,
-                       canonical_json)
+                       canonical_json, content_set_digest)
 
 
 class MySqlSnapshotRepository:
@@ -158,6 +158,61 @@ class MySqlSnapshotRepository:
             connection.commit()
         finally:
             connection.close()
+
+    def reconciliation_evidence(self, snapshot_id: UUID, event_id: str) -> dict:
+        """组合一个已转发事件的旧下载内容证据。"""
+        snapshot = self.get(snapshot_id)
+        if snapshot is None:
+            raise LookupError("snapshot does not exist")
+        if snapshot.status is not SnapshotStatus.SEALED:
+            raise PermissionError("snapshot is not sealed")
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT source_key,download_request_id,status FROM adapter_event "
+                    "WHERE event_id=%s", (event_id,))
+                event = cursor.fetchone()
+                if event is None or event["status"] != "FORWARDED" or not event["download_request_id"]:
+                    raise LookupError("forwarded adapter event does not exist")
+                cursor.execute(
+                    "SELECT legacy_id,payload_json FROM legacy_snapshot_item "
+                    "WHERE snapshot_id=%s AND item_type='LINK_JOB' AND "
+                    "JSON_UNQUOTE(JSON_EXTRACT(payload_json,'$.sourceKey'))=%s "
+                    "ORDER BY legacy_id LIMIT 2", (str(snapshot_id), event["source_key"]))
+                jobs = list(cursor.fetchall())
+                if len(jobs) != 1:
+                    raise LookupError("legacy link job evidence is not unique")
+                job_id = jobs[0]["legacy_id"]
+                job_payload = self._json(jobs[0]["payload_json"])
+                cursor.execute(
+                    "SELECT payload_json FROM legacy_snapshot_item "
+                    "WHERE snapshot_id=%s AND item_type='LINK_ASSET' AND "
+                    "JSON_UNQUOTE(JSON_EXTRACT(payload_json,'$.legacyLinkJobId'))=%s",
+                    (str(snapshot_id), job_id))
+                relations = [self._json(row["payload_json"]) for row in cursor.fetchall()]
+                asset_ids = [str(value["legacyAssetId"]) for value in relations]
+                assets = {}
+                for asset_id in asset_ids:
+                    cursor.execute(
+                        "SELECT payload_json FROM legacy_snapshot_item "
+                        "WHERE snapshot_id=%s AND item_type='ASSET' AND legacy_id=%s",
+                        (str(snapshot_id), asset_id))
+                    row = cursor.fetchone()
+                    if row is None:
+                        raise LookupError("legacy asset evidence is incomplete")
+                    assets[asset_id] = self._json(row["payload_json"])
+        finally:
+            connection.close()
+        items = [{"fileName": assets[asset_id]["fileName"],
+                  "contentSha256": assets[asset_id]["contentSha256"],
+                  "sizeBytes": int(assets[asset_id]["sizeBytes"])} for asset_id in asset_ids]
+        return {"snapshotId": str(snapshot_id), "eventId": event_id,
+                "downloadRequestId": str(event["download_request_id"]),
+                "legacyJobId": job_id, "legacyStatus": str(job_payload.get("status") or ""),
+                "itemCount": len(items),
+                "totalBytes": sum(int(item["sizeBytes"]) for item in items),
+                "contentSetSha256": content_set_digest(items)}
 
     @staticmethod
     def _map_snapshot(row: dict) -> LegacySnapshot:

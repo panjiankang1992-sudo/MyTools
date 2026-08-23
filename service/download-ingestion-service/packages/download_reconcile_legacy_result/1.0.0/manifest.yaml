@@ -1,0 +1,15 @@
+name: download_reconcile_legacy_result
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - network_http
+parameters:
+  required:
+    - sourceSnapshotId
+    - eventId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 60
+  maxOutputBytes: 65536

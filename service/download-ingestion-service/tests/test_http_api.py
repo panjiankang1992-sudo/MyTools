@@ -104,6 +104,7 @@ class DownloadHttpApiTest(unittest.TestCase):
         self.assertEqual(1, summary["itemCount"])
         self.assertEqual(3, summary["totalBytes"])
         self.assertEqual(64, len(summary["collectionSha256"]))
+        self.assertEqual(64, len(summary["contentSetSha256"]))
         self.assertEqual([payload], summary["items"])
         self.assertNotIn("url", summary)
 

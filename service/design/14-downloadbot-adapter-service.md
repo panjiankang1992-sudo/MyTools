@@ -26,6 +26,7 @@ DownloadBot 数据表，也不共享数据库账号。旧 DownloadBot 在整个�
 
 - `POST /internal/v1/downloadbot/events`：接受旧请求事件。
 - `GET /internal/v1/migration/downloadbot/snapshot-items`：分页读取已封存标准化条目；默认关闭。
+- `GET /internal/v1/reconciliation/downloadbot/events/{eventId}`：组合旁路映射和旧内容证据；默认关闭。
 - `GET /health`：进程存活检查，不代表 `SHADOW` 已启用。
 
 转发幂等键固定为 `downloadbot:{eventId}`。下游暂时失败时事件标记为 `FAILED`；相同事件重放可继续转发，下游自身幂等契约防止生成第二个请求。

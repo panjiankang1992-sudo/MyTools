@@ -26,3 +26,5 @@ DownloadBot 到 Download Ingestion 的独立旁路适配器，使用 Python 3.12
 `downloadbot_capture_snapshot/1.0.0` 脚本包。快照导出还需显式设置
 `DOWNLOADBOT_SNAPSHOT_EXPORT_ENABLED=true`；缺省状态下只允许捕获，不允许读取快照内容。
 导出接口使用独立的 `DOWNLOADBOT_SNAPSHOT_EXPORT_TOKEN`，不得复用实时事件接入令牌。
+单事件结果证据接口还需显式设置 `DOWNLOADBOT_RECONCILIATION_ENABLED=true`；它只读取
+已封存快照和 `FORWARDED` 事件映射，不会修改旧任务或新下载请求。

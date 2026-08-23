@@ -19,6 +19,7 @@
 - `POST /api/v1/download-requests`：按全局幂等键接受请求并绑定 Scheduler 任务。
 - `GET /api/v1/download-requests/{id}`：查询请求，同时对账 Scheduler 生命周期状态。
 - `GET /api/v1/download-requests/{id}/result-summary`：返回不含源参数的稳定内容摘要，用于旧新下载结果对账。
+- `contentSetSha256`：忽略执行器条目标识，按文件名、内容 SHA-256 和字节数计算的多重集合摘要。
 - `POST /api/v1/download-requests/{id}/cancel`：取消绑定的任务并同步取消状态。
 - `GET /health`：进程健康检查。
 - `POST /internal/v1/migrations/downloadbot-history/batches`：预检或幂等导入一个标准化历史批次。
@@ -45,6 +46,8 @@
 4. 通过 `downloadbot_capture_snapshot` 捕获旧库一致性快照，再由
    `download_migrate_legacy_history` 经受保护 API 导入历史；旧库只读账号与两个 API
    令牌相互隔离。实时双跑仍使用新服务按文件项稳定排序的摘要契约。
+5. 使用 `download_reconcile_legacy_result` 比较终态、文件数、总字节数和内容集合摘要；
+   不匹配只产出任务证据，不自动切换流量。
 5. 关闭旧 worker loop，保留 API、MCP 和业务查询。
 6. 渠道接入迁往 Messaging/Automation。
 

@@ -19,10 +19,15 @@ class FakeSnapshotRepository:
     def export_page(self, snapshot_id, after_id, limit):
         return {"snapshotId": str(snapshot_id), "afterId": after_id, "limit": limit, "items": []}
 
+    def reconciliation_evidence(self, snapshot_id, event_id):
+        return {"snapshotId": str(snapshot_id), "eventId": event_id,
+                "downloadRequestId": str(uuid4())}
 
-def start(enabled):
+
+def start(enabled, reconciliation_enabled=False):
     service = AdapterService(InMemoryEventRepository(), FakeClient(), AdapterMode.DISABLED)
-    handler = create_handler(service, "event-token", FakeSnapshotRepository(), enabled, "test-token")
+    handler = create_handler(service, "event-token", FakeSnapshotRepository(), enabled,
+                             "test-token", reconciliation_enabled)
     server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
     thread = Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -58,6 +63,24 @@ def test_snapshot_export_requires_explicit_enablement():
         result = request(server, snapshot_id)
         assert result["snapshotId"] == str(snapshot_id)
         assert result["limit"] == 20
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_reconciliation_evidence_requires_explicit_enablement():
+    server, thread = start(False, True)
+    snapshot_id = uuid4()
+    event_id = "legacy-event-1"
+    try:
+        value = Request(f"http://127.0.0.1:{server.server_port}/internal/v1/reconciliation/"
+                        f"downloadbot/events/{event_id}?snapshotId={snapshot_id}",
+                        headers={"Authorization": "Bearer test-token"})
+        with urlopen(value, timeout=2) as response:
+            result = json.loads(response.read())
+        assert result["snapshotId"] == str(snapshot_id)
+        assert result["eventId"] == event_id
     finally:
         server.shutdown()
         server.server_close()

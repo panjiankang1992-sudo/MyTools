@@ -129,6 +129,7 @@ class DownloadRequestService:
             "itemCount": len(items),
             "totalBytes": sum(int(item["sizeBytes"]) for item in items),
             "collectionSha256": result_collection_digest(items),
+            "contentSetSha256": content_set_digest(items),
             "items": items,
         }
 
@@ -139,6 +140,19 @@ def result_collection_digest(items: list[dict]) -> str:
     for item in sorted(items, key=lambda value: str(value["itemId"])):
         for value in (item["itemId"], item["fileName"],
                       str(item["contentSha256"]).lower(), str(int(item["sizeBytes"]))):
+            encoded = str(value).encode("utf-8")
+            digest.update(struct.pack(">I", len(encoded)))
+            digest.update(encoded)
+    return digest.hexdigest()
+
+
+def content_set_digest(items: list[dict]) -> str:
+    """Hash file name, content checksum, and size without executor item identifiers."""
+    digest = hashlib.sha256()
+    values = sorted((str(item["fileName"]), str(item["contentSha256"]).lower(),
+                     int(item["sizeBytes"])) for item in items)
+    for item in values:
+        for value in item:
             encoded = str(value).encode("utf-8")
             digest.update(struct.pack(">I", len(encoded)))
             digest.update(encoded)

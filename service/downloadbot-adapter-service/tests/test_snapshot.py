@@ -4,6 +4,7 @@ from mytools_downloadbot_adapter.snapshot import (
     SnapshotItem,
     SnapshotRejection,
     collection_digest,
+    content_set_digest,
     normalize_asset,
     normalize_link_asset,
     normalize_link_job,
@@ -53,3 +54,11 @@ def test_link_asset_normalization_preserves_only_stable_relation():
     assert isinstance(result, SnapshotItem)
     assert result.source_key == "link-asset:2:3"
     assert result.payload["contentSha256"] == "c" * 64
+
+
+def test_content_set_digest_ignores_executor_item_identity():
+    first = {"itemId": "old-1", "fileName": "a.bin", "contentSha256": "d" * 64,
+             "sizeBytes": 4}
+    second = {"itemId": "new-9", "fileName": "a.bin", "contentSha256": "d" * 64,
+              "sizeBytes": 4}
+    assert content_set_digest([first]) == content_set_digest([second])

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["sourceSnapshotId", "eventId", "downloadRequestId", "matched", "mismatchReasons", "legacy", "current"],
+  "properties": {
+    "sourceSnapshotId": {"type": "string", "format": "uuid"},
+    "eventId": {"type": "string"},
+    "downloadRequestId": {"type": "string", "format": "uuid"},
+    "matched": {"type": "boolean"},
+    "mismatchReasons": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "legacy": {"type": "object"},
+    "current": {"type": "object"}
+  },
+  "additionalProperties": false
+}

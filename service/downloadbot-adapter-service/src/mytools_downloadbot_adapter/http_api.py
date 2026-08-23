@@ -16,7 +16,8 @@ from .service import AdapterService
 
 def create_handler(service: AdapterService, internal_token: str, snapshot_repository=None,
                    snapshot_export_enabled: bool = False,
-                   snapshot_export_token: str | None = None) -> type[BaseHTTPRequestHandler]:
+                   snapshot_export_token: str | None = None,
+                   reconciliation_enabled: bool = False) -> type[BaseHTTPRequestHandler]:
     """创建绑定应用依赖的 HTTP 处理器。"""
 
     class Handler(BaseHTTPRequestHandler):
@@ -43,6 +44,30 @@ def create_handler(service: AdapterService, internal_token: str, snapshot_reposi
                     limit = int(query.get("limit", ["200"])[0])
                     self._json(HTTPStatus.OK, snapshot_repository.export_page(
                         snapshot_id, after_id, limit))
+                except LookupError as exception:
+                    self._json(HTTPStatus.NOT_FOUND, {"error": str(exception)})
+                except PermissionError as exception:
+                    self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": str(exception)})
+                except (TypeError, ValueError) as exception:
+                    self._json(HTTPStatus.BAD_REQUEST, {"error": str(exception)})
+                return
+            reconciliation_prefix = "/internal/v1/reconciliation/downloadbot/events/"
+            if parsed.path.startswith(reconciliation_prefix):
+                if not self._authorized(snapshot_export_token or ""):
+                    self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
+                    return
+                if not reconciliation_enabled or snapshot_repository is None:
+                    self._json(HTTPStatus.SERVICE_UNAVAILABLE,
+                               {"error": "download reconciliation is disabled"})
+                    return
+                try:
+                    query = parse_qs(parsed.query, keep_blank_values=True)
+                    snapshot_id = UUID(query.get("snapshotId", [""])[0])
+                    event_id = parsed.path.removeprefix(reconciliation_prefix)
+                    if not event_id or len(event_id) > 255:
+                        raise ValueError("event id is invalid")
+                    self._json(HTTPStatus.OK, snapshot_repository.reconciliation_evidence(
+                        snapshot_id, event_id))
                 except LookupError as exception:
                     self._json(HTTPStatus.NOT_FOUND, {"error": str(exception)})
                 except PermissionError as exception:

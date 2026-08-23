@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 import hashlib
 import json
+import struct
 from typing import Any, Iterable, Protocol
 from uuid import UUID, uuid4
 
@@ -93,6 +94,19 @@ def collection_digest(items: Iterable[SnapshotItem]) -> str:
         for value in (item.item_type, item.legacy_id, item.payload_sha256):
             encoded = value.encode("utf-8")
             digest.update(len(encoded).to_bytes(4, "big"))
+            digest.update(encoded)
+    return digest.hexdigest()
+
+
+def content_set_digest(items: Iterable[dict[str, Any]]) -> str:
+    """计算与旧新执行标识无关的内容集合摘要。"""
+    digest = hashlib.sha256()
+    values = sorted((str(item["fileName"]), str(item["contentSha256"]).lower(),
+                     int(item["sizeBytes"])) for item in items)
+    for item in values:
+        for value in item:
+            encoded = str(value).encode("utf-8")
+            digest.update(struct.pack(">I", len(encoded)))
             digest.update(encoded)
     return digest.hexdigest()
 

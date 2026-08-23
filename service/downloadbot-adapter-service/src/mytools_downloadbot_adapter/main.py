@@ -37,7 +37,8 @@ def main() -> None:
         AdapterService(repository, client, mode),
         os.environ.get("DOWNLOADBOT_ADAPTER_INTERNAL_TOKEN", ""), snapshot_repository,
         os.environ.get("DOWNLOADBOT_SNAPSHOT_EXPORT_ENABLED", "false").lower() == "true",
-        os.environ.get("DOWNLOADBOT_SNAPSHOT_EXPORT_TOKEN", ""))
+        os.environ.get("DOWNLOADBOT_SNAPSHOT_EXPORT_TOKEN", ""),
+        os.environ.get("DOWNLOADBOT_RECONCILIATION_ENABLED", "false").lower() == "true")
     server = ThreadingHTTPServer((os.environ.get("DOWNLOADBOT_ADAPTER_HTTP_HOST", "127.0.0.1"),
                                   int(os.environ.get("DOWNLOADBOT_ADAPTER_HTTP_PORT", "23221"))), handler)
     server.serve_forever()

@@ -174,6 +174,7 @@ class DownloadRequestServiceTest(unittest.TestCase):
         self.assertEqual(2, summary["itemCount"])
         self.assertEqual(8, summary["totalBytes"])
         self.assertEqual(64, len(summary["collectionSha256"]))
+        self.assertEqual(64, len(summary["contentSetSha256"]))
         self.assertEqual(["a", "b"], [item["itemId"] for item in summary["items"]])
         self.assertNotIn("parameters", summary)
         self.assertNotIn("https://example.invalid/private", str(summary))
