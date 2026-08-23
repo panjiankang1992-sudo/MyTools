@@ -42,6 +42,20 @@ python3 service/scripts/storage_cutover_gate.py \
 
 每个启用 Provider 重复传入一个 `--reconciliation-report`。工具只读取本地证据文件，不访问数据库或修改开关；输出迁移键、数量和稳定错误码，不输出账户、Provider、路径、摘要或 Secret 引用。只有来源摘要一致、零拒绝、正式绑定完整、对账数量符合预期且所有根扫描严格匹配时返回成功。
 
+DownloadBot 历史切流使用冻结快照、dry-run、正式迁移、同键重放和内容抽样对账五组证据：
+
+```bash
+python3 service/scripts/download_cutover_gate.py \
+  --snapshot-report <snapshot.json> \
+  --dry-run-report <dry-run.json> \
+  --apply-report <apply.json> \
+  --replay-report <replay.json> \
+  --expected-reconciliations <sample-count> \
+  --reconciliation-report <event-1.json>
+```
+
+每个抽样完成事件重复传入一个 `--reconciliation-report`。门禁要求快照已封存且零拒绝，三次迁移引用同一快照、迁移键、数量和摘要，正式同键重放全部为 skipped，并且全部抽样的状态、文件数、字节数及内容集合摘要一致。输出不会包含事件 ID、下载请求 ID、内容摘要或旧任务标识；工具不连接数据库、不创建任务、不修改灰度开关。
+
 ## 回退
 
 先关闭对应新入口或旁路开关，再恢复旧任务消费；禁止在回退时删除新 schema。记录切换窗口内的新写入，按领域幂等键补偿回旧系统或在下一次切换前重放。任务执行中的临时产物由任务取消和补偿步骤处理，已原子发布的受管资产保留并通过引用状态决定是否清理。

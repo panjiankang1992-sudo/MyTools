@@ -76,6 +76,10 @@ Connector 创建并推进可恢复操作；账户凭据、rclone remote key 和�
 `download_reconcile_legacy_result` 任务按一个旁路事件读取旧快照证据和新结果摘要，比较
 终态、文件数、总字节数和 `contentSetSha256`。适配器对账接口仍默认关闭。
 
+生产演练完成后使用 `service/scripts/download_cutover_gate.py` 离线校验快照、dry-run、
+正式导入、同键重放和抽样对账报告。门禁只输出安全计数和稳定错误码，不输出事件身份、
+下载请求、摘要或旧任务标识，也不会连接数据库或修改运行开关。
+
 任务流水线依次执行 `download_asset`、`register_asset` 和 `record_result`。最后一步通过内部 API 将校验摘要、逻辑存储 URI 和 Asset Registry 标识原子写入下载 schema，并生成待发布 outbox 事件；回调可安全重放，内容冲突会拒绝。
 
 ## 实施要求
