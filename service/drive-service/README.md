@@ -1,5 +1,15 @@
 # Drive Service
 
+独立网盘领域服务，使用 `mytools_drive` schema。当前 MVP 提供内部账户登记、可恢复的分批索引写入和只读索引查询；旧 MyTools Drive/rclone 接口仍为权威路径，尚未启用流量切换。
+
+接口：
+
+- `POST /internal/v1/drive/accounts`：按外部账户标识幂等登记账户，只保存 Secret 引用。
+- `POST /internal/v1/drive/accounts/{id}/index-batches`：按运行标识和批次游标幂等写入索引。
+- `GET /internal/v1/drive/accounts/{id}/items?ownerId=&parentPath=`：按所有者隔离查询索引。
+
+批次完成时才把旧 generation 中未出现的项目标记删除，因此失败重试不会提前破坏当前索引。
+
 ## 技术栈
 
 Java 21 / Spring Boot

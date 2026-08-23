@@ -1,0 +1,14 @@
+server:
+  address: ${DRIVE_HTTP_HOST:127.0.0.1}
+  port: ${DRIVE_HTTP_PORT:23280}
+spring:
+  application:
+    name: drive-service
+  datasource:
+    url: jdbc:mysql://${DRIVE_DB_HOST:127.0.0.1}:${DRIVE_DB_PORT:3306}/${DRIVE_DB_NAME:mytools_drive}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: ${DRIVE_DB_USER:}
+    password: ${DRIVE_DB_PASSWORD:}
+  flyway:
+    locations: classpath:db/migration
+management.endpoints.web.exposure.include: health,info
+drive.internal-token: ${DRIVE_INTERNAL_TOKEN:}
