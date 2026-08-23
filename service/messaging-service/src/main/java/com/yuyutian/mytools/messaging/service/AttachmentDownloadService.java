@@ -3,6 +3,7 @@ package com.yuyutian.mytools.messaging.service;
 import com.yuyutian.mytools.messaging.model.AttachmentDownloadRecord;
 import com.yuyutian.mytools.messaging.model.AttachmentDownloadView;
 import com.yuyutian.mytools.messaging.model.ExecuteAttachmentDownloadResult;
+import com.yuyutian.mytools.messaging.model.ResolveAttachmentResult;
 import com.yuyutian.mytools.messaging.repository.MessagingRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -19,6 +20,7 @@ public class AttachmentDownloadService {
     private final MessagingRepository repository;
     private final TaskSchedulerClient schedulerClient;
     private final DownloadIngestionClient downloadClient;
+    private final ProviderFileResolverClient resolverClient;
     private final TransactionTemplate transactionTemplate;
 
     /**
@@ -26,10 +28,12 @@ public class AttachmentDownloadService {
      */
     public AttachmentDownloadService(MessagingRepository repository, TaskSchedulerClient schedulerClient,
                                      DownloadIngestionClient downloadClient,
+                                     ProviderFileResolverClient resolverClient,
                                      TransactionTemplate transactionTemplate) {
         this.repository = repository;
         this.schedulerClient = schedulerClient;
         this.downloadClient = downloadClient;
+        this.resolverClient = resolverClient;
         this.transactionTemplate = transactionTemplate;
     }
 
@@ -81,12 +85,33 @@ public class AttachmentDownloadService {
             return new ExecuteAttachmentDownloadResult(job.id(), job.downloadRequestId(), job.status());
         }
         MessagingRepository.AttachmentSource source = requiredSource(job.messageId(), job.partId());
-        validateDownloadable(source);
+        String sourceUrl = effectiveSourceUrl(source);
         UUID downloadId = downloadClient.createHttpAttachment(job.id(), source.ownerId(), source.partId(),
-                source.sourceUrl(), safeFileName(source), source.declaredSize());
+                sourceUrl, safeFileName(source), source.declaredSize());
         transactionTemplate.executeWithoutResult(status -> repository.bindDownloadRequest(job.id(), downloadId));
         AttachmentDownloadRecord updated = required(job.id());
         return new ExecuteAttachmentDownloadResult(updated.id(), updated.downloadRequestId(), updated.status());
+    }
+
+    /**
+     * 幂等解析 provider 文件引用，解析结果仅保存在消息 schema。
+     */
+    public ResolveAttachmentResult resolve(UUID jobId) {
+        AttachmentDownloadRecord job = required(jobId);
+        MessagingRepository.AttachmentSource source = requiredSource(job.messageId(), job.partId());
+        if (isHttp(source.sourceUrl()) || isHttp(source.resolvedSourceUrl())) {
+            return new ResolveAttachmentResult(jobId, job.status(), true);
+        }
+        if (!"ONEBOT".equals(source.channelType())
+                || source.providerAccountKey() == null || source.providerAccountKey().isBlank()
+                || source.providerFileId() == null || source.providerFileId().isBlank()
+                || source.attachmentType() == null) {
+            throw new AttachmentDownloadInvalidException();
+        }
+        String resolvedUrl = resolverClient.resolve(source.providerAccountKey(), source.attachmentType(),
+                source.providerFileId());
+        transactionTemplate.executeWithoutResult(status -> repository.bindResolvedSource(jobId, resolvedUrl));
+        return new ResolveAttachmentResult(jobId, required(jobId).status(), true);
     }
 
     private AttachmentDownloadRecord insert(UUID messageId, UUID partId) {
@@ -107,10 +132,27 @@ public class AttachmentDownloadService {
     }
 
     private void validateDownloadable(MessagingRepository.AttachmentSource source) {
-        if (!"ATTACHMENT".equals(source.partType()) || source.sourceUrl() == null
-                || !(source.sourceUrl().startsWith("https://") || source.sourceUrl().startsWith("http://"))) {
+        boolean direct = isHttp(source.sourceUrl());
+        boolean resolvable = source.providerFileId() != null && !source.providerFileId().isBlank()
+                && source.providerAccountKey() != null && !source.providerAccountKey().isBlank()
+                && "ONEBOT".equals(source.channelType());
+        if (!"ATTACHMENT".equals(source.partType()) || !(direct || resolvable)) {
             throw new AttachmentDownloadInvalidException();
         }
+    }
+
+    private String effectiveSourceUrl(MessagingRepository.AttachmentSource source) {
+        if (isHttp(source.sourceUrl())) {
+            return source.sourceUrl();
+        }
+        if (isHttp(source.resolvedSourceUrl())) {
+            return source.resolvedSourceUrl();
+        }
+        throw new AttachmentDownloadInvalidException();
+    }
+
+    private boolean isHttp(String value) {
+        return value != null && (value.startsWith("https://") || value.startsWith("http://"));
     }
 
     private String safeFileName(MessagingRepository.AttachmentSource source) {

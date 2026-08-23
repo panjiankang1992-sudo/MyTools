@@ -22,11 +22,14 @@ Java 21 / Spring Boot
 - `POST /internal/v1/inbound-messages`：provider adapter 幂等写入标准入站消息。
 - `GET /internal/v1/inbound-messages/{id}`：Automation 按消息标识读取标准消息。
 - `POST /internal/v1/adapters/onebot/events`：接收 OneBot 11 原始消息事件并标准化正文与附件引用。
+- `POST /internal/v1/attachment-downloads/{jobId}/resolve`：按不透明作业标识解析 provider 文件引用，不返回 URL。
 - `POST /internal/v1/migrations/legacy-inbound/batches`：dry-run 或幂等导入旧 MsgService 的脱敏历史入站消息批次。
 
 OneBot 入站默认由 `MESSAGING_ONEBOT_INGRESS_ENABLED=false` 关闭。灰度时由独立 adapter/反向代理携带内部令牌调用，不修改 DownloadBot 的现有事件消费链。事件幂等键包含 account、self、message type、conversation 和 message id；消息正文与附件分段写入 `inbound_message_part`，附件只保存 provider file id、远程 URL、文件名、MIME 和声明大小，不在 HTTP 入站事务中下载文件。合并转发内容需要由上游 OneBot adapter 展开后提交；未展开的 provider 文件引用将在后续附件下载任务中解析。
 
-远程 HTTP 附件可通过消息分段接口幂等创建 `message_download_attachment` 任务。父任务的 Scheduler 参数只保存 `attachmentJobId`；Messaging 持有附件 URL，并由 Executor 回调后创建 Download Ingestion `HTTP_ASSET` 子任务。`attachment_download_job` 保存父任务与下载请求的关联，查询时对账 Download Ingestion 的运行、成功、失败或取消状态；重复创建或重复执行不会产生第二个逻辑下载。provider file id 暂不伪装成 HTTP URL，必须等对应渠道凭据隔离解析器落地后才能进入下载流水线。
+远程 HTTP 附件可通过消息分段接口幂等创建 `message_download_attachment` 任务。父任务的 Scheduler 参数只保存 `attachmentJobId`；第一步由 Messaging 在自身信任边界内把 provider file id 交给凭据隔离解析器，第二步才创建 Download Ingestion `HTTP_ASSET` 子任务。provider account key、provider file id 和解析器令牌不会进入 Scheduler 参数或步骤结果。解析器返回值仅允许无用户信息、query 和 fragment 的公开 HTTPS URL，带签名或需要内网鉴权的来源必须由后续受控流式代理处理，禁止作为普通 HTTP 下载降级透传。
+
+`attachment_download_job` 保存解析检查点、父任务与下载请求的关联，查询时对账 Download Ingestion 的运行、成功、失败或取消状态；重复解析、创建或执行不会产生第二个逻辑下载。通过 `MESSAGE_PROVIDER_RESOLVER_URL` 和独立 `MESSAGE_PROVIDER_RESOLVER_TOKEN` 配置解析边界，不配置令牌不会影响入站消息接收，只有创建 provider-only 附件任务后才会失败。
 
 MyTools 注册验证码已增加默认关闭的 `MESSAGING_REGISTRATION_MAIL_SIDECAR_ENABLED` 旁路。只有旧 SMTP 调用成功且验证码事务提交后才异步创建新投递；旁路异常不回滚旧链路，开发环境仅打印验证码时不会触发真实旁路邮件。旁路幂等键取验证码记录标识，便于双投递审计和后续切换。
 
@@ -36,6 +39,6 @@ MyTools 注册验证码已增加默认关闭的 `MESSAGING_REGISTRATION_MAIL_SID
 
 ## 实施要求
 
-- 扩展 QQ、Telegram provider adapter；补齐 OneBot provider file id 的凭据隔离解析步骤。
+- 扩展 QQ、Telegram provider adapter；为需要签名或内网鉴权的附件增加受控流式代理任务。
 - 迁移已有能力时保留旧实现和功能开关。
 - 在对账与回归通过前不得切换权威数据或生产流量。

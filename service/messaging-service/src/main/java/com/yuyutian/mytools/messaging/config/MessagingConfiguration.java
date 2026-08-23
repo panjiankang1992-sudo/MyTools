@@ -2,6 +2,7 @@ package com.yuyutian.mytools.messaging.config;
 
 import com.yuyutian.mytools.messaging.service.TaskSchedulerClient;
 import com.yuyutian.mytools.messaging.service.DownloadIngestionClient;
+import com.yuyutian.mytools.messaging.service.ProviderFileResolverClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,5 +31,15 @@ public class MessagingConfiguration {
                                                            MessagingProperties properties) {
         return new DownloadIngestionClient(builder.baseUrl(properties.downloadIngestionUrl()).build(),
                 properties.downloadIngestionToken());
+    }
+
+    /**
+     * 创建渠道文件解析客户端。
+     */
+    @Bean
+    public ProviderFileResolverClient providerFileResolverClient(RestClient.Builder builder,
+                                                                 MessagingProperties properties) {
+        return new ProviderFileResolverClient(builder.baseUrl(properties.providerResolverUrl()).build(),
+                properties.providerResolverToken());
     }
 }

@@ -57,7 +57,7 @@ public class OneBotInboundAdapter {
         if (messageId.isBlank() || conversation.isBlank() || sender.isBlank()) {
             throw new OneBotPayloadInvalidException();
         }
-        List<CreateInboundMessagePart> parts = extractParts(event);
+        List<CreateInboundMessagePart> parts = extractParts(event, request.accountId());
         String body = parts.stream().filter(part -> "TEXT".equals(part.type()))
                 .map(CreateInboundMessagePart::text).filter(value -> value != null && !value.isBlank())
                 .reduce((left, right) -> left + "\n" + right).orElse("[attachment]");
@@ -73,7 +73,7 @@ public class OneBotInboundAdapter {
                 sender, null, body, receivedAt, parts));
     }
 
-    private List<CreateInboundMessagePart> extractParts(JsonNode event) {
+    private List<CreateInboundMessagePart> extractParts(JsonNode event, String accountKey) {
         List<CreateInboundMessagePart> parts = new ArrayList<>();
         ArrayDeque<JsonNode> stack = new ArrayDeque<>();
         stack.push(event.path("message"));
@@ -102,7 +102,8 @@ public class OneBotInboundAdapter {
                 String url = text(data, "url");
                 if (!providerFileId.isBlank() || !url.isBlank()) {
                     parts.add(new CreateInboundMessagePart("ATTACHMENT", null, type.toUpperCase(Locale.ROOT),
-                            limit(providerFileId, 512), limit(url, 4096), limit(firstText(data, "name", "file_name"), 1024),
+                            limit(providerFileId, 512), limit(accountKey, 255), limit(url, 4096),
+                            limit(firstText(data, "name", "file_name"), 1024),
                             limit(firstText(data, "mime", "content_type"), 255), positiveLong(data, "file_size", "size")));
                 }
             }
@@ -128,7 +129,7 @@ public class OneBotInboundAdapter {
     private void addText(List<CreateInboundMessagePart> parts, String value) {
         String normalized = value == null ? "" : value.trim();
         if (!normalized.isBlank()) {
-            parts.add(new CreateInboundMessagePart("TEXT", normalized, null, null, null, null, null, null));
+            parts.add(new CreateInboundMessagePart("TEXT", normalized, null, null, null, null, null, null, null));
         }
     }
 

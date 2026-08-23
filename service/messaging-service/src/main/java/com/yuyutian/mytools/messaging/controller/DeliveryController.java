@@ -8,6 +8,7 @@ import com.yuyutian.mytools.messaging.model.InboundMessageView;
 import com.yuyutian.mytools.messaging.model.OneBotInboundRequest;
 import com.yuyutian.mytools.messaging.model.AttachmentDownloadView;
 import com.yuyutian.mytools.messaging.model.ExecuteAttachmentDownloadResult;
+import com.yuyutian.mytools.messaging.model.ResolveAttachmentResult;
 import com.yuyutian.mytools.messaging.service.DeliveryService;
 import com.yuyutian.mytools.messaging.service.InternalRequestAuthorizer;
 import com.yuyutian.mytools.messaging.service.OneBotInboundAdapter;
@@ -133,6 +134,17 @@ public class DeliveryController {
             @PathVariable UUID jobId) {
         authorizer.requireAuthorized(authorization);
         return attachmentDownloadService.get(jobId);
+    }
+
+    /**
+     * 由 Executor 解析渠道 provider 文件引用。
+     */
+    @PostMapping("/attachment-downloads/{jobId}/resolve")
+    public ResolveAttachmentResult resolveAttachment(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable UUID jobId) {
+        authorizer.requireAuthorized(authorization);
+        return attachmentDownloadService.resolve(jobId);
     }
 
     /**

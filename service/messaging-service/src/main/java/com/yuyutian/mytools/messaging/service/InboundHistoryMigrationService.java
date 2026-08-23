@@ -91,6 +91,9 @@ public class InboundHistoryMigrationService {
             update(value, part.type(), part.text(), part.attachmentType(), part.providerFileId(),
                     part.sourceUrl(), part.fileName(), part.mimeType(),
                     part.declaredSize() == null ? null : part.declaredSize().toString());
+            if (part.providerAccountKey() != null && !part.providerAccountKey().isBlank()) {
+                update(value, "providerAccountKey", part.providerAccountKey());
+            }
         }
         return HexFormat.of().formatHex(value.digest());
     }

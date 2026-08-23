@@ -74,6 +74,6 @@ class InboundHistoryMigrationServiceTest {
                 "mailbox:inbox", "sender@example.com", "subject", body,
                 Instant.parse("2026-01-02T03:04:05Z"),
                 List.of(new CreateInboundMessagePart("TEXT", body, null, null,
-                        null, null, null, null)));
+                        null, null, null, null, null)));
     }
 }

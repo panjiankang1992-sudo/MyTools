@@ -11,6 +11,7 @@ public record CreateInboundMessagePart(@Pattern(regexp = "TEXT|ATTACHMENT") Stri
                                        @Size(max = 10_485_760) String text,
                                        @Pattern(regexp = "IMAGE|VIDEO|RECORD|FILE") String attachmentType,
                                        @Size(max = 512) String providerFileId,
+                                       @Size(max = 255) String providerAccountKey,
                                        @Size(max = 4096) String sourceUrl,
                                        @Size(max = 1024) String fileName,
                                        @Size(max = 255) String mimeType,

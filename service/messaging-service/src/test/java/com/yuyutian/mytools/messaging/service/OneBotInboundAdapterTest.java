@@ -42,6 +42,9 @@ class OneBotInboundAdapterTest {
     @MockBean
     private DownloadIngestionClient downloadIngestionClient;
 
+    @MockBean
+    private ProviderFileResolverClient providerFileResolverClient;
+
     @Test
     void shouldNormalizeAttachmentsAndDeduplicateEvent() throws Exception {
         var event = objectMapper.readTree("""
@@ -129,5 +132,38 @@ class OneBotInboundAdapterTest {
         verify(schedulerClient, times(1)).createAttachmentDownloadTask(job.id());
         verify(downloadIngestionClient, times(1)).createHttpAttachment(
                 any(), anyLong(), any(), anyString(), anyString(), any());
+    }
+
+    @Test
+    void shouldResolveOpaqueProviderFileBeforeDownloadSubmission() throws Exception {
+        var event = objectMapper.readTree("""
+                {
+                  "post_type":"message", "message_type":"private", "self_id":90001,
+                  "message_id":45, "user_id":10004,
+                  "message":[{"type":"file","data":{"file_id":"opaque-book","name":"book.txt"}}]
+                }
+                """);
+        var message = adapter.receive(new OneBotInboundRequest(12L, "napcat-main", event));
+        var part = message.parts().getFirst();
+        UUID schedulerTaskId = UUID.randomUUID();
+        UUID downloadRequestId = UUID.randomUUID();
+        when(schedulerClient.createAttachmentDownloadTask(any())).thenReturn(schedulerTaskId);
+        when(providerFileResolverClient.resolve("napcat-main", "FILE", "opaque-book"))
+                .thenReturn("https://cdn.example.test/book.txt");
+        when(downloadIngestionClient.createHttpAttachment(any(), anyLong(), any(), anyString(), anyString(), any()))
+                .thenReturn(downloadRequestId);
+
+        var job = attachmentDownloadService.create(message.id(), part.id());
+        var resolved = attachmentDownloadService.resolve(job.id());
+        var replay = attachmentDownloadService.resolve(job.id());
+        var submitted = attachmentDownloadService.execute(job.id());
+
+        assertThat(part.providerAccountKey()).isEqualTo("napcat-main");
+        assertThat(resolved.resolved()).isTrue();
+        assertThat(replay.resolved()).isTrue();
+        assertThat(submitted.downloadRequestId()).isEqualTo(downloadRequestId);
+        verify(providerFileResolverClient, times(1)).resolve("napcat-main", "FILE", "opaque-book");
+        verify(downloadIngestionClient).createHttpAttachment(any(), anyLong(), any(),
+                org.mockito.ArgumentMatchers.eq("https://cdn.example.test/book.txt"), anyString(), any());
     }
 }

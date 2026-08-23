@@ -37,3 +37,5 @@ messaging:
   one-bot-ingress-enabled: ${MESSAGING_ONEBOT_INGRESS_ENABLED:false}
   download-ingestion-url: ${DOWNLOAD_INGESTION_URL:http://127.0.0.1:23220}
   download-ingestion-token: ${DOWNLOAD_INTERNAL_TOKEN:}
+  provider-resolver-url: ${MESSAGE_PROVIDER_RESOLVER_URL:http://127.0.0.1:23255}
+  provider-resolver-token: ${MESSAGE_PROVIDER_RESOLVER_TOKEN:}

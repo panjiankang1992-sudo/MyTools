@@ -246,15 +246,20 @@ public class MessagingRepository {
      */
     public Optional<AttachmentSource> findAttachmentSource(UUID messageId, UUID partId) {
         return jdbcTemplate.query("""
-                SELECT m.owner_id, p.id, p.part_type, p.source_url, p.file_name, p.declared_size
+                SELECT m.owner_id, m.channel_type, p.id, p.part_type, p.attachment_type, p.provider_file_id,
+                       p.provider_account_key, p.source_url, p.file_name, p.declared_size,
+                       j.resolved_source_url
                 FROM inbound_message_part p JOIN inbound_message m ON m.id = p.inbound_message_id
+                LEFT JOIN attachment_download_job j ON j.message_part_id = p.id
                 WHERE m.id = ? AND p.id = ?
                 """, (resultSet, rowNumber) -> {
             long size = resultSet.getLong("declared_size");
             boolean sizeMissing = resultSet.wasNull();
-            return new AttachmentSource(resultSet.getLong("owner_id"),
+            return new AttachmentSource(resultSet.getLong("owner_id"), resultSet.getString("channel_type"),
                     UUID.fromString(resultSet.getString("id")), resultSet.getString("part_type"),
-                    resultSet.getString("source_url"), resultSet.getString("file_name"),
+                    resultSet.getString("attachment_type"), resultSet.getString("provider_file_id"),
+                    resultSet.getString("provider_account_key"), resultSet.getString("source_url"),
+                    resultSet.getString("resolved_source_url"), resultSet.getString("file_name"),
                     sizeMissing ? null : size);
         }, messageId.toString(), partId.toString()).stream().findFirst();
     }
@@ -309,6 +314,18 @@ public class MessagingRepository {
     }
 
     /**
+     * 保存渠道文件解析结果。
+     */
+    public void bindResolvedSource(UUID jobId, String sourceUrl) {
+        jdbcTemplate.update("""
+                UPDATE attachment_download_job SET resolved_source_url = ?, resolved_at = ?,
+                    status = 'RESOLVED', last_error_code = NULL, updated_at = ?
+                WHERE id = ? AND (resolved_source_url IS NULL OR resolved_source_url = ?)
+                """, sourceUrl, Timestamp.from(Instant.now()), Timestamp.from(Instant.now()),
+                jobId.toString(), sourceUrl);
+    }
+
+    /**
      * 对账更新附件下载任务状态。
      */
     public void updateAttachmentJobStatus(UUID jobId, String status, String errorCode) {
@@ -334,8 +351,9 @@ public class MessagingRepository {
     /**
      * 附件下载所需的不可变来源快照。
      */
-    public record AttachmentSource(long ownerId, UUID partId, String partType, String sourceUrl,
-                                   String fileName, Long declaredSize) {
+    public record AttachmentSource(long ownerId, String channelType, UUID partId, String partType, String attachmentType,
+                                   String providerFileId, String providerAccountKey, String sourceUrl,
+                                   String resolvedSourceUrl, String fileName, Long declaredSize) {
     }
 
     /**
@@ -393,11 +411,12 @@ public class MessagingRepository {
             jdbcTemplate.update("""
                     INSERT INTO inbound_message_part
                         (id, inbound_message_id, sequence_number, part_type, text_content, attachment_type,
-                         provider_file_id, source_url, file_name, mime_type, declared_size, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                         provider_file_id, provider_account_key, source_url, file_name, mime_type,
+                         declared_size, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """, UUID.randomUUID().toString(), messageId.toString(), sequence, part.type(), part.text(),
-                    part.attachmentType(), part.providerFileId(), part.sourceUrl(), part.fileName(), part.mimeType(),
-                    part.declaredSize(), Timestamp.from(now));
+                    part.attachmentType(), part.providerFileId(), part.providerAccountKey(), part.sourceUrl(),
+                    part.fileName(), part.mimeType(), part.declaredSize(), Timestamp.from(now));
         }
     }
 
@@ -410,7 +429,8 @@ public class MessagingRepository {
             return new InboundMessagePart(UUID.fromString(resultSet.getString("id")),
                     resultSet.getInt("sequence_number"), resultSet.getString("part_type"),
                     resultSet.getString("text_content"), resultSet.getString("attachment_type"),
-                    resultSet.getString("provider_file_id"), resultSet.getString("source_url"),
+                    resultSet.getString("provider_file_id"), resultSet.getString("provider_account_key"),
+                    resultSet.getString("source_url"),
                     resultSet.getString("file_name"), resultSet.getString("mime_type"),
                     sizeMissing ? null : size);
         }, messageId.toString());
