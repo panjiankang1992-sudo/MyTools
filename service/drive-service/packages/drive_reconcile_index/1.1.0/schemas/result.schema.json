@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["migrationKey", "accountId", "storageProviderId", "storageOperationId", "matched", "mismatchReasons", "driveItemCount", "storageItemCount", "driveContentSha256", "storageContentSha256"],
+  "properties": {
+    "migrationKey": {"type": "string", "minLength": 1, "maxLength": 128},
+    "accountId": {"type": "string", "format": "uuid"},
+    "storageProviderId": {"type": "string", "format": "uuid"},
+    "storageOperationId": {"type": "string", "format": "uuid"},
+    "matched": {"type": "boolean"},
+    "mismatchReasons": {"type": "array", "items": {"enum": ["COUNT_MISMATCH", "CONTENT_MISMATCH"]}, "uniqueItems": true},
+    "driveItemCount": {"type": "integer", "minimum": 0},
+    "storageItemCount": {"type": "integer", "minimum": 0},
+    "driveContentSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "storageContentSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}

@@ -107,6 +107,22 @@ class StorageOperationRepositoryTest {
         assertThat(restored.secretRef()).isEqualTo("env://S3_SECRET");
     }
 
+    @Test
+    void shouldRejectDigestForSucceededNonScanOperation() {
+        Instant now = Instant.now();
+        String suffix = UUID.randomUUID().toString();
+        StorageProvider provider = new StorageProvider(UUID.randomUUID(), "digest-type-" + suffix,
+                "RCLONE", "digest-type-" + suffix, "secret://storage/" + suffix, true, now, now);
+        repository.insertProvider(provider);
+        StorageOperation operation = new StorageOperation(UUID.randomUUID(), provider.id(), "copy-" + suffix,
+                "COPY_TREE", "source", provider.id(), "target", "SUCCEEDED", null, null,
+                0, 100, null, now, now);
+        repository.insertOperation(operation);
+
+        assertThatThrownBy(() -> repository.operationDigest(operation.id()))
+                .isInstanceOf(IllegalStateException.class).hasMessage("STORAGE_017");
+    }
+
     private String digest(String value) throws Exception {
         return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                 .digest(value.getBytes(StandardCharsets.UTF_8)));

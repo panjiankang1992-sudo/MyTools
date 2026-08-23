@@ -34,6 +34,7 @@
 2. 让 DownloadBot staging 和发布脚本改用受管根配置。
 3. 迁移旧 WebDAV/Alist 账户：先注册默认关闭的原生 WebDAV Provider 做目录摘要对账，耗时操作继续使用 rclone Provider；验证后再逐项迁移写操作。
 4. Provider 迁移任务先以同一 `migrationKey` 执行 dry-run，保存来源数量、拒绝数量、游标和 SHA-256；正式执行使用相同来源快照和摘要，任何拒绝项或摘要变化都阻止切流。
+5. 目录对账报告必须证明 Storage 操作属于迁移后的 Provider、类型为成功的根扫描，并同时匹配 Drive 索引数量和集合摘要；其他成功操作不得伪装成扫描证据。
 4. 切换播放和下载票据。
 5. 删除旧 `cloudfile/webdav/alist` 通用实现。
 

@@ -236,7 +236,7 @@ public class StorageRepository {
     public ReconciliationDigest operationDigest(UUID operationId) {
         StorageOperation operation = findOperationById(operationId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.OPERATION_NOT_FOUND.code()));
-        if (!"SUCCEEDED".equals(operation.status())) {
+        if (!"SUCCEEDED".equals(operation.status()) || !"SCAN_ROOT".equals(operation.operationType())) {
             throw new IllegalStateException(ErrorCode.OPERATION_STATE_INVALID.code());
         }
         MessageDigest digest = sha256Digest();
