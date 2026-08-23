@@ -29,7 +29,7 @@ class ReaderSearchSidecarPublisherTest {
         publisher.publish(event);
 
         verify(gateway).create(eq("reader_source_search"),
-                matches("reader_source_search:[a-f0-9]{64}:reader-search-v1"),
+                matches("reader_source_search:[a-f0-9]{64}:reader-search-v2"),
                 eq("READER_SEARCH"), eq("7"), eq(40), anyMap());
     }
 }

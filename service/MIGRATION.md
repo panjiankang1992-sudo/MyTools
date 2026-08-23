@@ -32,7 +32,7 @@
 
 - [ ] 下载任务。已建立 `mytools_download` schema、请求聚合、MySQL 仓储、接入 API 和七类父任务映射；受限 HTTP 下载脚本及状态/取消闭环已完成，DownloadBot 默认关闭旁路与双写对账待迁移。
 - [ ] 媒体扫描、缩略图、截图和简介。已迁移 ffprobe、缩略图、十二帧截图和视频简介脚本，并加入默认关闭的 MyTools 旁路提交；目录扫描和新资产结果回写待迁移。
-- [ ] 书源搜索、发现、电子书导入和索引。已建立 `mytools_reader` schema、单节点 `reader_source_search` 脚本和默认关闭的 MyTools 旁路；分片子任务、结果合并、发现与导入待迁移。
+- [ ] 书源搜索、发现、电子书导入和索引。已建立 `mytools_reader` schema、原生多节点分片的 `reader_source_search` 脚本和默认关闭的 MyTools 旁路；结果合并、发现与导入待迁移。
 
 ## 阶段 4：共享能力
 

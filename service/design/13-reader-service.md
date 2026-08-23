@@ -19,7 +19,7 @@
 - `reader_build_catalog`、`reader_prefetch_chapters`。
 - `reader_cleanup_cache`、`reader_reindex_library`。
 
-书源搜索父任务按书源分片创建子任务，允许部分成功；结果脚本增量写搜索暂存表，Reader Service 合并去重并通过事件推送进度。
+书源搜索任务由 Scheduler 展开为不可变的多节点分片执行目标，目标按照书源序号确定性分片并允许部分成功；Reader Service 汇总全部目标结果、合并去重并通过事件推送进度。需要独立生命周期的发现、导入等工作仍通过脚本创建子任务。
 
 ## 查询边界
 

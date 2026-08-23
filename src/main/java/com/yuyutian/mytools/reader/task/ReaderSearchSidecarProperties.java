@@ -13,5 +13,5 @@ import org.springframework.stereotype.Component;
 public class ReaderSearchSidecarProperties {
     private boolean enabled;
     private int priority = 40;
-    private String policyVersion = "reader-search-v1";
+    private String policyVersion = "reader-search-v2";
 }
