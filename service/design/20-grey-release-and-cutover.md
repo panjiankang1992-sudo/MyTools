@@ -30,6 +30,18 @@
 - 取消、超时、失败步骤和幂等重试均已演练，且没有修改旧权威数据。
 - 回退负责人、回退命令、数据补偿范围和观察窗口已在变更单中确认。
 
+Storage 切流还必须运行：
+
+```bash
+python3 service/scripts/storage_cutover_gate.py \
+  --dry-run-report <dry-run.json> \
+  --apply-report <apply.json> \
+  --expected-reconciliations <enabled-provider-count> \
+  --reconciliation-report <account-1.json>
+```
+
+每个启用 Provider 重复传入一个 `--reconciliation-report`。工具只读取本地证据文件，不访问数据库或修改开关；输出迁移键、数量和稳定错误码，不输出账户、Provider、路径、摘要或 Secret 引用。只有来源摘要一致、零拒绝、正式绑定完整、对账数量符合预期且所有根扫描严格匹配时返回成功。
+
 ## 回退
 
 先关闭对应新入口或旁路开关，再恢复旧任务消费；禁止在回退时删除新 schema。记录切换窗口内的新写入，按领域幂等键补偿回旧系统或在下一次切换前重放。任务执行中的临时产物由任务取消和补偿步骤处理，已原子发布的受管资产保留并通过引用状态决定是否清理。
