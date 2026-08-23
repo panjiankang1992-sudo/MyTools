@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mytools-onebot-connector"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["PyMySQL>=1.1,<2"]
+
+[project.scripts]
+mytools-onebot-connector = "mytools_onebot_connector.main:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

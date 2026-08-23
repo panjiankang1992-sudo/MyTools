@@ -28,7 +28,7 @@ Java 21 / Spring Boot
 
 OneBot 入站默认由 `MESSAGING_ONEBOT_INGRESS_ENABLED=false` 关闭。灰度时由独立 adapter/反向代理携带内部令牌调用，不修改 DownloadBot 的现有事件消费链。事件幂等键包含 account、self、message type、conversation 和 message id；消息正文与附件分段写入 `inbound_message_part`，附件只保存 provider file id、远程 URL、文件名、MIME 和声明大小，不在 HTTP 入站事务中下载文件。合并转发内容需要由上游 OneBot adapter 展开后提交；未展开的 provider 文件引用将在后续附件下载任务中解析。
 
-远程 HTTP 附件可通过消息分段接口幂等创建 `message_download_attachment` 任务。父任务的 Scheduler 参数只保存 `attachmentJobId`；第一步由 Messaging 在自身信任边界内把 provider file id 交给凭据隔离解析器，第二步根据解析模式创建下载请求。`PUBLIC_URL` 仅接受无用户信息、query 和 fragment 的公开 HTTPS URL；`STREAM` 使用新的 `MESSAGE_ATTACHMENT` 下载类型，从 Messaging 内容接口有界流式读取。provider account key、provider file id、解析器令牌和签名 URL 均不会进入 Scheduler 参数或步骤结果。
+远程 HTTP 附件可通过消息分段接口幂等创建 `message_download_attachment` 任务。父任务的 Scheduler 参数只保存 `attachmentJobId`；第一步由 Messaging 在自身信任边界内把 provider file id 交给独立、凭据隔离的 OneBot Connector，第二步根据解析模式创建下载请求。`PUBLIC_URL` 仅接受无用户信息、query 和 fragment 的公开 HTTPS URL；`STREAM` 使用新的 `MESSAGE_ATTACHMENT` 下载类型，从 Messaging 内容接口经 Connector 有界流式读取。provider account key、provider file id、Connector 令牌和签名 URL 均不会进入 Scheduler 参数或步骤结果。
 
 `attachment_download_job` 保存解析检查点、父任务与下载请求的关联，查询时对账 Download Ingestion 的运行、成功、失败或取消状态；重复解析、创建或执行不会产生第二个逻辑下载。通过 `MESSAGE_PROVIDER_RESOLVER_URL` 和独立 `MESSAGE_PROVIDER_RESOLVER_TOKEN` 配置解析边界，不配置令牌不会影响入站消息接收，只有创建 provider-only 附件任务后才会失败。
 
@@ -40,6 +40,6 @@ MyTools 注册验证码已增加默认关闭的 `MESSAGING_REGISTRATION_MAIL_SID
 
 ## 实施要求
 
-- 扩展 QQ、Telegram provider adapter；生产解析器必须实现 `PUBLIC_URL/STREAM` 契约及相同的字节上限。
+- 使用 NapCat 生产副本联调 `onebot-connector-service`；继续扩展 Telegram provider adapter。所有 Connector 必须实现 `PUBLIC_URL/STREAM` 契约及相同的字节上限。
 - 迁移已有能力时保留旧实现和功能开关。
 - 在对账与回归通过前不得切换权威数据或生产流量。

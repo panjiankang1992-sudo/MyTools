@@ -24,6 +24,7 @@
 | [15-msgservice-adapter-service.md](15-msgservice-adapter-service.md) | MsgService 默认关闭的历史数据迁移防腐层 |
 | [16-legacy-asset-adapter-service.md](16-legacy-asset-adapter-service.md) | MyTools local_file 一致性快照与只读资产迁移适配器 |
 | [17-pikpak-connector-service.md](17-pikpak-connector-service.md) | PikPak 离线提交、稳定性观察与受控移动适配器 |
+| [18-onebot-connector-service.md](18-onebot-connector-service.md) | OneBot/NapCat 文件解析、凭据隔离与受控内容流适配器 |
 
 ## 共通约束
 

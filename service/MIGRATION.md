@@ -37,7 +37,7 @@
 ## 阶段 4：共享能力
 
 - [ ] Storage Gateway。已建立独立 `mytools_storage` schema、本地受管根的幂等流式上传、摘要校验、路径隔离、同文件系统原子发布及跨文件系统复制复验切换，并完成远端 Provider、根扫描、单用途访问票据、跨 Provider 树复制、下载校验后移动和镜像同步任务；受管根亲和标签已接入 Scheduler 不可变节点约束。移动已具备目标写入栅栏、失败补偿、源删除前后差异化处理和独立恢复任务。已增加 Provider 类型路由以及原生 WebDAV、S3 安全单级目录查询，现有 rclone 契约保持兼容；Provider 迁移任务 1.1.0 已具备 dry-run、续跑游标、白名单脱敏、确定性摘要和幂等回绑，Drive 对账任务 1.1.0 已绑定账户、Provider 和成功根扫描证据。生产副本迁移、原生异步写操作及旧通用存储实现下线仍待后续迁移。
-- [ ] Messaging 和 Message Automation。已建立独立 schema、幂等邮件投递、标准入站消息、OneBot 标准化、事务 Outbox 和默认关闭的旧链路旁路；附件下载已拆成 provider 引用解析与 Download Ingestion 提交两个原子步骤，Scheduler 只持有不透明作业标识。解析器支持安全公开 URL 和受控 STREAM 两种模式，鉴权来源通过 Messaging 有界流转入原子下载、资产登记与结果回写链路。Automation 已实现授权规则、动作白名单、消息去重、动作占位、子任务状态汇总和级联取消。历史收信已具备 dry-run、载荷摘要、幂等审计和不触发实时规则的批次迁移任务；独立、双重默认关闭且使用自有 schema 的旧 MsgService 快照适配器已实现。根据旧服务真实 schema 编写只读映射器、生产 provider 联调、生产副本迁移和新旧规则对账仍待完成。
+- [ ] Messaging 和 Message Automation。已建立独立 schema、幂等邮件投递、标准入站消息、OneBot 标准化、事务 Outbox 和默认关闭的旧链路旁路；附件下载已拆成 provider 引用解析与 Download Ingestion 提交两个原子步骤，Scheduler 只持有不透明作业标识。解析器支持安全公开 URL 和受控 STREAM 两种模式，鉴权来源通过 Messaging 有界流转入原子下载、资产登记与结果回写链路。独立、默认关闭的 OneBot Connector 已使用自有 schema 落地固定 `get_file`、凭据引用、本地路径映射、公网 URL 校验和有界内容流，待 NapCat 生产副本联调及按账户灰度。Automation 已实现授权规则、动作白名单、消息去重、动作占位、子任务状态汇总和级联取消。历史收信已具备 dry-run、载荷摘要、幂等审计和不触发实时规则的批次迁移任务；独立、双重默认关闭且使用自有 schema 的旧 MsgService 快照适配器已实现。根据旧服务真实 schema 编写只读映射器、生产 provider 联调、生产副本迁移和新旧规则对账仍待完成。
 - [ ] Asset Registry。已建立独立 `mytools_asset` schema、按 SHA-256 与大小去重的资产、跨租户业务来源、存储位置、派生关系、乐观版本、幂等写入和事务 Outbox；共享登记脚本已接入 Reader、HTTP 下载和媒体任务。V2 已实现位置失效、不可变资源包和带单调修订号的全库摘要任务；V3 已实现真实事务回滚式 dry-run、幂等旧 ID 映射和冲突报告。独立 `legacy-asset-adapter-service` 已按真实 `local_file` schema 实现单事务一致性捕获、拒绝审计、原子封存和默认关闭导出。生产副本捕获、正式迁移和对账待执行。
 - [ ] Media、Drive、Reader、Identity 独立服务。
 

@@ -1,0 +1,31 @@
+# OneBot Connector Service
+
+OneBot Connector owns NapCat/OneBot account routes, credential references, the fixed `get_file` call, safe local-path mapping, and bounded provider-content streaming. It is an atomic infrastructure connector used by Messaging Service; it does not own message or download business state.
+
+## Safety defaults
+
+- `ONEBOT_CONNECTOR_ENABLED` defaults to `false`.
+- HTTP binds to `127.0.0.1:23255` by default.
+- Account routes must point to loopback; credentials must use `env://NAME` references.
+- Admin and provider-resolution APIs use separate bearer tokens.
+- Only stable credential-free public HTTPS URLs are returned to Messaging. Local files, signed URLs, and authenticated OneBot URLs use the bounded `STREAM` endpoint.
+- The service uses independent schema `mytools_onebot_connector`; it never reads or writes the legacy DownloadBot database.
+
+## Internal API
+
+| Method | Path | Token | Purpose |
+| --- | --- | --- | --- |
+| `GET` | `/health` | none | Liveness |
+| `POST` | `/internal/v1/accounts` | admin | Idempotently register a provider route |
+| `POST` | `/internal/v1/provider-files/resolve` | internal | Return `PUBLIC_URL` or `STREAM` |
+| `POST` | `/internal/v1/provider-files/content` | internal | Stream a `STREAM` resolution |
+
+Provider requests contain only `channelType`, `accountKey`, `attachmentType`, and opaque `providerFileId`. Responses never contain provider credentials, local paths, or secret references.
+
+Apply `db/migrations/V1__create_onebot_connector_schema.sql` to a new schema before startup. Register accounts disabled first, validate path mapping and `get_file`, then enable the account and finally the global gate.
+
+## Verification
+
+```bash
+PYTHONPATH=src python -m pytest
+```
