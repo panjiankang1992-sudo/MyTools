@@ -11,7 +11,6 @@ dependencies = ["PyMySQL>=1.1,<2"]
 
 [project.scripts]
 mytools-downloadbot-adapter = "mytools_downloadbot_adapter.main:main"
-mytools-downloadbot-snapshot = "mytools_downloadbot_adapter.capture_main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

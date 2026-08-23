@@ -7,13 +7,16 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler
 import hmac
 import json
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
+from uuid import UUID
 
 from .models import AcceptLegacyEvent
 from .service import AdapterService
 
 
-def create_handler(service: AdapterService, internal_token: str) -> type[BaseHTTPRequestHandler]:
+def create_handler(service: AdapterService, internal_token: str, snapshot_repository=None,
+                   snapshot_export_enabled: bool = False,
+                   snapshot_export_token: str | None = None) -> type[BaseHTTPRequestHandler]:
     """创建绑定应用依赖的 HTTP 处理器。"""
 
     class Handler(BaseHTTPRequestHandler):
@@ -21,14 +24,37 @@ def create_handler(service: AdapterService, internal_token: str) -> type[BaseHTT
 
         def do_GET(self) -> None:  # noqa: N802
             """处理健康检查。"""
-            if urlparse(self.path).path == "/health":
+            parsed = urlparse(self.path)
+            if parsed.path == "/health":
                 self._json(HTTPStatus.OK, {"status": "UP"})
+                return
+            if parsed.path == "/internal/v1/migration/downloadbot/snapshot-items":
+                if not self._authorized(snapshot_export_token or ""):
+                    self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
+                    return
+                if not snapshot_export_enabled or snapshot_repository is None:
+                    self._json(HTTPStatus.SERVICE_UNAVAILABLE,
+                               {"error": "snapshot export is disabled"})
+                    return
+                try:
+                    query = parse_qs(parsed.query, keep_blank_values=True)
+                    snapshot_id = UUID(query.get("snapshotId", [""])[0])
+                    after_id = query.get("afterId", [None])[0]
+                    limit = int(query.get("limit", ["200"])[0])
+                    self._json(HTTPStatus.OK, snapshot_repository.export_page(
+                        snapshot_id, after_id, limit))
+                except LookupError as exception:
+                    self._json(HTTPStatus.NOT_FOUND, {"error": str(exception)})
+                except PermissionError as exception:
+                    self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": str(exception)})
+                except (TypeError, ValueError) as exception:
+                    self._json(HTTPStatus.BAD_REQUEST, {"error": str(exception)})
                 return
             self._json(HTTPStatus.NOT_FOUND, {"error": "route does not exist"})
 
         def do_POST(self) -> None:  # noqa: N802
             """幂等接受一个旧下载请求事件。"""
-            if not self._authorized():
+            if not self._authorized(internal_token):
                 self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
                 return
             if urlparse(self.path).path != "/internal/v1/downloadbot/events":
@@ -59,9 +85,9 @@ def create_handler(service: AdapterService, internal_token: str) -> type[BaseHTT
                 raise ValueError("request body must be an object")
             return value
 
-        def _authorized(self) -> bool:
-            return bool(internal_token) and hmac.compare_digest(
-                self.headers.get("Authorization", ""), f"Bearer {internal_token}")
+        def _authorized(self, token: str) -> bool:
+            return bool(token) and hmac.compare_digest(
+                self.headers.get("Authorization", ""), f"Bearer {token}")
 
         def _json(self, status: HTTPStatus, payload: dict) -> None:
             body = json.dumps(payload, separators=(",", ":"), default=str).encode("utf-8")

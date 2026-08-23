@@ -105,6 +105,60 @@ class MySqlSnapshotRepository:
         finally:
             connection.close()
 
+    def export_page(self, snapshot_id: UUID, after_id: str | None, limit: int) -> dict:
+        """返回已封存快照的有界迁移页。"""
+        if limit < 1 or limit > 500:
+            raise ValueError("snapshot page limit is invalid")
+        snapshot = self.get(snapshot_id)
+        if snapshot is None:
+            raise LookupError("snapshot does not exist")
+        if snapshot.status is not SnapshotStatus.SEALED:
+            raise PermissionError("snapshot is not sealed")
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                item_type = legacy_id = ""
+                if after_id:
+                    cursor.execute(
+                        "SELECT item_type,legacy_id FROM legacy_snapshot_item "
+                        "WHERE snapshot_id=%s AND id=%s", (str(snapshot_id), after_id))
+                    cursor_row = cursor.fetchone()
+                    if cursor_row is None:
+                        raise ValueError("snapshot cursor is invalid")
+                    item_type = cursor_row["item_type"]
+                    legacy_id = cursor_row["legacy_id"]
+                cursor.execute(
+                    "SELECT id,item_type,legacy_id,source_key,payload_json,payload_sha256 "
+                    "FROM legacy_snapshot_item WHERE snapshot_id=%s AND "
+                    "(item_type>%s OR (item_type=%s AND legacy_id>%s)) "
+                    "ORDER BY item_type,legacy_id LIMIT %s",
+                    (str(snapshot_id), item_type, item_type, legacy_id, limit + 1))
+                rows = list(cursor.fetchall())
+        finally:
+            connection.close()
+        has_more = len(rows) > limit
+        rows = rows[:limit]
+        items = [{"snapshotItemId": row["id"], "itemType": row["item_type"],
+                  "legacyId": row["legacy_id"], "sourceKey": row["source_key"],
+                  "payload": self._json(row["payload_json"]),
+                  "payloadSha256": row["payload_sha256"]} for row in rows]
+        return {"snapshotId": str(snapshot.id),
+                "collectionSha256": snapshot.collection_sha256,
+                "itemCount": snapshot.item_count, "items": items,
+                "nextAfterId": rows[-1]["id"] if has_more and rows else None}
+
+    def fail(self, snapshot_id: UUID) -> None:
+        """将捕获中的快照标记为失败。"""
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("UPDATE legacy_snapshot SET status=%s WHERE id=%s AND status=%s",
+                               (SnapshotStatus.FAILED.value, str(snapshot_id),
+                                SnapshotStatus.CAPTURING.value))
+            connection.commit()
+        finally:
+            connection.close()
+
     @staticmethod
     def _map_snapshot(row: dict) -> LegacySnapshot:
         """将数据库行映射为快照模型。"""

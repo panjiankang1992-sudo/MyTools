@@ -5,6 +5,7 @@ from mytools_downloadbot_adapter.snapshot import (
     SnapshotRejection,
     collection_digest,
     normalize_asset,
+    normalize_link_asset,
     normalize_link_job,
 )
 
@@ -44,3 +45,11 @@ def test_collection_digest_is_independent_of_read_order():
     first = SnapshotItem("ASSET", "2", "asset:b", {"value": 2})
     second = SnapshotItem("ASSET", "1", "asset:a", {"value": 1})
     assert collection_digest([first, second]) == collection_digest([second, first])
+
+
+def test_link_asset_normalization_preserves_only_stable_relation():
+    result = normalize_link_asset({"id": 5, "link_job_id": 2, "asset_id": 3,
+                                   "source_key": "entry-1", "sha256": "c" * 64})
+    assert isinstance(result, SnapshotItem)
+    assert result.source_key == "link-asset:2:3"
+    assert result.payload["contentSha256"] == "c" * 64

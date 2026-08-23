@@ -25,17 +25,20 @@ DownloadBot 数据表，也不共享数据库账号。旧 DownloadBot 在整个�
 `adapter_event` 保存全局唯一 `event_id`、稳定来源身份、下载类型、脱敏参数、转发状态、新下载请求标识和稳定错误码。相同事件标识只有在业务内容完全一致时才允许重放。
 
 - `POST /internal/v1/downloadbot/events`：接受旧请求事件。
+- `GET /internal/v1/migration/downloadbot/snapshot-items`：分页读取已封存标准化条目；默认关闭。
 - `GET /health`：进程存活检查，不代表 `SHADOW` 已启用。
 
 转发幂等键固定为 `downloadbot:{eventId}`。下游暂时失败时事件标记为 `FAILED`；相同事件重放可继续转发，下游自身幂等契约防止生成第二个请求。
 
 ## 分阶段迁移
 
-1. 当前阶段：只新增独立服务和 schema；不改 DownloadBot，默认关闭。
-2. 基线阶段：待 DownloadBot 工作区形成干净基线，在旧请求落库后提交脱敏事件；投递失败不得影响旧事务。
-3. 旁路阶段：小范围启用 `SHADOW`，按旧任务标识关联新请求，比较文件数量、总字节数和集合摘要。
-4. 灰度阶段：仅对已验证下载类型逐项选择新执行路径；保留旧路径快速回退。
-5. 收尾阶段：停止旧 worker loop，迁移必须保留的数据；临时文件和可再生摘要重新生成。
+1. 当前阶段：只新增独立服务和 schema；不改 DownloadBot，实时旁路和快照导出均默认关闭。
+2. 快照阶段：由 Scheduler 创建 `downloadbot_capture_snapshot`，Executor 使用旧库只读账号
+   捕获 `assets`、`link_jobs` 和 `link_asset_sources`，无效记录进入拒绝审计。
+3. 基线阶段：待 DownloadBot 工作区形成干净基线，在旧请求落库后提交脱敏事件；投递失败不得影响旧事务。
+4. 旁路阶段：小范围启用 `SHADOW`，按旧任务标识关联新请求，比较文件数量、总字节数和集合摘要。
+5. 灰度阶段：仅对已验证下载类型逐项选择新执行路径；保留旧路径快速回退。
+6. 收尾阶段：停止旧 worker loop，迁移必须保留的数据；临时文件和可再生摘要重新生成。
 
 ## 实现与验收
 

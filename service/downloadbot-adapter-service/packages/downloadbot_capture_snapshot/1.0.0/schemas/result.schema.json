@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["snapshotId", "status", "itemCount", "rejectionCount", "collectionSha256"],
+  "properties": {
+    "snapshotId": {"type": "string", "format": "uuid"},
+    "status": {"const": "SEALED"},
+    "itemCount": {"type": "integer", "minimum": 0},
+    "rejectionCount": {"type": "integer", "minimum": 0},
+    "collectionSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}

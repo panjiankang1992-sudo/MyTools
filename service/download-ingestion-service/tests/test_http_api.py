@@ -12,6 +12,8 @@ from uuid import uuid4
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 
 from mytools_download_ingestion.http_api import create_handler
+from mytools_download_ingestion.migration import (InMemoryLegacyHistoryRepository,
+                                                  LegacyHistoryMigrationService)
 from mytools_download_ingestion.service import DownloadRequestService, InMemoryDownloadRequestRepository
 
 
@@ -42,7 +44,9 @@ class DownloadHttpApiTest(unittest.TestCase):
     def setUp(self):
         repository = InMemoryDownloadRequestRepository()
         scheduler = FakeScheduler()
-        handler = create_handler(DownloadRequestService(repository, scheduler), repository, "test-token")
+        self.history_repository = InMemoryLegacyHistoryRepository()
+        handler = create_handler(DownloadRequestService(repository, scheduler), repository, "test-token",
+                                 LegacyHistoryMigrationService(self.history_repository))
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
         self.thread = Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -102,6 +106,24 @@ class DownloadHttpApiTest(unittest.TestCase):
         self.assertEqual(64, len(summary["collectionSha256"]))
         self.assertEqual([payload], summary["items"])
         self.assertNotIn("url", summary)
+
+    def test_imports_sanitized_downloadbot_history_batch(self):
+        """The protected migration endpoint supports dry-run and apply modes."""
+        import hashlib
+        payload = {"legacyJobId": "9", "status": "COMPLETED"}
+        digest = hashlib.sha256(json.dumps(payload, sort_keys=True,
+                                           separators=(",", ":")).encode()).hexdigest()
+        item = {"itemType": "LINK_JOB", "legacyId": "9", "sourceKey": "link:9",
+                "payload": payload, "payloadSha256": digest}
+        path = "/internal/v1/migrations/downloadbot-history/batches"
+        dry_run = self._request("POST", path, {"migrationKey": "download-v1",
+                                                "sourceSystem": "DownloadBot",
+                                                "dryRun": True, "items": [item]})
+        applied = self._request("POST", path, {"migrationKey": "download-v1",
+                                                "sourceSystem": "DownloadBot",
+                                                "dryRun": False, "items": [item]})
+        self.assertEqual(1, dry_run["accepted"])
+        self.assertEqual(1, applied["accepted"])
 
     def _request(self, method, path, payload=None):
         body = None if payload is None else json.dumps(payload).encode("utf-8")

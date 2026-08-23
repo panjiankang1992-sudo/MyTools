@@ -76,6 +76,9 @@ class SnapshotRepository(Protocol):
     def items(self, snapshot_id: UUID) -> list[SnapshotItem]:
         """仅返回已封存快照的标准化条目。"""
 
+    def fail(self, snapshot_id: UUID) -> None:
+        """将未完成快照标记为失败。"""
+
 
 def canonical_json(value: Any) -> bytes:
     """生成跨进程稳定的 UTF-8 JSON。"""
@@ -134,6 +137,27 @@ def normalize_link_job(row: dict[str, Any]) -> SnapshotItem | SnapshotRejection:
         "expectedFiles": int(row.get("expected_files") or 0),
         "createdAt": row.get("created_at"),
         "completedAt": row.get("completed_at"),
+    })
+
+
+def normalize_link_asset(row: dict[str, Any]) -> SnapshotItem | SnapshotRejection:
+    """将链接与资产关系映射为可对账的历史条目。"""
+    legacy_id = str(row.get("id", ""))
+    sha256 = str(row.get("sha256") or "").lower()
+    if len(sha256) != 64 or any(char not in "0123456789abcdef" for char in sha256):
+        return SnapshotRejection("LINK_ASSET", legacy_id, "INVALID_SHA256",
+                                 "linked asset checksum is invalid")
+    link_job_id = str(row.get("link_job_id") or "")
+    asset_id = str(row.get("asset_id") or "")
+    if not link_job_id or not asset_id:
+        return SnapshotRejection("LINK_ASSET", legacy_id, "MISSING_RELATION",
+                                 "link or asset identity is missing")
+    return SnapshotItem("LINK_ASSET", legacy_id, f"link-asset:{link_job_id}:{asset_id}", {
+        "legacyLinkJobId": link_job_id,
+        "legacyAssetId": asset_id,
+        "contentSha256": sha256,
+        "sourceKey": str(row.get("source_key") or legacy_id),
+        "createdAt": row.get("created_at"),
     })
 
 

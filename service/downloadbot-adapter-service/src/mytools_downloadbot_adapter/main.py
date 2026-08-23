@@ -13,6 +13,7 @@ from .http_api import create_handler
 from .models import AdapterMode
 from .mysql_repository import MySqlEventRepository
 from .service import AdapterService
+from .snapshot_repository import MySqlSnapshotRepository
 
 
 def main() -> None:
@@ -27,12 +28,16 @@ def main() -> None:
             charset="utf8mb4", cursorclass=DictCursor, autocommit=False)
 
     repository = MySqlEventRepository(connection_factory)
+    snapshot_repository = MySqlSnapshotRepository(connection_factory)
     client = DownloadIngestionHttpClient(
         os.environ.get("DOWNLOAD_INGESTION_URL", "http://127.0.0.1:23220"),
         os.environ.get("DOWNLOAD_INGESTION_TOKEN", ""))
     mode = AdapterMode(os.environ.get("DOWNLOADBOT_ADAPTER_MODE", "DISABLED"))
-    handler = create_handler(AdapterService(repository, client, mode),
-                             os.environ.get("DOWNLOADBOT_ADAPTER_INTERNAL_TOKEN", ""))
+    handler = create_handler(
+        AdapterService(repository, client, mode),
+        os.environ.get("DOWNLOADBOT_ADAPTER_INTERNAL_TOKEN", ""), snapshot_repository,
+        os.environ.get("DOWNLOADBOT_SNAPSHOT_EXPORT_ENABLED", "false").lower() == "true",
+        os.environ.get("DOWNLOADBOT_SNAPSHOT_EXPORT_TOKEN", ""))
     server = ThreadingHTTPServer((os.environ.get("DOWNLOADBOT_ADAPTER_HTTP_HOST", "127.0.0.1"),
                                   int(os.environ.get("DOWNLOADBOT_ADAPTER_HTTP_PORT", "23221"))), handler)
     server.serve_forever()

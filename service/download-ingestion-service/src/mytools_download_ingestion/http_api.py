@@ -12,6 +12,7 @@ from uuid import UUID
 import hmac
 
 from .models import CreateDownloadRequest, DownloadRequest
+from .migration import LegacyHistoryMigrationService
 from .service import DownloadRequestRepository, DownloadRequestService
 
 
@@ -28,7 +29,8 @@ def request_document(request: DownloadRequest) -> dict:
 
 def create_handler(service: DownloadRequestService,
                    repository: DownloadRequestRepository,
-                   internal_token: str) -> type[BaseHTTPRequestHandler]:
+                   internal_token: str,
+                   migration_service: LegacyHistoryMigrationService | None = None) -> type[BaseHTTPRequestHandler]:
     """Create a request handler bound to application dependencies."""
 
     class DownloadRequestHandler(BaseHTTPRequestHandler):
@@ -80,6 +82,21 @@ def create_handler(service: DownloadRequestService,
             path = urlparse(self.path).path
             prefix = "/api/v1/download-requests/"
             internal_prefix = "/internal/v1/download-requests/"
+            if path == "/internal/v1/migrations/downloadbot-history/batches":
+                if migration_service is None:
+                    self._json(HTTPStatus.SERVICE_UNAVAILABLE,
+                               {"error": "history migration is unavailable"})
+                    return
+                try:
+                    payload = self._read_json()
+                    result = migration_service.migrate(
+                        str(payload["migrationKey"]), str(payload.get("sourceSystem") or ""),
+                        payload["dryRun"], payload["items"])
+                except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exception:
+                    self._json(HTTPStatus.BAD_REQUEST, {"error": str(exception)})
+                    return
+                self._json(HTTPStatus.OK, result)
+                return
             if path.startswith(internal_prefix) and path.endswith("/result"):
                 identifier = path.removeprefix(internal_prefix).removesuffix("/result").rstrip("/")
                 try:

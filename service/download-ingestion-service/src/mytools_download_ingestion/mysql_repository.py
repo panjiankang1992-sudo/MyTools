@@ -161,6 +161,58 @@ class MySqlDownloadRequestRepository:
         finally:
             connection.close()
 
+    def find_digest(self, source_system: str, item_type: str, legacy_id: str) -> str | None:
+        """查询已经导入的 DownloadBot 历史摘要。"""
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT payload_sha256 FROM legacy_download_history "
+                    "WHERE source_system=%s AND item_type=%s AND legacy_id=%s",
+                    (source_system, item_type, legacy_id))
+                row = cursor.fetchone()
+            return None if row is None else str(row["payload_sha256"])
+        finally:
+            connection.close()
+
+    def insert_history(self, migration_key: str, source_system: str, item: dict) -> None:
+        """写入一条不可变的旧下载历史。"""
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO legacy_download_history "
+                    "(id,source_system,item_type,legacy_id,source_key,payload_json,payload_sha256,"
+                    "first_migration_key,created_at) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (str(uuid4()), source_system, item["itemType"], item["legacyId"],
+                     item["sourceKey"], json.dumps(item["payload"], ensure_ascii=False,
+                                                   separators=(",", ":")),
+                     item["payloadSha256"], migration_key, datetime.now(UTC)))
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            connection.close()
+
+    def record_rejection(self, migration_key: str, source_system: str,
+                         item: dict, reason_code: str) -> None:
+        """幂等记录一条历史迁移拒绝。"""
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "INSERT IGNORE INTO legacy_download_migration_rejection "
+                    "(id,migration_key,source_system,item_type,legacy_id,reason_code,created_at) "
+                    "VALUES (%s,%s,%s,%s,%s,%s,%s)",
+                    (str(uuid4()), migration_key, source_system,
+                     str(item.get("itemType") or "INVALID")[:32],
+                     str(item.get("legacyId") or "INVALID")[:255], reason_code,
+                     datetime.now(UTC)))
+            connection.commit()
+        finally:
+            connection.close()
+
     def _find(self, predicate: str, value: str) -> DownloadRequest | None:
         connection = self._connection_factory()
         try:

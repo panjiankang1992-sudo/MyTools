@@ -11,6 +11,8 @@
 - `source_reference`：消息、URL、帖子、PikPak 等来源。
 - `download_task_binding`：任务实例关联。
 - `download_outbox`。
+- `legacy_download_history`：从封存快照导入的不可变旧下载记录，不参与新下载生命周期。
+- `legacy_download_migration_rejection`：摘要错误和身份冲突审计。
 
 ## API
 
@@ -19,6 +21,7 @@
 - `GET /api/v1/download-requests/{id}/result-summary`：返回不含源参数的稳定内容摘要，用于旧新下载结果对账。
 - `POST /api/v1/download-requests/{id}/cancel`：取消绑定的任务并同步取消状态。
 - `GET /health`：进程健康检查。
+- `POST /internal/v1/migrations/downloadbot-history/batches`：预检或幂等导入一个标准化历史批次。
 
 首版服务使用 Python 3.12，业务数据写入独立 `mytools_download` schema。Scheduler 短暂不可用时业务请求保留为 `ACCEPTED`，相同幂等键重放会继续创建并绑定任务，不产生第二条下载请求。
 
@@ -39,7 +42,9 @@
 1. 保留 DownloadBot 表和模型，给现有 worker 增加默认关闭的任务适配层。
 2. 将 HTTP/X 下载封装为首批脚本；当前已完成受限 HTTP 下载任务。
 3. 迁移 PikPak、magnet 和消息附件。
-4. 双写旧任务状态与新任务绑定并对账；新服务已提供按文件项稳定排序的摘要契约，DownloadBot 适配器待其现有工作区形成可提交基线后接入。
+4. 通过 `downloadbot_capture_snapshot` 捕获旧库一致性快照，再由
+   `download_migrate_legacy_history` 经受保护 API 导入历史；旧库只读账号与两个 API
+   令牌相互隔离。实时双跑仍使用新服务按文件项稳定排序的摘要契约。
 5. 关闭旧 worker loop，保留 API、MCP 和业务查询。
 6. 渠道接入迁往 Messaging/Automation。
 
