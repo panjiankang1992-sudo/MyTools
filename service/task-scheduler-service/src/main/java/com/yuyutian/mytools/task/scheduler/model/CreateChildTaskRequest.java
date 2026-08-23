@@ -19,6 +19,7 @@ import java.util.UUID;
  * @param businessId 业务标识
  * @param priority 优先级
  * @param parameters 参数
+ * @param requiredNodeLabels 子任务节点标签约束
  */
 public record CreateChildTaskRequest(
         @NotNull UUID leaseToken,
@@ -27,6 +28,7 @@ public record CreateChildTaskRequest(
         String businessType,
         String businessId,
         @Min(0) @Max(100) int priority,
-        @NotNull Map<String, Object> parameters
+        @NotNull Map<String, Object> parameters,
+        Map<String, Object> requiredNodeLabels
 ) {
 }

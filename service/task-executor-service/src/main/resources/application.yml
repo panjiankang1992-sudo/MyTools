@@ -17,6 +17,7 @@ executor:
       - python3.12
   labels:
     storage.mount.managed: ${STORAGE_DEFAULT_ROOT_NODE_VALUE:present}
+    executor.node: ${TASK_EXECUTOR_NODE_NAME:executor-local}
   cluster-names:
     - media
     - reader
@@ -113,6 +114,10 @@ executor:
     media_register_item:
       MEDIA_LIBRARY_URL: ${MEDIA_LIBRARY_URL:http://127.0.0.1:23300}
       MEDIA_LIBRARY_INTERNAL_TOKEN: ${MEDIA_LIBRARY_INTERNAL_TOKEN:}
+    media_scan_directory:
+      MEDIA_LIBRARY_URL: ${MEDIA_LIBRARY_URL:http://127.0.0.1:23300}
+      MEDIA_LIBRARY_INTERNAL_TOKEN: ${MEDIA_LIBRARY_INTERNAL_TOKEN:}
+      MEDIA_SCAN_ALLOWED_ROOTS: ${MEDIA_SCAN_ALLOWED_ROOTS:[]}
     asset_register_content:
       ASSET_REGISTRY_URL: ${ASSET_REGISTRY_URL:http://127.0.0.1:23270}
       ASSET_REGISTRY_INTERNAL_TOKEN: ${ASSET_REGISTRY_INTERNAL_TOKEN:}

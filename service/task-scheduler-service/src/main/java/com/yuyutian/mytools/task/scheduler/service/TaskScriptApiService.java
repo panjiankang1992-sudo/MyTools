@@ -49,7 +49,7 @@ public class TaskScriptApiService {
         }
         return taskInstanceService.create(new CreateTaskRequest(
                 request.taskName(), request.idempotencyKey(), request.businessType(), request.businessId(),
-                currentTaskId, request.priority(), request.parameters()));
+                currentTaskId, request.priority(), request.parameters(), request.requiredNodeLabels()));
     }
 
     /**

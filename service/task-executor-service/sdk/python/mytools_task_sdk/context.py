@@ -70,6 +70,7 @@ class TaskContext:
         business_type: str | None = None,
         business_id: str | None = None,
         priority: int = 50,
+        required_node_labels: dict[str, Any] | None = None,
     ) -> TaskInstance:
         """幂等创建当前任务的直接子任务。"""
         payload = self._request(
@@ -83,6 +84,7 @@ class TaskContext:
                 "businessId": business_id,
                 "priority": priority,
                 "parameters": parameters,
+                "requiredNodeLabels": required_node_labels or {},
             },
         )
         return TaskInstance.from_payload(payload)

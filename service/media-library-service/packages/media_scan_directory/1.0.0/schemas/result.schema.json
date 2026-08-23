@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["scanId", "manifestSha256", "discovered", "imported", "childTaskIds"],
+  "properties": {
+    "scanId": {"type": "string", "format": "uuid"},
+    "manifestSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "discovered": {"type": "integer", "minimum": 0, "maximum": 1000},
+    "imported": {"type": "integer", "minimum": 0, "maximum": 1000},
+    "childTaskIds": {"type": "array", "maxItems": 1000, "items": {"type": "string", "format": "uuid"}}
+  },
+  "additionalProperties": false
+}

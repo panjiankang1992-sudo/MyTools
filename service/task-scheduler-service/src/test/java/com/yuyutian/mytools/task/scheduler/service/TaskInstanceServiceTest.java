@@ -143,9 +143,11 @@ class TaskInstanceServiceTest {
                 ExecutionMode.SINGLE_NODE, true, 10, "SKIP", "IGNORE", Map.of(), Map.of()
         ));
         var child = scriptApiService.createChild(claimed.executionId(), new CreateChildTaskRequest(
-                claimed.leaseToken(), childTaskName, "child_" + suffix, "MEDIA_ASSET", "asset-2", 40, Map.of()
+                claimed.leaseToken(), childTaskName, "child_" + suffix, "MEDIA_ASSET", "asset-2", 40, Map.of(),
+                Map.of("storage.mount.managed", "present")
         ));
         assertEquals(task.id(), child.parentTaskInstanceId());
+        assertEquals(Map.of("storage.mount.managed", "present"), child.requiredNodeLabels());
         assertEquals(child.id(), scriptApiService.getRelated(
                 claimed.executionId(), claimed.leaseToken(), child.id()).id());
         assertEquals(TaskStatus.CANCELLED, scriptApiService.cancelChild(
