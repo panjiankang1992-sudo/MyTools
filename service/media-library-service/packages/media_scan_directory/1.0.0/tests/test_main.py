@@ -58,6 +58,7 @@ def test_scans_stages_and_waits_for_ingestion_children(tmp_path):
     assert task.created[0][0] == "media_ingest_scanned_file"
     assert task.created[0][1]["scanId"] == result["scanId"]
     assert task.created[0][1]["assetSourceType"] == "MEDIA_SCAN"
+    assert task.created[0][1]["analyze"] is False
     assert task.created[0][3]["required_node_labels"] == {"executor.node": "media-node-a"}
 
 
@@ -76,3 +77,17 @@ def test_rejects_more_than_direct_child_limit(tmp_path, monkeypatch):
     monkeypatch.setattr(MODULE, "MAX_FILES", 1)
     with pytest.raises(ValueError, match="direct child task limit"):
         MODULE.discover(tmp_path, "movies")
+
+
+def test_propagates_explicit_analysis_policy(tmp_path, monkeypatch):
+    source = tmp_path / "library"
+    source.mkdir()
+    (source / "a.mp4").write_bytes(b"video")
+    task = Task(source)
+    task.parameters.update({"analyze": True, "analysisVersion": "analysis-v3", "frameCount": 6})
+    monkeypatch.setenv("TASK_EXECUTOR_NODE_AFFINITY", "media-node-a")
+    MODULE.execute(task, Client(), [str(tmp_path)])
+    parameters = task.created[0][1]
+    assert parameters["analyze"] is True
+    assert parameters["analysisVersion"] == "analysis-v3"
+    assert parameters["frameCount"] == 6

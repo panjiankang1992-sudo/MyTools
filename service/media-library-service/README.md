@@ -29,3 +29,5 @@ Scheduler V47 新增 `media_scan_directory` 父任务和 `media_ingest_scanned_f
 Scheduler V48 将 `media_analyze_video` 升级为版本化业务闭环。任务首先用 `mediaItemId + assetRegistryId + analysisVersion + taskInstanceId` 建立唯一绑定，随后执行探测、缩略图、故事板、可选标签和简介生成。缩略图及故事板先发布到 Storage Gateway，再登记为 Asset Registry 派生资产；最终步骤把标签、简介和派生资产 ID 在一个 Media Library 事务中提交。任何必需步骤失败、超时或取消时，场景步骤分别写入 `FAILED`、`TIMED_OUT` 或 `CANCELLED`，不会留下永久 `RUNNING` 分析。
 
 `media_analyze_video` 没有默认定时触发，也没有替换旧 MyTools 分析入口。调用方必须使用 Media Library 返回的真实 `mediaItemId` 和 `assetRegistryId` 显式创建任务；相同媒体和分析版本不能绑定不同任务。
+
+Scheduler V49 在扫描摄取任务末尾增加 `media_submit_analysis`。扫描参数 `analyze` 默认 `false`；显式设为 `true` 时，脚本使用刚完成的 `register_asset` 和 `register_media_item` 输出创建 `media_analyze_video` 子任务，并继承同一个 `executor.node` 约束。扫描 generation 只等待摄取及分析任务的可靠创建，不等待模型分析完成，因此大目录发布不会被模型吞吐阻塞；分析进度和终态继续由 Scheduler 与 Media Library 独立查询。

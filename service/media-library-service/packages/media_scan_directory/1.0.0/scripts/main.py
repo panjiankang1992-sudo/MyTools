@@ -138,13 +138,18 @@ def execute(task: TaskContext, client: MediaLibraryClient, configured_roots: lis
     client.stage(scan_id, public_entries)
     children = []
     for entry in entries:
-        child = task.create_child("media_ingest_scanned_file", {
+        child_parameters = {
             "assetId": entry["sourceBusinessId"], "contentSha256": entry["contentSha256"],
             "sourcePath": entry["sourcePath"], "ownerId": owner_id,
             "assetSourceType": "MEDIA_SCAN", "assetSourceBusinessId": entry["sourceBusinessId"],
             "assetMimeType": entry["mimeType"], "assetProviderType": "LEGACY_MEDIA",
             "assetProviderVersion": entry["providerVersion"], "directoryKey": directory_key,
-            "directoryName": directory_name, "scanId": scan_id},
+            "directoryName": directory_name, "scanId": scan_id,
+            "analyze": bool(parameters.get("analyze", False))}
+        for name in ("analysisVersion", "storageRoot", "frameCount", "seekSeconds"):
+            if parameters.get(name) is not None:
+                child_parameters[name] = parameters[name]
+        child = task.create_child("media_ingest_scanned_file", child_parameters,
             f"media-scan:{scan_id}:{entry['sourceBusinessId']}", business_type="MEDIA_SCAN",
             business_id=scan_id, required_node_labels={"executor.node": node_affinity})
         children.append(child)

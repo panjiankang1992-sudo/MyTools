@@ -12,6 +12,12 @@ parameters:
     - directoryKey
     - directoryName
     - ownerId
+  optional:
+    - analyze
+    - analysisVersion
+    - storageRoot
+    - frameCount
+    - seekSeconds
 result:
   schema: schemas/result.schema.json
 limits:

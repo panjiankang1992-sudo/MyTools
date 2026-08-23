@@ -39,4 +39,5 @@ Scheduler V23 在媒体探测后旁路登记原媒体，并在缩略图生成后
 - `MEDIA_TAG_POLICY_VERSION`：参与任务幂等键的标签策略版本。
 - `MEDIA_PROCESSING_SIDECAR_ENABLED=false`：默认关闭媒体探测、缩略图和视频分析旁路任务。
 - `MEDIA_VIDEO_ANALYSIS_POLICY_VERSION`：视频分析组合任务的幂等策略版本。
+- V49 扫描任务可显式传入 `analyze=true` 和 `analysisVersion`，由 `media_submit_analysis` 使用摄取步骤产生的领域 ID 创建同节点分析子任务；默认值仍不创建分析。
 - 开启后只有旧标签事务提交成功才异步创建任务；调度器不可用只记录告警，不回滚旧标签。

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["status", "mediaItemId"],
+  "properties": {
+    "status": {"enum": ["SKIPPED", "SUBMITTED"]},
+    "mediaItemId": {"type": "string", "format": "uuid"},
+    "analysisTaskId": {"type": ["string", "null"], "format": "uuid"},
+    "analysisVersion": {"type": ["string", "null"}
+  },
+  "additionalProperties": false
+}
