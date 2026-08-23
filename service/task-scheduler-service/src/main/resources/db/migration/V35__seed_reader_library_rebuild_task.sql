@@ -1,0 +1,9 @@
+INSERT INTO task_definition (id,name,description,task_type,timeout_seconds,cluster_id,cron_expression,cron_timezone,execution_mode,enabled,max_concurrency,overlap_policy,misfire_policy,parameter_schema,result_schema,version,created_at,updated_at)
+VALUES ('00000000-0000-4000-8000-000000000323','reader_reindex_library','Build and atomically publish one owner library index generation','IMMEDIATE',1800,'00000000-0000-4000-8000-000000000002',NULL,NULL,'SINGLE_NODE',TRUE,2,'SKIP','IGNORE','{}','{}',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+
+INSERT INTO task_step_definition (id,task_definition_id,name,description,step_kind,script_package,script_version,entrypoint,arguments_template,enabled,timeout_seconds,failure_policy,sequence_number,max_attempts,created_at,updated_at)
+VALUES
+('00000000-0000-4000-8000-000000000442','00000000-0000-4000-8000-000000000323','rebuild_library','Build staging generation and publish after complete snapshot scan','NORMAL','reader_reindex_library','1.0.0','scripts/main.py','[]',TRUE,1800,'FAIL_TASK',10,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+('00000000-0000-4000-8000-000000000443','00000000-0000-4000-8000-000000000323','on_failure','Mark library rebuild failed','FAILURE','reader_finish_library_rebuild','1.0.0','scripts/main.py','[]',TRUE,30,'IGNORE',10,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+('00000000-0000-4000-8000-000000000444','00000000-0000-4000-8000-000000000323','on_timeout','Mark library rebuild timed out','TIMEOUT','reader_finish_library_rebuild','1.0.0','scripts/main.py','[]',TRUE,30,'IGNORE',10,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+('00000000-0000-4000-8000-000000000445','00000000-0000-4000-8000-000000000323','on_cancel','Mark library rebuild cancelled','CANCEL','reader_finish_library_rebuild','1.0.0','scripts/main.py','[]',TRUE,30,'IGNORE',10,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);

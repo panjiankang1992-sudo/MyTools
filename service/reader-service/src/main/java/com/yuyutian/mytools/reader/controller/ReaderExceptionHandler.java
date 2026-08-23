@@ -13,6 +13,8 @@ import com.yuyutian.mytools.reader.service.ChapterCacheNotFoundException;
 import com.yuyutian.mytools.reader.service.ChapterPrefetchNotFoundException;
 import com.yuyutian.mytools.reader.service.CacheMaintenanceConflictException;
 import com.yuyutian.mytools.reader.service.CacheMaintenanceNotFoundException;
+import com.yuyutian.mytools.reader.service.LibraryRebuildConflictException;
+import com.yuyutian.mytools.reader.service.LibraryRebuildNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -165,5 +167,25 @@ public class ReaderExceptionHandler {
     public Map<String, String> handleCacheMaintenanceConflict(CacheMaintenanceConflictException exception) {
         return Map.of("code", ErrorCode.CACHE_MAINTENANCE_CONFLICT.code(),
                 "message", ErrorCode.CACHE_MAINTENANCE_CONFLICT.message());
+    }
+
+    /**
+     * 转换书库索引重建不存在异常。
+     */
+    @ExceptionHandler(LibraryRebuildNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleLibraryRebuildNotFound(LibraryRebuildNotFoundException exception) {
+        return Map.of("code", ErrorCode.LIBRARY_REBUILD_NOT_FOUND.code(),
+                "message", ErrorCode.LIBRARY_REBUILD_NOT_FOUND.message());
+    }
+
+    /**
+     * 转换书库索引重建冲突异常。
+     */
+    @ExceptionHandler(LibraryRebuildConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> handleLibraryRebuildConflict(LibraryRebuildConflictException exception) {
+        return Map.of("code", ErrorCode.LIBRARY_REBUILD_CONFLICT.code(),
+                "message", ErrorCode.LIBRARY_REBUILD_CONFLICT.message());
     }
 }

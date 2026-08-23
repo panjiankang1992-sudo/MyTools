@@ -17,7 +17,9 @@ public enum ErrorCode {
     CHAPTER_CACHE_NOT_FOUND("READER_011", "Chapter cache entry was not found"),
     CHAPTER_CACHE_INVALID("READER_012", "Chapter cache batch is invalid"),
     CACHE_MAINTENANCE_NOT_FOUND("READER_013", "Chapter cache maintenance was not found"),
-    CACHE_MAINTENANCE_CONFLICT("READER_014", "Chapter cache maintenance conflicts with existing state");
+    CACHE_MAINTENANCE_CONFLICT("READER_014", "Chapter cache maintenance conflicts with existing state"),
+    LIBRARY_REBUILD_NOT_FOUND("READER_015", "Library rebuild was not found"),
+    LIBRARY_REBUILD_CONFLICT("READER_016", "Library rebuild conflicts with existing state");
 
     private final String code;
     private final String message;

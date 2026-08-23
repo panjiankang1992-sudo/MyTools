@@ -9,7 +9,8 @@
 - `shelf_books`、`reading_progress`、`reader_markers`。
 - `book_sources`、`book_source_versions`。
 - `book_search_requests`、`book_search_results`、`book_search_task_bindings`。
-- `ebook_metadata`、`ebook_catalog`、`chapter_cache`。
+- `ebook_asset`、`ebook_catalog_entry`、`chapter_cache`。
+- `library_rebuild_request`、`library_index_generation`、`library_index_entry`。
 
 ## 任务类型
 
@@ -37,8 +38,9 @@
 2. 已完成单节点旁路验证并保持现有缓存表。
 3. 已使用 Scheduler 原生执行目标完成多节点分片、原始结果暂存和部分成功聚合。
 4. 已将书源发现迁为受限公网脚本和 Reader Service 版本化写入，健康检查迁为原生多节点分片任务，书源电子书导入迁为 Storage Gateway 原子发布任务，TXT/EPUB/PDF/MOBI 元数据解析、持久化目录构建及指定章节预缓存已脚本化。
-5. 已将过期缓存、停用书源缓存和旧书源版本缓存清理迁为受限批次任务，并配置失败、超时、取消终态步骤；书库重建 Job 仍需基于独立快照实现。
-6. 独立 schema 与 Reader Service MVP 已建立；完成对账后再由 Gateway 切换远程接口。
+5. 已将过期缓存、停用书源缓存和旧书源版本缓存清理迁为受限批次任务，并配置失败、超时、取消终态步骤。
+6. 已实现书库索引 generation 重建：冻结成功 `ebook_asset` 快照，按批次写入不可见 generation，完成性检查通过后在事务中原子切换 active generation；异常终态不发布半成品，重建不触碰书架、阅读进度或书签。
+7. 独立 schema 与 Reader Service MVP 已建立；完成对账后再由 Gateway 切换远程接口。
 
 ## 验收
 
@@ -47,3 +49,4 @@
 - 重复分片执行不会产生重复书籍记录。
 - 重复章节批次不会产生重复缓存，过期或旧书源版本缓存不会被同步查询返回。
 - 缓存清理每批受限且可重试，任何终态都能在维护记录中审计累计删除数。
+- 索引重建发布前对同步查询不可见，发布时只有一个 active generation，且不改变用户书架、进度和书签数据。

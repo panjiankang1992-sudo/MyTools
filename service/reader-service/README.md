@@ -32,9 +32,11 @@ MyTools 通过默认关闭的 `READER_SEARCH_SIDECAR_ENABLED` 开关提交同一
 
 章节缓存维护使用 `reader_cleanup_chapter_cache` 1.0.0 即时任务。维护请求冻结清理类型、截止时间和每批上限，只把 `maintenanceId` 交给 Scheduler；Executor 通过需要 `READER_INTERNAL_TOKEN` 的 Reader 内部接口逐批清理过期缓存，或清理书源已停用/版本过时的缓存。每批最多 1000 条并先删除预取关联，成功、失败、超时和取消均写回独立维护记录。该能力只维护新 `mytools_reader` schema，不读取或删除 MyTools 现有缓存。
 
+书库索引重建使用 `reader_reindex_library` 1.0.0 即时任务。创建请求冻结 `ebook_asset` 快照时间和批次大小，Executor 只携带 `rebuildId` 循环调用内部批次接口，在不可见 generation 中按内容摘要去重；确认冻结快照无遗漏后，Reader Service 在单个事务中撤销旧 generation 并发布新 generation。失败、超时和取消步骤只记录异常终态，不会发布半成品。重建数据完全可从新 schema 的成功电子书资产再生，且不会读写现有 MyTools 数据，也不会修改 `shelf_book`、`reading_progress` 或 `reader_marker`。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。
 - 迁移已有能力时保留旧实现和功能开关。
 - 在对账与回归通过前不得切换权威数据或生产流量。
-- 后续使用缓存快照创建 `reader_reindex_library` 子任务，不允许清理任务隐式重建或覆盖用户书架。
+- 书库索引仅允许显式创建 `reader_reindex_library` 任务，不允许缓存清理隐式重建或覆盖用户书架。
