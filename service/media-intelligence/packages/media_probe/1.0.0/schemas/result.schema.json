@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["assetId", "contentSha256", "format", "durationMs", "video", "audio"],
+  "properties": {
+    "assetId": { "type": "string", "minLength": 1 },
+    "contentSha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+    "format": { "type": "string", "maxLength": 64 },
+    "durationMs": { "type": "integer", "minimum": 1 },
+    "bitRate": { "type": "integer", "minimum": 0 },
+    "video": { "type": "object" },
+    "audio": { "type": ["object", "null"] }
+  },
+  "additionalProperties": false
+}

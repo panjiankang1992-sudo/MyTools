@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["assetId", "contentSha256", "artifactPath", "artifactSha256", "size"],
+  "properties": {
+    "assetId": { "type": "string", "minLength": 1 },
+    "contentSha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+    "artifactPath": { "type": "string", "minLength": 1 },
+    "artifactSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "size": { "type": "integer", "minimum": 3 }
+  },
+  "additionalProperties": false
+}

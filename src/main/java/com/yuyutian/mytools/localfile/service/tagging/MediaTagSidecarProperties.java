@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "migration.tasks.media-tags")
 public class MediaTagSidecarProperties {
     private boolean enabled;
-    private String schedulerUrl = "http://127.0.0.1:23210";
     private String taskName = "media_generate_tags";
     private String policyVersion = "media-tags-v1";
     private int priority = 40;

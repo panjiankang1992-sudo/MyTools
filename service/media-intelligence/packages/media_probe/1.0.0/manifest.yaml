@@ -1,0 +1,17 @@
+name: media_probe
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - filesystem_read
+  - ffprobe
+parameters:
+  required:
+    - assetId
+    - contentSha256
+    - sourcePath
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 30
+  maxOutputBytes: 1048576

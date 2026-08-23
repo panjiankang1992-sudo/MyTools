@@ -1,12 +1,11 @@
 package com.yuyutian.mytools.localfile.service.tagging;
 
+import com.yuyutian.mytools.task.client.TaskSchedulerGateway;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -18,17 +17,18 @@ import java.util.Map;
 @Component
 public class MediaTagSidecarTaskPublisher {
 
-    private final RestTemplate restTemplate;
+    private final TaskSchedulerGateway taskSchedulerGateway;
     private final MediaTagSidecarProperties properties;
 
     /**
      * 创建旁路标签任务发布器。
      *
-     * @param restTemplate HTTP 客户端
+     * @param taskSchedulerGateway 任务调度网关
      * @param properties 旁路任务配置
      */
-    public MediaTagSidecarTaskPublisher(RestTemplate restTemplate, MediaTagSidecarProperties properties) {
-        this.restTemplate = restTemplate;
+    public MediaTagSidecarTaskPublisher(TaskSchedulerGateway taskSchedulerGateway,
+                                        MediaTagSidecarProperties properties) {
+        this.taskSchedulerGateway = taskSchedulerGateway;
         this.properties = properties;
     }
 
@@ -48,18 +48,18 @@ public class MediaTagSidecarTaskPublisher {
             return;
         }
         try {
-            restTemplate.postForEntity(normalizedSchedulerUrl() + "/api/v1/task-instances",
-                    createRequest(event), Map.class);
+            taskSchedulerGateway.create(properties.getTaskName(), idempotencyKey(event), "MEDIA_FILE",
+                    event.fileId().toString(), properties.getPriority(), createParameters(event));
             log.info("Media tag sidecar task created: fileId={}, policyVersion={}",
                     event.fileId(), properties.getPolicyVersion());
-        } catch (RestClientException exception) {
+        } catch (RuntimeException exception) {
             // 旁路不可用时旧标签仍是权威结果，禁止向旧调用链传播异常。
             log.warn("Media tag sidecar task creation failed: fileId={}, error={}",
                     event.fileId(), exception.getMessage());
         }
     }
 
-    private Map<String, Object> createRequest(MediaTagSidecarTaskRequested event) {
+    private Map<String, Object> createParameters(MediaTagSidecarTaskRequested event) {
         Map<String, Object> parameters = new LinkedHashMap<>();
         parameters.put("sourcePath", event.sourcePath());
         parameters.put("filename", event.filename());
@@ -72,20 +72,11 @@ public class MediaTagSidecarTaskPublisher {
         if (event.thumbnailPath() != null && !event.thumbnailPath().isBlank()) {
             parameters.put("thumbnailPath", event.thumbnailPath());
         }
-        Map<String, Object> request = new LinkedHashMap<>();
-        request.put("taskName", properties.getTaskName());
-        request.put("idempotencyKey", properties.getTaskName() + ":" + event.contentSha256().toLowerCase()
-                + ":" + properties.getPolicyVersion());
-        request.put("businessType", "MEDIA_FILE");
-        request.put("businessId", event.fileId().toString());
-        request.put("parentTaskInstanceId", null);
-        request.put("priority", properties.getPriority());
-        request.put("parameters", parameters);
-        return request;
+        return parameters;
     }
 
-    private String normalizedSchedulerUrl() {
-        String value = properties.getSchedulerUrl();
-        return value.endsWith("/") ? value.substring(0, value.length() - 1) : value;
+    private String idempotencyKey(MediaTagSidecarTaskRequested event) {
+        return properties.getTaskName() + ":" + event.contentSha256().toLowerCase()
+                + ":" + properties.getPolicyVersion();
     }
 }

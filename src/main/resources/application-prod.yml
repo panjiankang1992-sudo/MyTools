@@ -86,14 +86,19 @@ tagging:
 
 migration:
   tasks:
+    scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23210}
     media-tags:
       enabled: ${MEDIA_TAG_SIDECAR_ENABLED:false}
-      scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23210}
       task-name: media_generate_tags
       policy-version: ${MEDIA_TAG_POLICY_VERSION:media-tags-v1}
       priority: ${MEDIA_TAG_TASK_PRIORITY:40}
       service-url: ${TAGGING_SERVICE_URL:http://127.0.0.1:11434}
       model: ${TAGGING_SERVICE_MODEL:huihui_ai/qwen3-vl-abliterated:4b}
+    media-processing:
+      enabled: ${MEDIA_PROCESSING_SIDECAR_ENABLED:false}
+      priority: ${MEDIA_PROCESSING_TASK_PRIORITY:30}
+      probe-version: ${MEDIA_PROBE_POLICY_VERSION:media-probe-v1}
+      thumbnail-version: ${MEDIA_THUMBNAIL_POLICY_VERSION:media-thumbnail-v1}
 
 copilot:
   gateway:

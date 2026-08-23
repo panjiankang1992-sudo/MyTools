@@ -4,10 +4,12 @@ import com.yuyutian.mytools.localfile.entity.LocalFile;
 import com.yuyutian.mytools.localfile.mapper.LocalFileMapper;
 import com.yuyutian.mytools.localfile.service.LocalFileService;
 import com.yuyutian.mytools.localfile.service.ResourceStorageGuard;
+import com.yuyutian.mytools.media.task.MediaProcessingSidecarRequested;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +34,7 @@ public class ThumbnailGenerationJob {
     private final LocalFileMapper localFileMapper;
     private final LocalFileService localFileService;
     private final ResourceStorageGuard resourceStorageGuard;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final ExecutorService thumbnailExecutor = Executors.newFixedThreadPool(4);
     private final Map<Long, Integer> thumbnailFailureCounts = new ConcurrentHashMap<>();
     private final Map<Long, Long> thumbnailRetryAfter = new ConcurrentHashMap<>();
@@ -76,9 +79,12 @@ public class ThumbnailGenerationJob {
             thumbnailExecutor.invokeAll(readyCandidates.stream()
                     .<java.util.concurrent.Callable<Void>>map(file -> () -> {
                         try {
-                            localFileService.generateAndPersistThumbnail(file.getId());
+                            var generated = localFileService.generateAndPersistThumbnail(file.getId());
                             thumbnailFailureCounts.remove(file.getId());
                             thumbnailRetryAfter.remove(file.getId());
+                            // 旧缩略图仍为权威结果，旁路任务只做独立生成与对账准备。
+                            applicationEventPublisher.publishEvent(new MediaProcessingSidecarRequested(
+                                    file.getId(), file.getFilePath(), generated.toString(), file.getFileHash()));
                         } catch (Exception ex) {
                             recordThumbnailFailure(file.getId());
                             log.warn("后台生成缩略图失败，文件ID：{}，路径：{}", file.getId(), file.getFilePath(), ex);

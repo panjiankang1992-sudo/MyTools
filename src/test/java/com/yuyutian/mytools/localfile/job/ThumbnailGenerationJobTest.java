@@ -7,6 +7,7 @@ import com.yuyutian.mytools.localfile.service.ResourceStorageGuard;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.IOException;
 import java.util.List;
@@ -49,7 +50,7 @@ class ThumbnailGenerationJobTest {
         when(service.generateAndPersistThumbnail(99L)).thenThrow(new IOException("broken"));
         ResourceStorageGuard storageGuard = mock(ResourceStorageGuard.class);
         when(storageGuard.isAvailable()).thenReturn(true);
-        job = new ThumbnailGenerationJob(mapper, service, storageGuard);
+        job = new ThumbnailGenerationJob(mapper, service, storageGuard, mock(ApplicationEventPublisher.class));
         ReflectionTestUtils.setField(job, "scanPath", "/srv");
         ReflectionTestUtils.setField(job, "thumbnailPath", "/srv/.thumbnails");
 
