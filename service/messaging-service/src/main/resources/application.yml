@@ -30,3 +30,7 @@ messaging:
   scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23210}
   internal-token: ${MESSAGING_INTERNAL_TOKEN:}
   mail-from: ${MESSAGING_MAIL_FROM:}
+  automation-url: ${MESSAGE_AUTOMATION_URL:http://127.0.0.1:23260}
+  automation-token: ${MESSAGE_AUTOMATION_INTERNAL_TOKEN:}
+  automation-relay-enabled: ${MESSAGE_AUTOMATION_RELAY_ENABLED:false}
+  automation-relay-batch-size: ${MESSAGE_AUTOMATION_RELAY_BATCH_SIZE:50}

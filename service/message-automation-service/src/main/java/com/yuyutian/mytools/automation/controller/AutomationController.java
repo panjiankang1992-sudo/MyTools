@@ -1,0 +1,76 @@
+package com.yuyutian.mytools.automation.controller;
+
+import com.yuyutian.mytools.automation.model.AutomationRuleRecord;
+import com.yuyutian.mytools.automation.model.AutomationRunView;
+import com.yuyutian.mytools.automation.model.CreateAutomationRuleRequest;
+import com.yuyutian.mytools.automation.model.ProcessMessageRequest;
+import com.yuyutian.mytools.automation.repository.AutomationRepository;
+import com.yuyutian.mytools.automation.service.InternalRequestAuthorizer;
+import com.yuyutian.mytools.automation.service.MessageAutomationService;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
+
+/**
+ * 消息自动化内部管理和事件处理接口。
+ */
+@RestController
+@RequestMapping("/internal/v1")
+public class AutomationController {
+
+    private final MessageAutomationService service;
+    private final AutomationRepository repository;
+    private final InternalRequestAuthorizer authorizer;
+
+    /**
+     * 创建消息自动化控制器。
+     */
+    public AutomationController(MessageAutomationService service, AutomationRepository repository,
+                                InternalRequestAuthorizer authorizer) {
+        this.service = service;
+        this.repository = repository;
+        this.authorizer = authorizer;
+    }
+
+    /**
+     * 创建授权规则和固定下载动作绑定。
+     */
+    @PostMapping("/automation-rules")
+    public AutomationRuleRecord createRule(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @Valid @RequestBody CreateAutomationRuleRequest request) {
+        authorizer.requireAuthorized(authorization);
+        return service.createRule(request);
+    }
+
+    /**
+     * 幂等处理一个只携带消息标识的事件。
+     */
+    @PostMapping("/message-events")
+    public ResponseEntity<AutomationRunView> process(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @Valid @RequestBody ProcessMessageRequest request) {
+        authorizer.requireAuthorized(authorization);
+        return ResponseEntity.accepted().body(service.process(request.messageId()));
+    }
+
+    /**
+     * 查询消息对应的自动化运行。
+     */
+    @GetMapping("/automation-runs/by-message/{messageId}")
+    public ResponseEntity<AutomationRunView> get(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable UUID messageId) {
+        authorizer.requireAuthorized(authorization);
+        return repository.findRun(messageId).map(ResponseEntity::ok).orElseGet(
+                () -> ResponseEntity.notFound().build());
+    }
+}

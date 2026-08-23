@@ -10,10 +10,18 @@ Java 21 / Spring Boot
 
 ## 当前阶段
 
-该目录属于旁路迁移工作区，不参与现有 MyTools 根工程构建和生产启动。详细设计见 [对应设计文档](../design/04-message-automation-service.md)。
+该目录属于旁路迁移工作区，不参与现有 MyTools 根工程构建和生产启动。已建立独立 `mytools_message_automation` schema、授权规则、动作白名单、消息唯一运行和事务 Outbox。详细设计见 [对应设计文档](../design/04-message-automation-service.md)。
+
+Messaging Service 的默认关闭 Outbox relay 只向 `POST /internal/v1/message-events` 发送 `messageId`；Automation 再通过鉴权只读接口获取正文。规则必须同时满足租户、渠道、可选会话、可选发送者和命令前缀，当前动作绑定仅允许 `HTTP_ASSET`，每条消息最多创建五个幂等 Download Ingestion 业务请求。未授权消息记录为 `NO_MATCH`，同一消息标识不会再次创建动作。
+
+内部接口：
+
+- `POST /internal/v1/automation-rules`：创建规则及固定动作绑定。
+- `POST /internal/v1/message-events`：幂等处理仅含消息标识的事件。
+- `GET /internal/v1/automation-runs/by-message/{messageId}`：查询规则版本、动作引用和状态。
 
 ## 实施要求
 
-- 首先实现稳定契约和最小健康检查。
+- 继续实现附件动作、子任务取消、状态汇总和失败运行对账。
 - 迁移已有能力时保留旧实现和功能开关。
 - 在对账与回归通过前不得切换权威数据或生产流量。

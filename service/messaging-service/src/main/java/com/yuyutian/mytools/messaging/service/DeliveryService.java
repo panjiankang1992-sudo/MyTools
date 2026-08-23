@@ -115,6 +115,16 @@ public class DeliveryService {
         return repository.saveInbound(request);
     }
 
+    /**
+     * 查询自动化服务所需的标准入站消息。
+     *
+     * @param id 消息标识
+     * @return 入站消息
+     */
+    public InboundMessageView inbound(UUID id) {
+        return repository.findInbound(id).orElseThrow(() -> new InboundMessageNotFoundException(id));
+    }
+
     private DeliveryRecord createRecord(CreateDeliveryRequest request) {
         Instant now = Instant.now();
         DeliveryRecord record = new DeliveryRecord(UUID.randomUUID(), request.ownerId(), request.idempotencyKey(),

@@ -13,6 +13,10 @@ messaging:
   scheduler-url: http://127.0.0.1:23210
   internal-token: test-messaging-token
   mail-from: sender@example.com
+  automation-url: http://automation.test
+  automation-token: test-automation-token
+  automation-relay-enabled: false
+  automation-relay-batch-size: 50
 
 management:
   health:

@@ -5,6 +5,7 @@ import io
 from pathlib import Path
 import tempfile
 import unittest
+import socket
 
 SCRIPT_PATH = Path(__file__).parents[1] / "scripts" / "main.py"
 SPEC = importlib.util.spec_from_file_location("download_http_asset", SCRIPT_PATH)
@@ -45,7 +46,8 @@ class DownloadHttpAssetTest(unittest.TestCase):
         }
         with tempfile.TemporaryDirectory() as directory:
             result = MODULE.stream_download(
-                parameters, Path(directory), opener=lambda *_args, **_kwargs: FakeResponse(content))
+                parameters, Path(directory), opener=lambda *_args, **_kwargs: FakeResponse(content),
+                resolver=public_resolver)
             self.assertEqual(len(content), result["sizeBytes"])
             self.assertEqual(content, (Path(directory) / "request-1" / "file.bin").read_bytes())
 
@@ -61,13 +63,25 @@ class DownloadHttpAssetTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaises(ValueError):
                 MODULE.stream_download(
-                    parameters, Path(directory), opener=lambda *_args, **_kwargs: FakeResponse(b"large"))
+                    parameters, Path(directory), opener=lambda *_args, **_kwargs: FakeResponse(b"large"),
+                    resolver=public_resolver)
             self.assertEqual([], list((Path(directory) / "request-2").iterdir()))
 
     def test_rejects_path_traversal(self):
         """A file name cannot escape the request directory."""
         with self.assertRaises(ValueError):
             MODULE.validated_name("../outside")
+
+    def test_rejects_private_network_destination(self):
+        """A message-controlled URL cannot target loopback or private services."""
+        with self.assertRaisesRegex(ValueError, "non-public"):
+            MODULE.validated_url("http://internal.example/secret", resolver=lambda *_args, **_kwargs: [
+                (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("127.0.0.1", 80))])
+
+
+def public_resolver(*_args, **_kwargs):
+    """Resolve test hosts to one deterministic public documentation address."""
+    return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443))]
 
 
 if __name__ == "__main__":

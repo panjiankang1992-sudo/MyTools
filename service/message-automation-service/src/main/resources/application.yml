@@ -1,0 +1,25 @@
+server:
+  address: ${MESSAGE_AUTOMATION_HTTP_HOST:127.0.0.1}
+  port: ${MESSAGE_AUTOMATION_HTTP_PORT:23260}
+
+spring:
+  application:
+    name: message-automation-service
+  datasource:
+    url: jdbc:mysql://${MESSAGE_AUTOMATION_DB_HOST:127.0.0.1}:${MESSAGE_AUTOMATION_DB_PORT:3306}/${MESSAGE_AUTOMATION_DB_NAME:mytools_message_automation}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: ${MESSAGE_AUTOMATION_DB_USER:}
+    password: ${MESSAGE_AUTOMATION_DB_PASSWORD:}
+  flyway:
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+automation:
+  internal-token: ${MESSAGE_AUTOMATION_INTERNAL_TOKEN:}
+  messaging-url: ${MESSAGING_SERVICE_URL:http://127.0.0.1:23250}
+  messaging-token: ${MESSAGING_INTERNAL_TOKEN:}
+  download-url: ${DOWNLOAD_INGESTION_URL:http://127.0.0.1:23220}

@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.List;
 
 /**
  * 投递、入站消息和事务 Outbox 仓储。
@@ -160,17 +161,62 @@ public class MessagingRepository {
                 request.receivedAt(), now);
     }
 
+    /**
+     * 按标识查询标准化入站消息。
+     *
+     * @param id 消息标识
+     * @return 入站消息
+     */
+    public Optional<InboundMessageView> findInbound(UUID id) {
+        return jdbcTemplate.query("SELECT * FROM inbound_message WHERE id = ?", (resultSet, rowNumber) ->
+                mapInbound(resultSet), id.toString()).stream().findFirst();
+    }
+
+    /**
+     * 查询等待转发的入站消息 Outbox 事件。
+     *
+     * @param limit 批次上限
+     * @return 待发布事件
+     */
+    public List<OutboxEvent> findUnpublishedInboundEvents(int limit) {
+        return jdbcTemplate.query("""
+                SELECT id, aggregate_id FROM messaging_outbox
+                WHERE published_at IS NULL AND event_type = 'MessageReceived'
+                ORDER BY created_at LIMIT ?
+                """, (resultSet, rowNumber) -> new OutboxEvent(UUID.fromString(resultSet.getString("id")),
+                UUID.fromString(resultSet.getString("aggregate_id"))), Math.max(1, Math.min(limit, 200)));
+    }
+
+    /**
+     * 标记 Outbox 事件已经获得下游确认。
+     *
+     * @param eventId 事件标识
+     */
+    public void markOutboxPublished(UUID eventId) {
+        jdbcTemplate.update("UPDATE messaging_outbox SET published_at = ? WHERE id = ? AND published_at IS NULL",
+                Timestamp.from(Instant.now()), eventId.toString());
+    }
+
+    /**
+     * 等待转发的最小 Outbox 事件。
+     */
+    public record OutboxEvent(UUID id, UUID messageId) {
+    }
+
     private Optional<InboundMessageView> findInbound(long ownerId, ChannelType type, String externalId) {
         return jdbcTemplate.query("""
                 SELECT * FROM inbound_message WHERE owner_id = ? AND channel_type = ? AND external_message_id = ?
-                """, (resultSet, rowNumber) -> new InboundMessageView(
-                UUID.fromString(resultSet.getString("id")), resultSet.getLong("owner_id"),
+                """, (resultSet, rowNumber) -> mapInbound(resultSet), ownerId, type.name(), externalId)
+                .stream().findFirst();
+    }
+
+    private InboundMessageView mapInbound(java.sql.ResultSet resultSet) throws java.sql.SQLException {
+        return new InboundMessageView(UUID.fromString(resultSet.getString("id")), resultSet.getLong("owner_id"),
                 ChannelType.valueOf(resultSet.getString("channel_type")),
                 resultSet.getString("external_message_id"), resultSet.getString("conversation_key"),
                 resultSet.getString("sender_ref"), resultSet.getString("subject_text"),
                 resultSet.getString("body_text"), resultSet.getTimestamp("received_at").toInstant(),
-                resultSet.getTimestamp("created_at").toInstant()), ownerId, type.name(), externalId)
-                .stream().findFirst();
+                resultSet.getTimestamp("created_at").toInstant());
     }
 
     private Optional<DeliveryRecord> queryDelivery(String clause, Object... arguments) {

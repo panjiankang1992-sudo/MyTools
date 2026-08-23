@@ -5,6 +5,7 @@ import com.yuyutian.mytools.messaging.service.DeliveryNotFoundException;
 import com.yuyutian.mytools.messaging.service.DeliveryStateInvalidException;
 import com.yuyutian.mytools.messaging.service.DeliveryInvalidException;
 import com.yuyutian.mytools.messaging.service.ProviderNotConfiguredException;
+import com.yuyutian.mytools.messaging.service.InboundMessageNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -55,5 +56,15 @@ public class MessagingExceptionHandler {
     public Map<String, String> handleDeliveryInvalid(DeliveryInvalidException exception) {
         return Map.of("code", ErrorCode.DELIVERY_INVALID.code(),
                 "message", ErrorCode.DELIVERY_INVALID.message());
+    }
+
+    /**
+     * 转换入站消息不存在异常。
+     */
+    @ExceptionHandler(InboundMessageNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleInboundMessageNotFound(InboundMessageNotFoundException exception) {
+        return Map.of("code", ErrorCode.INBOUND_NOT_FOUND.code(),
+                "message", ErrorCode.INBOUND_NOT_FOUND.message());
     }
 }

@@ -79,4 +79,15 @@ public class DeliveryController {
         authorizer.requireAuthorized(authorization);
         return service.receive(request);
     }
+
+    /**
+     * 查询标准化入站消息供自动化服务处理。
+     */
+    @GetMapping("/inbound-messages/{id}")
+    public InboundMessageView inbound(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable UUID id) {
+        authorizer.requireAuthorized(authorization);
+        return service.inbound(id);
+    }
 }
