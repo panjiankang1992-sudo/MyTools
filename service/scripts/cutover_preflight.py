@@ -33,6 +33,7 @@ SAFE_DISABLED_FLAGS = (
 )
 
 FALSE_VALUES = {"", "0", "false", "no", "off"}
+TENANT_ALLOWLIST_PATTERN = re.compile(r"[1-9][0-9]*(?:,[1-9][0-9]*)*")
 
 
 def parse_env_file(path: Path) -> dict[str, str]:
@@ -80,7 +81,22 @@ def inspect(values: dict[str, str], allow_enabled: bool = False) -> dict[str, ob
             errors.append(f"{key} must remain disabled before an approved grey release")
         elif enabled:
             warnings.append(f"{key} is enabled for an approved rehearsal")
-    return {"ready": not errors, "schemas": schemas, "flags": flags,
+
+    reader_tenant_count = 0
+    reader_allowlist = values.get("GATEWAY_READER_TENANT_ALLOWLIST", "").strip()
+    if reader_allowlist:
+        if TENANT_ALLOWLIST_PATTERN.fullmatch(reader_allowlist) is None:
+            errors.append("GATEWAY_READER_TENANT_ALLOWLIST must be comma-separated positive numeric IDs")
+        else:
+            reader_tenants = reader_allowlist.split(",")
+            if len(reader_tenants) != len(set(reader_tenants)):
+                errors.append("GATEWAY_READER_TENANT_ALLOWLIST contains duplicate IDs")
+            reader_tenant_count = len(reader_tenants)
+    if flags["GATEWAY_READER_ROUTE_ENABLED"] and reader_tenant_count == 0:
+        errors.append("GATEWAY_READER_TENANT_ALLOWLIST is required when Reader routing is enabled")
+
+    grey_release = {"readerTenantCount": reader_tenant_count}
+    return {"ready": not errors, "schemas": schemas, "flags": flags, "greyRelease": grey_release,
             "errors": errors, "warnings": warnings}
 
 

@@ -12,6 +12,7 @@ spring:
 gateway:
   identity-mode: ${IDENTITY_VALIDATION_MODE:LEGACY}
   reader-route-enabled: ${GATEWAY_READER_ROUTE_ENABLED:false}
+  reader-tenant-allowlist: ${GATEWAY_READER_TENANT_ALLOWLIST:}
   mytools-url: ${MYTOOLS_INTERNAL_URL:http://127.0.0.1:23110}
   identity-url: ${IDENTITY_SERVICE_URL:http://127.0.0.1:23290}
   reader-url: ${READER_SERVICE_URL:http://127.0.0.1:23230}

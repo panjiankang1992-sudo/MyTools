@@ -6,6 +6,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -62,7 +63,7 @@ class PrincipalValidatorTest {
     }
 
     private GatewayProperties properties(GatewayProperties.IdentityMode mode) {
-        return new GatewayProperties(mode, true, "http://mytools", "http://identity", "http://reader",
+        return new GatewayProperties(mode, true, Set.of(7L, 8L), "http://mytools", "http://identity", "http://reader",
                 "gateway-token", "identity-token", "reader-token", 1000, 3000);
     }
 }

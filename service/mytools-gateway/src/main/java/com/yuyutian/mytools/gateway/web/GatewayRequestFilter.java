@@ -52,6 +52,10 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
             }
             try {
                 GatewayPrincipal principal = validator.validate(authorization.substring(7));
+                if (!properties.readerTenantAllowed(principal.userId())) {
+                    routeDisabled(response, correlationId);
+                    return;
+                }
                 request.setAttribute(PRINCIPAL_ATTRIBUTE, principal);
             } catch (GatewayUnauthorizedException exception) {
                 unauthorized(response, correlationId);
@@ -78,5 +82,13 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setHeader("X-Correlation-Id", correlationId);
         response.getWriter().write("{\"code\":\"GATEWAY_001\",\"message\":\"Gateway authentication failed\"}");
+    }
+
+    private void routeDisabled(HttpServletResponse response, String correlationId) throws IOException {
+        response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        response.setContentType("application/json");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setHeader("X-Correlation-Id", correlationId);
+        response.getWriter().write("{\"code\":\"GATEWAY_002\",\"message\":\"Gateway route is not enabled\"}");
     }
 }

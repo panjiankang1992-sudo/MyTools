@@ -11,6 +11,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.when;
 class ReaderGatewayControllerTest {
 
     @Test
+    @SuppressWarnings("unchecked")
     void shouldOverwriteOwnerWithValidatedPrincipal() {
         ReaderGatewayClient client = mock(ReaderGatewayClient.class);
         ReaderGatewayController controller = new ReaderGatewayController(properties(true), client);
@@ -49,6 +51,16 @@ class ReaderGatewayControllerTest {
         verify(client, never()).list(eq("shelves"), eq(55L), eq(false), eq("correlation"));
     }
 
+    @Test
+    void shouldNotCallDownstreamWhenPrincipalIsOutsideAllowlist() {
+        ReaderGatewayClient client = mock(ReaderGatewayClient.class);
+        ReaderGatewayController controller = new ReaderGatewayController(properties(true), client);
+
+        assertThatThrownBy(() -> controller.shelves(false, request(56L)))
+                .isInstanceOf(GatewayRouteDisabledException.class);
+        verify(client, never()).list(eq("shelves"), eq(56L), eq(false), eq("correlation"));
+    }
+
     private MockHttpServletRequest request(long userId) {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE,
@@ -58,7 +70,7 @@ class ReaderGatewayControllerTest {
     }
 
     private GatewayProperties properties(boolean enabled) {
-        return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, enabled, "http://mytools",
+        return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, enabled, Set.of(55L), "http://mytools",
                 "http://identity", "http://reader", "gateway-token", "identity-token", "reader-token",
                 1000, 3000);
     }

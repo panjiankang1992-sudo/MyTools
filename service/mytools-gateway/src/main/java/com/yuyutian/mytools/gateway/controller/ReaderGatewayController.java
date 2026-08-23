@@ -57,7 +57,7 @@ public class ReaderGatewayController {
      */
     @PostMapping("/shelves")
     public Map<String, Object> saveShelf(@Valid @RequestBody ShelfRequest body, HttpServletRequest request) {
-        requireEnabled();
+        requireAllowed(request);
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("ownerId", principal(request).userId());
         payload.put("bookKey", body.bookKey());
@@ -81,7 +81,7 @@ public class ReaderGatewayController {
      */
     @PostMapping("/progress")
     public Map<String, Object> saveProgress(@Valid @RequestBody ProgressRequest body, HttpServletRequest request) {
-        requireEnabled();
+        requireAllowed(request);
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("ownerId", principal(request).userId());
         payload.put("bookKey", body.bookKey());
@@ -107,7 +107,7 @@ public class ReaderGatewayController {
      */
     @PostMapping("/markers")
     public Map<String, Object> saveMarker(@Valid @RequestBody MarkerRequest body, HttpServletRequest request) {
-        requireEnabled();
+        requireAllowed(request);
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("markerId", body.markerId());
         payload.put("ownerId", principal(request).userId());
@@ -122,12 +122,12 @@ public class ReaderGatewayController {
     }
 
     private List<Map<String, Object>> list(String resource, boolean includeDeleted, HttpServletRequest request) {
-        requireEnabled();
+        requireAllowed(request);
         return client.list(resource, principal(request).userId(), includeDeleted, correlation(request));
     }
 
     private Map<String, Object> save(String resource, Map<String, Object> payload, HttpServletRequest request) {
-        requireEnabled();
+        requireAllowed(request);
         return client.save(resource, payload, correlation(request));
     }
 
@@ -143,8 +143,11 @@ public class ReaderGatewayController {
         return request.getAttribute(GatewayRequestFilter.CORRELATION_ATTRIBUTE).toString();
     }
 
-    private void requireEnabled() {
-        if (!properties.readerRouteEnabled()) {
+    private void requireAllowed(HttpServletRequest request) {
+        // Controller 再次校验主体名单，防止过滤器配置或调用链变化绕过灰度边界。
+        Object value = request.getAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE);
+        if (!(value instanceof GatewayPrincipal principal)
+                || !properties.readerTenantAllowed(principal.userId())) {
             throw new GatewayRouteDisabledException();
         }
     }
