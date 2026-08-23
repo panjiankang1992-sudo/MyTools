@@ -47,10 +47,10 @@ class DownloadRequestServiceTest(unittest.TestCase):
         scheduler = FakeScheduler()
         service = DownloadRequestService(repository, scheduler)
         command = CreateDownloadRequest(
-            idempotency_key="qq:bot-1:event-42:0",
-            source_type="MESSAGE",
-            source_key="qq:event-42",
-            request_kind="MESSAGE_ATTACHMENT",
+            idempotency_key="http:event-42:0",
+            source_type="HTTP",
+            source_key="https://example.invalid/file",
+            request_kind="HTTP_ASSET",
             parameters={"mediaIndex": 0},
         )
 
@@ -60,7 +60,15 @@ class DownloadRequestServiceTest(unittest.TestCase):
         self.assertEqual(first.id, second.id)
         self.assertEqual(DownloadStatus.RUNNING, first.status)
         self.assertEqual(1, len(scheduler.calls))
-        self.assertEqual("download_message_attachment", scheduler.calls[0]["task_name"])
+        self.assertEqual("download_http_asset", scheduler.calls[0]["task_name"])
+
+    def test_rejects_task_kind_without_registered_scheduler_definition(self):
+        """Planned download kinds stay closed until their executable package is registered."""
+        service = DownloadRequestService(InMemoryDownloadRequestRepository(), FakeScheduler())
+        command = CreateDownloadRequest("message:key", "MESSAGE", "attachment-1",
+                                        "MESSAGE_ATTACHMENT", {"mediaIndex": 0})
+        with self.assertRaisesRegex(ValueError, "unsupported download request kind"):
+            service.create(command)
 
     def test_retries_scheduler_binding_for_an_accepted_request(self):
         """A transient scheduler failure must not strand the accepted aggregate."""

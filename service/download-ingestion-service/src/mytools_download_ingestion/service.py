@@ -10,12 +10,6 @@ from .models import CreateDownloadRequest, DownloadRequest, DownloadStatus
 
 TASK_NAMES = {
     "HTTP_ASSET": "download_http_asset",
-    "X_MEDIA": "download_x_media",
-    "WEB_ARCHIVE": "download_web_archive",
-    "PIKPAK_ASSET": "download_pikpak_asset",
-    "MAGNET_ASSET": "download_magnet_asset",
-    "MESSAGE_ATTACHMENT": "download_message_attachment",
-    "LOCAL_IMPORT": "download_local_import",
 }
 
 
