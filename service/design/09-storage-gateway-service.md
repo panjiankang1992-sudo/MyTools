@@ -33,6 +33,7 @@
 1. 已完成独立 `mytools_storage` schema、本地受管根、幂等流式上传、摘要校验和同文件系统原子发布 MVP；继续以 MyTools `drive/rclone` 为目标扩展统一接口。
 2. 让 DownloadBot staging 和发布脚本改用受管根配置。
 3. 迁移旧 WebDAV/Alist 账户：先注册默认关闭的原生 WebDAV Provider 做目录摘要对账，耗时操作继续使用 rclone Provider；验证后再逐项迁移写操作。
+4. Provider 迁移任务先以同一 `migrationKey` 执行 dry-run，保存来源数量、拒绝数量、游标和 SHA-256；正式执行使用相同来源快照和摘要，任何拒绝项或摘要变化都阻止切流。
 4. 切换播放和下载票据。
 5. 删除旧 `cloudfile/webdav/alist` 通用实现。
 

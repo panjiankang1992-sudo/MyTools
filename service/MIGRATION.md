@@ -36,7 +36,7 @@
 
 ## 阶段 4：共享能力
 
-- [ ] Storage Gateway。已建立独立 `mytools_storage` schema、本地受管根的幂等流式上传、摘要校验、路径隔离、同文件系统原子发布及跨文件系统复制复验切换，并完成远端 Provider、根扫描、单用途访问票据、跨 Provider 树复制、下载校验后移动和镜像同步任务；受管根亲和标签已接入 Scheduler 不可变节点约束。移动已具备目标写入栅栏、失败补偿、源删除前后差异化处理和独立恢复任务。已增加 Provider 类型路由以及原生 WebDAV、S3 安全单级目录查询，现有 rclone 契约保持兼容；原生异步写操作及旧通用存储实现下线仍待后续迁移。
+- [ ] Storage Gateway。已建立独立 `mytools_storage` schema、本地受管根的幂等流式上传、摘要校验、路径隔离、同文件系统原子发布及跨文件系统复制复验切换，并完成远端 Provider、根扫描、单用途访问票据、跨 Provider 树复制、下载校验后移动和镜像同步任务；受管根亲和标签已接入 Scheduler 不可变节点约束。移动已具备目标写入栅栏、失败补偿、源删除前后差异化处理和独立恢复任务。已增加 Provider 类型路由以及原生 WebDAV、S3 安全单级目录查询，现有 rclone 契约保持兼容；Provider 迁移任务 1.1.0 已具备 dry-run、续跑游标、白名单脱敏、确定性摘要和幂等回绑。生产副本迁移、目录摘要双跑、原生异步写操作及旧通用存储实现下线仍待后续迁移。
 - [ ] Messaging 和 Message Automation。已建立独立 schema、幂等邮件投递、标准入站消息、OneBot 标准化、事务 Outbox 和默认关闭的旧链路旁路；附件下载已创建 Download Ingestion 子任务。Automation 已实现授权规则、动作白名单、消息去重、动作占位、子任务状态汇总和级联取消。历史收信迁移、provider 文件解析 adapter 和新旧规则对账仍待完成。
 - [ ] Asset Registry。已建立独立 `mytools_asset` schema、按 SHA-256 与大小去重的资产、跨租户业务来源、存储位置、派生关系、乐观版本、幂等写入和事务 Outbox；已建立共享 `asset_register_content` 脚本与 SDK，并以可忽略、可补偿步骤接入 Reader 电子书导入和 HTTP 下载。媒体登记旁路、资源包及旧 ID 映射待迁移。
 - [ ] Media、Drive、Reader、Identity 独立服务。

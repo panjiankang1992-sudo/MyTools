@@ -30,7 +30,7 @@ Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 
 
 内部调用方可通过 `POST /api/internal/v1/storage/access-tickets` 为已存在的受管本地对象创建最长一小时的单用途下载票据，并通过撤销接口提前失效。数据库仅保存 Token SHA-256，原始 Token 只出现在创建响应的 `accessUrl` 中；公共下载端点采用条件更新原子消费，并发请求最多一个成功。该能力默认不替换任何旧下载 URL。
 
-`storage_migrate_drive_providers` 是手工即时迁移任务：它只读取 Drive 的账户 UUID、remote key、Secret 引用和启用状态，注册 Provider 后将 UUID 回绑 Drive；不读取或传输 URL、用户名和密码。任务可安全重跑且不会自动触发。
+`storage_migrate_drive_providers` 1.1.0 是手工即时迁移任务：使用 `migrationKey`、`dryRun` 和可选 `afterId` 读取 Drive 的脱敏账户页，严格拒绝用户名、密码、Token 等非白名单字段；支持 RCLONE、WEBDAV 和 S3 路由元数据，但只传输 Secret 引用。dry-run 不需要写令牌，也不会注册或回绑；正式执行按稳定 Provider 名称幂等注册并将 UUID 回绑 Drive。结果包含导出、接受、绑定、拒绝数量、续跑游标和确定性来源摘要，任务不会自动触发。
 
 成功的 `SCAN_ROOT` 操作可读取稳定排序的对象集合摘要，供 `drive_reconcile_index` 同时比较数量与 SHA-256。摘要采用共享长度前缀协议和黄金向量，避免仅按数量判断造成误切换。
 
