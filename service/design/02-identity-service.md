@@ -28,7 +28,7 @@
 
 ## 迁移
 
-1. 将 MyTools 的用户、角色、Token、验证码代码整理为独立模块。
+1. 已建立独立 `mytools_identity` schema 和服务 MVP，覆盖用户、角色、会话、验证码、登录失败锁定及 Outbox；短期 JWT 绑定服务端会话，刷新令牌只存 SHA-256 并在每次刷新时原子轮换，撤销实时参与校验。MyTools 原登录仍为权威路径。
 2. SMTP 调用替换为创建 `message_send_email` 任务。
 3. 建立独立 schema 与服务账号。
 4. 双写会话数据并核对后切换认证入口。

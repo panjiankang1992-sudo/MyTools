@@ -1,0 +1,17 @@
+server:
+  address: ${IDENTITY_HTTP_HOST:127.0.0.1}
+  port: ${IDENTITY_HTTP_PORT:23290}
+spring:
+  application.name: identity-service
+  datasource:
+    url: jdbc:mysql://${IDENTITY_DB_HOST:127.0.0.1}:${IDENTITY_DB_PORT:3306}/${IDENTITY_DB_NAME:mytools_identity}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: ${IDENTITY_DB_USER:}
+    password: ${IDENTITY_DB_PASSWORD:}
+  flyway.locations: classpath:db/migration
+management.endpoints.web.exposure.include: health,info
+identity:
+  internal-token: ${IDENTITY_INTERNAL_TOKEN:}
+  jwt-secret: ${IDENTITY_JWT_SECRET:}
+  issuer: ${IDENTITY_JWT_ISSUER:mytools-identity}
+  access-seconds: ${IDENTITY_ACCESS_SECONDS:900}
+  refresh-seconds: ${IDENTITY_REFRESH_SECONDS:604800}

@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:identity;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  flyway.locations: classpath:db/migration
+identity:
+  internal-token: test-token
+  jwt-secret: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+  issuer: identity-test
+  access-seconds: 900
+  refresh-seconds: 3600
