@@ -4,7 +4,9 @@ package com.yuyutian.mytools.reader.model;
  * 阅读服务统一错误码。
  */
 public enum ErrorCode {
-    SEARCH_NOT_FOUND("READER_001", "Search request was not found");
+    SEARCH_NOT_FOUND("READER_001", "Search request was not found"),
+    DISCOVERY_NOT_FOUND("READER_002", "Source discovery request was not found"),
+    INTERNAL_UNAUTHORIZED("READER_003", "Internal service token is invalid");
 
     private final String code;
     private final String message;

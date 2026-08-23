@@ -37,12 +37,28 @@ public class TaskSchedulerClient {
      * @return 任务实例标识
      */
     public UUID createSearchTask(String idempotencyKey, UUID businessId, Map<String, Object> parameters) {
+        return createTask("reader_source_search", idempotencyKey, "READER_SEARCH", businessId, 40, parameters);
+    }
+
+    /**
+     * 幂等创建指定类型任务。
+     *
+     * @param taskName 任务定义名称
+     * @param idempotencyKey 调度幂等键
+     * @param businessType 业务类型
+     * @param businessId 业务标识
+     * @param priority 优先级
+     * @param parameters 脚本参数
+     * @return 任务实例标识
+     */
+    public UUID createTask(String taskName, String idempotencyKey, String businessType, UUID businessId,
+                           int priority, Map<String, Object> parameters) {
         Map<String, Object> request = Map.of(
-                "taskName", "reader_source_search",
+                "taskName", taskName,
                 "idempotencyKey", idempotencyKey,
-                "businessType", "READER_SEARCH",
+                "businessType", businessType,
                 "businessId", businessId.toString(),
-                "priority", 40,
+                "priority", priority,
                 "parameters", parameters);
         JsonNode response = restClient.post().uri("/api/v1/task-instances")
                 .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);

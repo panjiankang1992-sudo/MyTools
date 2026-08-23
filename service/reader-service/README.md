@@ -18,6 +18,8 @@ MyTools 通过默认关闭的 `READER_SEARCH_SIDECAR_ENABLED` 开关提交同一
 
 服务默认监听 `127.0.0.1:23230`，使用 `READER_DB_*` 连接独立 `mytools_reader` schema，并通过 `TASK_SCHEDULER_URL` 调用 Scheduler。`POST /api/v1/book-searches` 创建搜索，`GET /api/v1/book-searches/{id}` 查询并聚合分片结果，`POST /api/v1/book-searches/{id}/cancel` 取消执行。所有接口仍处于旁路阶段。
 
+书源发现已迁移为 `reader_source_discovery` 1.0.0 脚本任务。脚本只访问经过公网地址校验、响应大小限制和重定向重验的仓库，并以最多 100 条一批调用 Reader Service 内部接口；服务以内容摘要维护不可变书源版本。公开编排接口为 `POST /api/v1/source-discoveries`、`GET /api/v1/source-discoveries/{id}` 和取消接口，内部写入接口必须使用 `READER_INTERNAL_TOKEN`。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。

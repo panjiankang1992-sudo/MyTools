@@ -1,0 +1,18 @@
+name: reader_source_discovery
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - public_http
+  - reader_service_internal_api
+parameters:
+  required:
+    - requestId
+    - ownerId
+    - url
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 600
+  maxInputBytes: 20971520
+  maxSources: 2000
