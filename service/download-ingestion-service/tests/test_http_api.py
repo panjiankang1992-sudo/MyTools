@@ -95,6 +95,13 @@ class DownloadHttpApiTest(unittest.TestCase):
         path = f"/internal/v1/download-requests/{created['id']}/result"
         self.assertEqual(payload, self._request("POST", path, payload))
         self.assertEqual(payload, self._request("POST", path, payload))
+        summary = self._request("GET", f"/api/v1/download-requests/{created['id']}/result-summary")
+        self.assertEqual(created["id"], summary["downloadRequestId"])
+        self.assertEqual(1, summary["itemCount"])
+        self.assertEqual(3, summary["totalBytes"])
+        self.assertEqual(64, len(summary["collectionSha256"]))
+        self.assertEqual([payload], summary["items"])
+        self.assertNotIn("url", summary)
 
     def _request(self, method, path, payload=None):
         body = None if payload is None else json.dumps(payload).encode("utf-8")

@@ -16,6 +16,7 @@
 
 - `POST /api/v1/download-requests`：按全局幂等键接受请求并绑定 Scheduler 任务。
 - `GET /api/v1/download-requests/{id}`：查询请求，同时对账 Scheduler 生命周期状态。
+- `GET /api/v1/download-requests/{id}/result-summary`：返回不含源参数的稳定内容摘要，用于旧新下载结果对账。
 - `POST /api/v1/download-requests/{id}/cancel`：取消绑定的任务并同步取消状态。
 - `GET /health`：进程健康检查。
 
@@ -38,7 +39,7 @@
 1. 保留 DownloadBot 表和模型，给现有 worker 增加默认关闭的任务适配层。
 2. 将 HTTP/X 下载封装为首批脚本；当前已完成受限 HTTP 下载任务。
 3. 迁移 PikPak、magnet 和消息附件。
-4. 双写旧任务状态与新任务绑定并对账。
+4. 双写旧任务状态与新任务绑定并对账；新服务已提供按文件项稳定排序的摘要契约，DownloadBot 适配器待其现有工作区形成可提交基线后接入。
 5. 关闭旧 worker loop，保留 API、MCP 和业务查询。
 6. 渠道接入迁往 Messaging/Automation。
 

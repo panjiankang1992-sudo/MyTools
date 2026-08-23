@@ -136,6 +136,31 @@ class MySqlDownloadRequestRepository:
         finally:
             connection.close()
 
+    def list_results(self, request_id: UUID) -> list[dict]:
+        """Return stable content summaries without request parameters or physical paths."""
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """SELECT external_item_id, file_name, content_sha256, size_bytes,
+                              storage_uri, asset_id
+                       FROM download_item
+                       WHERE download_request_id = %s AND status = 'COMPLETED'
+                       ORDER BY external_item_id""",
+                    (str(request_id),),
+                )
+                rows = cursor.fetchall()
+            return [{
+                "itemId": str(row["external_item_id"]),
+                "fileName": str(row["file_name"]),
+                "contentSha256": str(row["content_sha256"]),
+                "sizeBytes": int(row["size_bytes"]),
+                "storageUri": str(row["storage_uri"]),
+                "assetId": str(row["asset_id"]),
+            } for row in rows]
+        finally:
+            connection.close()
+
     def _find(self, predicate: str, value: str) -> DownloadRequest | None:
         connection = self._connection_factory()
         try:

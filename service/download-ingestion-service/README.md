@@ -16,7 +16,7 @@ Python 3.12
 
 HTTP 下载成功后追加可忽略的 `asset_register_content` 步骤，将摘要、大小及相对位置转换为不暴露物理根目录的 `download://executor/...` URI，并镜像到 Asset Registry。消息自动化创建下载请求时会透传标准消息的 `ownerId`；其他尚未完成身份映射的旧来源暂以系统所有者 `0` 登记，后续迁移任务再绑定真实租户。
 
-服务默认监听 `127.0.0.1:23220`，通过 `DOWNLOAD_DB_*` 和 `TASK_SCHEDULER_URL` 配置。`POST /api/v1/download-requests` 可供 DownloadBot 后续的默认关闭旁路调用，`GET /api/v1/download-requests/{id}` 查询业务请求及任务绑定。
+服务默认监听 `127.0.0.1:23220`，通过 `DOWNLOAD_DB_*` 和 `TASK_SCHEDULER_URL` 配置。`POST /api/v1/download-requests` 可供 DownloadBot 后续的默认关闭旁路调用，`GET /api/v1/download-requests/{id}` 查询业务请求及任务绑定。`GET /api/v1/download-requests/{id}/result-summary` 返回按 `itemId` 稳定排序的文件名、SHA-256、字节数、逻辑存储 URI 和资产标识，并汇总文件数、总字节数与确定性集合摘要；响应不包含源 URL 和任务参数，可用于旧新双跑内容对账。
 
 ## 运行配置
 

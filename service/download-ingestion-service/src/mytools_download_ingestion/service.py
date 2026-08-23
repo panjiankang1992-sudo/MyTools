@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import replace
+import hashlib
+import struct
 from typing import Protocol
 from uuid import UUID
 
@@ -33,6 +35,9 @@ class DownloadRequestRepository(Protocol):
 
     def record_result(self, request_id: UUID, result: dict) -> dict:
         """Idempotently record one verified item and its registered asset."""
+
+    def list_results(self, request_id: UUID) -> list[dict]:
+        """Return immutable verified item results for reconciliation."""
 
 
 class TaskScheduler(Protocol):
@@ -111,6 +116,33 @@ class DownloadRequestService:
         if int(result["sizeBytes"]) < 0:
             raise ValueError("download result size is invalid")
         return self._repository.record_result(request_id, {**result, "contentSha256": digest})
+
+    def result_summary(self, request_id: UUID) -> dict | None:
+        """Return a source-secret-free digest summary after lifecycle reconciliation."""
+        current = self.get(request_id)
+        if current is None:
+            return None
+        items = sorted(self._repository.list_results(request_id), key=lambda item: str(item["itemId"]))
+        return {
+            "downloadRequestId": str(current.id),
+            "status": current.status.value,
+            "itemCount": len(items),
+            "totalBytes": sum(int(item["sizeBytes"]) for item in items),
+            "collectionSha256": result_collection_digest(items),
+            "items": items,
+        }
+
+
+def result_collection_digest(items: list[dict]) -> str:
+    """Hash stable item identity, name, content digest, and byte size fields."""
+    digest = hashlib.sha256()
+    for item in sorted(items, key=lambda value: str(value["itemId"])):
+        for value in (item["itemId"], item["fileName"],
+                      str(item["contentSha256"]).lower(), str(int(item["sizeBytes"]))):
+            encoded = str(value).encode("utf-8")
+            digest.update(struct.pack(">I", len(encoded)))
+            digest.update(encoded)
+    return digest.hexdigest()
 
 
 def scheduler_status(value: str) -> DownloadStatus:
@@ -199,3 +231,7 @@ class InMemoryDownloadRequestRepository:
             raise ValueError("download result idempotency conflict")
         self._results[key] = dict(result)
         return dict(result)
+
+    def list_results(self, request_id: UUID) -> list[dict]:
+        """Return copied results without exposing mutable repository state."""
+        return [dict(value) for (owner, _), value in self._results.items() if owner == request_id]

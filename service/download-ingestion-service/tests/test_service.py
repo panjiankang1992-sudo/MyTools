@@ -153,6 +153,31 @@ class DownloadRequestServiceTest(unittest.TestCase):
 
         self.assertEqual(DownloadStatus.CANCELLING, service.get(created.id).status)
 
+    def test_result_summary_is_deterministic_and_excludes_request_parameters(self):
+        """Reconciliation returns ordered digests without source URLs or credentials."""
+        repository = InMemoryDownloadRequestRepository()
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(repository, scheduler)
+        created = service.create(CreateDownloadRequest(
+            "http:event-12", "HTTP", "source-12", "HTTP_ASSET",
+            {"itemId": "b", "url": "https://example.invalid/private", "fileName": "b.bin"},
+        ))
+        for item_id, size in (("b", 5), ("a", 3)):
+            repository.record_result(created.id, {
+                "itemId": item_id, "fileName": f"{item_id}.bin",
+                "contentSha256": item_id * 64, "sizeBytes": size,
+                "storageUri": f"download://executor/{item_id}.bin", "assetId": str(uuid4()),
+            })
+
+        summary = service.result_summary(created.id)
+
+        self.assertEqual(2, summary["itemCount"])
+        self.assertEqual(8, summary["totalBytes"])
+        self.assertEqual(64, len(summary["collectionSha256"]))
+        self.assertEqual(["a", "b"], [item["itemId"] for item in summary["items"]])
+        self.assertNotIn("parameters", summary)
+        self.assertNotIn("https://example.invalid/private", str(summary))
+
 
 if __name__ == "__main__":
     unittest.main()

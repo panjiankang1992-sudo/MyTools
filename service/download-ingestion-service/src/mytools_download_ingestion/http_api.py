@@ -45,6 +45,21 @@ def create_handler(service: DownloadRequestService,
                 return
             prefix = "/api/v1/download-requests/"
             if path.startswith(prefix):
+                summary_suffix = "/result-summary"
+                identifier = path.removeprefix(prefix)
+                if identifier.endswith(summary_suffix):
+                    try:
+                        summary = service.result_summary(UUID(
+                            identifier.removesuffix(summary_suffix).rstrip("/")
+                        ))
+                    except ValueError:
+                        self._json(HTTPStatus.BAD_REQUEST, {"error": "invalid request id"})
+                        return
+                    if summary is None:
+                        self._json(HTTPStatus.NOT_FOUND, {"error": "download request does not exist"})
+                        return
+                    self._json(HTTPStatus.OK, summary)
+                    return
                 try:
                     request = service.get(UUID(path.removeprefix(prefix)))
                 except ValueError:

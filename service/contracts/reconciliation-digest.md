@@ -19,3 +19,7 @@ contentSha256=
 
 digest=8501ff9beb116985f2ad48e3e4417e85c1f0121b8498a344a7fb307b51314879
 ```
+
+## Download result collection digest
+
+Download Ingestion 的结果摘要按 `itemId` 升序排序，每个文件依次编码 `itemId`、`fileName`、小写 `contentSha256` 和十进制 `sizeBytes`。字段使用与对象集合相同的四字节大端长度前缀，完整字节流计算 SHA-256。旧服务适配器必须同时比较 `itemCount`、`totalBytes` 和 `collectionSha256`；生命周期一致但内容摘要不一致仍属于迁移差异。
