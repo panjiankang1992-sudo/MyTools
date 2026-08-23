@@ -59,8 +59,12 @@ class SourceDiscoveryServiceTest {
         assertThat(repeatedBatch.saved()).isEqualTo(1);
         assertThat(completed.status()).isEqualTo("SUCCEEDED");
         assertThat(completed.saved()).isEqualTo(1);
-        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM book_source", Integer.class)).isEqualTo(1);
-        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM book_source_version", Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM book_source WHERE owner_id = 17", Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM book_source_version bsv
+                JOIN book_source bs ON bs.id = bsv.book_source_id WHERE bs.owner_id = 17
+                """, Integer.class)).isEqualTo(1);
         verify(schedulerClient).createTask(anyString(), anyString(), anyString(), any(), anyInt(), anyMap());
     }
 }

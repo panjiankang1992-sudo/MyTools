@@ -1,0 +1,17 @@
+name: reader_source_health_check
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - http_reader_runtime
+parameters:
+  required:
+    - requestId
+    - ownerId
+    - keyword
+    - sources
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 300
+  maxSources: 500

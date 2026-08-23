@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["requestId", "target", "checked", "healthy", "unhealthy", "results"],
+  "properties": {
+    "requestId": {"type": "string", "format": "uuid"},
+    "target": {
+      "type": "object",
+      "required": ["index", "count"],
+      "properties": {"index": {"type": "integer"}, "count": {"type": "integer", "minimum": 1}}
+    },
+    "checked": {"type": "integer", "minimum": 0},
+    "healthy": {"type": "integer", "minimum": 0},
+    "unhealthy": {"type": "integer", "minimum": 0},
+    "results": {"type": "array"}
+  },
+  "additionalProperties": false
+}
