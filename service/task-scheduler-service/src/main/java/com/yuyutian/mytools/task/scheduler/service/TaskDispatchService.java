@@ -74,7 +74,8 @@ public class TaskDispatchService {
                 """, (resultSet, rowNumber) -> UUID.fromString(resultSet.getString(1)), request.nodeId().toString());
         for (UUID taskId : candidates) {
             int claimed = jdbcTemplate.update("""
-                    UPDATE task_instance SET status = 'RUNNING', updated_at = ?
+                    UPDATE task_instance
+                    SET status = 'RUNNING', dispatch_attempts = dispatch_attempts + 1, updated_at = ?
                     WHERE id = ? AND status = 'QUEUED'
                     """, Timestamp.from(Instant.now()), taskId.toString());
             if (claimed == 1) {

@@ -19,7 +19,10 @@ import com.yuyutian.mytools.task.scheduler.model.TaskType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Map;
 import java.util.List;
 import java.util.UUID;
@@ -47,6 +50,12 @@ class TaskInstanceServiceTest {
 
     @Autowired
     private TaskScriptApiService scriptApiService;
+
+    @Autowired
+    private TaskLeaseRecoveryService leaseRecoveryService;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     void shouldCreateIdempotentlyAndCancel() {
@@ -120,5 +129,37 @@ class TaskInstanceServiceTest {
         assertEquals(TaskStatus.SUCCEEDED, service.get(task.id()).status());
         assertTrue(topologyService.listClusters().stream().anyMatch(item -> item.id().equals(cluster.id())));
         assertTrue(topologyService.listNodes().stream().anyMatch(item -> item.id().equals(node.id())));
+    }
+
+    @Test
+    void shouldRequeueTaskAfterExecutionLeaseExpires() {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        var cluster = topologyService.createCluster(new CreateExecutionClusterRequest(
+                "recovery_cluster_" + suffix, "Recovery workers", "LEAST_RUNNING", 5, Map.of(), true
+        ));
+        UUID nodeInstanceId = UUID.randomUUID();
+        var node = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "recovery-node-" + suffix, nodeInstanceId.toString(), Map.of("shell", true), Map.of(), 1
+        ));
+        topologyService.assignNode(cluster.id(), new AssignClusterNodeRequest(node.id(), 100, 0, true));
+        var definition = definitionService.create(new CreateTaskDefinitionRequest(
+                "lease_recovery_" + suffix, "Recover expired lease", TaskType.IMMEDIATE, 60, cluster.id(), null, null,
+                ExecutionMode.SINGLE_NODE, true, 1, "SKIP", "IGNORE", Map.of(), Map.of()
+        ));
+        stepService.create(definition.id(), new CreateTaskStepRequest(
+                "run", "Run recovery probe", StepKind.NORMAL, "lease_recovery", "1.0.0", "scripts/main.sh",
+                List.of(), true, 30, FailurePolicy.FAIL_TASK, 10, 1
+        ));
+        var task = service.create(new CreateTaskRequest(
+                definition.name(), "recovery_" + suffix, "SYSTEM", suffix, null, 50, Map.of()
+        ));
+        var firstExecution = dispatchService.claim(new ClaimTaskRequest(node.id(), nodeInstanceId, 60)).orElseThrow();
+        jdbcTemplate.update("UPDATE task_execution SET lease_until = ? WHERE id = ?",
+                Timestamp.from(Instant.now().minusSeconds(1)), firstExecution.executionId().toString());
+
+        assertEquals(1, leaseRecoveryService.recoverExpiredLeases());
+        assertEquals(TaskStatus.QUEUED, service.get(task.id()).status());
+        var secondExecution = dispatchService.claim(new ClaimTaskRequest(node.id(), nodeInstanceId, 60)).orElseThrow();
+        assertEquals(task.id(), secondExecution.taskInstanceId());
     }
 }
