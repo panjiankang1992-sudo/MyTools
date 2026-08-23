@@ -27,7 +27,9 @@ public final class PikPakModels {
         String businessId, String inputSha256, String workToken, String phase, String stableSignature,
         Instant stableSince, Long remoteJobId, String errorCode, long version) { }
     public record RemoteItem(String remoteFileId, String relativePath, long sizeBytes, String modifiedAt) { }
+    public record ReadyItem(String remoteFileId, String relativePath, long sizeBytes,
+        UUID storageProviderId, String storagePath) { }
     public record OperationView(UUID id, String phase, String errorCode, int retryAfterSeconds,
-        List<RemoteItem> items) { }
+        List<ReadyItem> items) { }
     public record RemoteJob(long id, boolean finished, boolean success) { }
 }

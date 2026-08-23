@@ -1,19 +1,19 @@
-name: download_pikpak_magnet
+name: download_remote_storage_object
 version: 1.0.0
 runtime: python3.12
 entrypoint: scripts/main.py
 capabilities:
-  - network_http
-  - task_child_create
-  - task_status_query
-  - task_child_cancel
+  - storage_read
+  - storage_write
 parameters:
   required:
     - downloadRequestId
-    - accountId
-    - magnetUri
+    - itemId
+    - sourceProviderId
+    - sourcePath
+    - fileName
 result:
   schema: schemas/result.schema.json
 limits:
-  timeoutSeconds: 21600
+  timeoutSeconds: 7200
   maxOutputBytes: 65536

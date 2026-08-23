@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import urllib.parse
 import urllib.request
+from uuid import UUID
 
 
 class StorageGatewayClient:
@@ -30,6 +31,28 @@ class StorageGatewayClient:
                 size += len(chunk)
                 if size > maximum_bytes:
                     raise ValueError("Storage object exceeds task limit")
+                output.write(chunk)
+        return size
+
+    def download_remote(self, provider_id: str, relative_path: str,
+                        target: Path, maximum_bytes: int) -> int:
+        """通过服务端 Provider 路由下载一个远端对象并执行双重字节上限。"""
+        provider = str(UUID(str(provider_id)))
+        path = str(relative_path or "").strip()
+        if maximum_bytes <= 0:
+            raise ValueError("Remote storage byte limit is invalid")
+        if not path or path.startswith("/") or "\\" in path or ".." in path.split("/"):
+            raise ValueError("Remote storage path is invalid")
+        query = urllib.parse.urlencode({"path": path, "maximumBytes": maximum_bytes})
+        request = urllib.request.Request(
+            f"{self._base_url}/api/internal/v1/storage/providers/{provider}/objects/content?{query}",
+            headers=self._headers(None))
+        size = 0
+        with urllib.request.urlopen(request, timeout=300) as response, target.open("wb") as output:
+            while chunk := response.read(64 * 1024):
+                size += len(chunk)
+                if size > maximum_bytes:
+                    raise ValueError("Remote storage object exceeds task limit")
                 output.write(chunk)
         return size
 

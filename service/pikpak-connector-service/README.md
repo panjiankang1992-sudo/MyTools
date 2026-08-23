@@ -15,6 +15,8 @@ PikPak 外部协议适配服务，使用 Java 21、Spring Boot 和独立
 - `POST /api/internal/v1/pikpak/operations/{id}/cancel`：取消并按移动阶段安全收敛。
 
 首次推进会再次携带 magnet URI，用于与已保存摘要核对后提交；服务不会把原文写入数据库、
-Outbox 或响应。服务和 Scheduler 任务均保持禁用，完成 Storage Gateway 物化与旧新对账前不得开启。
+Outbox 或响应。READY 响应只提供 Storage Provider UUID 和逻辑远端路径，不返回 remote key；
+父任务据此创建逐对象物化、资产登记和结果回写子任务。服务和 PikPak 父任务仍保持禁用，完成
+真实 rclone 集成与旧新摘要对账前不得开启。
 
 详细设计见 [17-pikpak-connector-service.md](../design/17-pikpak-connector-service.md)。

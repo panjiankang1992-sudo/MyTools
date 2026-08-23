@@ -51,8 +51,10 @@ HTML。正文交给 `download_publish_text` 子任务，嵌入媒体交给 `down
 
 `MAGNET` 已映射到默认禁用的 `download_pikpak_magnet` 父任务。任务通过专用 PikPak
 Connector 创建并推进可恢复操作；账户凭据、rclone remote key 和服务端路径不会进入 Scheduler
-参数。本阶段以稳定的云端 `READY` 对象集合为终点，待 Connector API、Storage Gateway 托管传输
-和旧新摘要对账完成后才允许灰度启用。
+参数。云端对象达到 `READY` 后，父任务为每个文件创建 `download_remote_storage_object`
+子任务；子任务通过 Storage Gateway 的 Provider UUID 和逻辑路径读取内容，执行大小与 SHA-256
+校验，发布至受管 Root，然后复用 Asset Registry 登记和结果回写步骤。父任务仍默认禁用，完成
+真实 PikPak/rclone 集成和旧新摘要对账后才允许灰度启用。
 
 历史迁移使用 `V3__create_legacy_history_import.sql` 的独立不可变历史表，不把旧完成记录
 伪装成新的 `download_request`，因此不会触发下载。内部接口

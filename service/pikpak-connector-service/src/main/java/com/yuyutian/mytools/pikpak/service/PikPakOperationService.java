@@ -195,8 +195,18 @@ public class PikPakOperationService {
     }
 
     private OperationView view(Operation operation) {
-        List<RemoteItem> items = List.of("STABLE", "MOVING", "CANCELLING", "READY").contains(operation.phase())
+        List<RemoteItem> stored = List.of("STABLE", "MOVING", "CANCELLING", "READY").contains(operation.phase())
             ? repository.listItems(operation.id()) : List.of();
+        List<ReadyItem> items;
+        if (stored.isEmpty()) {
+            items = List.of();
+        } else {
+            Account account = repository.requireAccount(operation.accountId());
+            String readyPrefix = workPath(account.readyRoot(), operation.workToken());
+            items = stored.stream().map(item -> new ReadyItem(item.remoteFileId(),
+                item.relativePath(), item.sizeBytes(), account.storageProviderId(),
+                readyPrefix + "/" + item.relativePath())).toList();
+        }
         return new OperationView(operation.id(), operation.phase(), operation.errorCode(),
             List.of("READY", "FAILED", "CANCELLED").contains(operation.phase()) ? 0 : 10, items);
     }

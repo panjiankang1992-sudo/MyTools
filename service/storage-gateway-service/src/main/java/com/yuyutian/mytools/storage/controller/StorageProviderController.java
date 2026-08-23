@@ -7,6 +7,8 @@ import com.yuyutian.mytools.storage.service.InternalAuthorizer;
 import com.yuyutian.mytools.storage.service.StorageProviderService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,5 +69,28 @@ public class StorageProviderController {
                                        @RequestHeader("Authorization") String authorization) {
         authorizer.require(authorization);
         return providerService.list(providerId, path);
+    }
+
+    /**
+     * 流式读取一个远端 Provider 对象。
+     *
+     * @param providerId Provider 标识
+     * @param path 相对路径
+     * @param maximumBytes 最大字节数
+     * @param authorization 内部授权头
+     * @return 对象流
+     */
+    @GetMapping("/{providerId}/objects/content")
+    public ResponseEntity<InputStreamResource> content(@PathVariable UUID providerId,
+            @RequestParam String path,
+            @RequestParam(defaultValue = "21474836480") long maximumBytes,
+            @RequestHeader("Authorization") String authorization) {
+        authorizer.require(authorization);
+        var content = providerService.content(providerId, path, maximumBytes);
+        ResponseEntity.BodyBuilder response = ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM);
+        if (content.contentLength() >= 0) {
+            response.contentLength(content.contentLength());
+        }
+        return response.body(new InputStreamResource(content.stream()));
     }
 }

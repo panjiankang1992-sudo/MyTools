@@ -2,6 +2,7 @@
 """通过持久化 Connector 状态机编排一个 PikPak magnet 操作。"""
 from __future__ import annotations
 import json
+import hashlib
 import os
 from pathlib import Path
 import re
@@ -11,6 +12,7 @@ from urllib.parse import parse_qs, urlparse
 from urllib.request import Request, urlopen
 from uuid import UUID
 from mytools_task_sdk.context import TaskContext
+from mytools_task_sdk.orchestration import wait_all_or_cancel
 
 BTIH = re.compile(r"^(?:[0-9a-fA-F]{40}|[A-Z2-7]{32})$")
 TERMINAL = {"READY", "FAILED", "CANCELLED"}
@@ -74,8 +76,29 @@ def execute(context: TaskContext, client: ConnectorClient, sleeper=time.sleep) -
     if not isinstance(items, list) or len(items) > 10000:
         raise RuntimeError("PikPak Connector returned invalid items")
     safe_items = [{"remoteFileId": str(item["remoteFileId"]), "relativePath": str(item["relativePath"]),
-                   "sizeBytes": int(item["sizeBytes"])} for item in items]
-    return {"requestId": request_id, "operationId": operation_id, "status": "READY", "items": safe_items}
+                   "sizeBytes": int(item["sizeBytes"]),
+                   "storageProviderId": str(UUID(str(item["storageProviderId"]))),
+                   "storagePath": str(item["storagePath"])} for item in items]
+    children = []
+    maximum_bytes = int(parameters.get("maxBytesPerItem", 20 * 1024 * 1024 * 1024))
+    for index, item in enumerate(safe_items, start=1):
+        file_name = Path(item["relativePath"]).name
+        item_id = f"pikpak:{operation_id}:{index}"
+        child = context.create_child("download_remote_storage_object", {
+            "downloadRequestId": request_id, "itemId": item_id,
+            "sourceProviderId": item["storageProviderId"], "sourcePath": item["storagePath"],
+            "fileName": file_name, "expectedSize": item["sizeBytes"], "maxBytes": maximum_bytes,
+            "destinationRelativePath": item["relativePath"],
+            "destinationRootName": str(parameters.get("destinationRootName") or "downloads"),
+            "ownerId": int(parameters.get("ownerId") or 0),
+            "assetSourceBusinessId": f"{request_id}:{item_id}"},
+            f"pikpak-object:{request_id}:{operation_id}:"
+            f"{hashlib.sha256(item['remoteFileId'].encode()).hexdigest()}",
+            business_type="DOWNLOAD_REQUEST", business_id=request_id)
+        children.append(child)
+    wait_all_or_cancel(context, children, 6900)
+    return {"requestId": request_id, "operationId": operation_id, "status": "READY", "items": safe_items,
+            "childTaskIds": [child.id for child in children]}
 
 def write_result(result: dict) -> None:
     """原子写入任务结果。"""

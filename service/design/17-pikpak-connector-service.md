@@ -48,13 +48,18 @@ magnet URI 仅用于首次提交，不持久化原文；数据库保存 SHA-256�
 代码只暴露固定的 `backend/command(addurl)`、`operations/list`、`sync/move`、`job/status`、
 `job/stop` 和 `operations/purge`，外部请求不能选择动作或 remote key。
 
-当前服务及 `download_pikpak_magnet` 任务仍默认禁用。READY 对象尚未通过 Storage Gateway
-物化为托管对象，也尚未进入 Asset Registry；这是下一迁移增量的启用前置条件。
+READY 响应只暴露 Storage Provider UUID 和逻辑远端路径。`download_pikpak_magnet` 为每个对象
+创建 `download_remote_storage_object` 子任务；子任务通过 Storage Gateway 的受控
+`operations/cat` 流读取、执行双重大小限制、计算 SHA-256、发布到受管 Root，并复用 Asset
+Registry 与 Download Ingestion 回写步骤。父任务等待全部子任务成功，任一失败时取消其他活跃子任务。
+
+服务及 PikPak 父任务仍默认禁用；还需使用真实 PikPak/rclone 环境完成旧新内容集合摘要对账。
 
 ## 验收
 
 - 相同幂等键不会重复调用 `addurl`。
 - Executor 在任意阶段退出后可从数据库检查点恢复。
-- 凭据、remote key、原始 magnet 和物理路径不进入 Scheduler 参数及结果。
+- 凭据、remote key 和物理路径不进入 Scheduler 参数及结果；原始 magnet 只存在于受控下载请求
+  和父任务输入，不写入 Connector 数据库、Outbox 或任务结果。
 - 未达到稳定窗口的文件不会移动或发布。
 - 取消、超时和失败均可收敛并保留审计事件。

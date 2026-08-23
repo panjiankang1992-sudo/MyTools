@@ -2,6 +2,8 @@ package com.yuyutian.mytools.storage.service;
 
 import com.yuyutian.mytools.storage.model.RemoteObjectView;
 import com.yuyutian.mytools.storage.model.StorageProvider;
+import com.yuyutian.mytools.storage.model.RemoteContent;
+import com.yuyutian.mytools.storage.model.ErrorCode;
 
 import java.util.List;
 
@@ -24,4 +26,16 @@ public interface ProviderObjectConnector {
      * @return 标准化对象列表
      */
     List<RemoteObjectView> list(StorageProvider provider, String path);
+
+    /**
+     * 打开 Provider 内一个普通文件。
+     *
+     * @param provider Provider 配置
+     * @param path 安全相对路径
+     * @param maximumBytes 最大字节数
+     * @return 受限内容流
+     */
+    default RemoteContent openContent(StorageProvider provider, String path, long maximumBytes) {
+        throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_UNSUPPORTED.code());
+    }
 }

@@ -3,6 +3,7 @@ package com.yuyutian.mytools.storage.service;
 import com.yuyutian.mytools.storage.model.ErrorCode;
 import com.yuyutian.mytools.storage.model.RemoteObjectView;
 import com.yuyutian.mytools.storage.model.StorageProvider;
+import com.yuyutian.mytools.storage.model.RemoteContent;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -40,5 +41,14 @@ public class ProviderObjectConnectorRegistry {
             throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
         }
         return connector.list(provider, path);
+    }
+
+    /** 打开远端对象。 @param provider Provider @param path 路径 @param maximumBytes 上限 @return 内容 */
+    public RemoteContent openContent(StorageProvider provider, String path, long maximumBytes) {
+        ProviderObjectConnector connector = connectors.get(provider.providerType());
+        if (connector == null) {
+            throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
+        }
+        return connector.openContent(provider, path, maximumBytes);
     }
 }

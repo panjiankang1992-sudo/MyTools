@@ -5,11 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.storage.model.ErrorCode;
 import com.yuyutian.mytools.storage.model.RemoteObjectView;
 import com.yuyutian.mytools.storage.model.RemoteJobView;
+import com.yuyutian.mytools.storage.model.RemoteContent;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.FilterInputStream;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -276,6 +279,93 @@ public class RcloneRemoteConnector implements ProviderObjectConnector {
     public void stopJob(long jobId) {
         if (jobId > 0) {
             call("job/stop", Map.of("jobid", jobId), Duration.ofSeconds(30));
+        }
+    }
+
+    /**
+     * 流式打开一个 Provider 内的普通文件。
+     *
+     * @param remoteKey remote 键
+     * @param path 相对文件路径
+     * @param maximumBytes 最大允许字节数
+     * @return 有硬上限的响应流
+     */
+    public RemoteContent openContent(String remoteKey, String path, long maximumBytes) {
+        requireRemoteKey(remoteKey);
+        if (maximumBytes <= 0) {
+            throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_TOO_LARGE.code());
+        }
+        try {
+            byte[] requestBody = objectMapper.writeValueAsBytes(Map.of(
+                    "fs", remoteKey + ":", "remote", validPath(path, false)));
+            HttpRequest.Builder builder = HttpRequest.newBuilder(baseUri.resolve("operations/cat"))
+                    .timeout(Duration.ofMinutes(5)).header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(requestBody));
+            if (!user.isBlank() || !password.isBlank()) {
+                builder.header("Authorization", "Basic " + Base64.getEncoder().encodeToString(
+                        (user + ":" + password).getBytes(StandardCharsets.UTF_8)));
+            }
+            HttpResponse<InputStream> response = httpClient.send(builder.build(),
+                    HttpResponse.BodyHandlers.ofInputStream());
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                response.body().close();
+                throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
+            }
+            long declared = response.headers().firstValueAsLong("Content-Length").orElse(-1);
+            if (declared > maximumBytes) {
+                response.body().close();
+                throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_TOO_LARGE.code());
+            }
+            return new RemoteContent(new MaximumInputStream(response.body(), maximumBytes), declared);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        } catch (IOException exception) {
+            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
+        }
+    }
+
+    /** 使用 Provider 内部 remote 键打开一个文件。 @param provider Provider @param path 路径 @param maximumBytes 上限 @return 内容 */
+    @Override
+    public RemoteContent openContent(com.yuyutian.mytools.storage.model.StorageProvider provider,
+                                     String path, long maximumBytes) {
+        return openContent(provider.remoteKey(), path, maximumBytes);
+    }
+
+    /** 在读取超过声明上限时立即关闭上游连接。 */
+    private static final class MaximumInputStream extends FilterInputStream {
+        private final long maximum;
+        private long count;
+
+        private MaximumInputStream(InputStream input, long maximum) {
+            super(input);
+            this.maximum = maximum;
+        }
+
+        @Override
+        public int read() throws IOException {
+            int value = super.read();
+            if (value >= 0) {
+                increment(1);
+            }
+            return value;
+        }
+
+        @Override
+        public int read(byte[] buffer, int offset, int length) throws IOException {
+            int read = super.read(buffer, offset, length);
+            if (read > 0) {
+                increment(read);
+            }
+            return read;
+        }
+
+        private void increment(long amount) throws IOException {
+            count += amount;
+            if (count > maximum) {
+                close();
+                throw new IOException(ErrorCode.REMOTE_CONTENT_TOO_LARGE.code());
+            }
         }
     }
 

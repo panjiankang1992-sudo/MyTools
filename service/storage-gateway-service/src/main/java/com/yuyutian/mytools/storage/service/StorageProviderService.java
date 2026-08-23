@@ -5,6 +5,7 @@ import com.yuyutian.mytools.storage.model.ErrorCode;
 import com.yuyutian.mytools.storage.model.ProviderView;
 import com.yuyutian.mytools.storage.model.RemoteObjectView;
 import com.yuyutian.mytools.storage.model.StorageProvider;
+import com.yuyutian.mytools.storage.model.RemoteContent;
 import com.yuyutian.mytools.storage.repository.StorageRepository;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -71,6 +72,24 @@ public class StorageProviderService {
                 .filter(StorageProvider::enabled)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
         return connectorRegistry.list(provider, path);
+    }
+
+    /**
+     * 通过服务端 Provider 路由流式读取一个远端对象。
+     *
+     * @param providerId Provider 标识
+     * @param path 相对对象路径
+     * @param maximumBytes 最大允许字节数
+     * @return 受限响应流
+     */
+    public RemoteContent content(UUID providerId, String path, long maximumBytes) {
+        if (maximumBytes <= 0 || maximumBytes > 100L * 1024 * 1024 * 1024) {
+            throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_TOO_LARGE.code());
+        }
+        StorageProvider provider = repository.findProviderById(providerId)
+                .filter(StorageProvider::enabled)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
+        return connectorRegistry.openContent(provider, path, maximumBytes);
     }
 
     private boolean equivalent(StorageProvider provider, CreateProviderRequest request) {

@@ -101,6 +101,30 @@ class RcloneRemoteConnectorTest {
                 .contains("\"remote\":\"archive/books\"");
     }
 
+    @Test
+    void shouldStreamOnlyServerResolvedRemoteContentWithinLimit() throws Exception {
+        AtomicReference<String> body = new AtomicReference<>();
+        server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/operations/cat", exchange -> {
+            body.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+            byte[] response = "remote-content".getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(200, response.length);
+            exchange.getResponseBody().write(response);
+            exchange.close();
+        });
+        server.start();
+        RcloneRemoteConnector connector = new RcloneRemoteConnector(new ObjectMapper(),
+                "http://127.0.0.1:" + server.getAddress().getPort(), "", "");
+        connector.validateConfiguration();
+
+        var content = connector.openContent("pikpak_remote", "ready/operation/book.epub", 1024);
+
+        assertThat(new String(content.stream().readAllBytes(), StandardCharsets.UTF_8))
+                .isEqualTo("remote-content");
+        assertThat(body.get()).contains("\"fs\":\"pikpak_remote:\"")
+                .contains("\"remote\":\"ready/operation/book.epub\"");
+    }
+
     private void respond(com.sun.net.httpserver.HttpExchange exchange, String json) throws java.io.IOException {
         byte[] response = json.getBytes(StandardCharsets.UTF_8);
         exchange.sendResponseHeaders(200, response.length);

@@ -18,6 +18,12 @@ Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 
 
 内部任务可通过 `GET /api/internal/v1/storage/objects/content?rootName=...&path=...` 流式读取已发布对象。读取与写入执行相同的真实路径和符号链接边界检查，物理路径不会进入 Scheduler 参数或脚本结果。
 
+内部任务还可通过
+`GET /api/internal/v1/storage/providers/{providerId}/objects/content?path=...&maximumBytes=...`
+读取远端 Provider 普通文件。当前仅 RCLONE 实现该原子能力：Gateway 在服务端解析 remote key，
+只调用回环 RC 的固定 `operations/cat`，同时校验声明长度并用限流输入流强制执行调用方上限。
+该接口用于任务执行器，不作为在线用户下载接口。
+
 远端账户通过 `POST /api/internal/v1/storage/providers` 注册，只持久化 `secretRef`，响应不返回 remote 键、端点或密钥引用。`GET /api/internal/v1/storage/providers/{id}/objects` 按 Provider 类型选择受控连接器：`RCLONE` 调用服务端配置的回环 RC `operations/list`；`WEBDAV` 使用原生 `PROPFIND Depth: 1`，只允许 HTTPS 或测试用回环 HTTP、禁止重定向并限制 XML 响应大小和对象数。WebDAV 凭据当前从 `env://ENVIRONMENT_NAME` 引用的 JSON 对象按需读取，至少包含 `username` 和 `password`，不会写入数据库或响应。
 
 原生 WebDAV 和 S3 首版只负责轻量单级目录查询。S3 使用路径风格 ListObjectsV2 和 SigV4，支持临时会话令牌，单页最多 1000 项、最多 10 页；继续截断时返回稳定上限错误并要求改走扫描任务。S3 Provider 的 `remoteKey` 表示 bucket，`regionName` 表示签名区域，凭据 JSON 至少包含 `accessKeyId` 和 `secretAccessKey`，可选 `sessionToken`。递归扫描、复制、移动和同步仍必须走异步任务与现有 rclone 后端；原生远端写入将在后续迁移中逐项开放。
