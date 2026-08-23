@@ -20,7 +20,7 @@ class PikPakRepositoryTest {
     @Test
     void shouldRegisterAccountWithServerOnlyRoutes() {
         RegisterAccountRequest request = new RegisterAccountRequest("main", UUID.randomUUID(),
-            "secret://pikpak/main", "pikpak_remote", "offline", "ready", false);
+            "secret://pikpak/main", "pikpak_remote", "offline", "ready", false, 120);
 
         Account account = repository.registerAccount(request);
 

@@ -10,7 +10,7 @@ Download Ingestion 将 `MAGNET` 请求映射为 `download_pikpak_magnet` 父任�
 
 使用独立 `mytools_pikpak_connector` schema：
 
-- `pikpak_account`：账户 UUID、外部键、rclone Provider UUID、Secret 引用、启用状态。
+- `pikpak_account`：账户 UUID、外部键、rclone Provider UUID、Secret 引用、启用状态和账户级稳定窗口。
 - `pikpak_offline_operation`：幂等键、输入摘要、服务端受控工作目录、阶段、稳定签名与时间、错误码。
 - `pikpak_operation_item`：稳定后的远端文件 ID、相对路径、大小和修改时间。
 - `pikpak_outbox_event`：状态变化事件；不包含 magnet URI、凭据或物理路径。
@@ -36,14 +36,19 @@ magnet URI 仅用于首次提交，不持久化原文；数据库保存 SHA-256�
 ## 迁移与切换
 
 1. 新建服务和 schema，默认 `PIKPAK_CONNECTOR_ENABLED=false`，不改变 DownloadBot 轮询。
-2. 迁移账户时只导入外部键、Provider UUID 和 `secret://` 引用；无法可靠迁移的运行中任务重新生成，不复制 lease。
-3. 对同一测试 magnet 进行旧链路与新链路文件数、总字节数、内容集合摘要对账。
-4. 按账户灰度启用 `MAGNET` 新入口；旧 watcher 保留但不得同时消费同一隔离目录。
-5. 稳定后再把 READY 对象交给 Storage Gateway 的托管传输任务，最后停用旧轮询。
+2. 显式启用适配器的独立 PikPak 配置导出门禁；导出内容不包含本地 rclone 配置、代理、备份路径或凭据。
+3. 创建 `pikpak_migrate_legacy_accounts` 并先以 `dryRun=true` 执行。参数必须完整映射每个旧
+   `externalKey` 到 Storage Provider UUID 和 `secret://` 引用，禁止按名称猜测。
+4. 正式执行后核对源集合摘要及登记结果。所有迁移账户强制为禁用；旧 `enabled` 只作为审计信息。
+5. 无法可靠迁移的运行中任务重新生成，不复制 lease。使用 `download_reconcile_legacy_result`
+   比较同一测试 magnet 的文件数、总字节数和内容集合摘要。
+6. Provider、Secret、稳定窗口和内容摘要全部验证后，按账户灰度启用 `MAGNET` 新入口；旧 watcher
+   保留但不得同时消费同一隔离目录。
+7. 稳定后再把 READY 对象交给 Storage Gateway 的托管传输任务，最后停用旧轮询。
 
 ## 当前实现
 
-已实现 Java 21 / Spring Boot 服务、V1 schema、内部鉴权、账户脱敏登记、操作幂等冲突检查、
+已实现 Java 21 / Spring Boot 服务、V3 schema、内部鉴权、账户脱敏登记、账户级稳定窗口、操作幂等冲突检查、
 乐观锁检查点、文件集合摘要、稳定窗口、异步移动和取消前向收敛。rclone RC 被限制为回环 HTTP，
 代码只暴露固定的 `backend/command(addurl)`、`operations/list`、`sync/move`、`job/status`、
 `job/stop` 和 `operations/purge`，外部请求不能选择动作或 remote key。
@@ -54,6 +59,7 @@ READY 响应只暴露 Storage Provider UUID 和逻辑远端路径。`download_pi
 Registry 与 Download Ingestion 回写步骤。父任务等待全部子任务成功，任一失败时取消其他活跃子任务。
 
 服务及 PikPak 父任务仍默认禁用；还需使用真实 PikPak/rclone 环境完成旧新内容集合摘要对账。
+账户迁移任务可手工创建，但只会登记禁用账户，不会绕过上述启用门禁。
 
 ## 验收
 

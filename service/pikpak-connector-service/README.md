@@ -19,4 +19,9 @@ Outbox 或响应。READY 响应只提供 Storage Provider UUID 和逻辑远端�
 父任务据此创建逐对象物化、资产登记和结果回写子任务。服务和 PikPak 父任务仍保持禁用，完成
 真实 rclone 集成与旧新摘要对账前不得开启。
 
+旧账户元数据通过 Scheduler 的 `pikpak_migrate_legacy_accounts` 手工任务导入。任务要求为每个
+旧 `externalKey` 显式提供 Storage Provider UUID 和 `secret://` 引用，不能从旧配置猜测映射。
+应先使用 `dryRun=true` 校验导出摘要和映射覆盖，再正式执行。正式导入的账户一律保持禁用，
+即使旧配置处于启用状态；完成 Provider、Secret 和真实内容摘要验证后才能逐账户启用。
+
 详细设计见 [17-pikpak-connector-service.md](../design/17-pikpak-connector-service.md)。

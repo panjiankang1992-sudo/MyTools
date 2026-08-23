@@ -7,7 +7,7 @@ name = "mytools-downloadbot-adapter"
 version = "0.1.0"
 description = "Default-off migration adapter from DownloadBot to Download Ingestion"
 requires-python = ">=3.12"
-dependencies = ["PyMySQL>=1.1,<2"]
+dependencies = ["PyMySQL>=1.1,<2", "PyYAML>=6,<7"]
 
 [project.scripts]
 mytools-downloadbot-adapter = "mytools_downloadbot_adapter.main:main"

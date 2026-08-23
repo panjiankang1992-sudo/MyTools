@@ -28,3 +28,16 @@ DownloadBot 到 Download Ingestion 的独立旁路适配器，使用 Python 3.12
 导出接口使用独立的 `DOWNLOADBOT_SNAPSHOT_EXPORT_TOKEN`，不得复用实时事件接入令牌。
 单事件结果证据接口还需显式设置 `DOWNLOADBOT_RECONCILIATION_ENABLED=true`；它只读取
 已封存快照和 `FORWARDED` 事件映射，不会修改旧任务或新下载请求。
+
+## PikPak 账户元数据导出
+
+旧 YAML 配置可通过默认关闭的
+`GET /internal/v1/migration/downloadbot/pikpak-accounts` 分页导出。启用时必须同时设置：
+
+- `DOWNLOADBOT_LEGACY_CONFIG_PATH`：旧 DownloadBot YAML 配置的绝对路径。
+- `DOWNLOADBOT_PIKPAK_EXPORT_ENABLED=true`：显式打开只读导出门禁。
+- `DOWNLOADBOT_PIKPAK_EXPORT_TOKEN`：仅供本导出接口使用的独立令牌。
+
+接口只返回账户外部键、rclone remote key、离线/就绪逻辑根、旧启用状态和稳定窗口。
+它不会导出 rclone 配置文件路径、代理、备份目录、暂存目录或任何凭据。导出结果带集合摘要，供
+`pikpak_migrate_legacy_accounts` 任务在分页结束后校验配置未发生变化。

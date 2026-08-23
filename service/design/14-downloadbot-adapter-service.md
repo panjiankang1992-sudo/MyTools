@@ -26,6 +26,7 @@ DownloadBot 数据表，也不共享数据库账号。旧 DownloadBot 在整个�
 
 - `POST /internal/v1/downloadbot/events`：接受旧请求事件。
 - `GET /internal/v1/migration/downloadbot/snapshot-items`：分页读取已封存标准化条目；默认关闭。
+- `GET /internal/v1/migration/downloadbot/pikpak-accounts`：分页读取脱敏旧账户配置；使用独立令牌且默认关闭。
 - `GET /internal/v1/reconciliation/downloadbot/events/{eventId}`：组合旁路映射和旧内容证据；默认关闭。
 - `GET /health`：进程存活检查，不代表 `SHADOW` 已启用。
 
@@ -40,6 +41,9 @@ DownloadBot 数据表，也不共享数据库账号。旧 DownloadBot 在整个�
 4. 旁路阶段：小范围启用 `SHADOW`，按旧任务标识关联新请求，比较文件数量、总字节数和集合摘要。
 5. 灰度阶段：仅对已验证下载类型逐项选择新执行路径；保留旧路径快速回退。
 6. 收尾阶段：停止旧 worker loop，迁移必须保留的数据；临时文件和可再生摘要重新生成。
+
+PikPak 配置迁移只导出可验证的路由元数据，并用集合摘要检测分页期间的配置变化。Provider UUID
+和 Secret 引用必须在迁移任务参数中逐账户显式提供；适配器不读取或推断新服务的 Provider、Secret。
 
 ## 实现与验收
 

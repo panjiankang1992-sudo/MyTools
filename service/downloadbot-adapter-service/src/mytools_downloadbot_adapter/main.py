@@ -14,6 +14,7 @@ from .models import AdapterMode
 from .mysql_repository import MySqlEventRepository
 from .service import AdapterService
 from .snapshot_repository import MySqlSnapshotRepository
+from .pikpak_config import LegacyPikPakConfigExporter
 
 
 def main() -> None:
@@ -33,12 +34,17 @@ def main() -> None:
         os.environ.get("DOWNLOAD_INGESTION_URL", "http://127.0.0.1:23220"),
         os.environ.get("DOWNLOAD_INGESTION_TOKEN", ""))
     mode = AdapterMode(os.environ.get("DOWNLOADBOT_ADAPTER_MODE", "DISABLED"))
+    legacy_config_path = os.environ.get("DOWNLOADBOT_LEGACY_CONFIG_PATH", "")
+    pikpak_exporter = LegacyPikPakConfigExporter(legacy_config_path) if legacy_config_path else None
     handler = create_handler(
         AdapterService(repository, client, mode),
         os.environ.get("DOWNLOADBOT_ADAPTER_INTERNAL_TOKEN", ""), snapshot_repository,
         os.environ.get("DOWNLOADBOT_SNAPSHOT_EXPORT_ENABLED", "false").lower() == "true",
         os.environ.get("DOWNLOADBOT_SNAPSHOT_EXPORT_TOKEN", ""),
-        os.environ.get("DOWNLOADBOT_RECONCILIATION_ENABLED", "false").lower() == "true")
+        os.environ.get("DOWNLOADBOT_RECONCILIATION_ENABLED", "false").lower() == "true",
+        pikpak_exporter,
+        os.environ.get("DOWNLOADBOT_PIKPAK_EXPORT_ENABLED", "false").lower() == "true",
+        os.environ.get("DOWNLOADBOT_PIKPAK_EXPORT_TOKEN", ""))
     server = ThreadingHTTPServer((os.environ.get("DOWNLOADBOT_ADAPTER_HTTP_HOST", "127.0.0.1"),
                                   int(os.environ.get("DOWNLOADBOT_ADAPTER_HTTP_PORT", "23221"))), handler)
     server.serve_forever()

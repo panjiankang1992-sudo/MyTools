@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -16,9 +18,9 @@ public final class PikPakModels {
         @NotNull UUID storageProviderId, @NotBlank @Pattern(regexp="^secret://.+") String secretRef,
         @NotBlank @Pattern(regexp="^[A-Za-z0-9._-]{1,128}$") String remoteKey,
         @NotBlank @Size(max=512) String offlineRoot, @NotBlank @Size(max=512) String readyRoot,
-        boolean enabled) { }
+        boolean enabled, @Min(1) @Max(86400) Integer stableSeconds) { }
     public record Account(UUID id, String externalKey, UUID storageProviderId, String secretRef,
-        String remoteKey, String offlineRoot, String readyRoot, boolean enabled) { }
+        String remoteKey, String offlineRoot, String readyRoot, boolean enabled, int stableSeconds) { }
     public record AccountView(UUID id, String externalKey, UUID storageProviderId, boolean enabled) { }
     public record CreateOperationRequest(@NotNull UUID accountId, @NotBlank @Size(max=8192) String magnetUri,
         @NotBlank @Size(max=255) String idempotencyKey, @NotBlank @Size(max=64) String businessType,

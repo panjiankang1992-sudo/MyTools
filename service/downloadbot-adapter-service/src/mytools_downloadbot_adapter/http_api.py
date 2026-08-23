@@ -17,7 +17,9 @@ from .service import AdapterService
 def create_handler(service: AdapterService, internal_token: str, snapshot_repository=None,
                    snapshot_export_enabled: bool = False,
                    snapshot_export_token: str | None = None,
-                   reconciliation_enabled: bool = False) -> type[BaseHTTPRequestHandler]:
+                   reconciliation_enabled: bool = False, pikpak_exporter=None,
+                   pikpak_export_enabled: bool = False,
+                   pikpak_export_token: str | None = None) -> type[BaseHTTPRequestHandler]:
     """创建绑定应用依赖的 HTTP 处理器。"""
 
     class Handler(BaseHTTPRequestHandler):
@@ -49,6 +51,22 @@ def create_handler(service: AdapterService, internal_token: str, snapshot_reposi
                 except PermissionError as exception:
                     self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": str(exception)})
                 except (TypeError, ValueError) as exception:
+                    self._json(HTTPStatus.BAD_REQUEST, {"error": str(exception)})
+                return
+            if parsed.path == "/internal/v1/migration/downloadbot/pikpak-accounts":
+                if not self._authorized(pikpak_export_token or ""):
+                    self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
+                    return
+                if not pikpak_export_enabled or pikpak_exporter is None:
+                    self._json(HTTPStatus.SERVICE_UNAVAILABLE,
+                               {"error": "PikPak config export is disabled"})
+                    return
+                try:
+                    query = parse_qs(parsed.query, keep_blank_values=True)
+                    after_id = query.get("afterId", [None])[0]
+                    limit = int(query.get("limit", ["50"])[0])
+                    self._json(HTTPStatus.OK, pikpak_exporter.export_page(after_id, limit))
+                except (OSError, TypeError, ValueError) as exception:
                     self._json(HTTPStatus.BAD_REQUEST, {"error": str(exception)})
                 return
             reconciliation_prefix = "/internal/v1/reconciliation/downloadbot/events/"

@@ -57,7 +57,11 @@ public class PikPakOperationService {
         if (request.offlineRoot().equals(request.readyRoot())) {
             throw new IllegalArgumentException(ACCOUNT_ROOT_CONFLICT.code());
         }
-        Account account = repository.registerAccount(request);
+        RegisterAccountRequest normalized = request.stableSeconds() == null
+            ? new RegisterAccountRequest(request.externalKey(), request.storageProviderId(), request.secretRef(),
+                request.remoteKey(), request.offlineRoot(), request.readyRoot(), request.enabled(),
+                Math.toIntExact(stableWindow.toSeconds())) : request;
+        Account account = repository.registerAccount(normalized);
         return new AccountView(account.id(), account.externalKey(), account.storageProviderId(), account.enabled());
     }
 
@@ -160,7 +164,7 @@ public class PikPakOperationService {
             return repository.transition(operation, "OBSERVING", signature, now, null, null);
         }
         if (operation.stableSince() != null
-                && !now.isBefore(operation.stableSince().plus(stableWindow))) {
+                && !now.isBefore(operation.stableSince().plusSeconds(account.stableSeconds()))) {
             repository.replaceItems(operation.id(), items);
             return repository.transition(operation, "STABLE", signature, operation.stableSince(), null, null);
         }

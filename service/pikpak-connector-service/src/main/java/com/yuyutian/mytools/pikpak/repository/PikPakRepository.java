@@ -33,7 +33,8 @@ public class PikPakRepository {
                     || !account.remoteKey().equals(request.remoteKey())
                     || !account.offlineRoot().equals(request.offlineRoot())
                     || !account.readyRoot().equals(request.readyRoot())
-                    || account.enabled() != request.enabled()) {
+                    || account.enabled() != request.enabled()
+                    || account.stableSeconds() != request.stableSeconds()) {
                 throw new IllegalStateException(ACCOUNT_CONFLICT.code());
             }
             return account;
@@ -43,11 +44,11 @@ public class PikPakRepository {
         jdbc.update("""
             INSERT INTO pikpak_account
             (id,external_key,storage_provider_id,secret_ref,remote_key,offline_root,ready_root,enabled,
-             created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)
+             created_at,updated_at,stable_seconds) VALUES (?,?,?,?,?,?,?,?,?,?,?)
             """, id.toString(),
             request.externalKey(), request.storageProviderId().toString(), request.secretRef(),
             request.remoteKey(), request.offlineRoot(), request.readyRoot(), request.enabled(),
-            Timestamp.from(now), Timestamp.from(now));
+            Timestamp.from(now), Timestamp.from(now), request.stableSeconds());
         return requireAccount(id);
     }
 
@@ -125,7 +126,7 @@ public class PikPakRepository {
         return new Account(UUID.fromString(rs.getString("id")), rs.getString("external_key"),
             UUID.fromString(rs.getString("storage_provider_id")), rs.getString("secret_ref"),
             rs.getString("remote_key"), rs.getString("offline_root"), rs.getString("ready_root"),
-            rs.getBoolean("enabled"));
+            rs.getBoolean("enabled"), rs.getInt("stable_seconds"));
     }
 
     private Operation mapOperation(ResultSet rs, int row) throws SQLException {

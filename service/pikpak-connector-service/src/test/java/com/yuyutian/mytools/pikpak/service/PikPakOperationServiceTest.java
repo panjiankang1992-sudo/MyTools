@@ -72,7 +72,7 @@ class PikPakOperationServiceTest {
 
     private static Account account(UUID id) {
         return new Account(id, "main", UUID.randomUUID(), "secret://pikpak/main", "pikpak_remote",
-            "offline", "ready", true);
+            "offline", "ready", true, 120);
     }
 
     private static Operation operation(String phase, String signature, Instant stableSince, Long jobId, long version) {

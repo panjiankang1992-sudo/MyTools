@@ -24,10 +24,11 @@ class FakeSnapshotRepository:
                 "downloadRequestId": str(uuid4())}
 
 
-def start(enabled, reconciliation_enabled=False):
+def start(enabled, reconciliation_enabled=False, pikpak_exporter=None, pikpak_enabled=False):
     service = AdapterService(InMemoryEventRepository(), FakeClient(), AdapterMode.DISABLED)
     handler = create_handler(service, "event-token", FakeSnapshotRepository(), enabled,
-                             "test-token", reconciliation_enabled)
+                             "test-token", reconciliation_enabled, pikpak_exporter,
+                             pikpak_enabled, "pikpak-token")
     server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
     thread = Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -85,3 +86,21 @@ def test_reconciliation_evidence_requires_explicit_enablement():
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_pikpak_config_export_has_separate_default_off_gate():
+    class Exporter:
+        def export_page(self, after_id, limit):
+            return {"items": [], "afterId": after_id, "limit": limit}
+    server, thread = start(False, pikpak_exporter=Exporter(), pikpak_enabled=False)
+    try:
+        value = Request(f"http://127.0.0.1:{server.server_port}/internal/v1/migration/"
+                        "downloadbot/pikpak-accounts?limit=10",
+                        headers={"Authorization": "Bearer pikpak-token"})
+        try:
+            urlopen(value, timeout=2)
+            raise AssertionError("disabled PikPak export unexpectedly succeeded")
+        except HTTPError as exception:
+            assert exception.code == 503
+    finally:
+        server.shutdown(); server.server_close(); thread.join(timeout=2)
