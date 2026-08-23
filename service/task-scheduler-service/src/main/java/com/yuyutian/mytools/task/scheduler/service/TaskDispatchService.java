@@ -73,6 +73,9 @@ public class TaskDispatchService {
                 LIMIT 10
                 """, (resultSet, rowNumber) -> UUID.fromString(resultSet.getString(1)), request.nodeId().toString());
         for (UUID taskId : candidates) {
+            if (!hasCapacity(taskId, request.nodeId())) {
+                continue;
+            }
             int claimed = jdbcTemplate.update("""
                     UPDATE task_instance
                     SET status = 'RUNNING', dispatch_attempts = dispatch_attempts + 1, updated_at = ?
@@ -83,6 +86,50 @@ public class TaskDispatchService {
             }
         }
         return Optional.empty();
+    }
+
+    private boolean hasCapacity(UUID taskId, UUID nodeId) {
+        // 锁定定义和集群容量行，确保多副本并发领取不会突破共享上限。
+        CapacityDefinition definition = jdbcTemplate.queryForObject("""
+                SELECT td.id AS definition_id, td.cluster_id, td.max_concurrency,
+                       ec.max_concurrent_tasks AS cluster_max_concurrency
+                FROM task_instance ti
+                JOIN task_definition td ON td.id = ti.task_definition_id
+                JOIN execution_cluster ec ON ec.id = td.cluster_id
+                WHERE ti.id = ?
+                FOR UPDATE
+                """, (resultSet, rowNumber) -> new CapacityDefinition(
+                UUID.fromString(resultSet.getString("definition_id")),
+                UUID.fromString(resultSet.getString("cluster_id")),
+                resultSet.getInt("max_concurrency"),
+                resultSet.getInt("cluster_max_concurrency")
+        ), taskId.toString());
+        if (definition == null) {
+            return false;
+        }
+        int definitionRunning = count("""
+                SELECT COUNT(*) FROM task_instance
+                WHERE task_definition_id = ? AND status = 'RUNNING'
+                """, definition.definitionId().toString());
+        int clusterRunning = count("""
+                SELECT COUNT(*) FROM task_instance ti
+                JOIN task_definition td ON td.id = ti.task_definition_id
+                WHERE td.cluster_id = ? AND ti.status = 'RUNNING'
+                """, definition.clusterId().toString());
+        Integer nodeLimit = jdbcTemplate.queryForObject(
+                "SELECT max_concurrent_tasks FROM executor_node WHERE id = ? FOR UPDATE",
+                Integer.class, nodeId.toString());
+        int nodeRunning = count(
+                "SELECT COUNT(*) FROM task_execution WHERE node_id = ? AND status = 'RUNNING'",
+                nodeId.toString());
+        return definitionRunning < definition.maxConcurrency()
+                && clusterRunning < definition.clusterMaxConcurrency()
+                && nodeLimit != null && nodeRunning < nodeLimit;
+    }
+
+    private int count(String sql, String id) {
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);
+        return count == null ? 0 : count;
     }
 
     /**
@@ -218,5 +265,9 @@ public class TaskDispatchService {
             return value;
         }
         return value.substring(0, maxLength);
+    }
+
+    private record CapacityDefinition(UUID definitionId, UUID clusterId, int maxConcurrency,
+                                      int clusterMaxConcurrency) {
     }
 }

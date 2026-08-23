@@ -58,6 +58,9 @@ class TaskInstanceServiceTest {
     private TaskResultQueryService resultQueryService;
 
     @Autowired
+    private CronTaskTriggerService cronTaskTriggerService;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Test
@@ -77,6 +80,29 @@ class TaskInstanceServiceTest {
 
         assertEquals(first.id(), second.id());
         assertEquals(TaskStatus.CANCELLING, service.cancel(first.id()).status());
+    }
+
+    @Test
+    void shouldPersistentlyTriggerOneMisfiredCronInstance() {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        var definition = definitionService.create(new CreateTaskDefinitionRequest(
+                "scheduled_probe_" + suffix, "Scheduled probe", TaskType.SCHEDULED, 60, null,
+                "0 0 * * * *", "UTC", ExecutionMode.SINGLE_NODE, true, 1,
+                "SKIP", "RUN_ONCE", Map.of(), Map.of()
+        ));
+        Instant future = definition.createdAt().plusSeconds(3 * 3600);
+
+        cronTaskTriggerService.triggerDueTasks(future);
+        cronTaskTriggerService.triggerDueTasks(future);
+
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM task_instance WHERE task_definition_id = ?",
+                Integer.class, definition.id().toString());
+        String businessType = jdbcTemplate.queryForObject(
+                "SELECT business_type FROM task_instance WHERE task_definition_id = ?",
+                String.class, definition.id().toString());
+        assertEquals(1, count);
+        assertEquals("SCHEDULED_TASK", businessType);
     }
 
     @Test
@@ -135,6 +161,36 @@ class TaskInstanceServiceTest {
         assertEquals(Map.of("duration", 12), executionResult.steps().getFirst().result());
         assertTrue(topologyService.listClusters().stream().anyMatch(item -> item.id().equals(cluster.id())));
         assertTrue(topologyService.listNodes().stream().anyMatch(item -> item.id().equals(node.id())));
+    }
+
+    @Test
+    void shouldEnforceDefinitionClusterAndNodeConcurrencyWhenClaiming() {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        var cluster = topologyService.createCluster(new CreateExecutionClusterRequest(
+                "bounded_cluster_" + suffix, "Bounded workers", "LEAST_RUNNING", 1, Map.of(), true
+        ));
+        UUID nodeInstanceId = UUID.randomUUID();
+        var node = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "bounded-node-" + suffix, nodeInstanceId.toString(), Map.of("shell", true), Map.of(), 1,
+                Set.of(cluster.name())
+        ));
+        var definition = definitionService.create(new CreateTaskDefinitionRequest(
+                "bounded_task_" + suffix, "Bounded task", TaskType.IMMEDIATE, 60, cluster.id(), null, null,
+                ExecutionMode.SINGLE_NODE, true, 1, "QUEUE", "IGNORE", Map.of(), Map.of()
+        ));
+        stepService.create(definition.id(), new CreateTaskStepRequest(
+                "run", "Run bounded task", StepKind.NORMAL, "bounded_task", "1.0.0", "scripts/main.sh",
+                List.of(), true, 30, FailurePolicy.FAIL_TASK, 10, 1
+        ));
+        service.create(new CreateTaskRequest(
+                definition.name(), "bounded_1_" + suffix, "TEST", "1", null, 50, Map.of()
+        ));
+        service.create(new CreateTaskRequest(
+                definition.name(), "bounded_2_" + suffix, "TEST", "2", null, 50, Map.of()
+        ));
+
+        assertTrue(dispatchService.claim(new ClaimTaskRequest(node.id(), nodeInstanceId, 60)).isPresent());
+        assertTrue(dispatchService.claim(new ClaimTaskRequest(node.id(), nodeInstanceId, 60)).isEmpty());
     }
 
     @Test

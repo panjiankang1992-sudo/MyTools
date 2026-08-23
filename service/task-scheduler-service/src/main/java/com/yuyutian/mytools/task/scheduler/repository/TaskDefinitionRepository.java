@@ -94,6 +94,23 @@ public class TaskDefinitionRepository {
         return jdbcTemplate.query("SELECT * FROM task_definition ORDER BY name, version DESC", this::mapRow);
     }
 
+    /**
+     * 查询每个名称的最新启用定时任务定义。
+     *
+     * @return 定时任务定义列表
+     */
+    public List<TaskDefinitionView> findLatestEnabledScheduled() {
+        return jdbcTemplate.query("""
+                SELECT td.* FROM task_definition td
+                WHERE td.task_type = 'SCHEDULED' AND td.enabled = TRUE
+                  AND td.version = (
+                      SELECT MAX(latest.version) FROM task_definition latest
+                      WHERE latest.name = td.name AND latest.enabled = TRUE
+                  )
+                ORDER BY td.name
+                """, this::mapRow);
+    }
+
     private TaskDefinitionView mapRow(ResultSet resultSet, int rowNumber) throws SQLException {
         String clusterId = resultSet.getString("cluster_id");
         return new TaskDefinitionView(

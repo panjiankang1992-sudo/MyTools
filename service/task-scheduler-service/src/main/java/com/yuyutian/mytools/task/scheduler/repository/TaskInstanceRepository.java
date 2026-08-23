@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -96,6 +97,36 @@ public class TaskInstanceRepository {
                 WHERE id = ? AND status = ?
                 """, targetStatus.name(), timestamp(cancelRequestedAt), Timestamp.from(Instant.now()),
                 id.toString(), expectedStatus.name()) == 1;
+    }
+
+    /**
+     * 统计定义版本下尚未结束的任务实例。
+     *
+     * @param definitionId 定义标识
+     * @return 活跃实例数
+     */
+    public int countActive(UUID definitionId) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM task_instance
+                WHERE task_definition_id = ?
+                  AND status IN ('CREATED', 'QUEUED', 'RUNNING', 'WAITING_CHILDREN', 'CANCELLING')
+                """, Integer.class, definitionId.toString());
+        return count == null ? 0 : count;
+    }
+
+    /**
+     * 查询定义版本下尚未结束的任务实例。
+     *
+     * @param definitionId 定义标识
+     * @return 活跃实例列表
+     */
+    public List<TaskInstanceView> findActive(UUID definitionId) {
+        return jdbcTemplate.query("""
+                SELECT * FROM task_instance
+                WHERE task_definition_id = ?
+                  AND status IN ('CREATED', 'QUEUED', 'RUNNING', 'WAITING_CHILDREN', 'CANCELLING')
+                ORDER BY created_at
+                """, this::mapRow, definitionId.toString());
     }
 
     private TaskInstanceView mapRow(ResultSet resultSet, int rowNumber) throws SQLException {

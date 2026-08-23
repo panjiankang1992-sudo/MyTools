@@ -6,6 +6,8 @@
 - [x] 建立总体与服务设计。
 - [x] 固化任务创建、状态、脚本上下文和结果 Schema。
 - [x] 实现 Scheduler 与 Executor MVP。已完成配置、分发、租约、脚本执行、脚本 SDK、子任务控制和超时回收闭环。
+- [x] 实现 Cron 真实触发、多副本游标租约、misfire/overlap 策略及定义、集群、节点三级并发限制。
+- [ ] 实现 `MULTI_NODE_BROADCAST` 和 `MULTI_NODE_SHARD` 的执行展开与聚合。
 - [ ] 创建各服务独立 schema 和最小权限账号。`mytools_task` 建库及 Flyway 已完成，生产账号待部署时创建。
 
 ## 数据迁移原则

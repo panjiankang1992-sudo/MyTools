@@ -6,8 +6,12 @@ import com.yuyutian.mytools.task.scheduler.repository.TaskDefinitionRepository;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.scheduling.support.CronExpression;
 
+import java.time.DateTimeException;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -15,6 +19,9 @@ import java.util.UUID;
  */
 @Service
 public class TaskDefinitionService {
+
+    private static final Set<String> OVERLAP_POLICIES = Set.of("ALLOW", "SKIP", "QUEUE", "REPLACE");
+    private static final Set<String> MISFIRE_POLICIES = Set.of("IGNORE", "RUN_ONCE", "CATCH_UP");
 
     private final TaskDefinitionRepository repository;
 
@@ -70,6 +77,21 @@ public class TaskDefinitionService {
         if (request.taskType() == com.yuyutian.mytools.task.scheduler.model.TaskType.IMMEDIATE
                 && request.cronExpression() != null && !request.cronExpression().isBlank()) {
             throw new IllegalArgumentException("Immediate task cannot define a cron expression");
+        }
+        if (!OVERLAP_POLICIES.contains(request.overlapPolicy())) {
+            throw new IllegalArgumentException("Unsupported overlap policy");
+        }
+        if (!MISFIRE_POLICIES.contains(request.misfirePolicy())) {
+            throw new IllegalArgumentException("Unsupported misfire policy");
+        }
+        if (request.taskType() == com.yuyutian.mytools.task.scheduler.model.TaskType.SCHEDULED) {
+            try {
+                CronExpression.parse(request.cronExpression());
+                ZoneId.of(request.cronTimezone() == null || request.cronTimezone().isBlank()
+                        ? "UTC" : request.cronTimezone());
+            } catch (IllegalArgumentException | DateTimeException exception) {
+                throw new IllegalArgumentException("Scheduled task cron or timezone is invalid", exception);
+            }
         }
     }
 }

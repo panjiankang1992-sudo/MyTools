@@ -79,6 +79,8 @@ POST /internal/v1/task-instances/{id}/cancel
 - Misfire：`IGNORE`、`RUN_ONCE`、`CATCH_UP`。
 - Cron 创建实例与 API 创建实例走完全相同的路径。
 - 按任务、租户、集群和节点配置并发与队列上限。
+- 每个定时定义持久化 `next_fire_at` 游标，Scheduler 多副本通过短租约抢占；实例幂等键包含定义版本触发时间，崩溃重放不会产生第二个实例。
+- `CATCH_UP` 每轮有硬上限，超出部分保留到后续扫描，避免长时间停机后一次性压垮执行集群。
 
 ## 8. 实现
 
