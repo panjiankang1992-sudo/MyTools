@@ -1,0 +1,16 @@
+name: reader_build_catalog
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - storage_gateway_read
+  - reader_service_internal_api
+parameters:
+  required:
+    - requestId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 600
+  maxInputBytes: 536870912
+  maxEntries: 20000

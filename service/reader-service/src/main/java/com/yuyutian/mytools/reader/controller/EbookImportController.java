@@ -2,6 +2,7 @@ package com.yuyutian.mytools.reader.controller;
 
 import com.yuyutian.mytools.reader.model.CreateEbookImportRequest;
 import com.yuyutian.mytools.reader.model.EbookImportView;
+import com.yuyutian.mytools.reader.model.EbookCatalogView;
 import com.yuyutian.mytools.reader.service.EbookImportService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -63,5 +64,16 @@ public class EbookImportController {
     @PostMapping("/{id}/cancel")
     public EbookImportView cancel(@PathVariable UUID id) {
         return importService.cancel(id);
+    }
+
+    /**
+     * 查询已完成导入的电子书目录。
+     *
+     * @param id 导入请求标识
+     * @return 电子书目录
+     */
+    @GetMapping("/{id}/catalog")
+    public EbookCatalogView catalog(@PathVariable UUID id) {
+        return importService.catalog(id);
     }
 }

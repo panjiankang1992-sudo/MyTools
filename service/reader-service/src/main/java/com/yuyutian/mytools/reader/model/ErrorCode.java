@@ -10,7 +10,9 @@ public enum ErrorCode {
     HEALTH_CHECK_NOT_FOUND("READER_004", "Source health check was not found"),
     HEALTH_SOURCE_LIMIT("READER_005", "Enabled source count exceeds health check limit"),
     EBOOK_IMPORT_NOT_FOUND("READER_006", "Ebook import request was not found"),
-    EBOOK_SOURCE_NOT_FOUND("READER_007", "Enabled book source was not found");
+    EBOOK_SOURCE_NOT_FOUND("READER_007", "Enabled book source was not found"),
+    EBOOK_CATALOG_NOT_READY("READER_008", "Ebook import catalog is not ready"),
+    EBOOK_CATALOG_INVALID("READER_009", "Ebook catalog batch is invalid");
 
     private final String code;
     private final String message;

@@ -6,6 +6,8 @@ import com.yuyutian.mytools.reader.service.DiscoveryNotFoundException;
 import com.yuyutian.mytools.reader.service.HealthCheckNotFoundException;
 import com.yuyutian.mytools.reader.service.EbookImportNotFoundException;
 import com.yuyutian.mytools.reader.service.EbookSourceNotFoundException;
+import com.yuyutian.mytools.reader.service.EbookCatalogInvalidException;
+import com.yuyutian.mytools.reader.service.EbookCatalogNotReadyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -82,5 +84,31 @@ public class ReaderExceptionHandler {
     public Map<String, String> handleEbookSourceNotFound(EbookSourceNotFoundException exception) {
         return Map.of("code", ErrorCode.EBOOK_SOURCE_NOT_FOUND.code(),
                 "message", ErrorCode.EBOOK_SOURCE_NOT_FOUND.message());
+    }
+
+    /**
+     * 转换电子书目录尚未就绪异常。
+     *
+     * @param exception 业务异常
+     * @return 标准错误响应
+     */
+    @ExceptionHandler(EbookCatalogNotReadyException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> handleEbookCatalogNotReady(EbookCatalogNotReadyException exception) {
+        return Map.of("code", ErrorCode.EBOOK_CATALOG_NOT_READY.code(),
+                "message", ErrorCode.EBOOK_CATALOG_NOT_READY.message());
+    }
+
+    /**
+     * 转换电子书目录批次无效异常。
+     *
+     * @param exception 业务异常
+     * @return 标准错误响应
+     */
+    @ExceptionHandler(EbookCatalogInvalidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleEbookCatalogInvalid(EbookCatalogInvalidException exception) {
+        return Map.of("code", ErrorCode.EBOOK_CATALOG_INVALID.code(),
+                "message", ErrorCode.EBOOK_CATALOG_INVALID.message());
     }
 }

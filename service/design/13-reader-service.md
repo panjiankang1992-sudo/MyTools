@@ -36,7 +36,7 @@
 1. 将现有书源 Runtime 搜索封装为脚本包。
 2. 已完成单节点旁路验证并保持现有缓存表。
 3. 已使用 Scheduler 原生执行目标完成多节点分片、原始结果暂存和部分成功聚合。
-4. 已将书源发现迁为受限公网脚本和 Reader Service 版本化写入，健康检查迁为原生多节点分片任务，书源电子书导入迁为 Storage Gateway 原子发布任务，TXT/EPUB/PDF/MOBI 元数据解析已脚本化；继续迁移目录构建和章节预缓存 Job。
+4. 已将书源发现迁为受限公网脚本和 Reader Service 版本化写入，健康检查迁为原生多节点分片任务，书源电子书导入迁为 Storage Gateway 原子发布任务，TXT/EPUB/PDF/MOBI 元数据解析和持久化目录构建已脚本化；继续迁移章节预缓存 Job。
 5. 独立 schema 与 Reader Service MVP 已建立；完成对账后再由 Gateway 切换远程接口。
 
 ## 验收

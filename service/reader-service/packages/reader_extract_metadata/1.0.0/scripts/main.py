@@ -10,10 +10,12 @@ from pathlib import Path, PurePosixPath
 import re
 import struct
 import tempfile
-import urllib.parse
 import xml.etree.ElementTree as element_tree
 import zipfile
 
+from mytools_task_sdk.ebook import (
+    decode_text, first_local_text, local_name, read_zip_entry, safe_zip_name, validate_archive,
+)
 from mytools_task_sdk.storage import StorageGatewayClient, parse_storage_uri
 
 MAX_INPUT_BYTES = 512 * 1024 * 1024
@@ -40,14 +42,6 @@ def base_metadata(file_name: str) -> dict:
             "parserName": "filename-v1", "coverStorageUri": None, "errorCode": None}
 
 
-def decode_text(data: bytes) -> str:
-    """Decode strict UTF-8 first and fall back to common legacy Chinese encoding."""
-    try:
-        return data.decode("utf-8-sig")
-    except UnicodeDecodeError:
-        return data.decode("gb18030", errors="replace")
-
-
 def extract_text(path: Path, metadata: dict) -> tuple[dict, bytes | None, str | None]:
     """Extract bounded TXT or Markdown metadata."""
     metadata["parserName"] = "txt-utf8-v1"
@@ -69,84 +63,43 @@ def extract_text(path: Path, metadata: dict) -> tuple[dict, bytes | None, str | 
     return metadata, None, None
 
 
-def safe_zip_name(parent: str, href: str) -> str:
-    """Resolve an EPUB href without allowing archive traversal."""
-    if not href or "\\" in href:
-        return ""
-    decoded = urllib.parse.unquote(href)
-    path = PurePosixPath(parent).parent.joinpath(decoded)
-    parts = []
-    for part in path.parts:
-        if part in {"", "."}:
-            continue
-        if part == "..":
-            if not parts:
-                return ""
-            parts.pop()
-        else:
-            parts.append(part)
-    return "/".join(parts)
-
-
-def read_entry(archive: zipfile.ZipFile, name: str, limit: int) -> bytes:
-    """Read one regular bounded EPUB entry."""
-    info = archive.getinfo(name)
-    if info.is_dir() or info.file_size > limit or info.compress_size > 0 and info.file_size > info.compress_size * 1000:
-        raise ValueError("EPUB entry is invalid or too large")
-    with archive.open(info) as source:
-        content = source.read(limit + 1)
-    if len(content) > limit:
-        raise ValueError("EPUB entry exceeds limit")
-    return content
-
-
-def local_text(root: element_tree.Element, name: str) -> str:
-    """Return the first nonblank element by namespace-independent local name."""
-    for item in root.iter():
-        if item.tag.rsplit("}", 1)[-1] == name and item.text and item.text.strip():
-            return item.text.strip()
-    return ""
-
-
 def extract_epub(path: Path, metadata: dict) -> tuple[dict, bytes | None, str | None]:
     """Extract OPF metadata and a bounded cover from a safe EPUB archive."""
     metadata["parserName"] = "epub-opf-v1"
     with zipfile.ZipFile(path) as archive:
-        infos = archive.infolist()
-        if len(infos) > MAX_EPUB_ENTRIES or sum(max(0, info.file_size) for info in infos) > MAX_EPUB_EXPANDED_BYTES:
-            raise ValueError("EPUB archive exceeds limits")
-        container = element_tree.fromstring(read_entry(archive, "META-INF/container.xml", 1024 * 1024))
+        validate_archive(archive, MAX_EPUB_ENTRIES, MAX_EPUB_EXPANDED_BYTES)
+        container = element_tree.fromstring(read_zip_entry(archive, "META-INF/container.xml", 1024 * 1024))
         package_path = ""
         for item in container.iter():
-            if item.tag.rsplit("}", 1)[-1] == "rootfile":
+            if local_name(item) == "rootfile":
                 candidate = safe_zip_name("", item.attrib.get("full-path", ""))
                 if candidate in archive.namelist():
                     package_path = candidate
                     break
         if not package_path:
             raise ValueError("EPUB package document is missing")
-        package = element_tree.fromstring(read_entry(archive, package_path, 4 * 1024 * 1024))
-        metadata["title"] = (local_text(package, "title") or metadata["title"])[:300]
-        metadata["author"] = local_text(package, "creator")[:200]
-        metadata["description"] = local_text(package, "description")[:4000]
-        metadata["language"] = local_text(package, "language")[:32]
+        package = element_tree.fromstring(read_zip_entry(archive, package_path, 4 * 1024 * 1024))
+        metadata["title"] = (first_local_text(package, "title") or metadata["title"])[:300]
+        metadata["author"] = first_local_text(package, "creator")[:200]
+        metadata["description"] = first_local_text(package, "description")[:4000]
+        metadata["language"] = first_local_text(package, "language")[:32]
         metadata["chapterCount"] = max(1, sum(
-            1 for item in package.iter() if item.tag.rsplit("}", 1)[-1] == "itemref"))
+            1 for item in package.iter() if local_name(item) == "itemref"))
         cover_id = ""
         for item in package.iter():
-            if item.tag.rsplit("}", 1)[-1] == "meta" and item.attrib.get("name", "").lower() == "cover":
+            if local_name(item) == "meta" and item.attrib.get("name", "").lower() == "cover":
                 cover_id = item.attrib.get("content", "")
         cover = None
         extension = None
         for item in package.iter():
-            if item.tag.rsplit("}", 1)[-1] != "item":
+            if local_name(item) != "item":
                 continue
             explicit = "cover-image" in item.attrib.get("properties", "")
             legacy = bool(cover_id) and cover_id == item.attrib.get("id")
             if not (explicit or legacy) or not item.attrib.get("media-type", "").startswith("image/"):
                 continue
             entry = safe_zip_name(package_path, item.attrib.get("href", ""))
-            cover = read_entry(archive, entry, MAX_EPUB_ENTRY_BYTES)
+            cover = read_zip_entry(archive, entry, MAX_EPUB_ENTRY_BYTES)
             extension = image_extension(cover)
             if not extension:
                 raise ValueError("EPUB cover format is unsupported")

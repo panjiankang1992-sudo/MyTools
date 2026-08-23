@@ -22,7 +22,7 @@ MyTools 通过默认关闭的 `READER_SEARCH_SIDECAR_ENABLED` 开关提交同一
 
 书源健康检查使用 `reader_source_health_check` 1.0.0 多节点分片任务。Reader Service 固化本次检查使用的启用书源版本，脚本在执行隔离的 Runtime 命名空间中探测搜索规则，并汇总每个书源的状态、延迟和错误类别。健康观测不会自动修改用户维护的 `enabled` 状态。编排接口为 `POST /api/v1/source-health-checks`、`GET /api/v1/source-health-checks/{id}` 和取消接口。
 
-书源电子书导入使用 `reader_import_ebook` 1.0.0 长任务。Reader Service 固化书源版本和任务参数，脚本逐章读取并在任务工作目录中流式生成有大小边界的 UTF-8 文本，通过 Storage Gateway 校验摘要并原子发布，成功后在 `ebook_asset` 登记稳定 `storage://` URI。编排接口为 `POST /api/v1/ebook-imports`、`GET /api/v1/ebook-imports/{id}` 和取消接口；客户端不能指定物理目录或任意输出路径。
+书源电子书导入使用 `reader_import_ebook` 1.0.0 长任务。Reader Service 固化书源版本和任务参数，脚本逐章读取并在任务工作目录中流式生成有大小边界的 UTF-8 文本，通过 Storage Gateway 校验摘要并原子发布，成功后在 `ebook_asset` 登记稳定 `storage://` URI。后续步骤分别提取元数据并构建持久化目录：TXT/Markdown 目录保存字节范围，EPUB 目录保存经过归档安全校验的 spine 条目，PDF 保存有上限的页引用；脚本以受限批次调用内部写入接口，重试时先清理再重建。编排接口为 `POST /api/v1/ebook-imports`、`GET /api/v1/ebook-imports/{id}`、`GET /api/v1/ebook-imports/{id}/catalog` 和取消接口；客户端不能指定物理目录或任意输出路径。
 
 `reader_extract_metadata` 1.0.0 支持 TXT/Markdown、EPUB OPF、基础 PDF 和 MOBI/AZW3 头解析，保留旧实现的 `READY`/`PARTIAL`/`FAILED` 语义，并限制文本大小、ZIP 条目数、展开大小、单条目大小和压缩比。书源导入任务将其作为第二步骤执行，元数据结果写回 `ebook_asset.metadata_json`；该脚本也注册为可独立创建的任务类型。
 

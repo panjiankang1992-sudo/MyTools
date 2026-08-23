@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["requestId", "format", "entryCount"],
+  "properties": {
+    "requestId": {"type": "string", "format": "uuid"},
+    "format": {"type": "string"},
+    "entryCount": {"type": "integer", "minimum": 1, "maximum": 20000}
+  },
+  "additionalProperties": false
+}

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.reader.model.EbookImportRecord;
+import com.yuyutian.mytools.reader.model.CatalogBatchRequest;
+import com.yuyutian.mytools.reader.model.EbookCatalogView;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -143,6 +145,60 @@ public class EbookImportRepository {
         jdbcTemplate.update("""
                 UPDATE ebook_asset SET metadata_json = ?, updated_at = ? WHERE import_request_id = ?
                 """, writeJson(metadata), Timestamp.from(Instant.now()), requestId.toString());
+    }
+
+    /**
+     * 幂等保存一批格式化电子书目录条目。
+     *
+     * @param requestId 导入请求标识
+     * @param request 目录批次
+     * @return 保存数量
+     */
+    public int saveCatalog(UUID requestId, CatalogBatchRequest request) {
+        if (request.replace()) {
+            jdbcTemplate.update("DELETE FROM ebook_catalog_entry WHERE import_request_id = ?", requestId.toString());
+        }
+        Instant now = Instant.now();
+        int saved = 0;
+        for (CatalogBatchRequest.CatalogEntry entry : request.entries()) {
+            Integer count = jdbcTemplate.queryForObject("""
+                    SELECT COUNT(*) FROM ebook_catalog_entry
+                    WHERE import_request_id = ? AND entry_index = ?
+                    """, Integer.class, requestId.toString(), entry.index());
+            if (count != null && count > 0) {
+                jdbcTemplate.update("""
+                        UPDATE ebook_catalog_entry SET title = ?, resource_ref = ?, start_offset = ?,
+                            end_offset = ?, updated_at = ? WHERE import_request_id = ? AND entry_index = ?
+                        """, entry.title(), entry.resourceRef(), entry.startOffset(), entry.endOffset(),
+                        Timestamp.from(now), requestId.toString(), entry.index());
+            } else {
+                jdbcTemplate.update("""
+                        INSERT INTO ebook_catalog_entry
+                            (import_request_id, entry_index, title, resource_ref, start_offset, end_offset,
+                             created_at, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        """, requestId.toString(), entry.index(), entry.title(), entry.resourceRef(),
+                        entry.startOffset(), entry.endOffset(), Timestamp.from(now), Timestamp.from(now));
+            }
+            saved++;
+        }
+        return saved;
+    }
+
+    /**
+     * 查询已构建的有序电子书目录。
+     *
+     * @param requestId 导入请求标识
+     * @return 目录条目
+     */
+    public EbookCatalogView findCatalog(UUID requestId) {
+        var entries = jdbcTemplate.query("""
+                SELECT entry_index, title, resource_ref FROM ebook_catalog_entry
+                WHERE import_request_id = ? ORDER BY entry_index
+                """, (resultSet, rowNumber) -> new EbookCatalogView.Entry(
+                resultSet.getInt("entry_index"), resultSet.getString("title"),
+                resultSet.getString("resource_ref")), requestId.toString());
+        return new EbookCatalogView(requestId, entries);
     }
 
     private Optional<EbookImportRecord> query(String condition, Object... arguments) {

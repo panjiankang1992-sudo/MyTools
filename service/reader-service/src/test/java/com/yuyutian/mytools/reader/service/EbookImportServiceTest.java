@@ -1,6 +1,7 @@
 package com.yuyutian.mytools.reader.service;
 
 import com.yuyutian.mytools.reader.model.CreateEbookImportRequest;
+import com.yuyutian.mytools.reader.model.CatalogBatchRequest;
 import com.yuyutian.mytools.reader.model.DiscoveryRecord;
 import com.yuyutian.mytools.reader.model.SchedulerResult;
 import com.yuyutian.mytools.reader.repository.DiscoveryRepository;
@@ -30,6 +31,9 @@ class EbookImportServiceTest {
     private EbookImportService importService;
 
     @Autowired
+    private EbookCatalogWriteService catalogWriteService;
+
+    @Autowired
     private DiscoveryRepository discoveryRepository;
 
     @Autowired
@@ -57,6 +61,10 @@ class EbookImportServiceTest {
 
         var created = importService.create(request);
         var duplicate = importService.create(request);
+        catalogWriteService.save(created.id(), new CatalogBatchRequest(true, List.of(
+                new CatalogBatchRequest.CatalogEntry(0, "Chapter One", "text:0", 0L, 100L))));
+        catalogWriteService.save(created.id(), new CatalogBatchRequest(false, List.of(
+                new CatalogBatchRequest.CatalogEntry(1, "Chapter Two", "text:100", 100L, 200L))));
         when(schedulerClient.getResults(taskId)).thenReturn(new SchedulerResult(taskId, "SUCCEEDED", List.of(
                 new SchedulerResult.StepResult(UUID.randomUUID(), null, null, "import_ebook", 1, "SUCCEEDED",
                         Map.of("title", "Example Book", "author", "Author", "chapterCount", 10,
@@ -64,21 +72,28 @@ class EbookImportServiceTest {
                                 "storageUri", "storage://managed/ebooks/imports/example.txt")),
                 new SchedulerResult.StepResult(UUID.randomUUID(), null, null, "extract_metadata", 1,
                         "SUCCEEDED", Map.of("status", "READY", "parserName", "txt-utf8-v1",
-                                "chapterCount", 10)))));
+                                "chapterCount", 10)),
+                new SchedulerResult.StepResult(UUID.randomUUID(), null, null, "build_catalog", 1,
+                        "SUCCEEDED", Map.of("entryCount", 2)))));
 
         var completed = importService.get(created.id());
+        var catalog = importService.catalog(created.id());
 
         assertThat(duplicate.id()).isEqualTo(created.id());
         assertThat(completed.status()).isEqualTo("SUCCEEDED");
         assertThat(completed.sourceVersion()).isEqualTo(1);
         assertThat(completed.title()).isEqualTo("Example Book");
         assertThat(completed.chapterCount()).isEqualTo(10);
+        assertThat(catalog.entries()).extracting("title").containsExactly("Chapter One", "Chapter Two");
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM ebook_asset WHERE import_request_id = ?",
                 Integer.class, created.id().toString())).isEqualTo(1);
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT metadata_json FROM ebook_asset WHERE import_request_id = ?",
                 String.class, created.id().toString())).contains("txt-utf8-v1");
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM ebook_catalog_entry WHERE import_request_id = ?",
+                Integer.class, created.id().toString())).isEqualTo(2);
         verify(schedulerClient).createTask(anyString(), anyString(), anyString(), any(), anyInt(), anyMap());
     }
 }

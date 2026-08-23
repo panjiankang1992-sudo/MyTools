@@ -4,6 +4,7 @@ import com.yuyutian.mytools.reader.config.ReaderProperties;
 import com.yuyutian.mytools.reader.model.CreateEbookImportRequest;
 import com.yuyutian.mytools.reader.model.EbookImportRecord;
 import com.yuyutian.mytools.reader.model.EbookImportView;
+import com.yuyutian.mytools.reader.model.EbookCatalogView;
 import com.yuyutian.mytools.reader.model.SchedulerResult;
 import com.yuyutian.mytools.reader.repository.DiscoveryRepository;
 import com.yuyutian.mytools.reader.repository.EbookImportRepository;
@@ -108,6 +109,20 @@ public class EbookImportService {
             schedulerClient.cancel(record.taskId());
         }
         return get(requestId);
+    }
+
+    /**
+     * 同步查询已成功导入电子书的目录。
+     *
+     * @param requestId 导入请求标识
+     * @return 有序目录
+     */
+    public EbookCatalogView catalog(UUID requestId) {
+        EbookImportRecord record = required(requestId);
+        if (!"SUCCEEDED".equals(record.status())) {
+            throw new EbookCatalogNotReadyException(requestId);
+        }
+        return repository.findCatalog(requestId);
     }
 
     private EbookImportRecord createRecord(CreateEbookImportRequest request) {

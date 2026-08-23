@@ -1,14 +1,12 @@
 package com.yuyutian.mytools.reader.controller;
 
-import com.yuyutian.mytools.reader.config.ReaderProperties;
 import com.yuyutian.mytools.reader.model.CreateDiscoveryRequest;
 import com.yuyutian.mytools.reader.model.DiscoveryView;
-import com.yuyutian.mytools.reader.model.ErrorCode;
 import com.yuyutian.mytools.reader.model.SourceIngestRequest;
 import com.yuyutian.mytools.reader.model.SourceIngestResult;
 import com.yuyutian.mytools.reader.service.SourceDiscoveryService;
+import com.yuyutian.mytools.reader.service.InternalRequestAuthorizer;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,10 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.UUID;
 
 /**
@@ -30,17 +24,18 @@ import java.util.UUID;
 public class SourceDiscoveryController {
 
     private final SourceDiscoveryService discoveryService;
-    private final ReaderProperties properties;
+    private final InternalRequestAuthorizer authorizer;
 
     /**
      * 创建书源发现控制器。
      *
      * @param discoveryService 发现服务
-     * @param properties 阅读服务配置
+     * @param authorizer 内部请求校验器
      */
-    public SourceDiscoveryController(SourceDiscoveryService discoveryService, ReaderProperties properties) {
+    public SourceDiscoveryController(SourceDiscoveryService discoveryService,
+                                     InternalRequestAuthorizer authorizer) {
         this.discoveryService = discoveryService;
-        this.properties = properties;
+        this.authorizer = authorizer;
     }
 
     /**
@@ -88,18 +83,7 @@ public class SourceDiscoveryController {
     public SourceIngestResult ingest(@PathVariable UUID id,
                                      @RequestHeader("Authorization") String authorization,
                                      @Valid @RequestBody SourceIngestRequest request) {
-        requireInternalToken(authorization);
+        authorizer.requireAuthorized(authorization);
         return discoveryService.ingest(id, request);
-    }
-
-    private void requireInternalToken(String authorization) {
-        String expected = properties.internalToken();
-        String supplied = authorization != null && authorization.startsWith("Bearer ")
-                ? authorization.substring(7) : "";
-        if (expected == null || expected.isBlank() || !MessageDigest.isEqual(
-                expected.getBytes(StandardCharsets.UTF_8), supplied.getBytes(StandardCharsets.UTF_8))) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    ErrorCode.INTERNAL_UNAUTHORIZED.message());
-        }
     }
 }
