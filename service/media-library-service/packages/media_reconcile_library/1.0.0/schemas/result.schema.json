@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["libraryRevision", "directoryCount", "completedScanCount", "stagingScanCount", "itemCount", "readyCount", "missingCount", "analyzingCount", "succeededAnalysisCount", "failedAnalysisCount", "runningAnalysisCount", "tagRelationCount", "artifactCount", "readyDirectoryEntryCount", "missingDirectoryEntryCount", "digestSha256"],
+  "properties": {
+    "libraryRevision": {"type": "integer", "minimum": 0},
+    "directoryCount": {"type": "integer", "minimum": 0},
+    "completedScanCount": {"type": "integer", "minimum": 0},
+    "stagingScanCount": {"type": "integer", "minimum": 0},
+    "itemCount": {"type": "integer", "minimum": 0},
+    "readyCount": {"type": "integer", "minimum": 0},
+    "missingCount": {"type": "integer", "minimum": 0},
+    "analyzingCount": {"type": "integer", "minimum": 0},
+    "succeededAnalysisCount": {"type": "integer", "minimum": 0},
+    "failedAnalysisCount": {"type": "integer", "minimum": 0},
+    "runningAnalysisCount": {"type": "integer", "minimum": 0},
+    "tagRelationCount": {"type": "integer", "minimum": 0},
+    "artifactCount": {"type": "integer", "minimum": 0},
+    "readyDirectoryEntryCount": {"type": "integer", "minimum": 0},
+    "missingDirectoryEntryCount": {"type": "integer", "minimum": 0},
+    "digestSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}

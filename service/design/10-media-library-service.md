@@ -10,6 +10,7 @@
 - `media_packages`、`media_analysis`、`media_artifacts`。
 - `playback_progress`、`media_task_bindings`、`media_outbox`。
 - `media_scan`、`media_scan_entry`：扫描 generation 及其冻结清单；条目只有在资产登记并回写媒体项后才进入 `IMPORTED`。
+- `media_library_revision`：所有影响对账结果的领域写入共同推进的单调修订号。
 
 ## 任务类型
 
@@ -40,6 +41,12 @@
 V49 增加可选的扫描后分析衔接。`analyze` 缺省为 `false`；显式启用时，每个摄取子任务在资产和媒体项均登记成功后，通过任务 SDK 创建同节点 `media_analyze_video` 子任务。分析幂等键由 `mediaItemId + analysisVersion` 构成。扫描只把“分析任务已可靠创建”作为摄取完成条件，不同步等待模型结果；这样目录 generation 的一致性不依赖 GPU 或模型吞吐，分析失败也通过自己的终态和重试策略处理。
 
 扫描没有默认 Cron，也没有接入旧 MyTools 路径，因此 V2 仅新增旁路能力。正式切换前需要以显式目录执行扫描、比较清单摘要和媒体数量，再按租户启用新查询。
+
+## 对账协议
+
+V3 的内部对账接口以媒体 UUID 为稳定游标，每页最多返回 200 个媒体聚合后的状态计数和页摘要。摘要覆盖媒体主身份、内容摘要、来源、分析版本及终态、标签关系、派生资产关系和目录条目关系；响应同时携带目录数、完成/暂存扫描数和 `libraryRevision`。同步接口保持有界，不在一个请求中扫描全库。
+
+`media_reconcile_library` 任务顺序读取全部页面，首个页面固定 revision 和全局计数，后续任一页面不一致立即失败。任务默认要求系统静止：没有暂存扫描、分析中媒体或运行中分析。成功结果包含各类关系总数和由全局元数据、每页计数及页摘要组成的最终 SHA-256，可作为多次迁移、灰度前后和旧新系统抽样对账的机器证据；它只读数据，不修改运行开关。
 
 ## 迁移
 

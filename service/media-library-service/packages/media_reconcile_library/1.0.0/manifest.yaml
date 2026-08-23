@@ -1,0 +1,14 @@
+name: media_reconcile_library
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - network_internal
+parameters:
+  optional:
+    - requireQuiescent
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 900
+  maxOutputBytes: 131072

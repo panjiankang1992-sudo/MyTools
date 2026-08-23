@@ -16,4 +16,5 @@ import jakarta.validation.Valid;import jakarta.validation.constraints.*;import j
  public record StageScanEntries(@NotNull @Size(max=1000)List<@Valid ScanEntry>entries){}
  public record FinishScan(@NotBlank @Pattern(regexp="^[a-fA-F0-9]{64}$")String manifestSha256){}
  public record ScanView(UUID id,long ownerId,String directoryKey,String status,int expectedCount,int importedCount,String manifestSha256){}
+ public record ReconciliationPage(UUID nextAfterId,long libraryRevision,int directoryCount,int completedScanCount,int stagingScanCount,int itemCount,int readyCount,int missingCount,int analyzingCount,int succeededAnalysisCount,int failedAnalysisCount,int runningAnalysisCount,int tagRelationCount,int artifactCount,int readyDirectoryEntryCount,int missingDirectoryEntryCount,String pageDigestSha256){}
 }
