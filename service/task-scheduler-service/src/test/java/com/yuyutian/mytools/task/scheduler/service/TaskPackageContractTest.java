@@ -63,6 +63,22 @@ class TaskPackageContractTest {
         assertEquals(0, invalid, "Every enabled terminal step must use the Executor step kind protocol");
     }
 
+    @Test
+    void shouldDeclareRequiredContractsForDomainRebuildTasks() {
+        Map<String, String> required = Map.of(
+                "storage_scan_root", "operationId",
+                "drive_index_account", "accountId",
+                "reader_reindex_library", "rebuildId");
+        required.forEach((taskName, parameter) -> {
+            Map<String, Object> definition = jdbcTemplate.queryForMap(
+                    "SELECT parameter_schema,result_schema FROM task_definition WHERE name=?", taskName);
+            assertTrue(definition.get("parameter_schema").toString().contains(parameter),
+                    taskName + " must declare its required domain identity");
+            assertTrue(definition.get("result_schema").toString().contains("SUCCEEDED"),
+                    taskName + " must declare a successful domain result");
+        });
+    }
+
     private Path resolveServiceRoot() {
         Path workingDirectory = Path.of("").toAbsolutePath().normalize();
         Path serviceRoot = "task-scheduler-service".equals(workingDirectory.getFileName().toString())
