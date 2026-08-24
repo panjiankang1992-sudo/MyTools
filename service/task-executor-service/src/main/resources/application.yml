@@ -7,6 +7,7 @@ executor:
   work-root: ${TASK_EXECUTOR_WORK_ROOT:./runtime/tasks}
   script-root: ${TASK_EXECUTOR_SCRIPT_ROOT:./scripts}
   python-sdk-root: ${TASK_EXECUTOR_PYTHON_SDK_ROOT:./sdk/python}
+  python-executable: ${TASK_EXECUTOR_PYTHON_EXECUTABLE:/usr/bin/python3}
   heartbeat-seconds: ${TASK_EXECUTOR_HEARTBEAT_SECONDS:10}
   poll-seconds: ${TASK_EXECUTOR_POLL_SECONDS:1}
   lease-seconds: ${TASK_EXECUTOR_LEASE_SECONDS:60}
@@ -25,8 +26,11 @@ executor:
     - reader
     - reader-probe-orchestration
     - download
+    - download-orchestration
     - messaging
     - asset
+    - drive
+    - identity
     - storage
   script-environments:
     download_http_asset:

@@ -72,6 +72,8 @@ def values(manifest: dict[str, Any], download_root: str, storage_root: str,
     """Generate complete database, token, path, and default-off settings."""
     if not re.fullmatch(r"[A-Za-z][A-Za-z0-9._-]{0,127}", reader_storage_root):
         raise ValueError("reader storage root name is invalid")
+    rclone_user = "mytools"
+    rclone_password = private_value()
     environment = {
         "MYTOOLS_SERVICE_ROOT": str(DEPLOYMENT_ROOT),
         "MYTOOLS_LOG_ROOT": str(LOG_ROOT),
@@ -79,6 +81,8 @@ def values(manifest: dict[str, Any], download_root: str, storage_root: str,
         "TASK_EXECUTOR_SCRIPT_ROOT": str(DEPLOYMENT_ROOT / "releases" / "current" / "task-packages"),
         "TASK_EXECUTOR_PYTHON_SDK_ROOT": str(DEPLOYMENT_ROOT / "releases" / "current"
                                                 / "task-executor-sdk"),
+        "TASK_EXECUTOR_PYTHON_EXECUTABLE": str(DEPLOYMENT_ROOT / "releases" / "current"
+                                                / "venv" / "bin" / "python3"),
         "TASK_EXECUTOR_REQUIRE_PACKAGE_INDEX": "true",
         "TASK_EXECUTOR_NODE_NAME": "executor-remote-1",
         "TASK_SCHEDULER_HTTP_PORT": "23410",
@@ -91,9 +95,16 @@ def values(manifest: dict[str, Any], download_root: str, storage_root: str,
         "IDENTITY_JWT_SECRET": base64.b64encode(secrets.token_bytes(48)).decode(),
         "IDENTITY_VALIDATION_MODE": "LEGACY",
         "DOWNLOADBOT_ADAPTER_MODE": "DISABLED",
+        "RCLONE_RC_URL": "http://127.0.0.1:5572",
+        "RCLONE_RC_USER": rclone_user,
+        "RCLONE_RC_PASSWORD": rclone_password,
+        "STORAGE_RCLONE_RC_URL": "http://127.0.0.1:5572",
+        "STORAGE_RCLONE_RC_USER": rclone_user,
+        "STORAGE_RCLONE_RC_PASSWORD": rclone_password,
     }
     for key in TOKEN_KEYS:
         environment[key] = private_value()
+    environment["LEGACY_ASSET_ADAPTER_INTERNAL_TOKEN"] = environment["LEGACY_ASSET_ADAPTER_TOKEN"]
     for key in DISABLED_FLAGS:
         environment[key] = "false"
     for entry in manifest["services"]:

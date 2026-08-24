@@ -79,7 +79,8 @@ class ScriptReleaseVerifierTest {
     private ExecutorProperties properties(boolean required) {
         return new ExecutorProperties("executor-test", "http://127.0.0.1:23210",
                 temporaryDirectory.resolve("work"), temporaryDirectory.resolve("scripts"),
-                temporaryDirectory.resolve("sdk"), 10, 1, 60, 2, Map.of(), Map.of(), Set.of(), required,
+                temporaryDirectory.resolve("sdk"), Path.of("/usr/bin/python3"), 10, 1, 60, 2,
+                Map.of(), Map.of(), Set.of(), required,
                 Map.of());
     }
 }

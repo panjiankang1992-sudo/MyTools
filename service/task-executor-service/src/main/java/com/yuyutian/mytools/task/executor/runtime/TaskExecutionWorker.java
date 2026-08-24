@@ -280,7 +280,7 @@ public class TaskExecutionWorker {
         List<String> command = new ArrayList<>();
         String name = entrypoint.getFileName().toString();
         if (name.endsWith(".py")) {
-            command.add("python3");
+            command.add(properties.pythonExecutable().toAbsolutePath().normalize().toString());
         } else if (name.endsWith(".sh")) {
             command.add("/bin/sh");
         }

@@ -49,6 +49,7 @@ class TaskExecutionWorkerTest {
         ExecutorProperties properties = new ExecutorProperties(
                 "executor-test", "http://127.0.0.1:23210", temporaryDirectory.resolve("work"), scriptRoot,
                 temporaryDirectory.resolve("sdk"),
+                Path.of("/usr/bin/python3"),
                 10, 1, 60, 2, Map.of(), Map.of(), java.util.Set.of(),
                 false,
                 Map.of("sample", Map.of("CUSTOM_ENV", "enabled"))
@@ -96,6 +97,7 @@ class TaskExecutionWorkerTest {
         ExecutorProperties properties = new ExecutorProperties(
                 "executor-test", "http://127.0.0.1:23210", temporaryDirectory.resolve("deadline-work"), scriptRoot,
                 temporaryDirectory.resolve("sdk"),
+                Path.of("/usr/bin/python3"),
                 10, 1, 60, 2, Map.of(), Map.of(), java.util.Set.of(), false, Map.of()
         );
         ClaimedStep normal = new ClaimedStep(

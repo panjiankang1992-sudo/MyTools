@@ -42,7 +42,7 @@ class SchedulerNodeClientTest {
     void shouldRegisterAndSendHeartbeat() throws Exception {
         ExecutorProperties properties = new ExecutorProperties(
                 "executor-test", "http://127.0.0.1:" + server.getAddress().getPort(), Path.of("runtime/tasks"),
-                Path.of("scripts"), Path.of("sdk/python"), 10, 1, 60, 4,
+                Path.of("scripts"), Path.of("sdk/python"), Path.of("/usr/bin/python3"), 10, 1, 60, 4,
                 Map.of("runtimes", "python3.12"), Map.of("gpu", false),
                 java.util.Set.of("media"), false, Map.of()
         );
