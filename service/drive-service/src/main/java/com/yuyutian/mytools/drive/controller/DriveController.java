@@ -23,6 +23,11 @@ public class DriveController {
     public AccountView register(@RequestHeader("Authorization") String authorization, @Valid @RequestBody RegisterAccountRequest request) {
         authorize(authorization); return service.register(request);
     }
+    /** 查询所有者的账户。 @param authorization 授权头 @param ownerId 所有者 @return 账户列表 */
+    @GetMapping("/accounts")
+    public List<AccountView> accounts(@RequestHeader("Authorization") String authorization,@RequestParam long ownerId) {
+        authorize(authorization); return service.listAccounts(ownerId);
+    }
     /** 写入索引批次。 @param authorization 授权头 @param id 账户 @param request 请求 @return 结果 */
     @PostMapping("/accounts/{id}/index-batches")
     public IndexBatchView ingest(@RequestHeader("Authorization") String authorization, @PathVariable UUID id,

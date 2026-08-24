@@ -13,6 +13,8 @@ public final class DriveGatewayModels {
     private DriveGatewayModels() { }
 
     public record RefreshIndexRequest(@NotBlank @Size(max = 255) String idempotencyKey) { }
+    public record AccountSummary(UUID id, String displayName, String providerType, boolean readOnly,
+                                 boolean enabled, long indexGeneration) { }
     public record OperationView(UUID id, UUID accountId, UUID taskInstanceId, String operationType,
                                 String status, String errorCode, Instant createdAt, Instant updatedAt) { }
 }

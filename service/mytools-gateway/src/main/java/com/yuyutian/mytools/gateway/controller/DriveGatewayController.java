@@ -4,6 +4,7 @@ import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.OperationView;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.RefreshIndexRequest;
+import com.yuyutian.mytools.gateway.model.DriveGatewayModels.AccountSummary;
 import com.yuyutian.mytools.gateway.service.DriveGatewayClient;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
@@ -61,6 +62,13 @@ public class DriveGatewayController {
             HttpServletRequest request) {
         GatewayPrincipal principal = requireAllowed(request);
         return client.items(accountId, principal.userId(), parentPath, correlation(request));
+    }
+
+    /** 查询当前主体的 Drive 账户。 @param request HTTP 请求 @return 账户摘要 */
+    @GetMapping("/accounts")
+    public List<AccountSummary> accounts(HttpServletRequest request) {
+        GatewayPrincipal principal=requireAllowed(request);
+        return client.accounts(principal.userId(),correlation(request));
     }
 
     /** 创建账户索引刷新任务。 @param accountId 账户标识 @param body 请求 @param request HTTP 请求 @return 操作 */

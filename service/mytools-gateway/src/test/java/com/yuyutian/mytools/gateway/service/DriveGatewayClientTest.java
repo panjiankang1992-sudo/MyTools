@@ -35,6 +35,26 @@ class DriveGatewayClientTest {
     }
 
     @Test
+    void shouldReturnSanitizedOwnerBoundAccounts() {
+        RestTemplate restTemplate=new RestTemplate();
+        MockRestServiceServer server=MockRestServiceServer.bindTo(restTemplate).build();
+        UUID accountId=UUID.randomUUID();
+        server.expect(requestTo("http://drive/internal/v1/drive/accounts?ownerId=55"))
+            .andExpect(method(GET)).andExpect(header("Authorization","Bearer drive-token"))
+            .andRespond(withSuccess("[{\"id\":\""+accountId+"\",\"ownerId\":55,\"externalAccountId\":\"private\","
+                +"\"displayName\":\"Primary\",\"providerType\":\"RCLONE\",\"remoteKey\":\"secret_remote\","
+                +"\"readOnly\":true,\"enabled\":true,\"indexGeneration\":2}]",
+                org.springframework.http.MediaType.APPLICATION_JSON));
+
+        var accounts=new DriveGatewayClient(restTemplate,properties()).accounts(55L,"correlation");
+
+        assertThat(accounts).hasSize(1);
+        assertThat(accounts.getFirst().displayName()).isEqualTo("Primary");
+        assertThat(accounts.getFirst().toString()).doesNotContain("private","secret_remote");
+        server.verify();
+    }
+
+    @Test
     void shouldCreateOwnerBoundRefreshOperation() {
         RestTemplate restTemplate=new RestTemplate();
         MockRestServiceServer server=MockRestServiceServer.bindTo(restTemplate).build();

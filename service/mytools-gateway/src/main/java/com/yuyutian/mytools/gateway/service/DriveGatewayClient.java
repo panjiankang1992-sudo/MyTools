@@ -3,6 +3,7 @@ package com.yuyutian.mytools.gateway.service;
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.OperationView;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.RefreshIndexRequest;
+import com.yuyutian.mytools.gateway.model.DriveGatewayModels.AccountSummary;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -54,6 +55,15 @@ public class DriveGatewayClient {
         var response = restTemplate.exchange(url, HttpMethod.GET, entity(correlationId),
                 new ParameterizedTypeReference<List<Map<String, Object>>>() { });
         return response.getBody() == null ? List.of() : response.getBody();
+    }
+
+    /** 查询当前主体的 Drive 账户。 @param ownerId 所有者 @param correlationId 关联标识 @return 安全账户摘要 */
+    public List<AccountSummary> accounts(long ownerId,String correlationId) {
+        URI url=UriComponentsBuilder.fromHttpUrl(root()+"/internal/v1/drive/accounts")
+            .queryParam("ownerId",ownerId).build().encode().toUri();
+        var response=restTemplate.exchange(url,HttpMethod.GET,entity(correlationId),
+            new ParameterizedTypeReference<List<AccountSummary>>() { });
+        return response.getBody()==null?List.of():response.getBody();
     }
 
     /** 创建账户索引刷新任务。 @param accountId 账户标识 @param ownerId 所有者 @param request 请求 @param correlationId 关联标识 @return 操作 */

@@ -18,6 +18,8 @@
 
 Drive Service 现已提供索引刷新业务闭环：`POST /internal/v1/drive/accounts/{id}/refresh-index` 创建幂等任务，`GET /internal/v1/drive/operations/{id}` 查询，取消接口请求 Scheduler 终止执行。三个接口都要求可信 `ownerId` 与账户所有者一致；Gateway 对应暴露 `/api/app/v1/drive` 路由并从认证主体注入 owner。
 
+`GET /internal/v1/drive/accounts?ownerId=` 返回当前所有者的账户，用于客户端进入目录前取得账户 UUID。Gateway 只返回显示名称、Provider 类型、只读/启用状态和索引 generation，不暴露外部账户标识、remote key 或 Secret 引用。
+
 Scheduler V25 为失败、超时和取消配置 `drive_finish_index` 特殊步骤，使未完成游标进入明确终态，后续补偿运行可以安全接管；收尾失败采用 `IGNORE`，不会掩盖任务原始终态。
 
 `drive_migrate_legacy_accounts` 任务通过 MyTools 只读分页接口迁移旧 `drive_account` 与 `webdav_account` 元数据。接口只返回 `secret://mytools/...` 引用，不返回加密密码、URL 或用户名；WebDAV/Alist 账户默认禁用，完成 provider 配置和对账后才能启用。Scheduler V26 提供手工即时迁移任务，不会自动执行。

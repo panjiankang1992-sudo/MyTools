@@ -77,6 +77,16 @@ class DriveServiceTest {
     }
 
     @Test
+    void shouldListOnlyAccountsOwnedByTheRequestedOwner() {
+        AccountView first=service.register(new RegisterAccountRequest(21L,"owned-a","A Drive","RCLONE",
+            "secret://drive/owned-a","owned_a",true,true));
+        AccountView second=service.register(new RegisterAccountRequest(22L,"owned-b","B Drive","RCLONE",
+            "secret://drive/owned-b","owned_b",true,true));
+
+        assertThat(service.listAccounts(21L)).extracting(AccountView::id).contains(first.id()).doesNotContain(second.id());
+    }
+
+    @Test
     void shouldCreateQueryAndCancelOwnerBoundIndexOperation() {
         AccountView account=service.register(new RegisterAccountRequest(13L,"refresh-account","Refresh","RCLONE",
             "secret://drive/refresh","refresh_remote",true,true));

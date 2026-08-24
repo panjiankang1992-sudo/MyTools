@@ -4,6 +4,7 @@ import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.OperationView;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.RefreshIndexRequest;
+import com.yuyutian.mytools.gateway.model.DriveGatewayModels.AccountSummary;
 import com.yuyutian.mytools.gateway.service.DriveGatewayClient;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
@@ -37,6 +38,9 @@ class DriveGatewayControllerTest {
 
         assertThat(result).containsExactly(Map.of("name", "book.epub"));
         verify(client).items(accountId, 55L, "books", "correlation");
+        AccountSummary account=new AccountSummary(accountId,"Primary","RCLONE",true,true,3);
+        when(client.accounts(55L,"correlation")).thenReturn(List.of(account));
+        assertThat(controller.accounts(request(55L))).containsExactly(account);
     }
 
     @Test

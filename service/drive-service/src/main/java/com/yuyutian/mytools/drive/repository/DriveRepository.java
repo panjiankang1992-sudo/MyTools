@@ -41,6 +41,12 @@ public class DriveRepository {
         return jdbc.query("SELECT * FROM drive_account WHERE id=?", (rs,row)->account(rs), id.toString()).stream().findFirst();
     }
 
+    /** 查询所有者的账户。 @param ownerId 所有者标识 @return 账户列表 */
+    public List<AccountView> listAccounts(long ownerId) {
+        return jdbc.query("SELECT * FROM drive_account WHERE owner_id=? ORDER BY display_name,id",
+            (rs,row)->account(rs),ownerId);
+    }
+
     /** 绑定 Storage Gateway Provider。 @param accountId 账户 @param providerId Provider 标识 */
     public void bindStorageProvider(UUID accountId, UUID providerId) {
         List<String> existing = jdbc.query("SELECT storage_provider_id FROM drive_storage_provider_binding WHERE account_id=?",

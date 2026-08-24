@@ -31,6 +31,8 @@ public class DriveService {
     }
     /** 登记账户。 @param request 请求 @return 账户 */
     public AccountView register(RegisterAccountRequest request) { return transactions.execute(s -> repository.register(request)); }
+    /** 查询所有者的账户。 @param ownerId 所有者标识 @return 账户列表 */
+    public List<AccountView> listAccounts(long ownerId) { return repository.listAccounts(ownerId); }
     /** 写入索引批次。 @param id 账户 @param request 请求 @return 批次结果 */
     public IndexBatchView ingest(UUID id, IndexBatchRequest request) {
         for (IndexItem item : request.items()) {
