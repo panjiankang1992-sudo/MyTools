@@ -162,6 +162,15 @@ migration:
       media-library-url: ${MEDIA_LIBRARY_URL:http://127.0.0.1:23280}
       media-library-token: ${MEDIA_LIBRARY_INTERNAL_TOKEN:}
       executor-node: ${MEDIA_PROCESSING_EXECUTOR_NODE:}
+    media-directory-scan:
+      enabled: ${MEDIA_DIRECTORY_SCAN_SIDECAR_ENABLED:false}
+      cron: ${MEDIA_DIRECTORY_SCAN_SIDECAR_CRON:0 15 2 * * ?}
+      media-library-url: ${MEDIA_LIBRARY_URL:http://127.0.0.1:23280}
+      media-library-token: ${MEDIA_LIBRARY_INTERNAL_TOKEN:}
+      owner-id: ${MEDIA_DIRECTORY_SCAN_OWNER_ID:1}
+      directory-key: ${MEDIA_DIRECTORY_SCAN_KEY:legacy-media-root}
+      directory-name: ${MEDIA_DIRECTORY_SCAN_NAME:Legacy Media}
+      analyze: ${MEDIA_DIRECTORY_SCAN_ANALYZE:false}
     reader-search:
       enabled: ${READER_SEARCH_SIDECAR_ENABLED:false}
       policy-version: ${READER_SEARCH_POLICY_VERSION:reader-search-v2}

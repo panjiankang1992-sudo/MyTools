@@ -58,6 +58,7 @@ V3 的内部对账接口以媒体 UUID 为稳定游标，每页最多返回 200 
 3. 已接入 Asset Registry ID 领域模型、幂等事件收件箱和目录扫描 generation；`media_migrate_legacy_items` 使用封存 `local_file` 快照和 Asset Registry 旧 ID 映射进行两遍式预检、幂等回填。内容去重时通过 `media_item_source`、`media_item_source_tag` 保留每条旧文件身份及其标签，生产副本执行仍待进行。
 4. 已建立独立 `mytools_media` schema和服务进程 MVP，覆盖分析版本唯一性、标签/派生物合并和乐观锁播放进度；旧接口仍为权威。
 5. 已完成视频分析结果业务聚合和失败终态回写；下一步由 Gateway 或灰度调用方按显式租户创建 V48 分析任务。
+6. 旧 MyTools 已提供默认关闭的每日目录扫描旁路。它复用 `file.scan.path` 和资源盘可用性保护，通过 Media Library 创建持久化扫描操作；旧扫描任务及旧库保持不变，按日期和路径摘要幂等。
 6. Gateway 改为远程调用。
 
 当前已完成第 6 步的首批同步入口：Media Library 提供按 owner 和 UUID 游标的有界分页查询，Gateway 代理媒体列表、单项详情和播放进度写入。耗时的目录扫描与分析没有改回同步调用，仍由 Scheduler 和 Executor 执行。新入口由单独总开关控制，旧 MyTools 路径继续保留，数据迁移只追加到 `mytools_media`，不删除旧媒体记录。

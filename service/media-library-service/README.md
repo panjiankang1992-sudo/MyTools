@@ -32,6 +32,8 @@ Scheduler V48 将 `media_analyze_video` 升级为版本化业务闭环。任务�
 
 `POST /internal/v1/media/operations/directory-scans` 现可直接创建 `media_scan_directory` 任务，并通过操作接口查询或取消。创建请求只接受目录信息和是否继续分析，owner 由 Gateway 注入；物理路径最终仍由 Executor 的 `MEDIA_SCAN_ALLOWED_ROOTS` 校验。`media_operation` 只保存幂等绑定和任务状态，不复制扫描清单。
 
+旧 MyTools 可通过默认关闭的 `MEDIA_DIRECTORY_SCAN_SIDECAR_ENABLED` 每日向上述接口提交现有 `file.scan.path`。旁路先检查资源盘可用性，并使用“日期、规范化路径摘要”生成稳定幂等键；旧 `FileScanJob` 不变，新扫描只写 Media Library、Asset Registry 和任务 schema。启用前需把同一路径加入媒体 Executor 的 `MEDIA_SCAN_ALLOWED_ROOTS`。
+
 `media_analyze_video` 没有默认定时触发，也没有替换旧 MyTools 分析入口。调用方必须使用 Media Library 返回的真实 `mediaItemId` 和 `assetRegistryId` 显式创建任务；相同媒体和分析版本不能绑定不同任务。
 
 Scheduler V49 在扫描摄取任务末尾增加 `media_submit_analysis`。扫描参数 `analyze` 默认 `false`；显式设为 `true` 时，脚本使用刚完成的 `register_asset` 和 `register_media_item` 输出创建 `media_analyze_video` 子任务，并继承同一个 `executor.node` 约束。扫描 generation 只等待摄取及分析任务的可靠创建，不等待模型分析完成，因此大目录发布不会被模型吞吐阻塞；分析进度和终态继续由 Scheduler 与 Media Library 独立查询。
