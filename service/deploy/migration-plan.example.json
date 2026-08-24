@@ -1,0 +1,27 @@
+{
+  "approved": true,
+  "runId": "migration_20260824_01",
+  "backup": {
+    "manifestPath": "/absolute/remote/path/to/backup-manifest.json",
+    "sha256": "replace_with_the_backup_manifest_sha256"
+  },
+  "phases": [
+    {
+      "name": "identity",
+      "tasks": [
+        {
+          "taskName": "identity_migrate_users",
+          "parameters": {
+            "migrationKey": "identity_20260824_01",
+            "dryRun": true,
+            "snapshotHighWater": 0
+          },
+          "resultStep": "migrate_users",
+          "assertions": [
+            {"path": "rejected", "equals": 0}
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -46,7 +46,7 @@
 | MySQL 8.4 全新 Schema 启动 | 17 个独立 Schema 完成迁移，19/19 个服务健康 |
 | Scheduler/Executor 基础联通 | Executor 为 `ONLINE`，已绑定 7 个执行集群 |
 | Gateway 默认关闭 | App Catalog 路由返回 HTTP 503 和 `GATEWAY_002` |
-| 部署工具测试 | 20 个测试通过，包含建库、Python 迁移、systemd 生成和部署验收 |
+| 部署工具测试 | 30 个测试通过，包含建库、Python 迁移、systemd 生成、部署验收、迁移编排和领域重建证据校验 |
 
 统一复验入口：
 
@@ -82,6 +82,8 @@ python3 service/scripts/verify_service_architecture.py \
 7. App Catalog、Feedback 与 DSH 会话关系。
 
 每一步先生成只读快照和备份清单，再导入新 schema，最后执行数量、主键、关联与文件存在性对账。失败时保留目标库现场并重新生成目标 schema，不回写旧库。
+
+远程执行使用 `service/deploy/run_migration_plan.py`。它在创建任何任务前强制核对备份清单 SHA-256，并按 Identity、Storage/Drive、Asset、Media、Reader、Messaging、App/Feedback/DSH 的计划数组顺序串行等待 Scheduler 终态；任务、步骤或领域结果断言任一失败就停止。证据只保留任务标识、结果摘要和通过的断言，不落盘迁移参数及业务路径。
 
 完成标准：不可再生记录全部可在新服务查询；所有差异均有可解释清单；备份文件通过内容门禁。
 

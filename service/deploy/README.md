@@ -104,6 +104,24 @@ python3 /opt/yuyutian/mytools/releases/current/deploy/verify_domain_rebuilds.py 
 
 证据文件只能保存业务 ID 和所有者 ID，不得保存令牌、Provider 凭据或业务数据路径。Storage、Media 的扫描根目录分别由创建操作请求和远程业务配置提供，与 `/opt/yuyutian/mytools` 部署根目录无关。
 
+不可再生数据迁移使用 `migration-plan.example.json` 复制出远程操作计划。计划必须引用已经存在的备份清单绝对路径及其 SHA-256，任务严格按数组顺序串行执行。先去掉模板值、填写每个任务的冻结高水位和结果断言，再进行只读校验：
+
+```bash
+python3 /opt/yuyutian/mytools/releases/current/deploy/run_migration_plan.py \
+  --plan /opt/yuyutian/mytools/migration/migration-plan.json
+```
+
+校验通过后才增加 `--execute`。执行模式要求显式指定证据文件；任一任务、步骤或结果断言失败即停止后续阶段。输出证据只保存任务 ID、结果摘要和已验证断言，不复制迁移参数、源路径或凭据：
+
+```bash
+python3 /opt/yuyutian/mytools/releases/current/deploy/run_migration_plan.py \
+  --plan /opt/yuyutian/mytools/migration/migration-plan.json \
+  --execute \
+  --evidence /opt/yuyutian/mytools/migration/migration-evidence.json
+```
+
+同一个 `runId` 会生成稳定的 Scheduler 幂等键；重跑时复用原任务实例，不产生重复业务记录。正式导入应先用单独的 `runId` 执行 `dryRun=true` 计划，确认拒绝数为零，再执行 `dryRun=false` 计划。上述路径均为远程主机路径。
+
 `copytruncate` 允许 Java 和 Python 进程保持打开的 stdout 文件描述符而无需逐个重启。日志目录和文件分别使用 `0750`、`0640`，仅 `mytools` 账号和同组进程可读。
 
 ## 启动顺序
