@@ -1,0 +1,14 @@
+name: feedback_migrate_legacy
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - legacy_mytools_read
+  - messaging_write
+parameters:
+  required:
+    - migrationKey
+    - dryRun
+limits:
+  timeoutSeconds: 900
+  maxOutputBytes: 65536

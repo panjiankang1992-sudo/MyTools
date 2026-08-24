@@ -44,6 +44,7 @@
 3. 已迁移 OneBot 消息解析和附件标准模型，开关默认关闭；附件父任务只携带不透明作业标识，先在 Messaging 信任边界内调用独立 OneBot Connector 解析 provider file id，再转入 Download Ingestion。Connector 可返回无签名参数的 `PUBLIC_URL` 或不暴露来源的 `STREAM` 模式；后者由 `download_message_attachment` 通过 Messaging 和 Connector 两级有界内容流执行并复用统一资产登记链路。
    创建请求同时携带权威 owner 字段和兼容嵌套字段，状态对账使用 owner-bound 内部接口，附件作业不能读取其他租户的下载状态。提交脚本 1.1.0 会创建独立终态对账子任务，避免只在用户查询时才发现失败或取消。
 4. 已建立历史入站消息批次迁移表、dry-run/幂等导入接口、目标集合摘要接口和 `message_migrate_history` 1.1.0 脚本任务；历史记录不产生实时自动化事件。独立快照适配器已提供默认关闭的装载，以及冻结高水位、数量和集合摘要的稳定分页导出；离线门禁校验 dry-run、正式导入、同键重放和源目标摘要。下一步在取得旧 MsgService 真实 schema 后实现只读映射，并执行生产副本演练。
+5. MyTools 问题反馈作为用户发给系统的支持消息归入 Messaging，但使用独立 `support_feedback` 表保留其处理状态和联系人字段。V7、`feedback_migrate_legacy` 和离线门禁已支持只读快照式迁移、幂等重放及数量对账。
 5. 已增加 owner-bound 消息分页与详情查询；Gateway 仅返回正文和安全附件元数据，不暴露 provider file id、账户键、来源 URL、外部消息 ID或会话键。
 6. 已将邮件投递创建、状态查询和尽力取消接入 Gateway；相同 owner 与幂等键必须匹配相同邮件内容。
 7. 使用实际 NapCat 环境联调 OneBot Connector；继续扩展 Telegram adapter，渠道凭据只能由隔离 connector 使用。
