@@ -1,0 +1,2 @@
+UPDATE task_definition SET result_schema='{"type":"object","required":["migrationKey","dryRun","sourceHighWater","apps","versions","files","accepted","skipped","rejected","digestSha256","targetVerified"]}',version=version+1,updated_at=CURRENT_TIMESTAMP WHERE name='app_catalog_migrate_legacy';
+UPDATE task_step_definition SET script_version='1.1.0',updated_at=CURRENT_TIMESTAMP WHERE task_definition_id='00000000-0000-4000-8000-000000000532' AND name='migrate_app_catalog';

@@ -8,6 +8,7 @@ import jakarta.validation.Valid;import jakarta.validation.constraints.*;import j
  public record ImportResult(boolean dryRun,int accepted,int skipped,int rejected,String digestSha256){}
  public record CatalogView(UUID id,String legacyId,long ownerId,String name,String appType,String currentVersion,String status,int versionCount,int fileCount){}
  public record Reconciliation(int appCount,int versionCount,int fileCount,int unresolvedFileCount,String digestSha256){}
+ public record MigrationEvidence(String migrationKey,int appCount,int versionCount,int fileCount,String collectionSha256){}
  public record UnresolvedFile(UUID id,String legacyId,long ownerId,String fileName,String fileType,String legacyStoragePath,long fileSize){}
  public record UnresolvedFilePage(List<UnresolvedFile>items,UUID nextAfterId){}
  public record BindFileAsset(@NotBlank @Size(max=19)String legacyId,@NotNull UUID assetId,@NotBlank @Pattern(regexp="^[a-f0-9]{64}$")String contentSha256,@NotBlank @Pattern(regexp="^storage://.{1,4086}$")String storageUri,@PositiveOrZero long fileSize){}

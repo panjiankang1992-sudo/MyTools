@@ -13,12 +13,14 @@ def evaluate(dry:dict,apply:dict,replay:dict,target:dict)->dict:
     """Compare dry-run, apply and target evidence."""
     errors=[];fields=("apps","versions","files")
     if dry.get("dryRun")is not True or apply.get("dryRun")is not False or replay.get("dryRun")is not False:errors.append("MODE_INVALID")
+    if len({dry.get("migrationKey"),apply.get("migrationKey"),replay.get("migrationKey"),target.get("migrationKey")})!=1:errors.append("MIGRATION_KEY_MISMATCH")
     if any(dry.get(name)!=apply.get(name)or apply.get(name)!=replay.get(name)or not isinstance(dry.get(name),int)for name in fields):errors.append("SOURCE_COUNT_MISMATCH")
     if len({dry.get("sourceHighWater"),apply.get("sourceHighWater"),replay.get("sourceHighWater")})!=1 or len({dry.get("digestSha256"),apply.get("digestSha256"),replay.get("digestSha256")})!=1 or DIGEST.fullmatch(str(dry.get("digestSha256")or""))is None:errors.append("SOURCE_CHANGED")
     if dry.get("rejected")!=0 or apply.get("rejected")!=0 or apply.get("accepted",0)+apply.get("skipped",0)!=apply.get("apps"):errors.append("IMPORT_INCOMPLETE")
     if replay.get("accepted")!=0 or replay.get("skipped")!=replay.get("apps")or replay.get("rejected")!=0:errors.append("REPLAY_NOT_IDEMPOTENT")
     if any(target.get(target_name)!=apply.get(source_name)for source_name,target_name in(("apps","appCount"),("versions","versionCount"),("files","fileCount"))):errors.append("TARGET_COUNT_MISMATCH")
-    if DIGEST.fullmatch(str(target.get("digestSha256")or""))is None:errors.append("TARGET_REPORT_INVALID")
+    if target.get("collectionSha256")!=apply.get("digestSha256")or DIGEST.fullmatch(str(target.get("collectionSha256")or""))is None:errors.append("TARGET_DIGEST_MISMATCH")
+    if dry.get("targetVerified")is not False or apply.get("targetVerified")is not True or replay.get("targetVerified")is not True:errors.append("TARGET_NOT_VERIFIED")
     return {"ready":not errors,"apps":apply.get("apps",-1),"versions":apply.get("versions",-1),"files":apply.get("files",-1),"errors":sorted(set(errors))}
 def main()->None:
     """Run the offline gate."""
