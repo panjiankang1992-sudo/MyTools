@@ -1,0 +1,11 @@
+name: system_executor_acceptance
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities: []
+parameters:
+  required:
+    - scenario
+limits:
+  timeoutSeconds: 30
+  maxOutputBytes: 65536

@@ -232,7 +232,10 @@ public class TaskExecutionWorker {
         return Thread.startVirtualThread(() -> {
             while (!stopped.get()) {
                 try {
-                    Thread.sleep(Duration.ofSeconds(Math.max(2, properties.leaseSeconds() / 3)));
+                    // 执行心跳同时承载取消信号，不能只按租约续期下限等待。
+                    long monitorSeconds = Math.max(1,
+                            Math.min(properties.heartbeatSeconds(), Math.max(1, properties.leaseSeconds() / 3)));
+                    Thread.sleep(Duration.ofSeconds(monitorSeconds));
                     if (!stopped.get() && schedulerClient.heartbeatExecution(task).cancelRequested()) {
                         cancellationRequested.set(true);
                     }

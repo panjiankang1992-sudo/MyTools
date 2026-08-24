@@ -83,6 +83,15 @@ python3 /opt/yuyutian/mytools/releases/current/deploy/verify_deployment.py \
   --host 127.0.0.1
 ```
 
+基础健康检查通过后，运行无业务副作用的 Scheduler/Executor 验收。该命令创建成功、失败、超时和取消四个任务实例，校验对应终态、终端步骤结果以及幂等键重放，不读取或修改业务 schema。执行前需确认 `system_executor_acceptance/1.0.0` 已发布到远程 `TASK_EXECUTOR_SCRIPT_ROOT`；一次完整执行约需 30 秒。
+
+```bash
+python3 /opt/yuyutian/mytools/releases/current/deploy/verify_task_execution.py \
+  --scheduler-url http://127.0.0.1:23210
+```
+
+命令输出包含四个任务实例 ID，可作为部署验收证据保留。该验收只证明控制面和执行面的终态链路；Storage、Drive、Media 和 Reader 的可再生数据仍需执行各自的重建任务并保存领域对账结果。
+
 `copytruncate` 允许 Java 和 Python 进程保持打开的 stdout 文件描述符而无需逐个重启。日志目录和文件分别使用 `0750`、`0640`，仅 `mytools` 账号和同组进程可读。
 
 ## 启动顺序
