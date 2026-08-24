@@ -125,6 +125,33 @@ class DriveGatewayClientTest {
         server.verify();
     }
 
+    @Test
+    void shouldCreateOwnerBoundTreeMoveWithoutExposingTaskId() {
+        RestTemplate restTemplate = new RestTemplate();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
+        UUID sourceAccountId = UUID.randomUUID();
+        UUID targetAccountId = UUID.randomUUID();
+        UUID operationId = UUID.randomUUID();
+        server.expect(requestTo("http://drive/internal/v1/drive/accounts/" + sourceAccountId
+                        + "/move-tree?ownerId=55"))
+                .andExpect(method(POST)).andExpect(header("Authorization", "Bearer drive-token"))
+                .andExpect(content().json("{\"idempotencyKey\":\"move-1\",\"targetAccountId\":\""
+                        + targetAccountId + "\",\"sourcePath\":\"incoming\",\"targetPath\":\"library\","
+                        + "\"maximumObjects\":10000}"))
+                .andRespond(withSuccess("{\"id\":\"" + operationId + "\",\"accountId\":\""
+                        + sourceAccountId + "\",\"taskInstanceId\":\"" + UUID.randomUUID()
+                        + "\",\"operationType\":\"MOVE_TREE\",\"status\":\"RUNNING\"}",
+                        org.springframework.http.MediaType.APPLICATION_JSON));
+
+        var result = new DriveGatewayClient(restTemplate, properties()).moveTree(sourceAccountId, 55L,
+                new com.yuyutian.mytools.gateway.model.DriveGatewayModels.MoveTreeRequest(
+                        "move-1", targetAccountId, "incoming", "library", 10000), "correlation");
+
+        assertThat(result.id()).isEqualTo(operationId);
+        assertThat(result.toString()).doesNotContain("taskInstanceId");
+        server.verify();
+    }
+
     private GatewayProperties properties() {
         return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, false, false, Set.of(),
                 true, Set.of(55L), false, Set.of(), "http://mytools", "http://identity", "http://reader", "http://drive",

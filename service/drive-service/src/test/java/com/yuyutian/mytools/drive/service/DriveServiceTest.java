@@ -181,6 +181,35 @@ class DriveServiceTest {
         verifyNoInteractions(storageConnector);
     }
 
+    @Test
+    void shouldDelegateOwnerBoundTreeMoveToStorageGateway() {
+        AccountView source = service.register(new RegisterAccountRequest(51L, "move-source", "Source", "RCLONE",
+                "secret://drive/move-source", "move_source", false, true));
+        AccountView target = service.register(new RegisterAccountRequest(51L, "move-target", "Target", "S3",
+                "secret://drive/move-target", "move_target", false, true));
+        UUID sourceProvider = UUID.randomUUID();
+        UUID targetProvider = UUID.randomUUID();
+        service.bindStorageProvider(source.id(), sourceProvider);
+        service.bindStorageProvider(target.id(), targetProvider);
+        UUID operationId = UUID.randomUUID();
+        UUID taskId = UUID.randomUUID();
+        StorageOperationView running = new StorageOperationView(operationId, taskId, "MOVE_TREE", "RUNNING", null);
+        StorageOperationView cancelled = new StorageOperationView(operationId, taskId, "MOVE_TREE", "CANCELLED", null);
+        when(storageConnector.moveTree(startsWith("drive-copy-move:"), eq(sourceProvider), eq("incoming"),
+                eq(targetProvider), eq("library"), eq(10000))).thenReturn(running);
+        when(storageConnector.operation(operationId)).thenReturn(running, cancelled);
+        when(storageConnector.cancel(operationId)).thenReturn(running);
+
+        OperationView created = service.moveTree(source.id(), 51L,
+                new MoveTreeRequest("move-1", target.id(), "/incoming", "/library", 10000));
+        OperationView cancelledView = service.cancelOperation(created.id(), 51L);
+
+        assertThat(created.operationType()).isEqualTo("MOVE_TREE");
+        assertThat(cancelledView.status()).isEqualTo("CANCELLED");
+        verify(storageConnector).cancel(operationId);
+        verify(schedulerClient, never()).cancel(taskId);
+    }
+
     private IndexItem item(String path,String parent,long size) {
         return new IndexItem(path,path,parent,path,"text/plain",size,false,Instant.parse("2026-01-01T00:00:00Z"),null);
     }

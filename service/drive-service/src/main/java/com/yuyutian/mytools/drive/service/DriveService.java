@@ -132,6 +132,24 @@ public class DriveService {
                 context.targetProvider(), targetPath, request.maximumObjects());
         return saveStorageOperation(storage, context.source().id(), scopedKey);
     }
+    /**
+     * 创建跨 Drive 账户的受控递归移动任务。
+     *
+     * @param sourceAccountId 来源账户
+     * @param ownerId 所有者
+     * @param request 移动请求
+     * @return Drive 操作
+     */
+    public OperationView moveTree(UUID sourceAccountId, long ownerId, MoveTreeRequest request) {
+        CopyContext context = requireCopyContext(sourceAccountId, ownerId, request.targetAccountId());
+        String sourcePath = normalizeRequired(request.sourcePath());
+        String targetPath = normalizeRequired(request.targetPath());
+        String scopedKey = scopedCopyKey("move", context.source().id(), context.target().id(),
+                request.idempotencyKey());
+        StorageOperationView storage = storageConnector.moveTree(scopedKey, context.sourceProvider(), sourcePath,
+                context.targetProvider(), targetPath, request.maximumObjects());
+        return saveStorageOperation(storage, context.source().id(), scopedKey);
+    }
     /** 查询账户操作。 @param operationId 操作标识 @param ownerId 所有者 @return 操作 */
     public OperationView getOperation(UUID operationId,long ownerId) {
         OperationView operation=repository.findOperation(operationId)
@@ -195,7 +213,7 @@ public class DriveService {
         return transactions.execute(status -> repository.saveStorageOperation(storage, sourceAccountId, scopedKey));
     }
     private boolean isStorageManaged(OperationView operation) {
-        return java.util.Set.of("COPY_OBJECT", "COPY_TREE_NATIVE").contains(operation.operationType());
+        return java.util.Set.of("COPY_OBJECT", "COPY_TREE_NATIVE", "MOVE_TREE").contains(operation.operationType());
     }
     private AccountView require(UUID id) { return repository.findAccount(id).orElseThrow(() -> new IllegalArgumentException("drive account not found")); }
     private String normalize(String path) {

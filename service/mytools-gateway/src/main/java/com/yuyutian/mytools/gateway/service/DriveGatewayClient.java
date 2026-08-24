@@ -6,6 +6,7 @@ import com.yuyutian.mytools.gateway.model.DriveGatewayModels.RefreshIndexRequest
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.AccountSummary;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.CopyObjectRequest;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.CopyTreeRequest;
+import com.yuyutian.mytools.gateway.model.DriveGatewayModels.MoveTreeRequest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -95,6 +96,14 @@ public class DriveGatewayClient {
     public OperationView copyTree(UUID accountId, long ownerId, CopyTreeRequest request, String correlationId) {
         URI url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/drive/accounts/" + accountId
                         + "/copy-tree").queryParam("ownerId", ownerId).build().encode().toUri();
+        return restTemplate.exchange(url, HttpMethod.POST, entity(request, correlationId), OperationView.class)
+                .getBody();
+    }
+
+    /** 创建受控递归移动操作。 @param accountId 来源账户 @param ownerId 所有者 @param request 请求 @param correlationId 关联标识 @return 操作 */
+    public OperationView moveTree(UUID accountId, long ownerId, MoveTreeRequest request, String correlationId) {
+        URI url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/drive/accounts/" + accountId
+                        + "/move-tree").queryParam("ownerId", ownerId).build().encode().toUri();
         return restTemplate.exchange(url, HttpMethod.POST, entity(request, correlationId), OperationView.class)
                 .getBody();
     }

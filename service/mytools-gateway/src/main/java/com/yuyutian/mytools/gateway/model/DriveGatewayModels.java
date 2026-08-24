@@ -25,6 +25,11 @@ public final class DriveGatewayModels {
                                   @Size(max = 2048) String sourcePath,
                                   @Size(max = 2048) String targetPath,
                                   @Min(1) @Max(1000000) int maximumObjects) { }
+    public record MoveTreeRequest(@NotBlank @Size(max = 255) String idempotencyKey,
+                                  @NotNull UUID targetAccountId,
+                                  @NotBlank @Size(max = 2048) String sourcePath,
+                                  @NotBlank @Size(max = 2048) String targetPath,
+                                  @Min(1) @Max(1000000) int maximumObjects) { }
     public record AccountSummary(UUID id, String displayName, String providerType, boolean readOnly,
                                  boolean enabled, long indexGeneration) { }
     public record OperationView(UUID id, UUID accountId, String operationType,

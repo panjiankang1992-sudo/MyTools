@@ -26,8 +26,9 @@ class StorageGatewayConnectorTest {
         server.createContext("/api/internal/v1/storage/operations", exchange -> {
             authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
             requestBody.set(exchange.getRequestBody().readAllBytes());
+            String operationType = objectMapper.readTree(requestBody.get()).path("operationType").asText();
             byte[] response = ("{\"id\":\"" + UUID.randomUUID() + "\",\"taskInstanceId\":\""
-                    + UUID.randomUUID() + "\",\"operationType\":\"COPY_TREE_NATIVE\","
+                    + UUID.randomUUID() + "\",\"operationType\":\"" + operationType + "\","
                     + "\"status\":\"RUNNING\",\"errorCode\":null}").getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(200, response.length);
@@ -62,5 +63,26 @@ class StorageGatewayConnectorTest {
         assertThat(payload.path("targetPath").asText()).isEqualTo("backup");
         assertThat(payload.path("maximumObjects").asInt()).isEqualTo(5000);
         assertThat(result.operationType()).isEqualTo("COPY_TREE_NATIVE");
+    }
+
+    @Test
+    void shouldCreateCompensatingTreeMoveOperation() throws Exception {
+        UUID sourceProvider = UUID.randomUUID();
+        UUID targetProvider = UUID.randomUUID();
+        StorageGatewayConnector connector = new StorageGatewayConnector(objectMapper,
+                "http://127.0.0.1:" + server.getAddress().getPort(), "storage-token");
+        connector.validateConfiguration();
+
+        var result = connector.moveTree("drive-copy-move:key", sourceProvider, "incoming", targetProvider,
+                "library", 10000);
+
+        JsonNode payload = objectMapper.readTree(requestBody.get());
+        assertThat(payload.path("operationType").asText()).isEqualTo("MOVE_TREE");
+        assertThat(payload.path("providerId").asText()).isEqualTo(sourceProvider.toString());
+        assertThat(payload.path("targetProviderId").asText()).isEqualTo(targetProvider.toString());
+        assertThat(payload.path("sourcePath").asText()).isEqualTo("incoming");
+        assertThat(payload.path("targetPath").asText()).isEqualTo("library");
+        assertThat(payload.path("maximumObjects").asInt()).isEqualTo(10000);
+        assertThat(result.operationType()).isEqualTo("MOVE_TREE");
     }
 }

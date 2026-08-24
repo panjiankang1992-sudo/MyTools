@@ -35,6 +35,9 @@ public final class DriveModels {
     public record CopyTreeRequest(@NotBlank @Size(max=255) String idempotencyKey,
         @NotNull UUID targetAccountId, @Size(max=2048) String sourcePath,
         @Size(max=2048) String targetPath, @Min(1) @Max(1000000) int maximumObjects) { }
+    public record MoveTreeRequest(@NotBlank @Size(max=255) String idempotencyKey,
+        @NotNull UUID targetAccountId, @NotBlank @Size(max=2048) String sourcePath,
+        @NotBlank @Size(max=2048) String targetPath, @Min(1) @Max(1000000) int maximumObjects) { }
     public record StorageOperationView(UUID id, UUID taskInstanceId, String operationType,
         String status, String errorCode) { }
     public record OperationView(UUID id, UUID accountId, UUID taskInstanceId, String operationType,

@@ -1,6 +1,6 @@
 # Drive Service 详细设计
 
-首批写操作开放同 owner 账户间的单对象复制和递归目录树复制。Drive 校验账户归属、启用状态、目标可写和 Storage Provider 绑定，然后以账户作用域幂等键分别创建 Storage `COPY_OBJECT` 或 `COPY_TREE_NATIVE`；Storage 负责冻结来源清单、拆分子任务、路径栅栏、条件写入、摘要复验和取消补偿。Drive 不保存 Provider 凭据，也不直接调用 rclone/WebDAV/S3 写接口。
+首批写操作开放同 owner 账户间的单对象复制、递归目录树复制和递归移动。Drive 校验账户归属、启用状态、目标可写和 Storage Provider 绑定，然后以账户作用域幂等键分别创建 Storage `COPY_OBJECT`、`COPY_TREE_NATIVE` 或 `MOVE_TREE`；Storage 负责冻结来源清单、拆分子任务、路径栅栏、条件写入、摘要复验、持久化移动状态和取消补偿。Drive 不保存 Provider 凭据，也不直接调用 rclone/WebDAV/S3 写接口。
 
 ## 职责
 
@@ -30,7 +30,7 @@
 1. 已创建独立 `mytools_drive` schema 和 Drive Service MVP，覆盖 Secret 引用账户、权限、索引、可恢复游标、操作、任务绑定、短期票据及 Outbox；现有 `drive` 模块和 rclone 接口仍为主路径。
 2. 将旧 WebDAV、Alist 账号迁移为统一账户。
 3. 已提供按 run/batch ledger 幂等的索引批次 API和 `drive_index_account` 任务；任务通过仅限回环地址和 `operations/list` 的 connector 递归扫描，批次完成前不会删除旧索引，且脚本无法读取远端凭据或提交任意命令。
-4. Gateway 已接入默认关闭的账户列表、目录查询、索引刷新、单对象复制、递归目录树复制及统一操作查询和取消路由；账户列表和操作响应经过字段裁剪，不暴露 remote key、Secret 引用及底层任务标识。Gateway 从可信主体注入 owner，Drive 内部接口继续执行账户所有权约束。移动和删除仍保留在旧入口。
+4. Gateway 已接入默认关闭的账户列表、目录查询、索引刷新、单对象复制、递归目录树复制、递归移动及统一操作查询和取消路由；账户列表和操作响应经过字段裁剪，不暴露 remote key、Secret 引用及底层任务标识。Gateway 从可信主体注入 owner，Drive 内部接口继续执行账户所有权约束。独立删除仍保留在旧入口。
 5. 已提供手工触发的旧账户迁移任务；MyTools 只导出非敏感元数据与 Secret 引用，旧 rclone 账户保持原启用状态，WebDAV/Alist 默认禁用并等待 provider 配置，不自动改变旧查询流量。
 6. 新旧接口并行验证后切换 App。
 7. 拆独立服务并删除兼容模块。
