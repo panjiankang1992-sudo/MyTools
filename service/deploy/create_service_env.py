@@ -88,6 +88,8 @@ def values(manifest: dict[str, Any], download_root: str, storage_root: str,
         "TASK_SCHEDULER_HTTP_PORT": "23410",
         "TASK_SCHEDULER_URL": "http://127.0.0.1:23410",
         "MSGSERVICE_MIGRATION_URL": "http://127.0.0.1:23321",
+        "SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE": "3",
+        "SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE": "0",
         "DOWNLOAD_DESTINATION_ROOT": validate_business_path(download_root, "download root"),
         "STORAGE_DEFAULT_ROOT_PATH": validate_business_path(storage_root, "storage root"),
         "MEDIA_SCAN_ALLOWED_ROOTS": json.dumps(
