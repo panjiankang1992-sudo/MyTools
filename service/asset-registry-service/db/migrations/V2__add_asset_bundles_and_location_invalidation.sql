@@ -31,12 +31,13 @@ CREATE TABLE asset_bundle_item (
     asset_id CHAR(36) NOT NULL,
     asset_version BIGINT NOT NULL,
     logical_path VARCHAR(1024) NOT NULL,
+    logical_path_sha256 CHAR(64) NOT NULL,
     item_role VARCHAR(64) NOT NULL,
     sequence_number INT NOT NULL,
     created_at TIMESTAMP(6) NOT NULL,
     CONSTRAINT fk_asset_bundle_item_bundle FOREIGN KEY (bundle_id) REFERENCES asset_bundle(id),
     CONSTRAINT fk_asset_bundle_item_asset FOREIGN KEY (asset_id) REFERENCES asset(id),
-    UNIQUE KEY uk_asset_bundle_path (bundle_id, logical_path),
+    UNIQUE KEY uk_asset_bundle_path (bundle_id, logical_path_sha256),
     UNIQUE KEY uk_asset_bundle_sequence (bundle_id, sequence_number)
 );
 

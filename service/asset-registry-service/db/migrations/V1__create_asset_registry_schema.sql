@@ -28,12 +28,13 @@ CREATE TABLE asset_location (
     idempotency_key VARCHAR(255) NOT NULL UNIQUE,
     provider_type VARCHAR(64) NOT NULL,
     storage_uri VARCHAR(4096) NOT NULL,
+    storage_uri_sha256 CHAR(64) NOT NULL,
     provider_version VARCHAR(255),
     availability VARCHAR(32) NOT NULL,
     created_at TIMESTAMP(6) NOT NULL,
     updated_at TIMESTAMP(6) NOT NULL,
     CONSTRAINT fk_asset_location_asset FOREIGN KEY (asset_id) REFERENCES asset(id),
-    UNIQUE KEY uk_asset_location_uri (asset_id, provider_type, storage_uri)
+    UNIQUE KEY uk_asset_location_uri (asset_id, provider_type, storage_uri_sha256)
 );
 
 CREATE TABLE asset_artifact (

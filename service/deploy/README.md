@@ -2,7 +2,7 @@
 
 本目录仅管理新服务，不修改 MyTools、DownloadBot、MsgService 的旧数据库和启动方式。所有新 HTTP 服务默认绑定 `127.0.0.1`，Gateway 路由、迁移适配器、邮件拉取、OneBot、PikPak、DSH RPC 和自动化 relay 默认关闭。
 
-所有新服务统一部署在 `/opt/yuyutian/mytools`，不得分散到其他 `/opt` 目录。目录约定如下：
+以下绝对路径均指远程部署主机，不是开发机本地路径。所有新服务在远程主机统一部署到 `/opt/yuyutian/mytools`，不得分散到其他 `/opt` 目录。目录约定如下：
 
 ```text
 /opt/yuyutian/mytools/
@@ -75,6 +75,13 @@ Java 发布包统一命名为 `releases/current/apps/<service>.jar`，Python 服
 ## 日志保留
 
 所有微服务的标准输出和错误输出合并写入 `/opt/yuyutian/logs/mytools/<service-name>/service.log`，服务之间不共享目录或文件。轮转规则同时满足两个上限：按天轮转并只保留当前文件加 9 份历史，`maxage 10` 删除超过 10 天的日志；单文件达到 10 MiB 时提前轮转，因此单个微服务未压缩日志总量上限约为 100 MiB。历史日志启用压缩，每分钟 timer 会检查一次大小，缩短在日轮转间隔内超过容量上限的窗口。高日志量时优先满足容量限制，可能保留不足 10 天；低日志量时最多保留最近 10 天。
+
+部署后先保持全部 Gateway 新路由关闭，并运行以下验收。默认检查清单中的 19 个服务、Scheduler 中至少一个在线 Executor，以及 App Catalog 新路由返回 `GATEWAY_002`。若远程主机没有启动默认关闭的适配器，可增加 `--skip-default-disabled`；正式启用任一新 Gateway 路由后，应增加 `--skip-gateway-default-off`，并改为执行对应业务路由的专项验收。
+
+```bash
+python3 /opt/yuyutian/mytools/releases/current/deploy/verify_deployment.py \
+  --host 127.0.0.1
+```
 
 `copytruncate` 允许 Java 和 Python 进程保持打开的 stdout 文件描述符而无需逐个重启。日志目录和文件分别使用 `0750`、`0640`，仅 `mytools` 账号和同组进程可读。
 

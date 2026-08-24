@@ -22,7 +22,7 @@ CREATE TABLE drive_item_index (
     CONSTRAINT uk_drive_item_path UNIQUE (account_id, path_sha256),
     CONSTRAINT fk_drive_item_account FOREIGN KEY (account_id) REFERENCES drive_account(id)
 );
-CREATE INDEX idx_drive_item_parent ON drive_item_index(account_id, parent_path, deleted);
+CREATE INDEX idx_drive_item_parent ON drive_item_index(account_id, deleted);
 CREATE TABLE drive_index_cursor (
     account_id CHAR(36) PRIMARY KEY, run_id CHAR(36) NOT NULL, generation BIGINT NOT NULL,
     last_batch_key VARCHAR(255), next_cursor VARCHAR(2048), status VARCHAR(32) NOT NULL,

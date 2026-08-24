@@ -367,10 +367,11 @@ public class StorageRepository {
             }
             jdbcTemplate.update("""
                     INSERT INTO storage_operation_item
-                        (operation_id, object_path, object_name, directory, size_bytes,
+                        (operation_id, object_path, object_path_sha256, object_name, directory, size_bytes,
                          modified_at, content_sha256, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """, operationId.toString(), item.path(), item.name(), item.directory(), item.sizeBytes(),
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, operationId.toString(), item.path(), pathSha256(item.path()), item.name(),
+                    item.directory(), item.sizeBytes(),
                     item.modifiedAt() == null ? null : Timestamp.from(normalizeInstant(item.modifiedAt())),
                     item.contentSha256(),
                     Timestamp.from(now), Timestamp.from(now));
@@ -424,9 +425,10 @@ public class StorageRepository {
         }
         jdbcTemplate.update("""
                 INSERT INTO storage_operation_child
-                    (parent_operation_id, child_operation_id, source_object_path, target_object_path, created_at)
-                VALUES (?, ?, ?, ?, ?)
-                """, parentId.toString(), childId.toString(), sourcePath, targetPath,
+                    (parent_operation_id, child_operation_id, source_object_path, source_object_path_sha256,
+                     target_object_path, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """, parentId.toString(), childId.toString(), sourcePath, pathSha256(sourcePath), targetPath,
                 Timestamp.from(Instant.now()));
     }
 
@@ -626,6 +628,11 @@ public class StorageRepository {
         } catch (java.security.NoSuchAlgorithmException exception) {
             throw new IllegalStateException("SHA-256 is unavailable", exception);
         }
+    }
+
+    private String pathSha256(String path) {
+        return java.util.HexFormat.of().formatHex(sha256Digest()
+                .digest(path.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
     }
 
     private void updateDigest(MessageDigest digest, String... values) {

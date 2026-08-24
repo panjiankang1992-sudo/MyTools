@@ -21,7 +21,7 @@
     {"name": "legacy-asset-adapter-service", "port": 23330, "schema": "mytools_legacy_asset_adapter", "dbPrefix": "LEGACY_ASSET_ADAPTER", "runtime": "python", "executable": "mytools-legacy-asset-adapter", "after": ["asset-registry-service"], "defaultEnabled": false}
   ],
   "statelessServices": [
-    {"name": "task-executor-service", "runtime": "java", "after": ["task-scheduler-service"]},
+    {"name": "task-executor-service", "port": 23101, "runtime": "java", "after": ["task-scheduler-service"]},
     {"name": "mytools-gateway", "port": 23200, "runtime": "java", "after": ["identity-service", "reader-service", "drive-service", "download-ingestion-service", "media-library-service", "messaging-service", "app-catalog-service"]}
   ]
 }

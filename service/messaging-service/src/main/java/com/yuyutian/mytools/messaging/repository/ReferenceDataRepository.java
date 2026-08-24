@@ -8,7 +8,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -60,11 +64,11 @@ public class ReferenceDataRepository {
         jdbcTemplate.update("""
                 INSERT INTO known_recipient
                     (id,owner_id,source_system,legacy_recipient_id,channel_type,recipient_address,
-                     display_name,legacy_created_at,created_at)
-                VALUES (?,?,?,?,?,?,?,?,?)
+                     recipient_address_sha256,display_name,legacy_created_at,created_at)
+                VALUES (?,?,?,?,?,?,?,?,?,?)
                 """, targetId.toString(), item.ownerId(), item.sourceSystem(), item.legacyRecipientId(),
-                item.channelType().name(), item.address(), item.name(), Timestamp.from(item.createdAt()),
-                Timestamp.from(now));
+                item.channelType().name(), item.address(), sha256(item.address()), item.name(),
+                Timestamp.from(item.createdAt()), Timestamp.from(now));
         insertMigration(migrationKey, "RECIPIENT", item.sourceSystem(), item.legacyRecipientId(),
                 digest, targetId, now);
     }
@@ -75,6 +79,15 @@ public class ReferenceDataRepository {
                 SELECT * FROM message_reference_data_migration WHERE migration_key=?
                 ORDER BY entity_type,source_system,legacy_entity_id
                 """, (resultSet, rowNumber) -> mapMigration(resultSet), migrationKey);
+    }
+
+    private String sha256(String value) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 is unavailable", exception);
+        }
     }
 
     private void insertMigration(String migrationKey, String entityType, String sourceSystem,

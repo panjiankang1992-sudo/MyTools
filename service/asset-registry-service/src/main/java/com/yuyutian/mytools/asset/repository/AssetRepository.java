@@ -18,8 +18,12 @@ import com.yuyutian.mytools.asset.service.IdempotencyConflictException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -108,12 +112,12 @@ public class AssetRepository {
         Instant now = Instant.now();
         jdbcTemplate.update("""
                 INSERT INTO asset_location
-                    (id, asset_id, idempotency_key, provider_type, storage_uri, provider_version,
+                    (id, asset_id, idempotency_key, provider_type, storage_uri, storage_uri_sha256, provider_version,
                      availability, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, 'AVAILABLE', ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'AVAILABLE', ?, ?)
                 """, UUID.randomUUID().toString(), assetId.toString(), request.idempotencyKey(),
-                request.providerType(), request.storageUri(), request.providerVersion(), Timestamp.from(now),
-                Timestamp.from(now));
+                request.providerType(), request.storageUri(), sha256(request.storageUri()), request.providerVersion(),
+                Timestamp.from(now), Timestamp.from(now));
         appendOutbox(assetId, "AssetLocationRegistered", Map.of("assetId", assetId.toString(),
                 "providerType", request.providerType(), "storageUri", request.storageUri()));
         return required(assetId);
@@ -279,11 +283,12 @@ public class AssetRepository {
         for (PublishBundleRequest.Item item : items) {
             jdbcTemplate.update("""
                     INSERT INTO asset_bundle_item
-                        (id, bundle_id, asset_id, asset_version, logical_path, item_role,
+                        (id, bundle_id, asset_id, asset_version, logical_path, logical_path_sha256, item_role,
                          sequence_number, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """, UUID.randomUUID().toString(), bundleId.toString(), item.assetId().toString(),
-                    item.expectedAssetVersion(), item.logicalPath(), item.role(), sequence++, Timestamp.from(now));
+                    item.expectedAssetVersion(), item.logicalPath(), sha256(item.logicalPath()), item.role(),
+                    sequence++, Timestamp.from(now));
         }
         appendOutbox(bundleId, "AssetBundlePublished", Map.of("bundleId", bundleId.toString(),
                 "ownerId", request.ownerId(), "manifestSha256", manifestSha256, "itemCount", items.size()));
@@ -531,6 +536,16 @@ public class AssetRepository {
                 SELECT asset_id, provider_type, storage_uri FROM asset_location WHERE idempotency_key = ?
                 """, (rs, row) -> new LocationBinding(UUID.fromString(rs.getString("asset_id")),
                 rs.getString("provider_type"), rs.getString("storage_uri")), key).stream().findFirst();
+    }
+
+    private String sha256(String value) {
+        try {
+            // 使用完整 URI 摘要建立定长唯一索引，避免截断长路径产生误判。
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 is unavailable", exception);
+        }
     }
 
     private Optional<LocationBinding> findLocationIdentity(UUID assetId, String providerType, String storageUri) {

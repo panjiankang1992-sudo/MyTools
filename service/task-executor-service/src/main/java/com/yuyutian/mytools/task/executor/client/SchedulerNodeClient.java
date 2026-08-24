@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.task.executor.config.ExecutorProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -33,6 +34,7 @@ public class SchedulerNodeClient implements SchedulerClient {
      * @param properties 执行节点配置
      * @param objectMapper JSON 映射器
      */
+    @Autowired
     public SchedulerNodeClient(ExecutorProperties properties, ObjectMapper objectMapper) {
         this(properties, objectMapper, HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build());
     }

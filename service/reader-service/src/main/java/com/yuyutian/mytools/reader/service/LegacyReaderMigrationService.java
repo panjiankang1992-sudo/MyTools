@@ -117,9 +117,10 @@ public class LegacyReaderMigrationService {
                 timestamp(item.serverUpdatedAt()), timestamp(item.serverUpdatedAt()));
         jdbcTemplate.update("""
                 INSERT IGNORE INTO legacy_reader_key_map
-                    (owner_id, legacy_book_id, shelf_book_id, sync_key, created_at)
-                VALUES (?, ?, ?, ?, ?)
-                """, item.ownerId(), item.bookId(), id.toString(), item.legacyKey(), Timestamp.from(Instant.now()));
+                    (owner_id, legacy_book_id, legacy_book_id_sha256, shelf_book_id, sync_key, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """, item.ownerId(), item.bookId(), hash(item.bookId()), id.toString(), item.legacyKey(),
+                Timestamp.from(Instant.now()));
         return id;
     }
 
@@ -151,8 +152,9 @@ public class LegacyReaderMigrationService {
 
     private UUID shelfId(long ownerId, String bookId) {
         List<String> ids = jdbcTemplate.queryForList("""
-                SELECT shelf_book_id FROM legacy_reader_key_map WHERE owner_id = ? AND legacy_book_id = ?
-                """, String.class, ownerId, bookId);
+                SELECT shelf_book_id FROM legacy_reader_key_map
+                WHERE owner_id = ? AND legacy_book_id_sha256 = ? AND legacy_book_id = ?
+                """, String.class, ownerId, hash(bookId), bookId);
         if (ids.size() != 1) {
             throw new IllegalStateException("Legacy Reader shelf mapping is missing");
         }
@@ -161,8 +163,9 @@ public class LegacyReaderMigrationService {
 
     private boolean hasShelfMapping(long ownerId, String bookId) {
         Integer count = jdbcTemplate.queryForObject("""
-                SELECT COUNT(*) FROM legacy_reader_key_map WHERE owner_id = ? AND legacy_book_id = ?
-                """, Integer.class, ownerId, bookId);
+                SELECT COUNT(*) FROM legacy_reader_key_map
+                WHERE owner_id = ? AND legacy_book_id_sha256 = ? AND legacy_book_id = ?
+                """, Integer.class, ownerId, hash(bookId), bookId);
         return count != null && count == 1;
     }
 

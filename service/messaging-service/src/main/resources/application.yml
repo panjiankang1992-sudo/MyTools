@@ -21,6 +21,9 @@ spring:
       mail.smtp.ssl.enable: ${MESSAGING_SMTP_SSL:true}
 
 management:
+  health:
+    mail:
+      enabled: ${MESSAGING_MAIL_HEALTH_ENABLED:false}
   endpoints:
     web:
       exposure:

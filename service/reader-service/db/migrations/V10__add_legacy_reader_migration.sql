@@ -1,10 +1,11 @@
 CREATE TABLE legacy_reader_key_map (
     owner_id BIGINT NOT NULL,
     legacy_book_id VARCHAR(1000) NOT NULL,
+    legacy_book_id_sha256 CHAR(64) NOT NULL,
     shelf_book_id CHAR(36) NOT NULL,
     sync_key VARCHAR(80) NOT NULL,
     created_at TIMESTAMP(6) NOT NULL,
-    PRIMARY KEY (owner_id, legacy_book_id),
+    PRIMARY KEY (owner_id, legacy_book_id_sha256),
     CONSTRAINT fk_legacy_reader_shelf FOREIGN KEY (shelf_book_id) REFERENCES shelf_book(id)
 );
 

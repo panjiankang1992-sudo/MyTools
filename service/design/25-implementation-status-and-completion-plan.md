@@ -6,7 +6,7 @@
 
 未完成项分为三类：
 
-1. **工程收尾**：全服务部署参数、建库建账号流程、跨服务烟雾验证仍需统一。
+1. **工程收尾**：部署参数、建库建账号和跨服务健康验收已统一；仍需在远程主机复验日志轮转和正式发布布局。
 2. **环境验收**：旧库、附件目录、IMAP、OneBot、PikPak、rclone 等真实环境数据尚未在本地审计环境执行迁移和对账。
 3. **可延后能力**：DSH 全量 RPC/WebSocket/SSE 替换、存储协议原生移动等不影响当前数据保全和主流程，暂不扩大范围。
 
@@ -18,7 +18,7 @@
 | --- | --- | --- | --- |
 | 接入层 | MyTools Gateway | Identity、Reader、Drive、Download、Media、Messaging、App Catalog、DSH 路由均可配置且默认关闭 | 部署后逐路由烟雾验证；数据验收后直接启用 |
 | 控制面 | Task Scheduler | 任务、步骤、定时/即时、多节点广播/分片、集群节点多对多、实例查询/取消、父子任务和结果接口 | 部署数据库与执行节点后做端到端创建、领取、取消和超时验证 |
-| 执行面 | Task Executor | 脚本包、不可变发布、环境契约、DML 授权、日志、心跳、取消与回调 | 真实执行节点注册、凭据注入和长任务故障验证 |
+| 执行面 | Task Executor | 脚本包、不可变发布、环境契约、DML 授权、日志、心跳、取消与回调；空 Schema 联调已完成节点注册和七个执行集群绑定 | 远程执行节点凭据注入和长任务故障验证 |
 | 基础层 | Storage Gateway | provider、对象、传输、校验、可恢复 `MOVE_TREE` 任务 | 配置真实本地/rclone/WebDAV/S3 provider 并对账；协议原生移动可延后 |
 | 基础层 | Asset Registry | 资产、来源、哈希、资源包和任务写回 | 执行 `local_file` 快照导入与文件存在性/哈希抽检 |
 | 业务层 | Download Ingestion | HTTP、磁力、消息附件、X、网页归档、本地导入及下载后入库 | DownloadBot/PikPak 真实账号环境回放与对账 |
@@ -43,6 +43,10 @@
 | Python `test_*.py` 测试源码 | 105 个 |
 | 数据库迁移 SQL | 224 个 |
 | Executor 脚本发布与环境契约 | 已有装配和门禁测试覆盖 |
+| MySQL 8.4 全新 Schema 启动 | 17 个独立 Schema 完成迁移，19/19 个服务健康 |
+| Scheduler/Executor 基础联通 | Executor 为 `ONLINE`，已绑定 7 个执行集群 |
+| Gateway 默认关闭 | App Catalog 路由返回 HTTP 503 和 `GATEWAY_002` |
+| 部署工具测试 | 20 个测试通过，包含建库、Python 迁移、systemd 生成和部署验收 |
 
 统一复验入口：
 
@@ -62,6 +66,8 @@ python3 service/scripts/verify_service_architecture.py \
 - 启动时只执行新 schema 迁移，不修改或删除旧 schema。
 
 完成标准：所有服务能使用空的新 schema 启动；默认关闭的 Gateway 路由和旧系统行为不变。
+
+该阶段已在一次性 MySQL 8.4 容器中完成本地实测。17 个新 Schema 独立初始化并执行全部 Java/Python 迁移，19 个有状态和无状态服务均返回健康；Executor 注册为在线节点并加入 asset、download、media、messaging、reader、reader-probe-orchestration、storage 集群；Gateway 默认关闭检查返回 `GATEWAY_002`。远程部署后使用 `service/deploy/verify_deployment.py` 重复同一验收，不把本地临时路径作为远程部署或业务数据路径。
 
 ### 阶段 B：迁移不可再生数据
 

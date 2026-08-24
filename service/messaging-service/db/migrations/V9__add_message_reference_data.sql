@@ -25,11 +25,12 @@ CREATE TABLE known_recipient (
     legacy_recipient_id VARCHAR(255) NOT NULL,
     channel_type VARCHAR(32) NOT NULL,
     recipient_address VARCHAR(1024) NOT NULL,
+    recipient_address_sha256 CHAR(64) NOT NULL,
     display_name VARCHAR(255),
     legacy_created_at TIMESTAMP(6) NOT NULL,
     created_at TIMESTAMP(6) NOT NULL,
     UNIQUE KEY uk_known_recipient_legacy (source_system, legacy_recipient_id),
-    UNIQUE KEY uk_known_recipient_address (owner_id, channel_type, recipient_address)
+    UNIQUE KEY uk_known_recipient_address (owner_id, channel_type, recipient_address_sha256)
 );
 
 CREATE TABLE message_reference_data_migration (
