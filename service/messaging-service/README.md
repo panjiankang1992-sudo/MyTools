@@ -30,6 +30,10 @@ V7 将旧 MyTools `t_feedback` 归入消息域的 `support_feedback`，完整保
 - `POST /internal/v1/attachment-downloads/{jobId}/content`：仅对已解析为 `STREAM` 的作业向 Executor 有界转发内容。
 - `POST /internal/v1/migrations/legacy-inbound/batches`：dry-run 或幂等导入旧 MsgService 的脱敏历史入站消息批次。
 - `GET /internal/v1/migrations/legacy-inbound/{migrationKey}/reconciliation`：返回目标侧迁移数量和稳定集合摘要，不返回消息正文或分段。
+- `POST /internal/v1/migrations/legacy-outbound/batches`：将历史发件导入只读归档，不创建投递任务或 Outbox。
+- `GET /internal/v1/migrations/legacy-outbound/{migrationKey}/reconciliation`：返回历史发件目标侧数量和摘要。
+- `POST /internal/v1/migrations/msgservice-reference-data/batches`：dry-run 或幂等导入旧模板和已知收件人。
+- `GET /internal/v1/migrations/msgservice-reference-data/{migrationKey}/reconciliation`：返回模板和收件人分类数量及集合摘要。
 
 OneBot 入站默认由 `MESSAGING_ONEBOT_INGRESS_ENABLED=false` 关闭。灰度时由独立 adapter/反向代理携带内部令牌调用，不修改 DownloadBot 的现有事件消费链。事件幂等键包含 account、self、message type、conversation 和 message id；消息正文与附件分段写入 `inbound_message_part`，附件只保存 provider file id、远程 URL、文件名、MIME 和声明大小，不在 HTTP 入站事务中下载文件。合并转发内容需要由上游 OneBot adapter 展开后提交；未展开的 provider 文件引用将在后续附件下载任务中解析。
 
@@ -45,7 +49,7 @@ MyTools 注册验证码已增加默认关闭的 `MESSAGING_REGISTRATION_MAIL_SID
 
 `MESSAGE_AUTOMATION_RELAY_ENABLED` 默认关闭。启用后，Messaging 分批转发未发布的 `MessageReceived` Outbox 事件，Automation 返回成功后才标记 `published_at`；中继失败不丢弃事件，重复发送由下游消息唯一键去重。
 
-历史消息使用 `message_migrate_history` 1.1.0 即时任务迁移。脚本从独立旧服务适配器首屏冻结高水位，随后分页读取同一批脱敏记录，并在每页校验来源条目数和集合摘要不变；通过内部批次接口写入 `inbound_message` 和 `inbound_history_migration` 审计表。dry-run 不写库，正式导入按来源系统与旧消息标识幂等，并校验载荷摘要。历史导入不会生成 `MessageReceived` Outbox，避免重放实时自动化规则。独立 MsgService 快照适配器已实现且装载、导出默认关闭；旧 schema 的只读字段映射和生产副本对账仍待实施。
+历史消息使用 `message_migrate_history` 1.1.0 即时任务迁移。脚本从独立旧服务适配器首屏冻结高水位，随后分页读取同一批脱敏记录，并在每页校验来源条目数和集合摘要不变；通过内部批次接口写入 `inbound_message` 和 `inbound_history_migration` 审计表。dry-run 不写库，正式导入按来源系统与旧消息标识幂等，并校验载荷摘要。历史导入不会生成 `MessageReceived` Outbox，避免重放实时自动化规则。独立 MsgService 快照适配器已实现且装载、导出默认关闭；实际 SQLite 只读映射和生产一致备份演练已经完成。发件归档支持 `ARCHIVED` 与 `MISSING` 附件证据：前者必须验证大小和 SHA-256，后者只用于明确记录源端文件已经不存在，不能作为可下载附件使用。
 
 正式演练后使用 `service/scripts/messaging_cutover_gate.py` 校验 dry-run、正式导入、同键重放和目标侧 reconciliation 报告。来源与目标使用相同的长度前缀集合摘要协议；门禁只输出迁移键、数量和错误码，不输出高水位、消息身份、正文或摘要，也不会连接数据库或修改开关。
 
