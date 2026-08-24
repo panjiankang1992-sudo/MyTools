@@ -1,0 +1,19 @@
+name: app_catalog_migrate_files
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - filesystem_read
+  - network_http
+parameters:
+  required:
+    - migrationKey
+    - storageRoot
+  optional:
+    - maximumFiles
+    - maximumBytes
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 7200
+  maxOutputBytes: 1048576

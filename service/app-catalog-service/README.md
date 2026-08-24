@@ -6,4 +6,6 @@
 - `GET /internal/v1/catalog/entries`：读取全部已发布应用，不返回草稿或已下架应用。
 - `GET /internal/v1/catalog/reconciliation`：返回应用、版本、文件及未绑定资产文件数量。
 
-`app_catalog_migrate_legacy` 任务使用旧库只读账号和 Repeatable Read 一致性视图，逐个导入应用及其全部版本、文件。旧文件路径暂存为迁移定位信息，后续通过 Asset Registry 登记成功后再绑定 `asset_id`；在此之前不得删除旧文件。迁移先 dry-run，再正式执行，并使用相同来源摘要和对账数量验收。
+`app_catalog_migrate_legacy` 任务使用旧库只读账号和 Repeatable Read 一致性视图，逐个导入应用及其全部版本、文件。迁移先 dry-run，再正式执行，并使用相同来源摘要和对账数量验收。
+
+`app_catalog_migrate_files` 在元数据保全后迁移不可再生文件。执行节点必须配置只读的 `APP_CATALOG_LEGACY_ROOTS`；任务冻结未绑定文件并强制执行文件数和总字节上限，逐项复核大小、计算 SHA-256、发布到 Storage Gateway、登记 Asset Registry，最后幂等绑定 `asset_id`、摘要和稳定 URI。旧路径和旧文件始终保留，直到未解析文件数为零且完成目标对账。
