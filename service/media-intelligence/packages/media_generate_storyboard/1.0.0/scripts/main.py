@@ -45,7 +45,12 @@ def generate_frame(source: Path, target: Path, position_ms: int, runner=subproce
 def execute(parameters: dict, step_outputs: dict, work_directory: Path,
             frame_runner=generate_frame) -> dict:
     """Generate a storyboard using metadata from the preceding probe step."""
-    source = Path(parameters["sourcePath"])
+    materialized = step_outputs.get("materialize_input")
+    source_value = materialized.get("sourcePath") if isinstance(materialized, dict) else None
+    source_value = source_value or parameters.get("sourcePath")
+    if not isinstance(source_value, str) or not source_value.strip():
+        raise ValueError("media source is missing")
+    source = Path(source_value)
     if not source.is_file():
         raise ValueError("media source does not exist")
     probe = step_outputs.get("probe") if isinstance(step_outputs.get("probe"), dict) else {}

@@ -26,6 +26,9 @@ def load_parameters() -> dict:
     generated = (context.get("stepOutputs") or {}).get("generate_thumbnail") or {}
     if generated.get("artifactPath") and not parameters.get("thumbnailPath"):
         parameters["thumbnailPath"] = generated["artifactPath"]
+    materialized = (context.get("stepOutputs") or {}).get("materialize_input") or {}
+    if materialized.get("sourcePath"):
+        parameters["sourcePath"] = materialized["sourcePath"]
     return parameters
 
 

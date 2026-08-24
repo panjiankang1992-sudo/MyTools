@@ -79,13 +79,18 @@ def model_description(parameters: dict, probe: dict, paths: list[Path], opener=u
 
 def execute(parameters: dict, step_outputs: dict) -> dict:
     """Generate a model description with deterministic metadata fallback."""
+    materialized = step_outputs.get("materialize_input")
+    source_path = materialized.get("sourcePath") if isinstance(materialized, dict) else None
+    effective_parameters = dict(parameters)
+    if source_path:
+        effective_parameters["sourcePath"] = source_path
     probe = step_outputs.get("probe") if isinstance(step_outputs.get("probe"), dict) else {}
     paths = storyboard_paths(step_outputs)
     try:
-        summary, description = model_description(parameters, probe, paths)
+        summary, description = model_description(effective_parameters, probe, paths)
         mode = "MODEL"
     except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError):
-        summary, description = fallback_description(parameters, probe, len(paths))
+        summary, description = fallback_description(effective_parameters, probe, len(paths))
         mode = "METADATA_FALLBACK"
     return {
         "assetId": str(parameters["assetId"]),

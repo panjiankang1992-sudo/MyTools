@@ -7,11 +7,11 @@ capabilities:
   - http_ollama
 parameters:
   required:
-    - sourcePath
     - filename
     - mimeType
     - contentSha256
   optional:
+    - sourcePath
     - thumbnailPath
     - serviceUrl
     - model

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["assetRegistryId", "sourcePath", "storageUri", "contentSha256", "sizeBytes"],
+  "properties": {
+    "assetRegistryId": { "type": "string", "format": "uuid" },
+    "sourcePath": { "type": "string", "minLength": 1 },
+    "storageUri": { "type": "string", "pattern": "^storage://" },
+    "contentSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "sizeBytes": { "type": "integer", "minimum": 0 }
+  },
+  "additionalProperties": false
+}

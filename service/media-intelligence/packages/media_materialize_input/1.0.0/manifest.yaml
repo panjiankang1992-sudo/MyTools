@@ -1,19 +1,17 @@
-name: media_generate_storyboard
+name: media_materialize_input
 version: 1.0.0
 runtime: python3.12
 entrypoint: scripts/main.py
 capabilities:
-  - filesystem_read
   - filesystem_write
-  - ffmpeg
+  - network_http
 parameters:
   required:
-    - assetId
+    - assetRegistryId
     - contentSha256
-  optional:
-    - sourcePath
+    - filename
 result:
   schema: schemas/result.schema.json
 limits:
-  timeoutSeconds: 180
+  timeoutSeconds: 300
   maxOutputBytes: 1048576

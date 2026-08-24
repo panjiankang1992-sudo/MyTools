@@ -9,8 +9,8 @@ parameters:
   required:
     - assetId
     - contentSha256
-    - sourcePath
   optional:
+    - sourcePath
     - seekSeconds
 result:
   schema: schemas/result.schema.json

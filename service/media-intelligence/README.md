@@ -29,6 +29,7 @@ Scheduler V23 在媒体探测后旁路登记原媒体，并在缩略图生成后
 - `packages/media_generate_storyboard/1.0.0`：按视频时长均匀生成最多十二帧可校验截图。
 - `packages/media_describe_video/1.0.0`：读取探测和故事板步骤结果，生成模型简介；模型不可用时输出确定性的元数据简介。
 - Scheduler V48 将 `media_analyze_video` 升级为分析绑定、探测、缩略图、持久化、故事板、可选标签、简介和领域聚合的完整流水线。原子脚本只产生有界结果和执行器临时文件；长期产物由 Asset Registry 脚本通过 Storage Gateway 发布，最终业务状态由 Media Library 原子提交。
+- Scheduler V82 在昂贵分析前增加 `media_materialize_input`：仅接受 Asset Registry 中 `AVAILABLE` 的 `STORAGE_GATEWAY` 位置，通过 Storage Gateway 流式读取，并按登记大小与 SHA-256 复验后写入执行器工作目录。后续媒体脚本优先使用该步骤输出，同时保留旧 `sourcePath` 参数回退以兼容已创建的历史任务实例。
 - 旁路输入使用内容 SHA-256 与策略版本形成幂等键；旧实现继续作为线上权威结果。
 - 双跑期间由后续对账任务比较标签集合、模型、内容哈希和策略版本，不直接覆盖旧标签。
 

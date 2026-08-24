@@ -28,6 +28,13 @@ class MediaProbeTest(unittest.TestCase):
         self.assertAlmostEqual(29.970, result["video"]["frameRate"], places=3)
         self.assertEqual("a" * 64, result["contentSha256"])
 
+    def test_materialized_source_takes_precedence(self):
+        """New tasks must use the integrity-verified materialized input."""
+        source = MODULE.resolve_source({"sourcePath": "/legacy/video.mp4"}, {
+            "materialize_input": {"sourcePath": "/work/input/video.mp4"},
+        })
+        self.assertEqual(Path("/work/input/video.mp4"), source)
+
 
 if __name__ == "__main__":
     unittest.main()

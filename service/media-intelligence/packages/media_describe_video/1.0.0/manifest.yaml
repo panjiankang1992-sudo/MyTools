@@ -9,6 +9,7 @@ parameters:
   required:
     - assetId
     - contentSha256
+  optional:
     - sourcePath
 result:
   schema: schemas/result.schema.json

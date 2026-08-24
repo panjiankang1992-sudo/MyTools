@@ -25,8 +25,9 @@ class MediaGenerateStoryboardTest(unittest.TestCase):
                 target.write_bytes(f"frame-{position_ms}".encode())
 
             result = MODULE.execute(
-                {"assetId": "7", "contentSha256": "a" * 64, "sourcePath": str(source), "frameCount": 3},
-                {"probe": {"durationMs": 4000}}, root / "work", fake_frame)
+                {"assetId": "7", "contentSha256": "a" * 64, "frameCount": 3},
+                {"materialize_input": {"sourcePath": str(source)},
+                 "probe": {"durationMs": 4000}}, root / "work", fake_frame)
 
             self.assertEqual([1000, 2000, 3000], [frame["positionMs"] for frame in result["frames"]])
             self.assertTrue(all(Path(frame["artifactPath"]).is_file() for frame in result["frames"]))

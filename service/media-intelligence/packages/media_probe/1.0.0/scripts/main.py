@@ -80,11 +80,21 @@ def write_result(result: dict) -> None:
     temporary.replace(target)
 
 
+def resolve_source(parameters: dict, step_outputs: dict) -> Path:
+    """Resolve materialized input first while retaining the legacy task parameter fallback."""
+    materialized = step_outputs.get("materialize_input")
+    value = materialized.get("sourcePath") if isinstance(materialized, dict) else None
+    value = value or parameters.get("sourcePath")
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("media source is missing")
+    return Path(value)
+
+
 def main() -> None:
     """Execute one media probe task."""
     context = json.loads(Path(os.environ["TASK_CONTEXT_FILE"]).read_text(encoding="utf-8"))
     parameters = context["parameters"]
-    write_result(normalize(parameters, run_probe(Path(parameters["sourcePath"]))))
+    write_result(normalize(parameters, run_probe(resolve_source(parameters, context.get("stepOutputs", {})))))
 
 
 if __name__ == "__main__":
