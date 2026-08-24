@@ -145,6 +145,43 @@ public class DriveRepository {
                 rs.getBoolean("directory"), rs.getTimestamp("modified_at") == null ? null : rs.getTimestamp("modified_at").toInstant(),
                 rs.getString("content_sha256")), accountId.toString(), parentPath);
     }
+    /** 创建或读取索引刷新操作。 @param operationId 操作标识 @param accountId 账户标识 @param taskId 任务标识 @param idempotencyKey 幂等键 @return 操作 */
+    public OperationView saveIndexOperation(UUID operationId, UUID accountId, UUID taskId, String idempotencyKey) {
+        OperationView existing=findOperationByIdempotencyKey(idempotencyKey).orElse(null);
+        if(existing!=null) {
+            if(!existing.accountId().equals(accountId)||!existing.taskInstanceId().equals(taskId))
+                throw new IllegalStateException("drive operation idempotency conflict");
+            return existing;
+        }
+        Instant now=Instant.now();
+        jdbc.update("INSERT INTO drive_operation VALUES (?,?,?,?,?,'{}',NULL,?,?)",operationId.toString(),
+            accountId.toString(),"INDEX_ACCOUNT",idempotencyKey,"PENDING",Timestamp.from(now),Timestamp.from(now));
+        jdbc.update("INSERT INTO drive_task_binding VALUES (?,?,?)",operationId.toString(),taskId.toString(),Timestamp.from(now));
+        return findOperation(operationId).orElseThrow();
+    }
+
+    /** 查询操作。 @param operationId 操作标识 @return 操作 */
+    public Optional<OperationView> findOperation(UUID operationId) {
+        return jdbc.query("""
+            SELECT o.*,b.task_instance_id FROM drive_operation o JOIN drive_task_binding b ON b.operation_id=o.id
+            WHERE o.id=?
+            """,(rs,row)->operation(rs),operationId.toString()).stream().findFirst();
+    }
+
+    /** 按幂等键查询操作。 @param idempotencyKey 幂等键 @return 操作 */
+    public Optional<OperationView> findOperationByIdempotencyKey(String idempotencyKey) {
+        return jdbc.query("""
+            SELECT o.*,b.task_instance_id FROM drive_operation o JOIN drive_task_binding b ON b.operation_id=o.id
+            WHERE o.idempotency_key=?
+            """,(rs,row)->operation(rs),idempotencyKey).stream().findFirst();
+    }
+
+    /** 更新操作状态。 @param operationId 操作标识 @param status 状态 @return 操作 */
+    public OperationView updateOperationStatus(UUID operationId,String status) {
+        jdbc.update("UPDATE drive_operation SET status=?,updated_at=? WHERE id=?",status,
+            Timestamp.from(Instant.now()),operationId.toString());
+        return findOperation(operationId).orElseThrow();
+    }
     /** 结束未完成的索引运行。 @param accountId 账户 @param runId 运行 @param status 终态 */
     public void finishRun(UUID accountId,UUID runId,String status) {
         int updated=jdbc.update("UPDATE drive_index_cursor SET status=?,updated_at=? WHERE account_id=? AND run_id=? AND status='RUNNING'",
@@ -198,6 +235,11 @@ public class DriveRepository {
         return new AccountView(UUID.fromString(rs.getString("id")), rs.getLong("owner_id"), rs.getString("external_account_id"),
             rs.getString("display_name"), rs.getString("provider_type"), rs.getString("remote_key"), rs.getBoolean("read_only"),
             rs.getBoolean("enabled"), rs.getLong("index_generation"));
+    }
+    private OperationView operation(java.sql.ResultSet rs) throws java.sql.SQLException {
+        return new OperationView(UUID.fromString(rs.getString("id")),UUID.fromString(rs.getString("account_id")),
+            UUID.fromString(rs.getString("task_instance_id")),rs.getString("operation_type"),rs.getString("status"),
+            rs.getString("error_code"),rs.getTimestamp("created_at").toInstant(),rs.getTimestamp("updated_at").toInstant());
     }
     private record Cursor(UUID runId,long generation,String lastBatchKey,String nextCursor,String status) { }
 }

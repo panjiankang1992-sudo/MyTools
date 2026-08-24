@@ -18,7 +18,7 @@ Java 21 / Spring Boot
 
 Download 首批路由为创建 HTTPS 下载、查询状态、查询结果摘要和取消任务。创建入口只接受幂等键、HTTPS URL、安全文件名和大小上限；Gateway 重建下游载荷并绑定可信 owner。查询与取消使用 owner 绑定的内部接口，对错误租户统一返回不存在，响应不包含源 URL 或下游 `parameters`。
 
-Drive 首批只读路由为 `GET /api/app/v1/drive/accounts/{accountId}/items?parentPath=`。Gateway 使用已验证用户 ID 构造内部 `ownerId`，以 `DRIVE_INTERNAL_TOKEN` 调用 Drive Service；该阶段不切换写操作和旧入口。
+Drive 路由包括目录查询、`POST /accounts/{accountId}/refresh-index`、`GET /operations/{operationId}` 和取消接口。Gateway 使用已验证用户 ID 构造内部 `ownerId`，以 `DRIVE_INTERNAL_TOKEN` 调用 Drive Service；文件复制、移动和删除仍保留在旧入口。
 
 Media 首批路由为媒体分页、单项查询和播放进度写入：`GET /api/app/v1/media/items`、`GET /api/app/v1/media/items/{mediaId}` 与 `PUT /api/app/v1/media/items/{mediaId}/progress`。Media Library 新增按 owner 的有界分页查询；Gateway 只从认证主体注入 owner。媒体扫描和分析仍由任务服务及内部接口执行，不通过客户端同步触发。
 

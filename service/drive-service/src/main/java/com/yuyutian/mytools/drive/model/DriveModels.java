@@ -28,4 +28,7 @@ public final class DriveModels {
     public record IndexBatchView(UUID runId, long generation, String nextCursor, String status, int acceptedItems) { }
     public record ItemView(UUID id, String remoteId, String remotePath, String parentPath, String displayName,
         String mimeType, long sizeBytes, boolean directory, Instant modifiedAt, String contentSha256) { }
+    public record RefreshIndexRequest(@NotBlank @Size(max=255) String idempotencyKey) { }
+    public record OperationView(UUID id, UUID accountId, UUID taskInstanceId, String operationType,
+        String status, String errorCode, Instant createdAt, Instant updatedAt) { }
 }

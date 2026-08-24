@@ -32,7 +32,8 @@ class DriveStorageDualReadTest {
         when(repository.findStorageProvider(accountId)).thenReturn(Optional.of(providerId));
         when(legacy.list("legacy_remote", "")).thenReturn(List.of(item));
         when(storage.list(providerId.toString(), "")).thenThrow(new IllegalStateException("unavailable"));
-        DriveService service = new DriveService(repository, mock(TransactionTemplate.class), legacy, storage, "DUAL");
+        DriveService service = new DriveService(repository, mock(TransactionTemplate.class), legacy, storage,
+                mock(DriveTaskSchedulerClient.class), "DUAL");
 
         assertThat(service.scan(accountId, "")).containsExactly(item);
     }

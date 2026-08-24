@@ -19,12 +19,15 @@ public class DriveService {
     private final DriveRepository repository; private final TransactionTemplate transactions;
     private final RcloneConnector legacyConnector; private final StorageGatewayConnector storageConnector;
     private final ScanMode scanMode;
+    private final DriveTaskSchedulerClient schedulerClient;
     /** 创建领域服务。 @param repository 仓储 @param transactions 事务模板 */
     public DriveService(DriveRepository repository, TransactionTemplate transactions, RcloneConnector legacyConnector,
                         StorageGatewayConnector storageConnector,
+                        DriveTaskSchedulerClient schedulerClient,
                         @Value("${drive.storage-scan-mode:LEGACY}") String scanMode) {
         this.repository=repository; this.transactions=transactions; this.legacyConnector=legacyConnector;
-        this.storageConnector=storageConnector; this.scanMode=ScanMode.valueOf(scanMode.toUpperCase(java.util.Locale.ROOT));
+        this.storageConnector=storageConnector; this.schedulerClient=schedulerClient;
+        this.scanMode=ScanMode.valueOf(scanMode.toUpperCase(java.util.Locale.ROOT));
     }
     /** 登记账户。 @param request 请求 @return 账户 */
     public AccountView register(RegisterAccountRequest request) { return transactions.execute(s -> repository.register(request)); }
@@ -76,6 +79,52 @@ public class DriveService {
         if(!java.util.Set.of("FAILED","TIMED_OUT","CANCELLED").contains(status))
             throw new IllegalArgumentException("drive index terminal status is invalid");
         transactions.executeWithoutResult(s -> repository.finishRun(id,runId,status));
+    }
+    /** 创建账户索引刷新任务。 @param accountId 账户标识 @param ownerId 所有者 @param request 请求 @return 操作 */
+    public OperationView refreshIndex(UUID accountId,long ownerId,RefreshIndexRequest request) {
+        requireOwner(accountId,ownerId);
+        String scopedKey=scopedIdempotencyKey(accountId,request.idempotencyKey());
+        OperationView existing=repository.findOperationByIdempotencyKey(scopedKey).orElse(null);
+        if(existing!=null) {
+            if(!existing.accountId().equals(accountId)) throw new IllegalStateException("drive operation idempotency conflict");
+            return reconcile(existing);
+        }
+        UUID operationId=UUID.nameUUIDFromBytes((accountId+"\u0000"+request.idempotencyKey())
+            .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        UUID taskId=schedulerClient.createIndexTask(operationId,accountId,scopedKey);
+        return transactions.execute(status -> repository.saveIndexOperation(operationId,accountId,taskId,scopedKey));
+    }
+    /** 查询账户操作。 @param operationId 操作标识 @param ownerId 所有者 @return 操作 */
+    public OperationView getOperation(UUID operationId,long ownerId) {
+        OperationView operation=repository.findOperation(operationId)
+            .orElseThrow(() -> new IllegalArgumentException("drive operation not found"));
+        requireOwner(operation.accountId(),ownerId); return reconcile(operation);
+    }
+    /** 取消账户操作。 @param operationId 操作标识 @param ownerId 所有者 @return 操作 */
+    public OperationView cancelOperation(UUID operationId,long ownerId) {
+        OperationView operation=getOperation(operationId,ownerId);
+        if(!java.util.Set.of("SUCCEEDED","FAILED","TIMED_OUT","CANCELLED").contains(operation.status()))
+            schedulerClient.cancel(operation.taskInstanceId());
+        return reconcile(operation);
+    }
+    private OperationView reconcile(OperationView operation) {
+        String status=schedulerClient.getStatus(operation.taskInstanceId());
+        return status.equals(operation.status())?operation:
+            transactions.execute(transaction -> repository.updateOperationStatus(operation.id(),status));
+    }
+    private AccountView requireOwner(UUID id,long ownerId) {
+        AccountView account=require(id);
+        if(account.ownerId()!=ownerId) throw new IllegalArgumentException("drive account not found");
+        return account;
+    }
+    private String scopedIdempotencyKey(UUID accountId,String key) {
+        try {
+            byte[] digest=java.security.MessageDigest.getInstance("SHA-256")
+                .digest(key.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return "drive-index:"+accountId+":"+java.util.HexFormat.of().formatHex(digest);
+        } catch(java.security.NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 is unavailable",exception);
+        }
     }
     private AccountView require(UUID id) { return repository.findAccount(id).orElseThrow(() -> new IllegalArgumentException("drive account not found")); }
     private String normalize(String path) {

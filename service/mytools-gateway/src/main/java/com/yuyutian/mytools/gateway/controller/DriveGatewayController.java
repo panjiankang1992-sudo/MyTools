@@ -2,18 +2,25 @@ package com.yuyutian.mytools.gateway.controller;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
+import com.yuyutian.mytools.gateway.model.DriveGatewayModels.OperationView;
+import com.yuyutian.mytools.gateway.model.DriveGatewayModels.RefreshIndexRequest;
 import com.yuyutian.mytools.gateway.service.DriveGatewayClient;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -54,6 +61,28 @@ public class DriveGatewayController {
             HttpServletRequest request) {
         GatewayPrincipal principal = requireAllowed(request);
         return client.items(accountId, principal.userId(), parentPath, correlation(request));
+    }
+
+    /** 创建账户索引刷新任务。 @param accountId 账户标识 @param body 请求 @param request HTTP 请求 @return 操作 */
+    @PostMapping("/accounts/{accountId}/refresh-index") @ResponseStatus(HttpStatus.ACCEPTED)
+    public OperationView refreshIndex(@PathVariable UUID accountId,@Valid @RequestBody RefreshIndexRequest body,
+                                      HttpServletRequest request) {
+        GatewayPrincipal principal=requireAllowed(request);
+        return client.refreshIndex(accountId,principal.userId(),body,correlation(request));
+    }
+
+    /** 查询索引刷新操作。 @param operationId 操作标识 @param request HTTP 请求 @return 操作 */
+    @GetMapping("/operations/{operationId}")
+    public OperationView operation(@PathVariable UUID operationId,HttpServletRequest request) {
+        GatewayPrincipal principal=requireAllowed(request);
+        return client.operation(operationId,principal.userId(),correlation(request));
+    }
+
+    /** 取消索引刷新操作。 @param operationId 操作标识 @param request HTTP 请求 @return 操作 */
+    @PostMapping("/operations/{operationId}/cancel")
+    public OperationView cancel(@PathVariable UUID operationId,HttpServletRequest request) {
+        GatewayPrincipal principal=requireAllowed(request);
+        return client.cancel(operationId,principal.userId(),correlation(request));
     }
 
     private GatewayPrincipal requireAllowed(HttpServletRequest request) {

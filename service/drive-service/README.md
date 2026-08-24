@@ -16,6 +16,8 @@
 
 `drive_index_account` 1.0.0 任务脚本以广度优先方式递归扫描，限制目录数、项目数和单批大小，通过 batch ledger 支持任意已提交批次重放。脚本只持有 Drive 内部令牌，不接收 remote key、远端凭据或任意命令。Scheduler V24 将任务绑定到独立 `drive` 执行集群。
 
+Drive Service 现已提供索引刷新业务闭环：`POST /internal/v1/drive/accounts/{id}/refresh-index` 创建幂等任务，`GET /internal/v1/drive/operations/{id}` 查询，取消接口请求 Scheduler 终止执行。三个接口都要求可信 `ownerId` 与账户所有者一致；Gateway 对应暴露 `/api/app/v1/drive` 路由并从认证主体注入 owner。
+
 Scheduler V25 为失败、超时和取消配置 `drive_finish_index` 特殊步骤，使未完成游标进入明确终态，后续补偿运行可以安全接管；收尾失败采用 `IGNORE`，不会掩盖任务原始终态。
 
 `drive_migrate_legacy_accounts` 任务通过 MyTools 只读分页接口迁移旧 `drive_account` 与 `webdav_account` 元数据。接口只返回 `secret://mytools/...` 引用，不返回加密密码、URL 或用户名；WebDAV/Alist 账户默认禁用，完成 provider 配置和对账后才能启用。Scheduler V26 提供手工即时迁移任务，不会自动执行。

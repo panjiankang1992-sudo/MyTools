@@ -2,6 +2,8 @@ package com.yuyutian.mytools.gateway.controller;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
+import com.yuyutian.mytools.gateway.model.DriveGatewayModels.OperationView;
+import com.yuyutian.mytools.gateway.model.DriveGatewayModels.RefreshIndexRequest;
 import com.yuyutian.mytools.gateway.service.DriveGatewayClient;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -48,6 +51,23 @@ class DriveGatewayControllerTest {
                 .isInstanceOf(GatewayRouteDisabledException.class);
         verify(client, never()).items(accountId, 55L, "", "correlation");
         verify(client, never()).items(accountId, 56L, "", "correlation");
+    }
+
+    @Test
+    void shouldInjectTrustedOwnerIntoRefreshLifecycle() {
+        DriveGatewayClient client=mock(DriveGatewayClient.class);
+        DriveGatewayController controller=new DriveGatewayController(properties(true),client);
+        UUID operationId=UUID.randomUUID();
+        OperationView operation=new OperationView(operationId,accountId,UUID.randomUUID(),"INDEX_ACCOUNT",
+            "RUNNING",null,Instant.EPOCH,Instant.EPOCH);
+        RefreshIndexRequest body=new RefreshIndexRequest("refresh-1");
+        when(client.refreshIndex(accountId,55L,body,"correlation")).thenReturn(operation);
+        when(client.operation(operationId,55L,"correlation")).thenReturn(operation);
+        when(client.cancel(operationId,55L,"correlation")).thenReturn(operation);
+
+        assertThat(controller.refreshIndex(accountId,body,request(55L))).isEqualTo(operation);
+        assertThat(controller.operation(operationId,request(55L))).isEqualTo(operation);
+        assertThat(controller.cancel(operationId,request(55L))).isEqualTo(operation);
     }
 
     private MockHttpServletRequest request(long userId) {

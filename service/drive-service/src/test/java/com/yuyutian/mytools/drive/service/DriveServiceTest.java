@@ -5,16 +5,19 @@ import com.yuyutian.mytools.drive.repository.DriveRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /** Drive 索引事务测试。 */
 @SpringBootTest
 class DriveServiceTest {
     @Autowired private DriveService service;
     @Autowired private DriveRepository repository;
+    @MockBean private DriveTaskSchedulerClient schedulerClient;
 
     @Test
     void shouldResumeBatchesAndDeleteStaleItemsOnlyAfterCompletion() {
@@ -71,6 +74,23 @@ class DriveServiceTest {
 
         assertThat(repository.indexDigest(account.id()).contentSha256())
             .isEqualTo("8501ff9beb116985f2ad48e3e4417e85c1f0121b8498a344a7fb307b51314879");
+    }
+
+    @Test
+    void shouldCreateQueryAndCancelOwnerBoundIndexOperation() {
+        AccountView account=service.register(new RegisterAccountRequest(13L,"refresh-account","Refresh","RCLONE",
+            "secret://drive/refresh","refresh_remote",true,true));
+        UUID taskId=UUID.randomUUID();
+        when(schedulerClient.createIndexTask(any(),eq(account.id()),startsWith("drive-index:"))).thenReturn(taskId);
+        when(schedulerClient.getStatus(taskId)).thenReturn("RUNNING","RUNNING","CANCELLING");
+
+        OperationView created=service.refreshIndex(account.id(),13L,new RefreshIndexRequest("refresh-1"));
+        OperationView replayed=service.refreshIndex(account.id(),13L,new RefreshIndexRequest("refresh-1"));
+        assertThat(created.id()).isEqualTo(replayed.id());
+        assertThat(service.cancelOperation(created.id(),13L).status()).isEqualTo("CANCELLING");
+        assertThatThrownBy(() -> service.getOperation(created.id(),14L)).isInstanceOf(IllegalArgumentException.class);
+        verify(schedulerClient,times(1)).createIndexTask(any(),eq(account.id()),startsWith("drive-index:"));
+        verify(schedulerClient).cancel(taskId);
     }
 
     private IndexItem item(String path,String parent,long size) {

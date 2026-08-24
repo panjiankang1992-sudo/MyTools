@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.web.client.RestClient;
+import com.yuyutian.mytools.drive.service.DriveTaskSchedulerClient;
 
 /** Drive 服务配置。 */
 @Configuration
@@ -24,4 +26,9 @@ public class DriveConfiguration {
         @Value("${drive.storage-migration-token:}") String token) { return new StorageMigrationToken(token); }
     /** 仅用于账户 Provider 迁移的令牌。 */
     public record StorageMigrationToken(String value) { }
+    /** 创建任务调度客户端。 @param builder 客户端构建器 @param url 调度地址 @return 调度客户端 */
+    @Bean public DriveTaskSchedulerClient driveTaskSchedulerClient(RestClient.Builder builder,
+        @Value("${drive.task-scheduler-url:http://127.0.0.1:23100}") String url) {
+        return new DriveTaskSchedulerClient(builder.baseUrl(url).build());
+    }
 }

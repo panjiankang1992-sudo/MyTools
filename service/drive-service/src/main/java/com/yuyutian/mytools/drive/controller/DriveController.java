@@ -33,6 +33,20 @@ public class DriveController {
         @RequestParam long ownerId, @RequestParam(defaultValue="") String parentPath) {
         authorize(authorization); return service.list(id,ownerId,parentPath);
     }
+    /** 创建索引刷新任务。 @param authorization 授权头 @param id 账户 @param ownerId 所有者 @param request 请求 @return 操作 */
+    @PostMapping("/accounts/{id}/refresh-index") @ResponseStatus(HttpStatus.ACCEPTED)
+    public OperationView refreshIndex(@RequestHeader("Authorization") String authorization,@PathVariable UUID id,
+        @RequestParam long ownerId,@Valid @RequestBody RefreshIndexRequest request) {
+        authorize(authorization); return service.refreshIndex(id,ownerId,request);
+    }
+    /** 查询操作。 @param authorization 授权头 @param id 操作 @param ownerId 所有者 @return 操作 */
+    @GetMapping("/operations/{id}")
+    public OperationView operation(@RequestHeader("Authorization") String authorization,@PathVariable UUID id,
+        @RequestParam long ownerId) { authorize(authorization); return service.getOperation(id,ownerId); }
+    /** 取消操作。 @param authorization 授权头 @param id 操作 @param ownerId 所有者 @return 操作 */
+    @PostMapping("/operations/{id}/cancel")
+    public OperationView cancel(@RequestHeader("Authorization") String authorization,@PathVariable UUID id,
+        @RequestParam long ownerId) { authorize(authorization); return service.cancelOperation(id,ownerId); }
     /** 扫描一个受控远端目录。 @param authorization 授权头 @param id 账户 @param path 路径 @return 索引候选 */
     @GetMapping("/accounts/{id}/scan")
     public List<IndexItem> scan(@RequestHeader("Authorization") String authorization,@PathVariable UUID id,
