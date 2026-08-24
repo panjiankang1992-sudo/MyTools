@@ -26,24 +26,24 @@ class ReaderSearchSidecarPublisherTest {
                 "revision", 1, "snapshot", Map.of("enabled", true))));
 
         when(client.create(eq(event), org.mockito.ArgumentMatchers.matches(
-                "legacy-shadow:[a-f0-9]{64}:reader-search-v3")))
+                "legacy-shadow:[a-f0-9]{64}:reader-search-v4")))
                 .thenReturn(new ReaderSearchSidecarClient.SearchAccepted(UUID.randomUUID(), "QUEUED"));
 
         publisher.publish(event);
 
         verify(client).create(eq(event), org.mockito.ArgumentMatchers.matches(
-                "legacy-shadow:[a-f0-9]{64}:reader-search-v3"));
+                "legacy-shadow:[a-f0-9]{64}:reader-search-v4"));
     }
 
     @Test
-    void shouldSubmitProbeModeAfterTermsAreExpanded() {
+    void shouldSubmitRawProbeModeBeforeLegacyExpansion() {
         ReaderSearchSidecarClient client = mock(ReaderSearchSidecarClient.class);
         ReaderSearchSidecarProperties properties = new ReaderSearchSidecarProperties();
         properties.setEnabled(true);
         ReaderSearchSidecarPublisher publisher = new ReaderSearchSidecarPublisher(
                 client, properties, new ObjectMapper());
         var event = new ReaderSearchSidecarRequested(
-                7L, "example", 1, "PROBE", List.of("hero", "lost prince"), List.of());
+                7L, "example", 1, "PROBE", List.of(), List.of());
         when(client.create(eq(event), org.mockito.ArgumentMatchers.anyString()))
                 .thenReturn(new ReaderSearchSidecarClient.SearchAccepted(UUID.randomUUID(), "QUEUED"));
 

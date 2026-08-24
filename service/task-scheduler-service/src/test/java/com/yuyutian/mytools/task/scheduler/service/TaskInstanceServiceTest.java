@@ -170,6 +170,8 @@ class TaskInstanceServiceTest {
         assertEquals(Map.of("storage.mount.managed", "present"), child.requiredNodeLabels());
         assertEquals(child.id(), scriptApiService.getRelated(
                 claimed.executionId(), claimed.leaseToken(), child.id()).id());
+        assertEquals(child.id(), scriptApiService.getRelatedResults(
+                claimed.executionId(), claimed.leaseToken(), child.id()).taskInstanceId());
         assertEquals(TaskStatus.CANCELLED, scriptApiService.cancelChild(
                 claimed.executionId(), claimed.leaseToken(), child.id()).status());
         assertTrue(!dispatchService.heartbeat(claimed.executionId(),

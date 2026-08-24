@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "migration.tasks.reader-search")
 public class ReaderSearchSidecarProperties {
     private boolean enabled;
-    private String policyVersion = "reader-search-v3";
+    private String policyVersion = "reader-search-v4";
     private String serviceUrl = "http://127.0.0.1:23230";
     private String internalToken = "";
 }

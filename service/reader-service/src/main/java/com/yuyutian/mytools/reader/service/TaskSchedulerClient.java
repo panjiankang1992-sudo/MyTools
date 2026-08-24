@@ -37,7 +37,10 @@ public class TaskSchedulerClient {
      * @return 任务实例标识
      */
     public UUID createSearchTask(String idempotencyKey, UUID businessId, Map<String, Object> parameters) {
-        return createTask("reader_source_search", idempotencyKey, "READER_SEARCH", businessId, 40, parameters);
+        boolean probe = "PROBE".equals(parameters.get("mode"));
+        String taskName = probe ? "reader_probe_search" : "reader_source_search";
+        return createTask(taskName, idempotencyKey, "READER_SEARCH", businessId, 40, parameters,
+                probe ? Map.of("dsh.connector", "present") : Map.of());
     }
 
     /**
@@ -53,13 +56,20 @@ public class TaskSchedulerClient {
      */
     public UUID createTask(String taskName, String idempotencyKey, String businessType, UUID businessId,
                            int priority, Map<String, Object> parameters) {
+        return createTask(taskName, idempotencyKey, businessType, businessId, priority, parameters, Map.of());
+    }
+
+    private UUID createTask(String taskName, String idempotencyKey, String businessType, UUID businessId,
+                            int priority, Map<String, Object> parameters,
+                            Map<String, Object> requiredNodeLabels) {
         Map<String, Object> request = Map.of(
                 "taskName", taskName,
                 "idempotencyKey", idempotencyKey,
                 "businessType", businessType,
                 "businessId", businessId.toString(),
                 "priority", priority,
-                "parameters", parameters);
+                "parameters", parameters,
+                "requiredNodeLabels", requiredNodeLabels);
         JsonNode response = restClient.post().uri("/api/v1/task-instances")
                 .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
         if (response == null || response.path("id").isMissingNode()) {

@@ -9,3 +9,11 @@ spring:
     password: ${DSH_CONNECTOR_DB_PASSWORD:}
   flyway.locations: classpath:db/migration
 dsh-connector.internal-token: ${DSH_CONNECTOR_INTERNAL_TOKEN:}
+dsh-connector.rpc:
+  enabled: ${DSH_CONNECTOR_RPC_ENABLED:false}
+  base-url: ${DSH_CONNECTOR_RPC_BASE_URL:http://127.0.0.1:3080}
+  workspace-path: ${DSH_CONNECTOR_RPC_WORKSPACE_PATH:/home/pankang}
+  agent-preset: ${DSH_CONNECTOR_RPC_AGENT_PRESET:standard}
+  connect-timeout-seconds: ${DSH_CONNECTOR_RPC_CONNECT_TIMEOUT_SECONDS:5}
+  request-timeout-seconds: ${DSH_CONNECTOR_RPC_REQUEST_TIMEOUT_SECONDS:30}
+  probe-timeout-seconds: ${DSH_CONNECTOR_PROBE_TIMEOUT_SECONDS:90}

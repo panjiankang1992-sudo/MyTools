@@ -117,11 +117,10 @@ public class BookSourceRuntimeSearchService {
         SearchTask active = activeTaskId == null ? null : tasks.get(activeTaskId);
         if (active != null && "RUNNING".equals(active.status)) return snapshot(active, 0, MAX_POLL_RESULTS);
         List<SourceSnapshot> sources = loadEnabledSources(userId);
-        if (!"PROBE".equals(normalizedMode)) {
-            applicationEventPublisher.publishEvent(new ReaderSearchSidecarRequested(
-                    userId, normalizedKeyword, page, normalizedMode, List.of(normalizedKeyword),
-                    sources.stream().map(this::sidecarSource).toList()));
-        }
+        applicationEventPublisher.publishEvent(new ReaderSearchSidecarRequested(
+                userId, normalizedKeyword, page, normalizedMode,
+                "PROBE".equals(normalizedMode) ? List.of() : List.of(normalizedKeyword),
+                sources.stream().map(this::sidecarSource).toList()));
         SearchTask task = new SearchTask(UUID.randomUUID().toString(), userId, normalizedKeyword, normalizedMode, page,
                 sources.size(), activeKey);
         tasks.put(task.taskId, task);
@@ -183,11 +182,6 @@ public class BookSourceRuntimeSearchService {
                     : List.of(task.keyword);
             if (task.cancelled) return;
             if (terms.isEmpty()) throw new BusinessException(ErrorCode.READER_009);
-            if ("PROBE".equals(task.mode)) {
-                applicationEventPublisher.publishEvent(new ReaderSearchSidecarRequested(
-                        task.userId, task.keyword, task.page, task.mode, terms,
-                        sources.stream().map(this::sidecarSource).toList()));
-            }
             task.message = "PROBE".equals(task.mode) ? "探测词分析完成，正在执行书源搜索" : "正在执行书源搜索";
             int concurrency = Math.max(1, Math.min(MAX_SEARCH_CONCURRENCY, properties.getSearchConcurrency()));
             Semaphore semaphore = new Semaphore(concurrency);

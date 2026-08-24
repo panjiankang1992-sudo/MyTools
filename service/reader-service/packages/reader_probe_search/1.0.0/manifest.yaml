@@ -1,0 +1,20 @@
+name: reader_probe_search
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - http_dsh_connector
+  - task_child_orchestration
+parameters:
+  required:
+    - userId
+    - keyword
+    - page
+    - mode
+    - sources
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 480
+  maxSources: 500
+  maxResults: 500

@@ -45,10 +45,6 @@ public class ReaderSearchService {
      */
     @Transactional
     public SearchView create(CreateSearchRequest request) {
-        if (request.mode() == com.yuyutian.mytools.reader.model.SearchMode.PROBE
-                && request.searchTerms().isEmpty()) {
-            throw new IllegalArgumentException("probe search terms are missing");
-        }
         String scopedKey = scopedKey(request.ownerId(), request.idempotencyKey());
         SearchRecord record = repository.findByIdempotencyKey(scopedKey).orElseGet(() -> {
             Instant now = Instant.now();
@@ -64,7 +60,7 @@ public class ReaderSearchService {
         }
         if (record.taskId() == null) {
             UUID taskId = schedulerClient.createSearchTask(
-                    "reader_source_search:" + record.id() + ":reader-search-v3", record.id(), record.parameters());
+                    "reader_source_search:" + record.id() + ":reader-search-v4", record.id(), record.parameters());
             repository.bindTask(record.id(), taskId, "QUEUED");
             record = repository.findById(record.id()).orElseThrow();
         }
@@ -92,9 +88,12 @@ public class ReaderSearchService {
         for (SchedulerResult.StepResult step : latest.values()) {
             repository.saveShard(requestId, step.executionId(), step.targetIndex(), step.targetCount(),
                     step.status(), step.result());
-            total = Math.max(total, step.targetCount() == null ? 1 : step.targetCount());
+            boolean probeParent = "probe_search".equals(step.stepName());
+            total = Math.max(total, probeParent ? integer(step.result(), "totalSources")
+                    : step.targetCount() == null ? 1 : step.targetCount());
             if ("SUCCEEDED".equals(step.status())) {
-                completed++;
+                completed += probeParent ? integer(step.result(), "successfulSources") : 1;
+                failed += probeParent ? integer(step.result(), "failedSources") : 0;
                 for (Map<String, Object> result : resultRows(step.result())) {
                     aggregate.putIfAbsent(canonicalKey(result.get("name")), result);
                 }
@@ -172,15 +171,17 @@ public class ReaderSearchService {
         parameters.put("keyword", request.keyword());
         parameters.put("mode", request.mode().name());
         parameters.put("page", request.page());
-        parameters.put("searchTerms", request.mode() == com.yuyutian.mytools.reader.model.SearchMode.PROBE
-                ? request.searchTerms() : List.of(request.keyword()));
+        if (request.mode() != com.yuyutian.mytools.reader.model.SearchMode.PROBE) {
+            parameters.put("searchTerms", List.of(request.keyword()));
+        }
         parameters.put("sources", sources);
         return parameters;
     }
 
     private Map<UUID, SchedulerResult.StepResult> latestAttempts(List<SchedulerResult.StepResult> steps) {
         Map<UUID, SchedulerResult.StepResult> latest = new LinkedHashMap<>();
-        steps.stream().filter(step -> "search_sources".equals(step.stepName()))
+        steps.stream().filter(step -> "search_sources".equals(step.stepName())
+                        || "probe_search".equals(step.stepName()))
                 .sorted(Comparator.comparingInt(SchedulerResult.StepResult::attempt))
                 .forEach(step -> latest.put(step.executionId(), step));
         return latest;
@@ -193,6 +194,11 @@ public class ReaderSearchService {
             return List.of();
         }
         return list.stream().filter(Map.class::isInstance).map(value -> (Map<String, Object>) value).toList();
+    }
+
+    private int integer(Map<String, Object> result, String key) {
+        Object value = result.get(key);
+        return value instanceof Number number ? Math.max(0, number.intValue()) : 0;
     }
 
     private SearchView basicView(SearchRecord record, List<Map<String, Object>> results,

@@ -10,7 +10,7 @@ import java.util.Map;
  * @param keyword 关键词
  * @param page 页码
  * @param mode 搜索模式
- * @param searchTerms 已完成分析的探测词
+ * @param searchTerms 非探测模式的冻结关键词，探测模式为空
  * @param sources 书源不可变快照
  */
 public record ReaderSearchSidecarRequested(

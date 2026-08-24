@@ -14,7 +14,7 @@ Java 21 / Spring Boot
 
 已建立独立 `mytools_reader` schema、可独立构建的 Spring Boot 服务，以及 `reader_source_search` 1.2.0 分片脚本。Scheduler 将一个任务实例展开为稳定的执行目标，脚本依据目标序号确定性分配书源，并使用执行实例隔离的 Reader Runtime 命名空间，避免并发分片互相覆盖书源快照。Reader Service 持久化请求和参数快照，幂等创建任务，保存每个执行目标的原始结果，并按规范化书名合并部分成功结果；现有 MyTools 搜索仍为线上权威实现。
 
-MyTools 通过默认关闭的 `READER_SEARCH_SIDECAR_ENABLED` 开关向 Reader Service 提交同一书源快照，由 Reader Service 先持久化 `book_search_request` 和任务绑定，再创建 Scheduler 任务。`EXACT`、`FUZZY` 直接冻结原关键词；`PROBE` 先由现有 DSH 分析完成最多十个探测词，再把探测词和书源快照作为同一个不可变请求提交。新脚本对每个分片书源执行全部探测词并按规范化书名去重，旁路失败不影响旧搜索。Reader Runtime 密钥仅由 Executor 的 `script-environments.reader_source_search` 注入，不进入 Scheduler 参数或数据库。
+MyTools 通过默认关闭的 `READER_SEARCH_SIDECAR_ENABLED` 开关向 Reader Service 提交同一书源快照，由 Reader Service 先持久化 `book_search_request` 和任务绑定，再创建 Scheduler 任务。`EXACT`、`FUZZY` 直接冻结原关键词并创建 `reader_source_search`；`PROBE` 提交原始线索并创建 `reader_probe_search` 父任务。父任务调用 DSH Connector 生成最多五个冻结探测词，再创建多节点 `reader_source_search` 子任务并聚合结果。新分片脚本对每个书源执行全部探测词并按规范化书名去重。父任务要求节点标签 `dsh.connector=present`；旧 MyTools 仍独立完成线上权威搜索，旁路失败不影响旧响应。Reader Runtime 与 DSH Connector 密钥仅由 Executor 按脚本包注入，不进入 Scheduler 参数或数据库。
 
 服务默认监听 `127.0.0.1:23230`，使用 `READER_DB_*` 连接独立 `mytools_reader` schema，并通过 `TASK_SCHEDULER_URL` 调用 Scheduler。`POST /api/v1/book-searches` 创建搜索，`GET /api/v1/book-searches/{id}` 查询并聚合分片结果，`POST /api/v1/book-searches/{id}/cancel` 取消执行。这些接口要求 `READER_INTERNAL_TOKEN`，所有接口仍处于旁路阶段。
 

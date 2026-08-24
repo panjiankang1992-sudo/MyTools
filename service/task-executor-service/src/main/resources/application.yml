@@ -17,10 +17,12 @@ executor:
       - python3.12
   labels:
     storage.mount.managed: ${STORAGE_DEFAULT_ROOT_NODE_VALUE:present}
+    dsh.connector: ${DSH_CONNECTOR_NODE_VALUE:absent}
     executor.node: ${TASK_EXECUTOR_NODE_NAME:executor-local}
   cluster-names:
     - media
     - reader
+    - reader-probe-orchestration
     - download
     - messaging
     - asset
@@ -38,6 +40,9 @@ executor:
     reader_source_search:
       READER_RUNTIME_BASE_URL: ${READER_RUNTIME_BASE_URL:http://127.0.0.1:23120}
       READER_RUNTIME_SECURE_KEY: ${READER_RUNTIME_SECURE_KEY:}
+    reader_probe_search:
+      DSH_CONNECTOR_URL: ${DSH_CONNECTOR_URL:http://127.0.0.1:23320}
+      DSH_CONNECTOR_INTERNAL_TOKEN: ${DSH_CONNECTOR_INTERNAL_TOKEN:}
     reader_source_discovery:
       READER_SERVICE_URL: ${READER_SERVICE_URL:http://127.0.0.1:23230}
       READER_INTERNAL_TOKEN: ${READER_INTERNAL_TOKEN:}

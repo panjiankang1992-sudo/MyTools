@@ -2,6 +2,7 @@ package com.yuyutian.mytools.task.scheduler.controller;
 
 import com.yuyutian.mytools.task.scheduler.model.CreateChildTaskRequest;
 import com.yuyutian.mytools.task.scheduler.model.TaskInstanceView;
+import com.yuyutian.mytools.task.scheduler.model.TaskExecutionResultView;
 import com.yuyutian.mytools.task.scheduler.service.TaskScriptApiService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -61,6 +62,21 @@ public class TaskScriptApiController {
                                 @RequestHeader("X-Task-Lease-Token") UUID leaseToken,
                                 @PathVariable UUID taskId) {
         return service.getRelated(executionId, leaseToken, taskId);
+    }
+
+    /**
+     * 查询当前任务或直接子任务的步骤结果。
+     *
+     * @param executionId 当前执行标识
+     * @param leaseToken 租约令牌
+     * @param taskId 目标任务标识
+     * @return 任务步骤结果
+     */
+    @GetMapping("/{taskId}/results")
+    public TaskExecutionResultView getResults(@PathVariable UUID executionId,
+                                              @RequestHeader("X-Task-Lease-Token") UUID leaseToken,
+                                              @PathVariable UUID taskId) {
+        return service.getRelatedResults(executionId, leaseToken, taskId);
     }
 
     /**

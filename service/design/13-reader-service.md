@@ -16,6 +16,7 @@
 ## 任务类型
 
 - `reader_source_search`：多节点分片搜索。
+- `reader_probe_search`：单节点生成冻结探测词、创建分片搜索子任务并聚合结果。
 - `reader_source_discovery`、`reader_source_health_check`。
 - `reader_import_ebook`、`reader_extract_metadata`。
 - `reader_build_catalog`、`reader_prefetch_chapters`。
@@ -23,7 +24,7 @@
 
 书源搜索任务由 Scheduler 展开为不可变的多节点分片执行目标，目标按照书源序号确定性分片并允许部分成功；Reader Service 汇总全部目标结果、合并去重并通过事件推送进度。需要独立生命周期的发现、导入等工作仍通过脚本创建子任务。
 
-旧 MyTools 的搜索旁路不直接调用 Scheduler。启用 `READER_SEARCH_SIDECAR_ENABLED` 后，它把规范化关键词、模式、页码和同一批书源不可变快照提交到 Reader Service；Reader Service 在独立 schema 中保存请求、参数与任务绑定后再创建 `reader_source_search`。稳定幂等键包含整个旧请求指纹和策略版本。`PROBE` 在旧链路完成 DSH 探测词分析后冻结最多十个词，再提交同一个 Reader 请求；1.2.0 脚本对每个分片书源执行全部探测词并聚合去重。探测词生成待 DSH Connector 接管 RPC 后再从旧 MyTools 移出。旁路失败不影响旧内存搜索，开关默认关闭；创建、查询和取消接口统一校验 `READER_INTERNAL_TOKEN`。
+旧 MyTools 的搜索旁路不直接调用 Scheduler。启用 `READER_SEARCH_SIDECAR_ENABLED` 后，它把规范化关键词、模式、页码和同一批书源不可变快照提交到 Reader Service；Reader Service 在独立 schema 中保存请求、参数与任务绑定后再创建任务。稳定幂等键包含整个旧请求指纹和策略版本。`EXACT`、`FUZZY` 直接创建 `reader_source_search`；`PROBE` 立即提交原始线索，不等待旧 DSH 分析，并创建单节点 `reader_probe_search`。父任务通过 DSH Connector 生成最多五个冻结词，创建多节点 `reader_source_search` 直接子任务，等待终态并通过租约作用域结果接口聚合全部成功分片；父任务固定要求节点标签 `dsh.connector=present`，未配置 Connector 的节点不会领取。旧链路仍独立执行原有 DSH 分析并返回用户结果，因此旁路失败不影响旧内存搜索；开关及 Connector RPC 均默认关闭。
 
 ## 查询边界
 
@@ -50,6 +51,7 @@
 10. 旧 MyTools 的书源电子书导入已增加默认关闭的持久化旁路。旁路先按 owner 和 `sourceUrl` 解析新 schema 中已迁移书源，只在精确匹配时创建 `reader_import_ebook`；旧任务标识作为幂等键，新链路失败或书源尚未迁移均不影响旧导入。
 11. 旧 MyTools 的书源发现已增加默认关闭的持久化旁路。旧入口完成公网地址校验后发布不可变请求，Reader Service 以旧任务标识幂等创建 `reader_source_discovery`；新链路失败不影响旧线程池任务。
 12. 新 Reader 章节缓存维护已增加默认关闭的按小时任务触发。整点截止时间形成稳定幂等键，只清理新 schema 的过期缓存；旧本地缓存继续由原 Job 独立清理，缓存属于可再生数据且不执行迁移。
+13. 已将 `PROBE` 探测词生成迁到 DSH Connector，并增加 `reader_probe_search` 单节点父任务；旧 MyTools 只向旁路提交原始线索，新链路不会占用同步请求线程等待 DSH。
 
 ## 验收
 

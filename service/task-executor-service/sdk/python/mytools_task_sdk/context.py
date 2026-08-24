@@ -98,6 +98,14 @@ class TaskContext:
         )
         return TaskInstance.from_payload(payload)
 
+    def get_task_results(self, task_id: str) -> dict[str, Any]:
+        """查询当前任务或直接子任务的步骤执行结果。"""
+        return self._request(
+            "GET",
+            f"/internal/v1/executions/{self.execution_id}/tasks/{task_id}/results",
+            None,
+        )
+
     def cancel_child(self, task_id: str) -> TaskInstance:
         """请求取消当前任务的直接子任务。"""
         payload = self._request(

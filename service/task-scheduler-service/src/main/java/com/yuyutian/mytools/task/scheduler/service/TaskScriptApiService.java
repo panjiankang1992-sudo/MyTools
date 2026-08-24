@@ -3,6 +3,7 @@ package com.yuyutian.mytools.task.scheduler.service;
 import com.yuyutian.mytools.task.scheduler.model.CreateChildTaskRequest;
 import com.yuyutian.mytools.task.scheduler.model.CreateTaskRequest;
 import com.yuyutian.mytools.task.scheduler.model.TaskInstanceView;
+import com.yuyutian.mytools.task.scheduler.model.TaskExecutionResultView;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,16 +20,20 @@ public class TaskScriptApiService {
 
     private final JdbcTemplate jdbcTemplate;
     private final TaskInstanceService taskInstanceService;
+    private final TaskResultQueryService taskResultQueryService;
 
     /**
      * 创建脚本任务 API 服务。
      *
      * @param jdbcTemplate JDBC 模板
      * @param taskInstanceService 任务实例服务
+     * @param taskResultQueryService 任务结果查询服务
      */
-    public TaskScriptApiService(JdbcTemplate jdbcTemplate, TaskInstanceService taskInstanceService) {
+    public TaskScriptApiService(JdbcTemplate jdbcTemplate, TaskInstanceService taskInstanceService,
+                                TaskResultQueryService taskResultQueryService) {
         this.jdbcTemplate = jdbcTemplate;
         this.taskInstanceService = taskInstanceService;
+        this.taskResultQueryService = taskResultQueryService;
     }
 
     /**
@@ -64,6 +69,20 @@ public class TaskScriptApiService {
         UUID currentTaskId = requireActiveLease(executionId, leaseToken);
         assertSelfOrDirectChild(currentTaskId, targetTaskId);
         return taskInstanceService.get(targetTaskId);
+    }
+
+    /**
+     * 查询当前任务或直接子任务的步骤结果。
+     *
+     * @param executionId 当前执行标识
+     * @param leaseToken 租约令牌
+     * @param targetTaskId 目标任务标识
+     * @return 目标任务的步骤结果
+     */
+    public TaskExecutionResultView getRelatedResults(UUID executionId, UUID leaseToken, UUID targetTaskId) {
+        UUID currentTaskId = requireActiveLease(executionId, leaseToken);
+        assertSelfOrDirectChild(currentTaskId, targetTaskId);
+        return taskResultQueryService.get(targetTaskId);
     }
 
     /**

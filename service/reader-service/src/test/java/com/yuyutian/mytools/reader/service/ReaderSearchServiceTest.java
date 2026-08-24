@@ -74,19 +74,45 @@ class ReaderSearchServiceTest {
     }
 
     @Test
-    void shouldFreezeProbeTermsIntoSchedulerParameters() {
+    void shouldSubmitRawProbeClueToOrchestrationTask() {
         UUID taskId = UUID.randomUUID();
         when(schedulerClient.createSearchTask(anyString(), any(), anyMap())).thenReturn(taskId);
         var sources = List.of(new CreateSearchRequest.SourceSnapshot(
                 "source", "Source", "https://source.example", 1, Map.of()));
 
         searchService.create(new CreateSearchRequest(7L, "probe-key", "plot clue", SearchMode.PROBE,
-                1, List.of("hero", "lost prince"), sources));
+                1, List.of(), sources));
 
         @SuppressWarnings("unchecked") ArgumentCaptor<Map<String, Object>> parameters =
                 ArgumentCaptor.forClass(Map.class);
         verify(schedulerClient).createSearchTask(anyString(), any(), parameters.capture());
         assertThat(parameters.getValue().get("mode")).isEqualTo("PROBE");
-        assertThat(parameters.getValue().get("searchTerms")).isEqualTo(List.of("hero", "lost prince"));
+        assertThat(parameters.getValue()).doesNotContainKey("searchTerms");
+    }
+
+    /**
+     * 验证探测父任务的源级统计和结果会被聚合。
+     */
+    @Test
+    void shouldAggregateProbeParentSourceCounts() {
+        UUID taskId = UUID.randomUUID();
+        UUID executionId = UUID.randomUUID();
+        when(schedulerClient.createSearchTask(anyString(), any(), anyMap())).thenReturn(taskId);
+        var sources = List.of(new CreateSearchRequest.SourceSnapshot(
+                "source", "Source", "https://source.example", 1, Map.of()));
+        var created = searchService.create(new CreateSearchRequest(
+                9L, "probe-parent", "plot clue", SearchMode.PROBE, 1, List.of(), sources));
+        when(schedulerClient.getResults(taskId)).thenReturn(new SchedulerResult(taskId, "SUCCEEDED", List.of(
+                new SchedulerResult.StepResult(executionId, null, null, "probe_search", 1, "SUCCEEDED",
+                        Map.of("totalSources", 3, "successfulSources", 2, "failedSources", 1,
+                                "results", List.of(Map.of("name", "Matched Book")))))));
+
+        var result = searchService.get(created.id());
+
+        assertThat(result.status()).isEqualTo("PARTIAL_FAILED");
+        assertThat(result.completedShards()).isEqualTo(2);
+        assertThat(result.failedShards()).isEqualTo(1);
+        assertThat(result.totalShards()).isEqualTo(3);
+        assertThat(result.results()).extracting(value -> value.get("name")).containsExactly("Matched Book");
     }
 }
