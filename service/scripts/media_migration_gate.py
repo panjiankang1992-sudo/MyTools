@@ -27,7 +27,8 @@ def read_report(path: Path) -> dict:
 def evaluate(snapshot: dict, asset_dry: dict, asset_apply: dict,
              media_dry: dict, media_apply: dict, media_replay: dict,
              asset_reconciliation: dict, media_target: dict,
-             media_reconciliation: dict) -> dict:
+             media_reconciliation: dict,
+             expected_source_rejections: int = 0) -> dict:
     """Evaluate source, migration and target reconciliation invariants."""
     errors: set[str] = set()
     snapshot_id = text(snapshot.get("snapshotId"))
@@ -38,8 +39,8 @@ def evaluate(snapshot: dict, asset_dry: dict, asset_apply: dict,
     rejected = integer(snapshot, "rejected", errors)
     if owner_id <= 0:
         errors.add("SNAPSHOT_OWNER_INVALID")
-    if rejected != 0:
-        errors.add("SNAPSHOT_HAS_REJECTIONS")
+    if expected_source_rejections < 0 or rejected != expected_source_rejections:
+        errors.add("SOURCE_REJECTION_COUNT_MISMATCH")
     if not DIGEST.fullmatch(text(snapshot.get("digestSha256"))):
         errors.add("SNAPSHOT_DIGEST_INVALID")
 
@@ -170,6 +171,7 @@ def main() -> None:
     parser.add_argument("--asset-reconciliation-report", required=True, type=Path)
     parser.add_argument("--media-target-report", required=True, type=Path)
     parser.add_argument("--media-reconciliation-report", required=True, type=Path)
+    parser.add_argument("--expected-source-rejections", type=int, default=0)
     arguments = parser.parse_args()
     try:
         result = evaluate(read_report(arguments.snapshot_report),
@@ -180,7 +182,8 @@ def main() -> None:
                           read_report(arguments.media_replay_report),
                           read_report(arguments.asset_reconciliation_report),
                           read_report(arguments.media_target_report),
-                          read_report(arguments.media_reconciliation_report))
+                          read_report(arguments.media_reconciliation_report),
+                          arguments.expected_source_rejections)
     except (OSError, ValueError, json.JSONDecodeError):
         result = {"ready": False, "snapshotId": None, "captured": -1,
                   "mediaItems": -1, "legacyTags": -1, "errors": ["EVIDENCE_FILE_INVALID"]}

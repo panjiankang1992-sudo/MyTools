@@ -49,7 +49,7 @@ class MediaMigrationGateTest(unittest.TestCase):
         self.assertEqual([], result["errors"])
         self.assertNotIn("a" * 64, str(result))
 
-    def test_rejects_snapshot_rejections_and_missing_tags(self):
+    def test_rejects_unexpected_snapshot_rejections_and_missing_tags(self):
         source = snapshot()
         source["rejected"] = 1
         target = media_target()
@@ -58,8 +58,16 @@ class MediaMigrationGateTest(unittest.TestCase):
                                  media(False), asset_reconciliation(), target,
                                  media_reconciliation())
         self.assertFalse(result["ready"])
-        self.assertIn("SNAPSHOT_HAS_REJECTIONS", result["errors"])
+        self.assertIn("SOURCE_REJECTION_COUNT_MISMATCH", result["errors"])
         self.assertIn("MEDIA_TARGET_MISMATCH", result["errors"])
+
+    def test_accepts_explicitly_audited_source_rejection(self):
+        source = snapshot()
+        source["rejected"] = 1
+        result = MODULE.evaluate(source, asset(True), asset(False), media(True), media(False),
+                                 media(False), asset_reconciliation(), media_target(),
+                                 media_reconciliation(), 1)
+        self.assertTrue(result["ready"])
 
     def test_rejects_changed_source_and_partial_media_import(self):
         applied_asset = asset(False)

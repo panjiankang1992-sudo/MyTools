@@ -14,3 +14,5 @@ MyTools `local_file` 到 Asset Registry 的独立只读迁移防腐层。服务�
 导出默认 `LEGACY_ASSET_ADAPTER_EXPORT_ENABLED=false`。只有显式开启且提供 `LEGACY_ASSET_ADAPTER_INTERNAL_TOKEN` 后，`GET /internal/v1/migration/assets?snapshotId=...&limit=200&afterId=...` 才返回 `SEALED` 快照；健康检查不代表迁移已放量。
 
 正式迁移使用 `asset_migrate_legacy_mappings` 1.1.0。先保存快照报告，再依次保存 dry-run、正式执行、同迁移键重放及 Asset Registry `/evidence` 报告，最后运行 `service/scripts/asset_cutover_gate.py`。闸门默认拒绝任何源快照拒绝项；已人工核实且旧库仍保留的无内容记录必须用 `--expected-source-rejections` 明确声明，不能被静默计入成功迁移。
+
+后续媒体迁移复用同一封存快照时，`media_migration_gate.py` 也必须传入相同的 `--expected-source-rejections`；该参数只承认已审计的源端差异，不会把拒绝项计入已迁移媒体。
