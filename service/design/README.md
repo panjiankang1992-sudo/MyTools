@@ -2,6 +2,8 @@
 
 本目录描述 MyTools、DownloadBot 与 MsgService 重构后的目标架构。设计采用“在线领域服务 + 任务控制面 + 脚本执行面”，所有耗时且非直接数据查询操作均任务化。
 
+MsgService 的权威代码位于远程主机 `/opt/code/MsgService`。需要核验实现时，可以在远程主机生成排除密钥、数据库、附件、日志、依赖和构建产物的源码包，下载到本地仓库外进行只读分析；当前本地分析副本位于 `/Users/pankang/mycode/MsgService-remote`，不得作为 MyTools 子模块提交。
+
 ## 文档清单
 
 | 文档 | 服务/主题 |

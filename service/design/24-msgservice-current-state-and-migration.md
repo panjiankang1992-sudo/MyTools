@@ -2,7 +2,7 @@
 
 ## 已核验实现
 
-远程代码位置为 `/opt/code/MsgService`。服务采用 Node.js 22、TypeScript、Fastify、Nodemailer、ImapFlow、mailparser 和 SQLite，提供 REST 与 MCP 接口。发件流程先写入 `queued`，同步调用 SMTP 后更新为 `sent` 或 `failed`；收件流程轮询 IMAP unseen 邮件，解析 MIME、打标签并以 `external_id` 去重。
+远程主机上的权威代码位置为 `/opt/code/MsgService`。允许从该目录生成仅包含源码和安全配置样例的压缩包，下载到本地仓库外进行只读核验；打包时必须排除 `.env`、密钥、SQLite 数据库及 WAL/SHM、附件、日志、`node_modules` 和构建产物。当前核验副本位于 `/Users/pankang/mycode/MsgService-remote`，它不是迁移数据源，也不得提交到 MyTools 仓库。服务采用 Node.js 22、TypeScript、Fastify、Nodemailer、ImapFlow、mailparser 和 SQLite，提供 REST 与 MCP 接口。发件流程先写入 `queued`，同步调用 SMTP 后更新为 `sent` 或 `failed`；收件流程轮询 IMAP unseen 邮件，解析 MIME、打标签并以 `external_id` 去重。
 
 SQLite 核心表为 `channels`、`messages`、`tags`、`message_tags`、`templates` 和 `known_recipients`。`messages` 同时保存方向、正文、地址 JSON、附件 JSON、模板引用、状态、外部标识、原文和时间。旧实现可能把解析后的附件 Buffer 直接 JSON 序列化，因此迁移不能只保留附件元数据。
 
@@ -18,12 +18,13 @@ SQLite 核心表为 `channels`、`messages`、`tags`、`message_tags`、`templat
 
 ## 执行顺序
 
-1. 暂停旧服务写入，或在服务运行时调用 SQLite backup API 生成包含 WAL 状态的一致备份。
-2. 记录源表数量、状态分布和稳定集合摘要；不得打印邮件正文、地址或凭据。
-3. 提取附件到内容寻址归档，生成只含安全字段的清单并逐个校验。
-4. 使用适配器装载冻结发件快照；将同一一致备份生成的参考数据批次一并提交 Messaging dry-run，再正式导入。
-5. 重放同一批次应全部 skipped；核对 11 条消息、9/2 状态分布、6 个附件、4 个已归档摘要和 2 个源端已缺失证据。
-6. 导出并核对模板和已知收件人后，才允许退役旧数据目录；旧服务代码和库在最终验收前保持不变。
+1. 若实现发生变化，先从远程 `/opt/code/MsgService` 重新生成脱敏源码包并在仓库外核验；源码包不能代替数据备份。
+2. 暂停旧服务写入，或在服务运行时调用 SQLite backup API 生成包含 WAL 状态的一致备份。
+3. 记录源表数量、状态分布和稳定集合摘要；不得打印邮件正文、地址或凭据。
+4. 提取附件到内容寻址归档，生成只含安全字段的清单并逐个校验。
+5. 使用适配器装载冻结发件快照；将同一一致备份生成的参考数据批次一并提交 Messaging dry-run，再正式导入。
+6. 重放同一批次应全部 skipped；核对 11 条消息、9/2 状态分布、6 个附件、4 个已归档摘要和 2 个源端已缺失证据。
+7. 导出并核对模板和已知收件人后，才允许退役旧数据目录；旧服务代码和库在最终验收前保持不变。
 
 ## 实现边界
 

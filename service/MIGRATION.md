@@ -37,7 +37,7 @@
 ## 阶段 4：共享能力
 
 - [ ] Storage Gateway。已建立独立 `mytools_storage` schema、本地受管根的幂等流式上传、摘要校验、路径隔离、同文件系统原子发布及跨文件系统复制复验切换，并完成远端 Provider、根扫描、单用途访问票据、跨 Provider 树复制、下载校验后移动和镜像同步任务；受管根亲和标签已接入 Scheduler 不可变节点约束。移动已具备目标写入栅栏、失败补偿、源删除前后差异化处理和独立恢复任务。已增加 Provider 类型路由以及原生 WebDAV、S3 安全单级目录查询；原生 `COPY_OBJECT` 异步写任务已支持 RCLONE/WebDAV/S3 来源到 WebDAV/S3 目标的有界暂存、条件创建、SHA-256 复读校验、连接器级上限、目标所有权栅栏和失败/超时/取消补偿，现有 rclone 树任务保持兼容。Provider 迁移任务 1.1.0 已具备 dry-run、续跑游标、白名单脱敏、确定性摘要和幂等回绑，Drive 对账任务 1.1.0 已绑定账户、Provider 和成功根扫描证据。生产副本迁移、原生树操作及旧通用存储实现下线仍待后续迁移。
-- [ ] Messaging 和 Message Automation。已建立独立 schema、幂等邮件投递、标准入站消息、OneBot 标准化、事务 Outbox 和默认关闭的旧链路旁路；附件下载已任务化并绑定消息 owner。Messaging 与 Gateway 已增加 owner-bound 消息分页和安全详情，Provider 私有引用不会返回客户端。Automation 已实现完整授权范围的规则幂等校验，以及 URL 和标准附件动作的创建恢复、状态汇总和级联取消；EMAIL 完成通知通过默认关闭的 Outbox 中继幂等投递，非邮件通知等待对应 Delivery Provider。历史收信已具备幂等批次迁移。当前机器缺少旧 MsgService 源码/schema；取得真实结构后仍需编写只读映射器并执行实际数据导入。
+- [ ] Messaging 和 Message Automation。已建立独立 schema、幂等邮件投递、标准入站消息、OneBot 标准化、事务 Outbox 和默认关闭的旧链路旁路；附件下载已任务化并绑定消息 owner。Messaging 与 Gateway 已增加 owner-bound 消息分页和安全详情，Provider 私有引用不会返回客户端。Automation 已实现完整授权范围的规则幂等校验，以及 URL 和标准附件动作的创建恢复、状态汇总和级联取消；EMAIL 完成通知通过默认关闭的 Outbox 中继幂等投递，非邮件通知等待对应 Delivery Provider。历史收信已具备幂等批次迁移。旧 MsgService 权威代码位于远程 `/opt/code/MsgService`，已下载脱敏源码副本完成真实 schema 映射、只读导出器和生产一致备份演练；仍需在新 Messaging schema 执行正式 dry-run、导入和目标对账。
 - [ ] Asset Registry。已建立独立 `mytools_asset` schema、按 SHA-256 与大小去重的资产、跨租户业务来源、存储位置、派生关系、乐观版本、幂等写入和事务 Outbox；共享登记脚本已接入 Reader、HTTP 下载和媒体任务。V2 已实现位置失效、不可变资源包和带单调修订号的全库摘要任务；V3 已实现真实事务回滚式 dry-run、幂等旧 ID 映射和冲突报告。独立 `legacy-asset-adapter-service` 已按真实 `local_file` schema 实现单事务一致性捕获、拒绝审计、原子封存和默认关闭导出；快照现强制绑定可由新服务读取的正数 owner，避免迁移数据落入不可访问租户。生产副本捕获、正式迁移和对账待执行。
 - [ ] Media、Drive、Reader、Identity 独立服务。Drive 已补齐索引刷新任务和同 owner 账户间受控单对象复制的创建、状态查询、取消及 Gateway 入口；复制复用 Storage `COPY_OBJECT` 的条件写入、摘要复验与补偿，批量及树级写操作仍待按实际需求迁移。
 
@@ -47,7 +47,7 @@
 - [x] 建立不读取 Secret、不修改运行状态的 schema/开关预检工具，以及放量门禁和回退演练文档。
 - [x] 建立 Storage 迁移证据门禁，机器校验 dry-run/正式迁移摘要、零拒绝、完整回绑和逐 Provider 根扫描对账；工具不修改运行开关。
 - [x] 建立 DownloadBot 历史迁移证据门禁，机器校验封存快照、零拒绝、dry-run/正式迁移摘要、同键重放幂等和完成事件内容抽样对账；工具不连接数据库或修改运行开关。
-- [x] 建立 MsgService 标准历史快照迁移证据门禁，机器校验冻结高水位、dry-run/正式迁移一致、同键重放幂等和 Messaging 目标集合摘要；真实旧 schema 映射仍待取得源码后实现。
+- [x] 建立 MsgService 标准历史快照迁移证据门禁，机器校验冻结高水位、dry-run/正式迁移一致、同键重放幂等和 Messaging 目标集合摘要；已按远程 `/opt/code/MsgService` 的真实 schema 完成映射和只读生产演练。
 - [x] 建立 Identity 用户迁移证据门禁，使用冻结用户 ID 高水位、dry-run、事务审计、同键重放和目标集合摘要验证必须迁移的用户、BCrypt 哈希与角色；旧会话明确不迁移，生产副本执行和强制重新登录演练仍待进行。
 - [x] 建立独立 Gateway MVP、旧会话安全校验契约、默认关闭的 Identity 登录/刷新/当前会话注销入口、Reader 首批代理、Drive 目录只读代理、Download 生命周期代理及 Media 列表/详情/播放进度代理；Gateway 只转发重建后的载荷、只撤销实时校验绑定的会话并从已验证主体注入 owner，各领域总开关关闭时不调用对应下游。
 - [ ] 校验结果、性能、任务积压和错误率。
