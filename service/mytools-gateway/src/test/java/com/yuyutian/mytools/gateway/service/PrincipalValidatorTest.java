@@ -68,6 +68,6 @@ class PrincipalValidatorTest {
     private GatewayProperties properties(GatewayProperties.IdentityMode mode) {
         return new GatewayProperties(mode, false, true, Set.of(7L, 8L), false, Set.of(), false, Set.of(),
                 "http://mytools", "http://identity", "http://reader", "http://drive", "http://download",
-                "gateway-token", "identity-token", "reader-token", "drive-token", "download-token", 1000, 3000);
+                "gateway-token", "identity-token", "reader-token", "drive-token", "download-token", 1000, 3000, false, "", "");
     }
 }

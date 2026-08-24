@@ -12,6 +12,8 @@ Java 21 / Spring Boot
 
 已建立独立 `mytools_media` schema 和服务 MVP，覆盖资产事件收件箱、媒体身份、目录、版本化分析、标签、派生资产、任务绑定、播放进度及 Outbox。V2 增加目录扫描 generation、完整清单暂存、逐资产导入确认和原子发布；旧 MyTools 媒体表和 App API 仍为权威路径。详细设计见 [对应设计文档](../design/10-media-library-service.md)。
 
+同步查询新增 `GET /internal/v1/media/items?ownerId=&afterId=&limit=` 和已有单项、播放进度接口，供 Gateway 从认证主体注入 owner 后调用。Gateway 对外提供媒体分页、详情和进度写入，默认由 `GATEWAY_MEDIA_ROUTE_ENABLED=false` 关闭。目录扫描、标签、缩略图、截图和简介等耗时能力仍只通过任务执行，不进入同步查询路径。
+
 ## 实施要求
 
 - 首先实现稳定契约和最小健康检查。

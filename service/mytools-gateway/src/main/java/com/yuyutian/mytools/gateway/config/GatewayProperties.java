@@ -16,7 +16,8 @@ public record GatewayProperties(IdentityMode identityMode, boolean identityRoute
                                 String mytoolsUrl, String identityUrl, String readerUrl, String driveUrl,
                                 String downloadUrl, String internalToken, String identityToken,
                                 String readerToken, String driveToken, String downloadToken,
-                                int connectTimeoutMillis, int readTimeoutMillis) {
+                                int connectTimeoutMillis, int readTimeoutMillis,
+                                boolean mediaRouteEnabled, String mediaUrl, String mediaToken) {
 
     /**
      * 判断 Identity 登录入口与令牌校验模式是否形成可用组合。

@@ -146,6 +146,6 @@ class IdentityGatewayControllerTest {
     private GatewayProperties properties(boolean enabled, GatewayProperties.IdentityMode mode) {
         return new GatewayProperties(mode, enabled, false, Set.of(),
                 false, Set.of(), false, Set.of(), "http://mytools", "http://identity", "http://reader", "http://drive",
-                "http://download", "gateway-token", "identity-token", "reader-token", "drive-token", "download-token", 1000, 3000);
+                "http://download", "gateway-token", "identity-token", "reader-token", "drive-token", "download-token", 1000, 3000, false, "", "");
     }
 }
