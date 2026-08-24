@@ -1,26 +1,26 @@
 {
   "deploymentRoot": "/opt/yuyutian/mytools",
   "services": [
-    {"name": "task-scheduler-service", "port": 23210, "schema": "mytools_task", "dbPrefix": "TASK"},
-    {"name": "download-ingestion-service", "port": 23220, "schema": "mytools_download", "dbPrefix": "DOWNLOAD"},
-    {"name": "downloadbot-adapter-service", "port": 23221, "schema": "mytools_downloadbot_adapter", "dbPrefix": "DOWNLOADBOT_ADAPTER", "defaultEnabled": false},
-    {"name": "reader-service", "port": 23230, "schema": "mytools_reader", "dbPrefix": "READER"},
-    {"name": "storage-gateway-service", "port": 23240, "schema": "mytools_storage", "dbPrefix": "STORAGE"},
-    {"name": "messaging-service", "port": 23250, "schema": "mytools_messaging", "dbPrefix": "MESSAGING"},
-    {"name": "onebot-connector-service", "port": 23255, "schema": "mytools_onebot_connector", "dbPrefix": "ONEBOT_CONNECTOR", "defaultEnabled": false},
-    {"name": "message-automation-service", "port": 23260, "schema": "mytools_message_automation", "dbPrefix": "MESSAGE_AUTOMATION", "defaultEnabled": false},
-    {"name": "asset-registry-service", "port": 23270, "schema": "mytools_asset", "dbPrefix": "ASSET"},
-    {"name": "drive-service", "port": 23280, "schema": "mytools_drive", "dbPrefix": "DRIVE"},
-    {"name": "pikpak-connector-service", "port": 23285, "schema": "mytools_pikpak_connector", "dbPrefix": "PIKPAK_CONNECTOR", "defaultEnabled": false},
-    {"name": "identity-service", "port": 23290, "schema": "mytools_identity", "dbPrefix": "IDENTITY"},
-    {"name": "media-library-service", "port": 23300, "schema": "mytools_media", "dbPrefix": "MEDIA_LIBRARY"},
-    {"name": "app-catalog-service", "port": 23310, "schema": "mytools_app_catalog", "dbPrefix": "APP_CATALOG"},
-    {"name": "dsh-connector-service", "port": 23320, "schema": "mytools_dsh_connector", "dbPrefix": "DSH_CONNECTOR", "defaultEnabled": false},
-    {"name": "msgservice-adapter-service", "port": 23321, "schema": "mytools_msgservice_adapter", "dbPrefix": "MSGSERVICE_ADAPTER", "defaultEnabled": false},
-    {"name": "legacy-asset-adapter-service", "port": 23330, "schema": "mytools_legacy_asset_adapter", "dbPrefix": "LEGACY_ASSET_ADAPTER", "defaultEnabled": false}
+    {"name": "task-scheduler-service", "port": 23210, "schema": "mytools_task", "dbPrefix": "TASK", "runtime": "java"},
+    {"name": "download-ingestion-service", "port": 23220, "schema": "mytools_download", "dbPrefix": "DOWNLOAD", "runtime": "python", "executable": "mytools-download-ingestion", "after": ["task-scheduler-service"]},
+    {"name": "downloadbot-adapter-service", "port": 23221, "schema": "mytools_downloadbot_adapter", "dbPrefix": "DOWNLOADBOT_ADAPTER", "runtime": "python", "executable": "mytools-downloadbot-adapter", "after": ["download-ingestion-service"], "defaultEnabled": false},
+    {"name": "reader-service", "port": 23230, "schema": "mytools_reader", "dbPrefix": "READER", "runtime": "java", "after": ["task-scheduler-service"]},
+    {"name": "storage-gateway-service", "port": 23240, "schema": "mytools_storage", "dbPrefix": "STORAGE", "runtime": "java", "after": ["task-scheduler-service"]},
+    {"name": "messaging-service", "port": 23250, "schema": "mytools_messaging", "dbPrefix": "MESSAGING", "runtime": "java", "after": ["task-scheduler-service"]},
+    {"name": "onebot-connector-service", "port": 23255, "schema": "mytools_onebot_connector", "dbPrefix": "ONEBOT_CONNECTOR", "runtime": "python", "executable": "mytools-onebot-connector", "after": ["messaging-service"], "defaultEnabled": false},
+    {"name": "message-automation-service", "port": 23260, "schema": "mytools_message_automation", "dbPrefix": "MESSAGE_AUTOMATION", "runtime": "java", "after": ["messaging-service", "download-ingestion-service"], "defaultEnabled": false},
+    {"name": "asset-registry-service", "port": 23270, "schema": "mytools_asset", "dbPrefix": "ASSET", "runtime": "java", "after": ["storage-gateway-service"]},
+    {"name": "drive-service", "port": 23280, "schema": "mytools_drive", "dbPrefix": "DRIVE", "runtime": "java", "after": ["storage-gateway-service", "task-scheduler-service"]},
+    {"name": "pikpak-connector-service", "port": 23285, "schema": "mytools_pikpak_connector", "dbPrefix": "PIKPAK_CONNECTOR", "runtime": "java", "defaultEnabled": false},
+    {"name": "identity-service", "port": 23290, "schema": "mytools_identity", "dbPrefix": "IDENTITY", "runtime": "java"},
+    {"name": "media-library-service", "port": 23300, "schema": "mytools_media", "dbPrefix": "MEDIA_LIBRARY", "runtime": "java", "after": ["task-scheduler-service", "asset-registry-service"]},
+    {"name": "app-catalog-service", "port": 23310, "schema": "mytools_app_catalog", "dbPrefix": "APP_CATALOG", "runtime": "java", "after": ["asset-registry-service"]},
+    {"name": "dsh-connector-service", "port": 23320, "schema": "mytools_dsh_connector", "dbPrefix": "DSH_CONNECTOR", "runtime": "java", "defaultEnabled": false},
+    {"name": "msgservice-adapter-service", "port": 23321, "schema": "mytools_msgservice_adapter", "dbPrefix": "MSGSERVICE_ADAPTER", "runtime": "python", "executable": "mytools-msgservice-adapter", "after": ["messaging-service"], "defaultEnabled": false},
+    {"name": "legacy-asset-adapter-service", "port": 23330, "schema": "mytools_legacy_asset_adapter", "dbPrefix": "LEGACY_ASSET_ADAPTER", "runtime": "python", "executable": "mytools-legacy-asset-adapter", "after": ["asset-registry-service"], "defaultEnabled": false}
   ],
   "statelessServices": [
-    {"name": "mytools-gateway", "port": 23200},
-    {"name": "task-executor-service"}
+    {"name": "task-executor-service", "runtime": "java", "after": ["task-scheduler-service"]},
+    {"name": "mytools-gateway", "port": 23200, "runtime": "java", "after": ["identity-service", "reader-service", "drive-service", "download-ingestion-service", "media-library-service", "messaging-service", "app-catalog-service"]}
   ]
 }

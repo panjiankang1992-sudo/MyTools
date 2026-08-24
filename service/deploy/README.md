@@ -9,19 +9,20 @@
 ├── releases/          # 不可变版本及 current 软链接
 ├── config/            # 仓库外环境文件和非敏感配置
 ├── runtime/tasks/     # Executor 临时工作目录
-├── data/downloads/    # 下载落盘目录
-├── data/storage/      # Storage Gateway 托管根目录
 ├── migration/         # 受控迁移快照和对账报告
 └── logs/              # 服务日志
 ```
 
-数据库文件、附件和迁移快照不得放进 `releases/`，发布新版本时只替换 `current` 链接，不覆盖 `data/`、`migration/` 和 `logs/`。旧服务原有目录保持原状。
+数据库文件、附件和迁移快照不得放进 `releases/`，发布新版本时只替换 `current` 链接，不覆盖 `migration/` 和 `logs/`。旧服务原有目录保持原状。
+
+下载目标、媒体扫描目录、电子书目录和 Storage provider 根目录属于业务数据位置，与部署目录无关。它们应在 `services.env` 中指向实际数据盘、NAS 或远程存储挂载点；部署工具不创建、不移动也不删除这些目录。`READER_EBOOK_STORAGE_ROOT` 是 Storage Gateway 中的逻辑根名称，不是 `/opt/yuyutian/mytools` 下的物理路径。
 
 ## 文件
 
 - `services.json`：新服务端口、Schema 和数据库变量前缀的权威清单。
 - `env.example`：不包含真实凭据的最小环境变量模板。
 - `initialize_schemas.py`：创建独立 Schema、独立账号和授权；不会访问旧 Schema。
+- `generate_systemd_units.py`：根据清单生成服务单元、默认启动 target 和目录配置，不直接安装或启动。
 
 ## 初始化
 
@@ -40,6 +41,18 @@ uv run --no-project --python 3.12 --with pymysql python \
 ```
 
 工具只执行 `CREATE DATABASE IF NOT EXISTS`、服务账号创建/密码同步和新 Schema 授权。它不包含 `DROP`、`DELETE`、`TRUNCATE`，也不授予旧 Schema 权限。各 Java 服务启动时由 Flyway 在自己的新 Schema 内建表；Python 服务按各自 README 的迁移命令建表。
+
+## 生成启动编排
+
+在构建机生成并审阅 systemd 文件：
+
+```bash
+python3 service/deploy/generate_systemd_units.py --output /tmp/mytools-systemd
+```
+
+输出包含每个服务的 `.service`、`mytools-services.target` 和 `mytools.conf`。默认 target 不包含迁移适配器、OneBot、PikPak、DSH RPC 和消息自动化；这些能力只能单独显式启用。部署时将服务单元和 target 安装到 `/etc/systemd/system/`，将 `mytools.conf` 安装到 `/etc/tmpfiles.d/`，执行 `systemd-tmpfiles --create /etc/tmpfiles.d/mytools.conf` 后再启动 target。
+
+Java 发布包统一命名为 `releases/current/apps/<service>.jar`，Python 服务安装在 `releases/current/venv`。所有服务读取 `/opt/yuyutian/mytools/config/services.env`，该文件必须位于仓库外并限制为部署账号可读。systemd 单元不会限制业务数据必须位于部署根目录，但部署前必须由管理员为 `mytools` 账号授予所配置数据目录的最小读写权限。
 
 ## 启动顺序
 
