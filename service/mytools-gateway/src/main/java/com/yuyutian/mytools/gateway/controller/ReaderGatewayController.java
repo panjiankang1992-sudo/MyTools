@@ -2,6 +2,9 @@ package com.yuyutian.mytools.gateway.controller;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
+import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CatalogView;
+import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CreateImport;
+import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.ImportView;
 import com.yuyutian.mytools.gateway.model.ReaderSearchGatewayModels.CreateSearch;
 import com.yuyutian.mytools.gateway.model.ReaderSearchGatewayModels.SearchView;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
@@ -161,6 +164,58 @@ public class ReaderGatewayController {
     public SearchView cancelSearch(@PathVariable UUID id, HttpServletRequest request) {
         requireAllowed(request);
         return client.cancelSearch(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 创建电子书导入任务。
+     *
+     * @param body 创建请求
+     * @param request HTTP 请求
+     * @return 导入视图
+     */
+    @PostMapping("/ebook-imports")
+    public ImportView createImport(@Valid @RequestBody CreateImport body, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.createImport(principal(request).userId(), body, correlation(request));
+    }
+
+    /**
+     * 查询电子书导入任务。
+     *
+     * @param id 导入标识
+     * @param request HTTP 请求
+     * @return 导入视图
+     */
+    @GetMapping("/ebook-imports/{id}")
+    public ImportView importView(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.importView(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 取消电子书导入任务。
+     *
+     * @param id 导入标识
+     * @param request HTTP 请求
+     * @return 导入视图
+     */
+    @PostMapping("/ebook-imports/{id}/cancel")
+    public ImportView cancelImport(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.cancelImport(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 查询电子书目录。
+     *
+     * @param id 导入标识
+     * @param request HTTP 请求
+     * @return 目录视图
+     */
+    @GetMapping("/ebook-imports/{id}/catalog")
+    public CatalogView importCatalog(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.importCatalog(principal(request).userId(), id, correlation(request));
     }
 
     private List<Map<String, Object>> list(String resource, boolean includeDeleted, HttpServletRequest request) {

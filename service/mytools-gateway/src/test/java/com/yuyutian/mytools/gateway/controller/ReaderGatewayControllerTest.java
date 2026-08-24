@@ -2,6 +2,9 @@ package com.yuyutian.mytools.gateway.controller;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
+import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CatalogView;
+import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CreateImport;
+import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.ImportView;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.ReaderGatewayClient;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
@@ -66,6 +69,27 @@ class ReaderGatewayControllerTest {
     @Test
     void shouldInjectOwnerIntoSearchLifecycle() {
         ReaderGatewayClient client=mock(ReaderGatewayClient.class);ReaderGatewayController controller=new ReaderGatewayController(properties(true),client);CreateSearch body=new CreateSearch("search-1","Book","FUZZY",1,List.of(new SourceSnapshot("source","Source","https://source.example",1,Map.of())));UUID id=UUID.randomUUID();SearchView view=new SearchView(id,"QUEUED","Book","FUZZY",1,0,0,0,List.of(),java.time.Instant.EPOCH,java.time.Instant.EPOCH);when(client.createSearch(55L,body,"correlation")).thenReturn(view);when(client.search(55L,id,"correlation")).thenReturn(view);when(client.cancelSearch(55L,id,"correlation")).thenReturn(view);assertThat(controller.createSearch(body,request(55L))).isEqualTo(view);assertThat(controller.search(id,request(55L))).isEqualTo(view);assertThat(controller.cancelSearch(id,request(55L))).isEqualTo(view);
+    }
+
+    @Test
+    void shouldInjectOwnerIntoEbookImportLifecycle() {
+        ReaderGatewayClient client = mock(ReaderGatewayClient.class);
+        ReaderGatewayController controller = new ReaderGatewayController(properties(true), client);
+        UUID id = UUID.randomUUID();
+        UUID sourceId = UUID.randomUUID();
+        CreateImport body = new CreateImport("import-1", sourceId, "https://source.example/book", "Book", null);
+        ImportView view = new ImportView(id, "QUEUED", sourceId, 1, "Book", null,
+                null, null, null, null, java.time.Instant.EPOCH, java.time.Instant.EPOCH);
+        CatalogView catalog = new CatalogView(id, List.of());
+        when(client.createImport(55L, body, "correlation")).thenReturn(view);
+        when(client.importView(55L, id, "correlation")).thenReturn(view);
+        when(client.cancelImport(55L, id, "correlation")).thenReturn(view);
+        when(client.importCatalog(55L, id, "correlation")).thenReturn(catalog);
+
+        assertThat(controller.createImport(body, request(55L))).isEqualTo(view);
+        assertThat(controller.importView(id, request(55L))).isEqualTo(view);
+        assertThat(controller.cancelImport(id, request(55L))).isEqualTo(view);
+        assertThat(controller.importCatalog(id, request(55L))).isEqualTo(catalog);
     }
 
     private MockHttpServletRequest request(long userId) {

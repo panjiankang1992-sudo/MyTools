@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -61,6 +62,10 @@ class EbookImportServiceTest {
 
         var created = importService.create(request);
         var duplicate = importService.create(request);
+        assertThatThrownBy(() -> importService.get(created.id(), ownerId + 1))
+                .isInstanceOf(EbookImportNotFoundException.class);
+        assertThatThrownBy(() -> importService.cancel(created.id(), ownerId + 1))
+                .isInstanceOf(EbookImportNotFoundException.class);
         catalogWriteService.save(created.id(), new CatalogBatchRequest(true, List.of(
                 new CatalogBatchRequest.CatalogEntry(0, "Chapter One", "text:0", 0L, 100L))));
         catalogWriteService.save(created.id(), new CatalogBatchRequest(false, List.of(

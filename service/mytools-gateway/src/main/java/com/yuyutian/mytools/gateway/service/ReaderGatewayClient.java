@@ -1,6 +1,9 @@
 package com.yuyutian.mytools.gateway.service;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
+import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CatalogView;
+import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CreateImport;
+import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.ImportView;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -107,12 +110,86 @@ public class ReaderGatewayClient {
         return exchangeSearch(url, HttpMethod.POST, null, correlationId);
     }
 
+    /**
+     * 创建电子书导入任务。
+     *
+     * @param ownerId 所有者标识
+     * @param request 创建请求
+     * @param correlationId 关联标识
+     * @return 导入视图
+     */
+    public ImportView createImport(long ownerId, CreateImport request, String correlationId) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("ownerId", ownerId);
+        payload.put("idempotencyKey", request.idempotencyKey());
+        payload.put("sourceId", request.sourceId());
+        payload.put("bookUrl", request.bookUrl());
+        payload.put("title", request.title());
+        payload.put("author", request.author());
+        return exchangeImport(root() + "/api/v1/ebook-imports", HttpMethod.POST, payload, correlationId);
+    }
+
+    /**
+     * 查询电子书导入任务。
+     *
+     * @param ownerId 所有者标识
+     * @param id 导入标识
+     * @param correlationId 关联标识
+     * @return 导入视图
+     */
+    public ImportView importView(long ownerId, UUID id, String correlationId) {
+        String url = ownerUrl(root() + "/api/v1/ebook-imports/" + id, ownerId);
+        return exchangeImport(url, HttpMethod.GET, null, correlationId);
+    }
+
+    /**
+     * 取消电子书导入任务。
+     *
+     * @param ownerId 所有者标识
+     * @param id 导入标识
+     * @param correlationId 关联标识
+     * @return 导入视图
+     */
+    public ImportView cancelImport(long ownerId, UUID id, String correlationId) {
+        String url = ownerUrl(root() + "/api/v1/ebook-imports/" + id + "/cancel", ownerId);
+        return exchangeImport(url, HttpMethod.POST, null, correlationId);
+    }
+
+    /**
+     * 查询电子书目录。
+     *
+     * @param ownerId 所有者标识
+     * @param id 导入标识
+     * @param correlationId 关联标识
+     * @return 目录视图
+     */
+    public CatalogView importCatalog(long ownerId, UUID id, String correlationId) {
+        String url = ownerUrl(root() + "/api/v1/ebook-imports/" + id + "/catalog", ownerId);
+        var response = restTemplate.exchange(url, HttpMethod.GET, entity(null, correlationId), CatalogView.class);
+        if (response.getBody() == null) {
+            throw new IllegalStateException("Reader Service returned an empty response");
+        }
+        return response.getBody();
+    }
+
     private SearchView exchangeSearch(String url, HttpMethod method, Object body, String correlationId) {
         var response = restTemplate.exchange(url, method, entity(body, correlationId), SearchView.class);
         if (response.getBody() == null) {
             throw new IllegalStateException("Reader Service returned an empty response");
         }
         return response.getBody();
+    }
+
+    private ImportView exchangeImport(String url, HttpMethod method, Object body, String correlationId) {
+        var response = restTemplate.exchange(url, method, entity(body, correlationId), ImportView.class);
+        if (response.getBody() == null) {
+            throw new IllegalStateException("Reader Service returned an empty response");
+        }
+        return response.getBody();
+    }
+
+    private String ownerUrl(String url, long ownerId) {
+        return UriComponentsBuilder.fromHttpUrl(url).queryParam("ownerId", ownerId).toUriString();
     }
 
     private HttpEntity<?> entity(Object body, String correlationId) {

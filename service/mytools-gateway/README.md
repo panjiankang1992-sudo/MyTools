@@ -41,6 +41,8 @@ Identity 首批入口为 `POST /api/app/v1/identity/login`、`/refresh` 和 `/lo
 - `DUAL`：原校验成功时立即使用旧结果；仅在旧令牌失败时调用 Identity，支持客户端分批重新登录。
 - `IDENTITY`：只接受 Identity JWT 与服务端会话校验结果，必须在完成迁移和回滚演练后启用。
 
+Reader 电子书导入通过 Gateway 提供创建、查询、取消和目录接口，由可信主体注入 `ownerId`，响应不暴露内部调度任务标识。
+
 配置项为 `IDENTITY_VALIDATION_MODE`。远程校验失败时关闭授权，不降级为未校验身份。
 
 旧 MyTools 新增 `POST /internal/v1/gateway/tokens/validate`，使用 `GATEWAY_INTERNAL_TOKEN` 自校验并以 JSON body 接收访问令牌，避免旧公开校验接口把 token 放入 URL。`DUAL` 仅在旧服务明确返回 inactive 时尝试 Identity；旧服务网络或协议异常时直接关闭授权。

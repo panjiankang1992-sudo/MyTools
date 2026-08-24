@@ -54,6 +54,10 @@ public class EbookImportService {
     public EbookImportView create(CreateEbookImportRequest request) {
         EbookImportRecord record = repository.findByIdempotencyKey(request.ownerId(), request.idempotencyKey())
                 .orElseGet(() -> createRecord(request));
+        if (!record.sourceId().equals(request.sourceId()) || !record.bookUrl().equals(request.bookUrl())
+                || !record.title().equals(request.title())) {
+            throw new IllegalArgumentException("ebook import idempotency conflict");
+        }
         if (record.taskId() == null) {
             UUID taskId = schedulerClient.createTask("reader_import_ebook",
                     "reader_import_ebook:" + record.id() + ":v1", "READER_EBOOK_IMPORT",
@@ -97,6 +101,18 @@ public class EbookImportService {
     }
 
     /**
+     * 按所有者查询电子书导入结果。
+     *
+     * @param requestId 请求标识
+     * @param ownerId 所有者标识
+     * @return 导入视图
+     */
+    public EbookImportView get(UUID requestId, long ownerId) {
+        requiredOwner(requestId, ownerId);
+        return get(requestId);
+    }
+
+    /**
      * 取消电子书导入任务。
      *
      * @param requestId 请求标识
@@ -112,6 +128,18 @@ public class EbookImportService {
     }
 
     /**
+     * 按所有者取消电子书导入任务。
+     *
+     * @param requestId 请求标识
+     * @param ownerId 所有者标识
+     * @return 导入视图
+     */
+    public EbookImportView cancel(UUID requestId, long ownerId) {
+        requiredOwner(requestId, ownerId);
+        return cancel(requestId);
+    }
+
+    /**
      * 同步查询已成功导入电子书的目录。
      *
      * @param requestId 导入请求标识
@@ -123,6 +151,18 @@ public class EbookImportService {
             throw new EbookCatalogNotReadyException(requestId);
         }
         return repository.findCatalog(requestId);
+    }
+
+    /**
+     * 按所有者查询已完成电子书目录。
+     *
+     * @param requestId 请求标识
+     * @param ownerId 所有者标识
+     * @return 有序目录
+     */
+    public EbookCatalogView catalog(UUID requestId, long ownerId) {
+        requiredOwner(requestId, ownerId);
+        return catalog(requestId);
     }
 
     private EbookImportRecord createRecord(CreateEbookImportRequest request) {
@@ -150,6 +190,14 @@ public class EbookImportService {
 
     private EbookImportRecord required(UUID requestId) {
         return repository.findById(requestId).orElseThrow(() -> new EbookImportNotFoundException(requestId));
+    }
+
+    private EbookImportRecord requiredOwner(UUID requestId, long ownerId) {
+        EbookImportRecord record = required(requestId);
+        if (record.ownerId() != ownerId) {
+            throw new EbookImportNotFoundException(requestId);
+        }
+        return record;
     }
 
     private EbookImportView view(EbookImportRecord record) {
