@@ -25,6 +25,9 @@
 | [16-legacy-asset-adapter-service.md](16-legacy-asset-adapter-service.md) | MyTools local_file 一致性快照与只读资产迁移适配器 |
 | [17-pikpak-connector-service.md](17-pikpak-connector-service.md) | PikPak 离线提交、稳定性观察与受控移动适配器 |
 | [18-onebot-connector-service.md](18-onebot-connector-service.md) | OneBot/NapCat 文件解析、凭据隔离与受控内容流适配器 |
+| [21-app-catalog-service.md](21-app-catalog-service.md) | 应用目录、版本和文件关系迁移 |
+| [22-dsh-connector-service.md](22-dsh-connector-service.md) | DSH 会话绑定与连接适配 |
+| [23-legacy-data-disposition.md](23-legacy-data-disposition.md) | MyTools 旧表逐表分类、备份和数据保全门禁 |
 
 ## 共通约束
 
