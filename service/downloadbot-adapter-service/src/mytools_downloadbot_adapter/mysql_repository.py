@@ -7,7 +7,7 @@ import json
 from typing import Callable
 from uuid import UUID
 
-from .models import EventStatus, LegacyEvent
+from .models import AcceptLegacyEvent, EventStatus, LegacyEvent
 
 
 class MySqlEventRepository:
@@ -60,6 +60,26 @@ class MySqlEventRepository:
         finally:
             connection.close()
         return self.find_by_event_id(event.event_id) or event
+
+    def retryable(self, limit: int) -> list[AcceptLegacyEvent]:
+        """按稳定顺序返回尚未成功转发的事件。"""
+        if limit < 1 or limit > 500:
+            raise ValueError("retryable event limit is invalid")
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT event_id,source_type,source_key,request_kind,parameters_json "
+                    "FROM adapter_event WHERE status IN ('RECEIVED','FAILED') "
+                    "ORDER BY created_at,event_id LIMIT %s", (limit,))
+                rows = cursor.fetchall()
+            return [AcceptLegacyEvent(
+                event_id=str(row["event_id"]), source_type=str(row["source_type"]),
+                source_key=str(row["source_key"]), request_kind=str(row["request_kind"]),
+                parameters=(row["parameters_json"] if isinstance(row["parameters_json"], dict)
+                            else json.loads(str(row["parameters_json"])))) for row in rows]
+        finally:
+            connection.close()
 
     @staticmethod
     def _map(row: dict) -> LegacyEvent:

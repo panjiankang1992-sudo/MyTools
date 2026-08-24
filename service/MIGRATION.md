@@ -30,7 +30,7 @@
 
 ## 阶段 3：主要耗时任务
 
-- [ ] 下载任务。已建立 `mytools_download` schema、请求聚合、MySQL 仓储、接入 API 和七类父任务映射；受限 HTTP 下载脚本及状态/取消闭环已完成，HTTP 目标和重定向增加非公网地址防护，成功结果已通过可忽略步骤镜像 Asset Registry，并已提供不暴露源 URL 的内容摘要对账接口。下载聚合已增加独立 owner 权限边界、兼容回填和 owner-bound 查询/摘要/取消接口，Gateway 不暴露源参数或 Scheduler 任务 ID。已新增不修改旧仓库、使用独立 `mytools_downloadbot_adapter` schema 且默认 `DISABLED` 的 DownloadBot 防腐层；只读快照 1.1.0 已按真实 schema 覆盖链接任务和普通消息资产来源，并对消息身份做摘要脱敏；Download Ingestion 已通过固定字段白名单幂等导入四类不可变历史。旧仓库形成干净基线后再接入事件投递和结果摘要双跑。
+- [ ] 下载任务。已建立 `mytools_download` schema、请求聚合、MySQL 仓储、接入 API 和七类父任务映射；受限 HTTP 下载脚本及状态/取消闭环已完成，HTTP 目标和重定向增加非公网地址防护，成功结果已通过可忽略步骤镜像 Asset Registry，并已提供不暴露源 URL 的内容摘要对账接口。下载聚合已增加独立 owner 权限边界、兼容回填和 owner-bound 查询/摘要/取消接口，Gateway 不暴露源参数或 Scheduler 任务 ID。已新增不修改旧仓库、使用独立 `mytools_downloadbot_adapter` schema 且默认 `DISABLED` 的 DownloadBot 防腐层；只读快照 1.1.0 已按真实 schema 覆盖链接任务和普通消息资产来源，并对消息身份做摘要脱敏；Download Ingestion 已通过固定字段白名单幂等导入四类不可变历史。实时链接任务现可由独立旧库只读桥接按启用时高水位旁路投递，无需修改当前脏 DownloadBot 工作区；普通消息附件实时事件和生产结果摘要双跑仍待接入。
 - [ ] 媒体扫描、缩略图、截图和简介。已迁移 ffprobe、缩略图、十二帧截图和视频简介脚本，并加入默认关闭的 MyTools 旁路提交；目录扫描已实现受管根限制、冻结清单、父子任务摄取、Asset Registry 登记、Media Library 回写和完整 generation 原子发布。V48 已完成分析版本绑定、缩略图和故事板持久化、派生资产登记、标签/简介原子聚合以及失败/超时/取消终态回写；V49 已用 `analyze` 参数把成功摄取结果异步衔接到同节点分析任务；Media Library 与 Gateway 已补齐 owner-bound 扫描生命周期，创建请求摘要阻止幂等键参数漂移且对外不暴露任务 ID，V50 已提供全库对账报告。V70/V71 已增加基于同一封存 `local_file + file_tag` 快照和不可变 Asset Registry 映射的两遍式历史媒体导入，映射缺失时零写入，媒体项与旧标签在目标事务中一起提交且可幂等重跑；缩略图等派生结果重新生成。仍待使用生产副本和实际目录验证新链路。
 - [ ] 书源搜索、发现、电子书导入和索引。已建立独立 Reader Service、`mytools_reader` schema、原生多节点搜索分片、结果暂存与部分成功合并；Gateway 已接入 owner-bound 搜索、发现、健康检查、电子书导入和章节预取生命周期及缓存读取。发现、健康检查、电子书导入、目录、章节预取和缓存清理均已任务化，书库派生索引可原子发布；`PROBE` 已拆为调用 DSH Connector 生成冻结词集的单节点父任务及多节点搜索子任务，旧 MyTools 仅通过默认关闭旁路提交原始线索。现有电子书资产保持原位，不可再生书架、阅读进度和书签已具备幂等迁移，尚待使用实际数据导入。
 

@@ -6,6 +6,22 @@ DownloadBot 到 Download Ingestion 的独立旁路适配器，使用 Python 3.12
 
 内部接口为 `POST /internal/v1/downloadbot/events`，要求 `DOWNLOADBOT_ADAPTER_INTERNAL_TOKEN`。数据库账号只需本 schema 的 DML 权限；调用 Download Ingestion 使用单独的 `DOWNLOAD_INGESTION_TOKEN`。
 
+## 旧库只读实时桥接
+
+不修改旧 DownloadBot 的部署方式是单独运行 `mytools-downloadbot-live-bridge`。该进程只读取旧库 `link_jobs` 的身份、原始链接、类型、策略和来源键，在适配器 schema 中保存独立游标，然后复用同一个幂等收件箱。它不读取消息正文、反馈路由、结果 JSON、Cookie 或旧配置文件，也不更新旧任务状态。
+
+桥接具有两层关闭门禁：必须显式设置 `DOWNLOADBOT_LIVE_BRIDGE_ENABLED=true` 才能启动；只有 `DOWNLOADBOT_ADAPTER_MODE=SHADOW` 才会创建新下载任务，`DISABLED` 仅保存收件箱事件。默认 `DOWNLOADBOT_LIVE_BRIDGE_START_MODE=LATEST` 会在首次启动冻结旧 `link_jobs` 当前高水位，防止历史任务被重新下载。`BEGINNING` 只用于隔离测试或明确批准的全量重放，日常迁移不得使用。
+
+关键配置：
+
+- `DOWNLOADBOT_LEGACY_DB_*`：旧库连接，只授予 `link_jobs` 的 `SELECT`。
+- `DOWNLOADBOT_ADAPTER_DB_*`：适配器 schema DML，与旧库账号隔离。
+- `DOWNLOADBOT_PIKPAK_ACCOUNT_MAPPING`：旧账户键到新 PikPak UUID 的 JSON 对象；缺少映射的 Magnet 写入拒绝证据，不猜测账户。
+- `DOWNLOADBOT_LIVE_BRIDGE_POLL_SECONDS`：轮询间隔，默认 5 秒，范围 1 至 300 秒。
+- `DOWNLOADBOT_LIVE_BRIDGE_PAGE_SIZE`：单页上限，默认 100，最大 500。
+
+HTTP 链接映射为 `WEB_ARCHIVE`，由新父任务在执行时区分网页和直接资源；X 帖子映射为 `X_POST`；Magnet 映射为 `MAGNET`。影子转发失败时游标不会越过当前记录，恢复后会以相同 `downloadbot-link:{legacyId}` 事件标识重试。由 `DISABLED` 切换到 `SHADOW` 时，桥接进程先重放收件箱中既有的 `RECEIVED`、`FAILED` 事件，再消费新旧库行，因此审计阶段捕获的事件不会静默滞留。
+
 ## 历史快照迁移
 
 `V2__create_legacy_snapshot.sql` 增加独立快照、条目和拒绝审计表。执行

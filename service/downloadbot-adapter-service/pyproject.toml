@@ -11,6 +11,7 @@ dependencies = ["PyMySQL>=1.1,<2", "PyYAML>=6,<7"]
 
 [project.scripts]
 mytools-downloadbot-adapter = "mytools_downloadbot_adapter.main:main"
+mytools-downloadbot-live-bridge = "mytools_downloadbot_adapter.bridge_main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
