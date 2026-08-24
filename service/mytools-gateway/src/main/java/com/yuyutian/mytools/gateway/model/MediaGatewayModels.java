@@ -54,6 +54,6 @@ public final class MediaGatewayModels {
                                      @NotBlank @Size(max = 512) String directoryName,
                                      boolean analyze,
                                      @Pattern(regexp = "^[A-Za-z0-9._-]{1,64}$") String analysisVersion) { }
-    public record OperationView(UUID id, long ownerId, String operationType, UUID taskInstanceId,
+    public record OperationView(UUID id, long ownerId, String operationType,
                                 String status, Instant createdAt, Instant updatedAt) { }
 }
