@@ -42,7 +42,7 @@ MsgService 的 6 个旧附件中，4 个已进入内容寻址归档并验证 SHA
 
 ## 4. 外部连接实测
 
-- SMTP：使用旧 MsgService 当前配置执行 Nodemailer `verify()` 成功，只完成 TLS/认证握手，没有发送邮件。
+- SMTP：使用旧 MsgService 当前配置执行 Nodemailer `verify()` 成功；随后将同一主机上的配置安全映射到新 Messaging，启用 Spring Mail 健康检查后 `/actuator/health` 返回 `UP`。两次检查都只完成 TLS/认证握手，没有发送邮件。
 - IMAP：旧 MsgService 的 `EMAIL_IMAP_HOST`、`EMAIL_IMAP_USER`、`EMAIL_IMAP_PASS` 均为空，无法执行真实收件验证；新 Messaging 的邮件入口继续关闭。
 - OneBot：NapCat 容器、HTTP/WS 监听和旧 DownloadBot 服务进程均在线，但只读 `get_status` 请求被连接重置。旧 DownloadBot 的 `adapter_health_states` 同时记录 `OFFLINE`，连续失败 2,070 次，因此不能把进程存活视为 OneBot 可用。
 - PikPak：重复 RC 探测分别返回验证码初始化连接重置和请求超时，Storage/Drive 继续保留失败任务证据。
