@@ -1,0 +1,16 @@
+name: asset_migrate_legacy_mappings
+version: 1.1.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - legacy_asset_read
+  - asset_registry_write
+parameters:
+  required:
+    - migrationKey
+    - dryRun
+    - sourceSnapshotId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 1800

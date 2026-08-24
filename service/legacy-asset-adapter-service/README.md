@@ -12,3 +12,5 @@ MyTools `local_file` 到 Asset Registry 的独立只读迁移防腐层。服务�
 `ownerId` 不再默认使用 `0`。迁移前应先确定一个可通过 Identity/Gateway 正常访问的目标所有者；同一个封存快照不能改绑到其他 owner，避免数据进入新库后无法从业务接口读取。
 
 导出默认 `LEGACY_ASSET_ADAPTER_EXPORT_ENABLED=false`。只有显式开启且提供 `LEGACY_ASSET_ADAPTER_INTERNAL_TOKEN` 后，`GET /internal/v1/migration/assets?snapshotId=...&limit=200&afterId=...` 才返回 `SEALED` 快照；健康检查不代表迁移已放量。
+
+正式迁移使用 `asset_migrate_legacy_mappings` 1.1.0。先保存快照报告，再依次保存 dry-run、正式执行、同迁移键重放及 Asset Registry `/evidence` 报告，最后运行 `service/scripts/asset_cutover_gate.py`。闸门默认拒绝任何源快照拒绝项；已人工核实且旧库仍保留的无内容记录必须用 `--expected-source-rejections` 明确声明，不能被静默计入成功迁移。

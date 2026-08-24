@@ -356,6 +356,22 @@ public class AssetRepository {
     }
 
     /**
+     * 按稳定身份顺序读取一次正式迁移的映射摘要输入。
+     *
+     * @param migrationKey 迁移键
+     * @param sourceSnapshotId 来源快照标识
+     * @return 有序载荷摘要
+     */
+    public List<String> legacyMappingPayloadDigests(String migrationKey, String sourceSnapshotId) {
+        return jdbcTemplate.query("""
+                SELECT payload_sha256 FROM asset_legacy_mapping
+                WHERE migration_key=? AND source_snapshot_id=?
+                ORDER BY source_system, legacy_asset_id
+                """, (resultSet, rowNumber) -> resultSet.getString("payload_sha256"),
+                migrationKey, sourceSnapshotId);
+    }
+
+    /**
      * 写入旧资产映射及事务事件。
      */
     public void insertLegacyMapping(LegacyAssetMappingRecord mapping) {

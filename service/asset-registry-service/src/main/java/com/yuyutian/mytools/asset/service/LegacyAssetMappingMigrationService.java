@@ -5,6 +5,7 @@ import com.yuyutian.mytools.asset.model.LegacyAssetMappingItem;
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingLookupRequest;
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingLookupResult;
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingResult;
+import com.yuyutian.mytools.asset.model.LegacyAssetMappingEvidence;
 import com.yuyutian.mytools.asset.model.RegisterAssetRequest;
 import com.yuyutian.mytools.asset.repository.AssetRepository;
 import org.springframework.dao.DuplicateKeyException;
@@ -79,6 +80,25 @@ public class LegacyAssetMappingMigrationService {
     }
 
     /**
+     * 查询一次正式迁移的目标集合证据。
+     *
+     * @param migrationKey 迁移键
+     * @param sourceSnapshotId 来源快照标识
+     * @return 目标集合证据
+     */
+    public LegacyAssetMappingEvidence evidence(String migrationKey, String sourceSnapshotId) {
+        if (!validIdentifier(migrationKey) || !validIdentifier(sourceSnapshotId)) {
+            throw new IllegalArgumentException("Legacy asset migration evidence identity is invalid");
+        }
+        List<String> payloadDigests = repository
+                .legacyMappingPayloadDigests(migrationKey, sourceSnapshotId);
+        MessageDigest collection = digest();
+        payloadDigests.forEach(value -> update(collection, value));
+        return new LegacyAssetMappingEvidence(migrationKey, sourceSnapshotId, payloadDigests.size(),
+                HexFormat.of().formatHex(collection.digest()));
+    }
+
+    /**
      * 批量解析已完成迁移的旧资产标识。
      *
      * @param request 有界来源身份集合
@@ -110,7 +130,7 @@ public class LegacyAssetMappingMigrationService {
         AssetRepository.LegacyAssetMappingRecord existing = repository
                 .findLegacyMapping(item.sourceSystem(), item.legacyAssetId()).orElse(null);
         if (existing != null) {
-            return existing.payloadSha256().equals(payloadSha256)
+            return mappingMatches(existing, batch, payloadSha256)
                     ? Classification.SKIPPED : Classification.REJECTED;
         }
         try {
@@ -118,7 +138,7 @@ public class LegacyAssetMappingMigrationService {
                 AssetRepository.LegacyAssetMappingRecord concurrent = repository
                         .findLegacyMapping(item.sourceSystem(), item.legacyAssetId()).orElse(null);
                 if (concurrent != null) {
-                    return concurrent.payloadSha256().equals(payloadSha256)
+                    return mappingMatches(concurrent, batch, payloadSha256)
                             ? Classification.SKIPPED : Classification.REJECTED;
                 }
                 var asset = assetRegistryService.register(item.asset());
@@ -142,9 +162,20 @@ public class LegacyAssetMappingMigrationService {
             if (concurrent == null) {
                 throw exception;
             }
-            return concurrent.payloadSha256().equals(payloadSha256)
+            return mappingMatches(concurrent, batch, payloadSha256)
                     ? Classification.SKIPPED : Classification.REJECTED;
         }
+    }
+
+    private boolean mappingMatches(AssetRepository.LegacyAssetMappingRecord existing,
+                                   LegacyAssetMappingBatch batch, String payloadSha256) {
+        return existing.migrationKey().equals(batch.migrationKey())
+                && existing.sourceSnapshotId().equals(batch.sourceSnapshotId())
+                && existing.payloadSha256().equals(payloadSha256);
+    }
+
+    private boolean validIdentifier(String value) {
+        return value != null && value.matches("^[A-Za-z0-9._:-]{1,128}$");
     }
 
     private String itemDigest(LegacyAssetMappingItem item) {

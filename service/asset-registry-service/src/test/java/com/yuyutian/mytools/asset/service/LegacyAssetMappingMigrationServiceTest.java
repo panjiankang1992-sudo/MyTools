@@ -33,7 +33,7 @@ class LegacyAssetMappingMigrationServiceTest {
         var applied = service.migrate(new LegacyAssetMappingBatch(
                 "asset-migration-20", "snapshot-20", false, List.of(item)));
         var replay = service.migrate(new LegacyAssetMappingBatch(
-                "asset-migration-20-replay", "snapshot-20", false, List.of(item)));
+                "asset-migration-20", "snapshot-20", false, List.of(item)));
         var conflict = service.migrate(new LegacyAssetMappingBatch(
                 "asset-migration-20-conflict", "snapshot-20", false,
                 List.of(item("legacy-20", "6".repeat(64), "file:///legacy/20.bin"))));
@@ -43,6 +43,9 @@ class LegacyAssetMappingMigrationServiceTest {
         assertThat(replay.skipped()).isEqualTo(1);
         assertThat(conflict.rejected()).isEqualTo(1);
         assertThat(preview.digestSha256()).isEqualTo(applied.digestSha256());
+        assertThat(service.evidence("asset-migration-20", "snapshot-20").itemCount()).isOne();
+        assertThat(service.evidence("asset-migration-20", "snapshot-20").collectionSha256())
+                .isEqualTo(applied.digestSha256());
         assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM asset_legacy_mapping "
                 + "WHERE legacy_asset_id='legacy-20'", Integer.class)).isEqualTo(1);
         assertThat(jdbcTemplate.queryForObject("SELECT source_snapshot_id FROM asset_legacy_mapping "
@@ -50,6 +53,21 @@ class LegacyAssetMappingMigrationServiceTest {
         assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM asset_outbox "
                 + "WHERE event_type='AssetLegacyMappingRegistered'", Integer.class)).isGreaterThanOrEqualTo(1);
         assertThat(revision()).isGreaterThan(initialRevision);
+    }
+
+    @Test
+    void shouldRejectReplayWithAnotherMigrationIdentity() {
+        LegacyAssetMappingItem item = item("legacy-25", "a".repeat(64), "file:///legacy/25.bin");
+        service.migrate(new LegacyAssetMappingBatch(
+                "asset-migration-25", "snapshot-25", false, List.of(item)));
+
+        var changedKey = service.migrate(new LegacyAssetMappingBatch(
+                "asset-migration-25-other", "snapshot-25", false, List.of(item)));
+        var changedSnapshot = service.migrate(new LegacyAssetMappingBatch(
+                "asset-migration-25", "snapshot-25-other", false, List.of(item)));
+
+        assertThat(changedKey.rejected()).isOne();
+        assertThat(changedSnapshot.rejected()).isOne();
     }
 
     @Test

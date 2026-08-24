@@ -2,12 +2,15 @@ package com.yuyutian.mytools.asset.controller;
 
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingBatch;
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingResult;
+import com.yuyutian.mytools.asset.model.LegacyAssetMappingEvidence;
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingLookupRequest;
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingLookupResult;
 import com.yuyutian.mytools.asset.service.InternalRequestAuthorizer;
 import com.yuyutian.mytools.asset.service.LegacyAssetMappingMigrationService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +43,23 @@ public class LegacyAssetMappingMigrationController {
             @Valid @RequestBody LegacyAssetMappingBatch batch) {
         authorizer.requireAuthorized(authorization);
         return migrationService.migrate(batch);
+    }
+
+    /**
+     * 查询正式迁移的目标集合证据。
+     *
+     * @param authorization 内部访问令牌
+     * @param migrationKey 迁移键
+     * @param sourceSnapshotId 来源快照标识
+     * @return 目标集合证据
+     */
+    @GetMapping("/evidence")
+    public LegacyAssetMappingEvidence evidence(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @RequestParam String migrationKey,
+            @RequestParam String sourceSnapshotId) {
+        authorizer.requireAuthorized(authorization);
+        return migrationService.evidence(migrationKey, sourceSnapshotId);
     }
 
     /**

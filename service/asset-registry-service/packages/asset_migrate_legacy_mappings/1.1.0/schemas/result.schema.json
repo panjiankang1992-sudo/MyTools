@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["migrationKey", "dryRun", "sourceSnapshotId", "exported", "accepted", "skipped", "rejected", "digestSha256", "lastAfterId"],
+  "properties": {
+    "migrationKey": {"type": "string", "pattern": "^[A-Za-z0-9._:-]{1,128}$"},
+    "dryRun": {"type": "boolean"},
+    "sourceSnapshotId": {"type": "string", "pattern": "^[A-Za-z0-9._:-]{1,128}$"},
+    "exported": {"type": "integer", "minimum": 0},
+    "accepted": {"type": "integer", "minimum": 0},
+    "skipped": {"type": "integer", "minimum": 0},
+    "rejected": {"type": "integer", "minimum": 0},
+    "digestSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "lastAfterId": {"type": ["string", "null"], "maxLength": 255}
+  },
+  "additionalProperties": false
+}
