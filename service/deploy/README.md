@@ -22,6 +22,7 @@
 - `services.json`：新服务端口、Schema 和数据库变量前缀的权威清单。
 - `env.example`：不包含真实凭据的最小环境变量模板。
 - `initialize_schemas.py`：创建独立 Schema、独立账号和授权；不会访问旧 Schema。
+- `apply_python_migrations.py`：校验并执行 Python 服务的版本化 SQL，记录不可变校验和。
 - `generate_systemd_units.py`：根据清单生成服务单元、默认启动 target 和目录配置，不直接安装或启动。
 
 ## 初始化
@@ -41,6 +42,22 @@ uv run --no-project --python 3.12 --with pymysql python \
 ```
 
 工具只执行 `CREATE DATABASE IF NOT EXISTS`、服务账号创建/密码同步和新 Schema 授权。它不包含 `DROP`、`DELETE`、`TRUNCATE`，也不授予旧 Schema 权限。各 Java 服务启动时由 Flyway 在自己的新 Schema 内建表；Python 服务按各自 README 的迁移命令建表。
+
+Schema 与账号初始化后，先验证全部 Python 迁移文件：
+
+```bash
+python3 service/deploy/apply_python_migrations.py
+```
+
+确认计划后再连接新 Schema 执行：
+
+```bash
+uv run --no-project --python 3.12 --with pymysql python \
+  service/deploy/apply_python_migrations.py \
+  --env-file /path/to/mytools-services.env --apply
+```
+
+迁移工具只选择 `services.json` 中声明为 Python runtime 的新 Schema，并使用各服务自己的数据库账号。每个版本写入 `mytools_schema_history`；已经执行的文件若校验和改变会立即失败。工具拒绝 `CREATE/DROP DATABASE`、`USE`、`TRUNCATE TABLE` 和 `DELETE FROM`，旧 Schema 不在连接或授权范围内。
 
 ## 生成启动编排
 
