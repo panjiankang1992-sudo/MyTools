@@ -37,6 +37,7 @@
 4. Media Library 只接受与暂存条目的 owner、目录、来源标识、大小、类型和摘要全部匹配的回写，并在同一事务中标记条目为 `IMPORTED`。
 5. 父任务等待全部子任务成功后请求发布。服务仅在条目总数等于 `expected_count` 且全部为 `IMPORTED` 时原子完成 generation，并把上一 generation 中消失的目录关系标记为 `MISSING`；同一去重媒体仍存在于其他就绪目录时保持 `READY`。
 6. 失败、超时或取消不会发布 generation；重试使用扫描幂等键和子任务幂等键续跑。已完成 generation 的相同清单可安全重放。
+7. Media Library 提供 owner-bound 目录扫描操作 API，负责创建 Scheduler 任务、保存幂等绑定以及查询和取消；扫描脚本仍负责实际发现、子任务创建和 generation 发布。
 
 V49 增加可选的扫描后分析衔接。`analyze` 缺省为 `false`；显式启用时，每个摄取子任务在资产和媒体项均登记成功后，通过任务 SDK 创建同节点 `media_analyze_video` 子任务。分析幂等键由 `mediaItemId + analysisVersion` 构成。扫描只把“分析任务已可靠创建”作为摄取完成条件，不同步等待模型结果；这样目录 generation 的一致性不依赖 GPU 或模型吞吐，分析失败也通过自己的终态和重试策略处理。
 

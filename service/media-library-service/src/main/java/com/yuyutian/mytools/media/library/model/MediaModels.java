@@ -18,4 +18,6 @@ import jakarta.validation.Valid;import jakarta.validation.constraints.*;import j
  public record FinishScan(@NotBlank @Pattern(regexp="^[a-fA-F0-9]{64}$")String manifestSha256){}
  public record ScanView(UUID id,long ownerId,String directoryKey,String status,int expectedCount,int importedCount,String manifestSha256){}
  public record ReconciliationPage(UUID nextAfterId,long libraryRevision,int directoryCount,int completedScanCount,int stagingScanCount,int itemCount,int readyCount,int missingCount,int analyzingCount,int succeededAnalysisCount,int failedAnalysisCount,int runningAnalysisCount,int tagRelationCount,int artifactCount,int readyDirectoryEntryCount,int missingDirectoryEntryCount,String pageDigestSha256){}
+ public record StartDirectoryScan(@NotBlank @Size(max=255)String idempotencyKey,@NotBlank @Size(max=4096)String rootPath,@NotBlank @Size(max=255)String directoryKey,@NotBlank @Size(max=512)String directoryName,boolean analyze,@Pattern(regexp="^[A-Za-z0-9._-]{1,64}$")String analysisVersion){}
+ public record OperationView(UUID id,long ownerId,String operationType,UUID taskInstanceId,String status,Instant createdAt,Instant updatedAt){}
 }

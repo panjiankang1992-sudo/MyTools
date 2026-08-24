@@ -3,6 +3,8 @@ package com.yuyutian.mytools.gateway.controller;
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaPage;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartDirectoryScan;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.OperationView;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.MediaGatewayClient;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
@@ -11,6 +13,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,6 +45,11 @@ class MediaGatewayControllerTest {
         assertThatThrownBy(() -> controller.list(null, false, 50, request(55L)))
                 .isInstanceOf(GatewayRouteDisabledException.class);
         verify(client, never()).list(55L, null, false, 50, "correlation");
+    }
+
+    @Test
+    void shouldBindOwnerForDirectoryScanLifecycle() {
+        MediaGatewayClient client=mock(MediaGatewayClient.class);MediaGatewayController controller=new MediaGatewayController(properties(true),client);UUID operationId=UUID.randomUUID();StartDirectoryScan body=new StartDirectoryScan("scan-1","/media/movies","movies","Movies",true,"analysis-v1");OperationView operation=new OperationView(operationId,55L,"DIRECTORY_SCAN",UUID.randomUUID(),"RUNNING",Instant.EPOCH,Instant.EPOCH);when(client.startDirectoryScan(55L,body,"correlation")).thenReturn(operation);when(client.operation(55L,operationId,"correlation")).thenReturn(operation);when(client.cancel(55L,operationId,"correlation")).thenReturn(operation);assertThat(controller.startDirectoryScan(body,request(55L))).isEqualTo(operation);assertThat(controller.operation(operationId,request(55L))).isEqualTo(operation);assertThat(controller.cancel(operationId,request(55L))).isEqualTo(operation);
     }
 
     private MockHttpServletRequest request(long userId) {

@@ -5,6 +5,8 @@ import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaPage;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaView;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressRequest;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressView;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartDirectoryScan;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.OperationView;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -86,6 +88,27 @@ public class MediaGatewayClient {
         String url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/media/items/" + mediaId
                         + "/progress").queryParam("ownerId", ownerId).toUriString();
         return exchange(url, HttpMethod.PUT, request, ProgressView.class, correlationId);
+    }
+
+    /** 创建目录扫描任务。 @param ownerId 所有者 @param request 请求 @param correlationId 关联标识 @return 操作 */
+    public OperationView startDirectoryScan(long ownerId,StartDirectoryScan request,String correlationId) {
+        String url=UriComponentsBuilder.fromHttpUrl(root()+"/internal/v1/media/operations/directory-scans")
+            .queryParam("ownerId",ownerId).toUriString();
+        return exchange(url,HttpMethod.POST,request,OperationView.class,correlationId);
+    }
+
+    /** 查询媒体操作。 @param ownerId 所有者 @param operationId 操作 @param correlationId 关联标识 @return 操作 */
+    public OperationView operation(long ownerId,UUID operationId,String correlationId) {
+        String url=UriComponentsBuilder.fromHttpUrl(root()+"/internal/v1/media/operations/"+operationId)
+            .queryParam("ownerId",ownerId).toUriString();
+        return exchange(url,HttpMethod.GET,null,OperationView.class,correlationId);
+    }
+
+    /** 取消媒体操作。 @param ownerId 所有者 @param operationId 操作 @param correlationId 关联标识 @return 操作 */
+    public OperationView cancel(long ownerId,UUID operationId,String correlationId) {
+        String url=UriComponentsBuilder.fromHttpUrl(root()+"/internal/v1/media/operations/"+operationId+"/cancel")
+            .queryParam("ownerId",ownerId).toUriString();
+        return exchange(url,HttpMethod.POST,null,OperationView.class,correlationId);
     }
 
     private <T> T exchange(String url, HttpMethod method, Object body, Class<T> responseType,

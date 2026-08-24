@@ -20,7 +20,7 @@ Download 首批路由为创建 HTTPS 下载、查询状态、查询结果摘要�
 
 Drive 路由包括安全账户摘要列表、目录查询、`POST /accounts/{accountId}/refresh-index`、`GET /operations/{operationId}` 和取消接口。Gateway 使用已验证用户 ID 构造内部 `ownerId`，不返回 remote key、外部账户标识或 Secret 引用，并以 `DRIVE_INTERNAL_TOKEN` 调用 Drive Service；文件复制、移动和删除仍保留在旧入口。
 
-Media 首批路由为媒体分页、单项查询和播放进度写入：`GET /api/app/v1/media/items`、`GET /api/app/v1/media/items/{mediaId}` 与 `PUT /api/app/v1/media/items/{mediaId}/progress`。Media Library 新增按 owner 的有界分页查询；Gateway 只从认证主体注入 owner。媒体扫描和分析仍由任务服务及内部接口执行，不通过客户端同步触发。
+Media 路由包括媒体分页、单项查询、播放进度写入，以及目录扫描长任务的创建、状态查询和取消。Gateway 只从认证主体注入 owner；实际目录必须命中 Executor 配置的允许根，扫描可选择在成功摄取后继续创建媒体分析子任务。
 
 Identity 首批入口为 `POST /api/app/v1/identity/login`、`/refresh` 和 `/logout`，由 `GATEWAY_IDENTITY_ROUTE_ENABLED=false` 独立控制。Gateway 使用严格请求模型重建登录和刷新载荷，不转发客户端内部头或 Cookie；注销不接受客户端 session ID，只撤销访问令牌实时校验结果绑定的 Identity 会话。Identity 的认证失败、请求错误和服务不可用分别映射为稳定 Gateway 错误。启用该入口时，`IDENTITY_VALIDATION_MODE` 必须至少为 `DUAL`，否则运行时门禁仍拒绝签发或撤销新会话，避免新令牌无法用于受保护路由。
 

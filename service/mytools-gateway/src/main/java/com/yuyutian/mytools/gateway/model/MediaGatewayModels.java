@@ -2,6 +2,9 @@ package com.yuyutian.mytools.gateway.model;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 import java.time.Instant;
 import java.util.List;
@@ -45,4 +48,12 @@ public final class MediaGatewayModels {
                                long durationMs, boolean completed, long revision,
                                Instant clientUpdatedAt, Instant serverUpdatedAt) {
     }
+    public record StartDirectoryScan(@NotBlank @Size(max = 255) String idempotencyKey,
+                                     @NotBlank @Size(max = 4096) String rootPath,
+                                     @NotBlank @Size(max = 255) String directoryKey,
+                                     @NotBlank @Size(max = 512) String directoryName,
+                                     boolean analyze,
+                                     @Pattern(regexp = "^[A-Za-z0-9._-]{1,64}$") String analysisVersion) { }
+    public record OperationView(UUID id, long ownerId, String operationType, UUID taskInstanceId,
+                                String status, Instant createdAt, Instant updatedAt) { }
 }

@@ -2,6 +2,7 @@ package com.yuyutian.mytools.gateway.service;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressRequest;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartDirectoryScan;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -14,6 +15,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -60,6 +62,11 @@ class MediaGatewayClientTest {
         assertThat(result.ownerId()).isEqualTo(55L);
         assertThat(result.revision()).isEqualTo(1);
         server.verify();
+    }
+
+    @Test
+    void shouldBindOwnerWhenStartingDirectoryScan() {
+        RestTemplate restTemplate=new RestTemplate();MockRestServiceServer server=MockRestServiceServer.bindTo(restTemplate).build();UUID operationId=UUID.randomUUID();UUID taskId=UUID.randomUUID();server.expect(requestTo("http://media/internal/v1/media/operations/directory-scans?ownerId=55")).andExpect(method(POST)).andExpect(header("Authorization","Bearer media-token")).andExpect(content().json("{\"idempotencyKey\":\"scan-1\",\"rootPath\":\"/media/movies\",\"directoryKey\":\"movies\",\"directoryName\":\"Movies\",\"analyze\":true,\"analysisVersion\":\"analysis-v1\"}")).andRespond(withSuccess("{\"id\":\""+operationId+"\",\"ownerId\":55,\"operationType\":\"DIRECTORY_SCAN\",\"taskInstanceId\":\""+taskId+"\",\"status\":\"PENDING\",\"createdAt\":\"2026-08-24T00:00:00Z\",\"updatedAt\":\"2026-08-24T00:00:00Z\"}",MediaType.APPLICATION_JSON));var result=new MediaGatewayClient(restTemplate,properties()).startDirectoryScan(55L,new StartDirectoryScan("scan-1","/media/movies","movies","Movies",true,"analysis-v1"),"correlation");assertThat(result.id()).isEqualTo(operationId);server.verify();
     }
 
     private GatewayProperties properties() {

@@ -6,6 +6,8 @@ import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaPage;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaView;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressRequest;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressView;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartDirectoryScan;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.OperationView;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
 import com.yuyutian.mytools.gateway.service.MediaGatewayClient;
@@ -21,6 +23,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.http.HttpStatus;
 
 import java.util.UUID;
 
@@ -89,6 +94,27 @@ public class MediaGatewayController {
                                  HttpServletRequest request) {
         GatewayPrincipal principal = requireEnabled(request);
         return client.progress(principal.userId(), mediaId, body, correlation(request));
+    }
+
+    /** 创建目录扫描任务。 @param body 请求 @param request HTTP 请求 @return 操作 */
+    @PostMapping("/operations/directory-scans") @ResponseStatus(HttpStatus.ACCEPTED)
+    public OperationView startDirectoryScan(@Valid @RequestBody StartDirectoryScan body,HttpServletRequest request) {
+        GatewayPrincipal principal=requireEnabled(request);
+        return client.startDirectoryScan(principal.userId(),body,correlation(request));
+    }
+
+    /** 查询媒体操作。 @param operationId 操作 @param request HTTP 请求 @return 操作 */
+    @GetMapping("/operations/{operationId}")
+    public OperationView operation(@PathVariable UUID operationId,HttpServletRequest request) {
+        GatewayPrincipal principal=requireEnabled(request);
+        return client.operation(principal.userId(),operationId,correlation(request));
+    }
+
+    /** 取消媒体操作。 @param operationId 操作 @param request HTTP 请求 @return 操作 */
+    @PostMapping("/operations/{operationId}/cancel")
+    public OperationView cancel(@PathVariable UUID operationId,HttpServletRequest request) {
+        GatewayPrincipal principal=requireEnabled(request);
+        return client.cancel(principal.userId(),operationId,correlation(request));
     }
 
     private GatewayPrincipal requireEnabled(HttpServletRequest request) {

@@ -10,3 +10,4 @@ spring:
   flyway.locations: classpath:db/migration
 management.endpoints.web.exposure.include: health,info
 media-library.internal-token: ${MEDIA_LIBRARY_INTERNAL_TOKEN:}
+media-library.task-scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23100}
