@@ -36,6 +36,76 @@ public class DriveRepository {
         return findAccount(id).orElseThrow();
     }
 
+    /** 迁移一个冻结的旧账户批次。 @param request 迁移批次 @return 批次证据 */
+    public LegacyAccountMigrationResult migrateLegacyAccounts(LegacyAccountMigrationBatch request) {
+        MessageDigest collection = digest();
+        int accepted = 0;
+        int skipped = 0;
+        List<LegacyAccountMigrationItem> items = request.items().stream()
+            .sorted(Comparator.comparing(LegacyAccountMigrationItem::sourceSystem)
+                .thenComparingLong(LegacyAccountMigrationItem::legacyAccountId))
+            .toList();
+        for (LegacyAccountMigrationItem item : items) {
+            String payloadSha256 = legacyAccountDigest(item);
+            updateDigest(collection, item.sourceSystem(), Long.toString(item.legacyAccountId()), payloadSha256);
+            List<LegacyMigrationRow> existing = jdbc.query("""
+                SELECT migration_key,payload_sha256,target_account_id
+                FROM drive_account_migration WHERE source_system=? AND legacy_account_id=?
+                """, (resultSet, rowNumber) -> new LegacyMigrationRow(
+                    resultSet.getString("migration_key"), resultSet.getString("payload_sha256"),
+                    UUID.fromString(resultSet.getString("target_account_id"))),
+                item.sourceSystem(), item.legacyAccountId());
+            if (!existing.isEmpty()) {
+                LegacyMigrationRow row = existing.getFirst();
+                if (!request.migrationKey().equals(row.migrationKey())
+                        || !payloadSha256.equals(row.payloadSha256())) {
+                    throw new IllegalStateException("drive account migration conflict");
+                }
+                skipped++;
+                continue;
+            }
+            AccountView account = register(item.account());
+            jdbc.update("""
+                INSERT INTO drive_account_migration
+                    (migration_key,source_system,legacy_account_id,payload_sha256,target_account_id,created_at)
+                VALUES (?,?,?,?,?,?)
+                """, request.migrationKey(), item.sourceSystem(), item.legacyAccountId(), payloadSha256,
+                account.id().toString(), Timestamp.from(Instant.now()));
+            accepted++;
+        }
+        return new LegacyAccountMigrationResult(request.migrationKey(), request.dryRun(), items.size(),
+            accepted, skipped, 0, HexFormat.of().formatHex(collection.digest()));
+    }
+
+    /** 查询一次正式旧账户迁移的目标集合证据。 @param migrationKey 迁移键 @return 集合证据 */
+    public LegacyAccountMigrationEvidence legacyAccountMigrationEvidence(String migrationKey) {
+        MessageDigest collection = digest();
+        long[] count = {0};
+        jdbc.query("""
+            SELECT source_system,legacy_account_id,payload_sha256
+            FROM drive_account_migration WHERE migration_key=?
+            ORDER BY source_system,legacy_account_id
+            """, resultSet -> {
+                updateDigest(collection, resultSet.getString("source_system"),
+                    Long.toString(resultSet.getLong("legacy_account_id")),
+                    resultSet.getString("payload_sha256"));
+                count[0]++;
+            }, migrationKey);
+        return new LegacyAccountMigrationEvidence(migrationKey, count[0],
+            HexFormat.of().formatHex(collection.digest()));
+    }
+
+    private String legacyAccountDigest(LegacyAccountMigrationItem item) {
+        RegisterAccountRequest account = item.account();
+        MessageDigest payload = digest();
+        updateDigest(payload, Long.toString(account.ownerId()), account.externalAccountId(),
+            account.displayName(), account.providerType(), account.providerSecretRef(), account.remoteKey(),
+            Boolean.toString(account.readOnly()), Boolean.toString(account.enabled()));
+        return HexFormat.of().formatHex(payload.digest());
+    }
+
+    private record LegacyMigrationRow(String migrationKey, String payloadSha256, UUID targetAccountId) { }
+
     /** 查询账户。 @param id 账户标识 @return 账户 */
     public Optional<AccountView> findAccount(UUID id) {
         return jdbc.query("SELECT * FROM drive_account WHERE id=?", (rs,row)->account(rs), id.toString()).stream().findFirst();

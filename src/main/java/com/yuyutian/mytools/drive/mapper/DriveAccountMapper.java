@@ -22,6 +22,12 @@ public interface DriveAccountMapper {
     DriveAccount selectOwned(@Param("driveId") Long driveId, @Param("userId") Long userId);
 
     /** 按主键游标导出旧网盘账户元数据。 */
-    @Select("SELECT * FROM drive_account WHERE id > #{afterId} ORDER BY id ASC LIMIT #{limit}")
-    List<DriveAccount> selectMigrationBatch(@Param("afterId") Long afterId, @Param("limit") int limit);
+    @Select("SELECT * FROM drive_account WHERE id > #{afterId} AND id <= #{highWater} ORDER BY id ASC LIMIT #{limit}")
+    List<DriveAccount> selectMigrationBatch(@Param("afterId") Long afterId,
+                                            @Param("highWater") Long highWater,
+                                            @Param("limit") int limit);
+
+    /** 查询旧网盘账户迁移冻结高水位。 */
+    @Select("SELECT COALESCE(MAX(id), 0) FROM drive_account")
+    long selectMigrationHighWater();
 }

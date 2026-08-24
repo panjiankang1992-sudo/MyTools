@@ -30,7 +30,7 @@ Drive Service 现已提供索引刷新业务闭环：`POST /internal/v1/drive/ac
 
 Scheduler V25 为失败、超时和取消配置 `drive_finish_index` 特殊步骤，使未完成游标进入明确终态，后续补偿运行可以安全接管；收尾失败采用 `IGNORE`，不会掩盖任务原始终态。
 
-`drive_migrate_legacy_accounts` 任务通过 MyTools 只读分页接口迁移旧 `drive_account` 与 `webdav_account` 元数据。接口只返回 `secret://mytools/...` 引用，不返回加密密码、URL 或用户名；WebDAV/Alist 账户默认禁用，完成 provider 配置和对账后才能启用。Scheduler V26 提供手工即时迁移任务，不会自动执行。
+`drive_migrate_legacy_accounts` 1.1.0 任务通过 MyTools 只读分页接口迁移旧 `drive_account` 与 `webdav_account` 元数据。两个来源分别冻结主键高水位；接口只返回 `secret://mytools/...` 引用，不返回加密密码、URL 或用户名。目标批次先执行事务 dry-run，再用相同迁移键和高水位正式写入并重放；正式目标集合的数量和长度前缀 SHA-256 必须与来源一致，重放必须全部跳过。四份 JSON 证据交给 `service/scripts/drive_cutover_gate.py`，闸门通过后才允许进入 Provider 迁移。WebDAV/Alist 账户默认禁用，完成 Provider 配置和对账后才能启用；Scheduler V26/V86 提供手工即时迁移任务，不会自动执行。
 
 `storage_migrate_drive_providers` 手工任务通过独立 `DRIVE_STORAGE_MIGRATION_TOKEN` 分页读取账户 UUID、remote key、Secret 引用和启用状态，幂等注册 Storage Provider 后回绑 Drive。迁移接口不返回 URL、用户名或密码；Scheduler V31 不会自动执行。
 

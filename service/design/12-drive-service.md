@@ -31,7 +31,7 @@
 2. 将旧 WebDAV、Alist 账号迁移为统一账户。
 3. 已提供按 run/batch ledger 幂等的索引批次 API和 `drive_index_account` 任务；任务通过仅限回环地址和 `operations/list` 的 connector 递归扫描，批次完成前不会删除旧索引，且脚本无法读取远端凭据或提交任意命令。
 4. Gateway 已接入默认关闭的账户列表、目录查询、索引刷新、单对象复制、递归目录树复制、递归移动、目录树删除及统一操作查询和取消路由；账户列表和操作响应经过字段裁剪，不暴露 remote key、Secret 引用及底层任务标识。Gateway 从可信主体注入 owner，Drive 内部接口继续执行账户所有权和只读账户约束。
-5. 已提供手工触发的旧账户迁移任务；MyTools 只导出非敏感元数据与 Secret 引用，旧 rclone 账户保持原启用状态，WebDAV/Alist 默认禁用并等待 provider 配置，不自动改变旧查询流量。
+5. 已提供 `drive_migrate_legacy_accounts` 1.1.0 手工迁移任务；MyTools 分别冻结 Drive 与 WebDAV 主键高水位，只导出非敏感元数据与 Secret 引用。Drive 目标批次 API 在本地事务中执行 dry-run、正式写入和按来源旧主键幂等审计，集合摘要与独立目标证据必须一致；旧 rclone 账户保持原启用状态，WebDAV/Alist 默认禁用并等待 provider 配置，不自动改变旧查询流量。
 6. 新旧接口并行验证后切换 App。
 7. 拆独立服务并删除兼容模块。
 
@@ -40,3 +40,4 @@
 - 索引任务可从游标恢复。
 - 用户不能通过任务参数越权访问其他网盘。
 - 票据短期、只读且可撤销。
+- `drive_cutover_gate.py` 仅在 dry-run、正式执行、同键重放使用相同双来源高水位和摘要，首次写入零拒绝、重放全部跳过且目标数量与摘要一致时放行。

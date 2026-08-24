@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "required": ["migrationKey", "dryRun", "exported", "accepted", "skipped", "rejected", "digestSha256", "sourceHighWater"],
+  "properties": {
+    "migrationKey": {"type": "string"},
+    "dryRun": {"type": "boolean"},
+    "exported": {"type": "integer", "minimum": 0},
+    "accepted": {"type": "integer", "minimum": 0},
+    "skipped": {"type": "integer", "minimum": 0},
+    "rejected": {"type": "integer", "minimum": 0},
+    "digestSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "sourceHighWater": {
+      "type": "object",
+      "required": ["DRIVE", "WEBDAV"],
+      "properties": {
+        "DRIVE": {"type": "integer", "minimum": 0},
+        "WEBDAV": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

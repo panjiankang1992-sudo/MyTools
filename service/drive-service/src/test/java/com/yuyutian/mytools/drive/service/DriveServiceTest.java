@@ -68,6 +68,49 @@ class DriveServiceTest {
     }
 
     @Test
+    void shouldRollbackDryRunAndReconcileIdempotentLegacyAccountMigration() {
+        RegisterAccountRequest account = new RegisterAccountRequest(41L,"drive:401","Legacy Drive","RCLONE",
+            "secret://mytools/rclone/401","legacy_drive_401",true,true);
+        LegacyAccountMigrationItem item = new LegacyAccountMigrationItem("DRIVE",401L,account);
+        LegacyAccountMigrationBatch dryRun = new LegacyAccountMigrationBatch("drive-20260824",true,List.of(item));
+
+        LegacyAccountMigrationResult preview = service.migrateLegacyAccounts(dryRun);
+
+        assertThat(preview.accepted()).isOne();
+        assertThat(service.listAccounts(41L)).isEmpty();
+        assertThat(service.legacyAccountMigrationEvidence("drive-20260824").itemCount()).isZero();
+
+        LegacyAccountMigrationBatch apply = new LegacyAccountMigrationBatch("drive-20260824",false,List.of(item));
+        LegacyAccountMigrationResult imported = service.migrateLegacyAccounts(apply);
+        LegacyAccountMigrationResult replayed = service.migrateLegacyAccounts(apply);
+        LegacyAccountMigrationEvidence evidence = service.legacyAccountMigrationEvidence("drive-20260824");
+
+        assertThat(imported.accepted()).isOne();
+        assertThat(replayed.skipped()).isOne();
+        assertThat(replayed.digestSha256()).isEqualTo(imported.digestSha256());
+        assertThat(evidence.itemCount()).isOne();
+        assertThat(evidence.digestSha256()).isEqualTo(imported.digestSha256());
+        assertThat(service.listAccounts(41L)).singleElement()
+            .extracting(AccountView::externalAccountId).isEqualTo("drive:401");
+    }
+
+    @Test
+    void shouldRejectChangedLegacyAccountReplay() {
+        RegisterAccountRequest original = new RegisterAccountRequest(42L,"webdav:402","Legacy WebDAV","WEBDAV",
+            "secret://mytools/webdav/402","legacy_webdav_402",true,false);
+        service.migrateLegacyAccounts(new LegacyAccountMigrationBatch("drive-conflict",false,List.of(
+            new LegacyAccountMigrationItem("WEBDAV",402L,original))));
+        RegisterAccountRequest changed = new RegisterAccountRequest(42L,"webdav:402","Changed","WEBDAV",
+            "secret://mytools/webdav/402","legacy_webdav_402",true,false);
+
+        assertThatThrownBy(() -> service.migrateLegacyAccounts(
+            new LegacyAccountMigrationBatch("drive-conflict",false,List.of(
+                new LegacyAccountMigrationItem("WEBDAV",402L,changed)))))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("migration conflict");
+    }
+
+    @Test
     void shouldProduceTheSharedReconciliationGoldenDigest() {
         AccountView account=service.register(new RegisterAccountRequest(12L,"digest-account","Digest","RCLONE",
             "secret://drive/digest","digest_remote",true,true));

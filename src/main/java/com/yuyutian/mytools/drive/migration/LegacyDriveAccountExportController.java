@@ -26,21 +26,32 @@ public class LegacyDriveAccountExportController {
     /** 分页导出非敏感账户元数据。 @param authorization 授权头 @param source 来源 @param afterId 游标 @param limit 大小 @return 页面 */
     @GetMapping
     public ExportPage export(@RequestHeader("Authorization") String authorization,@RequestParam String source,
-        @RequestParam(defaultValue="0") long afterId,@RequestParam(defaultValue="100") int limit) {
+        @RequestParam(defaultValue="0") long afterId,
+        @RequestParam(required=false) Long snapshotHighWater,
+        @RequestParam(defaultValue="100") int limit) {
         authorize(authorization);
-        if(afterId<0||limit<1||limit>500) throw new IllegalArgumentException("migration page is invalid");
+        long highWater=snapshotHighWater==null?highWater(source):snapshotHighWater;
+        if(afterId<0||highWater<0||afterId>highWater||limit<1||limit>500)
+            throw new IllegalArgumentException("migration page is invalid");
         List<ExportAccount> accounts=switch(source) {
-            case "DRIVE" -> driveMapper.selectMigrationBatch(afterId,limit).stream().map(account -> new ExportAccount(
+            case "DRIVE" -> driveMapper.selectMigrationBatch(afterId,highWater,limit).stream().map(account -> new ExportAccount(
                 account.getId(),account.getUserId(),"drive:"+account.getId(),account.getDisplayName(),"RCLONE",
                 "secret://mytools/rclone/"+account.getId(),account.getRemoteKey(),Boolean.TRUE.equals(account.getReadOnly()),
                 Boolean.TRUE.equals(account.getEnabled()))).toList();
-            case "WEBDAV" -> webdavMapper.selectMigrationBatch(afterId,limit).stream().map(account -> new ExportAccount(
+            case "WEBDAV" -> webdavMapper.selectMigrationBatch(afterId,highWater,limit).stream().map(account -> new ExportAccount(
                 account.getId(),account.getUserId(),"webdav:"+account.getId(),account.getName(),provider(account.getType()),
                 "secret://mytools/webdav/"+account.getId(),"legacy_webdav_"+account.getId(),true,false)).toList();
             default -> throw new IllegalArgumentException("migration source is invalid");
         };
         long next=accounts.isEmpty()?afterId:accounts.getLast().legacyId();
-        return new ExportPage(accounts,next,accounts.size()<limit);
+        return new ExportPage(accounts,next,accounts.size()<limit||next>=highWater,highWater);
+    }
+    private long highWater(String source) {
+        return switch(source) {
+            case "DRIVE" -> driveMapper.selectMigrationHighWater();
+            case "WEBDAV" -> webdavMapper.selectMigrationHighWater();
+            default -> throw new IllegalArgumentException("migration source is invalid");
+        };
     }
     private String provider(String value) {
         String normalized=value==null?"WEBDAV":value.trim().toUpperCase().replaceAll("[^A-Z0-9]+","_");
@@ -55,5 +66,5 @@ public class LegacyDriveAccountExportController {
     public record ExportAccount(long legacyId,long ownerId,String externalAccountId,String displayName,
         String providerType,String providerSecretRef,String remoteKey,boolean readOnly,boolean enabled) { }
     /** 迁移分页。 */
-    public record ExportPage(List<ExportAccount> accounts,long nextAfterId,boolean complete) { }
+    public record ExportPage(List<ExportAccount> accounts,long nextAfterId,boolean complete,long snapshotHighWater) { }
 }

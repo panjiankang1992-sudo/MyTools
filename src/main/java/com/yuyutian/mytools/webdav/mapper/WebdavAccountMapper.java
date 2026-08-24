@@ -32,5 +32,10 @@ public interface WebdavAccountMapper {
     int updatePasswordById(Long id, String password);
 
     /** 按主键游标导出旧 WebDAV 账户元数据。 */
-    List<WebdavAccount> selectMigrationBatch(@Param("afterId") Long afterId, @Param("limit") int limit);
+    List<WebdavAccount> selectMigrationBatch(@Param("afterId") Long afterId,
+                                             @Param("highWater") Long highWater,
+                                             @Param("limit") int limit);
+
+    /** 查询旧 WebDAV 账户迁移冻结高水位。 */
+    long selectMigrationHighWater();
 }

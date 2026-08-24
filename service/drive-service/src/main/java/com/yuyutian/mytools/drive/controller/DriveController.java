@@ -23,6 +23,18 @@ public class DriveController {
     public AccountView register(@RequestHeader("Authorization") String authorization, @Valid @RequestBody RegisterAccountRequest request) {
         authorize(authorization); return service.register(request);
     }
+    /** 校验或迁移冻结旧账户批次。 @param authorization 授权头 @param request 批次 @return 批次证据 */
+    @PostMapping("/migrations/legacy-accounts/batches")
+    public LegacyAccountMigrationResult migrateLegacyAccounts(@RequestHeader("Authorization") String authorization,
+        @Valid @RequestBody LegacyAccountMigrationBatch request) {
+        authorize(authorization); return service.migrateLegacyAccounts(request);
+    }
+    /** 查询正式旧账户迁移证据。 @param authorization 授权头 @param migrationKey 迁移键 @return 集合证据 */
+    @GetMapping("/migrations/legacy-accounts/evidence")
+    public LegacyAccountMigrationEvidence legacyAccountMigrationEvidence(
+        @RequestHeader("Authorization") String authorization,@RequestParam String migrationKey) {
+        authorize(authorization); return service.legacyAccountMigrationEvidence(migrationKey);
+    }
     /** 查询所有者的账户。 @param authorization 授权头 @param ownerId 所有者 @return 账户列表 */
     @GetMapping("/accounts")
     public List<AccountView> accounts(@RequestHeader("Authorization") String authorization,@RequestParam long ownerId) {

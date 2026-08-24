@@ -31,6 +31,21 @@ public class DriveService {
     }
     /** 登记账户。 @param request 请求 @return 账户 */
     public AccountView register(RegisterAccountRequest request) { return transactions.execute(s -> repository.register(request)); }
+    /** 校验或迁移冻结的旧账户批次。 @param request 迁移批次 @return 批次证据 */
+    public LegacyAccountMigrationResult migrateLegacyAccounts(LegacyAccountMigrationBatch request) {
+        return transactions.execute(status -> {
+            LegacyAccountMigrationResult result = repository.migrateLegacyAccounts(request);
+            // dry-run 必须执行完整约束校验，但不得保留账户或迁移审计。
+            if (request.dryRun()) status.setRollbackOnly();
+            return result;
+        });
+    }
+    /** 查询正式旧账户迁移的目标集合证据。 @param migrationKey 迁移键 @return 集合证据 */
+    public LegacyAccountMigrationEvidence legacyAccountMigrationEvidence(String migrationKey) {
+        if (migrationKey == null || !migrationKey.matches("^[A-Za-z0-9._:-]{1,128}$"))
+            throw new IllegalArgumentException("drive migration key is invalid");
+        return repository.legacyAccountMigrationEvidence(migrationKey);
+    }
     /** 查询所有者的账户。 @param ownerId 所有者标识 @return 账户列表 */
     public List<AccountView> listAccounts(long ownerId) { return repository.listAccounts(ownerId); }
     /** 写入索引批次。 @param id 账户 @param request 请求 @return 批次结果 */

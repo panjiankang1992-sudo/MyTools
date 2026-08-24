@@ -18,6 +18,17 @@ public final class DriveModels {
     public record BindStorageProviderRequest(@NotNull UUID storageProviderId) { }
     public record StorageMigrationAccount(UUID id, String remoteKey, String providerSecretRef, boolean enabled) { }
     public record StorageMigrationPage(List<StorageMigrationAccount> items, UUID nextAfterId) { }
+    public record LegacyAccountMigrationItem(
+        @NotBlank @Pattern(regexp="^(DRIVE|WEBDAV)$") String sourceSystem,
+        @Positive long legacyAccountId,
+        @NotNull @Valid RegisterAccountRequest account) { }
+    public record LegacyAccountMigrationBatch(
+        @NotBlank @Pattern(regexp="^[A-Za-z0-9._:-]{1,128}$") String migrationKey,
+        boolean dryRun,
+        @NotNull @Size(max=100) List<@Valid LegacyAccountMigrationItem> items) { }
+    public record LegacyAccountMigrationResult(String migrationKey, boolean dryRun, int exported,
+        int accepted, int skipped, int rejected, String digestSha256) { }
+    public record LegacyAccountMigrationEvidence(String migrationKey, long itemCount, String digestSha256) { }
     public record IndexDigest(long itemCount, String contentSha256) { }
     public record IndexItem(@Size(max=255) String remoteId, @NotBlank @Size(max=2048) String remotePath,
         @NotBlank @Size(max=2048) String parentPath, @NotBlank @Size(max=512) String displayName,

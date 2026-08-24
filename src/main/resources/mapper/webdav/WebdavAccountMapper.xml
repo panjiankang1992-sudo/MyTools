@@ -71,7 +71,13 @@
   </update>
 
   <select id="selectMigrationBatch" resultMap="WebdavAccountResultMap">
-    SELECT * FROM webdav_account WHERE id &gt; #{afterId} ORDER BY id ASC LIMIT #{limit}
+    SELECT * FROM webdav_account
+    WHERE id &gt; #{afterId} AND id &lt;= #{highWater}
+    ORDER BY id ASC LIMIT #{limit}
+  </select>
+
+  <select id="selectMigrationHighWater" resultType="long">
+    SELECT COALESCE(MAX(id), 0) FROM webdav_account
   </select>
 
 </mapper>
