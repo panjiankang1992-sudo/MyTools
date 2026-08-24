@@ -32,7 +32,9 @@ Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 
 
 内部调用方通过 `POST /api/internal/v1/storage/operations/{id}/cancel` 取消操作，由 Storage Gateway 统一请求 Scheduler 取消，调用方无需持有 Scheduler 契约或令牌。
 
-S3 对象 GET、PUT、DELETE 使用 SigV4，临时会话令牌和条件写入头均纳入签名；HTTPS/回环端点下使用 `UNSIGNED-PAYLOAD`，写后复读 SHA-256 作为内容完整性门禁。`STORAGE_NATIVE_COPY_MAXIMUM_BYTES` 在 Gateway 与 Executor 两侧必须配置为相同值，默认 20 GiB；Gateway 会把目标连接器的更小上限返回给任务，S3 单次 PutObject 固定最多 5 GiB，任务在下载来源正文前即拒绝超限对象。原生递归树复制、移动和同步仍待逐项实现，现有 rclone 任务保持不变。
+S3 对象 GET、PUT、DELETE 使用 SigV4，临时会话令牌和条件写入头均纳入签名；HTTPS/回环端点下使用 `UNSIGNED-PAYLOAD`，写后复读 SHA-256 作为内容完整性门禁。`STORAGE_NATIVE_COPY_MAXIMUM_BYTES` 在 Gateway 与 Executor 两侧必须配置为相同值，默认 20 GiB；Gateway 会把目标连接器的更小上限返回给任务，S3 单次 PutObject 固定最多 5 GiB，任务在下载来源正文前即拒绝超限对象。现有 rclone 任务保持不变。
+
+`COPY_TREE_NATIVE` 提供原生递归树复制。`storage_copy_tree_native` 父任务先冻结完整来源清单，再按普通文件创建 `COPY_OBJECT` 子操作；父子关系持久化到独立表，目标路径由 Gateway 从父操作的来源根和目标根派生。只有全部子操作成功时父操作才允许成功。父任务失败、超时或取消会级联取消未完成子任务。该能力不改变 `COPY_TREE` 的 rclone 契约，也不会物化来源中的空目录；原生移动和同步仍待逐项实现。
 
 `POST /api/internal/v1/storage/operations` 当前开放已落地的 `SCAN_ROOT`。它创建 `storage_scan_root` 调度实例，Executor 广度遍历远端目录并以最多 500 项的批次幂等回写 `storage_operation_item`；对象总量受 `maximumObjects` 硬限制。成功、失败、超时和取消都会回写稳定终态，任务参数只携带 Provider UUID，不携带 remote 键或密钥。
 

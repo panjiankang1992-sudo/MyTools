@@ -1,0 +1,1 @@
+{"type":"object","required":["operationId","status","itemCount","childCount"],"properties":{"operationId":{"type":"string","format":"uuid"},"status":{"const":"SUCCEEDED"},"itemCount":{"type":"integer","minimum":0},"childCount":{"type":"integer","minimum":0}}}

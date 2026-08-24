@@ -1,0 +1,9 @@
+INSERT INTO task_definition (id,name,description,task_type,timeout_seconds,cluster_id,cron_expression,cron_timezone,execution_mode,enabled,max_concurrency,overlap_policy,misfire_policy,parameter_schema,result_schema,version,created_at,updated_at)
+VALUES ('00000000-0000-4000-8000-000000000367','storage_copy_tree_native','Freeze and copy one Provider tree through native object child tasks','IMMEDIATE',43200,'00000000-0000-4000-8000-000000000008',NULL,NULL,'SINGLE_NODE',TRUE,4,'SKIP','IGNORE','{}','{}',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+
+INSERT INTO task_step_definition (id,task_definition_id,name,description,step_kind,script_package,script_version,entrypoint,arguments_template,enabled,timeout_seconds,failure_policy,sequence_number,max_attempts,created_at,updated_at)
+VALUES
+('00000000-0000-4000-8000-000000000700','00000000-0000-4000-8000-000000000367','copy_tree_native','Freeze the source tree and orchestrate object copy children','NORMAL','storage_copy_native_tree','1.0.0','scripts/main.py','[]',TRUE,43200,'FAIL_TASK',10,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+('00000000-0000-4000-8000-000000000701','00000000-0000-4000-8000-000000000367','on_failure','Cancel children and mark the parent failed','FAILURE','storage_abort_native_tree','1.0.0','scripts/main.py','[]',TRUE,90,'IGNORE',10,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+('00000000-0000-4000-8000-000000000702','00000000-0000-4000-8000-000000000367','on_timeout','Cancel children and mark the parent timed out','TIMEOUT','storage_abort_native_tree','1.0.0','scripts/main.py','[]',TRUE,90,'IGNORE',10,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+('00000000-0000-4000-8000-000000000703','00000000-0000-4000-8000-000000000367','on_cancel','Cancel children and mark the parent cancelled','CANCEL','storage_abort_native_tree','1.0.0','scripts/main.py','[]',TRUE,90,'IGNORE',10,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);

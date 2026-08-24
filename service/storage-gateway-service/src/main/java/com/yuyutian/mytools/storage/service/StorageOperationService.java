@@ -86,7 +86,7 @@ public class StorageOperationService {
             target = repository.findProviderById(targetProviderId).filter(StorageProvider::enabled)
                     .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
         }
-        if ("COPY_OBJECT".equals(request.operationType())
+        if (("COPY_OBJECT".equals(request.operationType()) || "COPY_TREE_NATIVE".equals(request.operationType()))
                 && (!connectorRegistry.supportsContentRead(provider)
                 || !connectorRegistry.supportsContentWrite(target))) {
             throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_UNSUPPORTED.code());
@@ -108,7 +108,7 @@ public class StorageOperationService {
                 }
             }
         }
-        if (operation.targetProviderId() != null) {
+        if (operation.targetProviderId() != null && !"COPY_TREE_NATIVE".equals(operation.operationType())) {
             try {
                 moveRepository.reserveTarget(operation.id(), operation.targetProviderId(), operation.targetPath(),
                         pathDigest(operation.targetPath()));
@@ -144,6 +144,9 @@ public class StorageOperationService {
      */
     public StorageOperation cancel(UUID id) {
         StorageOperation operation = require(id);
+        if ("COPY_TREE_NATIVE".equals(operation.operationType())) {
+            cancelChildren(id);
+        }
         if (!TERMINAL_STATUSES.contains(operation.status()) && operation.taskInstanceId() != null) {
             schedulerClient.cancel(operation.taskInstanceId());
         }
@@ -179,6 +182,10 @@ public class StorageOperationService {
             throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
         }
         StorageOperation operation = require(id);
+        if ("COPY_TREE_NATIVE".equals(operation.operationType()) && "SUCCEEDED".equals(status)
+                && repository.findChildOperations(id).stream().anyMatch(child -> !"SUCCEEDED".equals(child.status()))) {
+            throw new IllegalStateException(ErrorCode.OPERATION_STATE_INVALID.code());
+        }
         if (TERMINAL_STATUSES.contains(operation.status())) {
             if (!operation.status().equals(status)) {
                 throw new IllegalStateException(ErrorCode.OPERATION_CONFLICT.code());
@@ -193,6 +200,79 @@ public class StorageOperationService {
             moveRepository.releaseTarget(id);
         }
         return require(id);
+    }
+
+    /**
+     * 从父操作冻结清单中幂等创建单对象复制子操作。
+     *
+     * @param parentId 父操作标识
+     * @param sourceObjectPath 来源对象路径
+     * @return 已调度的子操作
+     */
+    public StorageOperation createNativeTreeChild(UUID parentId, String sourceObjectPath) {
+        StorageOperation parent = require(parentId);
+        if (!"COPY_TREE_NATIVE".equals(parent.operationType()) || !"RUNNING".equals(parent.status())
+                || !repository.containsFrozenFile(parentId, sourceObjectPath)) {
+            throw new IllegalStateException(ErrorCode.OPERATION_STATE_INVALID.code());
+        }
+        String normalizedSource = normalizePath(sourceObjectPath);
+        String relative = relativePath(parent.sourcePath(), normalizedSource);
+        String childTarget = joinPath(parent.targetPath(), relative);
+        String childKey = parent.idempotencyKey() + ":object:" + pathDigest(normalizedSource);
+        StorageOperation child;
+        try {
+            child = create(new CreateOperationRequest(childKey, parent.providerId(), "COPY_OBJECT",
+                    normalizedSource, parent.targetProviderId(), childTarget, 1));
+        } catch (RuntimeException exception) {
+            // 操作可能已落库但尚未完成目标预占或调度，仍需纳入父级补偿。
+            repository.findOperationByKey(childKey).ifPresent(existing -> repository.linkChildOperation(
+                    parentId, existing.id(), normalizedSource, childTarget));
+            throw exception;
+        }
+        repository.linkChildOperation(parentId, child.id(), normalizedSource, childTarget);
+        return child;
+    }
+
+    /**
+     * 级联取消原生树复制子操作并设置父操作终态。
+     *
+     * @param id 父操作标识
+     * @param status 父操作终态
+     * @param errorCode 错误码
+     * @return 最新父操作
+     */
+    public StorageOperation abortNativeTree(UUID id, String status, String errorCode) {
+        StorageOperation operation = require(id);
+        if (!"COPY_TREE_NATIVE".equals(operation.operationType())) {
+            throw new IllegalStateException(ErrorCode.OPERATION_STATE_INVALID.code());
+        }
+        cancelChildren(id);
+        return finish(id, status, errorCode);
+    }
+
+    private void cancelChildren(UUID parentId) {
+        for (StorageOperation child : repository.findChildOperations(parentId)) {
+            if (!TERMINAL_STATUSES.contains(child.status()) && child.taskInstanceId() != null) {
+                schedulerClient.cancel(child.taskInstanceId());
+            } else if (!TERMINAL_STATUSES.contains(child.status())) {
+                finish(child.id(), "CANCELLED", "STORAGE_PARENT_ABORTED");
+            }
+        }
+    }
+
+    private String relativePath(String root, String objectPath) {
+        if (root.isEmpty()) {
+            return objectPath;
+        }
+        String prefix = root + "/";
+        if (!objectPath.startsWith(prefix) || objectPath.length() == prefix.length()) {
+            throw new IllegalArgumentException(ErrorCode.PATH_INVALID.code());
+        }
+        return objectPath.substring(prefix.length());
+    }
+
+    private String joinPath(String root, String relative) {
+        return root == null || root.isEmpty() ? relative : root + "/" + relative;
     }
 
     /** 计算成功扫描快照的对账摘要。 @param id 操作标识 @return 摘要 */

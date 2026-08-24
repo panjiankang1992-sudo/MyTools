@@ -388,6 +388,72 @@ public class StorageRepository {
     }
 
     /**
+     * 判断冻结清单中是否存在一个普通文件。
+     *
+     * @param operationId 父操作标识
+     * @param objectPath 对象路径
+     * @return 是否存在
+     */
+    public boolean containsFrozenFile(UUID operationId, String objectPath) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM storage_operation_item
+                WHERE operation_id = ? AND object_path = ? AND directory = FALSE
+                """, Integer.class, operationId.toString(), objectPath);
+        return count != null && count == 1;
+    }
+
+    /**
+     * 幂等关联原生树复制父子操作。
+     *
+     * @param parentId 父操作标识
+     * @param childId 子操作标识
+     * @param sourcePath 来源对象路径
+     * @param targetPath 目标对象路径
+     */
+    public void linkChildOperation(UUID parentId, UUID childId, String sourcePath, String targetPath) {
+        List<Map<String, Object>> existing = jdbcTemplate.queryForList("""
+                SELECT child_operation_id, target_object_path FROM storage_operation_child
+                WHERE parent_operation_id = ? AND source_object_path = ?
+                """, parentId.toString(), sourcePath);
+        if (!existing.isEmpty()) {
+            if (!childId.toString().equals(existing.getFirst().get("child_operation_id"))
+                    || !targetPath.equals(existing.getFirst().get("target_object_path"))) {
+                throw new IllegalStateException(ErrorCode.OPERATION_CONFLICT.code());
+            }
+            return;
+        }
+        jdbcTemplate.update("""
+                INSERT INTO storage_operation_child
+                    (parent_operation_id, child_operation_id, source_object_path, target_object_path, created_at)
+                VALUES (?, ?, ?, ?, ?)
+                """, parentId.toString(), childId.toString(), sourcePath, targetPath,
+                Timestamp.from(Instant.now()));
+    }
+
+    /**
+     * 查询父操作关联的全部子操作。
+     *
+     * @param parentId 父操作标识
+     * @return 子操作列表
+     */
+    public List<StorageOperation> findChildOperations(UUID parentId) {
+        return jdbcTemplate.query("""
+                SELECT operation.* FROM storage_operation operation
+                JOIN storage_operation_child child ON child.child_operation_id = operation.id
+                WHERE child.parent_operation_id = ? ORDER BY child.source_object_path
+                """, (resultSet, rowNumber) -> new StorageOperation(UUID.fromString(resultSet.getString("id")),
+                UUID.fromString(resultSet.getString("provider_id")), resultSet.getString("idempotency_key"),
+                resultSet.getString("operation_type"), resultSet.getString("source_path"),
+                UUID.fromString(resultSet.getString("target_provider_id")), resultSet.getString("target_path"),
+                resultSet.getString("status"), resultSet.getString("task_instance_id") == null ? null
+                : UUID.fromString(resultSet.getString("task_instance_id")),
+                resultSet.getObject("remote_job_id", Long.class), resultSet.getLong("item_count"),
+                resultSet.getInt("maximum_objects"), resultSet.getString("error_code"),
+                resultSet.getTimestamp("created_at").toInstant(), resultSet.getTimestamp("updated_at").toInstant()),
+                parentId.toString());
+    }
+
+    /**
      * 将异步操作标记为终态，终态不可被后续回调覆盖。
      *
      * @param id 操作标识
@@ -397,7 +463,7 @@ public class StorageRepository {
     public void finishOperation(UUID id, String status, String errorCode) {
         jdbcTemplate.update("""
                 UPDATE storage_operation SET status = ?, error_code = ?, updated_at = ?
-                WHERE id = ? AND status IN ('CREATED', 'RUNNING')
+                WHERE id = ? AND status IN ('CREATED', 'WAITING_TARGET', 'RUNNING')
                 """, status, errorCode, Timestamp.from(Instant.now()), id.toString());
     }
 

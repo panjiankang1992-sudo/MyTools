@@ -9,6 +9,7 @@ import com.yuyutian.mytools.storage.model.RemoteJobView;
 import com.yuyutian.mytools.storage.model.AbortMoveRequest;
 import com.yuyutian.mytools.storage.model.MoveProgress;
 import com.yuyutian.mytools.storage.model.NativeWriteResult;
+import com.yuyutian.mytools.storage.model.CreateNativeTreeChildRequest;
 import com.yuyutian.mytools.storage.model.RemoteContent;
 import com.yuyutian.mytools.storage.service.InternalAuthorizer;
 import com.yuyutian.mytools.storage.service.StorageOperationService;
@@ -298,6 +299,38 @@ public class StorageOperationController {
                                   @Valid @RequestBody OperationItemBatch batch) {
         authorizer.require(authorization);
         return operationService.mergeItems(id, batch.items());
+    }
+
+    /**
+     * 从冻结清单创建一个原生树复制子操作。
+     *
+     * @param id 父操作标识
+     * @param authorization 内部授权头
+     * @param request 子操作请求
+     * @return 子操作
+     */
+    @PostMapping("/{id}/native-tree/children")
+    public ResponseEntity<StorageOperation> createNativeTreeChild(@PathVariable UUID id,
+            @RequestHeader("Authorization") String authorization,
+            @Valid @RequestBody CreateNativeTreeChildRequest request) {
+        authorizer.require(authorization);
+        return ResponseEntity.accepted().body(operationService.createNativeTreeChild(id, request.sourceObjectPath()));
+    }
+
+    /**
+     * 级联取消原生树复制子操作并结束父操作。
+     *
+     * @param id 父操作标识
+     * @param authorization 内部授权头
+     * @param request 终态请求
+     * @return 父操作
+     */
+    @PostMapping("/{id}/native-tree/abort")
+    public StorageOperation abortNativeTree(@PathVariable UUID id,
+            @RequestHeader("Authorization") String authorization,
+            @Valid @RequestBody FinishOperationRequest request) {
+        authorizer.require(authorization);
+        return operationService.abortNativeTree(id, request.status(), request.errorCode());
     }
 
     /**

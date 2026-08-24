@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 
 class StorageOperationServiceTest {
 
@@ -153,5 +154,68 @@ class StorageOperationServiceTest {
 
         assertThat(result.finished()).isTrue();
         verify(connector).jobStatus(77L);
+    }
+
+    @Test
+    void shouldCreateNativeTreeChildOnlyFromFrozenFile() {
+        StorageRepository repository = mock(StorageRepository.class);
+        StorageOperationService service = new StorageOperationService(repository,
+                mock(StorageTaskSchedulerClient.class), mock(RcloneRemoteConnector.class),
+                mock(StorageMoveRepository.class), mock(ProviderObjectConnectorRegistry.class));
+        UUID parentId = UUID.randomUUID();
+        UUID sourceId = UUID.randomUUID();
+        UUID targetId = UUID.randomUUID();
+        Instant now = Instant.now();
+        StorageOperation parent = new StorageOperation(parentId, sourceId, "tree:key", "COPY_TREE_NATIVE",
+                "books", targetId, "backup", "RUNNING", UUID.randomUUID(), null,
+                3, 100, null, now, now);
+        String sourcePath = "books/fiction/book.epub";
+        String childKey = "tree:key:object:" + digest(sourcePath);
+        StorageOperation child = new StorageOperation(UUID.randomUUID(), sourceId, childKey, "COPY_OBJECT",
+                sourcePath, targetId, "backup/fiction/book.epub", "RUNNING", UUID.randomUUID(), null,
+                0, 1, null, now, now);
+        when(repository.findOperationById(parentId)).thenReturn(Optional.of(parent));
+        when(repository.containsFrozenFile(parentId, sourcePath)).thenReturn(true);
+        when(repository.findOperationByKey(childKey)).thenReturn(Optional.of(child));
+
+        assertThat(service.createNativeTreeChild(parentId, sourcePath)).isEqualTo(child);
+
+        verify(repository).linkChildOperation(parentId, child.id(), sourcePath, "backup/fiction/book.epub");
+    }
+
+    @Test
+    void shouldCancelNativeTreeChildrenBeforeParentTask() {
+        StorageRepository repository = mock(StorageRepository.class);
+        StorageTaskSchedulerClient scheduler = mock(StorageTaskSchedulerClient.class);
+        StorageOperationService service = new StorageOperationService(repository, scheduler,
+                mock(RcloneRemoteConnector.class), mock(StorageMoveRepository.class),
+                mock(ProviderObjectConnectorRegistry.class));
+        UUID parentId = UUID.randomUUID();
+        UUID parentTaskId = UUID.randomUUID();
+        UUID childTaskId = UUID.randomUUID();
+        Instant now = Instant.now();
+        StorageOperation parent = new StorageOperation(parentId, UUID.randomUUID(), "tree:key",
+                "COPY_TREE_NATIVE", "books", UUID.randomUUID(), "backup", "RUNNING", parentTaskId, null,
+                1, 100, null, now, now);
+        StorageOperation child = new StorageOperation(UUID.randomUUID(), parent.providerId(), "child:key",
+                "COPY_OBJECT", "books/a.epub", parent.targetProviderId(), "backup/a.epub", "RUNNING",
+                childTaskId, null, 0, 1, null, now, now);
+        when(repository.findOperationById(parentId)).thenReturn(Optional.of(parent));
+        when(repository.findChildOperations(parentId)).thenReturn(List.of(child));
+
+        service.cancel(parentId);
+
+        verify(scheduler).cancel(childTaskId);
+        verify(scheduler).cancel(parentTaskId);
+        verify(scheduler, never()).cancel(null);
+    }
+
+    private String digest(String value) {
+        try {
+            return java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(value.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        } catch (java.security.NoSuchAlgorithmException exception) {
+            throw new IllegalStateException(exception);
+        }
     }
 }
