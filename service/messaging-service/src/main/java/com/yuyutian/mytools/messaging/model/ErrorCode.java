@@ -13,7 +13,9 @@ public enum ErrorCode {
     ONEBOT_INGRESS_DISABLED("MESSAGING_007", "OneBot ingress adapter is disabled"),
     ONEBOT_PAYLOAD_INVALID("MESSAGING_008", "OneBot event payload is invalid"),
     ATTACHMENT_DOWNLOAD_NOT_FOUND("MESSAGING_009", "Attachment download was not found"),
-    ATTACHMENT_DOWNLOAD_INVALID("MESSAGING_010", "Attachment cannot be downloaded through the HTTP pipeline");
+    ATTACHMENT_DOWNLOAD_INVALID("MESSAGING_010", "Attachment cannot be downloaded through the HTTP pipeline"),
+    EMAIL_INGRESS_DISABLED("MESSAGING_011", "Email ingress adapter is disabled"),
+    EMAIL_INGRESS_FAILED("MESSAGING_012", "Email ingress poll failed");
 
     private final String code;
     private final String message;

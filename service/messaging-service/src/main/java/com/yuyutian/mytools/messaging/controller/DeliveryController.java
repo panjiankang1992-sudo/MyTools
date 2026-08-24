@@ -10,10 +10,13 @@ import com.yuyutian.mytools.messaging.model.OneBotInboundRequest;
 import com.yuyutian.mytools.messaging.model.AttachmentDownloadView;
 import com.yuyutian.mytools.messaging.model.ExecuteAttachmentDownloadResult;
 import com.yuyutian.mytools.messaging.model.ResolveAttachmentResult;
+import com.yuyutian.mytools.messaging.model.EmailPollRequest;
+import com.yuyutian.mytools.messaging.model.EmailPollResult;
 import com.yuyutian.mytools.messaging.service.DeliveryService;
 import com.yuyutian.mytools.messaging.service.InternalRequestAuthorizer;
 import com.yuyutian.mytools.messaging.service.OneBotInboundAdapter;
 import com.yuyutian.mytools.messaging.service.AttachmentDownloadService;
+import com.yuyutian.mytools.messaging.service.EmailIngressService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,17 +42,20 @@ public class DeliveryController {
     private final InternalRequestAuthorizer authorizer;
     private final OneBotInboundAdapter oneBotInboundAdapter;
     private final AttachmentDownloadService attachmentDownloadService;
+    private final EmailIngressService emailIngressService;
 
     /**
      * 创建消息内部控制器。
      */
     public DeliveryController(DeliveryService service, InternalRequestAuthorizer authorizer,
                               OneBotInboundAdapter oneBotInboundAdapter,
-                              AttachmentDownloadService attachmentDownloadService) {
+                              AttachmentDownloadService attachmentDownloadService,
+                              EmailIngressService emailIngressService) {
         this.service = service;
         this.authorizer = authorizer;
         this.oneBotInboundAdapter = oneBotInboundAdapter;
         this.attachmentDownloadService = attachmentDownloadService;
+        this.emailIngressService = emailIngressService;
     }
 
     /**
@@ -111,6 +117,17 @@ public class DeliveryController {
             @Valid @RequestBody OneBotInboundRequest request) {
         authorizer.requireAuthorized(authorization);
         return oneBotInboundAdapter.receive(request);
+    }
+
+    /**
+     * 由 Executor 轮询一个服务端已配置的 IMAP 账户。
+     */
+    @PostMapping("/adapters/email/poll")
+    public EmailPollResult pollEmail(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @Valid @RequestBody EmailPollRequest request) {
+        authorizer.requireAuthorized(authorization);
+        return emailIngressService.poll(request.accountKey());
     }
 
     /**

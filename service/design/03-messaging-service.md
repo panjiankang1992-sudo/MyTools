@@ -24,6 +24,7 @@ MsgService 模板和已知收件人使用 Messaging 自有 `message_template`、
 - `POST /internal/v1/deliveries`：创建投递请求。
 - `GET /internal/v1/deliveries/{id}`：查询状态。
 - `POST /internal/v1/adapters/onebot/events`：标准化 OneBot 消息正文和附件引用，默认关闭。
+- `POST /internal/v1/adapters/email/poll`：由 Executor 轮询服务端配置的 IMAP 账户，默认关闭。
 - `POST /internal/v1/inbound-messages/{messageId}/parts/{partId}/download`：创建附件下载父任务。
 - `POST /internal/v1/attachment-downloads/{jobId}/execute`：由 Executor 幂等创建 Download Ingestion 子任务。
 - `POST /internal/v1/migrations/legacy-inbound/batches`：校验、预演或导入旧系统历史入站消息。
@@ -33,7 +34,7 @@ MsgService 模板和已知收件人使用 Messaging 自有 `message_template`、
 
 ## 任务化操作
 
-- `message_send_email`、`message_send_channel_message`。
+- `message_send_email`、`message_poll_email`、`message_send_channel_message`。
 - `message_download_attachment`、`message_reconcile_attachment_download`。
 - `message_migrate_history`、`message_cleanup_retention`。
 
@@ -57,6 +58,10 @@ MsgService 模板和已知收件人使用 Messaging 自有 `message_template`、
 6. 已将邮件投递创建、状态查询和尽力取消接入 Gateway；相同 owner 与幂等键必须匹配相同邮件内容。
 7. 使用实际 NapCat 环境联调 OneBot Connector；继续扩展 Telegram adapter，渠道凭据只能由隔离 connector 使用。
 8. 数据验收后删除 MyTools SMTP 和 DownloadBot 渠道发送逻辑。
+
+MsgService 的 IMAP 能力已按远程 `/opt/code/MsgService` 的实际实现迁入 Messaging，但不替换旧监听器。`message_poll_email` 任务只携带英文、数字或下划线组成的账户逻辑键，IMAP 主机和凭据只存在 Messaging 配置。服务以只读模式按 UID 增量读取，不修改 `Seen` 标志；V10 保存 `UIDVALIDITY + last_uid` 检查点，检查点只在整批消息和附件任务创建成功后推进，进程失败会安全重放。Message-ID 经过 SHA-256 后参与幂等键，缺失 Message-ID 时使用账户、UIDVALIDITY 和 UID。
+
+MIME 正文和附件元数据在任务内解析，附件字节不进入轮询事务或消息表。每个附件保存服务端生成的 IMAP 引用并立即创建统一附件下载任务；解析步骤将邮件附件绑定为 `STREAM`，Download Ingestion 再通过 Messaging 只读重开邮箱并有界转发指定附件。这样 UID 检查点不会越过尚未成功进入下载编排的附件。`MESSAGING_EMAIL_INGRESS_ENABLED` 默认关闭，旧 MsgService 继续权威收件，启用新轮询不会标记已读或修改旧 SQLite。
 
 ## 验收
 

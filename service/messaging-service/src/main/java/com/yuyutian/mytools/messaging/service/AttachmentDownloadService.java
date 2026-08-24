@@ -22,6 +22,7 @@ public class AttachmentDownloadService {
     private final TaskSchedulerClient schedulerClient;
     private final DownloadIngestionClient downloadClient;
     private final ProviderFileResolverClient resolverClient;
+    private final EmailAttachmentContentService emailAttachmentContentService;
     private final TransactionTemplate transactionTemplate;
 
     /**
@@ -30,11 +31,13 @@ public class AttachmentDownloadService {
     public AttachmentDownloadService(MessagingRepository repository, TaskSchedulerClient schedulerClient,
                                      DownloadIngestionClient downloadClient,
                                      ProviderFileResolverClient resolverClient,
+                                     EmailAttachmentContentService emailAttachmentContentService,
                                      TransactionTemplate transactionTemplate) {
         this.repository = repository;
         this.schedulerClient = schedulerClient;
         this.downloadClient = downloadClient;
         this.resolverClient = resolverClient;
+        this.emailAttachmentContentService = emailAttachmentContentService;
         this.transactionTemplate = transactionTemplate;
     }
 
@@ -139,6 +142,11 @@ public class AttachmentDownloadService {
                 || "STREAM".equals(source.resolutionMode())) {
             return new ResolveAttachmentResult(jobId, job.status(), true);
         }
+        if ("EMAIL".equals(source.channelType())
+                && emailAttachmentContentService.supports(source.providerFileId(), source.providerAccountKey())) {
+            transactionTemplate.executeWithoutResult(status -> repository.bindResolvedSource(jobId, "STREAM", null));
+            return new ResolveAttachmentResult(jobId, required(jobId).status(), true);
+        }
         if (!"ONEBOT".equals(source.channelType())
                 || source.providerAccountKey() == null || source.providerAccountKey().isBlank()
                 || source.providerFileId() == null || source.providerFileId().isBlank()
@@ -162,7 +170,15 @@ public class AttachmentDownloadService {
     public void stream(UUID jobId, OutputStream output) {
         AttachmentDownloadRecord job = required(jobId);
         MessagingRepository.AttachmentSource source = requiredSource(job.messageId(), job.partId());
-        if (!"STREAM".equals(source.resolutionMode()) || !"ONEBOT".equals(source.channelType())) {
+        if (!"STREAM".equals(source.resolutionMode())) {
+            throw new AttachmentDownloadInvalidException();
+        }
+        if ("EMAIL".equals(source.channelType())) {
+            emailAttachmentContentService.stream(source.providerFileId(), source.providerAccountKey(), output,
+                    byteLimit(source.declaredSize()));
+            return;
+        }
+        if (!"ONEBOT".equals(source.channelType())) {
             throw new AttachmentDownloadInvalidException();
         }
         resolverClient.stream(source.providerAccountKey(), source.attachmentType(), source.providerFileId(),
@@ -194,7 +210,7 @@ public class AttachmentDownloadService {
         boolean direct = isHttp(source.sourceUrl());
         boolean resolvable = source.providerFileId() != null && !source.providerFileId().isBlank()
                 && source.providerAccountKey() != null && !source.providerAccountKey().isBlank()
-                && "ONEBOT".equals(source.channelType());
+                && ("ONEBOT".equals(source.channelType()) || "EMAIL".equals(source.channelType()));
         if (!"ATTACHMENT".equals(source.partType()) || !(direct || resolvable)) {
             throw new AttachmentDownloadInvalidException();
         }

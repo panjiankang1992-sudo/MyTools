@@ -10,6 +10,8 @@ import com.yuyutian.mytools.messaging.service.OneBotIngressDisabledException;
 import com.yuyutian.mytools.messaging.service.OneBotPayloadInvalidException;
 import com.yuyutian.mytools.messaging.service.AttachmentDownloadInvalidException;
 import com.yuyutian.mytools.messaging.service.AttachmentDownloadNotFoundException;
+import com.yuyutian.mytools.messaging.service.EmailIngressDisabledException;
+import com.yuyutian.mytools.messaging.service.EmailIngressException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -110,5 +112,25 @@ public class MessagingExceptionHandler {
     public Map<String, String> handleAttachmentDownloadInvalid(AttachmentDownloadInvalidException exception) {
         return Map.of("code", ErrorCode.ATTACHMENT_DOWNLOAD_INVALID.code(),
                 "message", ErrorCode.ATTACHMENT_DOWNLOAD_INVALID.message());
+    }
+
+    /**
+     * 转换邮件入站未启用异常。
+     */
+    @ExceptionHandler(EmailIngressDisabledException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public Map<String, String> handleEmailIngressDisabled(EmailIngressDisabledException exception) {
+        return Map.of("code", ErrorCode.EMAIL_INGRESS_DISABLED.code(),
+                "message", ErrorCode.EMAIL_INGRESS_DISABLED.message());
+    }
+
+    /**
+     * 转换邮件入站执行失败异常。
+     */
+    @ExceptionHandler(EmailIngressException.class)
+    @ResponseStatus(HttpStatus.BAD_GATEWAY)
+    public Map<String, String> handleEmailIngressFailed(EmailIngressException exception) {
+        return Map.of("code", ErrorCode.EMAIL_INGRESS_FAILED.code(),
+                "message", ErrorCode.EMAIL_INGRESS_FAILED.message());
     }
 }

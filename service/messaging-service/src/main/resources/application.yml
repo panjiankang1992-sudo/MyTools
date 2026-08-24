@@ -39,3 +39,15 @@ messaging:
   download-ingestion-token: ${DOWNLOAD_INTERNAL_TOKEN:}
   provider-resolver-url: ${MESSAGE_PROVIDER_RESOLVER_URL:http://127.0.0.1:23255}
   provider-resolver-token: ${MESSAGE_PROVIDER_RESOLVER_TOKEN:}
+  email-ingress:
+    enabled: ${MESSAGING_EMAIL_INGRESS_ENABLED:false}
+    owner-id: ${MESSAGING_EMAIL_OWNER_ID:0}
+    account-key: ${MESSAGING_EMAIL_ACCOUNT_KEY:default_email}
+    host: ${MESSAGING_IMAP_HOST:}
+    port: ${MESSAGING_IMAP_PORT:993}
+    ssl: ${MESSAGING_IMAP_SSL:true}
+    username: ${MESSAGING_IMAP_USERNAME:}
+    password: ${MESSAGING_IMAP_PASSWORD:}
+    mailbox: ${MESSAGING_IMAP_MAILBOX:INBOX}
+    batch-size: ${MESSAGING_IMAP_BATCH_SIZE:50}
+    maximum-message-bytes: ${MESSAGING_IMAP_MAXIMUM_MESSAGE_BYTES:26214400}

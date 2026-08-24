@@ -1,0 +1,1 @@
+{"type":"object","required":["accountKey","examinedCount","acceptedCount","lastUid"],"properties":{"accountKey":{"type":"string","pattern":"^[A-Za-z0-9_]+$"},"examinedCount":{"type":"integer","minimum":0},"acceptedCount":{"type":"integer","minimum":0},"lastUid":{"type":"integer","minimum":0}}}

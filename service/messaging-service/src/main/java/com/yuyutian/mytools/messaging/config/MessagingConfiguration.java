@@ -12,7 +12,7 @@ import org.springframework.web.client.RestClient;
  * 消息服务依赖配置。
  */
 @Configuration
-@EnableConfigurationProperties(MessagingProperties.class)
+@EnableConfigurationProperties({MessagingProperties.class, EmailIngressProperties.class})
 public class MessagingConfiguration {
 
     /**
