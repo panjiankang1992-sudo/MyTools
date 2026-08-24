@@ -544,6 +544,20 @@ class TaskInstanceServiceTest {
     }
 
     @Test
+    void shouldUseFrozenReaderStateMigrationPackage() {
+        Map<String, Object> definition = jdbcTemplate.queryForMap(
+                "SELECT d.version,d.parameter_schema,d.result_schema,s.script_version "
+                        + "FROM task_definition d JOIN task_step_definition s "
+                        + "ON s.task_definition_id=d.id WHERE d.name=? AND s.name=?",
+                "reader_migrate_legacy_state", "migrate_reader_state");
+
+        assertEquals(2, ((Number) definition.get("version")).intValue());
+        assertEquals("1.1.0", definition.get("script_version"));
+        assertTrue(definition.get("parameter_schema").toString().contains("sourceHighWater"));
+        assertTrue(definition.get("result_schema").toString().contains("digestSha256"));
+    }
+
+    @Test
     void shouldRequireReadableOwnerForLegacyAssetSnapshot() {
         String schema = jdbcTemplate.queryForObject(
                 "SELECT parameter_schema FROM task_definition WHERE name=?",

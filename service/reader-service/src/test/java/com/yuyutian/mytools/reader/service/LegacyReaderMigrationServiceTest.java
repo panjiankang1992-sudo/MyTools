@@ -59,6 +59,9 @@ class LegacyReaderMigrationServiceTest {
                 + "ON s.id=m.shelf_book_id WHERE s.owner_id=71", Integer.class)).isEqualTo(1);
         assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM legacy_reader_migration_item WHERE owner_id=71",
                 Integer.class)).isEqualTo(3);
+        var evidence = service.evidence("reader-migration-v1");
+        assertThat(evidence.itemCount()).isEqualTo(3);
+        assertThat(evidence.digestSha256()).hasSize(64);
     }
 
     @Test
@@ -67,7 +70,7 @@ class LegacyReaderMigrationServiceTest {
         var progress = new LegacyReaderMigrationItem("PROGRESS", 72L, "missing", "missing",
                 Map.of("deleted", false), false, 1, updatedAt);
 
-        var result = service.migrate(new LegacyReaderMigrationBatch("reader-migration-v1", false,
+        var result = service.migrate(new LegacyReaderMigrationBatch("reader-orphan-v1", false,
                 List.of(progress)));
 
         assertThat(result.accepted()).isEqualTo(1);
@@ -80,7 +83,7 @@ class LegacyReaderMigrationServiceTest {
                 String.class))
                 .contains("legacyPlaceholder", "missing");
 
-        var replay = service.migrate(new LegacyReaderMigrationBatch("reader-migration-v1", false,
+        var replay = service.migrate(new LegacyReaderMigrationBatch("reader-orphan-v1", false,
                 List.of(progress)));
         assertThat(replay.skipped()).isOne();
         assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM shelf_book WHERE owner_id=72",

@@ -52,7 +52,7 @@ Gateway 创建预取任务和查询缓存时从可信主体注入 `ownerId`；Re
 
 书库索引重建使用 `reader_reindex_library` 1.0.0 即时任务。创建请求冻结 `ebook_asset` 快照时间和批次大小，Executor 只携带 `rebuildId` 循环调用内部批次接口，在不可见 generation 中按内容摘要去重；确认冻结快照无遗漏后，Reader Service 在单个事务中撤销旧 generation 并发布新 generation。失败、超时和取消步骤只记录异常终态，不会发布半成品。重建数据完全可从新 schema 的成功电子书资产再生，且不会读写现有 MyTools 数据，也不会修改 `shelf_book`、`reading_progress` 或 `reader_marker`。
 
-不可再生的旧书架、阅读进度和书签使用手工即时任务 `reader_migrate_legacy_state` 1.0.0 迁移。任务按 `SHELF`、`PROGRESS`、`MARKER` 依赖顺序，通过 MyTools 只读复合游标接口分页读取，再调用 Reader 内部批次接口；每批最多 200 条，目标端保存旧书 ID 映射、稳定 UUID、载荷摘要和幂等审计。必须先以 `{"migrationKey":"reader-state-v1","dryRun":true}` 演练并保存数量与摘要，再用相同 key 设置 `dryRun=false`。接口令牌分别由 `READER_MIGRATION_INTERNAL_TOKEN` 和 `READER_INTERNAL_TOKEN` 注入 Executor，不进入任务参数或结果。
+不可再生的旧书架、阅读进度和书签使用手工即时任务 `reader_migrate_legacy_state` 1.1.0 迁移。任务按 `SHELF`、`PROGRESS`、`MARKER` 依赖顺序，通过 MyTools 只读复合游标接口分页读取；首次读取会分别冻结三类数据的 owner/key 高水位，后续 dry-run、正式执行和重放都必须复用完全相同的 `sourceHighWater`。每批最多 200 条，目标端保存旧书 ID 映射、稳定 UUID、载荷摘要和幂等审计；正式执行结束后任务会调用目标证据接口，核对数量和集合摘要。必须先执行 dry-run，保存结果中的数量、摘要和高水位，再用相同 migration key 与高水位正式执行及重放，最后通过 `service/scripts/reader_cutover_gate.py` 门禁。接口令牌分别由 `READER_MIGRATION_INTERNAL_TOKEN` 和 `READER_INTERNAL_TOKEN` 注入 Executor，不进入任务参数或结果。
 
 ## 实施要求
 

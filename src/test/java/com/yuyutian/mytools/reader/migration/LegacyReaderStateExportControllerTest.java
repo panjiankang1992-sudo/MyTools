@@ -64,14 +64,24 @@ class LegacyReaderStateExportControllerTest {
                 VALUES (7, 'book-a', 'Chapter', 10, 20, 100, 200, FALSE, 2)
                 """);
 
-        var first = controller.export("Bearer reader-token", "shelf", 0, "", 1);
+        var first = controller.export("Bearer reader-token", "shelf", 0, "", null, null, 1);
+        jdbcTemplate.update("""
+                INSERT INTO t_shelf_book
+                    (user_id, sync_key, book_id, name, author, origin, format, resource_uri, source_id,
+                     remote_cover_url, client_updated_at, server_updated_at, deleted, revision)
+                VALUES (8, 'c', 'book-c', 'C', 'Author', 'LOCAL', 'EPUB', 'storage://c', 'source-c',
+                        '', 102, 202, FALSE, 1)
+                """);
         var second = controller.export("Bearer reader-token", "SHELF", first.nextAfterOwnerId(),
-                first.nextAfterKey(), 1);
-        var progress = controller.export("Bearer reader-token", "PROGRESS", 0, "", 100);
+                first.nextAfterKey(), first.snapshotOwnerId(), first.snapshotKey(), 1);
+        var progress = controller.export("Bearer reader-token", "PROGRESS", 0, "", null, null, 100);
 
         assertThat(first.complete()).isFalse();
         assertThat(first.items()).extracting("legacyKey").containsExactly("a");
         assertThat(second.items()).extracting("legacyKey").containsExactly("b");
+        assertThat(second.complete()).isTrue();
+        assertThat(second.snapshotOwnerId()).isEqualTo(7);
+        assertThat(second.snapshotKey()).isEqualTo("b");
         assertThat(second.items().getFirst().payload()).containsEntry("deleted", true);
         assertThat(progress.items().getFirst().bookId()).isEqualTo("book-a");
         assertThat(progress.items().getFirst().payload()).containsEntry("percentage", 20);
@@ -79,7 +89,7 @@ class LegacyReaderStateExportControllerTest {
 
     @Test
     void shouldRejectMissingMigrationToken() {
-        assertThatThrownBy(() -> controller.export(null, "SHELF", 0, "", 100))
+        assertThatThrownBy(() -> controller.export(null, "SHELF", 0, "", null, null, 100))
                 .isInstanceOf(SecurityException.class);
     }
 }

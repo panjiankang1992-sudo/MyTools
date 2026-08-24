@@ -3,6 +3,7 @@ package com.yuyutian.mytools.reader.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.reader.model.LegacyReaderMigrationBatch;
+import com.yuyutian.mytools.reader.model.LegacyReaderMigrationEvidence;
 import com.yuyutian.mytools.reader.model.LegacyReaderMigrationItem;
 import com.yuyutian.mytools.reader.model.LegacyReaderMigrationResult;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -82,14 +83,34 @@ public class LegacyReaderMigrationService {
             UUID targetId = importItem(type, item, payload);
             jdbcTemplate.update("""
                     INSERT INTO legacy_reader_migration_item
-                        (entity_type, owner_id, idempotency_hash, legacy_key, payload_sha256,
+                        (entity_type, owner_id, migration_key, idempotency_hash, legacy_key, payload_sha256,
                          target_id, migrated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                    """, type, item.ownerId(), idempotencyHash, auditKey, payloadSha256,
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, type, item.ownerId(), batch.migrationKey(), idempotencyHash, auditKey, payloadSha256,
                     targetId == null ? null : targetId.toString(), Timestamp.from(Instant.now()));
             accepted++;
         }
         return new LegacyReaderMigrationResult(accepted, skipped, rejected.size(), List.copyOf(rejected),
+                HexFormat.of().formatHex(digest.digest()));
+    }
+
+    /**
+     * 从已提交的审计行重新计算一个迁移实例的目标集合证据。
+     */
+    public LegacyReaderMigrationEvidence evidence(String migrationKey) {
+        if (migrationKey == null || migrationKey.isBlank() || migrationKey.length() > 255) {
+            throw new IllegalArgumentException("Legacy Reader migration key is invalid");
+        }
+        List<String> hashes = jdbcTemplate.queryForList("""
+                SELECT payload_sha256 FROM legacy_reader_migration_item
+                WHERE migration_key = ?
+                ORDER BY entity_type, owner_id, legacy_key
+                """, String.class, migrationKey);
+        MessageDigest digest = sha256();
+        for (String value : hashes) {
+            updateDigest(digest, value);
+        }
+        return new LegacyReaderMigrationEvidence(migrationKey, hashes.size(),
                 HexFormat.of().formatHex(digest.digest()));
     }
 
@@ -246,6 +267,13 @@ public class LegacyReaderMigrationService {
 
     private String hash(String value) {
         return HexFormat.of().formatHex(sha256().digest(value.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private void updateDigest(MessageDigest digest, String value) {
+        byte[] encoded = value.getBytes(StandardCharsets.UTF_8);
+        digest.update(new byte[]{(byte) (encoded.length >>> 24), (byte) (encoded.length >>> 16),
+                (byte) (encoded.length >>> 8), (byte) encoded.length});
+        digest.update(encoded);
     }
 
     private MessageDigest sha256() {
