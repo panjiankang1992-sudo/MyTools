@@ -39,6 +39,21 @@ class LegacyDataRetentionGateTest(unittest.TestCase):
         self.assertFalse(report["ready"])
         self.assertEqual(2, len(report["errors"]))
 
+    def test_accepts_explicitly_absent_known_table(self):
+        manifest = valid_manifest()
+        del manifest["tables"]["t_feedback"]
+        manifest["absentTables"] = ["t_feedback"]
+        report = MODULE.evaluate(manifest)
+        self.assertTrue(report["ready"])
+        self.assertEqual(1, report["absentTableCount"])
+
+    def test_rejects_unknown_duplicate_and_overlapping_absent_tables(self):
+        manifest = valid_manifest()
+        manifest["absentTables"] = ["t_feedback", "t_feedback", "unknown_table"]
+        report = MODULE.evaluate(manifest)
+        self.assertFalse(report["ready"])
+        self.assertEqual(3, len(report["errors"]))
+
     def test_rejects_unknown_inventory_and_invalid_count(self):
         manifest = valid_manifest()
         manifest["unclassifiedTables"] = ["custom_table"]

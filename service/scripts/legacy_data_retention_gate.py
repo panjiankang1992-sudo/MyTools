@@ -63,11 +63,24 @@ def evaluate(manifest: dict[str, object]) -> dict[str, object]:
     if unclassified != []:
         errors.append("unclassifiedTables must be an empty list")
 
+    raw_absent = manifest.get("absentTables", [])
+    absent = set(raw_absent) if isinstance(raw_absent, list) and all(
+        isinstance(name, str) for name in raw_absent
+    ) else set()
+    if not isinstance(raw_absent, list) or len(absent) != len(raw_absent):
+        errors.append("absentTables must be an array of unique table names")
+    unknown_absent = sorted(absent - REQUIRED_TABLES)
+    if unknown_absent:
+        errors.append("unknown absent tables: " + ", ".join(unknown_absent))
+
     raw_tables = manifest.get("tables")
     tables = raw_tables if isinstance(raw_tables, dict) else {}
     if not isinstance(raw_tables, dict):
         errors.append("tables must be an object of table row counts")
-    missing = sorted(REQUIRED_TABLES - set(tables))
+    overlap = sorted(absent & set(tables))
+    if overlap:
+        errors.append("tables cannot also be absent: " + ", ".join(overlap))
+    missing = sorted(REQUIRED_TABLES - set(tables) - absent)
     if missing:
         errors.append("missing required tables: " + ", ".join(missing))
 
@@ -82,6 +95,7 @@ def evaluate(manifest: dict[str, object]) -> dict[str, object]:
         "ready": not errors,
         "knownTableCount": len(REQUIRED_TABLES),
         "backedUpTableCount": len(tables),
+        "absentTableCount": len(absent),
         "totalRows": sum(count for count in tables.values()
                          if isinstance(count, int) and not isinstance(count, bool) and count >= 0),
         "errors": errors,

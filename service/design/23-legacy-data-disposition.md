@@ -10,6 +10,7 @@
 | --- | --- | --- | --- |
 | `t_user`、`t_role`、`t_user_role` | 账号与权限，不可再生 | Identity Service | 用户、角色、关系迁移对账 |
 | `t_token` | 旧会话，可重新登录 | 仅完整备份，不导入 | Identity Service 重新签发会话 |
+| `sys_login_attempt` | 登录失败锁定状态，可重新生成 | 仅完整备份，不导入 | Identity Service 按新登录行为重新记录 |
 | `t_email_verification_code` | 短期凭证 | 仅完整备份，不导入 | 过期后重新生成 |
 | `webdav_account` | 外部存储配置，不可再生 | Storage Gateway | 账户迁移对账，密文原样迁移 |
 | `drive_account` | 网盘配置，不可再生 | Drive Service | 账户数量与业务键对账 |
@@ -39,6 +40,8 @@
    门禁会流式读取 `backupFile`、核对实际 SHA-256，并拒绝不存在、非普通文件或符号链接的
    备份；相对路径以清单所在目录为基准。任何未知表先补入本矩阵，再把
    `unclassifiedTables` 清空。
+   若矩阵中的已知表在生产 Schema 中实际不存在，必须在 `absentTables` 中显式列出，不能
+   伪造零行计数；门禁会拒绝未知、重复以及同时出现在 `tables` 中的缺失表。
 5. 所有不可再生数据的领域迁移门禁通过后，旧库才能退出在线使用；备份不随旧服务删除。
 
 清单示例：
@@ -50,6 +53,7 @@
   "readVerified": true,
   "inventoryComplete": true,
   "unclassifiedTables": [],
+  "absentTables": ["t_feedback"],
   "tables": {
     "local_file": 120
   }

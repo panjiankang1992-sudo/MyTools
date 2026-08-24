@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,6 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @param identityGateway Identity 客户端
      * @param identityProperties 迁移配置
      */
+    @Autowired
     public JwtAuthenticationFilter(JwtUtils jwtUtils, TokenMapper tokenMapper,
                                    IdentityValidationGateway identityGateway,
                                    IdentityValidationProperties identityProperties) {
