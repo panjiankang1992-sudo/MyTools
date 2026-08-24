@@ -3,6 +3,7 @@ package com.yuyutian.mytools.automation.service;
 import com.yuyutian.mytools.automation.model.ChannelType;
 import com.yuyutian.mytools.automation.model.CreateAutomationRuleRequest;
 import com.yuyutian.mytools.automation.model.InboundMessage;
+import com.yuyutian.mytools.automation.repository.AutomationRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +33,9 @@ class MessageAutomationServiceTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private AutomationRepository repository;
 
     @MockBean
     private MessagingClient messagingClient;
@@ -84,6 +88,32 @@ class MessageAutomationServiceTest {
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM automation_action WHERE automation_run_id = ?",
                 Integer.class, running.id().toString())).isEqualTo(2);
+    }
+
+    @Test
+    void shouldExposeTerminalEmailRunForReliableNotification() {
+        service.createRule(new CreateAutomationRuleRequest(16L, "email_completion", ChannelType.EMAIL,
+                "thread-16", "owner@example.test", "download: ", "HTTP_ASSET", 1, 100, true));
+        UUID messageId = UUID.randomUUID();
+        UUID downloadId = UUID.randomUUID();
+        when(messagingClient.get(messageId)).thenReturn(new InboundMessage(messageId, 16L, ChannelType.EMAIL,
+                "external-" + messageId, "thread-16", "owner@example.test", null,
+                "download: https://files.example/archive.zip", Instant.now(), Instant.now()));
+        when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString()))
+                .thenReturn(downloadId.toString());
+        when(downloadClient.get(downloadId, 16L))
+                .thenReturn(new DownloadIngestionClient.DownloadSnapshot(downloadId, "SUCCEEDED"));
+
+        var run = service.process(messageId);
+        var events = repository.findUnpublishedEmailCompletions(10);
+
+        assertThat(run.status()).isEqualTo("SUCCEEDED");
+        assertThat(events).anySatisfy(event -> {
+            assertThat(event.runId()).isEqualTo(run.id());
+            assertThat(event.messageId()).isEqualTo(messageId);
+            assertThat(event.status()).isEqualTo("SUCCEEDED");
+            assertThat(event.actionCount()).isEqualTo(1);
+        });
     }
 
     @Test

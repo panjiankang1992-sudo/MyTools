@@ -92,6 +92,35 @@ public class MessagingClient {
         return requiredAttachment(result);
     }
 
+    /**
+     * 幂等创建自动化完成邮件投递。
+     *
+     * @param runId 自动化运行标识
+     * @param ownerId 所有者标识
+     * @param recipient 收件地址
+     * @param status 运行终态
+     * @param actionCount 动作数量
+     * @return 投递任务快照
+     */
+    public DeliverySnapshot createCompletionEmail(UUID runId, long ownerId, String recipient,
+                                                   String status, int actionCount) {
+        DeliverySnapshot result = restClient.post().uri("/internal/v1/deliveries")
+                .header("Authorization", "Bearer " + requiredToken())
+                .contentType(MediaType.APPLICATION_JSON).body(Map.of(
+                        "ownerId", ownerId,
+                        "idempotencyKey", "automation-completion-" + runId,
+                        "channelType", "EMAIL",
+                        "recipient", recipient,
+                        "subject", "Automation run completed: " + status,
+                        "body", "Automation run " + runId + " completed with status " + status
+                                + " and " + actionCount + " action(s)."))
+                .retrieve().body(DeliverySnapshot.class);
+        if (result == null || result.id() == null || result.status() == null || result.status().isBlank()) {
+            throw new IllegalStateException("Messaging Service returned an invalid delivery");
+        }
+        return result;
+    }
+
     private AttachmentSnapshot requiredAttachment(AttachmentSnapshot value) {
         if (value == null || value.id() == null || value.status() == null || value.status().isBlank()) {
             throw new IllegalStateException("Messaging Service returned an invalid attachment task");
@@ -108,5 +137,11 @@ public class MessagingClient {
 
     /** 附件任务最小状态快照。 */
     public record AttachmentSnapshot(UUID id, String status) {
+    }
+
+    /**
+     * 消息投递最小状态快照。
+     */
+    public record DeliverySnapshot(UUID id, String status) {
     }
 }

@@ -18,6 +18,8 @@ Messaging Service 的默认关闭 Outbox relay 只向 `POST /internal/v1/message
 
 附件动作只保存标准消息部分标识，使用消息 owner 创建、查询和取消 Messaging 附件任务；Provider 私有引用不会进入 Automation schema 或接口响应。
 
+邮件渠道终态通知复用 `automation_outbox` 和 Messaging 现有异步投递接口。`MESSAGE_AUTOMATION_COMPLETION_RELAY_ENABLED` 默认关闭；启用后只选择 EMAIL 规则的终态事件，以运行标识作为投递幂等键，Messaging 接受后才标记事件已发布。失败事件保留并按批次重试。当前没有可执行的非邮件 Delivery Provider，因此不创建无法执行的 QQ、Telegram 或 OneBot 通知。
+
 规则创建以 owner 和规则名为幂等身份，重复请求必须匹配渠道、会话、发送者、命令前缀、动作类型、动作上限、优先级和启用状态；任一字段变化均拒绝，不能静默复用旧授权规则。
 
 内部接口：
@@ -29,6 +31,6 @@ Messaging Service 的默认关闭 Outbox relay 只向 `POST /internal/v1/message
 
 ## 实施要求
 
-- 继续实现动作完成通知。
+- 增加对应渠道 Delivery Provider 后再开放非邮件完成通知。
 - 迁移已有能力时保留旧实现和功能开关。
 - 在对账与回归通过前不得切换权威数据或生产流量。

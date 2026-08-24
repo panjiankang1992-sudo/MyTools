@@ -226,6 +226,41 @@ public class AutomationRepository {
         return findRun(messageId).orElseThrow();
     }
 
+    /**
+     * 查询等待邮件通知的终态事件。
+     *
+     * @param limit 最大返回数量
+     * @return 按创建时间排序的终态事件
+     */
+    public List<CompletionEvent> findUnpublishedEmailCompletions(int limit) {
+        return jdbcTemplate.query("""
+                SELECT ao.id AS event_id, ar.id AS run_id, ar.inbound_message_id,
+                       ar.status, ar.action_count
+                FROM automation_outbox ao
+                JOIN automation_run ar ON ar.id = ao.aggregate_id
+                JOIN automation_rule rule ON rule.id = ar.automation_rule_id
+                WHERE ao.published_at IS NULL
+                  AND ao.event_type = 'AutomationRunCompleted'
+                  AND rule.channel_type = 'EMAIL'
+                ORDER BY ao.created_at, ao.id
+                LIMIT ?
+                """, (resultSet, rowNumber) -> new CompletionEvent(
+                UUID.fromString(resultSet.getString("event_id")),
+                UUID.fromString(resultSet.getString("run_id")),
+                UUID.fromString(resultSet.getString("inbound_message_id")),
+                resultSet.getString("status"), resultSet.getInt("action_count")), limit);
+    }
+
+    /**
+     * 标记终态事件已由 Messaging 接收。
+     *
+     * @param eventId 事件标识
+     */
+    public void markOutboxPublished(UUID eventId) {
+        jdbcTemplate.update("UPDATE automation_outbox SET published_at = ? WHERE id = ? AND published_at IS NULL",
+                Timestamp.from(Instant.now()), eventId.toString());
+    }
+
     private Optional<AutomationRuleRecord> findRuleByName(long ownerId, String name) {
         return queryRules("WHERE ar.owner_id = ? AND ar.name = ?", ownerId, name).stream().findFirst();
     }
@@ -330,5 +365,11 @@ public class AutomationRepository {
      */
     public record ActionExecution(UUID id, int sequence, String actionType, String sourceUrl, String fileName,
                                   UUID externalRequestId, String status) {
+    }
+
+    /**
+     * 邮件完成通知所需的最小终态事件。
+     */
+    public record CompletionEvent(UUID eventId, UUID runId, UUID messageId, String status, int actionCount) {
     }
 }
