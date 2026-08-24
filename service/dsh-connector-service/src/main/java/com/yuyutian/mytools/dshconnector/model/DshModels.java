@@ -4,5 +4,5 @@ package com.yuyutian.mytools.dshconnector.model;import jakarta.validation.Valid;
  public record MigrationBatch(@NotBlank @Pattern(regexp="[A-Za-z0-9._:-]{1,128}")String migrationKey,boolean dryRun,@NotNull @Size(max=200)List<@Valid LegacyBinding>items){}
  public record MigrationResult(boolean dryRun,int accepted,int skipped,int rejected,String digestSha256){}
  public record BindingView(UUID id,Long legacyId,long ownerId,String dshSessionId,String workspaceKey,String status,long lastSequence,Instant createdAt,Instant updatedAt){}
- public record Reconciliation(int itemCount,String collectionSha256){}
+ public record Reconciliation(String migrationKey,int itemCount,String collectionSha256){}
 }

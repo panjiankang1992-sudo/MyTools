@@ -1,0 +1,14 @@
+name: dsh_migrate_legacy_sessions
+version: 1.1.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - legacy_mytools_read
+  - dsh_connector_write
+parameters:
+  required:
+    - migrationKey
+    - dryRun
+limits:
+  timeoutSeconds: 900
+  maxOutputBytes: 65536

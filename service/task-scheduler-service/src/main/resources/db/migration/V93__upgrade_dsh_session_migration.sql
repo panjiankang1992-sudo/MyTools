@@ -1,0 +1,2 @@
+UPDATE task_definition SET result_schema='{"type":"object","required":["migrationKey","dryRun","sourceHighWater","exported","accepted","skipped","rejected","digestSha256","targetVerified"]}',version=version+1,updated_at=CURRENT_TIMESTAMP WHERE name='dsh_migrate_legacy_sessions';
+UPDATE task_step_definition SET script_version='1.1.0',updated_at=CURRENT_TIMESTAMP WHERE task_definition_id='00000000-0000-4000-8000-000000000536' AND name='migrate_dsh_sessions';
