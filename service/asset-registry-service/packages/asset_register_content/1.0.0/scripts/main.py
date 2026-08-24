@@ -18,6 +18,9 @@ def verified_output(context: dict) -> tuple[dict, str]:
     output = dict(parameters.get("assetOutput") or {})
     producer = "explicit"
     if not output:
+        output = dict((context.get("stepOutputs") or {}).get("publish_asset") or {})
+        producer = "download"
+    if not output:
         output = dict((context.get("stepOutputs") or {}).get("import_ebook") or {})
         producer = "reader"
     if not output:

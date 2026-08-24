@@ -56,6 +56,18 @@ class AssetRegisterContentTest(unittest.TestCase):
         }, client)
         self.assertEqual("STORAGE_GATEWAY", client.payload["location"]["providerType"])
 
+    def test_prefers_durable_published_download(self):
+        client = Client()
+        MODULE.execute({
+            "parameters": {"downloadRequestId": "00000000-0000-4000-8000-000000000005"},
+            "stepOutputs": {"download_asset": {"relativePath": "r/a.bin",
+                "contentSha256": "e" * 64, "sizeBytes": 12},
+                "publish_asset": {"storageUri": "storage://downloads/r/a.bin",
+                "contentSha256": "e" * 64, "sizeBytes": 12}}
+        }, client)
+        self.assertEqual("STORAGE_GATEWAY", client.payload["location"]["providerType"])
+        self.assertEqual("storage://downloads/r/a.bin", client.payload["location"]["storageUri"])
+
     def test_registers_media_probe_without_exposing_source_path(self):
         with __import__("tempfile").TemporaryDirectory() as directory:
             source = Path(directory) / "video.mp4"

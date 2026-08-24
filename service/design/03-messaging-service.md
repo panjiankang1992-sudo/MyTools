@@ -50,7 +50,7 @@ MsgService 模板和已知收件人使用 Messaging 自有 `message_template`、
 
 1. 已建立 provider-neutral 投递、投递尝试、标准入站消息与 Outbox schema，并实现 SMTP 原子 provider。
 2. 已建立只携带 `deliveryId` 的 `message_send_email` 任务，并接入默认关闭、旧事务提交后触发的 MyTools 注册邮件旁路。
-3. 已迁移 OneBot 消息解析和附件标准模型，开关默认关闭；附件父任务只携带不透明作业标识，先在 Messaging 信任边界内调用独立 OneBot Connector 解析 provider file id，再转入 Download Ingestion。Connector 可返回无签名参数的 `PUBLIC_URL` 或不暴露来源的 `STREAM` 模式；后者由 `download_message_attachment` 通过 Messaging 和 Connector 两级有界内容流执行并复用统一资产登记链路。
+3. 已迁移 OneBot 消息解析和附件标准模型，开关默认关闭；附件父任务只携带不透明作业标识，先在 Messaging 信任边界内调用独立 OneBot Connector 解析 provider file id，再转入 Download Ingestion。Connector 可返回无签名参数的 `PUBLIC_URL` 或不暴露来源的 `STREAM` 模式；后者由 `download_message_attachment` 通过 Messaging 和 Connector 两级有界内容流执行，下载后重新校验并发布到 Storage Gateway，再复用只引用 `storage://` URI 的统一资产登记链路。
    创建请求同时携带权威 owner 字段和兼容嵌套字段，状态对账使用 owner-bound 内部接口，附件作业不能读取其他租户的下载状态。提交脚本 1.1.0 会创建独立终态对账子任务，避免只在用户查询时才发现失败或取消。
 4. 已按远程 `/opt/code/MsgService` 的真实 TypeScript 和 SQLite schema 实现入站、发件、模板与已知收件人迁移。发件历史进入独立归档，不触发投递任务或实时事件；适配器通过 SQLite online backup 捕获 WAL，生成冻结发件批次、附件内容寻址归档和参考数据批次。生产只读演练已完成 11 条发件、7 个模板、5 个已知收件人的数量与摘要核对，2 个源端已丢失的附件以 `MISSING` 证据保留。剩余步骤是在新 Messaging schema 上执行正式 dry-run、导入、重放和目标对账。
 5. MyTools 问题反馈作为用户发给系统的支持消息归入 Messaging，但使用独立 `support_feedback` 表保留其处理状态和联系人字段。V7、`feedback_migrate_legacy` 和离线门禁已支持只读快照式迁移、幂等重放及数量对账。

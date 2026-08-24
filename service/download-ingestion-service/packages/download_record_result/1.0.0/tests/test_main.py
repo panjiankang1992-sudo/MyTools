@@ -32,6 +32,16 @@ class DownloadRecordResultTest(unittest.TestCase):
                     "register_asset": {"assetId": "asset-2"}}}
         self.assertEqual("storage://downloads/r/b.bin", MODULE.build_payload(context)["storageUri"])
 
+    def test_prefers_durable_publish_output(self):
+        """A publication step replaces the executor-local compatibility URI."""
+        context = {"stepOutputs": {"download_asset": {"itemId": "i3", "fileName": "c.bin",
+                    "contentSha256": "c" * 64, "sizeBytes": 8, "relativePath": "r/c.bin"},
+                    "publish_asset": {"itemId": "i3", "fileName": "c.bin",
+                    "contentSha256": "c" * 64, "sizeBytes": 8,
+                    "storageUri": "storage://downloads/r/c.bin"},
+                    "register_asset": {"assetId": "asset-3"}}}
+        self.assertEqual("storage://downloads/r/c.bin", MODULE.build_payload(context)["storageUri"])
+
 
 if __name__ == "__main__":
     unittest.main()

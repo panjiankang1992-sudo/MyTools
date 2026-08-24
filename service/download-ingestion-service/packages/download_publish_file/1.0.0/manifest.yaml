@@ -1,0 +1,15 @@
+name: download_publish_file
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - filesystem_read
+  - network_http
+parameters:
+  required:
+    - downloadRequestId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 1800
+  maxOutputBytes: 1048576

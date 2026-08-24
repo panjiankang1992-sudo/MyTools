@@ -1,0 +1,6 @@
+INSERT INTO task_step_definition (id,task_definition_id,name,description,step_kind,script_package,script_version,entrypoint,arguments_template,enabled,timeout_seconds,failure_policy,sequence_number,max_attempts,created_at,updated_at) VALUES
+('00000000-0000-4000-8000-000000000560','00000000-0000-4000-8000-000000000304','publish_asset','Publish the verified HTTP download through Storage Gateway','NORMAL','download_publish_file','1.0.0','scripts/main.py','[]',TRUE,1800,'FAIL_TASK',15,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+('00000000-0000-4000-8000-000000000561','00000000-0000-4000-8000-000000000407','publish_asset','Publish the verified message attachment through Storage Gateway','NORMAL','download_publish_file','1.0.0','scripts/main.py','[]',TRUE,1800,'FAIL_TASK',15,3,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+
+UPDATE task_definition SET description='Download, verify, durably publish, and register one bounded HTTP asset',version=2,updated_at=CURRENT_TIMESTAMP WHERE id='00000000-0000-4000-8000-000000000304';
+UPDATE task_definition SET description='Stream, verify, durably publish, and register one authenticated provider attachment',version=2,updated_at=CURRENT_TIMESTAMP WHERE id='00000000-0000-4000-8000-000000000407';

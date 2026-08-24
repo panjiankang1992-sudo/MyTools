@@ -39,7 +39,11 @@
 - `download_pikpak_asset`、`download_magnet_asset`。
 - `download_message_attachment`、`download_local_import`。
 
-下载父任务可创建解析、各文件下载和汇总子任务。脚本通过 Storage Gateway 写 staging，通过 Asset Registry API 发布资产；禁止直接写 Media Library 表。
+下载父任务可创建解析、各文件下载和汇总子任务。HTTP 和消息附件原子任务先把内容写入
+有界临时文件并校验摘要，再由独立发布步骤重新校验并写入 Storage Gateway 受管根，最后
+通过 Asset Registry API 登记资产并回写下载结果。新成功结果只保存 `storage://` 逻辑 URI，
+不能暴露执行节点目录；旧任务实例保留兼容读取，不进行破坏性回填。禁止直接写 Media
+Library 表。
 
 X 帖子采用解析父任务加 HTTP 文件子任务。解析器只接受单个 `/status/{id}`，只输出
 HTTPS `*.twimg.com` 资源；全部子任务创建后再等待，任一子任务失败时取消仍运行的同批
@@ -77,5 +81,6 @@ WebArchive 同样采用解析父任务。解析器逐跳校验公网地址、限
 ## 验收
 
 - 原有断点续传、SHA-256 去重和原子发布保持不变。
+- HTTP 与消息附件任务成功后，下载结果和资产登记均引用同一个持久化 `storage://` URI。
 - 一个下载请求可查询全部子任务。
 - 父任务取消能停止所有下载并按策略保留或清理 staging。
