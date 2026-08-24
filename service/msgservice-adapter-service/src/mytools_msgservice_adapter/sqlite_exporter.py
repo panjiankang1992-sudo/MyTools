@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 import hashlib
 import json
 from pathlib import Path
+import re
 import sqlite3
 from typing import Any
 
@@ -53,6 +54,8 @@ def export_outbound(source: Path, output: Path, attachment_root: Path | None,
                 "attachmentCount": len(attachment_manifest),
                 "sentCount": sum(item["status"] == "SENT" for item in items),
                 "failedCount": sum(item["status"] == "FAILED" for item in items),
+                "missingAttachmentCount": sum(item["availability"] == "MISSING"
+                                              for item in attachment_manifest),
                 "batchSha256": sha256_json(document),
                 "createdAt": datetime.now(UTC).isoformat().replace("+00:00", "Z")}
     write_json(output / "reconciliation.json", evidence)
@@ -93,7 +96,17 @@ def archive_attachment(value: Any, archive: Path, attachment_root: Path | None,
     if not isinstance(value, dict) or not isinstance(value.get("filename"), str):
         raise ValueError(f"attachment {index} of message {message_id} is invalid")
     content = value.get("content")
-    data = attachment_bytes(content, attachment_root)
+    try:
+        data = attachment_bytes(content, attachment_root)
+    except FileNotFoundError:
+        if not isinstance(content, str):
+            raise
+        item = {"fileName": value["filename"], "mimeType": value.get("contentType"),
+                "availability": "MISSING", "size": value.get("size"), "sha256": None,
+                "archiveRef": None, "legacyContentRef": content}
+        manifest = {"messageId": message_id, "attachmentIndex": index, **item,
+                    "relativePath": None}
+        return item, manifest
     declared_size = value.get("size")
     if declared_size is not None and declared_size != len(data):
         raise ValueError(f"attachment {index} of message {message_id} has mismatched size")
@@ -106,14 +119,15 @@ def archive_attachment(value: Any, archive: Path, attachment_root: Path | None,
         destination.write_bytes(data)
     reference = f"msgservice-archive://sha256/{digest}"
     item = {"fileName": value["filename"], "mimeType": value.get("contentType"),
-            "size": len(data), "sha256": digest, "archiveRef": reference}
+            "availability": "ARCHIVED", "size": len(data), "sha256": digest,
+            "archiveRef": reference, "legacyContentRef": None}
     manifest = {"messageId": message_id, "attachmentIndex": index, **item,
                 "relativePath": f"attachments/sha256/{digest}"}
     return item, manifest
 
 
 def attachment_bytes(content: Any, attachment_root: Path | None) -> bytes:
-    """解码 Buffer、data URI 或显式附件根目录内的文件。"""
+    """按旧 SMTP 规则解码 Buffer、data URI、裸 Base64 或文件。"""
     if isinstance(content, dict) and content.get("type") == "Buffer" and isinstance(content.get("data"), list):
         try:
             return bytes(content["data"])
@@ -124,11 +138,19 @@ def attachment_bytes(content: Any, attachment_root: Path | None) -> bytes:
             return base64.b64decode(content.split(",", 1)[1], validate=True)
         except ValueError as exception:
             raise ValueError("attachment data URI is invalid") from exception
+    if isinstance(content, str) and len(content) >= 4 and len(content) % 4 == 0 \
+            and re.fullmatch(r"[A-Za-z0-9+/]+={0,2}", content):
+        try:
+            return base64.b64decode(content, validate=True)
+        except ValueError as exception:
+            raise ValueError("attachment bare base64 is invalid") from exception
     if isinstance(content, str) and attachment_root is not None:
         candidate = Path(content)
         candidate = candidate if candidate.is_absolute() else attachment_root / candidate
         resolved = candidate.resolve()
         root = attachment_root.resolve()
+        if not resolved.exists():
+            raise FileNotFoundError(resolved)
         if resolved != root and root not in resolved.parents:
             raise ValueError("attachment path escapes configured root")
         return resolved.read_bytes()

@@ -14,7 +14,7 @@
 
 相同 `sourceSystem + legacyMessageId` 和相同摘要的记录幂等跳过；身份相同但正文、元数据或分段变化时拒绝覆盖。快照只允许 Messaging 历史迁移契约中的字段，未知字段会被拒绝，避免旧服务密码、Cookie 或渠道密钥被意外带入。冻结高水位的集合证据按 `sourceSystem + legacyMessageId` 排序，首次计算后写入 `legacy_inbound_export_snapshot`，后续分页读取同一不可变证据，避免大批迁移按页重复扫描全量历史。证据缓存使用 `messaging-history-v1` 协议版本；升级摘要算法时保留旧证据但不会误用。
 
-旧 MsgService 已按远程 `/opt/code/MsgService` 的实际 TypeScript 与 SQLite 实现完成核验。生产库使用 WAL，导出器通过 SQLite backup API 生成一致快照，不直接复制活动 `.db` 文件。发件附件可能以内嵌 Buffer JSON、data URI 或受控目录文件存在，导出器会提取为内容寻址归档，并只向新服务传递文件名、类型、实际大小、SHA-256 和归档引用；无法提取、越过附件根目录或声明大小不一致时立即停止，防止静默丢失。
+旧 MsgService 已按远程 `/opt/code/MsgService` 的实际 TypeScript 与 SQLite 实现完成核验。生产库使用 WAL，导出器通过 SQLite backup API 生成一致快照，不直接复制活动 `.db` 文件。发件附件可能以内嵌 Buffer JSON、data URI、裸 Base64 或受控目录文件存在，导出器会提取为内容寻址归档，并只向新服务传递文件名、类型、实际大小、SHA-256 和归档引用；越过附件根目录或声明大小不一致时立即停止。若旧记录引用的文件在源主机已经不存在，则保留 `MISSING` 状态和旧引用，并在对账中单独计数，防止把源端既有缺失伪装成完整迁移。
 
 只读导出示例（输出目录必须不存在）：
 

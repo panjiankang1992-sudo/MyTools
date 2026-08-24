@@ -3,6 +3,7 @@ package com.yuyutian.mytools.messaging.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.messaging.model.LegacyOutboundMessageItem;
+import com.yuyutian.mytools.messaging.model.LegacyAttachmentArchive;
 import com.yuyutian.mytools.messaging.model.LegacyOutboundMigrationBatch;
 import com.yuyutian.mytools.messaging.model.LegacyOutboundMigrationResult;
 import com.yuyutian.mytools.messaging.model.LegacyOutboundReconciliation;
@@ -83,6 +84,21 @@ public class OutboundHistoryMigrationService {
         }
         if ("SENT".equals(item.status()) && item.sentAt() == null) {
             throw new IllegalArgumentException("Sent timestamp is missing");
+        }
+        for (LegacyAttachmentArchive attachment : item.attachments()) {
+            boolean archived = "ARCHIVED".equals(attachment.availability());
+            boolean digestValid = attachment.sha256() != null
+                    && attachment.sha256().matches("^[a-f0-9]{64}$");
+            boolean referenceValid = digestValid && ("msgservice-archive://sha256/"
+                    + attachment.sha256()).equals(attachment.archiveRef());
+            if (archived && (attachment.size() == null || !referenceValid)) {
+                throw new IllegalArgumentException("Archived attachment identity is invalid");
+            }
+            if (!archived && (attachment.legacyContentRef() == null
+                    || attachment.legacyContentRef().isBlank()
+                    || attachment.sha256() != null || attachment.archiveRef() != null)) {
+                throw new IllegalArgumentException("Missing attachment evidence is invalid");
+            }
         }
     }
 

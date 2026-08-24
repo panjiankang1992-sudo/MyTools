@@ -13,8 +13,10 @@ def message(identifier: str = "mail-1") -> dict:
     return {"sourceSystem": "MSGSERVICE", "legacyMessageId": identifier, "ownerId": 0,
             "channelType": "EMAIL", "status": "SENT", "sender": "sender@example.com",
             "recipients": ["recipient@example.com"], "subject": "subject", "bodyText": "body",
-            "attachments": [{"fileName": "test.txt", "mimeType": "text/plain", "size": 4,
-                             "sha256": digest, "archiveRef": f"msgservice-archive://sha256/{digest}"}],
+            "attachments": [{"fileName": "test.txt", "mimeType": "text/plain",
+                             "availability": "ARCHIVED", "size": 4, "sha256": digest,
+                             "archiveRef": f"msgservice-archive://sha256/{digest}",
+                             "legacyContentRef": None}],
             "providerMessageId": "provider-1", "sentAt": "2026-08-22T01:02:03Z",
             "createdAt": "2026-08-22T01:02:00Z"}
 
@@ -54,4 +56,4 @@ def test_rejects_embedded_attachment_content() -> None:
 def test_migration_digest_matches_messaging_record_serialization() -> None:
     """锁定 Python 与 Java 迁移载荷摘要协议。"""
     assert OutboundSnapshot.from_document(message()).migration_digest() == \
-        "1c8bd136ce01635b093e9bd7d3f29d054e845335050b681f100e4e222434a4a3"
+        "b9c6ff26abe7344b230d664021ac11c51dd18300415744a76c113401f9198380"

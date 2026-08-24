@@ -236,7 +236,8 @@ class OutboundSnapshot:
                 "providerMessageId", "errorCode", "sentAt", "createdAt")
         normalized = {key: self.value.get(key) for key in keys}
         normalized["attachments"] = [
-            {key: attachment.get(key) for key in ("fileName", "mimeType", "size", "sha256", "archiveRef")}
+            {key: attachment.get(key) for key in ("fileName", "mimeType", "availability", "size",
+                                                  "sha256", "archiveRef", "legacyContentRef")}
             for attachment in normalized["attachments"]]
         payload = json.dumps(normalized, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
         return hashlib.sha256(payload).hexdigest()
@@ -263,21 +264,33 @@ def limited_string(value: Any, name: str, maximum: int, allow_empty: bool = Fals
 
 
 def validate_archive(value: Any) -> dict[str, Any]:
-    """校验内容寻址附件引用并拒绝内嵌字节。"""
-    allowed = {"fileName", "mimeType", "size", "sha256", "archiveRef"}
+    """校验内容寻址附件或旧源缺失证据。"""
+    allowed = {"fileName", "mimeType", "availability", "size", "sha256", "archiveRef",
+               "legacyContentRef"}
     if not isinstance(value, dict) or set(value) != allowed:
         raise ValueError("attachment archive fields are invalid")
     size = value.get("size")
-    if isinstance(size, bool) or not isinstance(size, int) or size < 0:
+    if size is not None and (isinstance(size, bool) or not isinstance(size, int) or size < 0):
         raise ValueError("attachment size is invalid")
-    sha256 = limited_string(value.get("sha256"), "attachment sha256", 64)
-    archive_ref = limited_string(value.get("archiveRef"), "attachment archiveRef", 2048)
-    if not SHA256.fullmatch(sha256) or not archive_ref.startswith("msgservice-archive://sha256/"):
-        raise ValueError("attachment archive identity is invalid")
-    if archive_ref.removeprefix("msgservice-archive://sha256/") != sha256:
-        raise ValueError("attachment archive digest does not match reference")
+    availability = value.get("availability")
+    sha256 = value.get("sha256")
+    archive_ref = value.get("archiveRef")
+    legacy_ref = value.get("legacyContentRef")
+    if availability == "ARCHIVED":
+        sha256 = limited_string(sha256, "attachment sha256", 64)
+        archive_ref = limited_string(archive_ref, "attachment archiveRef", 2048)
+        if size is None or not SHA256.fullmatch(sha256) \
+                or archive_ref != f"msgservice-archive://sha256/{sha256}" or legacy_ref is not None:
+            raise ValueError("attachment archive identity is invalid")
+    elif availability == "MISSING":
+        legacy_ref = limited_string(legacy_ref, "attachment legacyContentRef", 4096)
+        if sha256 is not None or archive_ref is not None:
+            raise ValueError("missing attachment evidence is invalid")
+    else:
+        raise ValueError("attachment availability is invalid")
     mime_type = value.get("mimeType")
     if mime_type is not None:
         mime_type = limited_string(mime_type, "attachment mimeType", 255, allow_empty=True)
     return {"fileName": limited_string(value.get("fileName"), "attachment fileName", 1024),
-            "mimeType": mime_type, "size": size, "sha256": sha256, "archiveRef": archive_ref}
+            "mimeType": mime_type, "availability": availability, "size": size, "sha256": sha256,
+            "archiveRef": archive_ref, "legacyContentRef": legacy_ref}

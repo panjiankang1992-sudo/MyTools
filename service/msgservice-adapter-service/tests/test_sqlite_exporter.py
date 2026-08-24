@@ -39,3 +39,24 @@ def test_exports_consistent_backup_and_content_addressed_attachment(tmp_path: Pa
     assert archived.read_bytes() == b"test"
     with sqlite3.connect(tmp_path / "export/msgservice-consistent.db") as backup:
         assert backup.execute("SELECT COUNT(*) FROM messages").fetchone()[0] == 1
+
+
+def test_decodes_legacy_bare_base64_attachment(tmp_path: Path) -> None:
+    """验证导出器复现旧 SMTP 对裸 Base64 的判定。"""
+    from mytools_msgservice_adapter.sqlite_exporter import attachment_bytes
+
+    assert attachment_bytes("dGVzdA==", tmp_path) == b"test"
+
+
+def test_preserves_missing_legacy_attachment_evidence(tmp_path: Path) -> None:
+    """验证源文件已缺失时保留旧引用而不伪造摘要。"""
+    from mytools_msgservice_adapter.sqlite_exporter import archive_attachment
+
+    item, manifest = archive_attachment(
+        {"filename": "missing.txt", "contentType": "text/plain", "content": "data/missing.txt"},
+        tmp_path / "archive", tmp_path, "mail-1", 0)
+
+    assert item["availability"] == "MISSING"
+    assert item["legacyContentRef"] == "data/missing.txt"
+    assert item["sha256"] is None
+    assert manifest["relativePath"] is None

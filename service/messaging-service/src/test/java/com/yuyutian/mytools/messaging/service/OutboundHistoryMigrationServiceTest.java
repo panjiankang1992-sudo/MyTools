@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 class OutboundHistoryMigrationServiceTest {
@@ -44,17 +45,16 @@ class OutboundHistoryMigrationServiceTest {
 
     @Test
     void shouldRequireContentAddressedAttachmentReference() {
-        var attachment = new LegacyAttachmentArchive("report.txt", "text/plain", 4,
-                "invalid", "msgservice-archive://attachment/report.txt");
+        var attachment = new LegacyAttachmentArchive("report.txt", "text/plain", "ARCHIVED", 4L,
+                "invalid", "msgservice-archive://attachment/report.txt", null);
         var item = new LegacyOutboundMessageItem("MSGSERVICE", UUID.randomUUID().toString(), 0L,
                 ChannelType.EMAIL, "SENT", "sender@example.com", List.of("recipient@example.com"),
                 "subject", "body", null, List.of(attachment), null, null, null,
                 Instant.parse("2026-08-22T01:02:03Z"), Instant.parse("2026-08-22T01:02:00Z"));
 
-        try (var factory = jakarta.validation.Validation.buildDefaultValidatorFactory()) {
-            assertThat(factory.getValidator().validate(item))
-                    .anyMatch(violation -> violation.getPropertyPath().toString().contains("attachments"));
-        }
+        assertThatThrownBy(() -> service.migrate(new LegacyOutboundMigrationBatch(
+                "invalid-attachment", true, List.of(item))))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -63,7 +63,8 @@ class OutboundHistoryMigrationServiceTest {
         var adapterFixture = new LegacyOutboundMessageItem("MSGSERVICE", "mail-1", 0L,
                 ChannelType.EMAIL, "SENT", "sender@example.com", List.of("recipient@example.com"),
                 "subject", "body", null, List.of(new LegacyAttachmentArchive(
-                "test.txt", "text/plain", 4, digest, "msgservice-archive://sha256/" + digest)),
+                "test.txt", "text/plain", "ARCHIVED", 4L, digest,
+                "msgservice-archive://sha256/" + digest, null)),
                 null, "provider-1", null, Instant.parse("2026-08-22T01:02:03Z"),
                 Instant.parse("2026-08-22T01:02:00Z"));
 
@@ -73,15 +74,15 @@ class OutboundHistoryMigrationServiceTest {
         assertThat(jdbcTemplate.queryForObject("""
                 SELECT payload_sha256 FROM outbound_history_migration
                 WHERE source_system='MSGSERVICE' AND legacy_message_id='mail-1'
-                """, String.class)).isEqualTo("1c8bd136ce01635b093e9bd7d3f29d054e845335050b681f100e4e222434a4a3");
+                """, String.class)).isEqualTo("b9c6ff26abe7344b230d664021ac11c51dd18300415744a76c113401f9198380");
     }
 
     private LegacyOutboundMessageItem item(String legacyId, String body) {
         return new LegacyOutboundMessageItem("MSGSERVICE", legacyId, 0L, ChannelType.EMAIL, "SENT",
                 "sender@example.com", List.of("recipient@example.com"), "subject", body, null,
-                List.of(new LegacyAttachmentArchive("report.txt", "text/plain", 4,
+                List.of(new LegacyAttachmentArchive("report.txt", "text/plain", "ARCHIVED", 4L,
                         "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
-                        "msgservice-archive://sha256/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08")),
+                        "msgservice-archive://sha256/9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", null)),
                 "template-1", "provider-1", null, Instant.parse("2026-08-22T01:02:03Z"),
                 Instant.parse("2026-08-22T01:02:00Z"));
     }
