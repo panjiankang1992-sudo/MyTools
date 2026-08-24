@@ -30,6 +30,7 @@ MsgService 的权威代码位于远程主机 `/opt/code/MsgService`。需要核�
 | [21-app-catalog-service.md](21-app-catalog-service.md) | 应用目录、版本和文件关系迁移 |
 | [22-dsh-connector-service.md](22-dsh-connector-service.md) | DSH 会话绑定与连接适配 |
 | [23-legacy-data-disposition.md](23-legacy-data-disposition.md) | MyTools 旧表逐表分类、备份和数据保全门禁 |
+| [25-implementation-status-and-completion-plan.md](25-implementation-status-and-completion-plan.md) | 全局实现状态、剩余缺口、完成顺序与验证基线 |
 
 ## 共通约束
 
