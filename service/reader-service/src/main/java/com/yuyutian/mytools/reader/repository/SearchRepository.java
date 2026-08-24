@@ -41,7 +41,7 @@ public class SearchRepository {
      * @return 搜索请求
      */
     public Optional<SearchRecord> findByIdempotencyKey(String idempotencyKey) {
-        return query("SELECT * FROM book_search_request WHERE idempotency_key = ?", idempotencyKey);
+        return query("SELECT * FROM book_search_request WHERE idempotency_key = ?",idempotencyKey);
     }
 
     /**
@@ -163,7 +163,7 @@ public class SearchRepository {
                 """, (resultSet, rowNumber) -> readJson(resultSet.getString(1)), requestId.toString());
     }
 
-    private Optional<SearchRecord> query(String sql, Object argument) {
+    private Optional<SearchRecord> query(String sql, Object... arguments) {
         List<SearchRecord> records = jdbcTemplate.query(sql, (resultSet, rowNumber) -> {
             String taskId = resultSet.getString("task_instance_id");
             return new SearchRecord(UUID.fromString(resultSet.getString("id")), resultSet.getLong("owner_id"),
@@ -173,7 +173,7 @@ public class SearchRepository {
                     readJson(resultSet.getString("parameters_json")),
                     resultSet.getTimestamp("created_at").toInstant(),
                     resultSet.getTimestamp("updated_at").toInstant());
-        }, argument);
+        }, arguments);
         return records.stream().findFirst();
     }
 

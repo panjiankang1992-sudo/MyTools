@@ -12,6 +12,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import com.yuyutian.mytools.gateway.model.ReaderSearchGatewayModels.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -59,6 +61,11 @@ class ReaderGatewayControllerTest {
         assertThatThrownBy(() -> controller.shelves(false, request(56L)))
                 .isInstanceOf(GatewayRouteDisabledException.class);
         verify(client, never()).list(eq("shelves"), eq(56L), eq(false), eq("correlation"));
+    }
+
+    @Test
+    void shouldInjectOwnerIntoSearchLifecycle() {
+        ReaderGatewayClient client=mock(ReaderGatewayClient.class);ReaderGatewayController controller=new ReaderGatewayController(properties(true),client);CreateSearch body=new CreateSearch("search-1","Book","FUZZY",1,List.of(new SourceSnapshot("source","Source","https://source.example",1,Map.of())));UUID id=UUID.randomUUID();SearchView view=new SearchView(id,"QUEUED","Book","FUZZY",1,0,0,0,List.of(),java.time.Instant.EPOCH,java.time.Instant.EPOCH);when(client.createSearch(55L,body,"correlation")).thenReturn(view);when(client.search(55L,id,"correlation")).thenReturn(view);when(client.cancelSearch(55L,id,"correlation")).thenReturn(view);assertThat(controller.createSearch(body,request(55L))).isEqualTo(view);assertThat(controller.search(id,request(55L))).isEqualTo(view);assertThat(controller.cancelSearch(id,request(55L))).isEqualTo(view);
     }
 
     private MockHttpServletRequest request(long userId) {

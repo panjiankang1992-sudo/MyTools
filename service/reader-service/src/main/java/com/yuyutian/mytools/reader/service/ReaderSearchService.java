@@ -45,14 +45,19 @@ public class ReaderSearchService {
      */
     @Transactional
     public SearchView create(CreateSearchRequest request) {
-        SearchRecord record = repository.findByIdempotencyKey(request.idempotencyKey()).orElseGet(() -> {
+        String scopedKey = scopedKey(request.ownerId(), request.idempotencyKey());
+        SearchRecord record = repository.findByIdempotencyKey(scopedKey).orElseGet(() -> {
             Instant now = Instant.now();
             Map<String, Object> parameters = parameters(request);
-            SearchRecord created = new SearchRecord(UUID.randomUUID(), request.ownerId(), request.idempotencyKey(),
+            SearchRecord created = new SearchRecord(UUID.randomUUID(), request.ownerId(), scopedKey,
                     request.keyword(), request.mode(), request.page(), "ACCEPTED", null, parameters, now, now);
             repository.insert(created);
             return created;
         });
+        if (record.ownerId() != request.ownerId() || !record.keyword().equals(request.keyword())
+                || record.mode() != request.mode() || record.page() != request.page()) {
+            throw new IllegalArgumentException("reader search idempotency conflict");
+        }
         if (record.taskId() == null) {
             UUID taskId = schedulerClient.createSearchTask(
                     "reader_source_search:" + record.id() + ":reader-search-v2", record.id(), record.parameters());
@@ -101,6 +106,18 @@ public class ReaderSearchService {
     }
 
     /**
+     * 按所有者查询搜索。
+     *
+     * @param requestId 搜索标识
+     * @param ownerId 所有者
+     * @return 搜索
+     */
+    public SearchView get(UUID requestId, long ownerId) {
+        requiredOwner(requestId, ownerId);
+        return get(requestId);
+    }
+
+    /**
      * 取消搜索任务。
      *
      * @param requestId 搜索请求标识
@@ -115,9 +132,29 @@ public class ReaderSearchService {
         return get(requestId);
     }
 
+    /**
+     * 按所有者取消搜索。
+     *
+     * @param requestId 搜索标识
+     * @param ownerId 所有者
+     * @return 搜索
+     */
+    public SearchView cancel(UUID requestId, long ownerId) {
+        requiredOwner(requestId, ownerId);
+        return cancel(requestId);
+    }
+
     private SearchRecord required(UUID requestId) {
         return repository.findById(requestId)
                 .orElseThrow(() -> new SearchNotFoundException(requestId));
+    }
+
+    private SearchRecord requiredOwner(UUID requestId, long ownerId) {
+        SearchRecord record = required(requestId);
+        if (record.ownerId() != ownerId) {
+            throw new SearchNotFoundException(requestId);
+        }
+        return record;
     }
 
     private Map<String, Object> parameters(CreateSearchRequest request) {
@@ -174,5 +211,15 @@ public class ReaderSearchService {
 
     private String canonicalKey(Object name) {
         return String.valueOf(name == null ? "" : name).toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
+    }
+
+    private String scopedKey(long ownerId, String key) {
+        try {
+            byte[] value = java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(key.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return "reader-search:" + ownerId + ":" + java.util.HexFormat.of().formatHex(value);
+        } catch (java.security.NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 is unavailable", exception);
+        }
     }
 }

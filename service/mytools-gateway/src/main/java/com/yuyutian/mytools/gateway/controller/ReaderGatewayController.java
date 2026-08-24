@@ -2,6 +2,8 @@ package com.yuyutian.mytools.gateway.controller;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
+import com.yuyutian.mytools.gateway.model.ReaderSearchGatewayModels.CreateSearch;
+import com.yuyutian.mytools.gateway.model.ReaderSearchGatewayModels.SearchView;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
 import com.yuyutian.mytools.gateway.service.ReaderGatewayClient;
@@ -14,6 +16,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -119,6 +122,45 @@ public class ReaderGatewayController {
         payload.put("deleted", body.deleted());
         payload.put("expectedVersion", body.expectedVersion());
         return save("markers", payload, request);
+    }
+
+    /**
+     * 创建书源搜索任务。
+     *
+     * @param body 请求
+     * @param request HTTP 请求
+     * @return 搜索
+     */
+    @PostMapping("/book-searches")
+    public SearchView createSearch(@Valid @RequestBody CreateSearch body, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.createSearch(principal(request).userId(), body, correlation(request));
+    }
+
+    /**
+     * 查询书源搜索。
+     *
+     * @param id 搜索
+     * @param request HTTP 请求
+     * @return 搜索
+     */
+    @GetMapping("/book-searches/{id}")
+    public SearchView search(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.search(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 取消书源搜索。
+     *
+     * @param id 搜索
+     * @param request HTTP 请求
+     * @return 搜索
+     */
+    @PostMapping("/book-searches/{id}/cancel")
+    public SearchView cancelSearch(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.cancelSearch(principal(request).userId(), id, correlation(request));
     }
 
     private List<Map<String, Object>> list(String resource, boolean includeDeleted, HttpServletRequest request) {

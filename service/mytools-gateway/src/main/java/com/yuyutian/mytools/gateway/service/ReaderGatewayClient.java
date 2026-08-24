@@ -10,8 +10,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
+import com.yuyutian.mytools.gateway.model.ReaderSearchGatewayModels.*;
 
 /**
  * 只转发 Gateway 构造载荷的 Reader 内部客户端。
@@ -50,6 +54,61 @@ public class ReaderGatewayClient {
         var response = restTemplate.exchange(root() + "/api/v1/reader-state/" + resource,
                 HttpMethod.POST, entity(payload, correlationId),
                 new ParameterizedTypeReference<Map<String, Object>>() { });
+        if (response.getBody() == null) {
+            throw new IllegalStateException("Reader Service returned an empty response");
+        }
+        return response.getBody();
+    }
+
+    /**
+     * 创建书源搜索任务。
+     *
+     * @param ownerId 所有者
+     * @param request 请求
+     * @param correlationId 关联标识
+     * @return 搜索
+     */
+    public SearchView createSearch(long ownerId, CreateSearch request, String correlationId) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("ownerId", ownerId);
+        payload.put("idempotencyKey", request.idempotencyKey());
+        payload.put("keyword", request.keyword());
+        payload.put("mode", request.mode());
+        payload.put("page", request.page());
+        payload.put("sources", request.sources());
+        return exchangeSearch(root() + "/api/v1/book-searches", HttpMethod.POST, payload, correlationId);
+    }
+
+    /**
+     * 查询书源搜索。
+     *
+     * @param ownerId 所有者
+     * @param id 搜索
+     * @param correlationId 关联标识
+     * @return 搜索
+     */
+    public SearchView search(long ownerId, UUID id, String correlationId) {
+        String url = UriComponentsBuilder.fromHttpUrl(root() + "/api/v1/book-searches/" + id)
+                .queryParam("ownerId", ownerId).toUriString();
+        return exchangeSearch(url, HttpMethod.GET, null, correlationId);
+    }
+
+    /**
+     * 取消书源搜索。
+     *
+     * @param ownerId 所有者
+     * @param id 搜索
+     * @param correlationId 关联标识
+     * @return 搜索
+     */
+    public SearchView cancelSearch(long ownerId, UUID id, String correlationId) {
+        String url = UriComponentsBuilder.fromHttpUrl(root() + "/api/v1/book-searches/" + id + "/cancel")
+                .queryParam("ownerId", ownerId).toUriString();
+        return exchangeSearch(url, HttpMethod.POST, null, correlationId);
+    }
+
+    private SearchView exchangeSearch(String url, HttpMethod method, Object body, String correlationId) {
+        var response = restTemplate.exchange(url, method, entity(body, correlationId), SearchView.class);
         if (response.getBody() == null) {
             throw new IllegalStateException("Reader Service returned an empty response");
         }

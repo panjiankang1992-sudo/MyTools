@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
 
@@ -50,8 +51,8 @@ public class ReaderSearchController {
      * @return 搜索视图
      */
     @GetMapping("/{id}")
-    public SearchView get(@PathVariable UUID id) {
-        return searchService.get(id);
+    public SearchView get(@PathVariable UUID id,@RequestParam(required=false)Long ownerId) {
+        return ownerId==null?searchService.get(id):searchService.get(id,ownerId);
     }
 
     /**
@@ -61,7 +62,7 @@ public class ReaderSearchController {
      * @return 搜索视图
      */
     @PostMapping("/{id}/cancel")
-    public SearchView cancel(@PathVariable UUID id) {
-        return searchService.cancel(id);
+    public SearchView cancel(@PathVariable UUID id,@RequestParam(required=false)Long ownerId) {
+        return ownerId==null?searchService.cancel(id):searchService.cancel(id,ownerId);
     }
 }

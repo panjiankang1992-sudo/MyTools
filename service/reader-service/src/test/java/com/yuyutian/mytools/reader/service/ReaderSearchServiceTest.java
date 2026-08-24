@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -56,5 +57,18 @@ class ReaderSearchServiceTest {
         assertThat(result.totalShards()).isEqualTo(2);
         assertThat(result.results()).hasSize(1);
         verify(schedulerClient).createSearchTask(anyString(), any(), anyMap());
+    }
+
+    @Test
+    void shouldScopeIdempotencyAndSearchAccessByOwner() {
+        UUID firstTask=UUID.randomUUID(),secondTask=UUID.randomUUID();
+        when(schedulerClient.createSearchTask(anyString(),any(),anyMap())).thenReturn(firstTask,secondTask);
+        var sources=List.of(new CreateSearchRequest.SourceSnapshot("source","Source","https://source.example",1,Map.of()));
+        var first=searchService.create(new CreateSearchRequest(17L,"shared-key","Book",SearchMode.EXACT,1,sources));
+        var second=searchService.create(new CreateSearchRequest(18L,"shared-key","Book",SearchMode.EXACT,1,sources));
+
+        assertThat(first.id()).isNotEqualTo(second.id());
+        assertThatThrownBy(()->searchService.get(first.id(),18L)).isInstanceOf(SearchNotFoundException.class);
+        assertThatThrownBy(()->searchService.cancel(first.id(),18L)).isInstanceOf(SearchNotFoundException.class);
     }
 }
