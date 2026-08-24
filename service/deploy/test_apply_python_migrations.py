@@ -8,7 +8,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-
 MODULE_PATH = Path(__file__).with_name("apply_python_migrations.py")
 SPEC = importlib.util.spec_from_file_location("apply_python_migrations", MODULE_PATH)
 assert SPEC is not None and SPEC.loader is not None
@@ -38,6 +37,19 @@ class ApplyPythonMigrationsTest(unittest.TestCase):
 
             with self.assertRaisesRegex(ValueError, "contiguous"):
                 migrator.discover_migrations(Path(directory))
+
+    def test_deployed_python_source_layout_is_supported(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            migrations = root / "python-src" / "worker" / "db" / "migrations"
+            migrations.mkdir(parents=True)
+            (migrations / "V1__create_worker.sql").write_text(
+                "CREATE TABLE worker(id INT);\n", encoding="utf-8")
+            manifest = {"services": [{"name": "worker", "runtime": "python"}]}
+
+            services = migrator.python_services(manifest, root)
+
+            self.assertEqual(1, len(services[0][1]))
 
     def test_rejects_destructive_database_sql(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

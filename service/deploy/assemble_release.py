@@ -78,6 +78,10 @@ def copy_python_project(service_root: Path, name: str, target: Path) -> None:
     destination.mkdir(parents=True)
     shutil.copy2(source / "pyproject.toml", destination / "pyproject.toml")
     shutil.copytree(source / "src", destination / "src", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    migrations = source / "db" / "migrations"
+    if not migrations.is_dir():
+        raise ValueError(f"Python project {name} has no migrations")
+    shutil.copytree(migrations, destination / "db" / "migrations")
 
 
 def copy_deploy_tools(repository: Path, target: Path) -> None:

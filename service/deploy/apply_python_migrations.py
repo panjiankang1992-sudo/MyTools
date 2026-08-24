@@ -8,10 +8,10 @@ import hashlib
 import importlib.util
 import re
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Sequence
-
+from typing import Any
 
 MIGRATION_NAME = re.compile(r"^V([1-9][0-9]*)__([a-z0-9_]+)\.sql$")
 FORBIDDEN_SQL = re.compile(r"\b(?:DROP\s+DATABASE|CREATE\s+DATABASE|TRUNCATE\s+TABLE|DELETE\s+FROM|USE)\b", re.IGNORECASE)
@@ -74,7 +74,10 @@ def python_services(manifest: dict[str, Any], service_root: Path) -> list[tuple[
     result: list[tuple[dict[str, Any], list[Migration]]] = []
     for service in manifest["services"]:
         if service["runtime"] == "python":
-            result.append((service, discover_migrations(service_root / service["name"])))
+            directory = service_root / service["name"]
+            if not directory.is_dir():
+                directory = service_root / "python-src" / service["name"]
+            result.append((service, discover_migrations(directory)))
     return result
 
 

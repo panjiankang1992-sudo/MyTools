@@ -32,6 +32,9 @@ class AssembleReleaseTest(unittest.TestCase):
         (worker / "src" / "worker" / "__init__.py").write_text("", encoding="utf-8")
         (worker / "pyproject.toml").write_text("[project]\nname='worker'\nversion='1'\n",
                                                 encoding="utf-8")
+        migrations = worker / "db" / "migrations"
+        migrations.mkdir(parents=True)
+        (migrations / "V1__create_worker.sql").write_text("CREATE TABLE worker(id INT);\n")
         sdk = self.root / "service" / "task-executor-service" / "sdk" / "python"
         sdk.mkdir(parents=True)
         (sdk / "README.md").write_text("sdk")
@@ -49,6 +52,8 @@ class AssembleReleaseTest(unittest.TestCase):
         self.assertEqual(1, report["pythonServiceCount"])
         self.assertTrue((output / "apps" / "api.jar").is_file())
         self.assertTrue((output / "python-src" / "worker" / "pyproject.toml").is_file())
+        self.assertTrue((output / "python-src" / "worker" / "db" / "migrations"
+                         / "V1__create_worker.sql").is_file())
         stored = json.loads((output / "release-manifest.json").read_text())
         self.assertEqual(report, stored)
         self.assertNotIn("release-manifest.json", {item["path"] for item in report["files"]})

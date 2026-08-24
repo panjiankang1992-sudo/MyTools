@@ -46,7 +46,7 @@
 | MySQL 8.4 全新 Schema 启动 | 17 个独立 Schema 完成迁移，19/19 个服务健康 |
 | Scheduler/Executor 基础联通 | Executor 为 `ONLINE`，已绑定 7 个执行集群 |
 | Gateway 默认关闭 | App Catalog 路由返回 HTTP 503 和 `GATEWAY_002` |
-| 部署工具测试 | 40 个测试通过，包含发布包装配/安装、私有环境生成、建库、Python 迁移、systemd 生成、部署验收、迁移编排和领域重建证据校验 |
+| 部署工具测试 | 41 个测试通过，包含发布包装配/安装、私有环境生成、建库、Python 迁移、systemd 生成、部署验收、迁移编排和领域重建证据校验 |
 
 统一复验入口：
 
