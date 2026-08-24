@@ -46,6 +46,7 @@ class InitializeSchemasTest(unittest.TestCase):
         self.assertTrue(enabled_flags)
         self.assertTrue(all(value.lower() in {"false", "disabled"} for value in enabled_flags.values()))
         self.assertEqual("/opt/yuyutian/mytools", environment["MYTOOLS_SERVICE_ROOT"])
+        self.assertEqual("/opt/yuyutian/logs/mytools", environment["MYTOOLS_LOG_ROOT"])
         deployment_paths = [
             value
             for key, value in environment.items()

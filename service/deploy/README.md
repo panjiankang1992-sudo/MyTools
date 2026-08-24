@@ -10,10 +10,11 @@
 ├── config/            # 仓库外环境文件和非敏感配置
 ├── runtime/tasks/     # Executor 临时工作目录
 ├── migration/         # 受控迁移快照和对账报告
-└── logs/              # 服务日志
 ```
 
-数据库文件、附件和迁移快照不得放进 `releases/`，发布新版本时只替换 `current` 链接，不覆盖 `migration/` 和 `logs/`。旧服务原有目录保持原状。
+日志不放在部署根目录，统一写入 `/opt/yuyutian/logs/mytools/<service-name>/service.log`。
+
+数据库文件、附件和迁移快照不得放进 `releases/`，发布新版本时只替换 `current` 链接，不覆盖 `migration/` 和独立日志目录。旧服务原有目录保持原状。
 
 下载目标、媒体扫描目录、电子书目录和 Storage provider 根目录属于业务数据位置，与部署目录无关。它们应在 `services.env` 中指向实际数据盘、NAS 或远程存储挂载点；部署工具不创建、不移动也不删除这些目录。`READER_EBOOK_STORAGE_ROOT` 是 Storage Gateway 中的逻辑根名称，不是 `/opt/yuyutian/mytools` 下的物理路径。
 
@@ -67,9 +68,15 @@ uv run --no-project --python 3.12 --with pymysql python \
 python3 service/deploy/generate_systemd_units.py --output /tmp/mytools-systemd
 ```
 
-输出包含每个服务的 `.service`、`mytools-services.target` 和 `mytools.conf`。默认 target 不包含迁移适配器、OneBot、PikPak、DSH RPC 和消息自动化；这些能力只能单独显式启用。部署时将服务单元和 target 安装到 `/etc/systemd/system/`，将 `mytools.conf` 安装到 `/etc/tmpfiles.d/`，执行 `systemd-tmpfiles --create /etc/tmpfiles.d/mytools.conf` 后再启动 target。
+输出包含每个服务的 `.service`、`mytools-services.target`、目录配置、日志轮转配置及其 timer。默认 target 不包含迁移适配器、OneBot、PikPak、DSH RPC 和消息自动化；这些能力只能单独显式启用。部署时将服务单元、target 和 timer 安装到 `/etc/systemd/system/`，将 `mytools.conf` 安装到 `/etc/tmpfiles.d/`，将 `mytools-services.logrotate` 安装为 `/etc/logrotate.d/mytools-services`。执行 `systemd-tmpfiles --create /etc/tmpfiles.d/mytools.conf` 后启用 `mytools-logrotate.timer`，最后启动服务 target。
 
 Java 发布包统一命名为 `releases/current/apps/<service>.jar`，Python 服务安装在 `releases/current/venv`。所有服务读取 `/opt/yuyutian/mytools/config/services.env`，该文件必须位于仓库外并限制为部署账号可读。systemd 单元不会限制业务数据必须位于部署根目录，但部署前必须由管理员为 `mytools` 账号授予所配置数据目录的最小读写权限。
+
+## 日志保留
+
+所有微服务的标准输出和错误输出合并写入 `/opt/yuyutian/logs/mytools/<service-name>/service.log`，服务之间不共享目录或文件。轮转规则同时满足两个上限：按天轮转并只保留当前文件加 9 份历史，`maxage 10` 删除超过 10 天的日志；单文件达到 10 MiB 时提前轮转，因此单个微服务未压缩日志总量上限约为 100 MiB。历史日志启用压缩，每分钟 timer 会检查一次大小，缩短在日轮转间隔内超过容量上限的窗口。高日志量时优先满足容量限制，可能保留不足 10 天；低日志量时最多保留最近 10 天。
+
+`copytruncate` 允许 Java 和 Python 进程保持打开的 stdout 文件描述符而无需逐个重启。日志目录和文件分别使用 `0750`、`0640`，仅 `mytools` 账号和同组进程可读。
 
 ## 启动顺序
 

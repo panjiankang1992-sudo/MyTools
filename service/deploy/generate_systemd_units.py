@@ -21,6 +21,8 @@ def load_manifest(path: Path) -> dict[str, Any]:
     root = manifest.get("deploymentRoot")
     if root != "/opt/yuyutian/mytools":
         raise ValueError("deploymentRoot must be /opt/yuyutian/mytools")
+    if manifest.get("logRoot") != "/opt/yuyutian/logs/mytools":
+        raise ValueError("logRoot must be /opt/yuyutian/logs/mytools")
     entries = manifest.get("services", []) + manifest.get("statelessServices", [])
     names = {entry.get("name") for entry in entries}
     if len(names) != len(entries) or None in names:
@@ -40,7 +42,7 @@ def load_manifest(path: Path) -> dict[str, Any]:
     return manifest
 
 
-def service_unit(entry: dict[str, Any], deployment_root: str) -> str:
+def service_unit(entry: dict[str, Any], deployment_root: str, log_root: str) -> str:
     """Render a hardened service unit for one manifest entry."""
 
     name = entry["name"]
@@ -66,12 +68,13 @@ def service_unit(entry: dict[str, Any], deployment_root: str) -> str:
         "Restart=on-failure",
         "RestartSec=5s",
         "TimeoutStopSec=90s",
+        "UMask=0027",
         "NoNewPrivileges=true",
         "PrivateTmp=true",
         "ProtectSystem=full",
         "ProtectHome=true",
-        "StandardOutput=journal",
-        "StandardError=journal",
+        f"StandardOutput=append:{log_root}/{name}/service.log",
+        "StandardError=inherit",
         "",
         "[Install]",
         "WantedBy=mytools-services.target",
@@ -98,11 +101,83 @@ def target_unit(entries: list[dict[str, Any]]) -> str:
     )
 
 
-def tmpfiles_config(deployment_root: str) -> str:
+def tmpfiles_config(deployment_root: str, log_root: str, entries: list[dict[str, Any]]) -> str:
     """Render persistent directory ownership without deleting existing data."""
 
-    paths = ("config", "releases", "runtime/tasks", "migration", "logs")
-    return "\n".join(f"d {deployment_root}/{path} 0750 mytools mytools -" for path in paths) + "\n"
+    paths = ("config", "releases", "runtime/tasks", "migration")
+    lines = [f"d {deployment_root}/{path} 0750 mytools mytools -" for path in paths]
+    lines.append(f"d {log_root} 0750 mytools mytools -")
+    lines.extend(f"d {log_root}/{entry['name']} 0750 mytools mytools -" for entry in entries)
+    return "\n".join(lines) + "\n"
+
+
+def logrotate_config(entries: list[dict[str, Any]], log_root: str) -> str:
+    """Render per-service retention bounded by both ten days and 100 MiB."""
+
+    blocks: list[str] = []
+    for entry in entries:
+        name = entry["name"]
+        blocks.append(
+            "\n".join(
+                (
+                    f"{log_root}/{name}/service.log {{",
+                    "    su mytools mytools",
+                    "    daily",
+                    "    rotate 9",
+                    "    maxage 10",
+                    "    maxsize 10M",
+                    "    compress",
+                    "    delaycompress",
+                    "    missingok",
+                    "    notifempty",
+                    "    copytruncate",
+                    "    create 0640 mytools mytools",
+                    "}",
+                )
+            )
+        )
+    return "\n\n".join(blocks) + "\n"
+
+
+def logrotate_service(deployment_root: str) -> str:
+    """Render the bounded log rotation oneshot service."""
+
+    return "\n".join(
+        (
+            "[Unit]",
+            "Description=Rotate bounded MyTools service logs",
+            "",
+            "[Service]",
+            "Type=oneshot",
+            f"ExecStart=/usr/sbin/logrotate --state {deployment_root}/runtime/logrotate.status /etc/logrotate.d/mytools-services",
+            "NoNewPrivileges=true",
+            "PrivateTmp=true",
+            "ProtectSystem=full",
+            "ProtectHome=true",
+            "",
+        )
+    )
+
+
+def logrotate_timer() -> str:
+    """Render a minutely timer so size limits are enforced within each day."""
+
+    return "\n".join(
+        (
+            "[Unit]",
+            "Description=Check MyTools service log retention every minute",
+            "",
+            "[Timer]",
+            "OnCalendar=*-*-* *:*:00",
+            "Persistent=true",
+            "RandomizedDelaySec=10s",
+            "Unit=mytools-logrotate.service",
+            "",
+            "[Install]",
+            "WantedBy=timers.target",
+            "",
+        )
+    )
 
 
 def generate(manifest: dict[str, Any], output: Path) -> list[Path]:
@@ -113,14 +188,29 @@ def generate(manifest: dict[str, Any], output: Path) -> list[Path]:
     generated: list[Path] = []
     for entry in entries:
         path = output / f"mytools-{entry['name']}.service"
-        path.write_text(service_unit(entry, manifest["deploymentRoot"]), encoding="utf-8")
+        path.write_text(
+            service_unit(entry, manifest["deploymentRoot"], manifest["logRoot"]),
+            encoding="utf-8",
+        )
         generated.append(path)
     target = output / "mytools-services.target"
     target.write_text(target_unit(entries), encoding="utf-8")
     generated.append(target)
     tmpfiles = output / "mytools.conf"
-    tmpfiles.write_text(tmpfiles_config(manifest["deploymentRoot"]), encoding="utf-8")
+    tmpfiles.write_text(
+        tmpfiles_config(manifest["deploymentRoot"], manifest["logRoot"], entries),
+        encoding="utf-8",
+    )
     generated.append(tmpfiles)
+    logrotate = output / "mytools-services.logrotate"
+    logrotate.write_text(logrotate_config(entries, manifest["logRoot"]), encoding="utf-8")
+    generated.append(logrotate)
+    rotation_service = output / "mytools-logrotate.service"
+    rotation_service.write_text(logrotate_service(manifest["deploymentRoot"]), encoding="utf-8")
+    generated.append(rotation_service)
+    rotation_timer = output / "mytools-logrotate.timer"
+    rotation_timer.write_text(logrotate_timer(), encoding="utf-8")
+    generated.append(rotation_timer)
     return generated
 
 

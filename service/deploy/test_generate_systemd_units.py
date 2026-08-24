@@ -24,10 +24,26 @@ class GenerateSystemdUnitsTest(unittest.TestCase):
     def test_generates_one_unit_per_service(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             generated = generator.generate(self.manifest, Path(directory))
-            service_units = [path for path in generated if path.suffix == ".service"]
+            service_units = [
+                path
+                for path in generated
+                if path.suffix == ".service" and path.name != "mytools-logrotate.service"
+            ]
 
         expected = len(self.manifest["services"]) + len(self.manifest["statelessServices"])
         self.assertEqual(expected, len(service_units))
+
+    def test_each_service_uses_an_independent_log_file(self) -> None:
+        entries = self.manifest["services"] + self.manifest["statelessServices"]
+        for entry in entries:
+            unit = generator.service_unit(
+                entry,
+                self.manifest["deploymentRoot"],
+                self.manifest["logRoot"],
+            )
+            expected = f"/opt/yuyutian/logs/mytools/{entry['name']}/service.log"
+            self.assertIn(expected, unit)
+            self.assertIn("StandardError=inherit", unit)
 
     def test_units_only_reference_unified_deployment_root(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -50,15 +66,40 @@ class GenerateSystemdUnitsTest(unittest.TestCase):
                 self.assertNotIn(unit, target)
 
     def test_tmpfiles_does_not_manage_business_data_directories(self) -> None:
-        config = generator.tmpfiles_config(self.manifest["deploymentRoot"])
+        entries = self.manifest["services"] + self.manifest["statelessServices"]
+        config = generator.tmpfiles_config(
+            self.manifest["deploymentRoot"],
+            self.manifest["logRoot"],
+            entries,
+        )
 
         self.assertNotIn("r ", config)
         self.assertNotIn("R ", config)
         self.assertNotIn("data/downloads", config)
         self.assertNotIn("data/storage", config)
+        self.assertIn("/opt/yuyutian/logs/mytools/messaging-service", config)
+
+    def test_logrotate_bounds_each_service_by_size_and_age(self) -> None:
+        entries = self.manifest["services"] + self.manifest["statelessServices"]
+        config = generator.logrotate_config(entries, self.manifest["logRoot"])
+
+        self.assertEqual(len(entries), config.count("maxsize 10M"))
+        self.assertEqual(len(entries), config.count("rotate 9"))
+        self.assertEqual(len(entries), config.count("maxage 10"))
+        self.assertEqual(len(entries), config.count("copytruncate"))
+
+    def test_logrotate_is_checked_every_minute(self) -> None:
+        timer = generator.logrotate_timer()
+
+        self.assertIn("OnCalendar=*-*-* *:*:00", timer)
+        self.assertIn("Persistent=true", timer)
 
     def test_units_allow_external_business_data_mounts(self) -> None:
-        unit = generator.service_unit(self.manifest["services"][0], self.manifest["deploymentRoot"])
+        unit = generator.service_unit(
+            self.manifest["services"][0],
+            self.manifest["deploymentRoot"],
+            self.manifest["logRoot"],
+        )
 
         self.assertIn("ProtectSystem=full", unit)
         self.assertNotIn("ReadWritePaths=", unit)
