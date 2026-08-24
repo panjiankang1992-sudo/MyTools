@@ -24,7 +24,7 @@ Java 21 / Spring Boot
 
 Scheduler V28 在 `media_probe` 的 Asset Registry 登记之后追加 `media_register_item` 步骤。该步骤不传输宿主机路径，失败策略为 `IGNORE`，因此 Media Library 不可用不会改变现有媒体处理结果。
 
-Scheduler V47 新增 `media_scan_directory` 父任务和 `media_ingest_scanned_file` 子任务。父任务只允许扫描 `MEDIA_SCAN_ALLOWED_ROOTS` JSON 数组内的目录，不跟随文件符号链接，单批最多创建 1000 个直接子任务。子任务自动继承父任务实际执行节点的 `executor.node` 亲和值，避免把宿主机路径分发到未挂载该目录的节点。每个子任务依次执行 ffprobe、Asset Registry 登记和 Media Library 回写，三步全部成功后父任务才发布 generation。发布事务会把本目录未出现在新 generation 的旧目录关系标记为 `MISSING`；只有资产不再属于任何就绪目录时才把媒体项标记为 `MISSING`。不完整、被取消或失败的批次保持 `STAGING`，不会影响上一批权威结果。媒体执行节点至少需要两个并发槽，保证等待子任务的父任务不会占满唯一执行槽。
+Scheduler V47 新增 `media_scan_directory` 父任务和 `media_ingest_scanned_file` 子任务。父任务只允许扫描 `MEDIA_SCAN_ALLOWED_ROOTS` JSON 数组内的目录，不跟随文件符号链接，单批最多创建 1000 个直接子任务。子任务自动继承父任务实际执行节点的 `executor.node` 亲和值，避免把宿主机路径分发到未挂载该目录的节点。V85 在探测后增加 `media_publish_scanned_file`：再次校验允许根、文件稳定性、大小和 SHA-256，幂等发布到 Storage Gateway；Asset Registry 和后续分析统一引用 `storage://` URI。探测、发布、资产登记和 Media Library 回写全部成功后父任务才发布 generation，旧文件不会被移动或删除。发布事务会把本目录未出现在新 generation 的旧目录关系标记为 `MISSING`；只有资产不再属于任何就绪目录时才把媒体项标记为 `MISSING`。不完整、被取消或失败的批次保持 `STAGING`，不会影响上一批权威结果。媒体执行节点至少需要两个并发槽，保证等待子任务的父任务不会占满唯一执行槽。
 
 当前未把该任务接入 MyTools 的旧扫描入口，也没有默认 Cron；只有显式创建任务且执行节点配置非空 `MEDIA_SCAN_ALLOWED_ROOTS` 后才会读取目录。
 
@@ -37,6 +37,10 @@ Scheduler V48 将 `media_analyze_video` 升级为版本化业务闭环。任务�
 `media_analyze_video` 没有默认定时触发，也没有替换旧 MyTools 分析入口。调用方必须使用 Media Library 返回的真实 `mediaItemId` 和 `assetRegistryId` 显式创建任务；相同媒体和分析版本不能绑定不同任务。
 
 Scheduler V49 在扫描摄取任务末尾增加 `media_submit_analysis`。扫描参数 `analyze` 默认 `false`；显式设为 `true` 时，脚本使用刚完成的 `register_asset` 和 `register_media_item` 输出创建 `media_analyze_video` 子任务，并继承同一个 `executor.node` 约束。扫描 generation 只等待摄取及分析任务的可靠创建，不等待模型分析完成，因此大目录发布不会被模型吞吐阻塞；分析进度和终态继续由 Scheduler 与 Media Library 独立查询。
+
+V85 使上述分析子任务与 V82 的输入物化契约闭合：扫描资产位置不再登记为
+`media://legacy/...`，分析节点可从 Storage Gateway 重新取得并复验原始媒体。已有任务实例和
+旧 MyTools 文件保持不变，新扫描只追加受管副本。
 
 V3 增加 `media_library_revision` 单调修订号和 `GET /internal/v1/media/reconciliation` 有界分页接口。媒体、扫描、目录关系、分析、标签、派生物或播放进度发生领域写入都会推进 revision。Scheduler V50 的 `media_reconcile_library` 聚合媒体状态、分析终态、标签、派生资产和目录关系数量及确定性摘要；分页期间 revision 或全局扫描计数变化会使任务失败。`requireQuiescent` 默认为 `true`，存在 `STAGING` 扫描、`ANALYZING` 媒体或 `RUNNING` 分析时不生成可用于切流的成功报告。
 

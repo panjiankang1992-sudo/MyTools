@@ -140,10 +140,10 @@ def execute(task: TaskContext, client: MediaLibraryClient, configured_roots: lis
     for entry in entries:
         child_parameters = {
             "assetId": entry["sourceBusinessId"], "contentSha256": entry["contentSha256"],
-            "sourcePath": entry["sourcePath"], "ownerId": owner_id,
+            "sizeBytes": entry["sizeBytes"], "sourcePath": entry["sourcePath"], "ownerId": owner_id,
             "assetSourceType": "MEDIA_SCAN", "assetSourceBusinessId": entry["sourceBusinessId"],
-            "assetMimeType": entry["mimeType"], "assetProviderType": "LEGACY_MEDIA",
-            "assetProviderVersion": entry["providerVersion"], "directoryKey": directory_key,
+            "assetMimeType": entry["mimeType"], "assetProviderType": "STORAGE_GATEWAY",
+            "assetProviderVersion": "v1", "directoryKey": directory_key,
             "directoryName": directory_name, "scanId": scan_id,
             "analyze": bool(parameters.get("analyze", False))}
         for name in ("analysisVersion", "storageRoot", "frameCount", "seekSeconds"):

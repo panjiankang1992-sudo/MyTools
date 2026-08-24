@@ -33,13 +33,17 @@
 
 1. `media_scan_directory` 在执行节点上校验目录必须位于 `MEDIA_SCAN_ALLOWED_ROOTS`，按稳定相对路径排序，拒绝符号链接、空文件、扫描中变化的文件以及超过 1000 个媒体文件的批次。
 2. 脚本计算每个文件的 SHA-256，向 Media Library 幂等创建 `STAGING` generation 并一次性暂存完整清单。
-3. 父任务为每个条目创建 `media_ingest_scanned_file` 直接子任务。子任务携带父任务实际节点的 `executor.node` 亲和约束，在同一挂载节点依次执行 ffprobe、Asset Registry 幂等登记和 Media Library 事件回写，不在任务参数或领域事件中传输文件内容。媒体节点至少配置两个并发槽，避免等待子任务的父任务占满唯一执行槽。
+3. 父任务为每个条目创建 `media_ingest_scanned_file` 直接子任务。子任务携带父任务实际节点的 `executor.node` 亲和约束，在同一挂载节点依次执行 ffprobe、文件复验和 Storage Gateway 幂等发布、Asset Registry 登记及 Media Library 事件回写。发布步骤再次验证允许根、普通文件、稳定 inode/大小/修改时间和清单 SHA-256；领域事件不传输文件内容，只引用持久化资产身份。媒体节点至少配置两个并发槽，避免等待子任务的父任务占满唯一执行槽。
 4. Media Library 只接受与暂存条目的 owner、目录、来源标识、大小、类型和摘要全部匹配的回写，并在同一事务中标记条目为 `IMPORTED`。
 5. 父任务等待全部子任务成功后请求发布。服务仅在条目总数等于 `expected_count` 且全部为 `IMPORTED` 时原子完成 generation，并把上一 generation 中消失的目录关系标记为 `MISSING`；同一去重媒体仍存在于其他就绪目录时保持 `READY`。
 6. 失败、超时或取消不会发布 generation；重试使用扫描幂等键和子任务幂等键续跑。已完成 generation 的相同清单可安全重放。
 7. Media Library 提供 owner-bound 目录扫描操作 API，负责创建 Scheduler 任务、保存幂等绑定以及查询和取消；扫描脚本仍负责实际发现、子任务创建和 generation 发布。
 
 V49 增加可选的扫描后分析衔接。`analyze` 缺省为 `false`；显式启用时，每个摄取子任务在资产和媒体项均登记成功后，通过任务 SDK 创建同节点 `media_analyze_video` 子任务。分析幂等键由 `mediaItemId + analysisVersion` 构成。扫描只把“分析任务已可靠创建”作为摄取完成条件，不同步等待模型结果；这样目录 generation 的一致性不依赖 GPU 或模型吞吐，分析失败也通过自己的终态和重试策略处理。
+
+V85 要求新扫描资产先发布到受管存储，并把 Asset Registry Provider 固定为
+`STORAGE_GATEWAY`。因此 V82 的分析输入物化步骤可以仅凭资产 UUID 读取原文件，不再依赖
+扫描节点的 `media://legacy` 位置。迁移只创建内容寻址副本，不删除、重命名或覆盖旧媒体文件。
 
 扫描没有默认 Cron，也没有接入旧 MyTools 路径，因此 V2 仅新增旁路能力。正式切换前需要以显式目录执行扫描、比较清单摘要和媒体数量，再按租户启用新查询。
 

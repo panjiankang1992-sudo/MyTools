@@ -58,6 +58,9 @@ def test_scans_stages_and_waits_for_ingestion_children(tmp_path):
     assert task.created[0][0] == "media_ingest_scanned_file"
     assert task.created[0][1]["scanId"] == result["scanId"]
     assert task.created[0][1]["assetSourceType"] == "MEDIA_SCAN"
+    assert task.created[0][1]["assetProviderType"] == "STORAGE_GATEWAY"
+    assert task.created[0][1]["assetProviderVersion"] == "v1"
+    assert task.created[0][1]["sizeBytes"] == 5
     assert task.created[0][1]["analyze"] is False
     assert task.created[0][3]["required_node_labels"] == {"executor.node": "media-node-a"}
 

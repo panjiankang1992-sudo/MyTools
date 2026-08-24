@@ -68,6 +68,21 @@ class AssetRegisterContentTest(unittest.TestCase):
         self.assertEqual("STORAGE_GATEWAY", client.payload["location"]["providerType"])
         self.assertEqual("storage://downloads/r/a.bin", client.payload["location"]["storageUri"])
 
+    def test_registers_published_media_scan_with_managed_provider(self):
+        client = Client()
+        MODULE.execute({
+            "parameters": {"assetId": "scan:one", "ownerId": 7,
+                "assetSourceType": "MEDIA_SCAN", "assetSourceBusinessId": "scan:one",
+                "assetMimeType": "video/mp4", "assetProviderType": "STORAGE_GATEWAY",
+                "assetProviderVersion": "1"},
+            "stepOutputs": {"publish_asset": {"storageUri": "storage://media/scans/video.mp4",
+                "contentSha256": "f" * 64, "sizeBytes": 12}}
+        }, client)
+        self.assertEqual("MEDIA_SCAN", client.payload["sourceType"])
+        self.assertEqual("STORAGE_GATEWAY", client.payload["location"]["providerType"])
+        self.assertEqual("storage://media/scans/video.mp4",
+                         client.payload["location"]["storageUri"])
+
     def test_registers_media_probe_without_exposing_source_path(self):
         with __import__("tempfile").TemporaryDirectory() as directory:
             source = Path(directory) / "video.mp4"

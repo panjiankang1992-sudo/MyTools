@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["storageUri", "contentSha256", "sizeBytes"],
+  "properties": {
+    "storageUri": { "type": "string", "pattern": "^storage://" },
+    "contentSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "sizeBytes": { "type": "integer", "minimum": 1 }
+  },
+  "additionalProperties": false
+}

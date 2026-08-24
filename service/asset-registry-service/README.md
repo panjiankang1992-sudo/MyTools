@@ -27,7 +27,7 @@ Java 21 / Spring Boot
 - `POST /internal/v1/assets/migrations/legacy-mappings/batches`：预演或幂等导入旧资产身份及标准资产载荷。
 - `POST /internal/v1/assets/migrations/legacy-mappings/resolve`：最多批量解析 200 个不可变旧身份到新资产 ID，并明确返回缺失集合。
 
-`asset_register_content` 1.0.0 脚本包可从明确的 `assetOutput`、前序 `import_ebook`、`download_asset` 或媒体 `probe` 步骤读取已经校验的 URI、摘要和大小，并通过共享 Executor SDK 登记资产。`asset_register_media_thumbnail` 会先通过 Storage Gateway 持久化缩略图，再把它作为独立资产登记并建立 `THUMBNAIL` 派生关系。Reader 电子书导入、HTTP 下载、媒体探测及缩略图任务均已追加旁路登记步骤；迁移期使用 `IGNORE` 失败策略，因此 Registry 或 Storage Gateway 故障不会改变已经成功的领域任务状态，独立任务可用于补偿重放。
+`asset_register_content` 1.0.0 脚本包可从明确的 `assetOutput`、前序 `publish_asset`、`import_ebook`、`download_asset` 或媒体 `probe` 步骤读取已经校验的 URI、摘要和大小，并通过共享 Executor SDK 登记资产。新建 HTTP、消息附件和媒体目录扫描任务均先把原始文件发布到 Storage Gateway，再以 `STORAGE_GATEWAY` Provider 登记；旧任务实例仍兼容原步骤输出。`asset_register_media_thumbnail` 会先通过 Storage Gateway 持久化缩略图，再把它作为独立资产登记并建立 `THUMBNAIL` 派生关系。Reader 电子书导入、下载、媒体探测及缩略图任务均已追加旁路登记步骤；旧服务和原始文件保持不变，独立任务可用于补偿重放。
 
 V2 新增位置失效审计和不可变资源包。资源包发布在事务内按资产 ID 顺序锁定全部引用资产并校验预期版本，每个成功的幂等键都写入独立绑定；规范清单摘要相同的请求只返回原资源包，后续资产增加位置或关系不会改变已发布清单。全库关系对账通过 `asset_reconcile_registry` 1.0.0 即时任务分页执行，同步 API 始终保持有界；所有关系写入推进单调修订号，扫描期间修订变化会使任务失败，避免输出混合时点报告。
 
