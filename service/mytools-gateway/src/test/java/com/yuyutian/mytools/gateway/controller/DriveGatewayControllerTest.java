@@ -122,6 +122,21 @@ class DriveGatewayControllerTest {
         verify(client).moveTree(accountId, 55L, body, "correlation");
     }
 
+    @Test
+    void shouldInjectTrustedOwnerIntoTreeDeleteOperation() {
+        DriveGatewayClient client = mock(DriveGatewayClient.class);
+        DriveGatewayController controller = new DriveGatewayController(properties(true), client);
+        UUID operationId = UUID.randomUUID();
+        var body = new com.yuyutian.mytools.gateway.model.DriveGatewayModels.DeleteTreeRequest(
+                "delete-1", "trash/books", 1000);
+        OperationView operation = new OperationView(operationId, accountId, "DELETE_TREE",
+                "RUNNING", null, Instant.EPOCH, Instant.EPOCH);
+        when(client.deleteTree(accountId, 55L, body, "correlation")).thenReturn(operation);
+
+        assertThat(controller.deleteTree(accountId, body, request(55L))).isEqualTo(operation);
+        verify(client).deleteTree(accountId, 55L, body, "correlation");
+    }
+
     private MockHttpServletRequest request(long userId) {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE,

@@ -85,4 +85,23 @@ class StorageGatewayConnectorTest {
         assertThat(payload.path("maximumObjects").asInt()).isEqualTo(10000);
         assertThat(result.operationType()).isEqualTo("MOVE_TREE");
     }
+
+    @Test
+    void shouldCreateNonRootTreeDeleteOperation() throws Exception {
+        UUID provider = UUID.randomUUID();
+        StorageGatewayConnector connector = new StorageGatewayConnector(objectMapper,
+                "http://127.0.0.1:" + server.getAddress().getPort(), "storage-token");
+        connector.validateConfiguration();
+
+        var result = connector.deleteTree("drive-delete:key", provider, "trash/books", 1000);
+
+        JsonNode payload = objectMapper.readTree(requestBody.get());
+        assertThat(payload.path("operationType").asText()).isEqualTo("DELETE_TREE");
+        assertThat(payload.path("providerId").asText()).isEqualTo(provider.toString());
+        assertThat(payload.path("sourcePath").asText()).isEqualTo("trash/books");
+        assertThat(payload.path("maximumObjects").asInt()).isEqualTo(1000);
+        assertThat(payload.has("targetProviderId")).isFalse();
+        assertThat(payload.has("targetPath")).isFalse();
+        assertThat(result.operationType()).isEqualTo("DELETE_TREE");
+    }
 }

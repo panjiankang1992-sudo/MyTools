@@ -210,6 +210,43 @@ class DriveServiceTest {
         verify(schedulerClient, never()).cancel(taskId);
     }
 
+    @Test
+    void shouldDelegateWritableOwnerBoundTreeDeleteToStorageGateway() {
+        AccountView account = service.register(new RegisterAccountRequest(61L, "delete-account", "Delete", "RCLONE",
+                "secret://drive/delete-account", "delete_account", false, true));
+        UUID provider = UUID.randomUUID();
+        service.bindStorageProvider(account.id(), provider);
+        UUID operationId = UUID.randomUUID();
+        UUID taskId = UUID.randomUUID();
+        StorageOperationView running = new StorageOperationView(operationId, taskId, "DELETE_TREE", "RUNNING", null);
+        StorageOperationView cancelled = new StorageOperationView(operationId, taskId, "DELETE_TREE",
+                "CANCELLED", null);
+        when(storageConnector.deleteTree(startsWith("drive-delete:"), eq(provider), eq("trash/books"),
+                eq(1000))).thenReturn(running);
+        when(storageConnector.operation(operationId)).thenReturn(running, cancelled);
+        when(storageConnector.cancel(operationId)).thenReturn(running);
+
+        OperationView created = service.deleteTree(account.id(), 61L,
+                new DeleteTreeRequest("delete-1", "/trash/books", 1000));
+        OperationView cancelledView = service.cancelOperation(created.id(), 61L);
+
+        assertThat(created.operationType()).isEqualTo("DELETE_TREE");
+        assertThat(cancelledView.status()).isEqualTo("CANCELLED");
+        verify(storageConnector).cancel(operationId);
+    }
+
+    @Test
+    void shouldRejectDeleteFromReadOnlyAccount() {
+        AccountView account = service.register(new RegisterAccountRequest(62L, "delete-read-only", "Read only",
+                "RCLONE", "secret://drive/delete-read-only", "delete_read_only", true, true));
+
+        assertThatThrownBy(() -> service.deleteTree(account.id(), 62L,
+                new DeleteTreeRequest("delete-ro", "books", 100)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("drive account is read only");
+        verifyNoInteractions(storageConnector);
+    }
+
     private IndexItem item(String path,String parent,long size) {
         return new IndexItem(path,path,parent,path,"text/plain",size,false,Instant.parse("2026-01-01T00:00:00Z"),null);
     }

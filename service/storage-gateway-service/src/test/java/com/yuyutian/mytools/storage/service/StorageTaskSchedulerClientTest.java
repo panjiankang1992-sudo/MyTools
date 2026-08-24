@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpServer;
 import com.yuyutian.mytools.storage.model.ChecksumOperation;
+import com.yuyutian.mytools.storage.model.StorageOperation;
 import com.yuyutian.mytools.storage.repository.StorageRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClient;
@@ -16,6 +17,43 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class StorageTaskSchedulerClientTest {
+
+    @Test
+    void shouldSubmitOpaqueDeleteOperationIdentity() throws Exception {
+        AtomicReference<JsonNode> requestDocument = new AtomicReference<>();
+        ObjectMapper mapper = new ObjectMapper();
+        UUID taskId = UUID.randomUUID();
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/api/v1/task-instances", exchange -> {
+            requestDocument.set(mapper.readTree(exchange.getRequestBody()));
+            byte[] body = mapper.writeValueAsBytes(java.util.Map.of("id", taskId.toString()));
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, body.length);
+            exchange.getResponseBody().write(body);
+            exchange.close();
+        });
+        server.start();
+        try {
+            StorageTaskSchedulerClient client = new StorageTaskSchedulerClient(RestClient.builder(),
+                    "http://127.0.0.1:" + server.getAddress().getPort());
+            UUID operationId = UUID.randomUUID();
+            Instant now = Instant.now();
+            StorageOperation operation = new StorageOperation(operationId, UUID.randomUUID(), "delete:key",
+                    "DELETE_TREE", "private/books", null, null, "CREATED", null, null,
+                    0, 1000, null, now, now);
+
+            assertThat(client.createOperationTask(operation)).isEqualTo(taskId);
+
+            JsonNode document = requestDocument.get();
+            assertThat(document.path("taskName").asText()).isEqualTo("storage_delete_tree");
+            assertThat(document.path("parameters").size()).isEqualTo(1);
+            assertThat(document.path("parameters").path("operationId").asText())
+                    .isEqualTo(operationId.toString());
+            assertThat(document.toString()).doesNotContain("private/books");
+        } finally {
+            server.stop(0);
+        }
+    }
 
     @Test
     void shouldSubmitOpaqueChecksumIdentityAndServerRootAffinity() throws Exception {

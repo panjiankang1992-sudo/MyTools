@@ -62,6 +62,12 @@ public class DriveController {
         @RequestParam long ownerId, @Valid @RequestBody MoveTreeRequest request) {
         authorize(authorization); return service.moveTree(id, ownerId, request);
     }
+    /** 创建受控目录树删除任务。 @param authorization 授权头 @param id 账户 @param ownerId 所有者 @param request 请求 @return 操作 */
+    @PostMapping("/accounts/{id}/delete-tree") @ResponseStatus(HttpStatus.ACCEPTED)
+    public OperationView deleteTree(@RequestHeader("Authorization") String authorization, @PathVariable UUID id,
+        @RequestParam long ownerId, @Valid @RequestBody DeleteTreeRequest request) {
+        authorize(authorization); return service.deleteTree(id, ownerId, request);
+    }
     /** 查询操作。 @param authorization 授权头 @param id 操作 @param ownerId 所有者 @return 操作 */
     @GetMapping("/operations/{id}")
     public OperationView operation(@RequestHeader("Authorization") String authorization,@PathVariable UUID id,

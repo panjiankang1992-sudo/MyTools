@@ -152,6 +152,31 @@ class DriveGatewayClientTest {
         server.verify();
     }
 
+    @Test
+    void shouldCreateOwnerBoundTreeDeleteWithoutExposingTaskId() {
+        RestTemplate restTemplate = new RestTemplate();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
+        UUID accountId = UUID.randomUUID();
+        UUID operationId = UUID.randomUUID();
+        server.expect(requestTo("http://drive/internal/v1/drive/accounts/" + accountId
+                        + "/delete-tree?ownerId=55"))
+                .andExpect(method(POST)).andExpect(header("Authorization", "Bearer drive-token"))
+                .andExpect(content().json("{\"idempotencyKey\":\"delete-1\",\"path\":\"trash/books\","
+                        + "\"maximumObjects\":1000}"))
+                .andRespond(withSuccess("{\"id\":\"" + operationId + "\",\"accountId\":\""
+                        + accountId + "\",\"taskInstanceId\":\"" + UUID.randomUUID()
+                        + "\",\"operationType\":\"DELETE_TREE\",\"status\":\"RUNNING\"}",
+                        org.springframework.http.MediaType.APPLICATION_JSON));
+
+        var result = new DriveGatewayClient(restTemplate, properties()).deleteTree(accountId, 55L,
+                new com.yuyutian.mytools.gateway.model.DriveGatewayModels.DeleteTreeRequest(
+                        "delete-1", "trash/books", 1000), "correlation");
+
+        assertThat(result.id()).isEqualTo(operationId);
+        assertThat(result.toString()).doesNotContain("taskInstanceId");
+        server.verify();
+    }
+
     private GatewayProperties properties() {
         return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, false, false, Set.of(),
                 true, Set.of(55L), false, Set.of(), "http://mytools", "http://identity", "http://reader", "http://drive",

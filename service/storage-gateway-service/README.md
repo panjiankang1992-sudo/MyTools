@@ -36,6 +36,8 @@ S3 对象 GET、PUT、DELETE 使用 SigV4，临时会话令牌和条件写入头
 
 `COPY_TREE_NATIVE` 提供原生递归树复制。`storage_copy_tree_native` 父任务先冻结完整来源清单，再按普通文件创建 `COPY_OBJECT` 子操作；父子关系持久化到独立表，目标路径由 Gateway 从父操作的来源根和目标根派生。只有全部子操作成功时父操作才允许成功。父任务失败、超时或取消会级联取消未完成子任务。该能力不改变 `COPY_TREE` 的 rclone 契约，也不会物化来源中的空目录；原生移动和同步仍待逐项实现。
 
+`DELETE_TREE` 提供有边界的异步目录删除。操作必须绑定启用的 Provider 和非空相对路径，不接受根路径或目标 Provider。`storage_delete_tree` 在 purge 前完整遍历并冻结对象清单，超过 `maximumObjects` 时不会执行删除；通过预检后仅由 Gateway 调用回环 rclone 白名单 `operations/purge`。Scheduler 参数只有操作 UUID，失败、超时和取消会停止已启动的远端 job 并记录稳定终态。
+
 `POST /api/internal/v1/storage/operations` 当前开放已落地的 `SCAN_ROOT`。它创建 `storage_scan_root` 调度实例，Executor 广度遍历远端目录并以最多 500 项的批次幂等回写 `storage_operation_item`；对象总量受 `maximumObjects` 硬限制。成功、失败、超时和取消都会回写稳定终态，任务参数只携带 Provider UUID，不携带 remote 键或密钥。
 
 跨 Provider 操作现开放 `COPY_TREE`、`MOVE_TREE` 和 `SYNC_REMOTE`。创建请求只接受来源/目标 Provider UUID 与受限相对路径，服务端解析 remote 键并调用回环 rclone RC 白名单；传给任务脚本的参数只有不透明的操作 UUID，不包含 Provider、路径、remote 名称或 RC 命令。复制和同步使用正确的 `remote:path` Fs 参数调用 `sync/copy` 或 `sync/sync`。相同来源和目标禁止执行。

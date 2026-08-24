@@ -23,7 +23,7 @@ import java.util.UUID;
 public record CreateOperationRequest(
         @NotBlank @Size(max = 255) String idempotencyKey,
         @NotNull UUID providerId,
-        @NotBlank @Pattern(regexp = "^(SCAN_ROOT|COPY_OBJECT|COPY_TREE|COPY_TREE_NATIVE|MOVE_TREE|SYNC_REMOTE)$") String operationType,
+        @NotBlank @Pattern(regexp = "^(SCAN_ROOT|COPY_OBJECT|COPY_TREE|COPY_TREE_NATIVE|MOVE_TREE|SYNC_REMOTE|DELETE_TREE)$") String operationType,
         @Size(max = 2048) String sourcePath,
         UUID targetProviderId,
         @Size(max = 2048) String targetPath,

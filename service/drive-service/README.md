@@ -24,6 +24,8 @@ Drive Service 现已提供索引刷新业务闭环：`POST /internal/v1/drive/ac
 
 递归移动使用 `POST /internal/v1/drive/accounts/{id}/move-tree`，要求非空来源与目标路径并复用相同的 owner、账户启用、目标可写和 Provider 绑定约束。Drive 创建 Storage `MOVE_TREE` 后只同步统一操作状态；Storage 持久化复制、校验、来源删除和恢复阶段，源删除前取消会回滚目标，源删除开始后则继续前向收敛。Gateway 对应路由继续隐藏底层任务标识。
 
+目录树删除使用 `POST /internal/v1/drive/accounts/{id}/delete-tree`，仅允许 owner 本人的启用、可写账户和非空相对路径。Drive 创建 Storage `DELETE_TREE` 并复用统一查询、取消接口；Storage 在 purge 前冻结完整清单并强制执行 `maximumObjects` 上限。根目录、只读账户、未绑定 Provider 及越界路径均在删除启动前拒绝。
+
 `GET /internal/v1/drive/accounts?ownerId=` 返回当前所有者的账户，用于客户端进入目录前取得账户 UUID。Gateway 只返回显示名称、Provider 类型、只读/启用状态和索引 generation，不暴露外部账户标识、remote key 或 Secret 引用。
 
 Scheduler V25 为失败、超时和取消配置 `drive_finish_index` 特殊步骤，使未完成游标进入明确终态，后续补偿运行可以安全接管；收尾失败采用 `IGNORE`，不会掩盖任务原始终态。

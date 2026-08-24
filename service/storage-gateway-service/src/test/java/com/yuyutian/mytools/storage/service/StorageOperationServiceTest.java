@@ -157,6 +157,51 @@ class StorageOperationServiceTest {
     }
 
     @Test
+    void shouldStartDeleteOnlyFromServerResolvedProviderAndPath() {
+        StorageRepository repository = mock(StorageRepository.class);
+        RcloneRemoteConnector connector = mock(RcloneRemoteConnector.class);
+        StorageOperationService service = new StorageOperationService(
+                repository, mock(StorageTaskSchedulerClient.class), connector, mock(StorageMoveRepository.class),
+                mock(ProviderObjectConnectorRegistry.class));
+        UUID operationId = UUID.randomUUID();
+        UUID providerId = UUID.randomUUID();
+        Instant now = Instant.now();
+        StorageOperation operation = new StorageOperation(operationId, providerId, "delete:key",
+                "DELETE_TREE", "trash/books", null, null, "RUNNING", UUID.randomUUID(), null,
+                0, 1000, null, now, now);
+        StorageProvider provider = new StorageProvider(providerId, "remote", "RCLONE", "private_remote", null,
+                null, "env://REMOTE", true, now, now);
+        when(repository.findOperationById(operationId)).thenReturn(Optional.of(operation));
+        when(repository.findProviderById(providerId)).thenReturn(Optional.of(provider));
+        when(connector.startPurge("private_remote", "trash/books")).thenReturn(88L);
+
+        StorageOperation result = service.startRemoteJob(operationId);
+
+        assertThat(result).isEqualTo(operation);
+        verify(connector).startPurge("private_remote", "trash/books");
+        verify(repository).bindRemoteJob(operationId, 88L);
+        verify(connector, never()).startTransfer(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
+    void shouldRejectRootOrTargetForDeleteTree() {
+        StorageOperationService service = new StorageOperationService(
+                mock(StorageRepository.class), mock(StorageTaskSchedulerClient.class),
+                mock(RcloneRemoteConnector.class), mock(StorageMoveRepository.class),
+                mock(ProviderObjectConnectorRegistry.class));
+        UUID providerId = UUID.randomUUID();
+
+        assertThatThrownBy(() -> service.create(new CreateOperationRequest(
+                "delete-root:key", providerId, "DELETE_TREE", "", null, null, 100)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("STORAGE_004");
+        assertThatThrownBy(() -> service.create(new CreateOperationRequest(
+                "delete-target:key", providerId, "DELETE_TREE", "books", UUID.randomUUID(), null, 100)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("STORAGE_017");
+    }
+
+    @Test
     void shouldCreateNativeTreeChildOnlyFromFrozenFile() {
         StorageRepository repository = mock(StorageRepository.class);
         StorageOperationService service = new StorageOperationService(repository,

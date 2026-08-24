@@ -21,7 +21,7 @@ Reader 还开放书源搜索长任务的创建、状态查询和取消；owner �
 
 Download 首批路由为创建 HTTPS 下载、查询状态、查询结果摘要和取消任务。创建入口只接受幂等键、HTTPS URL、安全文件名和大小上限；Gateway 重建下游载荷并绑定可信 owner。查询与取消使用 owner 绑定的内部接口，对错误租户统一返回不存在，响应不包含源 URL 或下游 `parameters`。
 
-Drive 路由包括安全账户摘要列表、目录查询、索引刷新、单对象复制、递归目录树复制、递归移动、统一操作查询和取消接口。Gateway 使用已验证用户 ID 构造内部 `ownerId`，不返回 remote key、外部账户标识、Secret 引用或底层任务标识，并以 `DRIVE_INTERNAL_TOKEN` 调用 Drive Service；独立删除仍保留在旧入口。所有 Drive 路由继续受默认关闭的总开关和 owner 白名单保护。
+Drive 路由包括安全账户摘要列表、目录查询、索引刷新、单对象复制、递归目录树复制、递归移动、非根目录树删除、统一操作查询和取消接口。Gateway 使用已验证用户 ID 构造内部 `ownerId`，不返回 remote key、外部账户标识、Secret 引用或底层任务标识，并以 `DRIVE_INTERNAL_TOKEN` 调用 Drive Service。所有 Drive 路由继续受默认关闭的总开关和 owner 白名单保护。
 
 Media 路由包括媒体分页、单项查询、播放进度写入，以及目录扫描长任务的创建、状态查询和取消。Gateway 只从认证主体注入 owner；实际目录必须命中 Executor 配置的允许根，扫描可选择在成功摄取后继续创建媒体分析子任务。
 

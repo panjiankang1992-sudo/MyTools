@@ -26,6 +26,8 @@
 
 原生递归复制使用独立的 `COPY_TREE_NATIVE` 类型，既有 `COPY_TREE` 继续保持 rclone 行为。父任务先广度遍历来源树，把完整对象清单冻结到 `storage_operation_item`，对象数量超过 `maximumObjects` 时在创建任何子任务前失败。冻结完成后，每个普通文件按稳定幂等键创建一个 `COPY_OBJECT` 子操作，并在 `storage_operation_child` 保存父子关系和派生后的目标路径；目标路径只能由 Gateway 按父操作来源根与目标根计算，脚本不能提交任意目标。父任务轮询所有子操作，只有全部成功才能提交成功终态。失败、超时和取消特殊步骤通过父操作接口级联取消仍在运行的子任务，再写入父终态。目录本身暂不创建空目录，因此空目录不会在目标端物化；原生移动和同步仍待实现。
 
+`DELETE_TREE` 只允许删除非空相对路径，不接受目标 Provider 或根路径。删除脚本先从操作 UUID 读取服务端定义的 Provider、路径和 `maximumObjects`，通过只读目录接口广度遍历并把完整清单冻结到操作 ledger；超过对象上限时不会启动任何删除。预检完成后 Gateway 才用服务端 Provider remote key 调用回环 rclone `operations/purge`，Executor 无法提交 remote key、路径或 RC 命令。失败、超时和取消复用停止远端 job 后写终态的特殊步骤。
+
 远端移动采用持久化阶段状态机：对目标 Provider 和规范化路径建立排他写入栅栏，确认目标不存在后执行复制，通过 `operations/check` 下载比对来源和目标，再清理来源。复制或验证阶段失败、超时和取消会停止当前 job 并清理目标；来源清理开始后不再回滚已验证目标，而是前向重试来源清理。特殊步骤截止前仍无法收敛时记录 `PURGE_SOURCE` 或 `PURGE_TARGET` 恢复动作并自动创建独立高优先级恢复任务。恢复完成前写入栅栏不会释放。
 
 ## 脚本与 DML

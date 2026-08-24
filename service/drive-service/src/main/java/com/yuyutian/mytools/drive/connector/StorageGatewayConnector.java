@@ -177,6 +177,26 @@ public class StorageGatewayConnector implements DirectoryConnector {
     }
 
     /**
+     * 幂等创建非根目录树删除操作。
+     *
+     * @param idempotencyKey 幂等键
+     * @param providerId Provider
+     * @param path 非空相对路径
+     * @param maximumObjects 最大对象数
+     * @return Storage 操作
+     */
+    public StorageOperationView deleteTree(String idempotencyKey, UUID providerId, String path,
+                                           int maximumObjects) {
+        Map<String, Object> payload = Map.of(
+                "idempotencyKey", idempotencyKey,
+                "providerId", providerId,
+                "operationType", "DELETE_TREE",
+                "sourcePath", path,
+                "maximumObjects", maximumObjects);
+        return operationRequest("api/internal/v1/storage/operations", "POST", payload);
+    }
+
+    /**
      * 查询 Storage 操作。
      *
      * @param operationId 操作标识

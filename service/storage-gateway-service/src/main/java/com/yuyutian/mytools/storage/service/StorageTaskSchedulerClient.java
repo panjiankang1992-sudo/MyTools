@@ -52,6 +52,7 @@ public class StorageTaskSchedulerClient {
             case "COPY_TREE_NATIVE" -> "storage_copy_tree_native";
             case "MOVE_TREE" -> "storage_move_tree";
             case "SYNC_REMOTE" -> "storage_sync_remote";
+            case "DELETE_TREE" -> "storage_delete_tree";
             default -> throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
         };
         Map<String, Object> request = Map.of(

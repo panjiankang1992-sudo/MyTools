@@ -1,0 +1,14 @@
+name: storage_delete_tree
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - network_http
+parameters:
+  required:
+    - operationId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 43200
+  maxOutputBytes: 65536

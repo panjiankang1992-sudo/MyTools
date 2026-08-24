@@ -63,8 +63,11 @@ public class StorageOperationService {
         String sourcePath = normalizePath(request.sourcePath());
         String targetPath = normalizeTarget(request.operationType(), request.targetPath());
         UUID targetProviderId = targetProvider(request.operationType(), request.targetProviderId());
-        if (("MOVE_TREE".equals(request.operationType()) || "COPY_OBJECT".equals(request.operationType()))
-                && (sourcePath.isEmpty() || targetPath.isEmpty())) {
+        boolean emptyTransferPath = ("MOVE_TREE".equals(request.operationType())
+                || "COPY_OBJECT".equals(request.operationType()))
+                && (sourcePath.isEmpty() || targetPath.isEmpty());
+        boolean emptyDeletePath = "DELETE_TREE".equals(request.operationType()) && sourcePath.isEmpty();
+        if (emptyTransferPath || emptyDeletePath) {
             throw new IllegalArgumentException(ErrorCode.PATH_INVALID.code());
         }
         if (targetProviderId != null && request.providerId().equals(targetProviderId)
@@ -295,10 +298,16 @@ public class StorageOperationService {
         }
         StorageProvider source = repository.findProviderById(operation.providerId())
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
-        StorageProvider target = repository.findProviderById(operation.targetProviderId())
-                .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
-        long jobId = remoteConnector.startTransfer(operation.operationType(), source.remoteKey(),
-                operation.sourcePath(), target.remoteKey(), operation.targetPath());
+        long jobId;
+        if ("DELETE_TREE".equals(operation.operationType())) {
+            // 删除目标完全由持久化操作定义，Executor 无法提交 Provider 或路径。
+            jobId = remoteConnector.startPurge(source.remoteKey(), operation.sourcePath());
+        } else {
+            StorageProvider target = repository.findProviderById(operation.targetProviderId())
+                    .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
+            jobId = remoteConnector.startTransfer(operation.operationType(), source.remoteKey(),
+                    operation.sourcePath(), target.remoteKey(), operation.targetPath());
+        }
         repository.bindRemoteJob(operation.id(), jobId);
         return require(id);
     }
@@ -345,7 +354,7 @@ public class StorageOperationService {
     }
 
     private UUID targetProvider(String operationType, UUID targetProviderId) {
-        if ("SCAN_ROOT".equals(operationType)) {
+        if ("SCAN_ROOT".equals(operationType) || "DELETE_TREE".equals(operationType)) {
             if (targetProviderId != null) {
                 throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
             }
@@ -358,7 +367,7 @@ public class StorageOperationService {
     }
 
     private String normalizeTarget(String operationType, String value) {
-        if ("SCAN_ROOT".equals(operationType)) {
+        if ("SCAN_ROOT".equals(operationType) || "DELETE_TREE".equals(operationType)) {
             if (value != null && !value.isBlank()) {
                 throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
             }
@@ -368,8 +377,11 @@ public class StorageOperationService {
     }
 
     private void requireTransferShape(StorageOperation operation) {
-        if (!("COPY_TREE".equals(operation.operationType()) || "SYNC_REMOTE".equals(operation.operationType()))
-                || operation.targetProviderId() == null) {
+        boolean transfer = ("COPY_TREE".equals(operation.operationType())
+                || "SYNC_REMOTE".equals(operation.operationType())) && operation.targetProviderId() != null;
+        boolean deletion = "DELETE_TREE".equals(operation.operationType())
+                && operation.targetProviderId() == null;
+        if (!transfer && !deletion) {
             throw new IllegalStateException(ErrorCode.OPERATION_STATE_INVALID.code());
         }
     }
