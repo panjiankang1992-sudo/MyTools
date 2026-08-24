@@ -2,6 +2,8 @@ package com.yuyutian.mytools.asset.service;
 
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingBatch;
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingItem;
+import com.yuyutian.mytools.asset.model.LegacyAssetMappingLookupRequest;
+import com.yuyutian.mytools.asset.model.LegacyAssetMappingLookupResult;
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingResult;
 import com.yuyutian.mytools.asset.model.RegisterAssetRequest;
 import com.yuyutian.mytools.asset.repository.AssetRepository;
@@ -14,9 +16,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 预演或幂等迁移旧资产身份，并复用标准资产登记规则。
@@ -70,6 +76,33 @@ public class LegacyAssetMappingMigrationService {
         }
         return new LegacyAssetMappingResult(batch.dryRun(), accepted, skipped, rejected,
                 HexFormat.of().formatHex(batchDigest.digest()));
+    }
+
+    /**
+     * 批量解析已完成迁移的旧资产标识。
+     *
+     * @param request 有界来源身份集合
+     * @return 已解析映射和缺失身份
+     */
+    public LegacyAssetMappingLookupResult resolve(LegacyAssetMappingLookupRequest request) {
+        List<LegacyAssetMappingLookupResult.Mapping> mappings = new ArrayList<>();
+        List<LegacyAssetMappingLookupRequest.Identity> missing = new ArrayList<>();
+        Set<String> identities = new HashSet<>();
+        for (LegacyAssetMappingLookupRequest.Identity identity : request.identities()) {
+            String key = identity.sourceSystem() + "\u0000" + identity.legacyAssetId();
+            if (!identities.add(key)) {
+                throw new IllegalArgumentException("Legacy asset lookup identity is duplicated");
+            }
+            AssetRepository.LegacyAssetMappingRecord mapping = repository
+                    .findLegacyMapping(identity.sourceSystem(), identity.legacyAssetId()).orElse(null);
+            if (mapping == null) {
+                missing.add(identity);
+            } else {
+                mappings.add(new LegacyAssetMappingLookupResult.Mapping(identity.sourceSystem(),
+                        identity.legacyAssetId(), mapping.assetId()));
+            }
+        }
+        return new LegacyAssetMappingLookupResult(List.copyOf(mappings), List.copyOf(missing));
     }
 
     private Classification classifyOrMigrate(LegacyAssetMappingBatch batch, LegacyAssetMappingItem item,

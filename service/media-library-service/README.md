@@ -39,3 +39,5 @@ Scheduler V49 在扫描摄取任务末尾增加 `media_submit_analysis`。扫描
 V3 增加 `media_library_revision` 单调修订号和 `GET /internal/v1/media/reconciliation` 有界分页接口。媒体、扫描、目录关系、分析、标签、派生物或播放进度发生领域写入都会推进 revision。Scheduler V50 的 `media_reconcile_library` 聚合媒体状态、分析终态、标签、派生资产和目录关系数量及确定性摘要；分页期间 revision 或全局扫描计数变化会使任务失败。`requireQuiescent` 默认为 `true`，存在 `STAGING` 扫描、`ANALYZING` 媒体或 `RUNNING` 分析时不生成可用于切流的成功报告。
 
 V5 为新建目录扫描操作保存完整创建请求的 SHA-256。相同 owner 和幂等键只能重放相同扫描参数，根目录、目录标识或分析选项变化会被拒绝；升级前已有操作保持可查询，不要求重建或删除。
+
+`media_migrate_legacy_items` 1.0.0 从已封存的 `local_file` 资产快照恢复图片、视频和音频媒体关系。任务第一遍分页校验所有媒体记录均已有不可变 Asset Registry 映射，存在缺失时不会写 Media Library；正式执行第二遍使用稳定事件 ID 幂等导入。任务不重新读取旧表，不把存储 URI 写入 Media Library，并输出来源数量、媒体数量、非媒体跳过数量和确定性摘要。应先执行 dry-run，再执行相同 `sourceSnapshotId` 的正式任务，最后运行 `media_reconcile_library`。

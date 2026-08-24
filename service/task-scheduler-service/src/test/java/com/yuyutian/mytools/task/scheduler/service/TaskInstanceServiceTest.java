@@ -550,4 +550,18 @@ class TaskInstanceServiceTest {
         assertTrue(schema.contains("\"required\":[\"snapshotId\",\"ownerId\"]"));
         assertTrue(schema.contains("\"ownerId\":{\"type\":\"integer\",\"minimum\":1}"));
     }
+
+    @Test
+    void shouldSeedTwoPassLegacyMediaMigration() {
+        Map<String, Object> definition = jdbcTemplate.queryForMap(
+                "SELECT d.parameter_schema,d.result_schema,s.script_package,s.script_version "
+                        + "FROM task_definition d JOIN task_step_definition s "
+                        + "ON s.task_definition_id=d.id WHERE d.name=? AND s.name=?",
+                "media_migrate_legacy_items", "migrate_legacy_media");
+
+        assertTrue(definition.get("parameter_schema").toString().contains("sourceSnapshotId"));
+        assertTrue(definition.get("result_schema").toString().contains("digestSha256"));
+        assertEquals("media_migrate_legacy_items", definition.get("script_package"));
+        assertEquals("1.0.0", definition.get("script_version"));
+    }
 }

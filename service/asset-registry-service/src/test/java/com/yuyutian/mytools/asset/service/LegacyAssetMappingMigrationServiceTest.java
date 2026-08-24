@@ -2,6 +2,7 @@ package com.yuyutian.mytools.asset.service;
 
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingBatch;
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingItem;
+import com.yuyutian.mytools.asset.model.LegacyAssetMappingLookupRequest;
 import com.yuyutian.mytools.asset.model.RegisterAssetRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 class LegacyAssetMappingMigrationServiceTest {
@@ -64,6 +66,26 @@ class LegacyAssetMappingMigrationServiceTest {
         assertThat(rejected.rejected()).isEqualTo(1);
         assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM asset_legacy_mapping "
                 + "WHERE legacy_asset_id IN ('legacy-21','legacy-22')", Integer.class)).isZero();
+    }
+
+    @Test
+    void shouldResolveMappingsAndReportMissingIdentitiesInRequestOrder() {
+        LegacyAssetMappingItem item = item("legacy-23", "9".repeat(64), "file:///legacy/23.mp4");
+        service.migrate(new LegacyAssetMappingBatch(
+                "asset-migration-23", "snapshot-23", false, List.of(item)));
+        var existing = new LegacyAssetMappingLookupRequest.Identity("MyTools", "legacy-23");
+        var missing = new LegacyAssetMappingLookupRequest.Identity("MyTools", "legacy-24");
+
+        var result = service.resolve(new LegacyAssetMappingLookupRequest(List.of(existing, missing)));
+
+        assertThat(result.mappings()).singleElement().satisfies(mapping -> {
+            assertThat(mapping.sourceSystem()).isEqualTo("MyTools");
+            assertThat(mapping.legacyAssetId()).isEqualTo("legacy-23");
+            assertThat(mapping.assetId()).isNotNull();
+        });
+        assertThat(result.missing()).containsExactly(missing);
+        assertThatThrownBy(() -> service.resolve(new LegacyAssetMappingLookupRequest(
+                List.of(existing, existing)))).isInstanceOf(IllegalArgumentException.class);
     }
 
     private LegacyAssetMappingItem item(String legacyId, String sha256, String uri) {

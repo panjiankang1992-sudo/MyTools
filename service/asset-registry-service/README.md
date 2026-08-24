@@ -25,12 +25,15 @@ Java 21 / Spring Boot
 - `GET /internal/v1/assets/bundles/{bundleId}`：读取资源包固定清单。
 - `GET /internal/v1/assets/reconciliation`：为异步任务返回最多 200 个资产的关系数量和确定性摘要。
 - `POST /internal/v1/assets/migrations/legacy-mappings/batches`：预演或幂等导入旧资产身份及标准资产载荷。
+- `POST /internal/v1/assets/migrations/legacy-mappings/resolve`：最多批量解析 200 个不可变旧身份到新资产 ID，并明确返回缺失集合。
 
 `asset_register_content` 1.0.0 脚本包可从明确的 `assetOutput`、前序 `import_ebook`、`download_asset` 或媒体 `probe` 步骤读取已经校验的 URI、摘要和大小，并通过共享 Executor SDK 登记资产。`asset_register_media_thumbnail` 会先通过 Storage Gateway 持久化缩略图，再把它作为独立资产登记并建立 `THUMBNAIL` 派生关系。Reader 电子书导入、HTTP 下载、媒体探测及缩略图任务均已追加旁路登记步骤；迁移期使用 `IGNORE` 失败策略，因此 Registry 或 Storage Gateway 故障不会改变已经成功的领域任务状态，独立任务可用于补偿重放。
 
 V2 新增位置失效审计和不可变资源包。资源包发布在事务内按资产 ID 顺序锁定全部引用资产并校验预期版本，每个成功的幂等键都写入独立绑定；规范清单摘要相同的请求只返回原资源包，后续资产增加位置或关系不会改变已发布清单。全库关系对账通过 `asset_reconcile_registry` 1.0.0 即时任务分页执行，同步 API 始终保持有界；所有关系写入推进单调修订号，扫描期间修订变化会使任务失败，避免输出混合时点报告。
 
 V3 新增 `asset_legacy_mapping`。`legacy_asset_capture_snapshot` 1.0.0 通过旧 MyTools 数据库只读账号，在单个一致性事务中把 `local_file` 物化到独立适配器 schema；`asset_migrate_legacy_mappings` 1.0.0 必须显式指定已封存 `sourceSnapshotId`。dry-run 在真实目标事务中执行资产、来源、位置和 URI 校验后回滚，正式迁移才创建或复用内容资产并绑定旧 ID。相同旧身份和摘要重放为 skipped，载荷变化为 rejected；映射计数和摘要已纳入 Registry 对账报告。
+
+旧身份批量解析接口只返回 `sourceSystem + legacyAssetId + assetId`，不返回旧路径、凭据或迁移载荷。Media Library 等下游迁移任务必须先确认整批映射无缺失，再使用封存快照中的摘要和大小建立自身关系。
 
 V48 的 `asset_register_media_thumbnail` 和 `asset_register_media_storyboard` 负责把分析临时产物发布到 Storage Gateway，并按分析版本登记不可变派生资产关系。故事板按帧序号使用不同 `artifactKind`，相同任务重试通过幂等键恢复，父资产版本在每个新关系写入后顺序推进。
 

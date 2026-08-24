@@ -2,6 +2,8 @@ package com.yuyutian.mytools.asset.controller;
 
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingBatch;
 import com.yuyutian.mytools.asset.model.LegacyAssetMappingResult;
+import com.yuyutian.mytools.asset.model.LegacyAssetMappingLookupRequest;
+import com.yuyutian.mytools.asset.model.LegacyAssetMappingLookupResult;
 import com.yuyutian.mytools.asset.service.InternalRequestAuthorizer;
 import com.yuyutian.mytools.asset.service.LegacyAssetMappingMigrationService;
 import jakarta.validation.Valid;
@@ -38,5 +40,20 @@ public class LegacyAssetMappingMigrationController {
             @Valid @RequestBody LegacyAssetMappingBatch batch) {
         authorizer.requireAuthorized(authorization);
         return migrationService.migrate(batch);
+    }
+
+    /**
+     * 批量解析不可变旧资产映射。
+     *
+     * @param authorization 内部访问令牌
+     * @param request 旧资产身份集合
+     * @return 已解析映射和缺失身份
+     */
+    @PostMapping("/resolve")
+    public LegacyAssetMappingLookupResult resolve(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @Valid @RequestBody LegacyAssetMappingLookupRequest request) {
+        authorizer.requireAuthorized(authorization);
+        return migrationService.resolve(request);
     }
 }

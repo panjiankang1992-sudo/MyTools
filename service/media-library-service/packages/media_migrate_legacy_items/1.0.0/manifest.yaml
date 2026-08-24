@@ -1,0 +1,16 @@
+name: media_migrate_legacy_items
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - legacy_asset_read
+  - asset_registry_read
+  - media_library_write
+parameters:
+  required:
+    - sourceSnapshotId
+    - dryRun
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 3600
