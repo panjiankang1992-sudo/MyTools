@@ -540,4 +540,14 @@ class TaskInstanceServiceTest {
         assertTrue(definition.get("parameter_schema").toString().contains("migrationKey"));
         assertTrue(definition.get("result_schema").toString().contains("sourceHighWater"));
     }
+
+    @Test
+    void shouldRequireReadableOwnerForLegacyAssetSnapshot() {
+        String schema = jdbcTemplate.queryForObject(
+                "SELECT parameter_schema FROM task_definition WHERE name=?",
+                String.class, "legacy_asset_capture_snapshot");
+
+        assertTrue(schema.contains("\"required\":[\"snapshotId\",\"ownerId\"]"));
+        assertTrue(schema.contains("\"ownerId\":{\"type\":\"integer\",\"minimum\":1}"));
+    }
 }

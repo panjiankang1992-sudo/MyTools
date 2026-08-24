@@ -57,7 +57,7 @@ def capture(source, target, snapshot_id: str, owner_id: int) -> dict:
     """Capture and atomically seal one consistent snapshot."""
     if not SNAPSHOT_ID.fullmatch(snapshot_id):
         raise ValueError("Legacy asset snapshot id is invalid")
-    if owner_id < 0:
+    if owner_id <= 0:
         raise ValueError("Legacy asset owner id is invalid")
     with target.cursor() as cursor:
         cursor.execute("SELECT * FROM legacy_asset_snapshot WHERE snapshot_id=%s", (snapshot_id,))
@@ -164,7 +164,7 @@ def main() -> None:
     target = connect("LEGACY_ASSET_ADAPTER_DB", "mytools_legacy_asset_adapter")
     try:
         write_result(capture(source, target, str(parameters["snapshotId"]),
-                             int(parameters.get("ownerId") or 0)))
+                             int(parameters["ownerId"])))
     finally:
         source.close()
         target.close()

@@ -18,7 +18,7 @@
 
 ## 任务流程
 
-1. 创建 `legacy_asset_capture_snapshot` 即时任务并指定英文、数字、下划线、点、冒号或横线组成的快照 ID。
+1. 创建 `legacy_asset_capture_snapshot` 即时任务，指定英文、数字、下划线、点、冒号或横线组成的快照 ID，并显式绑定可正常登录读取的正数 owner ID。
 2. 检查捕获数量、拒绝数量和摘要；处理无法验证的旧记录。
 3. 使用同一快照 ID 执行 `asset_migrate_legacy_mappings` dry-run。
 4. dry-run 零冲突后正式迁移，重放应全部 skipped。

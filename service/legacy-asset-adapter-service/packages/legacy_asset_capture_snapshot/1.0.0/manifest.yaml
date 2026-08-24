@@ -8,6 +8,7 @@ capabilities:
 parameters:
   required:
     - snapshotId
+    - ownerId
 result:
   schema: schemas/result.schema.json
 limits:

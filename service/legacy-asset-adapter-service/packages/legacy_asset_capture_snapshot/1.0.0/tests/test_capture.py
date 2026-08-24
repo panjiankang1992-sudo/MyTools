@@ -36,6 +36,12 @@ def test_rejects_unverifiable_legacy_rows(changes, reason):
         MODULE.normalize(row(**changes), 0)
 
 
+@pytest.mark.parametrize("owner_id", [0, -1])
+def test_rejects_owner_that_cannot_be_read_by_target_services(owner_id):
+    with pytest.raises(ValueError, match="owner id is invalid"):
+        MODULE.capture(Connection(), Connection(), "snapshot-invalid-owner", owner_id)
+
+
 class Cursor:
     def __init__(self, connection):
         self.connection = connection
@@ -82,9 +88,9 @@ class Connection:
 def test_capture_uses_consistent_source_transaction_and_atomic_target_commit():
     source = Connection()
     target = Connection()
-    result = MODULE.capture(source, target, "snapshot-1", 0)
+    result = MODULE.capture(source, target, "snapshot-1", 1)
     assert result["captured"] == 1
-    assert result["ownerId"] == 0
+    assert result["ownerId"] == 1
     assert result["rejected"] == 1
     assert target.commits == 1
     assert source.rollbacks == 1
