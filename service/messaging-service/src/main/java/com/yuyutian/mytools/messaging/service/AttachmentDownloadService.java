@@ -59,6 +59,19 @@ public class AttachmentDownloadService {
     }
 
     /**
+     * 为指定所有者创建附件下载任务。
+     *
+     * @param messageId 消息标识
+     * @param partId 分段标识
+     * @param ownerId 所有者
+     * @return 附件任务
+     */
+    public AttachmentDownloadView create(UUID messageId, UUID partId, long ownerId) {
+        requireOwner(messageId, partId, ownerId);
+        return create(messageId, partId);
+    }
+
+    /**
      * 查询一个附件下载处理任务。
      */
     public AttachmentDownloadView get(UUID jobId) {
@@ -77,6 +90,20 @@ public class AttachmentDownloadService {
             current = required(jobId);
         }
         return view(current);
+    }
+
+    /** 按所有者查询附件任务。 @param jobId 作业 @param ownerId 所有者 @return 附件任务 */
+    public AttachmentDownloadView get(UUID jobId,long ownerId) {
+        AttachmentDownloadRecord record=required(jobId);requireOwner(record.messageId(),record.partId(),ownerId);return get(jobId);
+    }
+
+    /** 请求取消所有者的附件任务。 @param jobId 作业 @param ownerId 所有者 @return 附件任务 */
+    public AttachmentDownloadView cancel(UUID jobId,long ownerId) {
+        AttachmentDownloadRecord record=required(jobId);requireOwner(record.messageId(),record.partId(),ownerId);
+        if(terminal(record.status()))return view(record);
+        if(record.taskId()!=null)schedulerClient.cancel(record.taskId());
+        transactionTemplate.executeWithoutResult(status->repository.updateAttachmentJobStatus(jobId,"CANCELLING",null));
+        return view(required(jobId));
     }
 
     /**
@@ -153,6 +180,10 @@ public class AttachmentDownloadService {
     private MessagingRepository.AttachmentSource requiredSource(UUID messageId, UUID partId) {
         return repository.findAttachmentSource(messageId, partId)
                 .orElseThrow(AttachmentDownloadNotFoundException::new);
+    }
+
+    private void requireOwner(UUID messageId,UUID partId,long ownerId) {
+        if(requiredSource(messageId,partId).ownerId()!=ownerId)throw new AttachmentDownloadNotFoundException();
     }
 
     private AttachmentDownloadRecord required(UUID jobId) {

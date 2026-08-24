@@ -60,6 +60,16 @@ public class TaskSchedulerClient {
     }
 
     /**
+     * 取消任务实例。
+     *
+     * @param taskId 任务标识
+     */
+    public void cancel(UUID taskId) {
+        restClient.post().uri("/api/v1/task-instances/{id}/cancel", taskId)
+                .contentType(MediaType.APPLICATION_JSON).body(Map.of()).retrieve().toBodilessEntity();
+    }
+
+    /**
      * 渠道到白名单任务定义的映射。
      */
     public record ChannelTask(String taskName) {

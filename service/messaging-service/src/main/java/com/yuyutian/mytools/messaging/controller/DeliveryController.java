@@ -135,9 +135,11 @@ public class DeliveryController {
     @PostMapping("/inbound-messages/{messageId}/parts/{partId}/download")
     public ResponseEntity<AttachmentDownloadView> createAttachmentDownload(
             @RequestHeader(name = "Authorization", required = false) String authorization,
-            @PathVariable UUID messageId, @PathVariable UUID partId) {
+            @PathVariable UUID messageId, @PathVariable UUID partId,
+            @RequestParam(required = false) Long ownerId) {
         authorizer.requireAuthorized(authorization);
-        return ResponseEntity.accepted().body(attachmentDownloadService.create(messageId, partId));
+        return ResponseEntity.accepted().body(ownerId == null ? attachmentDownloadService.create(messageId, partId)
+                : attachmentDownloadService.create(messageId, partId, ownerId));
     }
 
     /**
@@ -146,10 +148,16 @@ public class DeliveryController {
     @GetMapping("/attachment-downloads/{jobId}")
     public AttachmentDownloadView attachmentDownload(
             @RequestHeader(name = "Authorization", required = false) String authorization,
-            @PathVariable UUID jobId) {
+            @PathVariable UUID jobId, @RequestParam(required = false) Long ownerId) {
         authorizer.requireAuthorized(authorization);
-        return attachmentDownloadService.get(jobId);
+        return ownerId == null ? attachmentDownloadService.get(jobId) : attachmentDownloadService.get(jobId, ownerId);
     }
+
+    /** 请求取消所有者的附件下载任务。 */
+    @PostMapping("/attachment-downloads/{jobId}/cancel")
+    public AttachmentDownloadView cancelAttachmentDownload(
+            @RequestHeader(name="Authorization",required=false)String authorization,@PathVariable UUID jobId,
+            @RequestParam long ownerId) { authorizer.requireAuthorized(authorization);return attachmentDownloadService.cancel(jobId,ownerId); }
 
     /**
      * 由 Executor 解析渠道 provider 文件引用。

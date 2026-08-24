@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.io.ByteArrayOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -134,6 +135,15 @@ class OneBotInboundAdapterTest {
         verify(schedulerClient, times(1)).createAttachmentDownloadTask(job.id());
         verify(downloadIngestionClient, times(1)).createHttpAttachment(
                 any(), anyLong(), any(), anyString(), anyString(), any());
+    }
+
+    @Test
+    void shouldCancelOnlyOwnerBoundAttachmentTask() throws Exception {
+        var event=objectMapper.readTree("""
+                {"post_type":"message","message_type":"private","self_id":90001,"message_id":144,
+                 "user_id":10003,"message":[{"type":"image","data":{"file":"cancel.jpg","url":"https://cdn.example.test/cancel.jpg"}}]}
+                """);
+        var message=adapter.receive(new OneBotInboundRequest(111L,"napcat-main",event));var part=message.parts().getFirst();UUID taskId=UUID.randomUUID();when(schedulerClient.createAttachmentDownloadTask(any())).thenReturn(taskId);var job=attachmentDownloadService.create(message.id(),part.id(),111L);assertThat(attachmentDownloadService.cancel(job.id(),111L).status()).isEqualTo("CANCELLING");assertThatThrownBy(()->attachmentDownloadService.get(job.id(),112L)).isInstanceOf(AttachmentDownloadNotFoundException.class);verify(schedulerClient).cancel(taskId);
     }
 
     @Test

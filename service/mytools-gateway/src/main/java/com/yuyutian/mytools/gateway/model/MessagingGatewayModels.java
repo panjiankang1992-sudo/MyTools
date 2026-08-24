@@ -14,4 +14,6 @@ public final class MessagingGatewayModels {
     public record MessageView(UUID id,long ownerId,String channelType,String sender,String subject,String body,
                               Instant receivedAt,Instant createdAt,List<MessagePart> parts) { }
     public record MessagePage(List<MessageView> items,UUID nextAfterId) { }
+    public record AttachmentDownloadView(UUID id,UUID messageId,UUID partId,String status,
+                                         String lastErrorCode,Instant createdAt,Instant updatedAt) { }
 }
