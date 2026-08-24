@@ -4,7 +4,7 @@
 
 当前没有实际用户，不设计租户灰度、双写、长观察窗口和自动回切。迁移的唯一硬约束是不可再生数据不丢失。MyTools、DownloadBot 和 MsgService 的旧代码与旧数据库在迁移验收前保持不变；新服务使用独立 schema，确认数据完整后直接启用新入口。
 
-历史媒体迁移完成后，使用 `service/scripts/media_migration_gate.py` 离线校验快照、Asset Registry dry-run/正式报告、Media Library dry-run/正式报告以及两个目标对账报告。门禁要求来源记录和来源标签数量覆盖旧快照；媒体项、资产数允许因内容去重少于旧记录数。
+历史媒体迁移完成后，使用 `service/scripts/media_migration_gate.py` 离线校验快照、Asset Registry dry-run/正式报告、Media Library dry-run/正式/同键重放报告、本次迁移的目标证据以及全库静态状态。门禁要求本次迁移的来源记录数、标签数和集合摘要与目标精确相等；媒体内容可以去重，但不能因此丢失任何旧来源身份或标签。全库对账只用于确认没有暂存扫描或运行中的分析。
 
 ## 数据分类
 

@@ -59,7 +59,7 @@ V3 的内部对账接口以媒体 UUID 为稳定游标，每页最多返回 200 
 
 1. 在现有 MyTools 内建立 Task Client，替换 `TaggingJob`、扫描和媒体分析 Job。
 2. 保持现有表为权威，先只替换执行方式。
-3. 已接入 Asset Registry ID 领域模型、幂等事件收件箱和目录扫描 generation；`media_migrate_legacy_items` 使用封存 `local_file` 快照和 Asset Registry 旧 ID 映射进行两遍式预检、幂等回填。内容去重时通过 `media_item_source`、`media_item_source_tag` 保留每条旧文件身份及其标签，生产副本执行仍待进行。
+3. 已接入 Asset Registry ID 领域模型、幂等事件收件箱和目录扫描 generation；`media_migrate_legacy_items` 使用封存 `local_file` 快照和 Asset Registry 旧 ID 映射进行两遍式预检、幂等回填。内容去重时通过 `media_item_source`、`media_item_source_tag` 保留每条旧文件身份及其标签，并通过独立迁移审计输出按迁移键隔离的精确目标证据；生产副本执行仍待进行。
 4. 已建立独立 `mytools_media` schema和服务进程 MVP，覆盖分析版本唯一性、标签/派生物合并和乐观锁播放进度；旧接口仍为权威。
 5. 已完成视频分析结果业务聚合和失败终态回写。Media Library 现在可按显式 owner、媒体 UUID、分析版本和幂等键创建 `media_analyze_video` 任务，并用统一操作接口查询或取消；任务参数不再接受物理路径，输入由 V82 物化步骤根据 Asset Registry 身份解析。
 6. 旧 MyTools 已提供默认关闭的每日目录扫描旁路。它复用 `file.scan.path` 和资源盘可用性保护，通过 Media Library 创建持久化扫描操作；旧扫描任务及旧库保持不变，按日期和路径摘要幂等。

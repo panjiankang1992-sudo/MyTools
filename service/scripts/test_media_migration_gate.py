@@ -19,9 +19,10 @@ def asset(dry_run):
 
 
 def media(dry_run):
-    return {"sourceSnapshotId": "media-snapshot-1", "dryRun": dry_run, "exported": 3,
+    return {"migrationKey": "media-migration-1", "sourceSnapshotId": "media-snapshot-1", "dryRun": dry_run, "exported": 3,
             "mediaItems": 2, "legacyTags": 4, "skippedNonMedia": 1,
-            "imported": 0 if dry_run else 2, "digestSha256": "c" * 64}
+            "imported": 0 if dry_run else 2, "digestSha256": "c" * 64,
+            "targetVerified": not dry_run}
 
 
 def asset_reconciliation():
@@ -34,10 +35,16 @@ def media_reconciliation():
             "analyzingCount": 0, "runningAnalysisCount": 0, "digestSha256": "e" * 64}
 
 
+def media_target():
+    return {"migrationKey": "media-migration-1", "sourceSnapshotId": "media-snapshot-1",
+            "itemCount": 2, "tagCount": 4, "collectionSha256": "c" * 64}
+
+
 class MediaMigrationGateTest(unittest.TestCase):
     def test_accepts_complete_quiescent_migration_evidence(self):
         result = MODULE.evaluate(snapshot(), asset(True), asset(False), media(True), media(False),
-                                 asset_reconciliation(), media_reconciliation())
+                                 media(False), asset_reconciliation(), media_target(),
+                                 media_reconciliation())
         self.assertTrue(result["ready"])
         self.assertEqual([], result["errors"])
         self.assertNotIn("a" * 64, str(result))
@@ -45,13 +52,14 @@ class MediaMigrationGateTest(unittest.TestCase):
     def test_rejects_snapshot_rejections_and_missing_tags(self):
         source = snapshot()
         source["rejected"] = 1
-        reconciliation = media_reconciliation()
-        reconciliation["sourceTagRelationCount"] = 3
+        target = media_target()
+        target["tagCount"] = 3
         result = MODULE.evaluate(source, asset(True), asset(False), media(True), media(False),
-                                 asset_reconciliation(), reconciliation)
+                                 media(False), asset_reconciliation(), target,
+                                 media_reconciliation())
         self.assertFalse(result["ready"])
         self.assertIn("SNAPSHOT_HAS_REJECTIONS", result["errors"])
-        self.assertIn("MEDIA_RECONCILIATION_INCOMPLETE", result["errors"])
+        self.assertIn("MEDIA_TARGET_MISMATCH", result["errors"])
 
     def test_rejects_changed_source_and_partial_media_import(self):
         applied_asset = asset(False)
@@ -59,7 +67,8 @@ class MediaMigrationGateTest(unittest.TestCase):
         applied_media = media(False)
         applied_media["imported"] = 1
         result = MODULE.evaluate(snapshot(), asset(True), applied_asset, media(True), applied_media,
-                                 asset_reconciliation(), media_reconciliation())
+                                 media(False), asset_reconciliation(), media_target(),
+                                 media_reconciliation())
         self.assertFalse(result["ready"])
         self.assertIn("ASSET_DIGEST_MISMATCH", result["errors"])
         self.assertIn("MEDIA_IMPORT_INCOMPLETE", result["errors"])
@@ -68,9 +77,20 @@ class MediaMigrationGateTest(unittest.TestCase):
         reconciliation = media_reconciliation()
         reconciliation["analyzingCount"] = 1
         result = MODULE.evaluate(snapshot(), asset(True), asset(False), media(True), media(False),
-                                 asset_reconciliation(), reconciliation)
+                                 media(False), asset_reconciliation(), media_target(), reconciliation)
         self.assertFalse(result["ready"])
         self.assertIn("MEDIA_RECONCILIATION_NOT_QUIESCENT", result["errors"])
+
+    def test_rejects_replay_or_target_from_another_migration(self):
+        replay = media(False)
+        replay["migrationKey"] = "other"
+        target = media_target()
+        target["collectionSha256"] = "f" * 64
+        result = MODULE.evaluate(snapshot(), asset(True), asset(False), media(True), media(False),
+                                 replay, asset_reconciliation(), target, media_reconciliation())
+        self.assertFalse(result["ready"])
+        self.assertIn("MEDIA_MIGRATION_KEY_MISMATCH", result["errors"])
+        self.assertIn("MEDIA_TARGET_MISMATCH", result["errors"])
 
 
 if __name__ == "__main__":

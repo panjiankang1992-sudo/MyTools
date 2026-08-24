@@ -25,8 +25,9 @@ def read_report(path: Path) -> dict:
 
 
 def evaluate(snapshot: dict, asset_dry: dict, asset_apply: dict,
-             media_dry: dict, media_apply: dict,
-             asset_reconciliation: dict, media_reconciliation: dict) -> dict:
+             media_dry: dict, media_apply: dict, media_replay: dict,
+             asset_reconciliation: dict, media_target: dict,
+             media_reconciliation: dict) -> dict:
     """Evaluate source, migration and target reconciliation invariants."""
     errors: set[str] = set()
     snapshot_id = text(snapshot.get("snapshotId"))
@@ -44,7 +45,7 @@ def evaluate(snapshot: dict, asset_dry: dict, asset_apply: dict,
 
     validate_modes(asset_dry, asset_apply, errors)
     if any(text(report.get("sourceSnapshotId")) != snapshot_id
-           for report in (asset_dry, asset_apply, media_dry, media_apply)):
+           for report in (asset_dry, asset_apply, media_dry, media_apply, media_replay)):
         errors.add("SNAPSHOT_REFERENCE_MISMATCH")
     asset_exported = compare_pair(asset_dry, asset_apply, "exported", errors,
                                   "ASSET_COUNT_MISMATCH")
@@ -61,6 +62,13 @@ def evaluate(snapshot: dict, asset_dry: dict, asset_apply: dict,
     compare_digest(asset_dry, asset_apply, errors, "ASSET_DIGEST_MISMATCH")
 
     validate_modes(media_dry, media_apply, errors)
+    if media_replay.get("dryRun") is not False:
+        errors.add("MIGRATION_MODE_INVALID")
+    migration_key = text(media_apply.get("migrationKey"))
+    if not SNAPSHOT_ID.fullmatch(migration_key) or any(
+            text(report.get("migrationKey")) != migration_key
+            for report in (media_dry, media_replay)):
+        errors.add("MEDIA_MIGRATION_KEY_MISMATCH")
     exported = compare_pair(media_dry, media_apply, "exported", errors,
                             "MEDIA_COUNT_MISMATCH")
     media_items = compare_pair(media_dry, media_apply, "mediaItems", errors,
@@ -75,7 +83,21 @@ def evaluate(snapshot: dict, asset_dry: dict, asset_apply: dict,
         errors.add("MEDIA_DRY_RUN_WROTE_DATA")
     if integer(media_apply, "imported", errors) != media_items:
         errors.add("MEDIA_IMPORT_INCOMPLETE")
+    if integer(media_replay, "imported", errors) != media_items:
+        errors.add("MEDIA_REPLAY_INCOMPLETE")
+    for field, code in (("exported", "MEDIA_REPLAY_MISMATCH"),
+                        ("mediaItems", "MEDIA_REPLAY_MISMATCH"),
+                        ("legacyTags", "MEDIA_REPLAY_MISMATCH"),
+                        ("skippedNonMedia", "MEDIA_REPLAY_MISMATCH")):
+        if integer(media_replay, field, errors) != integer(media_apply, field, errors):
+            errors.add(code)
+    if media_apply.get("targetVerified") is not True \
+            or media_replay.get("targetVerified") is not True \
+            or media_dry.get("targetVerified") is not False:
+        errors.add("MEDIA_TARGET_NOT_VERIFIED")
     compare_digest(media_dry, media_apply, errors, "MEDIA_DIGEST_MISMATCH")
+    if text(media_replay.get("digestSha256")) != text(media_apply.get("digestSha256")):
+        errors.add("MEDIA_REPLAY_MISMATCH")
 
     legacy_mappings = integer(asset_reconciliation, "legacyMappingCount", errors)
     integer(asset_reconciliation, "assetCount", errors)
@@ -83,12 +105,12 @@ def evaluate(snapshot: dict, asset_dry: dict, asset_apply: dict,
         errors.add("ASSET_RECONCILIATION_INCOMPLETE")
     if not DIGEST.fullmatch(text(asset_reconciliation.get("digestSha256"))):
         errors.add("ASSET_RECONCILIATION_INVALID")
-    integer(media_reconciliation, "itemCount", errors)
-    integer(media_reconciliation, "tagRelationCount", errors)
-    target_sources = integer(media_reconciliation, "sourceRelationCount", errors)
-    target_source_tags = integer(media_reconciliation, "sourceTagRelationCount", errors)
-    if target_sources < media_items or target_source_tags < legacy_tags:
-        errors.add("MEDIA_RECONCILIATION_INCOMPLETE")
+    if text(media_target.get("migrationKey")) != migration_key \
+            or text(media_target.get("sourceSnapshotId")) != snapshot_id \
+            or integer(media_target, "itemCount", errors) != media_items \
+            or integer(media_target, "tagCount", errors) != legacy_tags \
+            or text(media_target.get("collectionSha256")) != text(media_apply.get("digestSha256")):
+        errors.add("MEDIA_TARGET_MISMATCH")
     for field in ("stagingScanCount", "analyzingCount", "runningAnalysisCount"):
         if integer(media_reconciliation, field, errors) != 0:
             errors.add("MEDIA_RECONCILIATION_NOT_QUIESCENT")
@@ -144,7 +166,9 @@ def main() -> None:
     parser.add_argument("--asset-apply-report", required=True, type=Path)
     parser.add_argument("--media-dry-run-report", required=True, type=Path)
     parser.add_argument("--media-apply-report", required=True, type=Path)
+    parser.add_argument("--media-replay-report", required=True, type=Path)
     parser.add_argument("--asset-reconciliation-report", required=True, type=Path)
+    parser.add_argument("--media-target-report", required=True, type=Path)
     parser.add_argument("--media-reconciliation-report", required=True, type=Path)
     arguments = parser.parse_args()
     try:
@@ -153,7 +177,9 @@ def main() -> None:
                           read_report(arguments.asset_apply_report),
                           read_report(arguments.media_dry_run_report),
                           read_report(arguments.media_apply_report),
+                          read_report(arguments.media_replay_report),
                           read_report(arguments.asset_reconciliation_report),
+                          read_report(arguments.media_target_report),
                           read_report(arguments.media_reconciliation_report))
     except (OSError, ValueError, json.JSONDecodeError):
         result = {"ready": False, "snapshotId": None, "captured": -1,

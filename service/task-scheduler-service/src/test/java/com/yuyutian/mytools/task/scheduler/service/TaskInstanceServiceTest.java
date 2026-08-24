@@ -542,6 +542,19 @@ class TaskInstanceServiceTest {
     }
 
     @Test
+    void shouldUseFrozenLegacyMediaMigrationPackage() {
+        Map<String, Object> definition = jdbcTemplate.queryForMap(
+                "SELECT d.parameter_schema,d.result_schema,s.script_version FROM task_definition d "
+                        + "JOIN task_step_definition s ON s.task_definition_id=d.id "
+                        + "WHERE d.name=? AND s.name=?",
+                "media_migrate_legacy_items", "migrate_legacy_media");
+
+        assertTrue(definition.get("parameter_schema").toString().contains("migrationKey"));
+        assertTrue(definition.get("result_schema").toString().contains("targetVerified"));
+        assertEquals("1.1.0", definition.get("script_version"));
+    }
+
+    @Test
     void shouldUseFrozenIdentityUserMigrationPackage() {
         Map<String, Object> definition = jdbcTemplate.queryForMap(
                 "SELECT d.version,d.timeout_seconds,d.parameter_schema,d.result_schema,s.script_version "
@@ -592,7 +605,7 @@ class TaskInstanceServiceTest {
         assertTrue(definition.get("result_schema").toString().contains("digestSha256"));
         assertTrue(definition.get("result_schema").toString().contains("legacyTags"));
         assertEquals("media_migrate_legacy_items", definition.get("script_package"));
-        assertEquals("1.0.0", definition.get("script_version"));
+        assertEquals("1.1.0", definition.get("script_version"));
     }
 
     @Test

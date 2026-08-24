@@ -1,0 +1,17 @@
+{
+  "type": "object",
+  "required": ["migrationKey", "sourceSnapshotId", "dryRun", "exported", "mediaItems", "legacyTags", "skippedNonMedia", "imported", "digestSha256", "targetVerified"],
+  "properties": {
+    "migrationKey": {"type": "string", "pattern": "^[A-Za-z0-9._:-]{1,128}$"},
+    "sourceSnapshotId": {"type": "string"},
+    "dryRun": {"type": "boolean"},
+    "exported": {"type": "integer", "minimum": 0},
+    "mediaItems": {"type": "integer", "minimum": 0},
+    "legacyTags": {"type": "integer", "minimum": 0},
+    "skippedNonMedia": {"type": "integer", "minimum": 0},
+    "imported": {"type": "integer", "minimum": 0},
+    "digestSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "targetVerified": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}
