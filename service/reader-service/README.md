@@ -24,6 +24,8 @@ MyTools 通过默认关闭的 `READER_SEARCH_SIDECAR_ENABLED` 开关向 Reader S
 
 书源发现已迁移为 `reader_source_discovery` 1.0.0 脚本任务。脚本只访问经过公网地址校验、响应大小限制和重定向重验的仓库，并以最多 100 条一批调用 Reader Service 内部接口；服务以内容摘要维护不可变书源版本。公开编排接口为 `POST /api/v1/source-discoveries`、`GET /api/v1/source-discoveries/{id}` 和取消接口，内部写入接口必须使用 `READER_INTERNAL_TOKEN`。
 
+旧 MyTools 可通过默认关闭的 `READER_DISCOVERY_SIDECAR_ENABLED` 把已经完成公网地址校验的发现请求提交到 Reader Service。旧任务标识作为稳定幂等键，新服务负责持久化请求、调度脚本和版本化写入；旁路失败不影响旧线程池发现。发现创建、查询和取消接口也统一要求 `READER_INTERNAL_TOKEN`。
+
 Gateway 创建发现任务时注入 `ownerId`，Reader Service 对查询和取消执行所有者校验；内部调用可暂时省略该查询参数。
 
 书源健康检查使用 `reader_source_health_check` 1.0.0 多节点分片任务。Reader Service 固化本次检查使用的启用书源版本，脚本在执行隔离的 Runtime 命名空间中探测搜索规则，并汇总每个书源的状态、延迟和错误类别。健康观测不会自动修改用户维护的 `enabled` 状态。编排接口为 `POST /api/v1/source-health-checks`、`GET /api/v1/source-health-checks/{id}` 和取消接口。

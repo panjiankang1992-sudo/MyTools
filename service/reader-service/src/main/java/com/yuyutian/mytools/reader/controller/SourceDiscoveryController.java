@@ -4,8 +4,8 @@ import com.yuyutian.mytools.reader.model.CreateDiscoveryRequest;
 import com.yuyutian.mytools.reader.model.DiscoveryView;
 import com.yuyutian.mytools.reader.model.SourceIngestRequest;
 import com.yuyutian.mytools.reader.model.SourceIngestResult;
-import com.yuyutian.mytools.reader.service.SourceDiscoveryService;
 import com.yuyutian.mytools.reader.service.InternalRequestAuthorizer;
+import com.yuyutian.mytools.reader.service.SourceDiscoveryService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.UUID;
 
 /**
@@ -42,35 +43,44 @@ public class SourceDiscoveryController {
     /**
      * 创建异步书源发现任务。
      *
+     * @param authorization 授权头
      * @param request 创建请求
      * @return 已受理任务
      */
     @PostMapping("/api/v1/source-discoveries")
-    public ResponseEntity<DiscoveryView> create(@Valid @RequestBody CreateDiscoveryRequest request) {
+    public ResponseEntity<DiscoveryView> create(@RequestHeader("Authorization") String authorization,
+                                                 @Valid @RequestBody CreateDiscoveryRequest request) {
+        authorizer.requireAuthorized(authorization);
         return ResponseEntity.accepted().body(discoveryService.create(request));
     }
 
     /**
      * 查询书源发现任务。
      *
+     * @param authorization 授权头
      * @param id 请求标识
      * @param ownerId 可选所有者标识
      * @return 任务视图
      */
     @GetMapping("/api/v1/source-discoveries/{id}")
-    public DiscoveryView get(@PathVariable UUID id, @RequestParam(required = false) Long ownerId) {
+    public DiscoveryView get(@RequestHeader("Authorization") String authorization,
+                             @PathVariable UUID id, @RequestParam(required = false) Long ownerId) {
+        authorizer.requireAuthorized(authorization);
         return ownerId == null ? discoveryService.get(id) : discoveryService.get(id, ownerId);
     }
 
     /**
      * 取消书源发现任务。
      *
+     * @param authorization 授权头
      * @param id 请求标识
      * @param ownerId 可选所有者标识
      * @return 任务视图
      */
     @PostMapping("/api/v1/source-discoveries/{id}/cancel")
-    public DiscoveryView cancel(@PathVariable UUID id, @RequestParam(required = false) Long ownerId) {
+    public DiscoveryView cancel(@RequestHeader("Authorization") String authorization,
+                                @PathVariable UUID id, @RequestParam(required = false) Long ownerId) {
+        authorizer.requireAuthorized(authorization);
         return ownerId == null ? discoveryService.cancel(id) : discoveryService.cancel(id, ownerId);
     }
 

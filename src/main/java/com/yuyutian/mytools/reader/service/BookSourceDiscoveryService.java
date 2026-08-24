@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.common.BusinessException;
 import com.yuyutian.mytools.common.ErrorCode;
 import com.yuyutian.mytools.reader.model.BookSourceDiscoveryModels;
+import com.yuyutian.mytools.reader.task.ReaderDiscoverySidecarRequested;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -51,6 +53,7 @@ public class BookSourceDiscoveryService {
     private final ObjectMapper objectMapper;
     private final BookSourceSyncService bookSourceSyncService;
     private final List<BookSourceSiteAdapter> siteAdapters;
+    private final ApplicationEventPublisher eventPublisher;
     private final Map<String, MutableTask> tasks = new ConcurrentHashMap<>();
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
@@ -79,6 +82,9 @@ public class BookSourceDiscoveryService {
         if (running >= MAX_RUNNING_PER_USER) throw new BusinessException(ErrorCode.READER_008);
         MutableTask task = new MutableTask(UUID.randomUUID().toString(), userId, target.toString());
         tasks.put(task.taskId, task);
+        // 旁路复制已完成公网校验的地址，新服务失败时旧发现仍继续执行。
+        eventPublisher.publishEvent(new ReaderDiscoverySidecarRequested(
+                task.taskId, userId, target.toString()));
         executor.submit(() -> discover(task));
         return task.snapshot();
     }

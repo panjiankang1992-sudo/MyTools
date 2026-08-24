@@ -48,6 +48,7 @@
 8. 已将书架、进度和标记的墓碑与版本字段规范化，并实现直接同步业务 API；进度和标记通过外键及 owner/book key 查找绑定书架，禁止生成孤儿状态。
 9. 独立 schema 与 Reader Service MVP 已建立；完成实际数据对账后再由 Gateway 切换远程接口。
 10. 旧 MyTools 的书源电子书导入已增加默认关闭的持久化旁路。旁路先按 owner 和 `sourceUrl` 解析新 schema 中已迁移书源，只在精确匹配时创建 `reader_import_ebook`；旧任务标识作为幂等键，新链路失败或书源尚未迁移均不影响旧导入。
+11. 旧 MyTools 的书源发现已增加默认关闭的持久化旁路。旧入口完成公网地址校验后发布不可变请求，Reader Service 以旧任务标识幂等创建 `reader_source_discovery`；新链路失败不影响旧线程池任务。
 
 ## 验收
 

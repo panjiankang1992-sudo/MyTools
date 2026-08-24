@@ -2,23 +2,25 @@ package com.yuyutian.mytools.reader.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.common.BusinessException;
+import com.yuyutian.mytools.reader.task.ReaderDiscoverySidecarRequested;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.net.URI;
 import java.lang.reflect.Constructor;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * 工程化书源导入服务安全边界测试。
@@ -46,6 +48,24 @@ class BookSourceDiscoveryServiceTest {
         BookSourceDiscoveryService service = service();
         try {
             assertThrows(BusinessException.class, () -> service.find(7L, "invalid"));
+        } finally {
+            service.shutdown();
+        }
+    }
+
+    /**
+     * 验证旧发现任务发布经过公网校验的不可变旁路请求。
+     */
+    @Test
+    void shouldPublishDiscoverySidecarRequest() {
+        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+        BookSourceDiscoveryService service = new BookSourceDiscoveryService(
+                new ObjectMapper(), mock(BookSourceSyncService.class), List.of(), eventPublisher);
+        try {
+            var task = service.start(7L, "https://1.1.1.1/sources.json");
+
+            verify(eventPublisher).publishEvent(new ReaderDiscoverySidecarRequested(
+                    task.taskId(), 7L, "https://1.1.1.1/sources.json"));
         } finally {
             service.shutdown();
         }
@@ -131,7 +151,7 @@ class BookSourceDiscoveryServiceTest {
         when(syncService.saveDiscoveredSources(eq(7L), anyList()))
                 .thenAnswer(invocation -> ((List<?>) invocation.getArgument(1)).size());
         BookSourceDiscoveryService service = new BookSourceDiscoveryService(new ObjectMapper(), syncService,
-                List.of(new HjwzwBookSourceSiteAdapter()));
+                List.of(new HjwzwBookSourceSiteAdapter()), mock(ApplicationEventPublisher.class));
         StringBuilder payload = new StringBuilder("[");
         for (int index = 0; index < 205; index++) {
             if (index > 0) payload.append(',');
@@ -159,6 +179,6 @@ class BookSourceDiscoveryServiceTest {
 
     private BookSourceDiscoveryService service() {
         return new BookSourceDiscoveryService(new ObjectMapper(), mock(BookSourceSyncService.class),
-                List.of(new HjwzwBookSourceSiteAdapter()));
+                List.of(new HjwzwBookSourceSiteAdapter()), mock(ApplicationEventPublisher.class));
     }
 }
