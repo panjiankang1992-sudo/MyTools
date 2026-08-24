@@ -184,6 +184,13 @@ migration:
       enabled: ${READER_DISCOVERY_SIDECAR_ENABLED:false}
       service-url: ${READER_SERVICE_URL:http://127.0.0.1:23230}
       internal-token: ${READER_INTERNAL_TOKEN:}
+    reader-cache-maintenance:
+      enabled: ${READER_CACHE_MAINTENANCE_SIDECAR_ENABLED:false}
+      service-url: ${READER_SERVICE_URL:http://127.0.0.1:23230}
+      internal-token: ${READER_INTERNAL_TOKEN:}
+      batch-size: ${READER_CACHE_MAINTENANCE_BATCH_SIZE:500}
+      delay-ms: ${READER_CACHE_MAINTENANCE_DELAY_MS:3600000}
+      initial-delay-ms: ${READER_CACHE_MAINTENANCE_INITIAL_DELAY_MS:60000}
 
 copilot:
   gateway:

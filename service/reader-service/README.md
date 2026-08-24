@@ -48,6 +48,8 @@ Gateway 创建预取任务和查询缓存时从可信主体注入 `ownerId`；Re
 
 章节缓存维护使用 `reader_cleanup_chapter_cache` 1.0.0 即时任务。维护请求冻结清理类型、截止时间和每批上限，只把 `maintenanceId` 交给 Scheduler；Executor 通过需要 `READER_INTERNAL_TOKEN` 的 Reader 内部接口逐批清理过期缓存，或清理书源已停用/版本过时的缓存。每批最多 1000 条并先删除预取关联，成功、失败、超时和取消均写回独立维护记录。该能力只维护新 `mytools_reader` schema，不读取或删除 MyTools 现有缓存。
 
+旧 MyTools 可通过默认关闭的 `READER_CACHE_MAINTENANCE_SIDECAR_ENABLED` 按小时创建新 schema 的 `EXPIRED` 维护任务。截止时间按整点截断并进入幂等键，重复触发不会重复清理；旧 `BookSourceChapterCacheJob` 继续只维护旧本地缓存，两套缓存不搬运、不交叉删除。
+
 书库索引重建使用 `reader_reindex_library` 1.0.0 即时任务。创建请求冻结 `ebook_asset` 快照时间和批次大小，Executor 只携带 `rebuildId` 循环调用内部批次接口，在不可见 generation 中按内容摘要去重；确认冻结快照无遗漏后，Reader Service 在单个事务中撤销旧 generation 并发布新 generation。失败、超时和取消步骤只记录异常终态，不会发布半成品。重建数据完全可从新 schema 的成功电子书资产再生，且不会读写现有 MyTools 数据，也不会修改 `shelf_book`、`reading_progress` 或 `reader_marker`。
 
 不可再生的旧书架、阅读进度和书签使用手工即时任务 `reader_migrate_legacy_state` 1.0.0 迁移。任务按 `SHELF`、`PROGRESS`、`MARKER` 依赖顺序，通过 MyTools 只读复合游标接口分页读取，再调用 Reader 内部批次接口；每批最多 200 条，目标端保存旧书 ID 映射、稳定 UUID、载荷摘要和幂等审计。必须先以 `{"migrationKey":"reader-state-v1","dryRun":true}` 演练并保存数量与摘要，再用相同 key 设置 `dryRun=false`。接口令牌分别由 `READER_MIGRATION_INTERNAL_TOKEN` 和 `READER_INTERNAL_TOKEN` 注入 Executor，不进入任务参数或结果。

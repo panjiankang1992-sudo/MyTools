@@ -49,6 +49,7 @@
 9. 独立 schema 与 Reader Service MVP 已建立；完成实际数据对账后再由 Gateway 切换远程接口。
 10. 旧 MyTools 的书源电子书导入已增加默认关闭的持久化旁路。旁路先按 owner 和 `sourceUrl` 解析新 schema 中已迁移书源，只在精确匹配时创建 `reader_import_ebook`；旧任务标识作为幂等键，新链路失败或书源尚未迁移均不影响旧导入。
 11. 旧 MyTools 的书源发现已增加默认关闭的持久化旁路。旧入口完成公网地址校验后发布不可变请求，Reader Service 以旧任务标识幂等创建 `reader_source_discovery`；新链路失败不影响旧线程池任务。
+12. 新 Reader 章节缓存维护已增加默认关闭的按小时任务触发。整点截止时间形成稳定幂等键，只清理新 schema 的过期缓存；旧本地缓存继续由原 Job 独立清理，缓存属于可再生数据且不执行迁移。
 
 ## 验收
 
