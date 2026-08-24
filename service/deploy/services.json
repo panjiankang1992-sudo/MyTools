@@ -1,4 +1,5 @@
 {
+  "deploymentRoot": "/opt/yuyutian/mytools",
   "services": [
     {"name": "task-scheduler-service", "port": 23210, "schema": "mytools_task", "dbPrefix": "TASK"},
     {"name": "download-ingestion-service", "port": 23220, "schema": "mytools_download", "dbPrefix": "DOWNLOAD"},

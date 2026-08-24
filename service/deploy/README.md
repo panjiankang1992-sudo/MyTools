@@ -2,6 +2,21 @@
 
 本目录仅管理新服务，不修改 MyTools、DownloadBot、MsgService 的旧数据库和启动方式。所有新 HTTP 服务默认绑定 `127.0.0.1`，Gateway 路由、迁移适配器、邮件拉取、OneBot、PikPak、DSH RPC 和自动化 relay 默认关闭。
 
+所有新服务统一部署在 `/opt/yuyutian/mytools`，不得分散到其他 `/opt` 目录。目录约定如下：
+
+```text
+/opt/yuyutian/mytools/
+├── releases/          # 不可变版本及 current 软链接
+├── config/            # 仓库外环境文件和非敏感配置
+├── runtime/tasks/     # Executor 临时工作目录
+├── data/downloads/    # 下载落盘目录
+├── data/storage/      # Storage Gateway 托管根目录
+├── migration/         # 受控迁移快照和对账报告
+└── logs/              # 服务日志
+```
+
+数据库文件、附件和迁移快照不得放进 `releases/`，发布新版本时只替换 `current` 链接，不覆盖 `data/`、`migration/` 和 `logs/`。旧服务原有目录保持原状。
+
 ## 文件
 
 - `services.json`：新服务端口、Schema 和数据库变量前缀的权威清单。

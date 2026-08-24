@@ -24,6 +24,7 @@ class InitializeSchemasTest(unittest.TestCase):
 
     def test_manifest_has_unique_ports_and_schemas(self) -> None:
         services = self.manifest["services"]
+        self.assertEqual("/opt/yuyutian/mytools", self.manifest["deploymentRoot"])
         self.assertEqual(len(services), len({service["port"] for service in services}))
         self.assertEqual(len(services), len({service["schema"] for service in services}))
 
@@ -44,6 +45,14 @@ class InitializeSchemasTest(unittest.TestCase):
 
         self.assertTrue(enabled_flags)
         self.assertTrue(all(value.lower() in {"false", "disabled"} for value in enabled_flags.values()))
+        self.assertEqual("/opt/yuyutian/mytools", environment["MYTOOLS_SERVICE_ROOT"])
+        path_values = [
+            value
+            for key, value in environment.items()
+            if key != "MYTOOLS_SERVICE_ROOT"
+            and (key.endswith("_ROOT") or key.endswith("_ROOT_PATH"))
+        ]
+        self.assertTrue(all(value.startswith("/opt/yuyutian/mytools/") for value in path_values))
 
     def test_statements_only_target_declared_schemas(self) -> None:
         environment: dict[str, str] = {}
