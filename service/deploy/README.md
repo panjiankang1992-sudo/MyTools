@@ -25,6 +25,8 @@
 - `initialize_schemas.py`：创建独立 Schema、独立账号和授权；不会访问旧 Schema。
 - `apply_python_migrations.py`：校验并执行 Python 服务的版本化 SQL，记录不可变校验和。
 - `generate_systemd_units.py`：根据清单生成服务单元、默认启动 target 和目录配置，不直接安装或启动。
+- `assemble_release.py`：在构建机打包 Java 服务、Python 项目、Executor SDK、任务包和部署工具，并生成逐文件 SHA-256 清单。
+- `install_release.py`：在远程主机精确验签发布清单，创建版本内 Python venv，全部安装成功后原子切换 `releases/current`。
 
 ## 初始化
 
@@ -67,6 +69,28 @@ uv run --no-project --python 3.12 --with pymysql python \
 ```bash
 python3 service/deploy/generate_systemd_units.py --output /tmp/mytools-systemd
 ```
+
+全量验证通过后，在构建机装配版本目录。`release-id` 只允许英文、数字、点、下划线和横线；输出目录必须不存在：
+
+```bash
+python3 service/deploy/assemble_release.py \
+  --release-id 20260824_01 \
+  --output /tmp/mytools-release-20260824_01
+```
+
+将整个目录传输到远程临时位置后，先只校验清单，再显式安装。安装工具只允许目标根为远程 `/opt/yuyutian/mytools`，不会读取或修改旧 MyTools、DownloadBot、MsgService 目录：
+
+```bash
+python3 /tmp/mytools-release-20260824_01/deploy/install_release.py \
+  --source /tmp/mytools-release-20260824_01
+
+sudo python3 /tmp/mytools-release-20260824_01/deploy/install_release.py \
+  --source /tmp/mytools-release-20260824_01 \
+  --python /usr/bin/python3 \
+  --execute
+```
+
+安装中断时删除未完成的新版本目录且不切换 `current`；已经存在的版本目录禁止覆盖。发布清单不包含 venv，venv 由远程 Python 从随版本携带的五个项目源码建立。
 
 输出包含每个服务的 `.service`、`mytools-services.target`、目录配置、日志轮转配置及其 timer。默认 target 不包含迁移适配器、OneBot、PikPak、DSH RPC 和消息自动化；这些能力只能单独显式启用。部署时将服务单元、target 和 timer 安装到 `/etc/systemd/system/`，将 `mytools.conf` 安装到 `/etc/tmpfiles.d/`，将 `mytools-services.logrotate` 安装为 `/etc/logrotate.d/mytools-services`。执行 `systemd-tmpfiles --create /etc/tmpfiles.d/mytools.conf` 后启用 `mytools-logrotate.timer`，最后启动服务 target。
 
