@@ -30,6 +30,9 @@ class CreateServiceEnvTest(unittest.TestCase):
         self.assertEqual(first["RCLONE_RC_PASSWORD"], first["STORAGE_RCLONE_RC_PASSWORD"])
         self.assertEqual(first["LEGACY_ASSET_ADAPTER_TOKEN"],
                          first["LEGACY_ASSET_ADAPTER_INTERNAL_TOKEN"])
+        self.assertEqual(first["MSGSERVICE_MIGRATION_TOKEN"],
+                         first["MSGSERVICE_ADAPTER_INTERNAL_TOKEN"])
+        self.assertEqual("http://127.0.0.1:23321", first["MSGSERVICE_MIGRATION_URL"])
         self.assertFalse(first["DOWNLOAD_DESTINATION_ROOT"].startswith("/opt/yuyutian/mytools"))
 
     def test_rejects_business_paths_under_deployment_or_logs(self):

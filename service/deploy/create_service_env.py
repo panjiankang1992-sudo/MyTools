@@ -87,6 +87,7 @@ def values(manifest: dict[str, Any], download_root: str, storage_root: str,
         "TASK_EXECUTOR_NODE_NAME": "executor-remote-1",
         "TASK_SCHEDULER_HTTP_PORT": "23410",
         "TASK_SCHEDULER_URL": "http://127.0.0.1:23410",
+        "MSGSERVICE_MIGRATION_URL": "http://127.0.0.1:23321",
         "DOWNLOAD_DESTINATION_ROOT": validate_business_path(download_root, "download root"),
         "STORAGE_DEFAULT_ROOT_PATH": validate_business_path(storage_root, "storage root"),
         "MEDIA_SCAN_ALLOWED_ROOTS": json.dumps(
@@ -105,6 +106,7 @@ def values(manifest: dict[str, Any], download_root: str, storage_root: str,
     for key in TOKEN_KEYS:
         environment[key] = private_value()
     environment["LEGACY_ASSET_ADAPTER_INTERNAL_TOKEN"] = environment["LEGACY_ASSET_ADAPTER_TOKEN"]
+    environment["MSGSERVICE_ADAPTER_INTERNAL_TOKEN"] = environment["MSGSERVICE_MIGRATION_TOKEN"]
     for key in DISABLED_FLAGS:
         environment[key] = "false"
     for entry in manifest["services"]:
