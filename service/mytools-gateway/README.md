@@ -22,6 +22,8 @@ Drive 路由包括安全账户摘要列表、目录查询、`POST /accounts/{acc
 
 Media 路由包括媒体分页、单项查询、播放进度写入，以及目录扫描长任务的创建、状态查询和取消。Gateway 只从认证主体注入 owner；实际目录必须命中 Executor 配置的允许根，扫描可选择在成功摄取后继续创建媒体分析子任务。
 
+Messaging 路由默认由 `GATEWAY_MESSAGING_ROUTE_ENABLED=false` 关闭，开放 owner-bound 入站消息分页和详情。响应保留正文与可展示附件信息，但移除 provider file id、Provider 账户键、来源 URL、外部消息 ID和会话键。
+
 Identity 首批入口为 `POST /api/app/v1/identity/login`、`/refresh` 和 `/logout`，由 `GATEWAY_IDENTITY_ROUTE_ENABLED=false` 独立控制。Gateway 使用严格请求模型重建登录和刷新载荷，不转发客户端内部头或 Cookie；注销不接受客户端 session ID，只撤销访问令牌实时校验结果绑定的 Identity 会话。Identity 的认证失败、请求错误和服务不可用分别映射为稳定 Gateway 错误。启用该入口时，`IDENTITY_VALIDATION_MODE` 必须至少为 `DUAL`，否则运行时门禁仍拒绝签发或撤销新会话，避免新令牌无法用于受保护路由。
 
 ## 实施要求

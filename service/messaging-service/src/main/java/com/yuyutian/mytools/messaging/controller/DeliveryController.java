@@ -5,6 +5,7 @@ import com.yuyutian.mytools.messaging.model.CreateInboundMessageRequest;
 import com.yuyutian.mytools.messaging.model.DeliveryView;
 import com.yuyutian.mytools.messaging.model.ExecuteDeliveryResult;
 import com.yuyutian.mytools.messaging.model.InboundMessageView;
+import com.yuyutian.mytools.messaging.model.InboundMessagePage;
 import com.yuyutian.mytools.messaging.model.OneBotInboundRequest;
 import com.yuyutian.mytools.messaging.model.AttachmentDownloadView;
 import com.yuyutian.mytools.messaging.model.ExecuteAttachmentDownloadResult;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.util.UUID;
@@ -110,9 +112,21 @@ public class DeliveryController {
     @GetMapping("/inbound-messages/{id}")
     public InboundMessageView inbound(
             @RequestHeader(name = "Authorization", required = false) String authorization,
-            @PathVariable UUID id) {
+            @PathVariable UUID id, @RequestParam(required = false) Long ownerId) {
         authorizer.requireAuthorized(authorization);
-        return service.inbound(id);
+        return ownerId == null ? service.inbound(id) : service.inbound(id, ownerId);
+    }
+
+    /**
+     * 分页查询所有者的标准化入站消息。
+     */
+    @GetMapping("/inbound-messages")
+    public InboundMessagePage inboundMessages(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @RequestParam long ownerId, @RequestParam(required = false) UUID afterId,
+            @RequestParam(defaultValue = "50") int limit) {
+        authorizer.requireAuthorized(authorization);
+        return service.listInbound(ownerId, afterId, limit);
     }
 
     /**

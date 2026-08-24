@@ -9,6 +9,7 @@ import com.yuyutian.mytools.messaging.model.CreateInboundMessagePart;
 import com.yuyutian.mytools.messaging.model.DeliveryRecord;
 import com.yuyutian.mytools.messaging.model.InboundMessageView;
 import com.yuyutian.mytools.messaging.model.InboundMessagePart;
+import com.yuyutian.mytools.messaging.model.InboundMessagePage;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -256,6 +257,32 @@ public class MessagingRepository {
     public Optional<InboundMessageView> findInbound(UUID id) {
         return jdbcTemplate.query("SELECT * FROM inbound_message WHERE id = ?", (resultSet, rowNumber) ->
                 mapInbound(resultSet), id.toString()).stream().findFirst();
+    }
+
+    /**
+     * 按所有者分页查询入站消息。
+     *
+     * @param ownerId 所有者
+     * @param afterId 游标消息
+     * @param limit 数量
+     * @return 消息页
+     */
+    public InboundMessagePage listInbound(long ownerId, UUID afterId, int limit) {
+        Instant afterTime;
+        if (afterId != null) {
+            afterTime = jdbcTemplate.query("SELECT received_at FROM inbound_message WHERE id=? AND owner_id=?",
+                    (resultSet, rowNumber) -> resultSet.getTimestamp(1).toInstant(), afterId.toString(), ownerId)
+                    .stream().findFirst().orElseThrow(() -> new IllegalArgumentException("inbound cursor not found"));
+        } else { afterTime = null; }
+        List<InboundMessageView> values = afterId == null
+                ? jdbcTemplate.query("SELECT * FROM inbound_message WHERE owner_id=? ORDER BY received_at DESC,id DESC LIMIT ?",
+                    (resultSet, rowNumber) -> mapInbound(resultSet), ownerId, limit + 1)
+                : jdbcTemplate.query("SELECT * FROM inbound_message WHERE owner_id=? AND (received_at<? OR (received_at=? AND id<?)) ORDER BY received_at DESC,id DESC LIMIT ?",
+                    (resultSet, rowNumber) -> mapInbound(resultSet), ownerId, Timestamp.from(afterTime),
+                    Timestamp.from(afterTime), afterId.toString(), limit + 1);
+        List<InboundMessageView> page = values.stream().limit(limit).toList();
+        UUID next = values.size() > limit && !page.isEmpty() ? page.getLast().id() : null;
+        return new InboundMessagePage(page, next);
     }
 
     /**

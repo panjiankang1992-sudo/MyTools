@@ -17,6 +17,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -73,7 +74,26 @@ class DeliveryServiceTest {
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM inbound_message WHERE owner_id = 8", Integer.class)).isEqualTo(1);
         assertThat(jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM messaging_outbox WHERE event_type = 'MessageReceived'",
-                Integer.class)).isEqualTo(1);
+                "SELECT COUNT(*) FROM messaging_outbox WHERE event_type = 'MessageReceived' AND aggregate_id=?",
+                Integer.class, first.id().toString())).isEqualTo(1);
+    }
+
+    @Test
+    void shouldPageInboundMessagesWithoutLeakingOtherOwners() {
+        var older = service.receive(new CreateInboundMessageRequest(18L, ChannelType.EMAIL, "page-older", "thread",
+                "sender@example.com", "Older", "Body", Instant.parse("2026-08-23T00:00:00Z")));
+        var newer = service.receive(new CreateInboundMessageRequest(18L, ChannelType.EMAIL, "page-newer", "thread",
+                "sender@example.com", "Newer", "Body", Instant.parse("2026-08-24T00:00:00Z")));
+        var foreign = service.receive(new CreateInboundMessageRequest(19L, ChannelType.EMAIL, "page-foreign", "thread",
+                "sender@example.com", "Foreign", "Body", Instant.parse("2026-08-25T00:00:00Z")));
+
+        var first = service.listInbound(18L, null, 1);
+        var second = service.listInbound(18L, first.nextAfterId(), 1);
+
+        assertThat(first.items()).extracting(value -> value.id()).containsExactly(newer.id());
+        assertThat(second.items()).extracting(value -> value.id()).containsExactly(older.id());
+        assertThat(service.inbound(newer.id(), 18L).id()).isEqualTo(newer.id());
+        assertThatThrownBy(() -> service.inbound(foreign.id(), 18L))
+                .isInstanceOf(InboundMessageNotFoundException.class);
     }
 }

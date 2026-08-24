@@ -19,18 +19,21 @@ gateway:
   download-route-enabled: ${GATEWAY_DOWNLOAD_ROUTE_ENABLED:false}
   download-tenant-allowlist: ${GATEWAY_DOWNLOAD_TENANT_ALLOWLIST:}
   media-route-enabled: ${GATEWAY_MEDIA_ROUTE_ENABLED:false}
+  messaging-route-enabled: ${GATEWAY_MESSAGING_ROUTE_ENABLED:false}
   mytools-url: ${MYTOOLS_INTERNAL_URL:http://127.0.0.1:23110}
   identity-url: ${IDENTITY_SERVICE_URL:http://127.0.0.1:23290}
   reader-url: ${READER_SERVICE_URL:http://127.0.0.1:23230}
   drive-url: ${DRIVE_SERVICE_URL:http://127.0.0.1:23280}
   download-url: ${DOWNLOAD_INGESTION_URL:http://127.0.0.1:23220}
   media-url: ${MEDIA_LIBRARY_URL:http://127.0.0.1:23300}
+  messaging-url: ${MESSAGING_SERVICE_URL:http://127.0.0.1:23210}
   internal-token: ${GATEWAY_INTERNAL_TOKEN:}
   identity-token: ${IDENTITY_INTERNAL_TOKEN:}
   reader-token: ${READER_INTERNAL_TOKEN:}
   drive-token: ${DRIVE_INTERNAL_TOKEN:}
   download-token: ${DOWNLOAD_INGESTION_TOKEN:}
   media-token: ${MEDIA_LIBRARY_INTERNAL_TOKEN:}
+  messaging-token: ${MESSAGING_INTERNAL_TOKEN:}
   connect-timeout-millis: ${GATEWAY_CONNECT_TIMEOUT_MILLIS:1000}
   read-timeout-millis: ${GATEWAY_READ_TIMEOUT_MILLIS:3000}
 

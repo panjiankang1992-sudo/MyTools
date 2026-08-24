@@ -86,6 +86,6 @@ class DownloadGatewayClientTest {
         return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, false, false, Set.of(),
                 false, Set.of(), true, Set.of(55L), "http://mytools", "http://identity",
                 "http://reader", "http://drive", "http://download", "gateway-token", "identity-token",
-                "reader-token", "drive-token", "download-token", 1000, 3000, false, "", "");
+                "reader-token", "drive-token", "download-token", 1000, 3000, false, "", "", false, "", "");
     }
 }

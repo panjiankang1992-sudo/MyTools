@@ -1,0 +1,10 @@
+package com.yuyutian.mytools.gateway.controller;
+
+import com.yuyutian.mytools.gateway.config.GatewayProperties;import com.yuyutian.mytools.gateway.model.GatewayPrincipal;import com.yuyutian.mytools.gateway.model.MessagingGatewayModels.*;import com.yuyutian.mytools.gateway.service.*;import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;import jakarta.servlet.http.HttpServletRequest;import jakarta.validation.constraints.*;import org.springframework.web.bind.annotation.*;import java.util.UUID;
+/** 从可信主体注入 owner 的消息查询路由。 */ @RestController @RequestMapping("/api/app/v1/messages") public class MessagingGatewayController {private final GatewayProperties properties;private final MessagingGatewayClient client;
+ /** 创建控制器。 @param properties 配置 @param client 客户端 */ public MessagingGatewayController(GatewayProperties properties,MessagingGatewayClient client){this.properties=properties;this.client=client;}
+ /** 分页查询消息。 @param afterId 游标 @param limit 数量 @param request HTTP 请求 @return 消息页 */ @GetMapping public MessagePage list(@RequestParam(required=false)UUID afterId,@RequestParam(defaultValue="50")@Min(1)@Max(100)int limit,HttpServletRequest request){GatewayPrincipal principal=requireEnabled(request);return client.list(principal.userId(),afterId,limit,correlation(request));}
+ /** 查询消息。 @param id 消息 @param request HTTP 请求 @return 消息 */ @GetMapping("/{id}") public MessageView view(@PathVariable UUID id,HttpServletRequest request){GatewayPrincipal principal=requireEnabled(request);return client.view(principal.userId(),id,correlation(request));}
+ private GatewayPrincipal requireEnabled(HttpServletRequest request){if(!properties.messagingRouteEnabled())throw new GatewayRouteDisabledException();Object value=request.getAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE);if(!(value instanceof GatewayPrincipal principal))throw new GatewayUnauthorizedException();return principal;}
+ private String correlation(HttpServletRequest request){Object value=request.getAttribute(GatewayRequestFilter.CORRELATION_ATTRIBUTE);return value==null?UUID.randomUUID().toString():value.toString();}
+}

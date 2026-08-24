@@ -79,6 +79,9 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
         if (uri.startsWith("/api/app/v1/media/")) {
             return new Route(properties.mediaRouteEnabled(), ignored -> true);
         }
+        if (uri.equals("/api/app/v1/messages") || uri.startsWith("/api/app/v1/messages/")) {
+            return new Route(properties.messagingRouteEnabled(), ignored -> true);
+        }
         if (uri.equals("/api/app/v1/identity/logout")) {
             return new Route(properties.identityRouteUsable(), ignored -> true);
         }

@@ -65,6 +65,6 @@ class MediaGatewayControllerTest {
                 false, Set.of(), false, Set.of(), "http://mytools", "http://identity",
                 "http://reader", "http://drive", "http://download", "gateway-token",
                 "identity-token", "reader-token", "drive-token", "download-token", 1000, 3000,
-                enabled, "http://media", "media-token");
+                enabled, "http://media", "media-token", false, "", "");
     }
 }

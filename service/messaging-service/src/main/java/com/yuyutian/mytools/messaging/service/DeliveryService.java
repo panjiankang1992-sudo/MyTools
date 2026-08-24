@@ -7,6 +7,7 @@ import com.yuyutian.mytools.messaging.model.DeliveryRecord;
 import com.yuyutian.mytools.messaging.model.DeliveryView;
 import com.yuyutian.mytools.messaging.model.ExecuteDeliveryResult;
 import com.yuyutian.mytools.messaging.model.InboundMessageView;
+import com.yuyutian.mytools.messaging.model.InboundMessagePage;
 import com.yuyutian.mytools.messaging.provider.DeliveryProvider;
 import com.yuyutian.mytools.messaging.repository.MessagingRepository;
 import org.springframework.stereotype.Service;
@@ -123,6 +124,39 @@ public class DeliveryService {
      */
     public InboundMessageView inbound(UUID id) {
         return repository.findInbound(id).orElseThrow(() -> new InboundMessageNotFoundException(id));
+    }
+
+    /**
+     * 查询所有者的入站消息。
+     *
+     * @param ownerId 所有者
+     * @param afterId 游标
+     * @param limit 页大小
+     * @return 消息页
+     */
+    public InboundMessagePage listInbound(long ownerId, UUID afterId, int limit) {
+        if (ownerId <= 0 || limit < 1 || limit > 100) {
+            throw new DeliveryInvalidException();
+        }
+        if (afterId != null) {
+            inbound(afterId, ownerId);
+        }
+        return repository.listInbound(ownerId, afterId, limit);
+    }
+
+    /**
+     * 查询所有者的指定入站消息。
+     *
+     * @param id 消息标识
+     * @param ownerId 所有者
+     * @return 消息
+     */
+    public InboundMessageView inbound(UUID id, long ownerId) {
+        InboundMessageView value = inbound(id);
+        if (value.ownerId() != ownerId) {
+            throw new InboundMessageNotFoundException(id);
+        }
+        return value;
     }
 
     private DeliveryRecord createRecord(CreateDeliveryRequest request) {

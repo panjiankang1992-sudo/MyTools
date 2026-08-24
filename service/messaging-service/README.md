@@ -21,6 +21,7 @@ Java 21 / Spring Boot
 - `POST /internal/v1/deliveries/{id}/execute`：Executor 触发原子 provider 调用。
 - `POST /internal/v1/inbound-messages`：provider adapter 幂等写入标准入站消息。
 - `GET /internal/v1/inbound-messages/{id}`：Automation 按消息标识读取标准消息。
+- `GET /internal/v1/inbound-messages?ownerId=&afterId=&limit=`：按所有者和稳定游标分页读取历史消息；详情接口携带 `ownerId` 时同时执行所有权检查。
 - `POST /internal/v1/adapters/onebot/events`：接收 OneBot 11 原始消息事件并标准化正文与附件引用。
 - `POST /internal/v1/attachment-downloads/{jobId}/resolve`：按不透明作业标识解析 provider 文件引用，不返回 URL。
 - `POST /internal/v1/attachment-downloads/{jobId}/content`：仅对已解析为 `STREAM` 的作业向 Executor 有界转发内容。

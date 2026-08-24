@@ -74,6 +74,6 @@ class MediaGatewayClientTest {
                 false, Set.of(), false, Set.of(), "http://mytools", "http://identity",
                 "http://reader", "http://drive", "http://download", "gateway-token",
                 "identity-token", "reader-token", "drive-token", "download-token", 1000, 3000,
-                true, "http://media", "media-token");
+                true, "http://media", "media-token", false, "", "");
     }
 }
