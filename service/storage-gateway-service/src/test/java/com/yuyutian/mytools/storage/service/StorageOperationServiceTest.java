@@ -93,6 +93,26 @@ class StorageOperationServiceTest {
     }
 
     @Test
+    void shouldCancelOnlyRunningOperationTask() {
+        StorageRepository repository = mock(StorageRepository.class);
+        StorageTaskSchedulerClient scheduler = mock(StorageTaskSchedulerClient.class);
+        StorageOperationService service = new StorageOperationService(repository, scheduler,
+                mock(RcloneRemoteConnector.class), mock(StorageMoveRepository.class),
+                mock(ProviderObjectConnectorRegistry.class));
+        UUID operationId = UUID.randomUUID();
+        UUID taskId = UUID.randomUUID();
+        Instant now = Instant.now();
+        StorageOperation running = new StorageOperation(operationId, UUID.randomUUID(), "copy:key",
+                "COPY_OBJECT", "source.bin", UUID.randomUUID(), "target.bin", "RUNNING", taskId, null,
+                0, 1, null, now, now);
+        when(repository.findOperationById(operationId)).thenReturn(Optional.of(running));
+
+        assertThat(service.cancel(operationId)).isEqualTo(running);
+
+        verify(scheduler).cancel(taskId);
+    }
+
+    @Test
     void shouldReconcileSuccessfulRemoteJobToOperationTerminalState() {
         StorageRepository repository = mock(StorageRepository.class);
         RcloneRemoteConnector connector = mock(RcloneRemoteConnector.class);

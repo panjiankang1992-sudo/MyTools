@@ -113,4 +113,14 @@ public class StorageTaskSchedulerClient {
         }
         return UUID.fromString(response.path("id").asText());
     }
+
+    /**
+     * 请求取消任务实例。
+     *
+     * @param taskId 任务实例标识
+     */
+    public void cancel(UUID taskId) {
+        restClient.post().uri("/api/v1/task-instances/{id}/cancel", taskId)
+                .contentType(MediaType.APPLICATION_JSON).body(Map.of()).retrieve().toBodilessEntity();
+    }
 }

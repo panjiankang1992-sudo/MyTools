@@ -5,6 +5,7 @@ import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.OperationView;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.RefreshIndexRequest;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.AccountSummary;
+import com.yuyutian.mytools.gateway.model.DriveGatewayModels.CopyObjectRequest;
 import com.yuyutian.mytools.gateway.service.DriveGatewayClient;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
@@ -62,7 +63,7 @@ class DriveGatewayControllerTest {
         DriveGatewayClient client=mock(DriveGatewayClient.class);
         DriveGatewayController controller=new DriveGatewayController(properties(true),client);
         UUID operationId=UUID.randomUUID();
-        OperationView operation=new OperationView(operationId,accountId,UUID.randomUUID(),"INDEX_ACCOUNT",
+        OperationView operation=new OperationView(operationId,accountId,"INDEX_ACCOUNT",
             "RUNNING",null,Instant.EPOCH,Instant.EPOCH);
         RefreshIndexRequest body=new RefreshIndexRequest("refresh-1");
         when(client.refreshIndex(accountId,55L,body,"correlation")).thenReturn(operation);
@@ -72,6 +73,21 @@ class DriveGatewayControllerTest {
         assertThat(controller.refreshIndex(accountId,body,request(55L))).isEqualTo(operation);
         assertThat(controller.operation(operationId,request(55L))).isEqualTo(operation);
         assertThat(controller.cancel(operationId,request(55L))).isEqualTo(operation);
+    }
+
+    @Test
+    void shouldInjectTrustedOwnerIntoCopyOperation() {
+        DriveGatewayClient client = mock(DriveGatewayClient.class);
+        DriveGatewayController controller = new DriveGatewayController(properties(true), client);
+        UUID targetAccountId = UUID.randomUUID();
+        UUID operationId = UUID.randomUUID();
+        CopyObjectRequest body = new CopyObjectRequest("copy-1", targetAccountId, "a.bin", "b.bin");
+        OperationView operation = new OperationView(operationId, accountId, "COPY_OBJECT",
+                "RUNNING", null, Instant.EPOCH, Instant.EPOCH);
+        when(client.copyObject(accountId, 55L, body, "correlation")).thenReturn(operation);
+
+        assertThat(controller.copyObject(accountId, body, request(55L))).isEqualTo(operation);
+        verify(client).copyObject(accountId, 55L, body, "correlation");
     }
 
     private MockHttpServletRequest request(long userId) {

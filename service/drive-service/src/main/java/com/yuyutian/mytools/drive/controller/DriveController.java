@@ -44,6 +44,12 @@ public class DriveController {
         @RequestParam long ownerId,@Valid @RequestBody RefreshIndexRequest request) {
         authorize(authorization); return service.refreshIndex(id,ownerId,request);
     }
+    /** 创建受控对象复制任务。 @param authorization 授权头 @param id 来源账户 @param ownerId 所有者 @param request 请求 @return 操作 */
+    @PostMapping("/accounts/{id}/copy-object") @ResponseStatus(HttpStatus.ACCEPTED)
+    public OperationView copyObject(@RequestHeader("Authorization") String authorization, @PathVariable UUID id,
+        @RequestParam long ownerId, @Valid @RequestBody CopyObjectRequest request) {
+        authorize(authorization); return service.copyObject(id, ownerId, request);
+    }
     /** 查询操作。 @param authorization 授权头 @param id 操作 @param ownerId 所有者 @return 操作 */
     @GetMapping("/operations/{id}")
     public OperationView operation(@RequestHeader("Authorization") String authorization,@PathVariable UUID id,

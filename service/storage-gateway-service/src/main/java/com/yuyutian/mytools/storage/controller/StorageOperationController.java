@@ -88,6 +88,20 @@ public class StorageOperationController {
         return operationService.require(id);
     }
 
+    /**
+     * 请求取消异步操作。
+     *
+     * @param id 操作标识
+     * @param authorization 内部授权头
+     * @return 当前操作
+     */
+    @PostMapping("/{id}/cancel")
+    public StorageOperation cancel(@PathVariable UUID id,
+                                   @RequestHeader("Authorization") String authorization) {
+        authorizer.require(authorization);
+        return operationService.cancel(id);
+    }
+
     /** 读取成功扫描快照摘要。 @param id 操作标识 @param authorization 授权头 @return 摘要 */
     @GetMapping("/{id}/digest")
     public ReconciliationDigest digest(@PathVariable UUID id,

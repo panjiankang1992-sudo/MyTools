@@ -2,6 +2,7 @@ package com.yuyutian.mytools.drive.service;
 
 import com.yuyutian.mytools.drive.model.DriveModels.*;
 import com.yuyutian.mytools.drive.repository.DriveRepository;
+import com.yuyutian.mytools.drive.connector.StorageGatewayConnector;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +19,7 @@ class DriveServiceTest {
     @Autowired private DriveService service;
     @Autowired private DriveRepository repository;
     @MockBean private DriveTaskSchedulerClient schedulerClient;
+    @MockBean private StorageGatewayConnector storageConnector;
 
     @Test
     void shouldResumeBatchesAndDeleteStaleItemsOnlyAfterCompletion() {
@@ -101,6 +103,37 @@ class DriveServiceTest {
         assertThatThrownBy(() -> service.getOperation(created.id(),14L)).isInstanceOf(IllegalArgumentException.class);
         verify(schedulerClient,times(1)).createIndexTask(any(),eq(account.id()),startsWith("drive-index:"));
         verify(schedulerClient).cancel(taskId);
+    }
+
+    @Test
+    void shouldDelegateOwnerBoundCopyToStorageGateway() {
+        AccountView source = service.register(new RegisterAccountRequest(31L, "copy-source", "Source", "RCLONE",
+                "secret://drive/copy-source", "copy_source", true, true));
+        AccountView target = service.register(new RegisterAccountRequest(31L, "copy-target", "Target", "S3",
+                "secret://drive/copy-target", "copy_target", false, true));
+        UUID sourceProvider = UUID.randomUUID();
+        UUID targetProvider = UUID.randomUUID();
+        service.bindStorageProvider(source.id(), sourceProvider);
+        service.bindStorageProvider(target.id(), targetProvider);
+        UUID operationId = UUID.randomUUID();
+        UUID taskId = UUID.randomUUID();
+        StorageOperationView running = new StorageOperationView(operationId, taskId, "COPY_OBJECT", "RUNNING", null);
+        StorageOperationView cancelled = new StorageOperationView(operationId, taskId, "COPY_OBJECT", "CANCELLED", null);
+        when(storageConnector.copyObject(startsWith("drive-copy:"), eq(sourceProvider), eq("books/a.epub"),
+                eq(targetProvider), eq("backup/a.epub"))).thenReturn(running);
+        when(storageConnector.operation(operationId)).thenReturn(running, cancelled);
+        when(storageConnector.cancel(operationId)).thenReturn(running);
+
+        OperationView created = service.copyObject(source.id(), 31L,
+                new CopyObjectRequest("copy-1", target.id(), "/books/a.epub", "backup/a.epub"));
+        OperationView cancelledView = service.cancelOperation(created.id(), 31L);
+
+        assertThat(created.operationType()).isEqualTo("COPY_OBJECT");
+        assertThat(cancelledView.status()).isEqualTo("CANCELLED");
+        assertThatThrownBy(() -> service.getOperation(created.id(), 32L))
+                .isInstanceOf(IllegalArgumentException.class);
+        verify(storageConnector).cancel(operationId);
+        verify(schedulerClient, never()).cancel(taskId);
     }
 
     private IndexItem item(String path,String parent,long size) {

@@ -29,6 +29,11 @@ public final class DriveModels {
     public record ItemView(UUID id, String remoteId, String remotePath, String parentPath, String displayName,
         String mimeType, long sizeBytes, boolean directory, Instant modifiedAt, String contentSha256) { }
     public record RefreshIndexRequest(@NotBlank @Size(max=255) String idempotencyKey) { }
+    public record CopyObjectRequest(@NotBlank @Size(max=255) String idempotencyKey,
+        @NotNull UUID targetAccountId, @NotBlank @Size(max=2048) String sourcePath,
+        @NotBlank @Size(max=2048) String targetPath) { }
+    public record StorageOperationView(UUID id, UUID taskInstanceId, String operationType,
+        String status, String errorCode) { }
     public record OperationView(UUID id, UUID accountId, UUID taskInstanceId, String operationType,
         String status, String errorCode, Instant createdAt, Instant updatedAt) { }
 }

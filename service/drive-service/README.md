@@ -18,6 +18,8 @@
 
 Drive Service 现已提供索引刷新业务闭环：`POST /internal/v1/drive/accounts/{id}/refresh-index` 创建幂等任务，`GET /internal/v1/drive/operations/{id}` 查询，取消接口请求 Scheduler 终止执行。三个接口都要求可信 `ownerId` 与账户所有者一致；Gateway 对应暴露 `/api/app/v1/drive` 路由并从认证主体注入 owner。
 
+首个文件写操作为 `POST /internal/v1/drive/accounts/{id}/copy-object`：来源与目标账户必须属于同一 owner、目标不可只读且两端必须绑定 Storage Provider。Drive 只登记业务操作并调用 Storage Gateway 的 `COPY_OBJECT` 创建、查询和取消契约，不读取 Provider 凭据、不直接执行复制。Gateway 对外响应不暴露 Storage/Scheduler 任务标识。
+
 `GET /internal/v1/drive/accounts?ownerId=` 返回当前所有者的账户，用于客户端进入目录前取得账户 UUID。Gateway 只返回显示名称、Provider 类型、只读/启用状态和索引 generation，不暴露外部账户标识、remote key 或 Secret 引用。
 
 Scheduler V25 为失败、超时和取消配置 `drive_finish_index` 特殊步骤，使未完成游标进入明确终态，后续补偿运行可以安全接管；收尾失败采用 `IGNORE`，不会掩盖任务原始终态。

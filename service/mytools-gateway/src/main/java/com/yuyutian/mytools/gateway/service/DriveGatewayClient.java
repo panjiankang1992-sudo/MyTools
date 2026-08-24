@@ -4,6 +4,7 @@ import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.OperationView;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.RefreshIndexRequest;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.AccountSummary;
+import com.yuyutian.mytools.gateway.model.DriveGatewayModels.CopyObjectRequest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -71,6 +72,22 @@ public class DriveGatewayClient {
         URI url=UriComponentsBuilder.fromHttpUrl(root()+"/internal/v1/drive/accounts/"+accountId+"/refresh-index")
             .queryParam("ownerId",ownerId).build().encode().toUri();
         return restTemplate.exchange(url,HttpMethod.POST,entity(request,correlationId),OperationView.class).getBody();
+    }
+
+    /**
+     * 创建受控对象复制操作。
+     *
+     * @param accountId 来源账户
+     * @param ownerId 所有者
+     * @param request 复制请求
+     * @param correlationId 关联标识
+     * @return 操作
+     */
+    public OperationView copyObject(UUID accountId, long ownerId, CopyObjectRequest request, String correlationId) {
+        URI url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/drive/accounts/" + accountId
+                        + "/copy-object").queryParam("ownerId", ownerId).build().encode().toUri();
+        return restTemplate.exchange(url, HttpMethod.POST, entity(request, correlationId), OperationView.class)
+                .getBody();
     }
 
     /** 查询操作。 @param operationId 操作标识 @param ownerId 所有者 @param correlationId 关联标识 @return 操作 */

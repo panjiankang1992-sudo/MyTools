@@ -3,6 +3,7 @@ package com.yuyutian.mytools.drive.connector;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.drive.model.DriveModels.IndexItem;
+import com.yuyutian.mytools.drive.model.DriveModels.StorageOperationView;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
 
 /**
  * 通过 Storage Gateway 读取远端目录的连接器。
@@ -100,6 +102,73 @@ public class StorageGatewayConnector implements DirectoryConnector {
             throw new IllegalStateException("Storage Gateway list interrupted", exception);
         } catch (java.io.IOException | RuntimeException exception) {
             throw new IllegalStateException("Storage Gateway list failed", exception);
+        }
+    }
+
+    /**
+     * 幂等创建受控对象复制操作。
+     *
+     * @param idempotencyKey 幂等键
+     * @param sourceProviderId 来源 Provider
+     * @param sourcePath 来源路径
+     * @param targetProviderId 目标 Provider
+     * @param targetPath 目标路径
+     * @return Storage 操作
+     */
+    public StorageOperationView copyObject(String idempotencyKey, UUID sourceProviderId, String sourcePath,
+                                           UUID targetProviderId, String targetPath) {
+        Map<String, Object> payload = Map.of(
+                "idempotencyKey", idempotencyKey,
+                "providerId", sourceProviderId,
+                "operationType", "COPY_OBJECT",
+                "sourcePath", sourcePath,
+                "targetProviderId", targetProviderId,
+                "targetPath", targetPath,
+                "maximumObjects", 1);
+        return operationRequest("api/internal/v1/storage/operations", "POST", payload);
+    }
+
+    /**
+     * 查询 Storage 操作。
+     *
+     * @param operationId 操作标识
+     * @return Storage 操作
+     */
+    public StorageOperationView operation(UUID operationId) {
+        return operationRequest("api/internal/v1/storage/operations/" + operationId, "GET", null);
+    }
+
+    /**
+     * 请求取消 Storage 操作。
+     *
+     * @param operationId 操作标识
+     * @return Storage 操作
+     */
+    public StorageOperationView cancel(UUID operationId) {
+        return operationRequest("api/internal/v1/storage/operations/" + operationId + "/cancel", "POST", Map.of());
+    }
+
+    private StorageOperationView operationRequest(String relativePath, String method, Object payload) {
+        try {
+            HttpRequest.Builder builder = HttpRequest.newBuilder(baseUri.resolve(relativePath))
+                    .timeout(Duration.ofMinutes(2)).header("Authorization", "Bearer " + internalToken);
+            if ("GET".equals(method)) {
+                builder.GET();
+            } else {
+                builder.header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofByteArray(
+                        objectMapper.writeValueAsBytes(payload)));
+            }
+            HttpResponse<byte[]> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
+            if (response.statusCode() < 200 || response.statusCode() >= 300
+                    || response.body().length > MAXIMUM_RESPONSE_BYTES) {
+                throw new IllegalStateException("Storage Gateway operation failed");
+            }
+            return objectMapper.readValue(response.body(), StorageOperationView.class);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Storage Gateway operation interrupted", exception);
+        } catch (java.io.IOException | RuntimeException exception) {
+            throw new IllegalStateException("Storage Gateway operation failed", exception);
         }
     }
 

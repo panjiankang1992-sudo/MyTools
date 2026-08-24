@@ -166,6 +166,31 @@ public class DriveRepository {
         return findOperation(operationId).orElseThrow();
     }
 
+    /**
+     * 创建或读取 Storage 托管的 Drive 操作。
+     *
+     * @param operation Storage 操作
+     * @param accountId 来源账户
+     * @param idempotencyKey Drive 幂等键
+     * @return Drive 操作
+     */
+    public OperationView saveStorageOperation(StorageOperationView operation, UUID accountId, String idempotencyKey) {
+        OperationView existing = findOperationByIdempotencyKey(idempotencyKey).orElse(null);
+        if (existing != null) {
+            if (!existing.id().equals(operation.id()) || !existing.accountId().equals(accountId)) {
+                throw new IllegalStateException("drive operation idempotency conflict");
+            }
+            return existing;
+        }
+        Instant now = Instant.now();
+        jdbc.update("INSERT INTO drive_operation VALUES (?,?,?,?,?,'{}',NULL,?,?)", operation.id().toString(),
+                accountId.toString(), operation.operationType(), idempotencyKey, operation.status(),
+                Timestamp.from(now), Timestamp.from(now));
+        jdbc.update("INSERT INTO drive_task_binding VALUES (?,?,?)", operation.id().toString(),
+                operation.taskInstanceId().toString(), Timestamp.from(now));
+        return findOperation(operation.id()).orElseThrow();
+    }
+
     /** 查询操作。 @param operationId 操作标识 @return 操作 */
     public Optional<OperationView> findOperation(UUID operationId) {
         return jdbc.query("""
@@ -184,8 +209,20 @@ public class DriveRepository {
 
     /** 更新操作状态。 @param operationId 操作标识 @param status 状态 @return 操作 */
     public OperationView updateOperationStatus(UUID operationId,String status) {
-        jdbc.update("UPDATE drive_operation SET status=?,updated_at=? WHERE id=?",status,
-            Timestamp.from(Instant.now()),operationId.toString());
+        return updateOperationStatus(operationId, status, null);
+    }
+
+    /**
+     * 更新操作状态和错误码。
+     *
+     * @param operationId 操作标识
+     * @param status 状态
+     * @param errorCode 错误码
+     * @return 操作
+     */
+    public OperationView updateOperationStatus(UUID operationId, String status, String errorCode) {
+        jdbc.update("UPDATE drive_operation SET status=?,error_code=?,updated_at=? WHERE id=?", status, errorCode,
+            Timestamp.from(Instant.now()), operationId.toString());
         return findOperation(operationId).orElseThrow();
     }
     /** 结束未完成的索引运行。 @param accountId 账户 @param runId 运行 @param status 终态 */

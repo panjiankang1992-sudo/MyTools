@@ -30,6 +30,8 @@ Executor 和其他内部服务先调用 `POST /api/internal/v1/storage/uploads` 
 
 `COPY_OBJECT` 是首个原生异步写操作：来源可为 RCLONE、WebDAV 或 S3，目标可为 WebDAV 或 S3。创建操作时必须提供非空的服务端 Provider UUID 和相对对象路径，Scheduler 参数仍只有 `operationId`。`storage_copy_object` 在 Executor 工作目录有界暂存来源、计算 SHA-256、通过操作专属条件 PUT 写入目标并复读校验；WebDAV 和 S3 都使用 `If-None-Match: *` 防止覆盖既有对象，V10 所有权标记确保失败、超时或取消步骤只删除本操作确认创建的目标。既有同路径对象只允许复验，永不由补偿步骤删除。成功终态由复验后的独立步骤提交，目标路径写入栅栏防止并发 COPY/MOVE/SYNC 写入相同或上下级路径。
 
+内部调用方通过 `POST /api/internal/v1/storage/operations/{id}/cancel` 取消操作，由 Storage Gateway 统一请求 Scheduler 取消，调用方无需持有 Scheduler 契约或令牌。
+
 S3 对象 GET、PUT、DELETE 使用 SigV4，临时会话令牌和条件写入头均纳入签名；HTTPS/回环端点下使用 `UNSIGNED-PAYLOAD`，写后复读 SHA-256 作为内容完整性门禁。`STORAGE_NATIVE_COPY_MAXIMUM_BYTES` 在 Gateway 与 Executor 两侧必须配置为相同值，默认 20 GiB；Gateway 会把目标连接器的更小上限返回给任务，S3 单次 PutObject 固定最多 5 GiB，任务在下载来源正文前即拒绝超限对象。原生递归树复制、移动和同步仍待逐项实现，现有 rclone 任务保持不变。
 
 `POST /api/internal/v1/storage/operations` 当前开放已落地的 `SCAN_ROOT`。它创建 `storage_scan_root` 调度实例，Executor 广度遍历远端目录并以最多 500 项的批次幂等回写 `storage_operation_item`；对象总量受 `maximumObjects` 硬限制。成功、失败、超时和取消都会回写稳定终态，任务参数只携带 Provider UUID，不携带 remote 键或密钥。

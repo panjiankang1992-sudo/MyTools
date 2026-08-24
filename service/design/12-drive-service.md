@@ -1,5 +1,7 @@
 # Drive Service 详细设计
 
+首批写操作只开放同 owner 账户间的单对象复制。Drive 校验账户归属、启用状态、目标可写和 Storage Provider 绑定，然后以 owner/account 作用域幂等键创建 Storage `COPY_OBJECT`；Storage 负责路径栅栏、条件写入、摘要复验和取消补偿。Drive 不保存 Provider 凭据，也不直接调用 rclone/WebDAV/S3 写接口。
+
 ## 职责
 
 负责网盘账户、用户授权、远端元数据索引、文件查询、操作编排和访问票据。底层存储操作统一委托 Storage Gateway。

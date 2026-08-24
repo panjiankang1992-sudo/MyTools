@@ -8,6 +8,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Set;
 import java.util.UUID;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.RefreshIndexRequest;
+import com.yuyutian.mytools.gateway.model.DriveGatewayModels.CopyObjectRequest;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
@@ -69,6 +71,31 @@ class DriveGatewayClientTest {
             new RefreshIndexRequest("refresh-1"),"correlation");
 
         assertThat(result.id()).isEqualTo(operationId); server.verify();
+    }
+
+    @Test
+    void shouldCreateOwnerBoundCopyWithoutExposingTaskId() {
+        RestTemplate restTemplate = new RestTemplate();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
+        UUID sourceAccountId = UUID.randomUUID();
+        UUID targetAccountId = UUID.randomUUID();
+        UUID operationId = UUID.randomUUID();
+        server.expect(requestTo("http://drive/internal/v1/drive/accounts/" + sourceAccountId
+                        + "/copy-object?ownerId=55"))
+                .andExpect(method(POST)).andExpect(header("Authorization", "Bearer drive-token"))
+                .andExpect(content().json("{\"idempotencyKey\":\"copy-1\",\"targetAccountId\":\""
+                        + targetAccountId + "\",\"sourcePath\":\"a.bin\",\"targetPath\":\"b.bin\"}"))
+                .andRespond(withSuccess("{\"id\":\"" + operationId + "\",\"accountId\":\""
+                        + sourceAccountId + "\",\"taskInstanceId\":\"" + UUID.randomUUID()
+                        + "\",\"operationType\":\"COPY_OBJECT\",\"status\":\"RUNNING\"}",
+                        org.springframework.http.MediaType.APPLICATION_JSON));
+
+        var result = new DriveGatewayClient(restTemplate, properties()).copyObject(sourceAccountId, 55L,
+                new CopyObjectRequest("copy-1", targetAccountId, "a.bin", "b.bin"), "correlation");
+
+        assertThat(result.id()).isEqualTo(operationId);
+        assertThat(result.toString()).doesNotContain("taskInstanceId");
+        server.verify();
     }
 
     private GatewayProperties properties() {

@@ -137,6 +137,20 @@ public class StorageOperationService {
     }
 
     /**
+     * 请求取消异步存储操作。
+     *
+     * @param id 操作标识
+     * @return 当前操作
+     */
+    public StorageOperation cancel(UUID id) {
+        StorageOperation operation = require(id);
+        if (!TERMINAL_STATUSES.contains(operation.status()) && operation.taskInstanceId() != null) {
+            schedulerClient.cancel(operation.taskInstanceId());
+        }
+        return require(id);
+    }
+
+    /**
      * 幂等合并扫描对象批次。
      *
      * @param id 操作标识
