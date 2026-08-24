@@ -24,6 +24,7 @@ MsgService 的权威代码位于远程主机 `/opt/code/MsgService`。需要核�
 | [13-reader-service.md](13-reader-service.md) | 书架、书源、搜索、章节和电子书导入 |
 | [14-downloadbot-adapter-service.md](14-downloadbot-adapter-service.md) | DownloadBot 默认关闭的旁路迁移防腐层 |
 | [15-msgservice-adapter-service.md](15-msgservice-adapter-service.md) | MsgService 默认关闭的历史数据迁移防腐层 |
+| [26-remote-migration-acceptance-20260825.md](26-remote-migration-acceptance-20260825.md) | 远程不可再生数据迁移、任务验收、日志与剩余外部连接项 |
 | [16-legacy-asset-adapter-service.md](16-legacy-asset-adapter-service.md) | MyTools local_file 一致性快照与只读资产迁移适配器 |
 | [17-pikpak-connector-service.md](17-pikpak-connector-service.md) | PikPak 离线提交、稳定性观察与受控移动适配器 |
 | [18-onebot-connector-service.md](18-onebot-connector-service.md) | OneBot/NapCat 文件解析、凭据隔离与受控内容流适配器 |
