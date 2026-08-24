@@ -24,6 +24,15 @@ class CutoverPreflightTest(unittest.TestCase):
         self.assertFalse(report["ready"])
         self.assertEqual(2, len(report["errors"]))
 
+    def test_rejects_enabled_media_and_messaging_routes_before_cutover(self):
+        report = MODULE.inspect({"GATEWAY_MEDIA_ROUTE_ENABLED": "true",
+                                 "GATEWAY_MESSAGING_ROUTE_ENABLED": "true"})
+        self.assertFalse(report["ready"])
+        self.assertTrue(any("GATEWAY_MEDIA_ROUTE_ENABLED" in error
+                            for error in report["errors"]))
+        self.assertTrue(any("GATEWAY_MESSAGING_ROUTE_ENABLED" in error
+                            for error in report["errors"]))
+
     def test_reader_route_requires_explicit_tenant_allowlist(self):
         report = MODULE.inspect({"GATEWAY_READER_ROUTE_ENABLED": "true"}, allow_enabled=True)
         self.assertFalse(report["ready"])

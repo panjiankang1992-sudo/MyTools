@@ -69,7 +69,7 @@ def execute(connection,client:Client,key:str,dry:bool)->dict:
 def main()->None:
  """执行反馈迁移任务。"""
  context=json.loads(Path(os.environ["TASK_CONTEXT_FILE"]).read_text());parameters=context["parameters"];connection=pymysql.connect(host=os.getenv("MYTOOLS_LEGACY_DB_HOST","127.0.0.1"),port=int(os.getenv("MYTOOLS_LEGACY_DB_PORT","3306")),user=os.environ["MYTOOLS_LEGACY_DB_USER"],password=os.environ["MYTOOLS_LEGACY_DB_PASSWORD"],database=os.getenv("MYTOOLS_LEGACY_DB_NAME","my_tools"),charset="utf8mb4",cursorclass=DictCursor,autocommit=False)
- try:result=execute(connection,Client(os.getenv("MESSAGING_URL","http://127.0.0.1:23230"),os.getenv("MESSAGING_INTERNAL_TOKEN","")),str(parameters["migrationKey"]),parameters["dryRun"])
+ try:result=execute(connection,Client(os.getenv("MESSAGING_URL","http://127.0.0.1:23250"),os.getenv("MESSAGING_INTERNAL_TOKEN","")),str(parameters["migrationKey"]),parameters["dryRun"])
  finally:connection.close()
  target=Path(os.environ["TASK_RESULT_FILE"]);target.parent.mkdir(parents=True,exist_ok=True)
  with tempfile.NamedTemporaryFile("w",encoding="utf-8",dir=target.parent,delete=False)as handle:json.dump(result,handle,separators=(",",":"));temporary=Path(handle.name)
