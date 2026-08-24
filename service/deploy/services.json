@@ -1,0 +1,25 @@
+{
+  "services": [
+    {"name": "task-scheduler-service", "port": 23210, "schema": "mytools_task", "dbPrefix": "TASK"},
+    {"name": "download-ingestion-service", "port": 23220, "schema": "mytools_download", "dbPrefix": "DOWNLOAD"},
+    {"name": "downloadbot-adapter-service", "port": 23221, "schema": "mytools_downloadbot_adapter", "dbPrefix": "DOWNLOADBOT_ADAPTER", "defaultEnabled": false},
+    {"name": "reader-service", "port": 23230, "schema": "mytools_reader", "dbPrefix": "READER"},
+    {"name": "storage-gateway-service", "port": 23240, "schema": "mytools_storage", "dbPrefix": "STORAGE"},
+    {"name": "messaging-service", "port": 23250, "schema": "mytools_messaging", "dbPrefix": "MESSAGING"},
+    {"name": "onebot-connector-service", "port": 23255, "schema": "mytools_onebot_connector", "dbPrefix": "ONEBOT_CONNECTOR", "defaultEnabled": false},
+    {"name": "message-automation-service", "port": 23260, "schema": "mytools_message_automation", "dbPrefix": "MESSAGE_AUTOMATION", "defaultEnabled": false},
+    {"name": "asset-registry-service", "port": 23270, "schema": "mytools_asset", "dbPrefix": "ASSET"},
+    {"name": "drive-service", "port": 23280, "schema": "mytools_drive", "dbPrefix": "DRIVE"},
+    {"name": "pikpak-connector-service", "port": 23285, "schema": "mytools_pikpak_connector", "dbPrefix": "PIKPAK_CONNECTOR", "defaultEnabled": false},
+    {"name": "identity-service", "port": 23290, "schema": "mytools_identity", "dbPrefix": "IDENTITY"},
+    {"name": "media-library-service", "port": 23300, "schema": "mytools_media", "dbPrefix": "MEDIA_LIBRARY"},
+    {"name": "app-catalog-service", "port": 23310, "schema": "mytools_app_catalog", "dbPrefix": "APP_CATALOG"},
+    {"name": "dsh-connector-service", "port": 23320, "schema": "mytools_dsh_connector", "dbPrefix": "DSH_CONNECTOR", "defaultEnabled": false},
+    {"name": "msgservice-adapter-service", "port": 23321, "schema": "mytools_msgservice_adapter", "dbPrefix": "MSGSERVICE_ADAPTER", "defaultEnabled": false},
+    {"name": "legacy-asset-adapter-service", "port": 23330, "schema": "mytools_legacy_asset_adapter", "dbPrefix": "LEGACY_ASSET_ADAPTER", "defaultEnabled": false}
+  ],
+  "statelessServices": [
+    {"name": "mytools-gateway", "port": 23200},
+    {"name": "task-executor-service"}
+  ]
+}

@@ -34,7 +34,7 @@ gateway:
   drive-url: ${DRIVE_SERVICE_URL:http://127.0.0.1:23280}
   download-url: ${DOWNLOAD_INGESTION_URL:http://127.0.0.1:23220}
   media-url: ${MEDIA_LIBRARY_URL:http://127.0.0.1:23300}
-  messaging-url: ${MESSAGING_SERVICE_URL:http://127.0.0.1:23210}
+  messaging-url: ${MESSAGING_SERVICE_URL:http://127.0.0.1:23250}
   internal-token: ${GATEWAY_INTERNAL_TOKEN:}
   identity-token: ${IDENTITY_INTERNAL_TOKEN:}
   reader-token: ${READER_INTERNAL_TOKEN:}

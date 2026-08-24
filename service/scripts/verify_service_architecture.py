@@ -145,6 +145,22 @@ def build_checks(
                 working_directory=root,
             )
         )
+        checks.append(
+            Check(
+                name="python:deployment-gates",
+                command=python
+                + (
+                    "-m",
+                    "unittest",
+                    "discover",
+                    "-s",
+                    "service/deploy",
+                    "-p",
+                    "test_*.py",
+                ),
+                working_directory=root,
+            )
+        )
     return checks
 
 

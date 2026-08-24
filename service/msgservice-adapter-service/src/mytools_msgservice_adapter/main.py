@@ -40,7 +40,7 @@ def main() -> None:
     handler = create_handler(service, os.environ.get("MSGSERVICE_ADAPTER_INTERNAL_TOKEN", ""),
                              outbound_service)
     server = ThreadingHTTPServer((os.environ.get("MSGSERVICE_ADAPTER_HTTP_HOST", "127.0.0.1"),
-                                  int(os.environ.get("MSGSERVICE_ADAPTER_HTTP_PORT", "23320"))), handler)
+                                  int(os.environ.get("MSGSERVICE_ADAPTER_HTTP_PORT", "23321"))), handler)
     server.serve_forever()
 
 

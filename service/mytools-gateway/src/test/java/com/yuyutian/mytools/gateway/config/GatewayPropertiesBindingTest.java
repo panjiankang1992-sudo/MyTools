@@ -35,5 +35,6 @@ class GatewayPropertiesBindingTest {
         assertThat(appCatalogProperties.url()).isEqualTo("http://catalog-test");
         assertThat(dshProperties.routeEnabled()).isTrue();
         assertThat(dshProperties.url()).isEqualTo("http://dsh-test");
+        assertThat(properties.messagingUrl()).isEqualTo("http://127.0.0.1:23250");
     }
 }

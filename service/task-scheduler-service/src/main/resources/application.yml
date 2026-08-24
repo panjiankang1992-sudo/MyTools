@@ -10,7 +10,8 @@ spring:
     enabled: true
     locations: classpath:db/migration
 server:
-  port: 23210
+  address: ${TASK_SCHEDULER_HTTP_HOST:127.0.0.1}
+  port: ${TASK_SCHEDULER_HTTP_PORT:23210}
 management:
   endpoints:
     web:

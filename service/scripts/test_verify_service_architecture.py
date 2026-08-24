@@ -19,8 +19,9 @@ class VerifyServiceArchitectureTest(unittest.TestCase):
 
         names = {check.name for check in checks}
         self.assertEqual(len(verifier.JAVA_SERVICES), len([name for name in names if name.startswith("java:")]))
-        self.assertEqual(len(verifier.PYTHON_SERVICES) + 2, len([name for name in names if name.startswith("python:")]))
+        self.assertEqual(len(verifier.PYTHON_SERVICES) + 3, len([name for name in names if name.startswith("python:")]))
         self.assertIn("python:architecture-gates", names)
+        self.assertIn("python:deployment-gates", names)
         media_check = next(check for check in checks if check.name == "python:media-intelligence")
         self.assertIn("--import-mode=importlib", media_check.command)
 

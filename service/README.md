@@ -7,6 +7,7 @@
 - `design/`：总体及各服务详细设计。
 - `contracts/`：跨服务稳定契约和 Schema。
 - `scripts/`：仅供新服务工作区使用的验证脚本。
+- `deploy/`：全服务端口清单、环境变量模板和新 Schema 安全初始化工具。
 - 各 `*-service/`：独立服务工程。
 - `media-intelligence/`：版本化 Python/Shell 任务脚本包。
 
@@ -21,5 +22,7 @@
 任何阶段都不得直接修改旧服务的生产入口；切流必须有开关、回退路径和结果对账。
 
 新服务统一使用独立数据库 schema。不可再生数据必须迁移；可再生数据在迁移不可靠或成本过高时通过任务重新生成。
+
+最小部署与新 Schema 初始化说明见 [deploy/README.md](deploy/README.md)。
 
 灰度前可运行只读预检：`python3 service/scripts/cutover_preflight.py --env-file <file>`。详细门禁、演练顺序和回退要求见 [灰度与切换设计](design/20-grey-release-and-cutover.md)。
