@@ -96,4 +96,18 @@ class DeliveryServiceTest {
         assertThatThrownBy(() -> service.inbound(foreign.id(), 18L))
                 .isInstanceOf(InboundMessageNotFoundException.class);
     }
+
+    @Test
+    void shouldRejectDeliveryReplayConflictAndCancelOnlyForOwner() {
+        UUID taskId=UUID.randomUUID();when(schedulerClient.createDeliveryTask(any(),any())).thenReturn(taskId);
+        var request=new CreateDeliveryRequest(27L,"cancel-email-27",ChannelType.EMAIL,null,
+                "recipient@example.com","Subject","Body");
+        var delivery=service.create(request);
+
+        assertThatThrownBy(()->service.create(new CreateDeliveryRequest(27L,"cancel-email-27",ChannelType.EMAIL,null,
+                "recipient@example.com","Subject","Changed"))).isInstanceOf(DeliveryInvalidException.class);
+        assertThatThrownBy(()->service.get(delivery.id(),28L)).isInstanceOf(DeliveryNotFoundException.class);
+        assertThat(service.cancel(delivery.id(),27L).status()).isEqualTo("CANCELLED");
+        verify(schedulerClient).cancel(taskId);
+    }
 }

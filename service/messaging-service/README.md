@@ -18,6 +18,7 @@ Java 21 / Spring Boot
 
 - `POST /internal/v1/deliveries`：幂等创建投递并调度发送任务。
 - `GET /internal/v1/deliveries/{id}`：查询不含正文的投递状态。
+- `POST /internal/v1/deliveries/{id}/cancel?ownerId=`：在 Provider 调用前取消 owner-bound 投递；已经开始发送时执行尽力取消。
 - `POST /internal/v1/deliveries/{id}/execute`：Executor 触发原子 provider 调用。
 - `POST /internal/v1/inbound-messages`：provider adapter 幂等写入标准入站消息。
 - `GET /internal/v1/inbound-messages/{id}`：Automation 按消息标识读取标准消息。
@@ -35,6 +36,8 @@ OneBot 入站默认由 `MESSAGING_ONEBOT_INGRESS_ENABLED=false` 关闭。灰度�
 `attachment_download_job` 保存解析检查点、父任务与下载请求的关联，查询时使用消息 owner 调用 Download Ingestion 的 owner-bound 接口，对账运行、成功、失败或取消状态；重复解析、创建或执行不会产生第二个逻辑下载，也不能跨租户回查。通过 `MESSAGE_PROVIDER_RESOLVER_URL` 和独立 `MESSAGE_PROVIDER_RESOLVER_TOKEN` 配置解析边界，不配置令牌不会影响入站消息接收，只有创建 provider-only 附件任务后才会失败。
 
 面向 Gateway 的附件创建、查询和取消都携带可信 owner。所有权不匹配统一按附件任务不存在处理；取消父 Scheduler 任务会利用既有父子取消传播停止尚未完成的下载链路。
+
+邮件投递的幂等重放会校验收件人、主题和正文完全一致，相同幂等键不能复用不同邮件。Gateway 创建、查询和取消均绑定 owner，响应不暴露任务 ID和 Provider 消息 ID。
 
 MyTools 注册验证码已增加默认关闭的 `MESSAGING_REGISTRATION_MAIL_SIDECAR_ENABLED` 旁路。只有旧 SMTP 调用成功且验证码事务提交后才异步创建新投递；旁路异常不回滚旧链路，开发环境仅打印验证码时不会触发真实旁路邮件。旁路幂等键取验证码记录标识，便于双投递审计和后续切换。
 

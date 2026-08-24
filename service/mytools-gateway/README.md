@@ -24,6 +24,7 @@ Media 路由包括媒体分页、单项查询、播放进度写入，以及目�
 
 Messaging 路由默认由 `GATEWAY_MESSAGING_ROUTE_ENABLED=false` 关闭，开放 owner-bound 入站消息分页和详情。响应保留正文与可展示附件信息，但移除 provider file id、Provider 账户键、来源 URL、外部消息 ID和会话键。
 附件分段可通过 Gateway 创建异步下载任务，并查询或取消；响应不暴露 Scheduler 任务 ID和 Download Ingestion 请求 ID。
+出站邮件通过 `POST /api/app/v1/messages/deliveries/email` 创建，客户端只提供幂等键、收件人、主题和正文；状态查询与取消使用同一 owner 边界，响应不暴露 Scheduler 或 Provider 标识。
 
 Identity 首批入口为 `POST /api/app/v1/identity/login`、`/refresh` 和 `/logout`，由 `GATEWAY_IDENTITY_ROUTE_ENABLED=false` 独立控制。Gateway 使用严格请求模型重建登录和刷新载荷，不转发客户端内部头或 Cookie；注销不接受客户端 session ID，只撤销访问令牌实时校验结果绑定的 Identity 会话。Identity 的认证失败、请求错误和服务不可用分别映射为稳定 Gateway 错误。启用该入口时，`IDENTITY_VALIDATION_MODE` 必须至少为 `DUAL`，否则运行时门禁仍拒绝签发或撤销新会话，避免新令牌无法用于受保护路由。
 

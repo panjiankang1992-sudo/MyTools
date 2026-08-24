@@ -59,6 +59,9 @@ public class DeliveryService {
         if (record == null) {
             throw new IllegalStateException("Delivery transaction returned no record");
         }
+        if (!matches(record, request)) {
+            throw new DeliveryInvalidException();
+        }
         if (record.taskId() == null) {
             UUID deliveryId = record.id();
             String taskName = record.channelType() == ChannelType.EMAIL
@@ -76,6 +79,18 @@ public class DeliveryService {
      */
     public DeliveryView get(UUID id) {
         return view(required(id));
+    }
+
+    /** 按所有者查询投递。 @param id 投递 @param ownerId 所有者 @return 投递 */
+    public DeliveryView get(UUID id,long ownerId) { return view(requiredOwner(id,ownerId)); }
+
+    /** 请求取消所有者的投递。 @param id 投递 @param ownerId 所有者 @return 投递 */
+    public DeliveryView cancel(UUID id,long ownerId) {
+        DeliveryRecord record=requiredOwner(id,ownerId);
+        if(List.of("DELIVERED","CANCELLED").contains(record.status()))return view(record);
+        if(record.taskId()!=null)schedulerClient.cancel(record.taskId());
+        transactionTemplate.executeWithoutResult(status->repository.requestDeliveryCancel(id));
+        return view(requiredOwner(id,ownerId));
     }
 
     /**
@@ -170,6 +185,16 @@ public class DeliveryService {
 
     private DeliveryRecord required(UUID id) {
         return repository.findDelivery(id).orElseThrow(() -> new DeliveryNotFoundException(id));
+    }
+
+    private DeliveryRecord requiredOwner(UUID id,long ownerId) {
+        DeliveryRecord record=required(id);if(record.ownerId()!=ownerId)throw new DeliveryNotFoundException(id);return record;
+    }
+
+    private boolean matches(DeliveryRecord record,CreateDeliveryRequest request) {
+        return record.channelType()==request.channelType()&&java.util.Objects.equals(record.accountId(),request.accountId())
+                &&record.recipient().equals(request.recipient())&&java.util.Objects.equals(record.subject(),request.subject())
+                &&record.body().equals(request.body());
     }
 
     private DeliveryView view(DeliveryRecord record) {

@@ -68,9 +68,16 @@ public class DeliveryController {
      */
     @GetMapping("/deliveries/{id}")
     public DeliveryView get(@RequestHeader(name = "Authorization", required = false) String authorization,
-                            @PathVariable UUID id) {
+                            @PathVariable UUID id,@RequestParam(required=false)Long ownerId) {
         authorizer.requireAuthorized(authorization);
-        return service.get(id);
+        return ownerId==null?service.get(id):service.get(id,ownerId);
+    }
+
+    /** 请求取消所有者的投递。 */
+    @PostMapping("/deliveries/{id}/cancel")
+    public DeliveryView cancelDelivery(@RequestHeader(name="Authorization",required=false)String authorization,
+                                       @PathVariable UUID id,@RequestParam long ownerId) {
+        authorizer.requireAuthorized(authorization);return service.cancel(id,ownerId);
     }
 
     /**

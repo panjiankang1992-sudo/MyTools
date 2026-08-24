@@ -79,6 +79,17 @@ public class MessagingRepository {
     }
 
     /**
+     * 请求取消投递。
+     *
+     * @param id 投递标识
+     */
+    public void requestDeliveryCancel(UUID id) {
+        Instant now=Instant.now();
+        int cancelled=jdbcTemplate.update("UPDATE delivery_request SET status='CANCELLED',updated_at=? WHERE id=? AND status IN ('ACCEPTED','QUEUED','FAILED')",Timestamp.from(now),id.toString());
+        if(cancelled==0)jdbcTemplate.update("UPDATE delivery_request SET status='CANCELLING',updated_at=? WHERE id=? AND status='SENDING'",Timestamp.from(now),id.toString());
+    }
+
+    /**
      * 尝试取得投递执行权并创建尝试记录。
      *
      * @return 新尝试序号，未取得执行权时返回零
