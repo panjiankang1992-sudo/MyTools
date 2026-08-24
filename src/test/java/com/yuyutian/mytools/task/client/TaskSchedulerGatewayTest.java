@@ -24,6 +24,7 @@ class TaskSchedulerGatewayTest {
         server.expect(requestTo("http://scheduler:23210/api/v1/task-instances"))
                 .andExpect(jsonPath("$.taskName").value("sample_task"))
                 .andExpect(jsonPath("$.parameters.value").value("ok"))
+                .andExpect(jsonPath("$.requiredNodeLabels").isEmpty())
                 .andRespond(withSuccess("{\"id\":\"" + taskId + "\"}", MediaType.APPLICATION_JSON));
 
         UUID created = gateway.create(

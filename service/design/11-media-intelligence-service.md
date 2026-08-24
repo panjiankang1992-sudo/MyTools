@@ -20,6 +20,8 @@ Media Intelligence 主要是一组版本化脚本包和模型配置，而不是�
 
 目标态脚本从 Storage Gateway 获取只读输入，在工作目录生成产物，校验后上传，再调用 Asset Registry 登记 artifact，最后调用 Media Library 更新分析结果。当前过渡实现仍从受控媒体节点的旧路径读取输入。V48 在耗时步骤前建立 `mediaItemId + assetRegistryId + analysisVersion + taskInstanceId` 绑定，缩略图和每一帧故事板均先持久化并登记派生关系，最后一次性提交标签、简介和领域资产 ID。标签模型失败可忽略，必需步骤失败、超时和取消会执行独立场景步骤关闭分析。模型任务创建时应匹配 GPU/模型能力节点。
 
+过渡期 MyTools 不再为同一事件创建孤立的 `media_probe` 和 `media_generate_thumbnail` 任务，因为两者的临时产物无法单独形成领域闭环。旁路只创建完整 `media_analyze_video`，并要求旧 ID 已迁移、摘要一致且显式配置 `executor.node` 亲和约束。这样任务成功时结果一定进入 Asset Registry 和 Media Library，失败时也有明确分析终态。
+
 ## DML
 
 默认不直接写业务表，只调用 Asset Registry 和 Media Library API。离线批量回填可以写专用暂存表，但最终合并仍由领域服务完成。

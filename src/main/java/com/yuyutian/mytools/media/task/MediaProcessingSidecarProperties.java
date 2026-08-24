@@ -13,7 +13,8 @@ import org.springframework.stereotype.Component;
 public class MediaProcessingSidecarProperties {
     private boolean enabled;
     private int priority = 30;
-    private String probeVersion = "media-probe-v1";
-    private String thumbnailVersion = "media-thumbnail-v1";
     private String videoAnalysisVersion = "media-video-analysis-v1";
+    private String mediaLibraryUrl = "http://127.0.0.1:23280";
+    private String mediaLibraryToken = "";
+    private String executorNode = "";
 }

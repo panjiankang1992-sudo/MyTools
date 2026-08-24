@@ -64,6 +64,8 @@ V3 的内部对账接口以媒体 UUID 为稳定游标，每页最多返回 200 
 
 历史媒体回填不重新连接旧 MyTools schema。第一阶段先用只读适配器在同一快照中封存 `local_file` 和 `file_tag`，并完成 Asset Registry 映射；第二阶段任务完整预检所有图片、视频和音频映射，随后用 `legacy-media:{identitySha256}` 事件在一个事务中建立 Media Library 项及 `LEGACY_MIGRATION` 标签。任务中断可重跑，标签变化会触发幂等冲突而不是静默覆盖，非媒体资产明确计入跳过数量，旧路径只用于推导显示名且不会进入目标事件。缩略图、截图和简介允许通过新分析任务重新生成。
 
+旧 MyTools 的缩略图成功事件可在 `MEDIA_PROCESSING_SIDECAR_ENABLED=true` 时旁路创建完整 `media_analyze_video`。发布器先按 `local_file` 旧 ID 向 Media Library 解析真实媒体与 Asset Registry UUID，并核对内容摘要；映射缺失或摘要变化时不创建任务。任务通过 `MEDIA_PROCESSING_EXECUTOR_NODE` 固定到能够读取旧路径的 Executor 节点。默认开关关闭，旧缩略图仍为权威结果，旁路失败不影响旧事务。
+
 ## 验收
 
 - 查询接口不因分析任务缓慢而阻塞。

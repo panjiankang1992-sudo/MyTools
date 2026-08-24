@@ -158,9 +158,10 @@ migration:
     media-processing:
       enabled: ${MEDIA_PROCESSING_SIDECAR_ENABLED:false}
       priority: ${MEDIA_PROCESSING_TASK_PRIORITY:30}
-      probe-version: ${MEDIA_PROBE_POLICY_VERSION:media-probe-v1}
-      thumbnail-version: ${MEDIA_THUMBNAIL_POLICY_VERSION:media-thumbnail-v1}
       video-analysis-version: ${MEDIA_VIDEO_ANALYSIS_POLICY_VERSION:media-video-analysis-v1}
+      media-library-url: ${MEDIA_LIBRARY_URL:http://127.0.0.1:23280}
+      media-library-token: ${MEDIA_LIBRARY_INTERNAL_TOKEN:}
+      executor-node: ${MEDIA_PROCESSING_EXECUTOR_NODE:}
     reader-search:
       enabled: ${READER_SEARCH_SIDECAR_ENABLED:false}
       priority: ${READER_SEARCH_TASK_PRIORITY:40}

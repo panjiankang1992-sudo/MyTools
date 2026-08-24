@@ -43,6 +43,24 @@ public class TaskSchedulerGateway {
      */
     public UUID create(String taskName, String idempotencyKey, String businessType, String businessId,
                        int priority, Map<String, Object> parameters) {
+        return create(taskName, idempotencyKey, businessType, businessId, priority, parameters, Map.of());
+    }
+
+    /**
+     * 幂等创建带节点标签约束的任务实例。
+     *
+     * @param taskName 任务定义名称
+     * @param idempotencyKey 幂等键
+     * @param businessType 业务类型
+     * @param businessId 业务标识
+     * @param priority 优先级
+     * @param parameters 参数
+     * @param requiredNodeLabels 节点标签约束
+     * @return 任务实例标识
+     */
+    public UUID create(String taskName, String idempotencyKey, String businessType, String businessId,
+                       int priority, Map<String, Object> parameters,
+                       Map<String, Object> requiredNodeLabels) {
         Map<String, Object> request = new LinkedHashMap<>();
         request.put("taskName", taskName);
         request.put("idempotencyKey", idempotencyKey);
@@ -51,6 +69,7 @@ public class TaskSchedulerGateway {
         request.put("parentTaskInstanceId", null);
         request.put("priority", priority);
         request.put("parameters", parameters);
+        request.put("requiredNodeLabels", requiredNodeLabels);
         Map<?, ?> response = restTemplate.postForObject(
                 normalizedSchedulerUrl() + "/api/v1/task-instances", request, Map.class);
         if (response == null || !(response.get("id") instanceof String id)) {

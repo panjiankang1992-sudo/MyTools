@@ -79,12 +79,12 @@ public class ThumbnailGenerationJob {
             thumbnailExecutor.invokeAll(readyCandidates.stream()
                     .<java.util.concurrent.Callable<Void>>map(file -> () -> {
                         try {
-                            var generated = localFileService.generateAndPersistThumbnail(file.getId());
+                            localFileService.generateAndPersistThumbnail(file.getId());
                             thumbnailFailureCounts.remove(file.getId());
                             thumbnailRetryAfter.remove(file.getId());
                             // 旧缩略图仍为权威结果，旁路任务只做独立生成与对账准备。
                             applicationEventPublisher.publishEvent(new MediaProcessingSidecarRequested(
-                                    file.getId(), file.getFilePath(), generated.toString(), file.getFileHash(),
+                                    file.getId(), file.getFilePath(), file.getFileHash(),
                                     file.getMimeType()));
                         } catch (Exception ex) {
                             recordThumbnailFailure(file.getId());

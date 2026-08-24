@@ -18,17 +18,21 @@ public class MediaProcessingSidecarPublisher {
 
     private final TaskSchedulerGateway taskSchedulerGateway;
     private final MediaProcessingSidecarProperties properties;
+    private final LegacyMediaAnalysisTargetClient targetClient;
 
     /**
      * 创建媒体处理旁路发布器。
      *
      * @param taskSchedulerGateway 任务调度网关
      * @param properties 旁路配置
+     * @param targetClient 旧媒体映射客户端
      */
     public MediaProcessingSidecarPublisher(TaskSchedulerGateway taskSchedulerGateway,
-                                           MediaProcessingSidecarProperties properties) {
+                                           MediaProcessingSidecarProperties properties,
+                                           LegacyMediaAnalysisTargetClient targetClient) {
         this.taskSchedulerGateway = taskSchedulerGateway;
         this.properties = properties;
+        this.targetClient = targetClient;
     }
 
     /**
@@ -47,29 +51,54 @@ public class MediaProcessingSidecarPublisher {
                     event.fileId());
             return;
         }
-        Map<String, Object> common = new LinkedHashMap<>();
-        common.put("assetId", event.fileId().toString());
-        common.put("contentSha256", event.contentSha256().toLowerCase());
-        common.put("sourcePath", event.sourcePath());
-        common.put("legacyThumbnailPath", event.legacyThumbnailPath());
-        common.put("assetMimeType", event.mimeType());
-        create("media_probe", properties.getProbeVersion(), event, common);
-        create("media_generate_thumbnail", properties.getThumbnailVersion(), event, common);
-        if (event.mimeType() != null && event.mimeType().startsWith("video/")) {
-            create("media_analyze_video", properties.getVideoAnalysisVersion(), event, common);
+        if (event.mimeType() == null || !event.mimeType().startsWith("video/")) {
+            return;
+        }
+        if (properties.getExecutorNode() == null || properties.getExecutorNode().isBlank()) {
+            log.warn("Skipping media analysis sidecar because executor node is not configured: fileId={}",
+                    event.fileId());
+            return;
+        }
+        try {
+            LegacyMediaAnalysisTargetClient.AnalysisTarget target = targetClient.resolve(event.fileId());
+            if (!target.contentSha256().equalsIgnoreCase(event.contentSha256())
+                    || !target.mimeType().startsWith("video/")) {
+                log.warn("Skipping media analysis sidecar because migrated identity changed: fileId={}",
+                        event.fileId());
+                return;
+            }
+            createAnalysis(event, target);
+        } catch (RuntimeException exception) {
+            // 映射未迁移或新服务不可用时，旧缩略图与分析链路仍保持权威。
+            log.warn("Media analysis sidecar target resolution failed: fileId={}, error={}",
+                    event.fileId(), exception.getMessage());
         }
     }
 
-    private void create(String taskName, String policyVersion, MediaProcessingSidecarRequested event,
-                        Map<String, Object> parameters) {
+    private void createAnalysis(MediaProcessingSidecarRequested event,
+                                LegacyMediaAnalysisTargetClient.AnalysisTarget target) {
+        String policyVersion = properties.getVideoAnalysisVersion();
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        parameters.put("mediaItemId", target.mediaItemId().toString());
+        parameters.put("assetRegistryId", target.assetRegistryId().toString());
+        parameters.put("assetId", target.assetRegistryId().toString());
+        parameters.put("analysisVersion", policyVersion);
+        parameters.put("sourcePath", event.sourcePath());
+        parameters.put("contentSha256", target.contentSha256().toLowerCase());
+        parameters.put("ownerId", target.ownerId());
+        parameters.put("filename", target.displayName());
+        parameters.put("mimeType", target.mimeType());
+        parameters.put("assetMimeType", target.mimeType());
         try {
-            String idempotencyKey = taskName + ":" + event.contentSha256().toLowerCase() + ":" + policyVersion;
-            taskSchedulerGateway.create(taskName, idempotencyKey, "MEDIA_FILE", event.fileId().toString(),
-                    properties.getPriority(), parameters);
-            log.info("Media processing sidecar task created: taskName={}, fileId={}", taskName, event.fileId());
+            String idempotencyKey = "media_analyze_video:" + target.mediaItemId() + ":" + policyVersion;
+            taskSchedulerGateway.create("media_analyze_video", idempotencyKey, "MEDIA_ITEM",
+                    target.mediaItemId().toString(), properties.getPriority(), parameters,
+                    Map.of("executor.node", properties.getExecutorNode()));
+            log.info("Media analysis sidecar task created: fileId={}, mediaItemId={}",
+                    event.fileId(), target.mediaItemId());
         } catch (RuntimeException exception) {
-            log.warn("Media processing sidecar task creation failed: taskName={}, fileId={}, error={}",
-                    taskName, event.fileId(), exception.getMessage());
+            log.warn("Media analysis sidecar task creation failed: fileId={}, error={}",
+                    event.fileId(), exception.getMessage());
         }
     }
 }
