@@ -54,9 +54,9 @@ IMAP 入站使用 `message_poll_email` 1.0.0 任务，参数只包含 `accountKe
 
 邮件附件只在消息表保存服务端生成的 IMAP UID 引用和安全元数据，不保存原始字节。附件创建后立即进入既有 `message_download_attachment` 链路：Messaging 将 EMAIL 引用解析为 `STREAM`，按 UIDVALIDITY、UID 和附件序号重新打开只读 IMAP 流，并经 Download Ingestion 下载及资产登记。凭据、Message-ID 和邮件内容均不会进入 Scheduler 参数或任务结果。启用这一旁路不会停止或修改远程 `/opt/code/MsgService` 的监听器。
 
-历史消息使用 `message_migrate_history` 1.1.0 即时任务迁移。脚本从独立旧服务适配器首屏冻结高水位，随后分页读取同一批脱敏记录，并在每页校验来源条目数和集合摘要不变；通过内部批次接口写入 `inbound_message` 和 `inbound_history_migration` 审计表。dry-run 不写库，正式导入按来源系统与旧消息标识幂等，并校验载荷摘要。历史导入不会生成 `MessageReceived` Outbox，避免重放实时自动化规则。独立 MsgService 快照适配器已实现且装载、导出默认关闭；实际 SQLite 只读映射和生产一致备份演练已经完成。发件归档支持 `ARCHIVED` 与 `MISSING` 附件证据：前者必须验证大小和 SHA-256，后者只用于明确记录源端文件已经不存在，不能作为可下载附件使用。
+历史收件使用 `message_migrate_history` 1.1.0 即时任务，历史发件使用 `message_migrate_outbound_history` 1.0.0 即时任务。两个任务都从独立旧服务适配器首屏冻结高水位，随后分页读取同一批脱敏记录，并在每页校验来源条目数和集合摘要不变；正式执行后独立读取目标 reconciliation，核对数量和集合摘要。dry-run 不写库，正式导入按来源系统与旧消息标识幂等，并校验载荷摘要。收件导入不会生成 `MessageReceived` Outbox，发件导入只写只读归档且不会创建投递任务，因此都不会重放实时行为。独立 MsgService 快照适配器已实现且装载、导出默认关闭；实际 SQLite 只读映射和生产一致备份演练已经完成。发件归档支持 `ARCHIVED` 与 `MISSING` 附件证据：前者必须验证大小和 SHA-256，后者只用于明确记录源端文件已经不存在，不能作为可下载附件使用。
 
-正式演练后使用 `service/scripts/messaging_cutover_gate.py` 校验 dry-run、正式导入、同键重放和目标侧 reconciliation 报告。来源与目标使用相同的长度前缀集合摘要协议；门禁只输出迁移键、数量和错误码，不输出高水位、消息身份、正文或摘要，也不会连接数据库或修改开关。
+收件与发件分别执行 dry-run、正式导入、同键重放，并分别使用 `service/scripts/messaging_cutover_gate.py` 校验对应的四份报告。来源与目标使用相同的长度前缀集合摘要协议；门禁只输出迁移键、数量和错误码，不输出高水位、消息身份、正文或摘要，也不会连接数据库或修改开关。
 
 ## 实施要求
 

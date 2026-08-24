@@ -235,6 +235,9 @@ class OutboundSnapshot:
                 "recipients", "subject", "bodyText", "bodyHtml", "attachments", "templateRef",
                 "providerMessageId", "errorCode", "sentAt", "createdAt")
         normalized = {key: self.value.get(key) for key in keys}
+        normalized["createdAt"] = canonical_instant(normalized["createdAt"])
+        if normalized["sentAt"] is not None:
+            normalized["sentAt"] = canonical_instant(normalized["sentAt"])
         normalized["attachments"] = [
             {key: attachment.get(key) for key in ("fileName", "mimeType", "availability", "size",
                                                   "sha256", "archiveRef", "legacyContentRef")}

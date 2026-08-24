@@ -57,3 +57,14 @@ def test_migration_digest_matches_messaging_record_serialization() -> None:
     """锁定 Python 与 Java 迁移载荷摘要协议。"""
     assert OutboundSnapshot.from_document(message()).migration_digest() == \
         "b9c6ff26abe7344b230d664021ac11c51dd18300415744a76c113401f9198380"
+
+
+def test_migration_digest_normalizes_equivalent_utc_offsets() -> None:
+    """验证等价 UTC 时间格式不会产生不同迁移证据。"""
+    canonical = message()
+    offset = deepcopy(canonical)
+    offset["sentAt"] = "2026-08-22T01:02:03+00:00"
+    offset["createdAt"] = "2026-08-22T09:02:00+08:00"
+
+    assert OutboundSnapshot.from_document(canonical).migration_digest() == \
+        OutboundSnapshot.from_document(offset).migration_digest()

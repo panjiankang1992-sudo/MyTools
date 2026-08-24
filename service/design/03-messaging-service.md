@@ -1,6 +1,6 @@
 # Messaging Service 详细设计
 
-> MsgService 实际代码位于远程 `/opt/code/MsgService`。其存量发件历史必须导入独立的
+> MsgService 实际代码位于远程 `/opt/code/MsgService`。其存量发件历史必须通过独立冻结任务导入
 > `outbound_message_history` 归档，不得写入实时投递队列；详细审计和迁移顺序见
 > [24-msgservice-current-state-and-migration.md](24-msgservice-current-state-and-migration.md)。
 
