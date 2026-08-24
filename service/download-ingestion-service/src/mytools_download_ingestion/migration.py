@@ -10,8 +10,13 @@ from uuid import uuid4
 
 MIGRATION_KEY = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
 DIGEST = re.compile(r"^[a-f0-9]{64}$")
-ITEM_TYPES = {"ASSET", "LINK_JOB", "LINK_ASSET", "EVENT_ASSET"}
+ITEM_TYPES = {"INGRESS_EVENT", "MESSAGE", "ASSET", "LINK_JOB", "LINK_ASSET", "EVENT_ASSET"}
 PAYLOAD_FIELDS = {
+    "INGRESS_EVENT": {"legacyEventRowId", "platform", "botAccountId", "eventId",
+                      "rawPayload", "receivedAt", "status", "processingStage", "error",
+                      "createdAt", "updatedAt"},
+    "MESSAGE": {"legacyMessageId", "legacyEventRowId", "platform", "botAccountId",
+                "eventId", "platformMessageId", "conversationId", "senderId", "receivedAt"},
     "ASSET": {"legacyAssetId", "contentSha256", "fileName", "mimeType", "sizeBytes",
               "category", "tagStatus", "tags", "createdAt"},
     "LINK_JOB": {"legacyJobId", "uriSha256", "requestKind", "strategy", "sourceType",
@@ -119,7 +124,33 @@ def validate_payload(item_type: str, payload: dict) -> str | None:
         return _validate_link_job_payload(payload)
     if item_type == "LINK_ASSET":
         return _validate_link_asset_payload(payload)
+    if item_type == "INGRESS_EVENT":
+        return _validate_ingress_event_payload(payload)
+    if item_type == "MESSAGE":
+        return _validate_message_payload(payload)
     return _validate_event_asset_payload(payload)
+
+
+def _validate_event_identity(payload: dict) -> str | None:
+    platform = str(payload.get("platform") or "")
+    if re.fullmatch(r"[a-z0-9_-]{1,32}", platform) is None:
+        return "INVALID_PLATFORM"
+    if not str(payload.get("botAccountId") or "") or not str(payload.get("eventId") or ""):
+        return "INVALID_EVENT_IDENTITY"
+    return None
+
+
+def _validate_ingress_event_payload(payload: dict) -> str | None:
+    if not str(payload.get("legacyEventRowId") or ""):
+        return "INVALID_RELATION"
+    return _validate_event_identity(payload)
+
+
+def _validate_message_payload(payload: dict) -> str | None:
+    if (not str(payload.get("legacyMessageId") or "")
+            or not str(payload.get("legacyEventRowId") or "")):
+        return "INVALID_RELATION"
+    return _validate_event_identity(payload)
 
 
 def _validate_asset_payload(payload: dict) -> str | None:

@@ -13,13 +13,13 @@ DownloadBot 到 Download Ingestion 的独立旁路适配器，使用 Python 3.12
 权限的单独账号开启一致性只读事务，先固定相关表高水位，再将
 标准化结果写入适配器 schema 并原子封存。
 
-`1.1.0` 根据 DownloadBot 当前真实表结构新增 `asset_sources` 捕获，覆盖普通
-QQ、Telegram 和 OneBot 消息管线的 `ingress_events → asset_sources → assets` 关系。
-事件身份由 `platform + bot_account_id + event_id` 计算 SHA-256；快照不保存这些原值，
-也不保存 `raw_payload`、`platform_file_id`、发送者、会话或机器人账号。原 `1.0.0`
-脚本包保持不可变，Scheduler V65 只让新建任务使用 `1.1.0`。
+`1.1.0` 根据 DownloadBot 当前真实表结构覆盖 `ingress_events`、`messages`、`assets`、
+`asset_sources`、`link_jobs` 和 `link_asset_sources`。受限快照完整保留不可再生的事件原始
+载荷、事件身份、标准消息身份和消息关系；资产物理路径、原始下载 URL、回复路由及凭据仍不进入
+快照。Scheduler V73 更新任务定义说明，捕获仍使用旧库只读事务。
 
-快照不会导出旧物理路径、原始下载 URL、消息回复路由、Cookie 或 Token。校验失败的
+快照不会导出旧物理路径、原始下载 URL、消息回复路由、Cookie 或 Token。`raw_payload`
+作为旧消息本体被原样封存，因此适配器 schema 和导出令牌必须按敏感数据管理。校验失败的
 记录进入 `legacy_snapshot_rejection`，不会因为单条脏数据中止整个捕获。只有状态为
 `SEALED` 且集合摘要匹配的快照才允许进入后续导入任务。
 

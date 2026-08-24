@@ -491,7 +491,7 @@ class TaskInstanceServiceTest {
                         + "WHERE d.name=? AND s.name=?",
                 "downloadbot_capture_snapshot", "capture_snapshot");
 
-        assertEquals(2, ((Number) definition.get("version")).intValue());
+        assertEquals(3, ((Number) definition.get("version")).intValue());
         assertEquals("1.1.0", definition.get("script_version"));
     }
 

@@ -82,3 +82,32 @@ def test_history_import_rejects_unknown_or_private_event_fields():
         "download-v2", "DownloadBot", True, [invalid])
 
     assert result["rejected"] == 1
+
+
+def test_history_import_preserves_ingress_event_and_message_records():
+    repository = InMemoryLegacyHistoryRepository()
+    service = LegacyHistoryMigrationService(repository)
+    event_payload = {"legacyEventRowId": "4", "platform": "telegram",
+                     "botAccountId": "bot", "eventId": "event",
+                     "rawPayload": {"text": "keep me"}, "receivedAt": None,
+                     "status": "COMPLETED", "processingStage": "DONE", "error": "",
+                     "createdAt": None, "updatedAt": None}
+    message_payload = {"legacyMessageId": "5", "legacyEventRowId": "4",
+                       "platform": "telegram", "botAccountId": "bot", "eventId": "event",
+                       "platformMessageId": "message", "conversationId": "conversation",
+                       "senderId": "sender", "receivedAt": None}
+
+    result = service.migrate("download-v3", "DownloadBot", False, [
+        typed_item("INGRESS_EVENT", "4", "event:key", event_payload),
+        typed_item("MESSAGE", "5", "message:key", message_payload)])
+
+    assert result["accepted"] == 2
+    assert repository.records[("DownloadBot", "INGRESS_EVENT", "4")]["payload"][
+        "rawPayload"] == {"text": "keep me"}
+    assert ("DownloadBot", "MESSAGE", "5") in repository.records
+
+
+def typed_item(item_type, legacy_id, source_key, payload):
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    return {"itemType": item_type, "legacyId": legacy_id, "sourceKey": source_key,
+            "payload": payload, "payloadSha256": hashlib.sha256(encoded).hexdigest()}

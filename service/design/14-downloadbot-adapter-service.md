@@ -36,16 +36,12 @@ DownloadBot 数据表，也不共享数据库账号。旧 DownloadBot 在整个�
 
 1. 当前阶段：只新增独立服务和 schema；不改 DownloadBot，实时旁路和快照导出均默认关闭。
 2. 快照阶段：由 Scheduler 创建 `downloadbot_capture_snapshot`，Executor 使用旧库只读账号
-   捕获 `assets`、`link_jobs`、`link_asset_sources`，以及普通消息管线的
-   `ingress_events → asset_sources → assets` 关系，无效记录进入拒绝审计。消息事件只输出
-   平台类别、来源序号、内容摘要和事件身份摘要，不输出原始载荷、平台文件 ID、发送者、
-   会话或机器人账号。`1.0.0` 保持不可变，新任务由 V65 切换到 `1.1.0`。
-   Download Ingestion 已接受 `EVENT_ASSET` 并使用严格载荷白名单落入不可变历史表；该导入
-   不创建活跃下载请求，也不触发新任务。
-3. 基线阶段：待 DownloadBot 工作区形成干净基线，在旧请求落库后提交脱敏事件；投递失败不得影响旧事务。
-4. 旁路阶段：小范围启用 `SHADOW`，按旧任务标识关联新请求，比较文件数量、总字节数和集合摘要。
-5. 灰度阶段：仅对已验证下载类型逐项选择新执行路径；保留旧路径快速回退。
-6. 收尾阶段：停止旧 worker loop，迁移必须保留的数据；临时文件和可再生摘要重新生成。
+   在同一一致性视图中捕获 `ingress_events`、`messages`、`assets`、`asset_sources`、
+   `link_jobs` 和 `link_asset_sources`，无效记录进入拒绝审计。事件原始载荷和消息身份属于
+   不可再生数据，完整封存在受限新 schema；物理路径、原始下载 URL 和凭据不迁移。
+   Download Ingestion 使用各类型固定字段白名单写入不可变历史表，不创建活跃下载请求。
+3. 导入阶段：同一封存快照先 dry-run，再正式导入；拒绝数必须为零，正式导入可幂等重放。
+4. 验收阶段：核对源快照数量、集合摘要与目标历史表数量和摘要。临时文件及可再生摘要重新生成。
 
 PikPak 配置迁移只导出可验证的路由元数据，并用集合摘要检测分页期间的配置变化。Provider UUID
 和 Secret 引用必须在迁移任务参数中逐账户显式提供；适配器不读取或推断新服务的 Provider、Secret。

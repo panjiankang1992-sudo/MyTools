@@ -23,6 +23,64 @@ def canonical(value: dict) -> str:
                       separators=(",", ":"), default=str)
 
 
+def json_value(value: object) -> object:
+    """保留有效 JSON，旧值不是 JSON 时按原字符串封存。"""
+    if isinstance(value, (dict, list, int, float, bool)) or value is None:
+        return value
+    try:
+        return json.loads(str(value))
+    except json.JSONDecodeError:
+        return str(value)
+
+
+def event_identity(row: dict) -> tuple[str, str, str, str]:
+    """校验事件身份并返回稳定摘要。"""
+    platform = str(row.get("platform") or "").lower()
+    account_id = str(row.get("bot_account_id") or "")
+    event_id = str(row.get("event_id") or "")
+    if (not platform or len(platform) > 32
+            or any(value not in "abcdefghijklmnopqrstuvwxyz0123456789_-" for value in platform)
+            or not account_id or not event_id):
+        raise ValueError("MISSING_EVENT_IDENTITY")
+    digest = hashlib.sha256(canonical({
+        "platform": platform, "botAccountId": account_id, "eventId": event_id,
+    }).encode()).hexdigest()
+    return platform, account_id, event_id, digest
+
+
+def normalize_ingress_event(row: dict) -> tuple[str, str, dict]:
+    """完整封存不可再生的旧入站事件。"""
+    legacy_id = str(row.get("id") or "")
+    if not legacy_id:
+        raise ValueError("MISSING_EVENT_IDENTITY")
+    platform, account_id, event_id, digest = event_identity(row)
+    return legacy_id, f"event:{digest}", {
+        "legacyEventRowId": legacy_id, "platform": platform,
+        "botAccountId": account_id, "eventId": event_id,
+        "rawPayload": json_value(row.get("raw_payload")),
+        "receivedAt": row.get("received_at"),
+        "status": str(row.get("status") or "UNKNOWN"),
+        "processingStage": str(row.get("processing_stage") or "UNKNOWN"),
+        "error": str(row.get("error") or ""),
+        "createdAt": row.get("created_at"), "updatedAt": row.get("updated_at")}
+
+
+def normalize_message(row: dict) -> tuple[str, str, dict]:
+    """完整封存旧标准消息及其事件关联。"""
+    legacy_id = str(row.get("message_row_id") or "")
+    event_row_id = str(row.get("event_row_id") or "")
+    if not legacy_id or not event_row_id:
+        raise ValueError("MISSING_MESSAGE_RELATION")
+    platform, account_id, event_id, digest = event_identity(row)
+    return legacy_id, f"message:{digest}", {
+        "legacyMessageId": legacy_id, "legacyEventRowId": event_row_id,
+        "platform": platform, "botAccountId": account_id, "eventId": event_id,
+        "platformMessageId": str(row.get("platform_message_id") or ""),
+        "conversationId": str(row.get("conversation_id") or ""),
+        "senderId": str(row.get("sender_id") or ""),
+        "receivedAt": row.get("message_received_at")}
+
+
 def normalize_asset(row: dict) -> tuple[str, str, dict]:
     """标准化旧资产且不导出物理路径。"""
     legacy_id = str(row["id"])
@@ -66,23 +124,14 @@ def normalize_event_asset(row: dict) -> tuple[str, str, dict]:
     legacy_id = str(row.get("id") or "")
     asset_id = str(row.get("asset_id") or "")
     digest = str(row.get("sha256") or "").lower()
-    platform = str(row.get("platform") or "").lower()
-    account_id = str(row.get("bot_account_id") or "")
-    event_id = str(row.get("event_id") or "")
+    platform, _account_id, _event_id, event_key = event_identity(row)
     source_index = int(row.get("source_index") or 0)
     if not legacy_id or not asset_id:
         raise ValueError("MISSING_RELATION")
     if len(digest) != 64 or any(value not in "0123456789abcdef" for value in digest):
         raise ValueError("INVALID_SHA256")
-    if (not platform or len(platform) > 32
-            or any(value not in "abcdefghijklmnopqrstuvwxyz0123456789_-" for value in platform)
-            or not account_id or not event_id):
-        raise ValueError("MISSING_EVENT_IDENTITY")
     if source_index < 0:
         raise ValueError("INVALID_SOURCE_INDEX")
-    event_key = hashlib.sha256(canonical({
-        "platform": platform, "botAccountId": account_id, "eventId": event_id,
-    }).encode()).hexdigest()
     return legacy_id, f"event-asset:{event_key}:{source_index}", {
         "legacyAssetSourceId": legacy_id, "legacyAssetId": asset_id,
         "eventKeySha256": event_key, "sourceSystem": f"DOWNLOADBOT_{platform.upper()}",
@@ -122,7 +171,8 @@ def capture(source, target, snapshot_id: str, source_schema: str) -> dict:
         cursor.execute("START TRANSACTION WITH CONSISTENT SNAPSHOT, READ ONLY")
     high_water = {}
     with source.cursor() as cursor:
-        for table, key in (("assets", "assets"), ("asset_sources", "eventAssets"),
+        for table, key in (("ingress_events", "events"), ("messages", "messages"),
+                           ("assets", "assets"), ("asset_sources", "eventAssets"),
                            ("link_asset_sources", "linkAssets"),
                            ("link_jobs", "linkJobs")):
             cursor.execute(f"SELECT COALESCE(MAX(id),0) AS value FROM {table}")
@@ -132,10 +182,20 @@ def capture(source, target, snapshot_id: str, source_schema: str) -> dict:
         cursor.execute(
             "INSERT INTO legacy_snapshot "
             "(id,status,source_schema,source_version,high_water_json,item_count,rejection_count,"
-            "collection_sha256,started_at,sealed_at) VALUES (%s,'CAPTURING',%s,'mysql-v2',%s,0,0,NULL,%s,NULL)",
+            "collection_sha256,started_at,sealed_at) VALUES (%s,'CAPTURING',%s,'mysql-v3',%s,0,0,NULL,%s,NULL)",
             (snapshot_id, source_schema, json.dumps(high_water, separators=(",", ":")), started))
     captured = rejected = 0
     specs = [
+        ("INGRESS_EVENT", "ingress_events", high_water["events"],
+         "SELECT * FROM ingress_events WHERE id>%s AND id<=%s ORDER BY id LIMIT %s",
+         normalize_ingress_event),
+        ("MESSAGE", "messages", high_water["messages"],
+         "SELECT message.id AS message_row_id,message.event_row_id,message.platform_message_id,"
+         "message.conversation_id,message.sender_id,message.received_at AS message_received_at,"
+         "event.platform,event.bot_account_id,event.event_id FROM messages message "
+         "JOIN ingress_events event ON event.id=message.event_row_id "
+         "WHERE message.id>%s AND message.id<=%s ORDER BY message.id LIMIT %s",
+         normalize_message),
         ("ASSET", "assets", high_water["assets"],
          "SELECT * FROM assets WHERE id>%s AND id<=%s ORDER BY id LIMIT %s", normalize_asset),
         ("EVENT_ASSET", "asset_sources", high_water["eventAssets"],
@@ -162,7 +222,7 @@ def capture(source, target, snapshot_id: str, source_schema: str) -> dict:
                 break
             with target.cursor() as cursor:
                 for row in rows:
-                    after = int(row["id"])
+                    after = int(row.get("id") or row.get("message_row_id"))
                     try:
                         legacy_id, source_key, payload = normalizer(row)
                         payload_json = canonical(payload)
@@ -179,7 +239,8 @@ def capture(source, target, snapshot_id: str, source_schema: str) -> dict:
                             "INSERT INTO legacy_snapshot_rejection "
                             "(id,snapshot_id,item_type,legacy_id,reason_code,detail,created_at) "
                             "VALUES (%s,%s,%s,%s,%s,%s,%s)",
-                            (str(uuid4()), snapshot_id, item_type, str(row.get("id") or ""),
+                            (str(uuid4()), snapshot_id, item_type,
+                             str(row.get("id") or row.get("message_row_id") or ""),
                              str(exception), "legacy row failed normalization", datetime.now(UTC)))
                         rejected += 1
     # 集合摘要使用与分页导出完全相同的词法顺序，避免数字主键位数改变摘要。

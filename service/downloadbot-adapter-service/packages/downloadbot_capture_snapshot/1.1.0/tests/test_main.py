@@ -32,6 +32,31 @@ def test_link_asset_rejects_invalid_checksum():
                                      "sha256": "z" * 64})
 
 
+def test_ingress_event_preserves_raw_payload_and_full_identity():
+    legacy_id, source_key, payload = MODULE.normalize_ingress_event({
+        "id": 4, "platform": "telegram", "bot_account_id": "bot-private",
+        "event_id": "event-private", "raw_payload": '{"text":"keep me"}',
+        "status": "COMPLETED", "processing_stage": "DONE"})
+    assert legacy_id == "4"
+    assert source_key.startswith("event:")
+    assert payload["botAccountId"] == "bot-private"
+    assert payload["eventId"] == "event-private"
+    assert payload["rawPayload"] == {"text": "keep me"}
+
+
+def test_message_preserves_identifiers_and_event_relation():
+    legacy_id, _, payload = MODULE.normalize_message({
+        "message_row_id": 5, "event_row_id": 4, "platform": "qq",
+        "bot_account_id": "account", "event_id": "event",
+        "platform_message_id": "message", "conversation_id": "conversation",
+        "sender_id": "sender"})
+    assert legacy_id == "5"
+    assert payload["legacyEventRowId"] == "4"
+    assert payload["platformMessageId"] == "message"
+    assert payload["conversationId"] == "conversation"
+    assert payload["senderId"] == "sender"
+
+
 def test_event_asset_normalizer_hashes_identity_and_omits_private_fields():
     _, source_key, payload = MODULE.normalize_event_asset({
         "id": 4, "asset_id": 2, "sha256": "c" * 64, "source_index": 0,
