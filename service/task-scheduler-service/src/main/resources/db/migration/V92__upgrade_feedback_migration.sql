@@ -1,0 +1,2 @@
+UPDATE task_definition SET result_schema='{"type":"object","required":["migrationKey","dryRun","sourceHighWater","exported","accepted","skipped","rejected","digestSha256","targetVerified"]}',version=version+1,updated_at=CURRENT_TIMESTAMP WHERE name='feedback_migrate_legacy';
+UPDATE task_step_definition SET script_version='1.1.0',updated_at=CURRENT_TIMESTAMP WHERE task_definition_id='00000000-0000-4000-8000-000000000534' AND name='migrate_feedback';

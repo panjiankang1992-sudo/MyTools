@@ -13,12 +13,14 @@ def evaluate(dry:dict,apply:dict,replay:dict,target:dict)->dict:
  """Validate stable source, complete import and idempotent replay."""
  errors=[]
  if dry.get("dryRun")is not True or apply.get("dryRun")is not False or replay.get("dryRun")is not False:errors.append("MODE_INVALID")
+ if len({dry.get("migrationKey"),apply.get("migrationKey"),replay.get("migrationKey"),target.get("migrationKey")})!=1:errors.append("MIGRATION_KEY_MISMATCH")
  if len({dry.get("sourceHighWater"),apply.get("sourceHighWater"),replay.get("sourceHighWater")})!=1 or len({dry.get("digestSha256"),apply.get("digestSha256"),replay.get("digestSha256")})!=1 or DIGEST.fullmatch(str(dry.get("digestSha256")or""))is None:errors.append("SOURCE_CHANGED")
  exported=dry.get("exported")
  if not isinstance(exported,int)or any(value.get("exported")!=exported for value in(apply,replay)):errors.append("COUNT_MISMATCH")
  if any(value.get("rejected")!=0 for value in(dry,apply,replay))or apply.get("accepted",0)+apply.get("skipped",0)!=exported:errors.append("IMPORT_INCOMPLETE")
  if replay.get("accepted")!=0 or replay.get("skipped")!=exported:errors.append("REPLAY_NOT_IDEMPOTENT")
- if target.get("itemCount")!=exported or DIGEST.fullmatch(str(target.get("collectionSha256")or""))is None:errors.append("TARGET_MISMATCH")
+ if target.get("itemCount")!=exported or target.get("collectionSha256")!=apply.get("digestSha256")or DIGEST.fullmatch(str(target.get("collectionSha256")or""))is None:errors.append("TARGET_MISMATCH")
+ if dry.get("targetVerified")is not False or apply.get("targetVerified")is not True or replay.get("targetVerified")is not True:errors.append("TARGET_NOT_VERIFIED")
  return {"ready":not errors,"itemCount":exported if isinstance(exported,int)else-1,"errors":sorted(set(errors))}
 def main()->None:
  """Run the offline gate."""
