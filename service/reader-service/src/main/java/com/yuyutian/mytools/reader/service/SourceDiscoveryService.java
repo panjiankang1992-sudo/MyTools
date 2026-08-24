@@ -52,6 +52,9 @@ public class SourceDiscoveryService {
                     repository.insert(created);
                     return created;
                 });
+        if (!record.url().equals(request.url())) {
+            throw new IllegalArgumentException("source discovery idempotency conflict");
+        }
         if (record.taskId() == null) {
             Map<String, Object> parameters = Map.of(
                     "requestId", record.id().toString(), "ownerId", record.ownerId(), "url", record.url());
@@ -94,6 +97,18 @@ public class SourceDiscoveryService {
     }
 
     /**
+     * 按所有者查询书源发现任务。
+     *
+     * @param requestId 请求标识
+     * @param ownerId 所有者标识
+     * @return 发现任务视图
+     */
+    public DiscoveryView get(UUID requestId, long ownerId) {
+        requiredOwner(requestId, ownerId);
+        return get(requestId);
+    }
+
+    /**
      * 保存 Executor 已发现的一批书源。
      *
      * @param requestId 发现请求标识
@@ -121,8 +136,28 @@ public class SourceDiscoveryService {
         return get(requestId);
     }
 
+    /**
+     * 按所有者取消书源发现任务。
+     *
+     * @param requestId 请求标识
+     * @param ownerId 所有者标识
+     * @return 发现任务视图
+     */
+    public DiscoveryView cancel(UUID requestId, long ownerId) {
+        requiredOwner(requestId, ownerId);
+        return cancel(requestId);
+    }
+
     private DiscoveryRecord required(UUID requestId) {
         return repository.findById(requestId).orElseThrow(() -> new DiscoveryNotFoundException(requestId));
+    }
+
+    private DiscoveryRecord requiredOwner(UUID requestId, long ownerId) {
+        DiscoveryRecord record = required(requestId);
+        if (record.ownerId() != ownerId) {
+            throw new DiscoveryNotFoundException(requestId);
+        }
+        return record;
     }
 
     private DiscoveryView view(DiscoveryRecord record) {

@@ -7,6 +7,10 @@ import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CreateImport;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.ImportView;
 import com.yuyutian.mytools.gateway.model.ReaderSearchGatewayModels.CreateSearch;
 import com.yuyutian.mytools.gateway.model.ReaderSearchGatewayModels.SearchView;
+import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.CreateDiscovery;
+import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.CreateHealthCheck;
+import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.DiscoveryView;
+import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.HealthCheckView;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
 import com.yuyutian.mytools.gateway.service.ReaderGatewayClient;
@@ -216,6 +220,85 @@ public class ReaderGatewayController {
     public CatalogView importCatalog(@PathVariable UUID id, HttpServletRequest request) {
         requireAllowed(request);
         return client.importCatalog(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 创建书源发现任务。
+     *
+     * @param body 创建请求
+     * @param request HTTP 请求
+     * @return 发现视图
+     */
+    @PostMapping("/source-discoveries")
+    public DiscoveryView createDiscovery(@Valid @RequestBody CreateDiscovery body, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.createDiscovery(principal(request).userId(), body, correlation(request));
+    }
+
+    /**
+     * 查询书源发现任务。
+     *
+     * @param id 发现标识
+     * @param request HTTP 请求
+     * @return 发现视图
+     */
+    @GetMapping("/source-discoveries/{id}")
+    public DiscoveryView discovery(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.discovery(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 取消书源发现任务。
+     *
+     * @param id 发现标识
+     * @param request HTTP 请求
+     * @return 发现视图
+     */
+    @PostMapping("/source-discoveries/{id}/cancel")
+    public DiscoveryView cancelDiscovery(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.cancelDiscovery(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 创建书源健康检查任务。
+     *
+     * @param body 创建请求
+     * @param request HTTP 请求
+     * @return 健康检查视图
+     */
+    @PostMapping("/source-health-checks")
+    public HealthCheckView createHealthCheck(@Valid @RequestBody CreateHealthCheck body,
+                                             HttpServletRequest request) {
+        requireAllowed(request);
+        return client.createHealthCheck(principal(request).userId(), body, correlation(request));
+    }
+
+    /**
+     * 查询书源健康检查任务。
+     *
+     * @param id 健康检查标识
+     * @param request HTTP 请求
+     * @return 健康检查视图
+     */
+    @GetMapping("/source-health-checks/{id}")
+    public HealthCheckView healthCheck(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.healthCheck(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 取消书源健康检查任务。
+     *
+     * @param id 健康检查标识
+     * @param request HTTP 请求
+     * @return 健康检查视图
+     */
+    @PostMapping("/source-health-checks/{id}/cancel")
+    public HealthCheckView cancelHealthCheck(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.cancelHealthCheck(principal(request).userId(), id, correlation(request));
     }
 
     private List<Map<String, Object>> list(String resource, boolean includeDeleted, HttpServletRequest request) {

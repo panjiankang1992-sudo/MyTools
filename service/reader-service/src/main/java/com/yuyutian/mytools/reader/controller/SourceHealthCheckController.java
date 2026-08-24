@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -47,21 +48,23 @@ public class SourceHealthCheckController {
      * 查询并汇总健康检查。
      *
      * @param id 请求标识
+     * @param ownerId 可选所有者标识
      * @return 检查视图
      */
     @GetMapping("/{id}")
-    public HealthCheckView get(@PathVariable UUID id) {
-        return healthCheckService.get(id);
+    public HealthCheckView get(@PathVariable UUID id, @RequestParam(required = false) Long ownerId) {
+        return ownerId == null ? healthCheckService.get(id) : healthCheckService.get(id, ownerId);
     }
 
     /**
      * 取消健康检查。
      *
      * @param id 请求标识
+     * @param ownerId 可选所有者标识
      * @return 检查视图
      */
     @PostMapping("/{id}/cancel")
-    public HealthCheckView cancel(@PathVariable UUID id) {
-        return healthCheckService.cancel(id);
+    public HealthCheckView cancel(@PathVariable UUID id, @RequestParam(required = false) Long ownerId) {
+        return ownerId == null ? healthCheckService.cancel(id) : healthCheckService.cancel(id, ownerId);
     }
 }

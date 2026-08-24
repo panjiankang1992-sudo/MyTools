@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -43,6 +44,10 @@ class SourceDiscoveryServiceTest {
 
         var created = discoveryService.create(request);
         var duplicate = discoveryService.create(request);
+        assertThatThrownBy(() -> discoveryService.get(created.id(), 18L))
+                .isInstanceOf(DiscoveryNotFoundException.class);
+        assertThatThrownBy(() -> discoveryService.cancel(created.id(), 18L))
+                .isInstanceOf(DiscoveryNotFoundException.class);
         Map<String, Object> source = Map.of(
                 "bookSourceUrl", "https://books.example", "bookSourceName", "Books",
                 "ruleSearch", Map.of("bookList", ".book"));

@@ -47,6 +47,9 @@ public class SourceHealthCheckService {
     public HealthCheckView create(CreateHealthCheckRequest request) {
         HealthCheckRecord record = repository.findByIdempotencyKey(request.ownerId(), request.idempotencyKey())
                 .orElseGet(() -> createRecord(request));
+        if (!record.keyword().equals(request.keyword())) {
+            throw new IllegalArgumentException("source health check idempotency conflict");
+        }
         if (record.taskId() == null) {
             UUID taskId = schedulerClient.createTask("reader_source_health_check",
                     "reader_source_health_check:" + record.id() + ":v1", "READER_SOURCE_HEALTH",
@@ -98,6 +101,18 @@ public class SourceHealthCheckService {
     }
 
     /**
+     * 按所有者查询书源健康检查。
+     *
+     * @param requestId 请求标识
+     * @param ownerId 所有者标识
+     * @return 检查视图
+     */
+    public HealthCheckView get(UUID requestId, long ownerId) {
+        requiredOwner(requestId, ownerId);
+        return get(requestId);
+    }
+
+    /**
      * 取消健康检查任务。
      *
      * @param requestId 请求标识
@@ -110,6 +125,18 @@ public class SourceHealthCheckService {
             schedulerClient.cancel(record.taskId());
         }
         return get(requestId);
+    }
+
+    /**
+     * 按所有者取消书源健康检查。
+     *
+     * @param requestId 请求标识
+     * @param ownerId 所有者标识
+     * @return 检查视图
+     */
+    public HealthCheckView cancel(UUID requestId, long ownerId) {
+        requiredOwner(requestId, ownerId);
+        return cancel(requestId);
     }
 
     private HealthCheckRecord createRecord(CreateHealthCheckRequest request) {
@@ -132,6 +159,14 @@ public class SourceHealthCheckService {
 
     private HealthCheckRecord required(UUID requestId) {
         return repository.findById(requestId).orElseThrow(() -> new HealthCheckNotFoundException(requestId));
+    }
+
+    private HealthCheckRecord requiredOwner(UUID requestId, long ownerId) {
+        HealthCheckRecord record = required(requestId);
+        if (record.ownerId() != ownerId) {
+            throw new HealthCheckNotFoundException(requestId);
+        }
+        return record;
     }
 
     private HealthCheckView view(HealthCheckRecord record) {

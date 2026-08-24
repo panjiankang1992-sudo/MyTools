@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
@@ -53,22 +54,24 @@ public class SourceDiscoveryController {
      * 查询书源发现任务。
      *
      * @param id 请求标识
+     * @param ownerId 可选所有者标识
      * @return 任务视图
      */
     @GetMapping("/api/v1/source-discoveries/{id}")
-    public DiscoveryView get(@PathVariable UUID id) {
-        return discoveryService.get(id);
+    public DiscoveryView get(@PathVariable UUID id, @RequestParam(required = false) Long ownerId) {
+        return ownerId == null ? discoveryService.get(id) : discoveryService.get(id, ownerId);
     }
 
     /**
      * 取消书源发现任务。
      *
      * @param id 请求标识
+     * @param ownerId 可选所有者标识
      * @return 任务视图
      */
     @PostMapping("/api/v1/source-discoveries/{id}/cancel")
-    public DiscoveryView cancel(@PathVariable UUID id) {
-        return discoveryService.cancel(id);
+    public DiscoveryView cancel(@PathVariable UUID id, @RequestParam(required = false) Long ownerId) {
+        return ownerId == null ? discoveryService.cancel(id) : discoveryService.cancel(id, ownerId);
     }
 
     /**

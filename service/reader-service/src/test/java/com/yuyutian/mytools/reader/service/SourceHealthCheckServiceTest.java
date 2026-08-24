@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -54,6 +55,10 @@ class SourceHealthCheckServiceTest {
                 .thenReturn(taskId);
         var created = healthCheckService.create(new CreateHealthCheckRequest(
                 ownerId, "daily-health", "test"));
+        assertThatThrownBy(() -> healthCheckService.get(created.id(), ownerId + 1))
+                .isInstanceOf(HealthCheckNotFoundException.class);
+        assertThatThrownBy(() -> healthCheckService.cancel(created.id(), ownerId + 1))
+                .isInstanceOf(HealthCheckNotFoundException.class);
         when(schedulerClient.getResults(taskId)).thenReturn(new SchedulerResult(taskId, "SUCCEEDED", List.of(
                 new SchedulerResult.StepResult(UUID.randomUUID(), 0, 2, "check_sources", 1, "SUCCEEDED",
                         Map.of("results", List.of(Map.of("sourceId", sourceIds.get(0),

@@ -4,6 +4,10 @@ import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CatalogView;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CreateImport;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.ImportView;
+import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.CreateDiscovery;
+import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.CreateHealthCheck;
+import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.DiscoveryView;
+import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.HealthCheckView;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -172,6 +176,92 @@ public class ReaderGatewayClient {
         return response.getBody();
     }
 
+    /**
+     * 创建书源发现任务。
+     *
+     * @param ownerId 所有者标识
+     * @param request 创建请求
+     * @param correlationId 关联标识
+     * @return 发现视图
+     */
+    public DiscoveryView createDiscovery(long ownerId, CreateDiscovery request, String correlationId) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("ownerId", ownerId);
+        payload.put("idempotencyKey", request.idempotencyKey());
+        payload.put("url", request.url());
+        return exchange(root() + "/api/v1/source-discoveries", HttpMethod.POST, payload,
+                correlationId, DiscoveryView.class);
+    }
+
+    /**
+     * 查询书源发现任务。
+     *
+     * @param ownerId 所有者标识
+     * @param id 发现标识
+     * @param correlationId 关联标识
+     * @return 发现视图
+     */
+    public DiscoveryView discovery(long ownerId, UUID id, String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/source-discoveries/" + id, ownerId), HttpMethod.GET,
+                null, correlationId, DiscoveryView.class);
+    }
+
+    /**
+     * 取消书源发现任务。
+     *
+     * @param ownerId 所有者标识
+     * @param id 发现标识
+     * @param correlationId 关联标识
+     * @return 发现视图
+     */
+    public DiscoveryView cancelDiscovery(long ownerId, UUID id, String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/source-discoveries/" + id + "/cancel", ownerId),
+                HttpMethod.POST, null, correlationId, DiscoveryView.class);
+    }
+
+    /**
+     * 创建书源健康检查任务。
+     *
+     * @param ownerId 所有者标识
+     * @param request 创建请求
+     * @param correlationId 关联标识
+     * @return 健康检查视图
+     */
+    public HealthCheckView createHealthCheck(long ownerId, CreateHealthCheck request, String correlationId) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("ownerId", ownerId);
+        payload.put("idempotencyKey", request.idempotencyKey());
+        payload.put("keyword", request.keyword());
+        return exchange(root() + "/api/v1/source-health-checks", HttpMethod.POST, payload,
+                correlationId, HealthCheckView.class);
+    }
+
+    /**
+     * 查询书源健康检查任务。
+     *
+     * @param ownerId 所有者标识
+     * @param id 健康检查标识
+     * @param correlationId 关联标识
+     * @return 健康检查视图
+     */
+    public HealthCheckView healthCheck(long ownerId, UUID id, String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/source-health-checks/" + id, ownerId), HttpMethod.GET,
+                null, correlationId, HealthCheckView.class);
+    }
+
+    /**
+     * 取消书源健康检查任务。
+     *
+     * @param ownerId 所有者标识
+     * @param id 健康检查标识
+     * @param correlationId 关联标识
+     * @return 健康检查视图
+     */
+    public HealthCheckView cancelHealthCheck(long ownerId, UUID id, String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/source-health-checks/" + id + "/cancel", ownerId),
+                HttpMethod.POST, null, correlationId, HealthCheckView.class);
+    }
+
     private SearchView exchangeSearch(String url, HttpMethod method, Object body, String correlationId) {
         var response = restTemplate.exchange(url, method, entity(body, correlationId), SearchView.class);
         if (response.getBody() == null) {
@@ -190,6 +280,14 @@ public class ReaderGatewayClient {
 
     private String ownerUrl(String url, long ownerId) {
         return UriComponentsBuilder.fromHttpUrl(url).queryParam("ownerId", ownerId).toUriString();
+    }
+
+    private <T> T exchange(String url, HttpMethod method, Object body, String correlationId, Class<T> type) {
+        var response = restTemplate.exchange(url, method, entity(body, correlationId), type);
+        if (response.getBody() == null) {
+            throw new IllegalStateException("Reader Service returned an empty response");
+        }
+        return response.getBody();
     }
 
     private HttpEntity<?> entity(Object body, String correlationId) {

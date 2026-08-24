@@ -17,6 +17,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import com.yuyutian.mytools.gateway.model.ReaderSearchGatewayModels.*;
+import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.CreateDiscovery;
+import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.CreateHealthCheck;
+import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.DiscoveryView;
+import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.HealthCheckView;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -90,6 +94,25 @@ class ReaderGatewayControllerTest {
         assertThat(controller.importView(id, request(55L))).isEqualTo(view);
         assertThat(controller.cancelImport(id, request(55L))).isEqualTo(view);
         assertThat(controller.importCatalog(id, request(55L))).isEqualTo(catalog);
+    }
+
+    @Test
+    void shouldInjectOwnerIntoSourceTaskLifecycles() {
+        ReaderGatewayClient client = mock(ReaderGatewayClient.class);
+        ReaderGatewayController controller = new ReaderGatewayController(properties(true), client);
+        UUID discoveryId = UUID.randomUUID();
+        UUID healthId = UUID.randomUUID();
+        CreateDiscovery discoveryRequest = new CreateDiscovery("discover-1", "https://sources.example");
+        CreateHealthCheck healthRequest = new CreateHealthCheck("health-1", "test");
+        DiscoveryView discovery = new DiscoveryView(discoveryId, "QUEUED", "https://sources.example",
+                0, 0, 0, java.time.Instant.EPOCH, java.time.Instant.EPOCH);
+        HealthCheckView health = new HealthCheckView(healthId, "QUEUED", "test",
+                0, 0, 0, java.time.Instant.EPOCH, java.time.Instant.EPOCH);
+        when(client.createDiscovery(55L, discoveryRequest, "correlation")).thenReturn(discovery);
+        when(client.createHealthCheck(55L, healthRequest, "correlation")).thenReturn(health);
+
+        assertThat(controller.createDiscovery(discoveryRequest, request(55L))).isEqualTo(discovery);
+        assertThat(controller.createHealthCheck(healthRequest, request(55L))).isEqualTo(health);
     }
 
     private MockHttpServletRequest request(long userId) {
