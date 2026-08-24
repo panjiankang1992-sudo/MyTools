@@ -92,6 +92,18 @@ python3 /opt/yuyutian/mytools/releases/current/deploy/verify_task_execution.py \
 
 命令输出包含四个任务实例 ID，可作为部署验收证据保留。该验收只证明控制面和执行面的终态链路；Storage、Drive、Media 和 Reader 的可再生数据仍需执行各自的重建任务并保存领域对账结果。
 
+领域重建通过各服务的创建接口触发后，将返回的 Storage operation ID、Drive/Media operation ID 和 Reader rebuild ID 填入单独的证据 JSON。模板 `domain-rebuild-evidence.example.json` 中的 UUID 仅为格式示例，不可直接执行。验收器从当前进程环境读取四个内部令牌，同时核对领域终态、Scheduler 任务及每个步骤；Media 还会分页确认不存在暂存扫描、运行中或失败分析。
+
+```bash
+set -a
+. /opt/yuyutian/mytools/config/services.env
+set +a
+python3 /opt/yuyutian/mytools/releases/current/deploy/verify_domain_rebuilds.py \
+  --evidence /opt/yuyutian/mytools/migration/domain-rebuild-evidence.json
+```
+
+证据文件只能保存业务 ID 和所有者 ID，不得保存令牌、Provider 凭据或业务数据路径。Storage、Media 的扫描根目录分别由创建操作请求和远程业务配置提供，与 `/opt/yuyutian/mytools` 部署根目录无关。
+
 `copytruncate` 允许 Java 和 Python 进程保持打开的 stdout 文件描述符而无需逐个重启。日志目录和文件分别使用 `0750`、`0640`，仅 `mytools` 账号和同组进程可读。
 
 ## 启动顺序
