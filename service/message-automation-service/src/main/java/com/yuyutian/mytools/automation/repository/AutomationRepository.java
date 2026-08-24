@@ -41,6 +41,9 @@ public class AutomationRepository {
     public AutomationRuleRecord createRule(CreateAutomationRuleRequest request) {
         Optional<AutomationRuleRecord> existing = findRuleByName(request.ownerId(), request.name());
         if (existing.isPresent()) {
+            if (!equivalent(existing.get(), request)) {
+                throw new IllegalStateException("automation rule idempotency conflict");
+            }
             return existing.get();
         }
         UUID id = UUID.randomUUID();
@@ -221,6 +224,19 @@ public class AutomationRepository {
 
     private Optional<AutomationRuleRecord> findRuleByName(long ownerId, String name) {
         return queryRules("WHERE ar.owner_id = ? AND ar.name = ?", ownerId, name).stream().findFirst();
+    }
+
+    private boolean equivalent(AutomationRuleRecord rule, CreateAutomationRuleRequest request) {
+        return rule.ownerId() == request.ownerId()
+                && rule.name().equals(request.name())
+                && rule.channelType() == request.channelType()
+                && java.util.Objects.equals(rule.conversationKey(), blankToNull(request.conversationKey()))
+                && java.util.Objects.equals(rule.sender(), blankToNull(request.sender()))
+                && rule.commandPrefix().equals(request.commandPrefix())
+                && rule.requestKind().equals(request.requestKind())
+                && rule.maxActions() == request.maxActions()
+                && rule.priority() == request.priority()
+                && rule.enabled() == request.enabled();
     }
 
     private Optional<AutomationRuleRecord> findRule(UUID id) {

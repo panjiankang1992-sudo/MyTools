@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -37,6 +38,21 @@ class MessageAutomationServiceTest {
 
     @MockBean
     private DownloadIngestionClient downloadClient;
+
+    @Test
+    void shouldRejectChangedRuleReplay() {
+        CreateAutomationRuleRequest request = new CreateAutomationRuleRequest(10L, "stable_rule",
+                ChannelType.EMAIL, "thread-1", "allowed@example.com", "download: ",
+                "HTTP_ASSET", 1, 100, true);
+
+        var created = service.createRule(request);
+        var replayed = service.createRule(request);
+
+        assertThat(replayed.id()).isEqualTo(created.id());
+        assertThatThrownBy(() -> service.createRule(new CreateAutomationRuleRequest(10L, "stable_rule",
+                ChannelType.EMAIL, "thread-1", "allowed@example.com", "other: ",
+                "HTTP_ASSET", 1, 100, true))).isInstanceOf(IllegalStateException.class);
+    }
 
     @Test
     void shouldCreateBoundedDownloadsForAuthorizedMessageOnlyOnce() {

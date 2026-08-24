@@ -16,6 +16,8 @@ Messaging Service 的默认关闭 Outbox relay 只向 `POST /internal/v1/message
 
 每个下载动作在外部调用前先写入 `automation_action` 占位记录，保存稳定序号和私有恢复输入；Download Ingestion 返回后绑定业务请求标识。查询运行时逐项对账运行/成功/失败/取消状态，并重新计算 `RUNNING`、`SUCCEEDED`、`FAILED`、`PARTIAL_FAILED` 或 `CANCELLED` 聚合结果。创建结果未知的动作保留 `CREATING`，后续使用相同幂等键恢复；动作 API 响应不暴露保存的源 URL。`action_refs_json` 在迁移期保留为兼容投影，不再作为动作权威记录。
 
+规则创建以 owner 和规则名为幂等身份，重复请求必须匹配渠道、会话、发送者、命令前缀、动作类型、动作上限、优先级和启用状态；任一字段变化均拒绝，不能静默复用旧授权规则。
+
 内部接口：
 
 - `POST /internal/v1/automation-rules`：创建规则及固定动作绑定。
