@@ -12,4 +12,4 @@
 
 相同 `sourceSystem + legacyMessageId` 和相同摘要的记录幂等跳过；身份相同但正文、元数据或分段变化时拒绝覆盖。快照只允许 Messaging 历史迁移契约中的字段，未知字段会被拒绝，避免旧服务密码、Cookie 或渠道密钥被意外带入。冻结高水位的集合证据按 `sourceSystem + legacyMessageId` 排序，首次计算后写入 `legacy_inbound_export_snapshot`，后续分页读取同一不可变证据，避免大批迁移按页重复扫描全量历史。证据缓存使用 `messaging-history-v1` 协议版本；升级摘要算法时保留旧证据但不会误用。
 
-首批数据可由针对旧 MsgService 实际存储格式的一次性只读导出脚本映射后调用快照装载接口。当前机器上没有 `/Users/pankang/mycode/MsgService` 源码或 schema，因此本服务不猜测其表结构，也不直接连接旧数据库；映射脚本必须在取得真实 schema 后单独实现和对账。已装载的标准快照为只增不改，导出首屏会冻结高水位，迁移期间并发追加不会改变该次迁移的数量、摘要和分页边界。
+旧 MsgService 已按远程 `/opt/code/MsgService` 的实际 TypeScript 与 SQLite 实现完成核验。生产库使用 WAL，因此导出必须读取 SQLite online backup 生成的一致快照。当前适配器已经实现入站快照；发件快照接口和只读 SQLite 导出器是下一迁移步骤。在这两项完成前不得删除旧库或附件数据。发件附件可能以内嵌 Buffer JSON 存在，导出器必须先提取为内容寻址归档，并只向新服务传递文件名、类型、大小、SHA-256 和归档引用。

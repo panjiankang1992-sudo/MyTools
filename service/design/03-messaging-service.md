@@ -1,5 +1,9 @@
 # Messaging Service 详细设计
 
+> MsgService 实际代码位于远程 `/opt/code/MsgService`。其存量发件历史必须导入独立的
+> `outbound_message_history` 归档，不得写入实时投递队列；详细审计和迁移顺序见
+> [24-msgservice-current-state-and-migration.md](24-msgservice-current-state-and-migration.md)。
+
 ## 职责
 
 由 MsgService 演进，统一邮件、QQ、Telegram、OneBot 等渠道的入站与出站消息、附件、模板、投递记录和回执。它不判断消息是否需要下载，不拥有验证码业务状态。
