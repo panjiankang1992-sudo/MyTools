@@ -67,10 +67,6 @@ public class LegacyReaderMigrationService {
                 accepted++;
                 continue;
             }
-            if (!"SHELF".equals(type) && !hasShelfMapping(item.ownerId(), item.bookId())) {
-                rejected.add(type + ":" + item.ownerId() + ":" + auditKey);
-                continue;
-            }
             List<String> existingHashes = jdbcTemplate.queryForList("""
                     SELECT payload_sha256 FROM legacy_reader_migration_item
                     WHERE entity_type = ? AND owner_id = ? AND idempotency_hash = ?
@@ -125,7 +121,7 @@ public class LegacyReaderMigrationService {
     }
 
     private UUID importProgress(LegacyReaderMigrationItem item, String payload) {
-        UUID shelfId = shelfId(item.ownerId(), item.bookId());
+        UUID shelfId = ensureShelf(item);
         jdbcTemplate.update("""
                 INSERT INTO reading_progress
                     (shelf_book_id, chapter_index, chapter_url, position_json, deleted, version, updated_at)
@@ -136,7 +132,7 @@ public class LegacyReaderMigrationService {
     }
 
     private UUID importMarker(LegacyReaderMigrationItem item, String payload) {
-        UUID shelfId = shelfId(item.ownerId(), item.bookId());
+        UUID shelfId = ensureShelf(item);
         UUID markerId = stableId("marker", item.ownerId(), item.legacyKey());
         jdbcTemplate.update("""
                 INSERT INTO reader_marker
@@ -161,12 +157,37 @@ public class LegacyReaderMigrationService {
         return UUID.fromString(ids.getFirst());
     }
 
-    private boolean hasShelfMapping(long ownerId, String bookId) {
-        Integer count = jdbcTemplate.queryForObject("""
-                SELECT COUNT(*) FROM legacy_reader_key_map
+    private UUID ensureShelf(LegacyReaderMigrationItem item) {
+        List<String> ids = jdbcTemplate.queryForList("""
+                SELECT shelf_book_id FROM legacy_reader_key_map
                 WHERE owner_id = ? AND legacy_book_id_sha256 = ? AND legacy_book_id = ?
-                """, Integer.class, ownerId, hash(bookId), bookId);
-        return count != null && count == 1;
+                """, String.class, item.ownerId(), hash(item.bookId()), item.bookId());
+        if (ids.size() == 1) {
+            return UUID.fromString(ids.getFirst());
+        }
+        if (!ids.isEmpty()) {
+            throw new IllegalStateException("Legacy Reader shelf mapping is ambiguous");
+        }
+        UUID shelfId = stableId("placeholder", item.ownerId(), item.bookId());
+        String syncKey = "placeholder:" + hash(item.bookId());
+        Map<String, Object> metadata = new LinkedHashMap<>();
+        metadata.put("name", "Unknown");
+        metadata.put("legacyBookId", item.bookId());
+        metadata.put("legacyPlaceholder", true);
+        // 旧库可能只有阅读进度；创建确定性占位书架以保全不可再生位置。
+        jdbcTemplate.update("""
+                INSERT INTO shelf_book
+                    (id, owner_id, book_key, metadata_json, deleted, version, created_at, updated_at)
+                VALUES (?, ?, ?, ?, FALSE, 1, ?, ?)
+                """, shelfId.toString(), item.ownerId(), syncKey, json(metadata),
+                timestamp(item.serverUpdatedAt()), timestamp(item.serverUpdatedAt()));
+        jdbcTemplate.update("""
+                INSERT INTO legacy_reader_key_map
+                    (owner_id, legacy_book_id, legacy_book_id_sha256, shelf_book_id, sync_key, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """, item.ownerId(), item.bookId(), hash(item.bookId()), shelfId.toString(), syncKey,
+                Timestamp.from(Instant.now()));
+        return shelfId;
     }
 
     private boolean valid(LegacyReaderMigrationItem item) {

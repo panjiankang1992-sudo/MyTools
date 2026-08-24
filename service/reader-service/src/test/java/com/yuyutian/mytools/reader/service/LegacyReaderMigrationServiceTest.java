@@ -38,7 +38,8 @@ class LegacyReaderMigrationServiceTest {
 
         var dryRun = service.migrate(new LegacyReaderMigrationBatch("reader-migration-v1", true, batch.items()));
         assertThat(dryRun.accepted()).isEqualTo(3);
-        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM shelf_book", Integer.class)).isZero();
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM shelf_book WHERE owner_id=71",
+                Integer.class)).isZero();
 
         var migrated = service.migrate(batch);
         var replay = service.migrate(batch);
@@ -47,17 +48,21 @@ class LegacyReaderMigrationServiceTest {
         assertThat(migrated.rejected()).isZero();
         assertThat(replay.skipped()).isEqualTo(3);
         assertThat(replay.digestSha256()).isEqualTo(migrated.digestSha256());
-        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM shelf_book", Integer.class)).isEqualTo(1);
-        assertThat(jdbcTemplate.queryForObject("SELECT metadata_json FROM shelf_book", String.class))
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM shelf_book WHERE owner_id=71",
+                Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject("SELECT metadata_json FROM shelf_book WHERE owner_id=71",
+                String.class))
                 .contains("legacyBookId", "book-a");
-        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM reading_progress", Integer.class)).isEqualTo(1);
-        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM reader_marker", Integer.class)).isEqualTo(1);
-        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM legacy_reader_migration_item",
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM reading_progress p JOIN shelf_book s "
+                + "ON s.id=p.shelf_book_id WHERE s.owner_id=71", Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM reader_marker m JOIN shelf_book s "
+                + "ON s.id=m.shelf_book_id WHERE s.owner_id=71", Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM legacy_reader_migration_item WHERE owner_id=71",
                 Integer.class)).isEqualTo(3);
     }
 
     @Test
-    void shouldRejectDependentRecordUntilShelfMappingExists() {
+    void shouldPreserveOrphanProgressWithDeterministicPlaceholderShelf() {
         long updatedAt = 1_800_000_000_000L;
         var progress = new LegacyReaderMigrationItem("PROGRESS", 72L, "missing", "missing",
                 Map.of("deleted", false), false, 1, updatedAt);
@@ -65,7 +70,20 @@ class LegacyReaderMigrationServiceTest {
         var result = service.migrate(new LegacyReaderMigrationBatch("reader-migration-v1", false,
                 List.of(progress)));
 
-        assertThat(result.rejected()).isEqualTo(1);
-        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM reading_progress", Integer.class)).isZero();
+        assertThat(result.accepted()).isEqualTo(1);
+        assertThat(result.rejected()).isZero();
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM reading_progress p JOIN shelf_book s "
+                + "ON s.id=p.shelf_book_id WHERE s.owner_id=72", Integer.class)).isOne();
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM shelf_book WHERE owner_id=72",
+                Integer.class)).isOne();
+        assertThat(jdbcTemplate.queryForObject("SELECT metadata_json FROM shelf_book WHERE owner_id=72",
+                String.class))
+                .contains("legacyPlaceholder", "missing");
+
+        var replay = service.migrate(new LegacyReaderMigrationBatch("reader-migration-v1", false,
+                List.of(progress)));
+        assertThat(replay.skipped()).isOne();
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM shelf_book WHERE owner_id=72",
+                Integer.class)).isOne();
     }
 }
