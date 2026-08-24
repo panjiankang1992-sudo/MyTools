@@ -46,6 +46,7 @@ class DownloadGatewayClientTest {
 
         assertThat(result.id()).isEqualTo(requestId);
         assertThat(result.status()).isEqualTo("RUNNING");
+        assertThat(result.toString()).doesNotContain("taskInstanceId", "secret.example");
         server.verify();
     }
 

@@ -1,5 +1,7 @@
 # Download Ingestion Service 详细设计
 
+业务 Gateway 仅返回下载请求标识、业务状态和安全结果摘要，不返回 Scheduler 任务实例标识、源 URL 或内部任务参数。
+
 ## 职责
 
 由 DownloadBot 核心演进，负责下载请求、来源解析、下载计划、业务状态和资产登记编排。实际下载由 Executor 中的脚本执行。

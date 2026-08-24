@@ -29,8 +29,7 @@ public final class DownloadGatewayModels {
     /**
      * 不包含下载参数和源地址的请求视图。
      */
-    public record DownloadView(UUID id, String status, UUID taskInstanceId,
-                               String createdAt, String updatedAt) {
+    public record DownloadView(UUID id, String status, String createdAt, String updatedAt) {
     }
 
     /**

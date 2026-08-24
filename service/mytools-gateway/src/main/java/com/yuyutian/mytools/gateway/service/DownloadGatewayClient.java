@@ -130,8 +130,7 @@ public class DownloadGatewayClient {
 
     private DownloadView view(Map<String, Object> body) {
         return new DownloadView(uuid(body.get("id")), text(body.get("status")),
-                nullableUuid(body.get("task_instance_id")), text(body.get("created_at")),
-                text(body.get("updated_at")));
+                text(body.get("created_at")), text(body.get("updated_at")));
     }
 
     private ResultSummary summary(Map<String, Object> body) {

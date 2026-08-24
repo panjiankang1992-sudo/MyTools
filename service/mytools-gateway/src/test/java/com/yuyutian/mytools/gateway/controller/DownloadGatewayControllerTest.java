@@ -29,7 +29,7 @@ class DownloadGatewayControllerTest {
         DownloadGatewayController controller = new DownloadGatewayController(properties(true), client);
         CreateHttpDownload body = new CreateHttpDownload("asset-1", "https://example.org/file",
                 "file.bin", 1024L);
-        DownloadView expected = new DownloadView(UUID.randomUUID(), "PENDING", null, null, null);
+        DownloadView expected = new DownloadView(UUID.randomUUID(), "PENDING", null, null);
         when(client.createHttp(body, 55L, "correlation")).thenReturn(expected);
 
         assertThat(controller.createHttp(body, request(55L))).isEqualTo(expected);
