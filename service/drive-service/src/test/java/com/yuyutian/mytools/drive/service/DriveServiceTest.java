@@ -136,6 +136,51 @@ class DriveServiceTest {
         verify(schedulerClient, never()).cancel(taskId);
     }
 
+    @Test
+    void shouldDelegateOwnerBoundTreeCopyToStorageGateway() {
+        AccountView source = service.register(new RegisterAccountRequest(41L, "tree-source", "Source", "RCLONE",
+                "secret://drive/tree-source", "tree_source", true, true));
+        AccountView target = service.register(new RegisterAccountRequest(41L, "tree-target", "Target", "S3",
+                "secret://drive/tree-target", "tree_target", false, true));
+        UUID sourceProvider = UUID.randomUUID();
+        UUID targetProvider = UUID.randomUUID();
+        service.bindStorageProvider(source.id(), sourceProvider);
+        service.bindStorageProvider(target.id(), targetProvider);
+        UUID operationId = UUID.randomUUID();
+        UUID taskId = UUID.randomUUID();
+        StorageOperationView running = new StorageOperationView(operationId, taskId, "COPY_TREE_NATIVE",
+                "RUNNING", null);
+        StorageOperationView cancelled = new StorageOperationView(operationId, taskId, "COPY_TREE_NATIVE",
+                "CANCELLED", null);
+        when(storageConnector.copyTree(startsWith("drive-copy-tree:"), eq(sourceProvider), eq("books"),
+                eq(targetProvider), eq("backup"), eq(5000))).thenReturn(running);
+        when(storageConnector.operation(operationId)).thenReturn(running, cancelled);
+        when(storageConnector.cancel(operationId)).thenReturn(running);
+
+        OperationView created = service.copyTree(source.id(), 41L,
+                new CopyTreeRequest("tree-1", target.id(), "/books", "/backup", 5000));
+        OperationView cancelledView = service.cancelOperation(created.id(), 41L);
+
+        assertThat(created.operationType()).isEqualTo("COPY_TREE_NATIVE");
+        assertThat(cancelledView.status()).isEqualTo("CANCELLED");
+        verify(storageConnector).cancel(operationId);
+        verify(schedulerClient, never()).cancel(taskId);
+    }
+
+    @Test
+    void shouldRejectTreeCopyToReadOnlyAccount() {
+        AccountView source = service.register(new RegisterAccountRequest(42L, "tree-source-ro", "Source", "RCLONE",
+                "secret://drive/tree-source-ro", "tree_source_ro", true, true));
+        AccountView target = service.register(new RegisterAccountRequest(42L, "tree-target-ro", "Target", "S3",
+                "secret://drive/tree-target-ro", "tree_target_ro", true, true));
+
+        assertThatThrownBy(() -> service.copyTree(source.id(), 42L,
+                new CopyTreeRequest("tree-ro", target.id(), "", "backup", 100)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("drive target account is read only");
+        verifyNoInteractions(storageConnector);
+    }
+
     private IndexItem item(String path,String parent,long size) {
         return new IndexItem(path,path,parent,path,"text/plain",size,false,Instant.parse("2026-01-01T00:00:00Z"),null);
     }

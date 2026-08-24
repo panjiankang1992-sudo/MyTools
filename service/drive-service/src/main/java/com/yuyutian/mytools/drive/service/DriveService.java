@@ -105,40 +105,48 @@ public class DriveService {
      * @return Drive 操作
      */
     public OperationView copyObject(UUID sourceAccountId, long ownerId, CopyObjectRequest request) {
-        AccountView source = requireOwner(sourceAccountId, ownerId);
-        AccountView target = requireOwner(request.targetAccountId(), ownerId);
-        if (!source.enabled() || !target.enabled()) {
-            throw new IllegalArgumentException("drive account is disabled");
-        }
-        if (target.readOnly()) {
-            throw new IllegalArgumentException("drive target account is read only");
-        }
-        UUID sourceProvider = repository.findStorageProvider(source.id())
-                .orElseThrow(() -> new IllegalStateException("drive storage provider is not bound"));
-        UUID targetProvider = repository.findStorageProvider(target.id())
-                .orElseThrow(() -> new IllegalStateException("drive storage provider is not bound"));
+        CopyContext context = requireCopyContext(sourceAccountId, ownerId, request.targetAccountId());
         String sourcePath = normalizeRequired(request.sourcePath());
         String targetPath = normalizeRequired(request.targetPath());
-        String scopedKey = scopedCopyKey(source.id(), target.id(), request.idempotencyKey());
-        StorageOperationView storage = storageConnector.copyObject(scopedKey, sourceProvider, sourcePath,
-                targetProvider, targetPath);
-        return transactions.execute(status -> repository.saveStorageOperation(storage, source.id(), scopedKey));
+        String scopedKey = scopedCopyKey("object", context.source().id(), context.target().id(),
+                request.idempotencyKey());
+        StorageOperationView storage = storageConnector.copyObject(scopedKey, context.sourceProvider(), sourcePath,
+                context.targetProvider(), targetPath);
+        return saveStorageOperation(storage, context.source().id(), scopedKey);
+    }
+    /**
+     * 创建跨 Drive 账户的受控递归树复制任务。
+     *
+     * @param sourceAccountId 来源账户
+     * @param ownerId 所有者
+     * @param request 复制请求
+     * @return Drive 操作
+     */
+    public OperationView copyTree(UUID sourceAccountId, long ownerId, CopyTreeRequest request) {
+        CopyContext context = requireCopyContext(sourceAccountId, ownerId, request.targetAccountId());
+        String sourcePath = normalize(request.sourcePath());
+        String targetPath = normalize(request.targetPath());
+        String scopedKey = scopedCopyKey("tree", context.source().id(), context.target().id(),
+                request.idempotencyKey());
+        StorageOperationView storage = storageConnector.copyTree(scopedKey, context.sourceProvider(), sourcePath,
+                context.targetProvider(), targetPath, request.maximumObjects());
+        return saveStorageOperation(storage, context.source().id(), scopedKey);
     }
     /** 查询账户操作。 @param operationId 操作标识 @param ownerId 所有者 @return 操作 */
     public OperationView getOperation(UUID operationId,long ownerId) {
         OperationView operation=repository.findOperation(operationId)
             .orElseThrow(() -> new IllegalArgumentException("drive operation not found"));
         requireOwner(operation.accountId(),ownerId);
-        return "COPY_OBJECT".equals(operation.operationType()) ? reconcileStorage(operation) : reconcile(operation);
+        return isStorageManaged(operation) ? reconcileStorage(operation) : reconcile(operation);
     }
     /** 取消账户操作。 @param operationId 操作标识 @param ownerId 所有者 @return 操作 */
     public OperationView cancelOperation(UUID operationId,long ownerId) {
         OperationView operation=getOperation(operationId,ownerId);
         if(!java.util.Set.of("SUCCEEDED","FAILED","TIMED_OUT","CANCELLED").contains(operation.status())) {
-            if ("COPY_OBJECT".equals(operation.operationType())) storageConnector.cancel(operation.id());
+            if (isStorageManaged(operation)) storageConnector.cancel(operation.id());
             else schedulerClient.cancel(operation.taskInstanceId());
         }
-        return "COPY_OBJECT".equals(operation.operationType()) ? reconcileStorage(operation) : reconcile(operation);
+        return isStorageManaged(operation) ? reconcileStorage(operation) : reconcile(operation);
     }
     private OperationView reconcile(OperationView operation) {
         String status=schedulerClient.getStatus(operation.taskInstanceId());
@@ -166,8 +174,28 @@ public class DriveService {
             throw new IllegalStateException("SHA-256 is unavailable",exception);
         }
     }
-    private String scopedCopyKey(UUID sourceAccountId, UUID targetAccountId, String key) {
-        return scopedIdempotencyKey(sourceAccountId, targetAccountId + ":" + key).replace("drive-index:", "drive-copy:");
+    private String scopedCopyKey(String kind, UUID sourceAccountId, UUID targetAccountId, String key) {
+        String material = "object".equals(kind) ? targetAccountId + ":" + key
+                : kind + ":" + targetAccountId + ":" + key;
+        String prefix = "object".equals(kind) ? "drive-copy:" : "drive-copy-" + kind + ":";
+        return scopedIdempotencyKey(sourceAccountId, material).replace("drive-index:", prefix);
+    }
+    private CopyContext requireCopyContext(UUID sourceAccountId, long ownerId, UUID targetAccountId) {
+        AccountView source = requireOwner(sourceAccountId, ownerId);
+        AccountView target = requireOwner(targetAccountId, ownerId);
+        if (!source.enabled() || !target.enabled()) throw new IllegalArgumentException("drive account is disabled");
+        if (target.readOnly()) throw new IllegalArgumentException("drive target account is read only");
+        UUID sourceProvider = repository.findStorageProvider(source.id())
+                .orElseThrow(() -> new IllegalStateException("drive storage provider is not bound"));
+        UUID targetProvider = repository.findStorageProvider(target.id())
+                .orElseThrow(() -> new IllegalStateException("drive storage provider is not bound"));
+        return new CopyContext(source, target, sourceProvider, targetProvider);
+    }
+    private OperationView saveStorageOperation(StorageOperationView storage, UUID sourceAccountId, String scopedKey) {
+        return transactions.execute(status -> repository.saveStorageOperation(storage, sourceAccountId, scopedKey));
+    }
+    private boolean isStorageManaged(OperationView operation) {
+        return java.util.Set.of("COPY_OBJECT", "COPY_TREE_NATIVE").contains(operation.operationType());
     }
     private AccountView require(UUID id) { return repository.findAccount(id).orElseThrow(() -> new IllegalArgumentException("drive account not found")); }
     private String normalize(String path) {
@@ -189,4 +217,5 @@ public class DriveService {
         return values;
     }
     private enum ScanMode { LEGACY, DUAL, STORAGE }
+    private record CopyContext(AccountView source, AccountView target, UUID sourceProvider, UUID targetProvider) { }
 }

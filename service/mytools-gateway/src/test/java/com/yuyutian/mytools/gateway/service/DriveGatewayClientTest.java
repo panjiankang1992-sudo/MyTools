@@ -98,6 +98,33 @@ class DriveGatewayClientTest {
         server.verify();
     }
 
+    @Test
+    void shouldCreateOwnerBoundTreeCopyWithoutExposingTaskId() {
+        RestTemplate restTemplate = new RestTemplate();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
+        UUID sourceAccountId = UUID.randomUUID();
+        UUID targetAccountId = UUID.randomUUID();
+        UUID operationId = UUID.randomUUID();
+        server.expect(requestTo("http://drive/internal/v1/drive/accounts/" + sourceAccountId
+                        + "/copy-tree?ownerId=55"))
+                .andExpect(method(POST)).andExpect(header("Authorization", "Bearer drive-token"))
+                .andExpect(content().json("{\"idempotencyKey\":\"tree-1\",\"targetAccountId\":\""
+                        + targetAccountId + "\",\"sourcePath\":\"books\",\"targetPath\":\"backup\","
+                        + "\"maximumObjects\":5000}"))
+                .andRespond(withSuccess("{\"id\":\"" + operationId + "\",\"accountId\":\""
+                        + sourceAccountId + "\",\"taskInstanceId\":\"" + UUID.randomUUID()
+                        + "\",\"operationType\":\"COPY_TREE_NATIVE\",\"status\":\"RUNNING\"}",
+                        org.springframework.http.MediaType.APPLICATION_JSON));
+
+        var result = new DriveGatewayClient(restTemplate, properties()).copyTree(sourceAccountId, 55L,
+                new com.yuyutian.mytools.gateway.model.DriveGatewayModels.CopyTreeRequest(
+                        "tree-1", targetAccountId, "books", "backup", 5000), "correlation");
+
+        assertThat(result.id()).isEqualTo(operationId);
+        assertThat(result.toString()).doesNotContain("taskInstanceId");
+        server.verify();
+    }
+
     private GatewayProperties properties() {
         return new GatewayProperties(GatewayProperties.IdentityMode.LEGACY, false, false, Set.of(),
                 true, Set.of(55L), false, Set.of(), "http://mytools", "http://identity", "http://reader", "http://drive",

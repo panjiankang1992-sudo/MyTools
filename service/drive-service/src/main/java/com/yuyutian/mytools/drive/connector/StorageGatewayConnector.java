@@ -129,6 +129,30 @@ public class StorageGatewayConnector implements DirectoryConnector {
     }
 
     /**
+     * 幂等创建原生递归树复制操作。
+     *
+     * @param idempotencyKey 幂等键
+     * @param sourceProviderId 来源 Provider
+     * @param sourcePath 来源根路径
+     * @param targetProviderId 目标 Provider
+     * @param targetPath 目标根路径
+     * @param maximumObjects 最大对象数
+     * @return Storage 操作
+     */
+    public StorageOperationView copyTree(String idempotencyKey, UUID sourceProviderId, String sourcePath,
+                                         UUID targetProviderId, String targetPath, int maximumObjects) {
+        Map<String, Object> payload = Map.of(
+                "idempotencyKey", idempotencyKey,
+                "providerId", sourceProviderId,
+                "operationType", "COPY_TREE_NATIVE",
+                "sourcePath", sourcePath,
+                "targetProviderId", targetProviderId,
+                "targetPath", targetPath,
+                "maximumObjects", maximumObjects);
+        return operationRequest("api/internal/v1/storage/operations", "POST", payload);
+    }
+
+    /**
      * 查询 Storage 操作。
      *
      * @param operationId 操作标识

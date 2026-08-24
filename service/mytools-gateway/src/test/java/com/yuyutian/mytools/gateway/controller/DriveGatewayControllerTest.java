@@ -90,6 +90,22 @@ class DriveGatewayControllerTest {
         verify(client).copyObject(accountId, 55L, body, "correlation");
     }
 
+    @Test
+    void shouldInjectTrustedOwnerIntoTreeCopyOperation() {
+        DriveGatewayClient client = mock(DriveGatewayClient.class);
+        DriveGatewayController controller = new DriveGatewayController(properties(true), client);
+        UUID targetAccountId = UUID.randomUUID();
+        UUID operationId = UUID.randomUUID();
+        var body = new com.yuyutian.mytools.gateway.model.DriveGatewayModels.CopyTreeRequest(
+                "tree-1", targetAccountId, "books", "backup", 5000);
+        OperationView operation = new OperationView(operationId, accountId, "COPY_TREE_NATIVE",
+                "RUNNING", null, Instant.EPOCH, Instant.EPOCH);
+        when(client.copyTree(accountId, 55L, body, "correlation")).thenReturn(operation);
+
+        assertThat(controller.copyTree(accountId, body, request(55L))).isEqualTo(operation);
+        verify(client).copyTree(accountId, 55L, body, "correlation");
+    }
+
     private MockHttpServletRequest request(long userId) {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE,

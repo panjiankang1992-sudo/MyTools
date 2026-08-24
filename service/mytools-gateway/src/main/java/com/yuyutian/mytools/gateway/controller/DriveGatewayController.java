@@ -6,6 +6,7 @@ import com.yuyutian.mytools.gateway.model.DriveGatewayModels.OperationView;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.RefreshIndexRequest;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.AccountSummary;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.CopyObjectRequest;
+import com.yuyutian.mytools.gateway.model.DriveGatewayModels.CopyTreeRequest;
 import com.yuyutian.mytools.gateway.service.DriveGatewayClient;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
@@ -94,6 +95,15 @@ public class DriveGatewayController {
                                     HttpServletRequest request) {
         GatewayPrincipal principal = requireAllowed(request);
         return client.copyObject(accountId, principal.userId(), body, correlation(request));
+    }
+
+    /** 创建受控递归复制操作。 @param accountId 来源账户 @param body 请求 @param request HTTP 请求 @return 操作 */
+    @PostMapping("/accounts/{accountId}/copy-tree")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public OperationView copyTree(@PathVariable UUID accountId, @Valid @RequestBody CopyTreeRequest body,
+                                  HttpServletRequest request) {
+        GatewayPrincipal principal = requireAllowed(request);
+        return client.copyTree(accountId, principal.userId(), body, correlation(request));
     }
 
     /** 查询索引刷新操作。 @param operationId 操作标识 @param request HTTP 请求 @return 操作 */

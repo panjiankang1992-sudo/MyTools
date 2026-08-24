@@ -20,6 +20,8 @@ Drive Service 现已提供索引刷新业务闭环：`POST /internal/v1/drive/ac
 
 首个文件写操作为 `POST /internal/v1/drive/accounts/{id}/copy-object`：来源与目标账户必须属于同一 owner、目标不可只读且两端必须绑定 Storage Provider。Drive 只登记业务操作并调用 Storage Gateway 的 `COPY_OBJECT` 创建、查询和取消契约，不读取 Provider 凭据、不直接执行复制。Gateway 对外响应不暴露 Storage/Scheduler 任务标识。
 
+递归目录复制使用 `POST /internal/v1/drive/accounts/{id}/copy-tree`，请求携带目标账户、来源根、目标根及 `maximumObjects` 硬上限。Drive 调用 Storage `COPY_TREE_NATIVE`，由 Storage 冻结来源清单并拆成受控 `COPY_OBJECT` 子操作；Drive 的统一操作查询和取消会持续同步父操作状态并级联取消。空字符串表示 Provider 根目录，路径仍经过相对路径规范化与越界校验。Gateway 对应开放 `/api/app/v1/drive/accounts/{id}/copy-tree`，沿用默认关闭的 Drive 路由开关和 owner 白名单。
+
 `GET /internal/v1/drive/accounts?ownerId=` 返回当前所有者的账户，用于客户端进入目录前取得账户 UUID。Gateway 只返回显示名称、Provider 类型、只读/启用状态和索引 generation，不暴露外部账户标识、remote key 或 Secret 引用。
 
 Scheduler V25 为失败、超时和取消配置 `drive_finish_index` 特殊步骤，使未完成游标进入明确终态，后续补偿运行可以安全接管；收尾失败采用 `IGNORE`，不会掩盖任务原始终态。
