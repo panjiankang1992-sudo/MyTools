@@ -35,7 +35,10 @@
 1. 停止旧库写入后执行全库备份，不按表筛选。
 2. 记录备份文件 SHA-256 和每张表的 `COUNT(*)`；清单中的 `inventoryComplete` 设为 `true`。
 3. 将备份加载到临时数据库，至少完成建表、逐表读取和行数核对后，才可将 `readVerified` 设为 `true`。
-4. 使用 `python3 service/scripts/legacy_data_retention_gate.py manifest.json` 校验清单。任何未知表先补入本矩阵，再把 `unclassifiedTables` 清空。
+4. 使用 `python3 service/scripts/legacy_data_retention_gate.py manifest.json` 校验清单和备份文件。
+   门禁会流式读取 `backupFile`、核对实际 SHA-256，并拒绝不存在、非普通文件或符号链接的
+   备份；相对路径以清单所在目录为基准。任何未知表先补入本矩阵，再把
+   `unclassifiedTables` 清空。
 5. 所有不可再生数据的领域迁移门禁通过后，旧库才能退出在线使用；备份不随旧服务删除。
 
 清单示例：

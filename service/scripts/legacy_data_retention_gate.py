@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -87,6 +88,45 @@ def evaluate(manifest: dict[str, object]) -> dict[str, object]:
     }
 
 
+def verify_backup(manifest: dict[str, object], manifest_path: Path) -> dict[str, object]:
+    """流式验证清单引用的备份文件存在、类型安全且摘要一致。"""
+    backup_file = manifest.get("backupFile")
+    expected_sha256 = manifest.get("sha256")
+    errors: list[str] = []
+    if not isinstance(backup_file, str) or not backup_file.strip():
+        return {"verified": False, "sizeBytes": 0, "errors": ["backup file cannot be verified"]}
+    candidate = Path(backup_file)
+    if not candidate.is_absolute():
+        candidate = manifest_path.resolve().parent / candidate
+    if candidate.is_symlink():
+        return {"verified": False, "sizeBytes": 0,
+                "errors": ["backupFile must not be a symbolic link"]}
+    try:
+        resolved = candidate.resolve(strict=True)
+    except FileNotFoundError:
+        errors.append("backupFile does not exist")
+        return {"verified": False, "sizeBytes": 0, "errors": errors}
+    except OSError:
+        errors.append("backupFile cannot be resolved")
+        return {"verified": False, "sizeBytes": 0, "errors": errors}
+    if not resolved.is_file():
+        errors.append("backupFile must be a regular file")
+        return {"verified": False, "sizeBytes": 0, "errors": errors}
+    digest = hashlib.sha256()
+    size = 0
+    try:
+        with resolved.open("rb") as handle:
+            while chunk := handle.read(1024 * 1024):
+                size += len(chunk)
+                digest.update(chunk)
+    except OSError:
+        errors.append("backupFile cannot be read")
+        return {"verified": False, "sizeBytes": size, "errors": errors}
+    if not isinstance(expected_sha256, str) or digest.hexdigest() != expected_sha256:
+        errors.append("backupFile SHA-256 does not match manifest")
+    return {"verified": not errors, "sizeBytes": size, "errors": errors}
+
+
 def main() -> int:
     """执行只读的旧库数据保全门禁。"""
     parser = argparse.ArgumentParser()
@@ -94,6 +134,11 @@ def main() -> int:
     arguments = parser.parse_args()
     manifest = json.loads(arguments.manifest.read_text(encoding="utf-8"))
     report = evaluate(manifest)
+    backup = verify_backup(manifest, arguments.manifest)
+    report["backupVerified"] = backup["verified"]
+    report["backupSizeBytes"] = backup["sizeBytes"]
+    report["errors"].extend(backup["errors"])
+    report["ready"] = not report["errors"]
     print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
     return 0 if report["ready"] else 1
 

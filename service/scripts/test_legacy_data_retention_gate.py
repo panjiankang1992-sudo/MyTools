@@ -1,5 +1,8 @@
 import importlib.util
+import hashlib
+import json
 from pathlib import Path
+import tempfile
 import unittest
 
 
@@ -43,6 +46,50 @@ class LegacyDataRetentionGateTest(unittest.TestCase):
         report = MODULE.evaluate(manifest)
         self.assertFalse(report["ready"])
         self.assertEqual(2, len(report["errors"]))
+
+    def test_verifies_backup_file_content(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            backup = root / "mytools.sql.gz"
+            backup.write_bytes(b"verified backup")
+            manifest = valid_manifest()
+            manifest["backupFile"] = backup.name
+            manifest["sha256"] = hashlib.sha256(backup.read_bytes()).hexdigest()
+            manifest_path = root / "manifest.json"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            report = MODULE.verify_backup(manifest, manifest_path)
+            self.assertTrue(report["verified"])
+            self.assertEqual(len(b"verified backup"), report["sizeBytes"])
+
+    def test_rejects_missing_or_changed_backup(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = valid_manifest()
+            manifest["backupFile"] = "missing.sql.gz"
+            missing = MODULE.verify_backup(manifest, root / "manifest.json")
+            self.assertFalse(missing["verified"])
+            self.assertIn("backupFile does not exist", missing["errors"])
+
+            backup = root / "changed.sql.gz"
+            backup.write_bytes(b"changed")
+            manifest["backupFile"] = backup.name
+            changed = MODULE.verify_backup(manifest, root / "manifest.json")
+            self.assertFalse(changed["verified"])
+            self.assertIn("backupFile SHA-256 does not match manifest", changed["errors"])
+
+    def test_rejects_symbolic_link_backup(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "backup.sql.gz"
+            target.write_bytes(b"backup")
+            link = root / "linked.sql.gz"
+            link.symlink_to(target)
+            manifest = valid_manifest()
+            manifest["backupFile"] = link.name
+            manifest["sha256"] = hashlib.sha256(target.read_bytes()).hexdigest()
+            report = MODULE.verify_backup(manifest, root / "manifest.json")
+            self.assertFalse(report["verified"])
+            self.assertIn("backupFile must not be a symbolic link", report["errors"])
 
 
 if __name__ == "__main__":
