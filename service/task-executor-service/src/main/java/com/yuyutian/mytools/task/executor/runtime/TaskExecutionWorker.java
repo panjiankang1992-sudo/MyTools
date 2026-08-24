@@ -43,6 +43,7 @@ public class TaskExecutionWorker {
     private final ExecutorNodeAgent nodeAgent;
     private final SchedulerClient schedulerClient;
     private final ScriptProcessRunner processRunner;
+    private final ScriptReleaseVerifier releaseVerifier;
     private final ObjectMapper objectMapper;
     private final AtomicInteger runningTasks = new AtomicInteger();
 
@@ -53,15 +54,17 @@ public class TaskExecutionWorker {
      * @param nodeAgent 节点代理
      * @param schedulerClient 调度服务客户端
      * @param processRunner 脚本进程运行器
+     * @param releaseVerifier 脚本发布完整性验证器
      * @param objectMapper JSON 映射器
      */
     public TaskExecutionWorker(ExecutorProperties properties, ExecutorNodeAgent nodeAgent,
                                SchedulerClient schedulerClient, ScriptProcessRunner processRunner,
-                               ObjectMapper objectMapper) {
+                               ScriptReleaseVerifier releaseVerifier, ObjectMapper objectMapper) {
         this.properties = properties;
         this.nodeAgent = nodeAgent;
         this.schedulerClient = schedulerClient;
         this.processRunner = processRunner;
+        this.releaseVerifier = releaseVerifier;
         this.objectMapper = objectMapper;
     }
 
@@ -266,6 +269,7 @@ public class TaskExecutionWorker {
         if (!entrypoint.startsWith(root) || !Files.isRegularFile(entrypoint)) {
             throw new IllegalArgumentException("Script entrypoint is outside published script root or missing");
         }
+        releaseVerifier.verifyEntrypoint(step.scriptPackage(), step.scriptVersion(), step.entrypoint(), entrypoint);
         return entrypoint;
     }
 

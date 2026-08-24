@@ -11,6 +11,7 @@ executor:
   poll-seconds: ${TASK_EXECUTOR_POLL_SECONDS:1}
   lease-seconds: ${TASK_EXECUTOR_LEASE_SECONDS:60}
   max-concurrent-tasks: ${TASK_EXECUTOR_MAX_CONCURRENT_TASKS:4}
+  require-package-index: ${TASK_EXECUTOR_REQUIRE_PACKAGE_INDEX:false}
   capabilities:
     runtimes:
       - shell

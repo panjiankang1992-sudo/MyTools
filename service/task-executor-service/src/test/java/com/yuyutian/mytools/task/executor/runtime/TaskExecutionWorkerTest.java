@@ -50,6 +50,7 @@ class TaskExecutionWorkerTest {
                 "executor-test", "http://127.0.0.1:23210", temporaryDirectory.resolve("work"), scriptRoot,
                 temporaryDirectory.resolve("sdk"),
                 10, 1, 60, 2, Map.of(), Map.of(), java.util.Set.of(),
+                false,
                 Map.of("sample", Map.of("CUSTOM_ENV", "enabled"))
         );
         UUID nodeId = UUID.randomUUID();
@@ -69,7 +70,8 @@ class TaskExecutionWorkerTest {
         ExecutorNodeAgent nodeAgent = new ExecutorNodeAgent(schedulerClient);
         nodeAgent.maintainRegistration();
         TaskExecutionWorker worker = new TaskExecutionWorker(
-                properties, nodeAgent, schedulerClient, new ScriptProcessRunner(), new ObjectMapper()
+                properties, nodeAgent, schedulerClient, new ScriptProcessRunner(),
+                new ScriptReleaseVerifier(properties, new ObjectMapper()), new ObjectMapper()
         );
 
         worker.poll();
@@ -94,7 +96,7 @@ class TaskExecutionWorkerTest {
         ExecutorProperties properties = new ExecutorProperties(
                 "executor-test", "http://127.0.0.1:23210", temporaryDirectory.resolve("deadline-work"), scriptRoot,
                 temporaryDirectory.resolve("sdk"),
-                10, 1, 60, 2, Map.of(), Map.of(), java.util.Set.of(), Map.of()
+                10, 1, 60, 2, Map.of(), Map.of(), java.util.Set.of(), false, Map.of()
         );
         ClaimedStep normal = new ClaimedStep(
                 UUID.randomUUID(), "run", "NORMAL", "deadline", "1.0.0", "main.sh",
@@ -113,7 +115,8 @@ class TaskExecutionWorkerTest {
         ExecutorNodeAgent nodeAgent = new ExecutorNodeAgent(schedulerClient);
         nodeAgent.maintainRegistration();
         TaskExecutionWorker worker = new TaskExecutionWorker(
-                properties, nodeAgent, schedulerClient, new ScriptProcessRunner(), new ObjectMapper()
+                properties, nodeAgent, schedulerClient, new ScriptProcessRunner(),
+                new ScriptReleaseVerifier(properties, new ObjectMapper()), new ObjectMapper()
         );
 
         worker.poll();
