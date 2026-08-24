@@ -54,6 +54,15 @@ class TaskPackageContractTest {
         }
     }
 
+    @Test
+    void shouldUseExecutorRecognizedStepKindsForEveryEnabledStep() {
+        Integer invalid = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM task_step_definition
+                WHERE enabled=TRUE AND step_kind NOT IN ('NORMAL','ON_FAILURE','ON_TIMEOUT','ON_CANCEL')
+                """, Integer.class);
+        assertEquals(0, invalid, "Every enabled terminal step must use the Executor step kind protocol");
+    }
+
     private Path resolveServiceRoot() {
         Path workingDirectory = Path.of("").toAbsolutePath().normalize();
         Path serviceRoot = "task-scheduler-service".equals(workingDirectory.getFileName().toString())
