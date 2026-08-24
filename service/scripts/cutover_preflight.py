@@ -20,6 +20,8 @@ DEFAULT_SCHEMAS = {
     "READER_DB_NAME": "mytools_reader",
     "MESSAGING_DB_NAME": "mytools_messaging",
     "MESSAGE_AUTOMATION_DB_NAME": "mytools_message_automation",
+    "APP_CATALOG_DB_NAME": "mytools_app_catalog",
+    "DSH_CONNECTOR_DB_NAME": "mytools_dsh_connector",
 }
 
 SAFE_DISABLED_FLAGS = (
@@ -33,6 +35,8 @@ SAFE_DISABLED_FLAGS = (
     "MESSAGING_REGISTRATION_MAIL_SIDECAR_ENABLED",
     "MESSAGING_ONEBOT_INGRESS_ENABLED",
     "MESSAGE_AUTOMATION_RELAY_ENABLED",
+    "GATEWAY_APP_CATALOG_ROUTE_ENABLED",
+    "GATEWAY_DSH_ROUTE_ENABLED",
 )
 
 FALSE_VALUES = {"", "0", "false", "no", "off"}

@@ -12,7 +12,8 @@ import java.time.Duration;
  * Gateway HTTP 客户端配置。
  */
 @Configuration
-@EnableConfigurationProperties(GatewayProperties.class)
+@EnableConfigurationProperties({GatewayProperties.class, AppCatalogGatewayProperties.class,
+        DshGatewayProperties.class})
 public class GatewayConfiguration {
 
     /**

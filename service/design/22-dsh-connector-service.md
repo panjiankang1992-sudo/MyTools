@@ -14,4 +14,6 @@ DSH Connector 隔离外部 DSH RPC、长连接事件和用户会话授权。它�
 
 `dsh_migrate_legacy_sessions` 在旧 `my_tools` schema 上冻结 `t_dsh_session_binding.id` 高水位并分页读取。批次导入使用目标本地事务；同一旧 ID 的相同内容重放为跳过，内容变化为拒绝。离线门禁要求 dry-run、正式导入和重放的高水位、数量及源摘要一致，重放全部跳过且目标数量闭合。
 
-后续只有在新 Connector 实现并验证 RPC 和事件桥后，Gateway 才改为调用新服务；该后续工作不影响本阶段的数据保全。
+完整的 DSH RPC 和事件流只有在新 Connector 实现并验证事件桥后才切换；该后续工作不影响本阶段的数据保全。
+
+当前 Gateway 已旁路开放会话绑定查询与归档，使用可信主体注入 `ownerId`，并由独立开关默认关闭。外部事件序号推进仍是 Connector 内部能力；完整 RPC、WebSocket 和 SSE 尚未切换。

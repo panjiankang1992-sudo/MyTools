@@ -20,6 +20,14 @@ gateway:
   download-tenant-allowlist: ${GATEWAY_DOWNLOAD_TENANT_ALLOWLIST:}
   media-route-enabled: ${GATEWAY_MEDIA_ROUTE_ENABLED:false}
   messaging-route-enabled: ${GATEWAY_MESSAGING_ROUTE_ENABLED:false}
+  app-catalog:
+    route-enabled: ${GATEWAY_APP_CATALOG_ROUTE_ENABLED:false}
+    url: ${APP_CATALOG_SERVICE_URL:http://127.0.0.1:23310}
+    token: ${APP_CATALOG_INTERNAL_TOKEN:}
+  dsh:
+    route-enabled: ${GATEWAY_DSH_ROUTE_ENABLED:false}
+    url: ${DSH_CONNECTOR_SERVICE_URL:http://127.0.0.1:23320}
+    token: ${DSH_CONNECTOR_INTERNAL_TOKEN:}
   mytools-url: ${MYTOOLS_INTERNAL_URL:http://127.0.0.1:23110}
   identity-url: ${IDENTITY_SERVICE_URL:http://127.0.0.1:23290}
   reader-url: ${READER_SERVICE_URL:http://127.0.0.1:23230}

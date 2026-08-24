@@ -14,6 +14,8 @@ Java 21 / Spring Boot
 
 现已建立可独立构建的 Java 21 / Spring Boot Gateway MVP，默认监听 `127.0.0.1:23200`。Reader、Drive 和 Download 路由分别受独立的 `GATEWAY_*_ROUTE_ENABLED` 与 `GATEWAY_*_TENANT_ALLOWLIST` 控制；Media 使用单独的 `GATEWAY_MEDIA_ROUTE_ENABLED` 总开关。所有路由默认关闭，关闭时不会调用对应领域服务，因此现有 MyTools 入口不受影响。Gateway 校验 Bearer 会话，从可信主体注入 `ownerId`，并用各领域独立内部令牌调用下游；客户端不能提供或覆盖 owner。
 
+App Catalog 使用 `GATEWAY_APP_CATALOG_ROUTE_ENABLED` 开放已发布应用目录，只代理查询，不开放迁移或对账接口。DSH 使用 `GATEWAY_DSH_ROUTE_ENABLED` 开放当前主体的会话查询和归档；事件序号推进仍仅供 Connector 内部事件桥使用。两项开关默认均为关闭。
+
 首批路由为 `/api/app/v1/reader/shelves`、`/progress` 和 `/markers`。Gateway 只转发自己重建的载荷、内部令牌和规范化 UUID `X-Correlation-Id`，不转发客户端内部头。Reader 对应领域接口现要求服务令牌，防止绕过 Gateway 伪造 owner。
 Reader 还开放书源搜索长任务的创建、状态查询和取消；owner 由认证主体注入，响应不返回 Scheduler 任务 ID。
 

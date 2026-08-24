@@ -1,6 +1,8 @@
 package com.yuyutian.mytools.gateway.web;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
+import com.yuyutian.mytools.gateway.config.AppCatalogGatewayProperties;
+import com.yuyutian.mytools.gateway.config.DshGatewayProperties;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
 import com.yuyutian.mytools.gateway.service.PrincipalValidator;
@@ -9,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -25,13 +28,31 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
     public static final String CORRELATION_ATTRIBUTE = "gatewayCorrelationId";
     private final PrincipalValidator validator;
     private final GatewayProperties properties;
+    private final AppCatalogGatewayProperties appCatalogProperties;
+    private final DshGatewayProperties dshProperties;
 
     /**
      * 创建 Gateway 请求过滤器。
      */
-    public GatewayRequestFilter(PrincipalValidator validator, GatewayProperties properties) {
+    @Autowired
+    public GatewayRequestFilter(PrincipalValidator validator, GatewayProperties properties,
+                                AppCatalogGatewayProperties appCatalogProperties,
+                                DshGatewayProperties dshProperties) {
         this.validator = validator;
         this.properties = properties;
+        this.appCatalogProperties = appCatalogProperties;
+        this.dshProperties = dshProperties;
+    }
+
+    /**
+     * 为不涉及新增路由的单元测试保留简化构造方式。
+     *
+     * @param validator 主体校验器
+     * @param properties 既有 Gateway 配置
+     */
+    public GatewayRequestFilter(PrincipalValidator validator, GatewayProperties properties) {
+        this(validator, properties, new AppCatalogGatewayProperties(false, "", ""),
+                new DshGatewayProperties(false, "", ""));
     }
 
     /**
@@ -81,6 +102,12 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
         }
         if (uri.equals("/api/app/v1/messages") || uri.startsWith("/api/app/v1/messages/")) {
             return new Route(properties.messagingRouteEnabled(), ignored -> true);
+        }
+        if (uri.equals("/api/app/v1/catalog") || uri.startsWith("/api/app/v1/catalog/")) {
+            return new Route(appCatalogProperties.routeEnabled(), ignored -> true);
+        }
+        if (uri.equals("/api/app/v1/dsh/sessions") || uri.startsWith("/api/app/v1/dsh/sessions/")) {
+            return new Route(dshProperties.routeEnabled(), ignored -> true);
         }
         if (uri.equals("/api/app/v1/identity/logout")) {
             return new Route(properties.identityRouteUsable(), ignored -> true);

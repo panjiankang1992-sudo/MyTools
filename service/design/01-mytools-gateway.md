@@ -11,6 +11,8 @@ Gateway 是 App、Web、MCP 和管理后台的统一入口，负责认证接入�
 - `/api/app/v1/drive/**`：代理 Drive。
 - `/api/app/v1/reader/**`：聚合 Reader 查询和任务进度。
 - `/api/app/v1/downloads/**`：创建 HTTPS 下载并查询、汇总或取消当前租户任务。
+- `/api/app/v1/catalog`：查询 App Catalog 中全部已发布应用。
+- `/api/app/v1/dsh/sessions/**`：查询和归档当前主体的 DSH 会话绑定。
 - `/api/app/v1/tasks/{id}`：返回面向用户裁剪后的任务状态。
 - `/api/app/v1/task-events`：SSE/WebSocket 推送。
 
@@ -26,13 +28,15 @@ Gateway 是 App、Web、MCP 和管理后台的统一入口，负责认证接入�
 - Drive 首批只读代理已实现独立默认关闭开关、独立用户白名单和服务令牌；账户目录查询的 owner 仅从已验证主体注入，客户端只允许提交账户 ID 与父路径。
 - Identity 首批登录、刷新和当前会话注销入口已使用独立默认关闭开关、严格请求模型和稳定错误映射；注销会话 ID 只来自实时令牌校验，客户端不能指定其他会话。开启入口时校验模式必须为 `DUAL` 或 `IDENTITY`，避免签发后无法使用的新令牌。
 - Media 首批代理已实现按 owner 的有界媒体分页、单项查询和播放进度乐观锁写入。客户端不能指定 owner；扫描、探测、标签、缩略图、故事板和简介继续通过 Scheduler 任务执行。当前无存量用户，Media 只保留独立总开关，不增加租户名单和额外切流门禁。
+- App Catalog 首批代理只读取已发布的全局目录，保留发布者信息但不把查看者误作发布者过滤；路由默认关闭，迁移和对账接口不对客户端开放。
+- DSH 首批代理只允许可信主体查询、归档自己的会话绑定。外部事件序号推进仍是 Connector 内部接口，不向客户端开放；路由默认关闭。
 
 ## 迁移
 
 1. 保留现有 Controller 路径，内部改为领域 Facade；JWT 过滤器已支持默认 `LEGACY`、迁移期 `DUAL` 和最终 `IDENTITY` 三种显式模式，默认模式完全不调用远端服务。
 2. 为耗时接口增加异步版本，返回任务 ID。
 3. 客户端适配任务查询和取消。
-4. Reader Facade、Drive 目录只读查询、Media 查询与进度写入及 Identity 登录/刷新/注销已替换为有界超时 HTTP 客户端，分别默认关闭；其余领域能力按相同模式逐项迁移。
+4. Reader、Drive、Media、App Catalog、DSH 和 Identity 首批入口已替换为有界超时 HTTP 客户端，分别默认关闭；其余领域能力按相同模式逐项迁移。
 5. 删除 Gateway 中的 Mapper、Job、FFmpeg、邮件和文件扫描依赖。
 
 ## 验收
