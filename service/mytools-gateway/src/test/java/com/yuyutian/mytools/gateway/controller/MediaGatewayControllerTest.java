@@ -5,6 +5,7 @@ import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaPage;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartDirectoryScan;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.OperationView;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartAnalysis;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.MediaGatewayClient;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
@@ -50,6 +51,11 @@ class MediaGatewayControllerTest {
     @Test
     void shouldBindOwnerForDirectoryScanLifecycle() {
         MediaGatewayClient client=mock(MediaGatewayClient.class);MediaGatewayController controller=new MediaGatewayController(properties(true),client);UUID operationId=UUID.randomUUID();StartDirectoryScan body=new StartDirectoryScan("scan-1","/media/movies","movies","Movies",true,"analysis-v1");OperationView operation=new OperationView(operationId,55L,"DIRECTORY_SCAN","RUNNING",Instant.EPOCH,Instant.EPOCH);when(client.startDirectoryScan(55L,body,"correlation")).thenReturn(operation);when(client.operation(55L,operationId,"correlation")).thenReturn(operation);when(client.cancel(55L,operationId,"correlation")).thenReturn(operation);assertThat(controller.startDirectoryScan(body,request(55L))).isEqualTo(operation);assertThat(controller.operation(operationId,request(55L))).isEqualTo(operation);assertThat(controller.cancel(operationId,request(55L))).isEqualTo(operation);
+    }
+
+    @Test
+    void shouldBindOwnerForAnalysisCreation() {
+        MediaGatewayClient client=mock(MediaGatewayClient.class);MediaGatewayController controller=new MediaGatewayController(properties(true),client);UUID mediaId=UUID.randomUUID();UUID operationId=UUID.randomUUID();StartAnalysis body=new StartAnalysis("analysis-1","analysis-v2",8,1.5);OperationView operation=new OperationView(operationId,55L,"ANALYSIS","PENDING",Instant.EPOCH,Instant.EPOCH);when(client.startAnalysis(55L,mediaId,body,"correlation")).thenReturn(operation);assertThat(controller.startAnalysis(mediaId,body,request(55L))).isEqualTo(operation);verify(client).startAnalysis(55L,mediaId,body,"correlation");
     }
 
     private MockHttpServletRequest request(long userId) {

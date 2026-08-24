@@ -8,6 +8,7 @@ import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressRequest;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressView;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartDirectoryScan;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.OperationView;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartAnalysis;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
 import com.yuyutian.mytools.gateway.service.MediaGatewayClient;
@@ -101,6 +102,14 @@ public class MediaGatewayController {
     public OperationView startDirectoryScan(@Valid @RequestBody StartDirectoryScan body,HttpServletRequest request) {
         GatewayPrincipal principal=requireEnabled(request);
         return client.startDirectoryScan(principal.userId(),body,correlation(request));
+    }
+
+    /** 创建当前主体的媒体分析任务。 @param mediaId 媒体标识 @param body 请求 @param request HTTP 请求 @return 操作 */
+    @PostMapping("/items/{mediaId}/analysis-operations") @ResponseStatus(HttpStatus.ACCEPTED)
+    public OperationView startAnalysis(@PathVariable UUID mediaId,@Valid @RequestBody StartAnalysis body,
+                                       HttpServletRequest request) {
+        GatewayPrincipal principal=requireEnabled(request);
+        return client.startAnalysis(principal.userId(),mediaId,body,correlation(request));
     }
 
     /** 查询媒体操作。 @param operationId 操作 @param request HTTP 请求 @return 操作 */

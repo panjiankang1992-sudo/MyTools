@@ -47,3 +47,4 @@ V5 为新建目录扫描操作保存完整创建请求的 SHA-256。相同 owner
 V6 增加 `media_item_source` 和 `media_item_source_tag`。内容相同的旧文件仍复用一个媒体项，但每个 `local_file` 来源及其标签会分别保留，避免内容去重吞掉旧记录身份。对账报告增加 `sourceRelationCount` 和 `sourceTagRelationCount`，供迁移门禁按旧媒体及旧标签数量验收。
 
 Media Library 现提供仅供旧 MyTools 旁路使用的旧文件分析目标解析接口。它按 `LEGACY_ASSET + local_file:{id}` 返回真实 `mediaItemId`、`assetRegistryId`、owner、摘要和媒体属性，不返回旧文件路径。只有已完成 Asset Registry 与 Media Library 迁移的记录才能解析。
+`POST /internal/v1/media/items/{id}/analysis-operations?ownerId=...` 按所有者创建幂等媒体分析操作。请求只允许分析版本、帧数和起始秒数，不接受 `sourcePath`；服务从媒体记录生成资产身份、摘要、文件名和 MIME 参数并创建 `media_analyze_video`。相同幂等键和相同载荷返回原操作，载荷变化或重复绑定同一分析版本会拒绝。操作沿用统一查询和取消接口。

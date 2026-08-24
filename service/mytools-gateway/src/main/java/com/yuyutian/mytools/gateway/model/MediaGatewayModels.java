@@ -54,6 +54,10 @@ public final class MediaGatewayModels {
                                      @NotBlank @Size(max = 512) String directoryName,
                                      boolean analyze,
                                      @Pattern(regexp = "^[A-Za-z0-9._-]{1,64}$") String analysisVersion) { }
+    public record StartAnalysis(@NotBlank @Size(max = 255) String idempotencyKey,
+                                @NotBlank @Pattern(regexp = "^[A-Za-z0-9._-]{1,64}$") String analysisVersion,
+                                @jakarta.validation.constraints.Min(1) @jakarta.validation.constraints.Max(12) Integer frameCount,
+                                @PositiveOrZero Double seekSeconds) { }
     public record OperationView(UUID id, long ownerId, String operationType,
                                 String status, Instant createdAt, Instant updatedAt) { }
 }

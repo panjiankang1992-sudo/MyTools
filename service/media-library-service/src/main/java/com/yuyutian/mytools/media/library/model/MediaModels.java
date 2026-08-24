@@ -20,6 +20,7 @@ import jakarta.validation.Valid;import jakarta.validation.constraints.*;import j
  public record ScanView(UUID id,long ownerId,String directoryKey,String status,int expectedCount,int importedCount,String manifestSha256){}
  public record ReconciliationPage(UUID nextAfterId,long libraryRevision,int directoryCount,int completedScanCount,int stagingScanCount,int itemCount,int sourceRelationCount,int sourceTagRelationCount,int readyCount,int missingCount,int analyzingCount,int succeededAnalysisCount,int failedAnalysisCount,int runningAnalysisCount,int tagRelationCount,int artifactCount,int readyDirectoryEntryCount,int missingDirectoryEntryCount,String pageDigestSha256){}
  public record StartDirectoryScan(@NotBlank @Size(max=255)String idempotencyKey,@NotBlank @Size(max=4096)String rootPath,@NotBlank @Size(max=255)String directoryKey,@NotBlank @Size(max=512)String directoryName,boolean analyze,@Pattern(regexp="^[A-Za-z0-9._-]{1,64}$")String analysisVersion){}
+ public record StartAnalysis(@NotBlank @Size(max=255)String idempotencyKey,@NotBlank @Pattern(regexp="^[A-Za-z0-9._-]{1,64}$")String analysisVersion,@Min(1) @Max(12)Integer frameCount,@PositiveOrZero Double seekSeconds){}
  public record OperationView(UUID id,long ownerId,String operationType,UUID taskInstanceId,String status,Instant createdAt,Instant updatedAt){}
  public record LegacyAnalysisTarget(UUID mediaItemId,UUID assetRegistryId,long ownerId,String displayName,String mimeType,long sizeBytes,String contentSha256){}
 }

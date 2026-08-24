@@ -58,3 +58,4 @@ Download Gateway 的创建、查询和取消响应同样只返回业务请求标
 配置项为 `IDENTITY_VALIDATION_MODE`。远程校验失败时关闭授权，不降级为未校验身份。
 
 旧 MyTools 新增 `POST /internal/v1/gateway/tokens/validate`，使用 `GATEWAY_INTERNAL_TOKEN` 自校验并以 JSON body 接收访问令牌，避免旧公开校验接口把 token 放入 URL。`DUAL` 仅在旧服务明确返回 inactive 时尝试 Identity；旧服务网络或协议异常时直接关闭授权。
+Media 路由启用后，`POST /api/app/v1/media/items/{id}/analysis-operations` 可由当前可信主体创建分析任务。Gateway 注入 owner，不转发客户端身份字段或物理路径；返回的操作可通过现有 `/operations/{id}` 查询和取消。Media 总开关默认关闭，因此不会改变旧 MyTools 分析入口。

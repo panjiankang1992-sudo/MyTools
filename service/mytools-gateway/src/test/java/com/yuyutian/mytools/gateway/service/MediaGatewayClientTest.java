@@ -3,6 +3,7 @@ package com.yuyutian.mytools.gateway.service;
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressRequest;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartDirectoryScan;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartAnalysis;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -67,6 +68,11 @@ class MediaGatewayClientTest {
     @Test
     void shouldBindOwnerWhenStartingDirectoryScan() {
         RestTemplate restTemplate=new RestTemplate();MockRestServiceServer server=MockRestServiceServer.bindTo(restTemplate).build();UUID operationId=UUID.randomUUID();UUID taskId=UUID.randomUUID();server.expect(requestTo("http://media/internal/v1/media/operations/directory-scans?ownerId=55")).andExpect(method(POST)).andExpect(header("Authorization","Bearer media-token")).andExpect(content().json("{\"idempotencyKey\":\"scan-1\",\"rootPath\":\"/media/movies\",\"directoryKey\":\"movies\",\"directoryName\":\"Movies\",\"analyze\":true,\"analysisVersion\":\"analysis-v1\"}")).andRespond(withSuccess("{\"id\":\""+operationId+"\",\"ownerId\":55,\"operationType\":\"DIRECTORY_SCAN\",\"taskInstanceId\":\""+taskId+"\",\"status\":\"PENDING\",\"createdAt\":\"2026-08-24T00:00:00Z\",\"updatedAt\":\"2026-08-24T00:00:00Z\"}",MediaType.APPLICATION_JSON));var result=new MediaGatewayClient(restTemplate,properties()).startDirectoryScan(55L,new StartDirectoryScan("scan-1","/media/movies","movies","Movies",true,"analysis-v1"),"correlation");assertThat(result.id()).isEqualTo(operationId);assertThat(result.toString()).doesNotContain("taskInstanceId");server.verify();
+    }
+
+    @Test
+    void shouldBindOwnerAndExcludePathsWhenStartingAnalysis() {
+        RestTemplate restTemplate=new RestTemplate();MockRestServiceServer server=MockRestServiceServer.bindTo(restTemplate).build();UUID mediaId=UUID.randomUUID();UUID operationId=UUID.randomUUID();server.expect(requestTo("http://media/internal/v1/media/items/"+mediaId+"/analysis-operations?ownerId=55")).andExpect(method(POST)).andExpect(header("Authorization","Bearer media-token")).andExpect(content().json("{\"idempotencyKey\":\"analysis-1\",\"analysisVersion\":\"analysis-v2\",\"frameCount\":8,\"seekSeconds\":1.5}")).andRespond(withSuccess("{\"id\":\""+operationId+"\",\"ownerId\":55,\"operationType\":\"ANALYSIS\",\"status\":\"PENDING\",\"createdAt\":\"2026-08-24T00:00:00Z\",\"updatedAt\":\"2026-08-24T00:00:00Z\"}",MediaType.APPLICATION_JSON));var result=new MediaGatewayClient(restTemplate,properties()).startAnalysis(55L,mediaId,new StartAnalysis("analysis-1","analysis-v2",8,1.5),"correlation");assertThat(result.id()).isEqualTo(operationId);server.verify();
     }
 
     private GatewayProperties properties() {

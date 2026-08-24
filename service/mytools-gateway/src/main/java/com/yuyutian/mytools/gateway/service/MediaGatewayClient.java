@@ -7,6 +7,7 @@ import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressRequest;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressView;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartDirectoryScan;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.OperationView;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartAnalysis;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -93,6 +94,13 @@ public class MediaGatewayClient {
     /** 创建目录扫描任务。 @param ownerId 所有者 @param request 请求 @param correlationId 关联标识 @return 操作 */
     public OperationView startDirectoryScan(long ownerId,StartDirectoryScan request,String correlationId) {
         String url=UriComponentsBuilder.fromHttpUrl(root()+"/internal/v1/media/operations/directory-scans")
+            .queryParam("ownerId",ownerId).toUriString();
+        return exchange(url,HttpMethod.POST,request,OperationView.class,correlationId);
+    }
+
+    /** 创建媒体分析任务。 @param ownerId 所有者 @param mediaId 媒体标识 @param request 请求 @param correlationId 关联标识 @return 操作 */
+    public OperationView startAnalysis(long ownerId,UUID mediaId,StartAnalysis request,String correlationId) {
+        String url=UriComponentsBuilder.fromHttpUrl(root()+"/internal/v1/media/items/"+mediaId+"/analysis-operations")
             .queryParam("ownerId",ownerId).toUriString();
         return exchange(url,HttpMethod.POST,request,OperationView.class,correlationId);
     }
