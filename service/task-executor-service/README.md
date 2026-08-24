@@ -21,6 +21,13 @@ ${TASK_EXECUTOR_SCRIPT_ROOT}/
         └── {entrypoint}
 ```
 
+各领域服务继续拥有自己的 `packages/{name}/{version}` 源目录。发布前运行
+`python3 service/scripts/assemble_executor_packages.py` 校验全部包；指定
+`--output /path/to/new-release` 时会装配一个全新的扁平发布目录。工具核对 manifest 名称、
+版本、入口、重复身份、目录穿越和符号链接，为运行文件生成逐文件 SHA-256 及统一
+`package-index.json`，并排除测试与缓存目录。输出目录已存在时直接拒绝，不覆盖正在运行的
+Executor；部署层验证新目录后再更新 `TASK_EXECUTOR_SCRIPT_ROOT`。
+
 Executor 只执行 Scheduler 下发的已配置入口，不接受调用方提交任意命令字符串。
 每个步骤的结构化输出会作为下一步骤上下文中的 `stepOutputs.{stepName}` 提供，用于对账、汇总和条件处理。
 节点 Secret 使用 `executor.script-environments.{scriptPackage}` 按脚本包隔离注入，任务参数和 Scheduler 数据库不保存运行密钥。
