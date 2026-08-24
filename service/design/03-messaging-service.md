@@ -4,6 +4,10 @@
 > `outbound_message_history` 归档，不得写入实时投递队列；详细审计和迁移顺序见
 > [24-msgservice-current-state-and-migration.md](24-msgservice-current-state-and-migration.md)。
 
+MsgService 模板和已知收件人使用 Messaging 自有 `message_template`、`known_recipient`
+表保存，通过 `/internal/v1/migrations/msgservice-reference-data` 执行受保护的 dry-run、
+幂等导入和集合对账，不进入实时投递或任务调度链路。
+
 ## 职责
 
 由 MsgService 演进，统一邮件、QQ、Telegram、OneBot 等渠道的入站与出站消息、附件、模板、投递记录和回执。它不判断消息是否需要下载，不拥有验证码业务状态。

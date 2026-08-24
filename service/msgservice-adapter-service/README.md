@@ -26,4 +26,4 @@ mytools-msgservice-export \
   --owner-id 0
 ```
 
-输出包含 `msgservice-consistent.db`、`outbound-batch.json`、`attachment-manifest.json`、`reconciliation.json` 和 `attachments/sha256/`。这些文件包含历史业务数据，应放在受控迁移目录，不得提交到代码仓库。
+输出包含 `msgservice-consistent.db`、`outbound-batch.json`、`reference-data-batch.json`、`attachment-manifest.json`、`reconciliation.json` 和 `attachments/sha256/`。参考数据批次包含同一一致快照中的模板和已知收件人，可直接提交到 Messaging 的 `/internal/v1/migrations/msgservice-reference-data/batches`。这些文件包含历史业务数据，应放在受控迁移目录，不得提交到代码仓库。

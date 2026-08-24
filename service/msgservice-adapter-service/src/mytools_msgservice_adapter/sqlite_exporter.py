@@ -38,6 +38,8 @@ def export_outbound(source: Path, output: Path, attachment_root: Path | None,
     create_consistent_backup(source, backup)
     items: list[dict[str, Any]] = []
     attachment_manifest: list[dict[str, Any]] = []
+    templates: list[dict[str, Any]] = []
+    recipients: list[dict[str, Any]] = []
     with sqlite3.connect(f"file:{backup.as_posix()}?mode=ro", uri=True) as connection:
         connection.row_factory = sqlite3.Row
         rows = connection.execute("SELECT * FROM messages WHERE direction='outbound' ORDER BY id").fetchall()
@@ -47,19 +49,48 @@ def export_outbound(source: Path, output: Path, attachment_root: Path | None,
             item = OutboundSnapshot.from_document(item).document()
             items.append(item)
             attachment_manifest.extend(attachments)
+        templates = [map_template(row, owner_id) for row in
+                     connection.execute("SELECT * FROM templates ORDER BY id").fetchall()]
+        recipients = [map_recipient(row, owner_id) for row in
+                      connection.execute("SELECT * FROM known_recipients ORDER BY id").fetchall()]
     document = {"items": items}
     write_json(output / "outbound-batch.json", document)
     write_json(output / "attachment-manifest.json", {"attachments": attachment_manifest})
+    reference_data = {"migrationKey": "msgservice-reference-20260824", "dryRun": True,
+                      "templates": templates, "recipients": recipients}
+    write_json(output / "reference-data-batch.json", reference_data)
     evidence = {"sourceMessageCount": len(items),
                 "attachmentCount": len(attachment_manifest),
                 "sentCount": sum(item["status"] == "SENT" for item in items),
                 "failedCount": sum(item["status"] == "FAILED" for item in items),
                 "missingAttachmentCount": sum(item["availability"] == "MISSING"
                                               for item in attachment_manifest),
+                "templateCount": len(templates),
+                "knownRecipientCount": len(recipients),
                 "batchSha256": sha256_json(document),
+                "referenceDataSha256": sha256_json(reference_data),
                 "createdAt": datetime.now(UTC).isoformat().replace("+00:00", "Z")}
     write_json(output / "reconciliation.json", evidence)
     return evidence
+
+
+def map_template(row: sqlite3.Row, owner_id: int) -> dict[str, Any]:
+    """映射旧模板并保留变量定义。"""
+    variables = json.loads(row["variables"]) if row["variables"] else None
+    item = {"sourceSystem": "MSGSERVICE", "legacyTemplateId": str(row["id"]),
+            "ownerId": owner_id, "channelType": str(row["channel"]).upper(),
+            "name": row["name"], "description": row["description"], "subject": row["subject"],
+            "bodyText": row["body_text"], "bodyHtml": row["body_html"], "variables": variables,
+            "createdAt": row["created_at"], "updatedAt": row["updated_at"]}
+    return {key: value for key, value in item.items() if value is not None}
+
+
+def map_recipient(row: sqlite3.Row, owner_id: int) -> dict[str, Any]:
+    """映射旧已知收件人。"""
+    item = {"sourceSystem": "MSGSERVICE", "legacyRecipientId": str(row["id"]),
+            "ownerId": owner_id, "channelType": str(row["channel"]).upper(),
+            "address": row["address"], "name": row["name"], "createdAt": row["created_at"]}
+    return {key: value for key, value in item.items() if value is not None}
 
 
 def map_message(row: sqlite3.Row, archive: Path, attachment_root: Path | None,
