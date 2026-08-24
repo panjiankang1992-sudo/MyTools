@@ -1,0 +1,20 @@
+name: reader_source_search
+version: 1.2.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - http_reader_runtime
+parameters:
+  required:
+    - userId
+    - keyword
+    - page
+    - mode
+    - searchTerms
+    - sources
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 300
+  maxSources: 500
+  maxResultsPerTarget: 500

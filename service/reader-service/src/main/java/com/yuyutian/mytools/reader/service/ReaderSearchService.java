@@ -45,6 +45,10 @@ public class ReaderSearchService {
      */
     @Transactional
     public SearchView create(CreateSearchRequest request) {
+        if (request.mode() == com.yuyutian.mytools.reader.model.SearchMode.PROBE
+                && request.searchTerms().isEmpty()) {
+            throw new IllegalArgumentException("probe search terms are missing");
+        }
         String scopedKey = scopedKey(request.ownerId(), request.idempotencyKey());
         SearchRecord record = repository.findByIdempotencyKey(scopedKey).orElseGet(() -> {
             Instant now = Instant.now();
@@ -60,7 +64,7 @@ public class ReaderSearchService {
         }
         if (record.taskId() == null) {
             UUID taskId = schedulerClient.createSearchTask(
-                    "reader_source_search:" + record.id() + ":reader-search-v2", record.id(), record.parameters());
+                    "reader_source_search:" + record.id() + ":reader-search-v3", record.id(), record.parameters());
             repository.bindTask(record.id(), taskId, "QUEUED");
             record = repository.findById(record.id()).orElseThrow();
         }
@@ -168,6 +172,8 @@ public class ReaderSearchService {
         parameters.put("keyword", request.keyword());
         parameters.put("mode", request.mode().name());
         parameters.put("page", request.page());
+        parameters.put("searchTerms", request.mode() == com.yuyutian.mytools.reader.model.SearchMode.PROBE
+                ? request.searchTerms() : List.of(request.keyword()));
         parameters.put("sources", sources);
         return parameters;
     }

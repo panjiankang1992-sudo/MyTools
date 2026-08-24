@@ -5,5 +5,6 @@ package com.yuyutian.mytools.reader.model;
  */
 public enum SearchMode {
     FUZZY,
-    EXACT
+    EXACT,
+    PROBE
 }

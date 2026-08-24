@@ -47,12 +47,6 @@ public class ReaderSearchSidecarPublisher {
         if (!properties.isEnabled()) {
             return;
         }
-        // 新服务尚未实现探测模式的关键词扩展，避免以模糊搜索代替后产生错误结果。
-        if ("PROBE".equals(event.mode())) {
-            log.info("Reader search sidecar skipped for unsupported mode: userId={}, mode={}",
-                    event.userId(), event.mode());
-            return;
-        }
         try {
             String idempotencyKey = "legacy-shadow:" + fingerprint(event)
                     + ":" + properties.getPolicyVersion();

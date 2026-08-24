@@ -30,13 +30,13 @@ class ReaderSearchSidecarClientTest {
                 .andExpect(method(POST)).andExpect(header("Authorization", "Bearer reader-token"))
                 .andExpect(content().json("""
                         {"ownerId":7,"idempotencyKey":"shadow-key","keyword":"Book","mode":"FUZZY",
-                         "page":1,"sources":[{"id":"source-1","name":"Source",
+                         "page":1,"searchTerms":["Book"],"sources":[{"id":"source-1","name":"Source",
                          "url":"https://source.example","revision":1,"snapshot":{"enabled":true}}]}
                         """))
                 .andRespond(withSuccess("{\"id\":\"" + requestId
                         + "\",\"status\":\"QUEUED\",\"results\":[]}", MediaType.APPLICATION_JSON));
         ReaderSearchSidecarRequested event = new ReaderSearchSidecarRequested(
-                7L, "Book", 1, "FUZZY", List.of(Map.of(
+                7L, "Book", 1, "FUZZY", List.of("Book"), List.of(Map.of(
                 "id", "source-1", "name", "Source", "url", "https://source.example",
                 "revision", 1, "snapshot", Map.of("enabled", true))));
 

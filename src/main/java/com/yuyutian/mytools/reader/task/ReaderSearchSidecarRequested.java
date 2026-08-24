@@ -10,6 +10,7 @@ import java.util.Map;
  * @param keyword 关键词
  * @param page 页码
  * @param mode 搜索模式
+ * @param searchTerms 已完成分析的探测词
  * @param sources 书源不可变快照
  */
 public record ReaderSearchSidecarRequested(
@@ -17,6 +18,7 @@ public record ReaderSearchSidecarRequested(
         String keyword,
         int page,
         String mode,
+        List<String> searchTerms,
         List<Map<String, Object>> sources
 ) {
 }

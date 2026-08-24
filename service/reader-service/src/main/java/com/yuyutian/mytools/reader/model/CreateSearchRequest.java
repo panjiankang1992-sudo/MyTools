@@ -19,6 +19,7 @@ import java.util.Map;
  * @param keyword 搜索关键字
  * @param mode 查询模式
  * @param page 页码
+ * @param searchTerms 已完成分析的探测词
  * @param sources 书源不可变快照
  */
 public record CreateSearchRequest(
@@ -27,8 +28,13 @@ public record CreateSearchRequest(
         @NotBlank @Size(max = 200) String keyword,
         @NotNull SearchMode mode,
         @Min(1) @Max(1000) int page,
+        @Size(max = 10) List<@NotBlank @Size(max = 100) String> searchTerms,
         @NotEmpty @Size(max = 500) List<@Valid SourceSnapshot> sources
 ) {
+    /** 返回不可变探测词集合。 */
+    @Override public List<String> searchTerms() {
+        return searchTerms == null ? List.of() : List.copyOf(searchTerms);
+    }
     /**
      * 书源执行快照。
      *

@@ -4,6 +4,7 @@ import com.yuyutian.mytools.reader.model.CreateSearchRequest;
 import com.yuyutian.mytools.reader.model.SchedulerResult;
 import com.yuyutian.mytools.reader.model.SearchMode;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -35,7 +36,7 @@ class ReaderSearchServiceTest {
         UUID successfulExecution = UUID.randomUUID();
         UUID failedExecution = UUID.randomUUID();
         when(schedulerClient.createSearchTask(anyString(), any(), anyMap())).thenReturn(taskId);
-        var request = new CreateSearchRequest(7L, "search-example", "Example", SearchMode.FUZZY, 1,
+        var request = new CreateSearchRequest(7L, "search-example", "Example", SearchMode.FUZZY, 1, List.of(),
                 List.of(new CreateSearchRequest.SourceSnapshot(
                         "legacy-1", "Source", "https://source.example", 1, Map.of("enabled", true))));
 
@@ -64,11 +65,28 @@ class ReaderSearchServiceTest {
         UUID firstTask=UUID.randomUUID(),secondTask=UUID.randomUUID();
         when(schedulerClient.createSearchTask(anyString(),any(),anyMap())).thenReturn(firstTask,secondTask);
         var sources=List.of(new CreateSearchRequest.SourceSnapshot("source","Source","https://source.example",1,Map.of()));
-        var first=searchService.create(new CreateSearchRequest(17L,"shared-key","Book",SearchMode.EXACT,1,sources));
-        var second=searchService.create(new CreateSearchRequest(18L,"shared-key","Book",SearchMode.EXACT,1,sources));
+        var first=searchService.create(new CreateSearchRequest(17L,"shared-key","Book",SearchMode.EXACT,1,List.of(),sources));
+        var second=searchService.create(new CreateSearchRequest(18L,"shared-key","Book",SearchMode.EXACT,1,List.of(),sources));
 
         assertThat(first.id()).isNotEqualTo(second.id());
         assertThatThrownBy(()->searchService.get(first.id(),18L)).isInstanceOf(SearchNotFoundException.class);
         assertThatThrownBy(()->searchService.cancel(first.id(),18L)).isInstanceOf(SearchNotFoundException.class);
+    }
+
+    @Test
+    void shouldFreezeProbeTermsIntoSchedulerParameters() {
+        UUID taskId = UUID.randomUUID();
+        when(schedulerClient.createSearchTask(anyString(), any(), anyMap())).thenReturn(taskId);
+        var sources = List.of(new CreateSearchRequest.SourceSnapshot(
+                "source", "Source", "https://source.example", 1, Map.of()));
+
+        searchService.create(new CreateSearchRequest(7L, "probe-key", "plot clue", SearchMode.PROBE,
+                1, List.of("hero", "lost prince"), sources));
+
+        @SuppressWarnings("unchecked") ArgumentCaptor<Map<String, Object>> parameters =
+                ArgumentCaptor.forClass(Map.class);
+        verify(schedulerClient).createSearchTask(anyString(), any(), parameters.capture());
+        assertThat(parameters.getValue().get("mode")).isEqualTo("PROBE");
+        assertThat(parameters.getValue().get("searchTerms")).isEqualTo(List.of("hero", "lost prince"));
     }
 }

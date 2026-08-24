@@ -48,6 +48,7 @@ public class ReaderSearchSidecarClient {
         request.put("keyword", event.keyword());
         request.put("mode", event.mode());
         request.put("page", event.page());
+        request.put("searchTerms", event.searchTerms());
         request.put("sources", event.sources());
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(properties.getInternalToken());
