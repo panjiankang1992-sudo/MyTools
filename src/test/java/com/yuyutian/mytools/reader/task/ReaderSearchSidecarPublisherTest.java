@@ -1,35 +1,54 @@
 package com.yuyutian.mytools.reader.task;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yuyutian.mytools.task.client.TaskSchedulerGateway;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ReaderSearchSidecarPublisherTest {
 
     @Test
     void shouldCreateBoundedReaderSearchTaskWhenEnabled() {
-        TaskSchedulerGateway gateway = mock(TaskSchedulerGateway.class);
+        ReaderSearchSidecarClient client = mock(ReaderSearchSidecarClient.class);
         ReaderSearchSidecarProperties properties = new ReaderSearchSidecarProperties();
         properties.setEnabled(true);
         ReaderSearchSidecarPublisher publisher = new ReaderSearchSidecarPublisher(
-                gateway, properties, new ObjectMapper());
+                client, properties, new ObjectMapper());
         var event = new ReaderSearchSidecarRequested(7L, "example", 1, "FUZZY", List.of(Map.of(
                 "id", "source-1", "url", "https://source.example", "name", "Source",
                 "revision", 1, "snapshot", Map.of("enabled", true))));
 
+        when(client.create(eq(event), org.mockito.ArgumentMatchers.matches(
+                "legacy-shadow:[a-f0-9]{64}:reader-search-v2")))
+                .thenReturn(new ReaderSearchSidecarClient.SearchAccepted(UUID.randomUUID(), "QUEUED"));
+
         publisher.publish(event);
 
-        verify(gateway).create(eq("reader_source_search"),
-                matches("reader_source_search:[a-f0-9]{64}:reader-search-v2"),
-                eq("READER_SEARCH"), eq("7"), eq(40), anyMap());
+        verify(client).create(eq(event), org.mockito.ArgumentMatchers.matches(
+                "legacy-shadow:[a-f0-9]{64}:reader-search-v2"));
+    }
+
+    @Test
+    void shouldSkipProbeModeBecauseReaderServiceDoesNotSupportIt() {
+        ReaderSearchSidecarClient client = mock(ReaderSearchSidecarClient.class);
+        ReaderSearchSidecarProperties properties = new ReaderSearchSidecarProperties();
+        properties.setEnabled(true);
+        ReaderSearchSidecarPublisher publisher = new ReaderSearchSidecarPublisher(
+                client, properties, new ObjectMapper());
+        var event = new ReaderSearchSidecarRequested(
+                7L, "example", 1, "PROBE", List.of());
+
+        publisher.publish(event);
+
+        verify(client, never()).create(
+                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString());
     }
 }

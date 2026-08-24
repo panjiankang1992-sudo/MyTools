@@ -23,6 +23,8 @@
 
 书源搜索任务由 Scheduler 展开为不可变的多节点分片执行目标，目标按照书源序号确定性分片并允许部分成功；Reader Service 汇总全部目标结果、合并去重并通过事件推送进度。需要独立生命周期的发现、导入等工作仍通过脚本创建子任务。
 
+旧 MyTools 的搜索旁路不直接调用 Scheduler。启用 `READER_SEARCH_SIDECAR_ENABLED` 后，它把规范化关键词、模式、页码和同一批书源不可变快照提交到 Reader Service；Reader Service 在独立 schema 中保存请求、参数与任务绑定后再创建 `reader_source_search`。稳定幂等键包含整个旧请求指纹和策略版本。当前仅旁路语义一致的 `EXACT` 和 `FUZZY`，`PROBE` 在完成关键词扩展任务化前仍只走旧实现。旁路失败不影响旧内存搜索，开关默认关闭；创建、查询和取消接口统一校验 `READER_INTERNAL_TOKEN`。
+
 ## 查询边界
 
 - 查询书架、进度、书签、已缓存搜索结果和章节是同步操作。

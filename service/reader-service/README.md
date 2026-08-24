@@ -14,9 +14,9 @@ Java 21 / Spring Boot
 
 已建立独立 `mytools_reader` schema、可独立构建的 Spring Boot 服务，以及 `reader_source_search` 1.1.0 分片脚本。Scheduler 将一个任务实例展开为稳定的执行目标，脚本依据目标序号确定性分配书源，并使用执行实例隔离的 Reader Runtime 命名空间，避免并发分片互相覆盖书源快照。Reader Service 持久化请求和参数快照，幂等创建任务，保存每个执行目标的原始结果，并按规范化书名合并部分成功结果；现有 MyTools 搜索仍为线上权威实现。
 
-MyTools 通过默认关闭的 `READER_SEARCH_SIDECAR_ENABLED` 开关提交同一书源快照。Reader Runtime 密钥仅由 Executor 的 `script-environments.reader_source_search` 注入，不进入 Scheduler 参数或数据库。
+MyTools 通过默认关闭的 `READER_SEARCH_SIDECAR_ENABLED` 开关向 Reader Service 提交同一书源快照，由 Reader Service 先持久化 `book_search_request` 和任务绑定，再创建 Scheduler 任务。当前只提交 `EXACT` 和 `FUZZY`；新服务尚未实现关键词扩展的 `PROBE` 继续只走旧实现。旧 MyTools 不再绕过领域服务直接创建孤立任务。Reader Runtime 密钥仅由 Executor 的 `script-environments.reader_source_search` 注入，不进入 Scheduler 参数或数据库。
 
-服务默认监听 `127.0.0.1:23230`，使用 `READER_DB_*` 连接独立 `mytools_reader` schema，并通过 `TASK_SCHEDULER_URL` 调用 Scheduler。`POST /api/v1/book-searches` 创建搜索，`GET /api/v1/book-searches/{id}` 查询并聚合分片结果，`POST /api/v1/book-searches/{id}/cancel` 取消执行。所有接口仍处于旁路阶段。
+服务默认监听 `127.0.0.1:23230`，使用 `READER_DB_*` 连接独立 `mytools_reader` schema，并通过 `TASK_SCHEDULER_URL` 调用 Scheduler。`POST /api/v1/book-searches` 创建搜索，`GET /api/v1/book-searches/{id}` 查询并聚合分片结果，`POST /api/v1/book-searches/{id}/cancel` 取消执行。这些接口要求 `READER_INTERNAL_TOKEN`，所有接口仍处于旁路阶段。
 
 搜索幂等键在内部按 `ownerId + 原始键摘要` 隔离，不修改 V1 schema 的全局唯一索引；查询和取消携带 `ownerId` 时执行所有权检查，供 Gateway 安全代理。相同 owner 的重放必须匹配关键字、模式和页码。
 

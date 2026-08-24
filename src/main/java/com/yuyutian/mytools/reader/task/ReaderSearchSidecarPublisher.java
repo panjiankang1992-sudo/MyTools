@@ -2,7 +2,6 @@ package com.yuyutian.mytools.reader.task;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yuyutian.mytools.task.client.TaskSchedulerGateway;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -11,8 +10,6 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * 书源搜索旁路任务发布器。
@@ -21,20 +18,20 @@ import java.util.Map;
 @Component
 public class ReaderSearchSidecarPublisher {
 
-    private final TaskSchedulerGateway taskSchedulerGateway;
+    private final ReaderSearchSidecarClient client;
     private final ReaderSearchSidecarProperties properties;
     private final ObjectMapper objectMapper;
 
     /**
      * 创建书源搜索旁路任务发布器。
      *
-     * @param taskSchedulerGateway 任务调度网关
+     * @param client Reader Service 客户端
      * @param properties 旁路配置
      * @param objectMapper JSON 转换器
      */
-    public ReaderSearchSidecarPublisher(TaskSchedulerGateway taskSchedulerGateway,
+    public ReaderSearchSidecarPublisher(ReaderSearchSidecarClient client,
                                         ReaderSearchSidecarProperties properties, ObjectMapper objectMapper) {
-        this.taskSchedulerGateway = taskSchedulerGateway;
+        this.client = client;
         this.properties = properties;
         this.objectMapper = objectMapper;
     }
@@ -50,19 +47,18 @@ public class ReaderSearchSidecarPublisher {
         if (!properties.isEnabled()) {
             return;
         }
-        Map<String, Object> parameters = new LinkedHashMap<>();
-        parameters.put("userId", event.userId());
-        parameters.put("keyword", event.keyword());
-        parameters.put("page", event.page());
-        parameters.put("mode", event.mode());
-        parameters.put("sources", event.sources());
+        // 新服务尚未实现探测模式的关键词扩展，避免以模糊搜索代替后产生错误结果。
+        if ("PROBE".equals(event.mode())) {
+            log.info("Reader search sidecar skipped for unsupported mode: userId={}, mode={}",
+                    event.userId(), event.mode());
+            return;
+        }
         try {
-            String idempotencyKey = "reader_source_search:" + fingerprint(event)
+            String idempotencyKey = "legacy-shadow:" + fingerprint(event)
                     + ":" + properties.getPolicyVersion();
-            taskSchedulerGateway.create("reader_source_search", idempotencyKey, "READER_SEARCH",
-                    event.userId().toString(), properties.getPriority(), parameters);
-            log.info("Reader search sidecar task created: userId={}, sourceCount={}",
-                    event.userId(), event.sources().size());
+            ReaderSearchSidecarClient.SearchAccepted accepted = client.create(event, idempotencyKey);
+            log.info("Reader search sidecar request created: userId={}, requestId={}, sourceCount={}",
+                    event.userId(), accepted.id(), event.sources().size());
         } catch (RuntimeException exception) {
             log.warn("Reader search sidecar task creation failed: userId={}, error={}",
                     event.userId(), exception.getMessage());

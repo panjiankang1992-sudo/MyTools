@@ -164,8 +164,9 @@ migration:
       executor-node: ${MEDIA_PROCESSING_EXECUTOR_NODE:}
     reader-search:
       enabled: ${READER_SEARCH_SIDECAR_ENABLED:false}
-      priority: ${READER_SEARCH_TASK_PRIORITY:40}
       policy-version: ${READER_SEARCH_POLICY_VERSION:reader-search-v2}
+      service-url: ${READER_SERVICE_URL:http://127.0.0.1:23230}
+      internal-token: ${READER_INTERNAL_TOKEN:}
 
 copilot:
   gateway:
