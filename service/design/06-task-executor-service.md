@@ -25,8 +25,8 @@ Executor 向每次步骤创建独立工作目录，并注入：
 - `TASK_CONTEXT_FILE`：任务、步骤、业务关联和参数 JSON 文件路径。
 - `TASK_RESULT_FILE`：脚本原子写入结构化结果的位置。
 - `TASK_API_URL`：Scheduler 内部 API。
-- `TASK_ACCESS_TOKEN_FILE`：短期令牌文件，不直接放环境变量。
-- `TASK_WORK_DIR`、`TASK_ATTEMPT`、`CORRELATION_ID`。
+- `TASK_LEASE_TOKEN_FILE`：执行租约令牌文件，不直接放环境变量。
+- `TASK_WORK_DIR`、`TASK_EXECUTION_ID`、`TASK_EXECUTOR_NODE_AFFINITY`。
 
 脚本退出码 `0` 表示成功，非零表示失败；取消建议返回约定退出码，但最终状态以 Executor 收到的取消状态为准。stdout/stderr 仅用于日志，业务结果必须写结果文件或调用 SDK。
 
@@ -83,6 +83,9 @@ Python SDK 提供等价方法，并自动携带令牌、重试安全的 GET 和�
 - 工作目录和允许挂载使用白名单；禁止任意绝对路径。
 - 网络默认拒绝，按脚本包允许的服务域名或内部服务身份开放。
 - Secret 不写入日志、结果或子任务参数。
+- 节点配置按脚本包注入环境变量，不向所有脚本共享同一组领域令牌或数据库账号。
+- `executor_environment_contract_gate.py` 静态核对 Python 脚本显式读取的节点变量与包级映射；
+  动态前缀数据库变量由对应迁移包完整列入配置，门禁与 Executor 测试共同作为发布检查。
 - 普通业务调用方不能上传脚本，只能触发已发布任务。
 
 ## 8. 节点生命周期
@@ -103,3 +106,4 @@ Python SDK 提供等价方法，并自动携带令牌、重试安全的 GET 和�
 - 取消能够终止完整进程树。
 - 未授权脚本不能访问其他 schema、任务或节点文件。
 - DML 审计可定位到任务、步骤和脚本版本。
+- 所有脚本显式依赖的外部环境变量均存在对应的包级注入映射。
