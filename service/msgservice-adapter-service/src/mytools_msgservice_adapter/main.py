@@ -10,6 +10,8 @@ from pymysql.cursors import DictCursor
 
 from .http_api import create_handler
 from .mysql_repository import MySqlSnapshotRepository
+from .mysql_outbound_repository import MySqlOutboundSnapshotRepository
+from .outbound_service import OutboundSnapshotService
 from .service import SnapshotService
 
 
@@ -32,7 +34,11 @@ def main() -> None:
     service = SnapshotService(MySqlSnapshotRepository(connection_factory),
                               boolean_environment("MSGSERVICE_ADAPTER_IMPORT_ENABLED"),
                               boolean_environment("MSGSERVICE_ADAPTER_EXPORT_ENABLED"))
-    handler = create_handler(service, os.environ.get("MSGSERVICE_ADAPTER_INTERNAL_TOKEN", ""))
+    outbound_service = OutboundSnapshotService(MySqlOutboundSnapshotRepository(connection_factory),
+                                                boolean_environment("MSGSERVICE_ADAPTER_IMPORT_ENABLED"),
+                                                boolean_environment("MSGSERVICE_ADAPTER_EXPORT_ENABLED"))
+    handler = create_handler(service, os.environ.get("MSGSERVICE_ADAPTER_INTERNAL_TOKEN", ""),
+                             outbound_service)
     server = ThreadingHTTPServer((os.environ.get("MSGSERVICE_ADAPTER_HTTP_HOST", "127.0.0.1"),
                                   int(os.environ.get("MSGSERVICE_ADAPTER_HTTP_PORT", "23320"))), handler)
     server.serve_forever()

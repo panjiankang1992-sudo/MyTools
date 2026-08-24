@@ -13,6 +13,7 @@ SOURCE_SYSTEM = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
 CHANNEL_TYPES = {"EMAIL", "QQ", "TELEGRAM", "ONEBOT"}
 PART_TYPES = {"TEXT", "ATTACHMENT"}
 ATTACHMENT_TYPES = {"IMAGE", "VIDEO", "RECORD", "FILE"}
+SHA256 = re.compile(r"^[a-f0-9]{64}$")
 
 
 @dataclass(frozen=True)
@@ -156,3 +157,127 @@ def validate_part(value: Any) -> dict[str, Any]:
             raise ValueError("message part declaredSize is invalid")
         result["declaredSize"] = declared_size
     return result
+
+
+@dataclass(frozen=True)
+class OutboundSnapshot:
+    """可安全导出的标准历史发件快照。"""
+
+    value: dict[str, Any]
+
+    @property
+    def source_system(self) -> str:
+        """返回来源系统。"""
+        return self.value["sourceSystem"]
+
+    @property
+    def legacy_message_id(self) -> str:
+        """返回旧消息标识。"""
+        return self.value["legacyMessageId"]
+
+    @staticmethod
+    def from_document(document: dict[str, Any]) -> "OutboundSnapshot":
+        """严格校验历史发件文档和附件归档引用。"""
+        allowed = {"sourceSystem", "legacyMessageId", "ownerId", "channelType", "status",
+                   "sender", "recipients", "subject", "bodyText", "bodyHtml", "attachments",
+                   "templateRef", "providerMessageId", "errorCode", "sentAt", "createdAt"}
+        if not isinstance(document, dict) or set(document) - allowed:
+            raise ValueError("outbound snapshot contains unsupported fields")
+        result: dict[str, Any] = {
+            "sourceSystem": text(document, "sourceSystem", 64),
+            "legacyMessageId": text(document, "legacyMessageId", 255),
+            "channelType": text(document, "channelType", 32),
+            "status": text(document, "status", 32),
+            "createdAt": valid_instant(document, "createdAt", required=True),
+        }
+        if not SOURCE_SYSTEM.fullmatch(result["sourceSystem"]):
+            raise ValueError("sourceSystem is invalid")
+        owner_id = document.get("ownerId")
+        if isinstance(owner_id, bool) or not isinstance(owner_id, int) or owner_id < 0:
+            raise ValueError("ownerId is invalid")
+        result["ownerId"] = owner_id
+        if result["channelType"] != "EMAIL" or result["status"] not in {"SENT", "FAILED"}:
+            raise ValueError("outbound channel or status is invalid")
+        recipients = document.get("recipients")
+        if not isinstance(recipients, list) or not recipients or len(recipients) > 200:
+            raise ValueError("recipients is invalid")
+        result["recipients"] = [limited_string(item, "recipient", 1024) for item in recipients]
+        for name, maximum in (("sender", 1024), ("subject", 998), ("bodyText", 10_485_760),
+                              ("bodyHtml", 10_485_760), ("templateRef", 255),
+                              ("providerMessageId", 512), ("errorCode", 255)):
+            value = document.get(name)
+            if value is not None:
+                result[name] = limited_string(value, name, maximum, allow_empty=True)
+        if not result.get("bodyText") and not result.get("bodyHtml"):
+            raise ValueError("outbound message body is missing")
+        sent_at = valid_instant(document, "sentAt", required=result["status"] == "SENT")
+        if sent_at is not None:
+            result["sentAt"] = sent_at
+        attachments = document.get("attachments", [])
+        if not isinstance(attachments, list) or len(attachments) > 100:
+            raise ValueError("attachments is invalid")
+        result["attachments"] = [validate_archive(item) for item in attachments]
+        return OutboundSnapshot(result)
+
+    def document(self) -> dict[str, Any]:
+        """返回 Messaging 历史发件迁移文档。"""
+        return json.loads(json.dumps(self.value, ensure_ascii=False))
+
+    def digest(self) -> str:
+        """计算规范载荷摘要。"""
+        payload = json.dumps(self.value, sort_keys=True, separators=(",", ":"),
+                             ensure_ascii=False).encode("utf-8")
+        return hashlib.sha256(payload).hexdigest()
+
+    def migration_digest(self) -> str:
+        """返回与 Messaging Java record 序列化一致的载荷摘要。"""
+        keys = ("sourceSystem", "legacyMessageId", "ownerId", "channelType", "status", "sender",
+                "recipients", "subject", "bodyText", "bodyHtml", "attachments", "templateRef",
+                "providerMessageId", "errorCode", "sentAt", "createdAt")
+        normalized = {key: self.value.get(key) for key in keys}
+        normalized["attachments"] = [
+            {key: attachment.get(key) for key in ("fileName", "mimeType", "size", "sha256", "archiveRef")}
+            for attachment in normalized["attachments"]]
+        payload = json.dumps(normalized, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+        return hashlib.sha256(payload).hexdigest()
+
+
+def valid_instant(document: dict[str, Any], name: str, required: bool) -> str | None:
+    """校验 ISO 时间字符串。"""
+    value = document.get(name)
+    if value is None and not required:
+        return None
+    value = limited_string(value, name, 64)
+    try:
+        datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exception:
+        raise ValueError(f"{name} is invalid") from exception
+    return value
+
+
+def limited_string(value: Any, name: str, maximum: int, allow_empty: bool = False) -> str:
+    """校验长度受限的字符串。"""
+    if not isinstance(value, str) or (not allow_empty and not value) or len(value) > maximum:
+        raise ValueError(f"{name} is invalid")
+    return value
+
+
+def validate_archive(value: Any) -> dict[str, Any]:
+    """校验内容寻址附件引用并拒绝内嵌字节。"""
+    allowed = {"fileName", "mimeType", "size", "sha256", "archiveRef"}
+    if not isinstance(value, dict) or set(value) != allowed:
+        raise ValueError("attachment archive fields are invalid")
+    size = value.get("size")
+    if isinstance(size, bool) or not isinstance(size, int) or size < 0:
+        raise ValueError("attachment size is invalid")
+    sha256 = limited_string(value.get("sha256"), "attachment sha256", 64)
+    archive_ref = limited_string(value.get("archiveRef"), "attachment archiveRef", 2048)
+    if not SHA256.fullmatch(sha256) or not archive_ref.startswith("msgservice-archive://sha256/"):
+        raise ValueError("attachment archive identity is invalid")
+    if archive_ref.removeprefix("msgservice-archive://sha256/") != sha256:
+        raise ValueError("attachment archive digest does not match reference")
+    mime_type = value.get("mimeType")
+    if mime_type is not None:
+        mime_type = limited_string(mime_type, "attachment mimeType", 255, allow_empty=True)
+    return {"fileName": limited_string(value.get("fileName"), "attachment fileName", 1024),
+            "mimeType": mime_type, "size": size, "sha256": sha256, "archiveRef": archive_ref}

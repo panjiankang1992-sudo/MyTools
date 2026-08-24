@@ -10,9 +10,11 @@ import json
 from urllib.parse import parse_qs, urlparse
 
 from .service import SnapshotService
+from .outbound_service import OutboundSnapshotService
 
 
-def create_handler(service: SnapshotService, internal_token: str) -> type[BaseHTTPRequestHandler]:
+def create_handler(service: SnapshotService, internal_token: str,
+                   outbound_service: OutboundSnapshotService | None = None) -> type[BaseHTTPRequestHandler]:
     """创建绑定快照服务的受保护 HTTP 处理器。"""
 
     class Handler(BaseHTTPRequestHandler):
@@ -24,7 +26,11 @@ def create_handler(service: SnapshotService, internal_token: str) -> type[BaseHT
             if parsed.path == "/health":
                 self._json(HTTPStatus.OK, {"status": "UP"})
                 return
-            if parsed.path != "/internal/v1/migration/inbound-messages":
+            routes = {"/internal/v1/migration/inbound-messages": service}
+            if outbound_service is not None:
+                routes["/internal/v1/migration/outbound-messages"] = outbound_service
+            selected = routes.get(parsed.path)
+            if selected is None:
                 self._json(HTTPStatus.NOT_FOUND, {"error": "route does not exist"})
                 return
             if not self._authorized():
@@ -35,7 +41,7 @@ def create_handler(service: SnapshotService, internal_token: str) -> type[BaseHT
                 limit = int(query.get("limit", ["200"])[0])
                 after_id = query.get("afterId", [None])[0]
                 snapshot_high_water = query.get("snapshotHighWater", [None])[0]
-                self._json(HTTPStatus.OK, service.export_page(
+                self._json(HTTPStatus.OK, selected.export_page(
                     after_id, limit, snapshot_high_water))
             except PermissionError as exception:
                 self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": str(exception)})
@@ -44,7 +50,11 @@ def create_handler(service: SnapshotService, internal_token: str) -> type[BaseHT
 
         def do_POST(self) -> None:  # noqa: N802
             """幂等装载一批已脱敏历史快照。"""
-            if urlparse(self.path).path != "/internal/v1/migration/inbound-messages/snapshots":
+            routes = {"/internal/v1/migration/inbound-messages/snapshots": service}
+            if outbound_service is not None:
+                routes["/internal/v1/migration/outbound-messages/snapshots"] = outbound_service
+            selected = routes.get(urlparse(self.path).path)
+            if selected is None:
                 self._json(HTTPStatus.NOT_FOUND, {"error": "route does not exist"})
                 return
             if not self._authorized():
@@ -55,7 +65,7 @@ def create_handler(service: SnapshotService, internal_token: str) -> type[BaseHT
                 items = payload.get("items")
                 if not isinstance(items, list):
                     raise ValueError("items is invalid")
-                result = service.import_snapshots(items)
+                result = selected.import_snapshots(items)
                 document = asdict(result)
                 document["digestSha256"] = document.pop("digest_sha256")
                 self._json(HTTPStatus.OK, document)

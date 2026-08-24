@@ -57,6 +57,25 @@ class OutboundHistoryMigrationServiceTest {
         }
     }
 
+    @Test
+    void shouldKeepAdapterCompatiblePayloadDigest() {
+        String digest = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08";
+        var adapterFixture = new LegacyOutboundMessageItem("MSGSERVICE", "mail-1", 0L,
+                ChannelType.EMAIL, "SENT", "sender@example.com", List.of("recipient@example.com"),
+                "subject", "body", null, List.of(new LegacyAttachmentArchive(
+                "test.txt", "text/plain", 4, digest, "msgservice-archive://sha256/" + digest)),
+                null, "provider-1", null, Instant.parse("2026-08-22T01:02:03Z"),
+                Instant.parse("2026-08-22T01:02:00Z"));
+
+        service.migrate(new LegacyOutboundMigrationBatch("adapter-digest-v1", false,
+                List.of(adapterFixture)));
+
+        assertThat(jdbcTemplate.queryForObject("""
+                SELECT payload_sha256 FROM outbound_history_migration
+                WHERE source_system='MSGSERVICE' AND legacy_message_id='mail-1'
+                """, String.class)).isEqualTo("1c8bd136ce01635b093e9bd7d3f29d054e845335050b681f100e4e222434a4a3");
+    }
+
     private LegacyOutboundMessageItem item(String legacyId, String body) {
         return new LegacyOutboundMessageItem("MSGSERVICE", legacyId, 0L, ChannelType.EMAIL, "SENT",
                 "sender@example.com", List.of("recipient@example.com"), "subject", body, null,
