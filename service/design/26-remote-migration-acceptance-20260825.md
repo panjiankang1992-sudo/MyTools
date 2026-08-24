@@ -40,7 +40,15 @@ MsgService 的 6 个旧附件中，4 个已进入内容寻址归档并验证 SHA
 - Media 迁移后对账处于静止状态：暂存扫描、分析中任务和运行中分析均为 0。
 - Storage/Drive 的 PikPak 索引尚未成功。rclone RC 已认证并能识别 `pikpak` remote，但 PikPak 验证码初始化接口持续被对端重置连接，Storage 返回 `STORAGE_014`，Drive 索引任务保留 FAILED 证据。该问题不影响已迁移的 Provider、Drive 账户或其他领域数据，但在外部连接恢复并完成索引及摘要对账前，不能宣称 Storage/Drive 重建完成。
 
-## 4. 部署与安全验收
+## 4. 外部连接实测
+
+- SMTP：使用旧 MsgService 当前配置执行 Nodemailer `verify()` 成功，只完成 TLS/认证握手，没有发送邮件。
+- IMAP：旧 MsgService 的 `EMAIL_IMAP_HOST`、`EMAIL_IMAP_USER`、`EMAIL_IMAP_PASS` 均为空，无法执行真实收件验证；新 Messaging 的邮件入口继续关闭。
+- OneBot：NapCat 容器、HTTP/WS 监听和旧 DownloadBot 服务进程均在线，但只读 `get_status` 请求被连接重置。旧 DownloadBot 的 `adapter_health_states` 同时记录 `OFFLINE`，连续失败 2,070 次，因此不能把进程存活视为 OneBot 可用。
+- PikPak：重复 RC 探测分别返回验证码初始化连接重置和请求超时，Storage/Drive 继续保留失败任务证据。
+- 外部书源：Reader 新 schema 中 `book_source`、`book_source_version`、发现请求及健康检查记录均为 0，当前没有可用于真实连接测试的书源配置。
+
+## 5. 部署与安全验收
 
 - `verify_deployment.py --skip-default-disabled`：12 个核心服务健康，1 个 Executor 节点在线。
 - Gateway 的 Catalog、Reader、Drive、Media、Messaging、DSH 路由均保持关闭并返回 `GATEWAY_002`。
@@ -49,12 +57,12 @@ MsgService 的 6 个旧附件中，4 个已进入内容寻址归档并验证 SHA
 - 19 个微服务使用独立日志目录；日志按天轮转，单文件 10 MiB 提前轮转，保留 9 份历史且 `maxage 10`，满足单服务约 100 MiB、最近最多 10 天的上限。
 - 下载、Storage、Media 和 Reader 的业务数据目录继续独立于 `/opt/yuyutian/mytools` 发布根目录。
 
-## 5. Gateway 启用条件
+## 6. Gateway 启用条件
 
 Identity、Asset、Media、Reader、Messaging、App Catalog、Feedback、DSH 和 Download 历史的数据条件已经满足。当前仍不启用任何新 Gateway 路由，原因是完整系统验收还缺少：
 
 1. PikPak 外部连接恢复后的 Storage 扫描、Drive 索引和双端摘要闭合。
-2. 使用隔离测试账号完成 IMAP、OneBot 和外部书源的真实连接测试；这些能力目前按设计关闭，未使用生产凭据进行破坏性试投递。
+2. 补充 IMAP 和外部书源的隔离测试配置；恢复 OneBot 登录后完成只读健康检查。SMTP 握手已通过，不需要为本轮验收发送真实邮件。
 3. 在上述两项通过后，重新运行全服务健康、任务控制面和相应业务路由烟雾测试。
 
 由于当前没有活跃用户，完成剩余外部验证后可直接启用所需 Gateway 路由，不实施灰度、双写或复杂切流。旧服务与备份在单独确认保留期结束前不得删除。
