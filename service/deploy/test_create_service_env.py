@@ -35,6 +35,8 @@ class CreateServiceEnvTest(unittest.TestCase):
         self.assertEqual("http://127.0.0.1:23321", first["MSGSERVICE_MIGRATION_URL"])
         self.assertEqual("3", first["SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE"])
         self.assertEqual("0", first["SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE"])
+        self.assertEqual("false", first["DOWNLOADBOT_SNAPSHOT_EXPORT_ENABLED"])
+        self.assertEqual("false", first["DOWNLOADBOT_RECONCILIATION_ENABLED"])
         self.assertFalse(first["DOWNLOAD_DESTINATION_ROOT"].startswith("/opt/yuyutian/mytools"))
 
     def test_rejects_business_paths_under_deployment_or_logs(self):
