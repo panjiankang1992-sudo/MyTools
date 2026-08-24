@@ -12,7 +12,8 @@ import tempfile
 import urllib.parse
 import urllib.request
 
-COUNT_FIELDS = ("itemCount", "readyCount", "missingCount", "analyzingCount",
+COUNT_FIELDS = ("itemCount", "sourceRelationCount", "sourceTagRelationCount",
+                "readyCount", "missingCount", "analyzingCount",
                 "succeededAnalysisCount", "failedAnalysisCount", "runningAnalysisCount",
                 "tagRelationCount", "artifactCount", "readyDirectoryEntryCount",
                 "missingDirectoryEntryCount")

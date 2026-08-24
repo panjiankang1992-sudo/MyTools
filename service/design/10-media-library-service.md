@@ -55,7 +55,7 @@ V3 的内部对账接口以媒体 UUID 为稳定游标，每页最多返回 200 
 
 1. 在现有 MyTools 内建立 Task Client，替换 `TaggingJob`、扫描和媒体分析 Job。
 2. 保持现有表为权威，先只替换执行方式。
-3. 已接入 Asset Registry ID 领域模型、幂等事件收件箱和目录扫描 generation；`media_migrate_legacy_items` 使用封存 `local_file` 快照和 Asset Registry 旧 ID 映射进行两遍式预检、幂等回填，生产副本执行仍待进行。
+3. 已接入 Asset Registry ID 领域模型、幂等事件收件箱和目录扫描 generation；`media_migrate_legacy_items` 使用封存 `local_file` 快照和 Asset Registry 旧 ID 映射进行两遍式预检、幂等回填。内容去重时通过 `media_item_source`、`media_item_source_tag` 保留每条旧文件身份及其标签，生产副本执行仍待进行。
 4. 已建立独立 `mytools_media` schema和服务进程 MVP，覆盖分析版本唯一性、标签/派生物合并和乐观锁播放进度；旧接口仍为权威。
 5. 已完成视频分析结果业务聚合和失败终态回写；下一步由 Gateway 或灰度调用方按显式租户创建 V48 分析任务。
 6. Gateway 改为远程调用。

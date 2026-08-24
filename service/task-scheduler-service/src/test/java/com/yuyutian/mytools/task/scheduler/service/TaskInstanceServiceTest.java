@@ -565,4 +565,14 @@ class TaskInstanceServiceTest {
         assertEquals("media_migrate_legacy_items", definition.get("script_package"));
         assertEquals("1.0.0", definition.get("script_version"));
     }
+
+    @Test
+    void shouldReconcileDeduplicatedMediaSources() {
+        String schema = jdbcTemplate.queryForObject(
+                "SELECT result_schema FROM task_definition WHERE name=?",
+                String.class, "media_reconcile_library");
+
+        assertTrue(schema.contains("sourceRelationCount"));
+        assertTrue(schema.contains("sourceTagRelationCount"));
+    }
 }

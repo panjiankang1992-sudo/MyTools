@@ -41,3 +41,5 @@ V3 增加 `media_library_revision` 单调修订号和 `GET /internal/v1/media/re
 V5 为新建目录扫描操作保存完整创建请求的 SHA-256。相同 owner 和幂等键只能重放相同扫描参数，根目录、目录标识或分析选项变化会被拒绝；升级前已有操作保持可查询，不要求重建或删除。
 
 `media_migrate_legacy_items` 1.0.0 从已封存的 `local_file` 资产快照恢复图片、视频、音频及其 `file_tag` 关系。任务第一遍分页校验所有媒体记录均已有不可变 Asset Registry 映射，存在缺失时不会写 Media Library；正式执行第二遍使用稳定事件 ID，在一个目标事务中幂等导入媒体项和 `LEGACY_MIGRATION` 标签。任务不重新读取旧表，不把存储 URI 写入 Media Library，并输出来源数量、媒体数量、旧标签数量、非媒体跳过数量和确定性摘要。应先执行 dry-run，再执行相同 `sourceSnapshotId` 的正式任务，最后运行 `media_reconcile_library`。旧缩略图、截图和简介属于可再生产物，不迁移其路径，由新任务重新生成。
+
+V6 增加 `media_item_source` 和 `media_item_source_tag`。内容相同的旧文件仍复用一个媒体项，但每个 `local_file` 来源及其标签会分别保留，避免内容去重吞掉旧记录身份。对账报告增加 `sourceRelationCount` 和 `sourceTagRelationCount`，供迁移门禁按旧媒体及旧标签数量验收。

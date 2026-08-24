@@ -1,0 +1,6 @@
+CREATE TABLE media_item_source (media_item_id CHAR(36) NOT NULL,owner_id BIGINT NOT NULL,source_type VARCHAR(64) NOT NULL,source_business_id VARCHAR(255) NOT NULL,display_name VARCHAR(512) NOT NULL,created_at TIMESTAMP(6) NOT NULL,updated_at TIMESTAMP(6) NOT NULL,PRIMARY KEY(owner_id,source_type,source_business_id),CONSTRAINT fk_media_item_source_item FOREIGN KEY(media_item_id) REFERENCES media_item(id));
+CREATE INDEX idx_media_item_source_item ON media_item_source(media_item_id);
+INSERT INTO media_item_source (media_item_id,owner_id,source_type,source_business_id,display_name,created_at,updated_at) SELECT id,owner_id,source_type,source_business_id,display_name,created_at,updated_at FROM media_item;
+
+CREATE TABLE media_item_source_tag (media_item_id CHAR(36) NOT NULL,owner_id BIGINT NOT NULL,source_type VARCHAR(64) NOT NULL,source_business_id VARCHAR(255) NOT NULL,tag_id CHAR(36) NOT NULL,confidence DECIMAL(6,5),created_at TIMESTAMP(6) NOT NULL,PRIMARY KEY(owner_id,source_type,source_business_id,tag_id),CONSTRAINT fk_media_source_tag_item FOREIGN KEY(media_item_id) REFERENCES media_item(id),CONSTRAINT fk_media_source_tag_tag FOREIGN KEY(tag_id) REFERENCES media_tag(id));
+CREATE INDEX idx_media_source_tag_item ON media_item_source_tag(media_item_id);
