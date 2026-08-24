@@ -123,6 +123,35 @@ class MessageAutomationServiceTest {
     }
 
     @Test
+    void shouldCreateReconcileAndCancelStandardAttachmentAction() {
+        service.createRule(new CreateAutomationRuleRequest(15L, "attachment_download", ChannelType.ONEBOT,
+                "group-1", "user-1", "/save", "MESSAGE_ATTACHMENT", 1, 100, true));
+        UUID messageId = UUID.randomUUID();
+        UUID partId = UUID.randomUUID();
+        UUID jobId = UUID.randomUUID();
+        InboundMessage message = new InboundMessage(messageId, 15L, ChannelType.ONEBOT,
+                "external-" + messageId, "group-1", "user-1", null, "/save", Instant.now(), Instant.now(),
+                List.of(new InboundMessage.MessagePart(partId, 0, "ATTACHMENT", "FILE",
+                        "book.epub", "application/epub+zip", 1024L)));
+        when(messagingClient.get(messageId)).thenReturn(message);
+        when(messagingClient.createAttachment(messageId, partId, 15L))
+                .thenReturn(new MessagingClient.AttachmentSnapshot(jobId, "QUEUED"));
+        when(messagingClient.attachment(jobId, 15L))
+                .thenReturn(new MessagingClient.AttachmentSnapshot(jobId, "RUNNING"));
+        when(messagingClient.cancelAttachment(jobId, 15L))
+                .thenReturn(new MessagingClient.AttachmentSnapshot(jobId, "CANCELLED"));
+
+        var running = service.process(messageId);
+        var cancelled = service.cancel(running.id());
+
+        assertThat(running.status()).isEqualTo("RUNNING");
+        assertThat(running.actions()).extracting("actionType").containsExactly("ATTACHMENT_DOWNLOAD");
+        assertThat(cancelled.status()).isEqualTo("CANCELLED");
+        verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString());
+        verify(messagingClient).cancelAttachment(jobId, 15L);
+    }
+
+    @Test
     void shouldRecoverUnknownDownloadCreationByStableActionSequence() {
         service.createRule(new CreateAutomationRuleRequest(14L, "recover_download", ChannelType.EMAIL,
                 "thread-4", "allowed@example.com", "download: ", "HTTP_ASSET", 1, 100, true));

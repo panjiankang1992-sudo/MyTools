@@ -68,21 +68,30 @@ public class MessageAutomationService {
         if (rule == null) {
             return transactionTemplate.execute(status -> repository.completeRun(messageId, "NO_MATCH", List.of(), null));
         }
-        List<String> urls = extractUrls(message.body().substring(rule.commandPrefix().length()), rule.maxActions());
-        if (urls.isEmpty()) {
-            return transactionTemplate.execute(status -> repository.completeRun(
-                    messageId, "FAILED", List.of(), ErrorCode.NO_ACTION_INPUT.code()));
-        }
-        for (int index = 0; index < urls.size(); index++) {
-            int sequence = index;
-            String url = urls.get(index);
-            var action = transactionTemplate.execute(status -> repository.createAction(
-                    started.id(), sequence, url, fileName(url, sequence)));
-            if (action == null) {
-                throw new IllegalStateException("Automation action transaction returned no action");
+        if ("MESSAGE_ATTACHMENT".equals(rule.requestKind())) {
+            List<InboundMessage.MessagePart> attachments = message.parts().stream()
+                    .filter(part -> "ATTACHMENT".equals(part.type())).limit(rule.maxActions()).toList();
+            if (attachments.isEmpty()) return noInput(messageId);
+            for (int index = 0; index < attachments.size(); index++) {
+                int sequence = index;
+                InboundMessage.MessagePart part = attachments.get(index);
+                var action = transactionTemplate.execute(status -> repository.createAction(started.id(), sequence,
+                        "ATTACHMENT_DOWNLOAD", part.id().toString(), attachmentName(part, sequence)));
+                if (action == null) throw new IllegalStateException("Automation action transaction returned no action");
+                submitAttachment(message, action.id(), part.id());
             }
-            submit(started, message, rule.id(), rule.requestKind(), action.id(), sequence, url,
-                    fileName(url, sequence));
+        } else {
+            List<String> urls = extractUrls(message.body().substring(rule.commandPrefix().length()), rule.maxActions());
+            if (urls.isEmpty()) return noInput(messageId);
+            for (int index = 0; index < urls.size(); index++) {
+                int sequence = index;
+                String url = urls.get(index);
+                var action = transactionTemplate.execute(status -> repository.createAction(
+                        started.id(), sequence, "DOWNLOAD_REQUEST", url, fileName(url, sequence)));
+                if (action == null) throw new IllegalStateException("Automation action transaction returned no action");
+                submit(started, message, rule.id(), rule.requestKind(), action.id(), sequence, url,
+                        fileName(url, sequence));
+            }
         }
         return reconcile(repository.findRun(messageId).orElseThrow(), false);
     }
@@ -104,9 +113,10 @@ public class MessageAutomationService {
         for (AutomationActionView action : repository.findActions(run.id())) {
             if (action.externalRequestId() != null && !terminalAction(action.status())) {
                 try {
-                    DownloadIngestionClient.DownloadSnapshot snapshot = downloadClient.cancel(
-                            action.externalRequestId(), message.ownerId());
-                    repository.updateActionStatus(action.id(), mapDownloadStatus(snapshot.status()), null);
+                    String status = "ATTACHMENT_DOWNLOAD".equals(action.actionType())
+                            ? messagingClient.cancelAttachment(action.externalRequestId(), message.ownerId()).status()
+                            : downloadClient.cancel(action.externalRequestId(), message.ownerId()).status();
+                    repository.updateActionStatus(action.id(), mapActionStatus(status), null);
                 } catch (RuntimeException exception) {
                     repository.updateActionStatus(action.id(), action.status(), "CANCEL_REQUEST_FAILED");
                 }
@@ -127,17 +137,32 @@ public class MessageAutomationService {
         }
     }
 
+    private void submitAttachment(InboundMessage message, UUID actionId, UUID partId) {
+        try {
+            UUID jobId = messagingClient.createAttachment(message.id(), partId, message.ownerId()).id();
+            transactionTemplate.executeWithoutResult(status -> repository.bindAction(actionId, jobId));
+        } catch (RuntimeException exception) {
+            transactionTemplate.executeWithoutResult(status ->
+                    repository.failAction(actionId, ErrorCode.DOWNLOAD_CREATE_FAILED.code()));
+        }
+    }
+
     private AutomationRunView reconcile(AutomationRunView run, boolean recoverCreating) {
         InboundMessage message = messagingClient.get(run.messageId());
         for (AutomationRepository.ActionExecution action : repository.findActionExecutions(run.id())) {
             if ("CREATING".equals(action.status()) && recoverCreating && run.ruleId() != null) {
-                submit(run, message, run.ruleId(), "HTTP_ASSET", action.id(), action.sequence(),
-                        action.sourceUrl(), action.fileName());
+                if ("ATTACHMENT_DOWNLOAD".equals(action.actionType())) {
+                    submitAttachment(message, action.id(), UUID.fromString(action.sourceUrl()));
+                } else {
+                    submit(run, message, run.ruleId(), "HTTP_ASSET", action.id(), action.sequence(),
+                            action.sourceUrl(), action.fileName());
+                }
             } else if (action.externalRequestId() != null && !terminalAction(action.status())) {
                 try {
-                    DownloadIngestionClient.DownloadSnapshot snapshot = downloadClient.get(
-                            action.externalRequestId(), message.ownerId());
-                    repository.updateActionStatus(action.id(), mapDownloadStatus(snapshot.status()), null);
+                    String status = "ATTACHMENT_DOWNLOAD".equals(action.actionType())
+                            ? messagingClient.attachment(action.externalRequestId(), message.ownerId()).status()
+                            : downloadClient.get(action.externalRequestId(), message.ownerId()).status();
+                    repository.updateActionStatus(action.id(), mapActionStatus(status), null);
                 } catch (RuntimeException exception) {
                     // 临时查询失败不覆盖已知子任务状态，下一次查询继续对账。
                 }
@@ -173,14 +198,27 @@ public class MessageAutomationService {
                 repository.updateRunAggregate(messageId, status, finalError));
     }
 
-    private String mapDownloadStatus(String status) {
+    private String mapActionStatus(String status) {
         return switch (status) {
-            case "ACCEPTED", "PLANNING", "RUNNING", "CANCELLING" -> "RUNNING";
+            case "ACCEPTED", "PLANNING", "QUEUED", "RESOLVING", "RUNNING", "CANCELLING" -> "RUNNING";
             case "SUCCEEDED" -> "SUCCEEDED";
-            case "FAILED" -> "FAILED";
+            case "FAILED", "TIMED_OUT" -> "FAILED";
             case "CANCELLED" -> "CANCELLED";
-            default -> throw new IllegalStateException("Unsupported Download Ingestion status");
+            default -> throw new IllegalStateException("Unsupported action status");
         };
+    }
+
+    private AutomationRunView noInput(UUID messageId) {
+        return transactionTemplate.execute(status -> repository.completeRun(
+                messageId, "FAILED", List.of(), ErrorCode.NO_ACTION_INPUT.code()));
+    }
+
+    private String attachmentName(InboundMessage.MessagePart part, int index) {
+        String value = part.fileName() == null || part.fileName().isBlank()
+                ? "attachment-" + index + ".bin" : part.fileName();
+        String safe = INVALID_FILE_NAME.matcher(value).replaceAll("_");
+        return safe.isBlank() ? "attachment-" + index + ".bin"
+                : safe.substring(0, Math.min(180, safe.length()));
     }
 
     private boolean terminalAction(String status) {
@@ -190,7 +228,7 @@ public class MessageAutomationService {
     private boolean matches(AutomationRuleRecord rule, InboundMessage message) {
         return (rule.conversationKey() == null || rule.conversationKey().equals(message.conversationKey()))
                 && (rule.sender() == null || rule.sender().equalsIgnoreCase(message.sender()))
-                && message.body().startsWith(rule.commandPrefix());
+                && message.body() != null && message.body().startsWith(rule.commandPrefix());
     }
 
     private List<String> extractUrls(String value, int limit) {

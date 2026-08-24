@@ -59,8 +59,10 @@ public class AutomationRepository {
         jdbcTemplate.update("""
                 INSERT INTO action_binding
                     (id, automation_rule_id, action_type, request_kind, max_actions, enabled, created_at, updated_at)
-                VALUES (?, ?, 'DOWNLOAD_URL', ?, ?, TRUE, ?, ?)
-                """, UUID.randomUUID().toString(), id.toString(), request.requestKind(), request.maxActions(),
+                VALUES (?, ?, ?, ?, ?, TRUE, ?, ?)
+                """, UUID.randomUUID().toString(), id.toString(),
+                "MESSAGE_ATTACHMENT".equals(request.requestKind()) ? "DOWNLOAD_ATTACHMENT" : "DOWNLOAD_URL",
+                request.requestKind(), request.maxActions(),
                 Timestamp.from(now), Timestamp.from(now));
         return findRule(id).orElseThrow();
     }
@@ -130,7 +132,8 @@ public class AutomationRepository {
     /**
      * 幂等创建一个子动作占位记录。
      */
-    public AutomationActionView createAction(UUID runId, int sequence, String sourceUrl, String fileName) {
+    public AutomationActionView createAction(UUID runId, int sequence, String actionType,
+                                             String sourceUrl, String fileName) {
         Optional<AutomationActionView> existing = findAction(runId, sequence);
         if (existing.isPresent()) {
             return existing.get();
@@ -141,8 +144,8 @@ public class AutomationRepository {
                 INSERT INTO automation_action
                     (id, automation_run_id, sequence_number, action_type, source_url, file_name,
                      external_request_id, status, error_code, created_at, updated_at)
-                VALUES (?, ?, ?, 'DOWNLOAD_REQUEST', ?, ?, NULL, 'CREATING', NULL, ?, ?)
-                """, id.toString(), runId.toString(), sequence, sourceUrl, fileName,
+                VALUES (?, ?, ?, ?, ?, ?, NULL, 'CREATING', NULL, ?, ?)
+                """, id.toString(), runId.toString(), sequence, actionType, sourceUrl, fileName,
                 Timestamp.from(now), Timestamp.from(now));
         return findAction(runId, sequence).orElseThrow();
     }
@@ -185,7 +188,8 @@ public class AutomationRepository {
                 """, (resultSet, rowNumber) -> {
             String externalId = resultSet.getString("external_request_id");
             return new ActionExecution(UUID.fromString(resultSet.getString("id")),
-                    resultSet.getInt("sequence_number"), resultSet.getString("source_url"),
+                    resultSet.getInt("sequence_number"), resultSet.getString("action_type"),
+                    resultSet.getString("source_url"),
                     resultSet.getString("file_name"), externalId == null ? null : UUID.fromString(externalId),
                     resultSet.getString("status"));
         }, runId.toString());
@@ -324,7 +328,7 @@ public class AutomationRepository {
     /**
      * 服务内部使用的子动作执行快照，不得直接作为 API 响应。
      */
-    public record ActionExecution(UUID id, int sequence, String sourceUrl, String fileName,
+    public record ActionExecution(UUID id, int sequence, String actionType, String sourceUrl, String fileName,
                                   UUID externalRequestId, String status) {
     }
 }

@@ -17,7 +17,7 @@ public record CreateAutomationRuleRequest(
         @Size(max = 512) String conversationKey,
         @Size(max = 1024) String sender,
         @NotBlank @Size(max = 128) String commandPrefix,
-        @NotBlank @Pattern(regexp = "^HTTP_ASSET$") String requestKind,
+        @NotBlank @Pattern(regexp = "^(HTTP_ASSET|MESSAGE_ATTACHMENT)$") String requestKind,
         @Min(1) @Max(5) int maxActions,
         @Min(0) @Max(1000) int priority,
         boolean enabled) {
