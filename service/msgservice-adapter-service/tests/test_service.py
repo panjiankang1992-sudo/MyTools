@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from mytools_msgservice_adapter.repository import InMemorySnapshotRepository
+from mytools_msgservice_adapter.models import canonical_instant
 from mytools_msgservice_adapter.service import SnapshotService
 
 
@@ -63,6 +64,37 @@ def test_export_high_water_excludes_concurrent_appends() -> None:
     assert [item["legacyMessageId"] for item in second["items"]] == ["mail-2"]
     assert second["itemCount"] == 2
     assert second["collectionSha256"] == first["collectionSha256"]
+
+
+def test_collection_digest_matches_messaging_reconciliation_protocol() -> None:
+    service = SnapshotService(InMemorySnapshotRepository(), True, True)
+    fixture = message("fixture-1", "historical body")
+    fixture["sourceSystem"] = "MSGSERVICE"
+    fixture["receivedAt"] = "2026-01-02T03:04:05Z"
+    service.import_snapshots([fixture])
+
+    evidence = service.export_page(None, 200)
+
+    assert evidence["collectionSha256"] == \
+        "40cd2098a515a6ba61ae58bde61eb568c4d028b9ef8a172251ca131fadd0ee90"
+
+
+def test_collection_digest_uses_identity_order_instead_of_insert_order() -> None:
+    first = SnapshotService(InMemorySnapshotRepository(), True, True)
+    second = SnapshotService(InMemorySnapshotRepository(), True, True)
+    values = [message("message-b", "body-b"), message("message-a", "body-a")]
+    first.import_snapshots(values)
+    second.import_snapshots(list(reversed(values)))
+
+    assert first.export_page(None, 200)["collectionSha256"] == \
+        second.export_page(None, 200)["collectionSha256"]
+
+
+def test_instant_normalization_matches_java_fraction_groups() -> None:
+    assert canonical_instant("2026-01-02T11:04:05.1234+08:00") == \
+        "2026-01-02T03:04:05.123400Z"
+    assert canonical_instant("2026-01-02T03:04:05.123456789Z") == \
+        "2026-01-02T03:04:05.123456789Z"
 
 
 def test_unknown_fields_and_unbounded_pages_are_rejected() -> None:

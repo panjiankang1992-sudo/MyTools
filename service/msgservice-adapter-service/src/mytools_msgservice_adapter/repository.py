@@ -66,7 +66,9 @@ class InMemorySnapshotRepository:
         """计算冻结高水位内的数量和集合摘要。"""
         if high_water in self._evidence:
             return self._evidence[high_water]
-        values = [item for item in self._values if item.sequence_id <= high_water]
+        values = sorted((item for item in self._values if item.sequence_id <= high_water),
+                        key=lambda item: (item.snapshot.source_system,
+                                          item.snapshot.legacy_message_id))
         digest = hashlib.sha256()
         for item in values:
             update_evidence_digest(digest, item)
@@ -83,7 +85,7 @@ class InMemorySnapshotRepository:
 def update_evidence_digest(digest, item: StoredSnapshot) -> None:
     """按旧身份和不可变载荷摘要更新集合摘要。"""
     for value in (item.snapshot.source_system, item.snapshot.legacy_message_id,
-                  item.payload_sha256):
+                  item.snapshot.migration_digest()):
         encoded = value.encode("utf-8")
         digest.update(len(encoded).to_bytes(4, "big"))
         digest.update(encoded)

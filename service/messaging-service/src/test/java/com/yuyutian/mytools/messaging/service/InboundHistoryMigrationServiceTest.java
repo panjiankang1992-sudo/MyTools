@@ -69,6 +69,19 @@ class InboundHistoryMigrationServiceTest {
         assertThat(applied.digestSha256()).isEqualTo(dryRun.digestSha256());
     }
 
+    @Test
+    void shouldExposeSourceCompatibleTargetReconciliationDigest() {
+        LegacyInboundMessageItem fixture = item("fixture-1", "historical body");
+        service.migrate(new LegacyInboundMigrationBatch(
+                "msg-history-reconciliation", false, List.of(fixture)));
+
+        var reconciliation = service.reconcile("msg-history-reconciliation");
+
+        assertThat(reconciliation.itemCount()).isEqualTo(1);
+        assertThat(reconciliation.collectionSha256())
+                .isEqualTo("40cd2098a515a6ba61ae58bde61eb568c4d028b9ef8a172251ca131fadd0ee90");
+    }
+
     private LegacyInboundMessageItem item(String legacyId, String body) {
         return new LegacyInboundMessageItem("MSGSERVICE", legacyId, 7L, ChannelType.EMAIL,
                 "mailbox:inbox", "sender@example.com", "subject", body,

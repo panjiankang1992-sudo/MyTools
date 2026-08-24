@@ -5,6 +5,7 @@ import com.yuyutian.mytools.messaging.model.InboundMessageView;
 import com.yuyutian.mytools.messaging.model.LegacyInboundMessageItem;
 import com.yuyutian.mytools.messaging.model.LegacyInboundMigrationBatch;
 import com.yuyutian.mytools.messaging.model.LegacyInboundMigrationResult;
+import com.yuyutian.mytools.messaging.model.LegacyInboundReconciliation;
 import com.yuyutian.mytools.messaging.repository.MessagingRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +18,14 @@ import java.time.Instant;
 import java.util.HexFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * 校验并幂等导入历史入站消息，禁止产生实时消息事件。
  */
 @Service
 public class InboundHistoryMigrationService {
+    private static final Pattern MIGRATION_KEY = Pattern.compile("^[A-Za-z0-9._:-]{1,128}$");
     private final MessagingRepository repository;
 
     /**
@@ -80,6 +83,25 @@ public class InboundHistoryMigrationService {
         }
         return new LegacyInboundMigrationResult(batch.dryRun(), accepted, skipped, rejected,
                 HexFormat.of().formatHex(batchDigest.digest()));
+    }
+
+    /**
+     * 计算指定迁移键已经落库的稳定集合证据。
+     *
+     * @param migrationKey 迁移键
+     * @return 目标侧数量和摘要
+     */
+    @Transactional(readOnly = true)
+    public LegacyInboundReconciliation reconcile(String migrationKey) {
+        if (migrationKey == null || !MIGRATION_KEY.matcher(migrationKey).matches()) {
+            throw new IllegalArgumentException("Migration key is invalid");
+        }
+        var records = repository.findHistoryMigrations(migrationKey);
+        MessageDigest collection = digest();
+        records.forEach(record -> update(collection, record.sourceSystem(),
+                record.legacyMessageId(), record.payloadSha256()));
+        return new LegacyInboundReconciliation(migrationKey, records.size(),
+                HexFormat.of().formatHex(collection.digest()));
     }
 
     private String itemDigest(LegacyInboundMessageItem item) {

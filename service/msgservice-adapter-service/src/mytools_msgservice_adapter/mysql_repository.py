@@ -10,6 +10,8 @@ from typing import Callable
 from .models import Snapshot
 from .repository import StoredSnapshot
 
+EVIDENCE_PROTOCOL = "messaging-history-v1"
+
 
 class MySqlSnapshotRepository:
     """只访问适配器自有 schema 的快照仓储。"""
@@ -67,26 +69,29 @@ class MySqlSnapshotRepository:
         try:
             with connection.cursor() as cursor:
                 cursor.execute("SELECT item_count,collection_sha256 "
-                               "FROM legacy_inbound_export_snapshot WHERE high_water_sequence=%s",
-                               (high_water,))
+                               "FROM legacy_inbound_export_snapshot "
+                               "WHERE high_water_sequence=%s AND protocol_version=%s",
+                               (high_water, EVIDENCE_PROTOCOL))
                 existing = cursor.fetchone()
                 if existing is not None:
                     return int(existing["item_count"]), str(existing["collection_sha256"])
-                cursor.execute("SELECT source_system,legacy_message_id,payload_sha256 "
+                cursor.execute("SELECT * "
                                "FROM legacy_inbound_snapshot WHERE sequence_id<=%s "
-                               "ORDER BY sequence_id ASC", (high_water,))
+                               "ORDER BY source_system ASC, legacy_message_id ASC", (high_water,))
                 rows = cursor.fetchall()
                 digest = hashlib.sha256()
                 for row in rows:
-                    for value in (row["source_system"], row["legacy_message_id"],
-                                  row["payload_sha256"]):
+                    item = self._map(row)
+                    for value in (item.snapshot.source_system, item.snapshot.legacy_message_id,
+                                  item.snapshot.migration_digest()):
                         encoded = str(value).encode("utf-8")
                         digest.update(len(encoded).to_bytes(4, "big"))
                         digest.update(encoded)
                 value = digest.hexdigest()
                 cursor.execute("INSERT IGNORE INTO legacy_inbound_export_snapshot "
-                               "(high_water_sequence,item_count,collection_sha256) VALUES (%s,%s,%s)",
-                               (high_water, len(rows), value))
+                               "(high_water_sequence,protocol_version,item_count,collection_sha256) "
+                               "VALUES (%s,%s,%s,%s)",
+                               (high_water, EVIDENCE_PROTOCOL, len(rows), value))
             connection.commit()
         finally:
             connection.close()

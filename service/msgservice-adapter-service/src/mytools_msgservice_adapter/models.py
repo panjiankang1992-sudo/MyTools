@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 import hashlib
 import json
 import re
@@ -76,6 +76,45 @@ class Snapshot:
         payload = json.dumps(self.document(), sort_keys=True, separators=(",", ":"),
                              ensure_ascii=False).encode("utf-8")
         return hashlib.sha256(payload).hexdigest()
+
+    def migration_digest(self) -> str:
+        """计算与 Messaging 历史迁移记录一致的字段摘要。"""
+        digest = hashlib.sha256()
+        update_digest(digest, self.source_system, self.legacy_message_id, str(self.owner_id),
+                      self.channel_type, self.conversation_key, self.sender, self.subject,
+                      self.body, canonical_instant(self.received_at))
+        for part in self.parts:
+            size = part.get("declaredSize")
+            update_digest(digest, part.get("type"), part.get("text"),
+                          part.get("attachmentType"), part.get("providerFileId"),
+                          part.get("sourceUrl"), part.get("fileName"), part.get("mimeType"),
+                          None if size is None else str(size))
+        return digest.hexdigest()
+
+
+def update_digest(digest, *values: object) -> None:
+    """使用共享长度前缀协议更新摘要。"""
+    for value in values:
+        encoded = ("" if value is None else str(value)).encode("utf-8")
+        digest.update(len(encoded).to_bytes(4, "big"))
+        digest.update(encoded)
+
+
+def canonical_instant(value: str) -> str:
+    """规范化为 Java Instant.toString 使用的 UTC 形式。"""
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(UTC)
+    match = re.search(r":\d{2}:\d{2}(?:\.(\d{1,9}))?(?:Z|[+-]\d{2}:\d{2})$", value)
+    fraction = "" if match is None or match.group(1) is None else match.group(1)
+    nanoseconds = int(fraction.ljust(9, "0")) if fraction else 0
+    if nanoseconds == 0:
+        suffix = ""
+    elif nanoseconds % 1_000_000 == 0:
+        suffix = f".{nanoseconds // 1_000_000:03d}"
+    elif nanoseconds % 1_000 == 0:
+        suffix = f".{nanoseconds // 1_000:06d}"
+    else:
+        suffix = f".{nanoseconds:09d}"
+    return parsed.replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%S") + suffix + "Z"
 
 
 def text(document: dict[str, Any], name: str, maximum: int) -> str:

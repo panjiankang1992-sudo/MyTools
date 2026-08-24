@@ -217,6 +217,23 @@ public class MessagingRepository {
     }
 
     /**
+     * 按迁移键读取稳定排序的历史映射证据。
+     *
+     * @param migrationKey 迁移键
+     * @return 历史映射记录
+     */
+    public List<HistoryMigrationRecord> findHistoryMigrations(String migrationKey) {
+        return jdbcTemplate.query("""
+                SELECT * FROM inbound_history_migration WHERE migration_key = ?
+                ORDER BY source_system, legacy_message_id
+                """, (resultSet, rowNumber) -> new HistoryMigrationRecord(
+                resultSet.getString("migration_key"), resultSet.getString("source_system"),
+                resultSet.getString("legacy_message_id"), resultSet.getString("payload_sha256"),
+                UUID.fromString(resultSet.getString("inbound_message_id")),
+                resultSet.getTimestamp("created_at").toInstant()), migrationKey);
+    }
+
+    /**
      * 历史消息迁移审计记录。
      *
      * @param migrationKey 迁移键
