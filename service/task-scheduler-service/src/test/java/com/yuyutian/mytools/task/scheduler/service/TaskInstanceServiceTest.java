@@ -600,4 +600,16 @@ class TaskInstanceServiceTest {
         assertTrue(definition.get("result_schema").toString().contains("sourceHighWater"));
         assertEquals("feedback_migrate_legacy", definition.get("script_package"));
     }
+
+    @Test
+    void shouldSeedLegacyDshSessionMigration() {
+        Map<String, Object> definition = jdbcTemplate.queryForMap(
+                "SELECT d.result_schema,s.script_package FROM task_definition d "
+                        + "JOIN task_step_definition s ON s.task_definition_id=d.id "
+                        + "WHERE d.name=? AND s.name=?",
+                "dsh_migrate_legacy_sessions", "migrate_dsh_sessions");
+
+        assertTrue(definition.get("result_schema").toString().contains("sourceHighWater"));
+        assertEquals("dsh_migrate_legacy_sessions", definition.get("script_package"));
+    }
 }

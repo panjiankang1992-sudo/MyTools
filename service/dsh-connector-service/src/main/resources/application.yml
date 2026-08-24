@@ -1,0 +1,11 @@
+server:
+  address: ${DSH_CONNECTOR_HTTP_HOST:127.0.0.1}
+  port: ${DSH_CONNECTOR_HTTP_PORT:23320}
+spring:
+  application.name: dsh-connector-service
+  datasource:
+    url: jdbc:mysql://${DSH_CONNECTOR_DB_HOST:127.0.0.1}:${DSH_CONNECTOR_DB_PORT:3306}/${DSH_CONNECTOR_DB_NAME:mytools_dsh_connector}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: ${DSH_CONNECTOR_DB_USER:}
+    password: ${DSH_CONNECTOR_DB_PASSWORD:}
+  flyway.locations: classpath:db/migration
+dsh-connector.internal-token: ${DSH_CONNECTOR_INTERNAL_TOKEN:}

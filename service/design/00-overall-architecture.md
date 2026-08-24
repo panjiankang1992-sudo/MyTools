@@ -15,6 +15,7 @@ flowchart TB
     G --> D[Drive Service]
     G --> R[Reader Service]
     G --> AC[App Catalog Service]
+    G --> DSH[DSH Connector Service]
     M --> A[Message Automation Service]
     A --> DI[Download Ingestion Service]
     I --> TS[Task Scheduler Service]
@@ -79,6 +80,7 @@ flowchart TB
 | 网盘账户和远端索引 | Drive Service |
 | 书架、书源、搜索缓存、阅读数据 | Reader Service |
 | 应用、版本、发布文件元数据 | App Catalog Service |
+| DSH 外部会话绑定和事件检查点 | DSH Connector Service |
 
 ### 独立 Schema 策略
 
@@ -96,6 +98,7 @@ mytools_media
 mytools_drive
 mytools_reader
 mytools_app_catalog
+mytools_dsh_connector
 ```
 
 同一 MySQL 实例可以承载多个 schema，但账号只获得所属 schema 的最小权限。跨服务查询通过 API、事件或离线迁移任务完成，禁止在在线业务 SQL 中跨 schema Join。
