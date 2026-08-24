@@ -52,8 +52,16 @@ public class IdentityRepository {
   else jdbc.update("UPDATE identity_login_attempt SET failure_count=?,locked_until=?,last_failure_at=?,updated_at=? WHERE identity_key_sha256=?",next,locked,Timestamp.from(now),Timestamp.from(now),keyHash);
  }
  /** 清除登录失败状态。 @param keyHash 身份摘要 */ public void clearFailures(String keyHash){jdbc.update("DELETE FROM identity_login_attempt WHERE identity_key_sha256=?",keyHash);}
+ /** 查询用户迁移审计。 @param migrationKey 迁移键 @param userId 旧用户标识 @return 迁移审计 */
+ public Optional<UserMigrationRecord> findUserMigration(String migrationKey,long userId){return jdbc.query("SELECT * FROM identity_user_migration WHERE migration_key=? AND legacy_user_id=?",(rs,row)->new UserMigrationRecord(rs.getString("migration_key"),rs.getLong("legacy_user_id"),rs.getString("payload_sha256")),migrationKey,userId).stream().findFirst();}
+ /** 写入用户迁移审计。 @param migrationKey 迁移键 @param userId 旧用户标识 @param payloadSha256 载荷摘要 */
+ public void recordUserMigration(String migrationKey,long userId,String payloadSha256){jdbc.update("INSERT INTO identity_user_migration(migration_key,legacy_user_id,payload_sha256,created_at) VALUES (?,?,?,?)",migrationKey,userId,payloadSha256,Timestamp.from(Instant.now()));}
+ /** 按稳定顺序读取迁移审计。 @param migrationKey 迁移键 @return 迁移审计 */
+ public List<UserMigrationRecord> findUserMigrations(String migrationKey){return jdbc.query("SELECT * FROM identity_user_migration WHERE migration_key=? ORDER BY legacy_user_id",(rs,row)->new UserMigrationRecord(rs.getString("migration_key"),rs.getLong("legacy_user_id"),rs.getString("payload_sha256")),migrationKey);}
  private Optional<SessionRecord> session(String field,String value){return jdbc.query("SELECT * FROM identity_session WHERE "+field+"=?",(rs,row)->new SessionRecord(UUID.fromString(rs.getString("id")),rs.getLong("user_id"),rs.getString("device_id"),rs.getString("refresh_token_sha256"),rs.getLong("version"),rs.getLong("credential_version"),rs.getTimestamp("issued_at").toInstant(),rs.getTimestamp("refresh_expires_at").toInstant(),rs.getTimestamp("revoked_at")==null?null:rs.getTimestamp("revoked_at").toInstant()),value).stream().findFirst();}
  private List<UserView> findUser(long id){return queryUsers("WHERE u.id=?",id);}
  private List<UserView> queryUsers(String where,Object value){return jdbc.query("SELECT u.* FROM identity_user u "+where,(rs,row)->new UserView(rs.getLong("id"),rs.getString("external_user_id"),rs.getString("username"),rs.getString("email"),rs.getString("status"),rs.getLong("credential_version"),roles(rs.getLong("id"))),value);}
  private List<String> roles(long userId){return jdbc.query("SELECT r.name FROM identity_role r JOIN identity_user_role ur ON ur.role_id=r.id WHERE ur.user_id=? ORDER BY r.name",(rs,row)->rs.getString(1),userId);}
+ /** 用户迁移审计记录。 @param migrationKey 迁移键 @param userId 旧用户标识 @param payloadSha256 载荷摘要 */
+ public record UserMigrationRecord(String migrationKey,long userId,String payloadSha256) { }
 }

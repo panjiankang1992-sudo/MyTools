@@ -129,4 +129,15 @@
         FROM t_user WHERE id &gt; #{afterId} ORDER BY id ASC LIMIT #{limit}
     </select>
 
+    <select id="selectIdentityMigrationHighWater" resultType="long">
+        SELECT COALESCE(MAX(id), 0) FROM t_user
+    </select>
+
+    <select id="selectFrozenIdentityMigrationBatch" resultMap="UserResultMap">
+        SELECT id, username, password, email, role, status, create_time, update_time
+        FROM t_user
+        WHERE id &gt; #{afterId} AND id &lt;= #{highWater}
+        ORDER BY id ASC LIMIT #{limit}
+    </select>
+
 </mapper>

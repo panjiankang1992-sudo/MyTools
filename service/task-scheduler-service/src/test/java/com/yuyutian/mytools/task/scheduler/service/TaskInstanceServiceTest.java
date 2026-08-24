@@ -525,4 +525,19 @@ class TaskInstanceServiceTest {
         assertEquals("1.1.0", definition.get("script_version"));
         assertTrue(definition.get("result_schema").toString().contains("sourceHighWater"));
     }
+
+    @Test
+    void shouldUseFrozenIdentityUserMigrationPackage() {
+        Map<String, Object> definition = jdbcTemplate.queryForMap(
+                "SELECT d.version,d.timeout_seconds,d.parameter_schema,d.result_schema,s.script_version "
+                        + "FROM task_definition d JOIN task_step_definition s "
+                        + "ON s.task_definition_id=d.id WHERE d.name=? AND s.name=?",
+                "identity_migrate_users", "migrate_users");
+
+        assertEquals(2, ((Number) definition.get("version")).intValue());
+        assertEquals(1800, ((Number) definition.get("timeout_seconds")).intValue());
+        assertEquals("1.1.0", definition.get("script_version"));
+        assertTrue(definition.get("parameter_schema").toString().contains("migrationKey"));
+        assertTrue(definition.get("result_schema").toString().contains("sourceHighWater"));
+    }
 }

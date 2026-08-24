@@ -17,6 +17,10 @@ public class IdentityController {
  /** 刷新并轮换令牌。 @param request 请求 @return Token */ @PostMapping("/api/v1/identity/refresh") public TokenPair refresh(@Valid @RequestBody RefreshRequest request){return service.refresh(request);}
  /** 导入用户。 @param authorization 内部授权 @param request 请求 @return 用户 */ @PostMapping("/internal/v1/identity/users") @ResponseStatus(HttpStatus.CREATED)
  public UserView importUser(@RequestHeader("Authorization") String authorization,@Valid @RequestBody ImportUserRequest request){authorize(authorization);return service.importUser(request);}
+ /** 批量校验或导入旧用户。 @param authorization 内部授权 @param batch 迁移批次 @return 迁移结果 */ @PostMapping("/internal/v1/migrations/legacy-users")
+ public LegacyUserMigrationResult migrateUsers(@RequestHeader("Authorization") String authorization,@Valid @RequestBody LegacyUserMigrationBatch batch){authorize(authorization);return service.migrateUsers(batch);}
+ /** 查询目标侧用户迁移证据。 @param authorization 内部授权 @param migrationKey 迁移键 @return 集合证据 */ @GetMapping("/internal/v1/migrations/legacy-users/{migrationKey}/reconciliation")
+ public LegacyUserReconciliation reconcileUsers(@RequestHeader("Authorization") String authorization,@PathVariable String migrationKey){authorize(authorization);return service.reconcileUsers(migrationKey);}
  /** 校验令牌及会话。 @param authorization 内部授权 @param request 请求 @return 主体 */ @PostMapping("/internal/v1/identity/tokens/validate")
  public PrincipalView validate(@RequestHeader("Authorization") String authorization,@Valid @RequestBody ValidateRequest request){authorize(authorization);return service.validate(request);}
  /** 撤销会话。 @param authorization 内部授权 @param id 会话 @param reason 原因 */ @PostMapping("/internal/v1/identity/sessions/{id}/revoke") @ResponseStatus(HttpStatus.NO_CONTENT)

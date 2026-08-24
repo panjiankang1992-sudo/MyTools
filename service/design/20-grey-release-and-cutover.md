@@ -68,6 +68,18 @@ python3 service/scripts/messaging_cutover_gate.py \
 
 门禁要求三次运行的迁移键、冻结高水位、来源数量、来源摘要和批次摘要完全一致，正式重放全部 skipped，目标数量和集合摘要与冻结来源相同。输出不包含高水位、消息身份或摘要；工具只读取本地文件。
 
+Identity 用户迁移先执行 dry-run，再将其 `sourceHighWater` 作为 `snapshotHighWater` 参数传给首次正式迁移和正式重放；四次操作使用同一迁移键并保存以下证据：
+
+```bash
+python3 service/scripts/identity_cutover_gate.py \
+  --dry-run-report <identity-dry-run.json> \
+  --apply-report <identity-apply.json> \
+  --replay-report <identity-replay.json> \
+  --target-report <identity-target.json>
+```
+
+闸门要求三次任务的源高水位、用户数量和集合摘要一致，dry-run 与首次执行计数一致，重放全部幂等跳过，且目标审计数量和摘要与源完全一致。输出不包含用户名、邮箱、密码哈希或角色明细；通过该闸门也不会迁移旧会话，认证灰度时用户需要重新登录。
+
 ## 回退
 
 先关闭对应新入口或旁路开关，再恢复旧任务消费；禁止在回退时删除新 schema。记录切换窗口内的新写入，按领域幂等键补偿回旧系统或在下一次切换前重放。任务执行中的临时产物由任务取消和补偿步骤处理，已原子发布的受管资产保留并通过引用状态决定是否清理。

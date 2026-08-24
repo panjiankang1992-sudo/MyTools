@@ -1,4 +1,5 @@
 package com.yuyutian.mytools.identity.model;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.time.Instant;
 import java.util.List;
@@ -19,4 +20,11 @@ public final class IdentityModels {
  public record PrincipalView(boolean active,long userId,String username,List<String> roles,UUID sessionId,Instant expiresAt) { }
  public record SessionRecord(UUID id,long userId,String deviceId,String refreshHash,long version,long credentialVersion,
    Instant issuedAt,Instant refreshExpiresAt,Instant revokedAt) { }
+ public record LegacyUserMigrationBatch(
+   @NotBlank @Pattern(regexp="^[A-Za-z0-9._:-]{1,128}$") String migrationKey,
+   boolean dryRun,
+   @NotEmpty @Size(max=100) List<@Valid ImportUserRequest> users) { }
+ public record LegacyUserMigrationResult(String migrationKey,boolean dryRun,int exported,int accepted,
+   int skipped,int rejected,String digestSha256) { }
+ public record LegacyUserReconciliation(String migrationKey,int itemCount,String collectionSha256) { }
 }

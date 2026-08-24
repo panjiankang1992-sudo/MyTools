@@ -4,12 +4,13 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 /** Identity 会话生命周期测试。 */
 @SpringBootTest
 class IdentityServiceTest {
- @Autowired private IdentityService service; @Autowired private BCryptPasswordEncoder encoder;
+ @Autowired private IdentityService service; @Autowired private BCryptPasswordEncoder encoder; @Autowired private JdbcTemplate jdbc;
  @Test void shouldRotateRefreshTokenAndRevokeAccessImmediately(){
   service.importUser(new ImportUserRequest(7,"legacy:7","alice","alice@example.com",encoder.encode("correct-password"),"ACTIVE",0,List.of("USER")));
   TokenPair login=service.login(new LoginRequest("alice","correct-password","device-1"));
@@ -25,5 +26,25 @@ class IdentityServiceTest {
   service.importUser(new ImportUserRequest(8,"legacy:8","bob",null,encoder.encode("correct-password"),"ACTIVE",0,List.of("USER")));
   for(int index=0;index<5;index++) assertThatThrownBy(()->service.login(new LoginRequest("bob","wrong","device-2"))).isInstanceOf(SecurityException.class);
   assertThatThrownBy(()->service.login(new LoginRequest("bob","correct-password","device-2"))).isInstanceOf(SecurityException.class).hasMessageContaining("locked");
+ }
+ @Test void shouldDryRunApplyReplayAndReconcileLegacyUsers(){
+  ImportUserRequest user=new ImportUserRequest(9,"legacy:9","carol","carol@example.com",encoder.encode("correct-password"),"ACTIVE",0,List.of("USER","ADMIN"));
+  LegacyUserMigrationResult dryRun=service.migrateUsers(new LegacyUserMigrationBatch("identity-users-test",true,List.of(user)));
+  assertThat(dryRun.accepted()).isEqualTo(1);
+  assertThat(service.reconcileUsers("identity-users-test").itemCount()).isZero();
+  LegacyUserMigrationResult applied=service.migrateUsers(new LegacyUserMigrationBatch("identity-users-test",false,List.of(user)));
+  LegacyUserMigrationResult replay=service.migrateUsers(new LegacyUserMigrationBatch("identity-users-test",false,List.of(user)));
+  assertThat(applied.digestSha256()).isEqualTo(dryRun.digestSha256());
+  assertThat(replay.accepted()).isZero();
+  assertThat(replay.skipped()).isEqualTo(1);
+  assertThat(service.reconcileUsers("identity-users-test").collectionSha256()).isEqualTo(applied.digestSha256());
+  assertThatThrownBy(()->service.migrateUsers(new LegacyUserMigrationBatch("identity-users-test",false,List.of(new ImportUserRequest(9,"legacy:9","carol","carol@example.com",encoder.encode("different"),"ACTIVE",0,List.of("USER","ADMIN")))))).isInstanceOf(IllegalStateException.class);
+  jdbc.update("UPDATE identity_user SET email=? WHERE id=?","changed@example.com",9);
+  assertThatThrownBy(()->service.reconcileUsers("identity-users-test")).isInstanceOf(IllegalStateException.class).hasMessageContaining("drift");
+ }
+ @Test void shouldMatchPythonMigrationDigestProtocol(){
+  ImportUserRequest user=new ImportUserRequest(10,"mytools:10","fixture","fixture@example.com","$2a$10$"+"x".repeat(53),"ACTIVE",0,List.of("USER","ADMIN"));
+  LegacyUserMigrationResult result=service.migrateUsers(new LegacyUserMigrationBatch("identity-users-protocol",true,List.of(user)));
+  assertThat(result.digestSha256()).isEqualTo("345a1029ff2e504410b823845302624026cfb86ab74f6857af2f3c571b9b6801");
  }
 }

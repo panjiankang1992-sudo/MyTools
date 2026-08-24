@@ -156,4 +156,12 @@ public interface UserMapper {
 
     /** 按主键游标导出身份迁移数据。 */
     List<User> selectIdentityMigrationBatch(@Param("afterId") Long afterId, @Param("limit") int limit);
+
+    /** 查询身份迁移当前主键高水位。 @return 主键高水位 */
+    long selectIdentityMigrationHighWater();
+
+    /** 在冻结高水位内按主键游标导出身份迁移数据。 @param afterId 起始游标 @param highWater 冻结高水位 @param limit 页大小 @return 用户列表 */
+    List<User> selectFrozenIdentityMigrationBatch(@Param("afterId") Long afterId,
+                                                  @Param("highWater") Long highWater,
+                                                  @Param("limit") int limit);
 }
