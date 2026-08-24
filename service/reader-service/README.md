@@ -38,6 +38,8 @@ Gateway 调用查询、取消和目录接口时会附带 `ownerId`，Reader Serv
 
 章节预取使用独立 `reader_prefetch_chapters` 1.0.0 即时任务。创建请求最多选择 100 个章节序号并冻结当前书源版本；Executor 在隔离 Runtime 命名空间中只读取选中章节，以最多 20 条一批写回 Reader Service。服务端复核 UTF-8 字节数与 SHA-256 后写入带 TTL 的全局章节缓存，并通过请求关联表保证批次重试和任务统计幂等。书源版本变化、书源停用或 TTL 到期后旧缓存不会被查询接口返回。公开接口为 `POST /api/v1/chapter-prefetches`、`GET /api/v1/chapter-prefetches/{id}`、取消接口及 `GET /api/v1/chapter-cache`。
 
+Gateway 创建预取任务和查询缓存时从可信主体注入 `ownerId`；Reader 对预取状态和取消执行所有者校验，Gateway 响应不暴露内部调度任务标识。
+
 `reader_extract_metadata` 1.0.0 支持 TXT/Markdown、EPUB OPF、基础 PDF 和 MOBI/AZW3 头解析，保留旧实现的 `READY`/`PARTIAL`/`FAILED` 语义，并限制文本大小、ZIP 条目数、展开大小、单条目大小和压缩比。书源导入任务将其作为第二步骤执行，元数据结果写回 `ebook_asset.metadata_json`；该脚本也注册为可独立创建的任务类型。
 
 章节缓存维护使用 `reader_cleanup_chapter_cache` 1.0.0 即时任务。维护请求冻结清理类型、截止时间和每批上限，只把 `maintenanceId` 交给 Scheduler；Executor 通过需要 `READER_INTERNAL_TOKEN` 的 Reader 内部接口逐批清理过期缓存，或清理书源已停用/版本过时的缓存。每批最多 1000 条并先删除预取关联，成功、失败、超时和取消均写回独立维护记录。该能力只维护新 `mytools_reader` schema，不读取或删除 MyTools 现有缓存。

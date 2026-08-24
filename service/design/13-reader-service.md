@@ -52,6 +52,7 @@
 - Gateway 创建搜索时只接受书源快照和搜索参数并注入 owner，查询和取消不能跨 owner；响应不暴露 Scheduler 任务 ID。
 - 电子书导入继续复用 `reader_import_ebook` 脚本任务；Gateway 绑定 owner，Reader 对查询、取消和目录读取校验 owner，现有电子书资产无需搬迁。
 - 书源发现与健康检查继续复用已有脚本任务和不可变书源版本；Gateway 只补 owner-bound 生命周期，不引入切流、双写或数据搬迁。
+- 章节预取复用 `reader_prefetch_chapters` 脚本任务，Gateway 绑定 owner 并提供缓存读取；缓存清理和书库重建仍是内部系统维护任务。
 - 单个书源失败不导致所有有效结果丢失。
 - 重复分片执行不会产生重复书籍记录。
 - 重复章节批次不会产生重复缓存，过期或旧书源版本缓存不会被同步查询返回。

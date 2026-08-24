@@ -32,6 +32,8 @@ public class ChapterPrefetchController {
 
     /**
      * 创建章节预取控制器。
+     *
+     * @param service 章节预取服务
      */
     public ChapterPrefetchController(ChapterPrefetchService service) {
         this.service = service;
@@ -39,6 +41,9 @@ public class ChapterPrefetchController {
 
     /**
      * 创建异步章节预取任务。
+     *
+     * @param request 创建请求
+     * @return 已受理任务
      */
     @PostMapping("/chapter-prefetches")
     public ResponseEntity<ChapterPrefetchView> create(@Valid @RequestBody CreateChapterPrefetchRequest request) {
@@ -47,22 +52,36 @@ public class ChapterPrefetchController {
 
     /**
      * 查询章节预取任务。
+     *
+     * @param id 请求标识
+     * @param ownerId 可选所有者标识
+     * @return 任务视图
      */
     @GetMapping("/chapter-prefetches/{id}")
-    public ChapterPrefetchView get(@PathVariable UUID id) {
-        return service.get(id);
+    public ChapterPrefetchView get(@PathVariable UUID id, @RequestParam(required = false) Long ownerId) {
+        return ownerId == null ? service.get(id) : service.get(id, ownerId);
     }
 
     /**
      * 取消章节预取任务。
+     *
+     * @param id 请求标识
+     * @param ownerId 可选所有者标识
+     * @return 任务视图
      */
     @PostMapping("/chapter-prefetches/{id}/cancel")
-    public ChapterPrefetchView cancel(@PathVariable UUID id) {
-        return service.cancel(id);
+    public ChapterPrefetchView cancel(@PathVariable UUID id, @RequestParam(required = false) Long ownerId) {
+        return ownerId == null ? service.cancel(id) : service.cancel(id, ownerId);
     }
 
     /**
      * 查询未过期章节缓存。
+     *
+     * @param ownerId 所有者标识
+     * @param sourceId 书源标识
+     * @param bookUrl 图书地址
+     * @param chapterUrl 章节地址
+     * @return 缓存视图
      */
     @GetMapping("/chapter-cache")
     public ChapterCacheView cached(@RequestParam @NotNull Long ownerId,

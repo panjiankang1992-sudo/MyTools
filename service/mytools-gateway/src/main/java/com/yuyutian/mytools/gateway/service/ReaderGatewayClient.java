@@ -1,6 +1,9 @@
 package com.yuyutian.mytools.gateway.service;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
+import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.CacheView;
+import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.CreatePrefetch;
+import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.PrefetchView;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CatalogView;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CreateImport;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.ImportView;
@@ -260,6 +263,69 @@ public class ReaderGatewayClient {
     public HealthCheckView cancelHealthCheck(long ownerId, UUID id, String correlationId) {
         return exchange(ownerUrl(root() + "/api/v1/source-health-checks/" + id + "/cancel", ownerId),
                 HttpMethod.POST, null, correlationId, HealthCheckView.class);
+    }
+
+    /**
+     * 创建章节预取任务。
+     *
+     * @param ownerId 所有者标识
+     * @param request 创建请求
+     * @param correlationId 关联标识
+     * @return 预取任务视图
+     */
+    public PrefetchView createPrefetch(long ownerId, CreatePrefetch request, String correlationId) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("ownerId", ownerId);
+        payload.put("idempotencyKey", request.idempotencyKey());
+        payload.put("sourceId", request.sourceId());
+        payload.put("bookUrl", request.bookUrl());
+        payload.put("chapterIndexes", request.chapterIndexes());
+        return exchange(root() + "/api/v1/chapter-prefetches", HttpMethod.POST, payload,
+                correlationId, PrefetchView.class);
+    }
+
+    /**
+     * 查询章节预取任务。
+     *
+     * @param ownerId 所有者标识
+     * @param id 预取标识
+     * @param correlationId 关联标识
+     * @return 预取任务视图
+     */
+    public PrefetchView prefetch(long ownerId, UUID id, String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/chapter-prefetches/" + id, ownerId), HttpMethod.GET,
+                null, correlationId, PrefetchView.class);
+    }
+
+    /**
+     * 取消章节预取任务。
+     *
+     * @param ownerId 所有者标识
+     * @param id 预取标识
+     * @param correlationId 关联标识
+     * @return 预取任务视图
+     */
+    public PrefetchView cancelPrefetch(long ownerId, UUID id, String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/chapter-prefetches/" + id + "/cancel", ownerId),
+                HttpMethod.POST, null, correlationId, PrefetchView.class);
+    }
+
+    /**
+     * 查询章节缓存。
+     *
+     * @param ownerId 所有者标识
+     * @param sourceId 书源标识
+     * @param bookUrl 图书地址
+     * @param chapterUrl 章节地址
+     * @param correlationId 关联标识
+     * @return 缓存视图
+     */
+    public CacheView chapterCache(long ownerId, UUID sourceId, String bookUrl, String chapterUrl,
+                                  String correlationId) {
+        String url = UriComponentsBuilder.fromHttpUrl(root() + "/api/v1/chapter-cache")
+                .queryParam("ownerId", ownerId).queryParam("sourceId", sourceId)
+                .queryParam("bookUrl", bookUrl).queryParam("chapterUrl", chapterUrl).toUriString();
+        return exchange(url, HttpMethod.GET, null, correlationId, CacheView.class);
     }
 
     private SearchView exchangeSearch(String url, HttpMethod method, Object body, String correlationId) {

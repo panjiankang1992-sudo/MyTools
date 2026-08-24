@@ -44,6 +44,10 @@ public class ChapterPrefetchService {
     public ChapterPrefetchView create(CreateChapterPrefetchRequest request) {
         ChapterPrefetchRecord record = repository.findByIdempotencyKey(request.ownerId(), request.idempotencyKey())
                 .orElseGet(() -> createRecord(request));
+        if (!record.sourceId().equals(request.sourceId()) || !record.bookUrl().equals(request.bookUrl())
+                || !chapterIndexes(record).equals(new LinkedHashSet<>(request.chapterIndexes()))) {
+            throw new IllegalArgumentException("chapter prefetch idempotency conflict");
+        }
         if (record.taskId() == null) {
             UUID taskId = schedulerClient.createTask("reader_prefetch_chapters",
                     "reader_prefetch_chapters:" + record.id() + ":v1", "READER_CHAPTER_PREFETCH",
@@ -68,6 +72,18 @@ public class ChapterPrefetchService {
     }
 
     /**
+     * 按所有者查询章节预取任务。
+     *
+     * @param requestId 请求标识
+     * @param ownerId 所有者标识
+     * @return 预取任务视图
+     */
+    public ChapterPrefetchView get(UUID requestId, long ownerId) {
+        requiredOwner(requestId, ownerId);
+        return get(requestId);
+    }
+
+    /**
      * 取消章节预取任务。
      */
     @Transactional
@@ -77,6 +93,18 @@ public class ChapterPrefetchService {
             schedulerClient.cancel(record.taskId());
         }
         return get(requestId);
+    }
+
+    /**
+     * 按所有者取消章节预取任务。
+     *
+     * @param requestId 请求标识
+     * @param ownerId 所有者标识
+     * @return 预取任务视图
+     */
+    public ChapterPrefetchView cancel(UUID requestId, long ownerId) {
+        requiredOwner(requestId, ownerId);
+        return cancel(requestId);
     }
 
     /**
@@ -127,8 +155,29 @@ public class ChapterPrefetchService {
         return record;
     }
 
+    private LinkedHashSet<Integer> chapterIndexes(ChapterPrefetchRecord record) {
+        Object value = record.parameters().get("chapterIndexes");
+        LinkedHashSet<Integer> indexes = new LinkedHashSet<>();
+        if (value instanceof Iterable<?> values) {
+            for (Object item : values) {
+                if (item instanceof Number number) {
+                    indexes.add(number.intValue());
+                }
+            }
+        }
+        return indexes;
+    }
+
     private ChapterPrefetchRecord required(UUID id) {
         return repository.findById(id).orElseThrow(() -> new ChapterPrefetchNotFoundException(id));
+    }
+
+    private ChapterPrefetchRecord requiredOwner(UUID id, long ownerId) {
+        ChapterPrefetchRecord record = required(id);
+        if (record.ownerId() != ownerId) {
+            throw new ChapterPrefetchNotFoundException(id);
+        }
+        return record;
     }
 
     private ChapterPrefetchView view(ChapterPrefetchRecord record) {

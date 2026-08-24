@@ -45,6 +45,8 @@ Reader 电子书导入通过 Gateway 提供创建、查询、取消和目录接�
 
 Reader 书源发现和健康检查通过 Gateway 提供 owner-bound 创建、查询与取消接口，继续使用 Reader 已有脚本任务和数据表。
 
+Reader 章节预取通过 Gateway 提供创建、查询和取消接口，章节缓存查询同样由可信主体绑定 owner；内部 Scheduler 任务标识不对外暴露。
+
 配置项为 `IDENTITY_VALIDATION_MODE`。远程校验失败时关闭授权，不降级为未校验身份。
 
 旧 MyTools 新增 `POST /internal/v1/gateway/tokens/validate`，使用 `GATEWAY_INTERNAL_TOKEN` 自校验并以 JSON body 接收访问令牌，避免旧公开校验接口把 token 放入 URL。`DUAL` 仅在旧服务明确返回 inactive 时尝试 Identity；旧服务网络或协议异常时直接关闭授权。

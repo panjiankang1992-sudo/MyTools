@@ -1,6 +1,9 @@
 package com.yuyutian.mytools.gateway.controller;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
+import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.CacheView;
+import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.CreatePrefetch;
+import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.PrefetchView;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CatalogView;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CreateImport;
@@ -299,6 +302,64 @@ public class ReaderGatewayController {
     public HealthCheckView cancelHealthCheck(@PathVariable UUID id, HttpServletRequest request) {
         requireAllowed(request);
         return client.cancelHealthCheck(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 创建章节预取任务。
+     *
+     * @param body 创建请求
+     * @param request HTTP 请求
+     * @return 预取任务视图
+     */
+    @PostMapping("/chapter-prefetches")
+    public PrefetchView createPrefetch(@Valid @RequestBody CreatePrefetch body, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.createPrefetch(principal(request).userId(), body, correlation(request));
+    }
+
+    /**
+     * 查询章节预取任务。
+     *
+     * @param id 预取标识
+     * @param request HTTP 请求
+     * @return 预取任务视图
+     */
+    @GetMapping("/chapter-prefetches/{id}")
+    public PrefetchView prefetch(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.prefetch(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 取消章节预取任务。
+     *
+     * @param id 预取标识
+     * @param request HTTP 请求
+     * @return 预取任务视图
+     */
+    @PostMapping("/chapter-prefetches/{id}/cancel")
+    public PrefetchView cancelPrefetch(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.cancelPrefetch(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 查询章节缓存。
+     *
+     * @param sourceId 书源标识
+     * @param bookUrl 图书地址
+     * @param chapterUrl 章节地址
+     * @param request HTTP 请求
+     * @return 缓存视图
+     */
+    @GetMapping("/chapter-cache")
+    public CacheView chapterCache(@RequestParam UUID sourceId,
+                                  @RequestParam @NotBlank @Size(max = 4096) String bookUrl,
+                                  @RequestParam @NotBlank @Size(max = 4096) String chapterUrl,
+                                  HttpServletRequest request) {
+        requireAllowed(request);
+        return client.chapterCache(principal(request).userId(), sourceId, bookUrl, chapterUrl,
+                correlation(request));
     }
 
     private List<Map<String, Object>> list(String resource, boolean includeDeleted, HttpServletRequest request) {

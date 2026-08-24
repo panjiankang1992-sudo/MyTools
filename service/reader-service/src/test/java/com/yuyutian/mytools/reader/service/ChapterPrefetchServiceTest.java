@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -59,6 +60,13 @@ class ChapterPrefetchServiceTest {
 
         var created = service.create(request);
         var duplicate = service.create(request);
+        assertThatThrownBy(() -> service.create(new CreateChapterPrefetchRequest(ownerId, "prefetch-example",
+                sourceId, bookUrl, List.of(3, 4))))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> service.get(created.id(), ownerId + 1))
+                .isInstanceOf(ChapterPrefetchNotFoundException.class);
+        assertThatThrownBy(() -> service.cancel(created.id(), ownerId + 1))
+                .isInstanceOf(ChapterPrefetchNotFoundException.class);
         String content = "Chapter content";
         byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
         service.saveBatch(created.id(), new ChapterCacheBatchRequest(List.of(

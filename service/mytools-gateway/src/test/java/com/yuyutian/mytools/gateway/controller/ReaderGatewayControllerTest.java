@@ -1,6 +1,9 @@
 package com.yuyutian.mytools.gateway.controller;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
+import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.CacheView;
+import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.CreatePrefetch;
+import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.PrefetchView;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CatalogView;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CreateImport;
@@ -113,6 +116,27 @@ class ReaderGatewayControllerTest {
 
         assertThat(controller.createDiscovery(discoveryRequest, request(55L))).isEqualTo(discovery);
         assertThat(controller.createHealthCheck(healthRequest, request(55L))).isEqualTo(health);
+    }
+
+    @Test
+    void shouldInjectOwnerIntoChapterLifecycle() {
+        ReaderGatewayClient client = mock(ReaderGatewayClient.class);
+        ReaderGatewayController controller = new ReaderGatewayController(properties(true), client);
+        UUID id = UUID.randomUUID();
+        UUID sourceId = UUID.randomUUID();
+        CreatePrefetch body = new CreatePrefetch("prefetch-1", sourceId,
+                "https://source.example/book", List.of(0, 1));
+        PrefetchView prefetch = new PrefetchView(id, "QUEUED", 2, 0,
+                java.time.Instant.EPOCH, java.time.Instant.EPOCH);
+        CacheView cache = new CacheView(sourceId, "https://source.example/book", 0, "Chapter",
+                "chapter-1", "content", "hash", 7, java.time.Instant.MAX);
+        when(client.createPrefetch(55L, body, "correlation")).thenReturn(prefetch);
+        when(client.chapterCache(55L, sourceId, "https://source.example/book", "chapter-1", "correlation"))
+                .thenReturn(cache);
+
+        assertThat(controller.createPrefetch(body, request(55L))).isEqualTo(prefetch);
+        assertThat(controller.chapterCache(sourceId, "https://source.example/book", "chapter-1", request(55L)))
+                .isEqualTo(cache);
     }
 
     private MockHttpServletRequest request(long userId) {
