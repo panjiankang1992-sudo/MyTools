@@ -24,6 +24,7 @@ import java.util.Set;
  * @param capabilities 节点能力
  * @param labels 节点标签
  * @param clusterNames 节点自动加入的集群名称
+ * @param requirePackageIndex 是否强制校验不可变脚本发布索引
  * @param scriptEnvironments 按脚本包隔离的节点级环境变量
  */
 @Validated
@@ -41,6 +42,7 @@ public record ExecutorProperties(
         Map<String, Object> capabilities,
         Map<String, Object> labels,
         Set<String> clusterNames,
+        boolean requirePackageIndex,
         Map<String, Map<String, String>> scriptEnvironments
 ) {
 }

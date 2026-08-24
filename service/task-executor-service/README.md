@@ -28,6 +28,11 @@ ${TASK_EXECUTOR_SCRIPT_ROOT}/
 `package-index.json`，并排除测试与缓存目录。输出目录已存在时直接拒绝，不覆盖正在运行的
 Executor；部署层验证新目录后再更新 `TASK_EXECUTOR_SCRIPT_ROOT`。
 
+Executor 在发布目录包含索引时会在启动阶段复验全部索引文件，并在每个步骤启动前再次核对
+入口大小与 SHA-256，拒绝索引外入口、内容篡改和经父目录符号链接逃逸的文件。现有节点默认
+使用 `TASK_EXECUTOR_REQUIRE_PACKAGE_INDEX=false` 保持兼容；切换到装配发布目录后应设为
+`true`，索引缺失或校验失败时节点不会启动领取任务。
+
 Executor 只执行 Scheduler 下发的已配置入口，不接受调用方提交任意命令字符串。
 每个步骤的结构化输出会作为下一步骤上下文中的 `stepOutputs.{stepName}` 提供，用于对账、汇总和条件处理。
 节点 Secret 使用 `executor.script-environments.{scriptPackage}` 按脚本包隔离注入，任务参数和 Scheduler 数据库不保存运行密钥。
