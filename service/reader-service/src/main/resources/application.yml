@@ -19,6 +19,6 @@ management:
         include: health,info
 
 reader:
-  scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23210}
+  scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
   internal-token: ${READER_INTERNAL_TOKEN:}
   ebook-storage-root: ${READER_EBOOK_STORAGE_ROOT:managed}

@@ -238,7 +238,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Validate or execute one remote migration plan."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--plan", required=True)
-    parser.add_argument("--scheduler-url", default="http://127.0.0.1:23210")
+    parser.add_argument("--scheduler-url", default="http://127.0.0.1:23410")
     parser.add_argument("--deadline-seconds", type=float, default=7200)
     parser.add_argument("--request-timeout", type=float, default=5)
     parser.add_argument("--evidence")

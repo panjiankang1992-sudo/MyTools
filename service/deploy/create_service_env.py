@@ -81,6 +81,8 @@ def values(manifest: dict[str, Any], download_root: str, storage_root: str,
                                                 / "task-executor-sdk"),
         "TASK_EXECUTOR_REQUIRE_PACKAGE_INDEX": "true",
         "TASK_EXECUTOR_NODE_NAME": "executor-remote-1",
+        "TASK_SCHEDULER_HTTP_PORT": "23410",
+        "TASK_SCHEDULER_URL": "http://127.0.0.1:23410",
         "DOWNLOAD_DESTINATION_ROOT": validate_business_path(download_root, "download root"),
         "STORAGE_DEFAULT_ROOT_PATH": validate_business_path(storage_root, "storage root"),
         "MEDIA_SCAN_ALLOWED_ROOTS": json.dumps(

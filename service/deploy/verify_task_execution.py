@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 """Verify deployed Scheduler and Executor terminal paths without touching business data."""
 from __future__ import annotations
-import argparse,json,time,urllib.error,urllib.request,uuid
-from typing import Any,Sequence
+
+import argparse
+import json
+import time
+import urllib.error
+import urllib.request
+import uuid
+from collections.abc import Sequence
+from typing import Any
 
 TERMINAL={"SUCCEEDED","FAILED","TIMED_OUT","CANCELLED"}
 EXPECTATIONS={"success":("SUCCEEDED",None),"failure":("FAILED","on_failure"),"timeout":("TIMED_OUT","on_timeout"),"cancel":("CANCELLED","on_cancel")}
@@ -61,7 +68,7 @@ def run(client:Any,run_key:str,deadline_seconds:float)->dict[str,Any]:
 
 def main(argv:Sequence[str]|None=None)->int:
     """Run deployed task execution acceptance."""
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument("--scheduler-url",default="http://127.0.0.1:23210");parser.add_argument("--run-key",default=f"run-{uuid.uuid4()}");parser.add_argument("--deadline-seconds",type=float,default=90);parser.add_argument("--request-timeout",type=float,default=3);arguments=parser.parse_args(argv)
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument("--scheduler-url",default="http://127.0.0.1:23410");parser.add_argument("--run-key",default=f"run-{uuid.uuid4()}");parser.add_argument("--deadline-seconds",type=float,default=90);parser.add_argument("--request-timeout",type=float,default=3);arguments=parser.parse_args(argv)
     try:report=run(HttpClient(arguments.scheduler_url,arguments.request_timeout),arguments.run_key,arguments.deadline_seconds)
     except (OSError,RuntimeError,ValueError,json.JSONDecodeError)as error:print(json.dumps({"ready":False,"error":str(error)},separators=(",",":")));return 2
     print(json.dumps(report,separators=(",",":")));return 0

@@ -28,7 +28,7 @@ public class DriveConfiguration {
     public record StorageMigrationToken(String value) { }
     /** 创建任务调度客户端。 @param builder 客户端构建器 @param url 调度地址 @return 调度客户端 */
     @Bean public DriveTaskSchedulerClient driveTaskSchedulerClient(RestClient.Builder builder,
-        @Value("${drive.task-scheduler-url:http://127.0.0.1:23100}") String url) {
+        @Value("${drive.task-scheduler-url:http://127.0.0.1:23410}") String url) {
         return new DriveTaskSchedulerClient(builder.baseUrl(url).build());
     }
 }

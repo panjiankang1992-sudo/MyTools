@@ -30,7 +30,7 @@ management:
         include: health,info
 
 messaging:
-  scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23210}
+  scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
   internal-token: ${MESSAGING_INTERNAL_TOKEN:}
   mail-from: ${MESSAGING_MAIL_FROM:}
   automation-url: ${MESSAGE_AUTOMATION_URL:http://127.0.0.1:23260}

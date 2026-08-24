@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
 """Verify domain rebuild operations and their Scheduler execution evidence."""
 from __future__ import annotations
-import argparse,json,os,re,urllib.error,urllib.parse,urllib.request
+
+import argparse
+import json
+import os
+import re
+import urllib.error
+import urllib.parse
+import urllib.request
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any,Sequence
+from typing import Any
 
 DIGEST=re.compile(r"^[a-f0-9]{64}$")
 DOMAINS=("storage","drive","media","reader")
@@ -57,7 +65,7 @@ def verify_media_quiescent(client:Any)->dict[str,int]:
     after=None;pages=0;running=analyzing=failed=staging=0
     while True:
         query="?limit=200"+("&afterId="+urllib.parse.quote(after)if after else"");page=client.get("/internal/v1/media/reconciliation"+query)
-        if not isinstance(page,dict):raise RuntimeError("media reconciliation is invalid")
+        if not isinstance(page,dict):raise TypeError("media reconciliation is invalid")
         pages+=1;staging=max(staging,int(page.get("stagingScanCount",0)));running+=int(page.get("runningAnalysisCount",0));analyzing+=int(page.get("analyzingCount",0));failed+=int(page.get("failedAnalysisCount",0));after=page.get("nextAfterId")
         if not after:break
         if pages>100000:raise RuntimeError("media reconciliation pagination exceeded limit")
@@ -83,10 +91,10 @@ def verify(config:dict[str,Any],clients:dict[str,Any])->dict[str,Any]:
 
 def main(argv:Sequence[str]|None=None)->int:
     """Run remote domain rebuild verification."""
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument("--evidence",type=Path,required=True);parser.add_argument("--scheduler-url",default="http://127.0.0.1:23210");parser.add_argument("--storage-url",default="http://127.0.0.1:23240");parser.add_argument("--drive-url",default="http://127.0.0.1:23280");parser.add_argument("--media-url",default="http://127.0.0.1:23300");parser.add_argument("--reader-url",default="http://127.0.0.1:23230");parser.add_argument("--request-timeout",type=float,default=5);arguments=parser.parse_args(argv)
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument("--evidence",type=Path,required=True);parser.add_argument("--scheduler-url",default="http://127.0.0.1:23410");parser.add_argument("--storage-url",default="http://127.0.0.1:23240");parser.add_argument("--drive-url",default="http://127.0.0.1:23280");parser.add_argument("--media-url",default="http://127.0.0.1:23300");parser.add_argument("--reader-url",default="http://127.0.0.1:23230");parser.add_argument("--request-timeout",type=float,default=5);arguments=parser.parse_args(argv)
     try:
         config=json.loads(arguments.evidence.read_text(encoding="utf-8"));clients={"scheduler":Client(arguments.scheduler_url,timeout=arguments.request_timeout),"storage":Client(arguments.storage_url,os.getenv("STORAGE_INTERNAL_TOKEN",""),arguments.request_timeout),"drive":Client(arguments.drive_url,os.getenv("DRIVE_INTERNAL_TOKEN",""),arguments.request_timeout),"media":Client(arguments.media_url,os.getenv("MEDIA_LIBRARY_INTERNAL_TOKEN",""),arguments.request_timeout),"reader":Client(arguments.reader_url,os.getenv("READER_INTERNAL_TOKEN",""),arguments.request_timeout)};report=verify(config,clients)
-    except (OSError,ValueError,RuntimeError,json.JSONDecodeError)as error:print(json.dumps({"ready":False,"error":str(error)},separators=(",",":")));return 2
+    except (OSError,TypeError,ValueError,RuntimeError,json.JSONDecodeError)as error:print(json.dumps({"ready":False,"error":str(error)},separators=(",",":")));return 2
     print(json.dumps(report,separators=(",",":")));return 0
 
 if __name__=="__main__":raise SystemExit(main())

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from http.server import ThreadingHTTPServer
 import os
+from http.server import ThreadingHTTPServer
 
 import pymysql
 from pymysql.cursors import DictCursor
@@ -30,7 +30,7 @@ def main() -> None:
         )
 
     repository = MySqlDownloadRequestRepository(connection_factory)
-    scheduler = TaskSchedulerHttpClient(os.environ.get("TASK_SCHEDULER_URL", "http://127.0.0.1:23210"))
+    scheduler = TaskSchedulerHttpClient(os.environ.get("TASK_SCHEDULER_URL", "http://127.0.0.1:23410"))
     handler = create_handler(DownloadRequestService(repository, scheduler), repository,
                              os.environ.get("DOWNLOAD_INTERNAL_TOKEN", ""),
                              LegacyHistoryMigrationService(repository))

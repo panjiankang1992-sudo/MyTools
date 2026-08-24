@@ -27,7 +27,7 @@ public class StorageTaskSchedulerClient {
      * @param schedulerUrl Scheduler 地址
      */
     public StorageTaskSchedulerClient(RestClient.Builder builder,
-                                      @Value("${storage.scheduler-url:http://127.0.0.1:23210}") String schedulerUrl) {
+                                      @Value("${storage.scheduler-url:http://127.0.0.1:23410}") String schedulerUrl) {
         this.restClient = builder.baseUrl(schedulerUrl).build();
     }
 

@@ -24,6 +24,7 @@ class CreateServiceEnvTest(unittest.TestCase):
         self.assertNotEqual(first["TASK_DB_PASSWORD"], second["TASK_DB_PASSWORD"])
         self.assertNotEqual(first["IDENTITY_JWT_SECRET"], second["IDENTITY_JWT_SECRET"])
         self.assertEqual("false", first["GATEWAY_READER_ROUTE_ENABLED"])
+        self.assertEqual("http://127.0.0.1:23410", first["TASK_SCHEDULER_URL"])
         self.assertEqual('["/media/library"]', first["MEDIA_SCAN_ALLOWED_ROOTS"])
         self.assertFalse(first["DOWNLOAD_DESTINATION_ROOT"].startswith("/opt/yuyutian/mytools"))
 

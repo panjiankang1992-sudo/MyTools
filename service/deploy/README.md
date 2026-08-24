@@ -130,7 +130,7 @@ python3 /opt/yuyutian/mytools/releases/current/deploy/verify_deployment.py \
 
 ```bash
 python3 /opt/yuyutian/mytools/releases/current/deploy/verify_task_execution.py \
-  --scheduler-url http://127.0.0.1:23210
+  --scheduler-url http://127.0.0.1:23410
 ```
 
 命令输出包含四个任务实例 ID，可作为部署验收证据保留。该验收只证明控制面和执行面的终态链路；Storage、Drive、Media 和 Reader 的可再生数据仍需执行各自的重建任务并保存领域对账结果。

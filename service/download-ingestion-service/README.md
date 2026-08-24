@@ -39,7 +39,7 @@ V4 为 `download_request` 增加权威 `owner_id`。迁移会从旧 `parameters_
 | `DOWNLOAD_DB_NAME` | `mytools_download` | 独立 schema |
 | `DOWNLOAD_DB_USER` | 无 | 最小权限账号 |
 | `DOWNLOAD_DB_PASSWORD` | 无 | 数据库密码 |
-| `TASK_SCHEDULER_URL` | `http://127.0.0.1:23210` | Scheduler 地址 |
+| `TASK_SCHEDULER_URL` | `http://127.0.0.1:23410` | Scheduler 地址 |
 | `DOWNLOAD_INTERNAL_TOKEN` | 无 | 内部 API Bearer Token；为空时除健康检查外拒绝所有请求 |
 
 创建、查询和取消接口均要求内部 Bearer Token。相同幂等键只能重放完全相同的来源、类型和参数，内容变化会被拒绝而不是复用旧请求。

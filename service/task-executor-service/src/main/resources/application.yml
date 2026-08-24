@@ -3,7 +3,7 @@ spring:
     name: task-executor-service
 executor:
   node-name: ${TASK_EXECUTOR_NODE_NAME:executor-local}
-  scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23210}
+  scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
   work-root: ${TASK_EXECUTOR_WORK_ROOT:./runtime/tasks}
   script-root: ${TASK_EXECUTOR_SCRIPT_ROOT:./scripts}
   python-sdk-root: ${TASK_EXECUTOR_PYTHON_SDK_ROOT:./sdk/python}

@@ -20,4 +20,4 @@ drive:
   storage-gateway-url: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
   storage-internal-token: ${STORAGE_INTERNAL_TOKEN:}
   storage-migration-token: ${DRIVE_STORAGE_MIGRATION_TOKEN:}
-  task-scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23100}
+  task-scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}

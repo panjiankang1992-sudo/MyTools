@@ -2,7 +2,7 @@
   "deploymentRoot": "/opt/yuyutian/mytools",
   "logRoot": "/opt/yuyutian/logs/mytools",
   "services": [
-    {"name": "task-scheduler-service", "port": 23210, "schema": "mytools_task", "dbPrefix": "TASK", "runtime": "java"},
+    {"name": "task-scheduler-service", "port": 23410, "schema": "mytools_task", "dbPrefix": "TASK", "runtime": "java"},
     {"name": "download-ingestion-service", "port": 23220, "schema": "mytools_download", "dbPrefix": "DOWNLOAD", "runtime": "python", "executable": "mytools-download-ingestion", "after": ["task-scheduler-service"]},
     {"name": "downloadbot-adapter-service", "port": 23221, "schema": "mytools_downloadbot_adapter", "dbPrefix": "DOWNLOADBOT_ADAPTER", "runtime": "python", "executable": "mytools-downloadbot-adapter", "after": ["download-ingestion-service"], "defaultEnabled": false},
     {"name": "reader-service", "port": 23230, "schema": "mytools_reader", "dbPrefix": "READER", "runtime": "java", "after": ["task-scheduler-service"]},
