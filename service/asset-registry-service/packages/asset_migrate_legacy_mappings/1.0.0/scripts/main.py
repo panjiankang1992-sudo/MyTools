@@ -84,7 +84,10 @@ def execute(client: Client, migration_key: str, source_snapshot_id: str, dry_run
         if not isinstance(items, list) or len(items) > PAGE_SIZE:
             raise RuntimeError("Legacy asset page is invalid")
         if items:
-            result = client.import_batch(migration_key, page_snapshot_id, dry_run, items)
+            mapping_items = [{"sourceSystem": item.get("sourceSystem"),
+                              "legacyAssetId": item.get("legacyAssetId"),
+                              "asset": item.get("asset")} for item in items]
+            result = client.import_batch(migration_key, page_snapshot_id, dry_run, mapping_items)
             if result.get("dryRun") is not dry_run:
                 raise RuntimeError("Asset migration mode does not match")
             counts = [count(result, name) for name in ("accepted", "skipped", "rejected")]

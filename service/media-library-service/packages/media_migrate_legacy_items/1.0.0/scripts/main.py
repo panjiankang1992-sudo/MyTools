@@ -52,7 +52,7 @@ class Client:
 
     def import_media(self, event: dict) -> dict:
         """Idempotently project one migrated asset into Media Library."""
-        return self._request(self.media_url + "/internal/v1/media/asset-events",
+        return self._request(self.media_url + "/internal/v1/media/migrations/legacy-items",
                              "POST", event, self.media_token)
 
     def _request(self, url: str, method: str, payload: dict | None, token: str) -> dict:
@@ -78,17 +78,17 @@ def execute(client: Client, snapshot_id: str, dry_run: bool) -> dict:
     imported = 0
     if not dry_run:
         applied = scan(client, snapshot_id, True)
-        if applied[:3] != first[:3] or applied[3] != first[3]:
+        if applied != first:
             raise RuntimeError("Media source snapshot changed between preflight and apply")
         imported = applied[1]
     return {"sourceSnapshotId": snapshot_id, "dryRun": dry_run,
-            "exported": first[0], "mediaItems": first[1], "skippedNonMedia": first[2],
-            "imported": imported, "digestSha256": first[3]}
+            "exported": first[0], "mediaItems": first[1], "legacyTags": first[2],
+            "skippedNonMedia": first[3], "imported": imported, "digestSha256": first[4]}
 
 
-def scan(client: Client, snapshot_id: str, apply: bool) -> tuple[int, int, int, str]:
+def scan(client: Client, snapshot_id: str, apply: bool) -> tuple[int, int, int, int, str]:
     """Walk the frozen snapshot once, validating mappings before any page is applied."""
-    exported = media_items = skipped = 0
+    exported = media_items = tag_count = skipped = 0
     digest = hashlib.sha256()
     after_id = None
     while True:
@@ -101,12 +101,14 @@ def scan(client: Client, snapshot_id: str, apply: bool) -> tuple[int, int, int, 
         events = prepare_events(client, snapshot_id, items)
         exported += len(items)
         media_items += len(events)
+        tag_count += sum(len(request["tags"]) for request in events)
         skipped += len(items) - len(events)
-        for event in events:
-            canonical = json.dumps(event, sort_keys=True, separators=(",", ":")).encode()
+        for request in events:
+            canonical = json.dumps(request, sort_keys=True, separators=(",", ":")).encode()
             digest.update(hashlib.sha256(canonical).digest())
             if apply:
-                result = client.import_media(event)
+                result = client.import_media(request)
+                event = request["event"]
                 if str(result.get("assetId")) != event["assetId"] or int(result.get("ownerId", -1)) != event["ownerId"]:
                     raise RuntimeError("Media Library returned a conflicting migrated item")
         next_after_id = page.get("nextAfterId")
@@ -116,7 +118,7 @@ def scan(client: Client, snapshot_id: str, apply: bool) -> tuple[int, int, int, 
         if not next_after_id or next_after_id == after_id:
             raise RuntimeError("Legacy asset media cursor did not advance")
         after_id = next_after_id
-    return exported, media_items, skipped, digest.hexdigest()
+    return exported, media_items, tag_count, skipped, digest.hexdigest()
 
 
 def prepare_events(client: Client, snapshot_id: str, items: list[dict]) -> list[dict]:
@@ -151,8 +153,8 @@ def prepare_events(client: Client, snapshot_id: str, items: list[dict]) -> list[
     if set(by_identity) != {key for key, _ in prepared}:
         raise RuntimeError("Legacy media asset mapping set does not close")
     events = []
-    for key, event in prepared:
-        events.append({**event, "assetId": by_identity[key]})
+    for key, request in prepared:
+        events.append({**request, "event": {**request["event"], "assetId": by_identity[key]}})
     return events
 
 
@@ -186,10 +188,28 @@ def normalize(snapshot_id: str, item: dict) -> dict | None:
         display_name = f"legacy-{legacy_id}"[:512]
     identity_digest = hashlib.sha256(
         f"{snapshot_id}\0{source_system}\0{legacy_id}".encode()).hexdigest()
-    return {"eventId": "legacy-media:" + identity_digest, "ownerId": owner_id,
-            "sourceType": source_type, "sourceBusinessId": business_id,
-            "displayName": display_name, "mimeType": mime_type, "sizeBytes": size,
-            "contentSha256": sha256}
+    metadata = item.get("mediaMetadata")
+    raw_tags = metadata.get("tags") if isinstance(metadata, dict) else []
+    if not isinstance(raw_tags, list) or len(raw_tags) > 256:
+        raise RuntimeError("Legacy media tags are invalid")
+    tags = []
+    names = set()
+    for raw_tag in raw_tags:
+        if not isinstance(raw_tag, dict):
+            raise RuntimeError("Legacy media tag is invalid")
+        name = str(raw_tag.get("name") or "").strip()
+        confidence = raw_tag.get("confidence")
+        if not name or len(name) > 128 or name.lower() in names \
+                or confidence is not None and (isinstance(confidence, bool)
+                or not isinstance(confidence, (int, float)) or confidence < 0 or confidence > 1):
+            raise RuntimeError("Legacy media tag is invalid")
+        names.add(name.lower())
+        tags.append({"name": name, "confidence": confidence})
+    event = {"eventId": "legacy-media:" + identity_digest, "ownerId": owner_id,
+             "sourceType": source_type, "sourceBusinessId": business_id,
+             "displayName": display_name, "mimeType": mime_type, "sizeBytes": size,
+             "contentSha256": sha256}
+    return {"event": event, "tags": tags}
 
 
 def write_result(result: dict) -> None:

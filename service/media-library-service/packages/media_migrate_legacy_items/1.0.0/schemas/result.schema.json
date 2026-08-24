@@ -1,11 +1,12 @@
 {
   "type": "object",
-  "required": ["sourceSnapshotId", "dryRun", "exported", "mediaItems", "skippedNonMedia", "imported", "digestSha256"],
+  "required": ["sourceSnapshotId", "dryRun", "exported", "mediaItems", "legacyTags", "skippedNonMedia", "imported", "digestSha256"],
   "properties": {
     "sourceSnapshotId": {"type": "string"},
     "dryRun": {"type": "boolean"},
     "exported": {"type": "integer", "minimum": 0},
     "mediaItems": {"type": "integer", "minimum": 0},
+    "legacyTags": {"type": "integer", "minimum": 0},
     "skippedNonMedia": {"type": "integer", "minimum": 0},
     "imported": {"type": "integer", "minimum": 0},
     "digestSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}

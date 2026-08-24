@@ -561,6 +561,7 @@ class TaskInstanceServiceTest {
 
         assertTrue(definition.get("parameter_schema").toString().contains("sourceSnapshotId"));
         assertTrue(definition.get("result_schema").toString().contains("digestSha256"));
+        assertTrue(definition.get("result_schema").toString().contains("legacyTags"));
         assertEquals("media_migrate_legacy_items", definition.get("script_package"));
         assertEquals("1.0.0", definition.get("script_version"));
     }

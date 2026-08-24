@@ -7,6 +7,7 @@ import jakarta.validation.Valid;import jakarta.validation.constraints.*;import j
  public record BeginAnalysis(@NotBlank @Pattern(regexp="^[A-Za-z0-9._-]{1,64}$")String analysisVersion,@NotNull UUID taskInstanceId,@NotNull UUID assetId){}
  public record AnalysisView(UUID id,UUID mediaItemId,String analysisVersion,UUID taskInstanceId,String status){}
  public record TagInput(@NotBlank @Size(max=128)String name,@DecimalMin("0.0") @DecimalMax("1.0")Double confidence){}
+ public record LegacyMediaImport(@NotNull @Valid AssetEvent event,@NotNull @Size(max=256)List<@Valid TagInput>tags){}
  public record ArtifactInput(@NotNull UUID assetId,@NotBlank @Pattern(regexp="^[A-Z][A-Z0-9_]{0,63}$")String kind,@NotBlank @Size(max=64)String generatorVersion){}
  public record CompleteAnalysis(@NotNull UUID taskInstanceId,@Size(max=2000)String summary,@Size(max=20000)String description,@Size(max=32)List<@Valid TagInput>tags,@Size(max=64)List<@Valid ArtifactInput>artifacts){}
  public record FailAnalysis(@NotNull UUID taskInstanceId,@NotBlank @Pattern(regexp="^(FAILED|TIMED_OUT|CANCELLED)$")String status,@NotBlank @Size(max=128)String errorCode){}

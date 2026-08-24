@@ -6,6 +6,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -21,7 +22,7 @@ SHA256 = re.compile(r"^[a-fA-F0-9]{64}$")
 PAGE_SIZE = 500
 
 
-def normalize(row: dict, owner_id: int) -> dict:
+def normalize(row: dict, owner_id: int, tags: list[dict] | None = None) -> dict:
     """Map one valid local_file row to the target migration contract."""
     legacy_id = int(row["id"])
     content_sha256 = str(row.get("file_hash") or "")
@@ -44,7 +45,35 @@ def normalize(row: dict, owner_id: int) -> dict:
             "ownerId": owner_id, "idempotencyKey": f"legacy-local-asset:{legacy_id}",
             "sourceType": "LEGACY_ASSET", "sourceBusinessId": business_id,
             "contentSha256": content_sha256.lower(), "sizeBytes": size,
-            "mimeType": mime_type, "location": location}}
+            "mimeType": mime_type, "location": location},
+            "mediaMetadata": {"tags": normalize_tags(tags or [])}}
+
+
+def normalize_tags(rows: list[dict]) -> list[dict]:
+    """Normalize legacy tags without silently dropping malformed values."""
+    if len(rows) > 256:
+        raise ValueError("TAG_COUNT_INVALID")
+    values = {}
+    for row in rows:
+        name = str(row.get("tag_name") or "").strip()
+        confidence = row.get("confidence")
+        if not name or len(name) > 128:
+            raise ValueError("TAG_NAME_INVALID")
+        if confidence is not None:
+            if isinstance(confidence, bool):
+                raise ValueError("TAG_CONFIDENCE_INVALID")
+            try:
+                confidence = float(confidence)
+            except (TypeError, ValueError) as exception:
+                raise ValueError("TAG_CONFIDENCE_INVALID") from exception
+            if not math.isfinite(confidence) or confidence < 0 or confidence > 1:
+                raise ValueError("TAG_CONFIDENCE_INVALID")
+        key = name.lower()
+        current = values.get(key)
+        if current is None or (confidence is not None
+                               and (current["confidence"] is None or confidence > current["confidence"])):
+            values[key] = {"name": name, "confidence": confidence}
+    return [values[key] for key in sorted(values)]
 
 
 def payload_digest(payload: dict) -> str:
@@ -93,11 +122,21 @@ def capture(source, target, snapshot_id: str, owner_id: int) -> dict:
                 rows = cursor.fetchall()
             if not rows:
                 break
+            file_ids = [int(row["id"]) for row in rows]
+            placeholders = ",".join(["%s"] * len(file_ids))
+            with source.cursor() as cursor:
+                cursor.execute(
+                    "SELECT file_id,tag_name,confidence FROM file_tag "
+                    f"WHERE file_id IN ({placeholders}) ORDER BY file_id,id", tuple(file_ids))
+                tag_rows = cursor.fetchall()
+            tags_by_file = {}
+            for tag in tag_rows:
+                tags_by_file.setdefault(int(tag["file_id"]), []).append(tag)
             with target.cursor() as cursor:
                 for row in rows:
                     after_id = int(row["id"])
                     try:
-                        payload = normalize(row, owner_id)
+                        payload = normalize(row, owner_id, tags_by_file.get(after_id, []))
                         item_digest = payload_digest(payload)
                         cursor.execute(
                             "INSERT INTO legacy_asset_snapshot_item "

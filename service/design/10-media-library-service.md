@@ -62,7 +62,7 @@ V3 的内部对账接口以媒体 UUID 为稳定游标，每页最多返回 200 
 
 当前已完成第 6 步的首批同步入口：Media Library 提供按 owner 和 UUID 游标的有界分页查询，Gateway 代理媒体列表、单项详情和播放进度写入。耗时的目录扫描与分析没有改回同步调用，仍由 Scheduler 和 Executor 执行。新入口由单独总开关控制，旧 MyTools 路径继续保留，数据迁移只追加到 `mytools_media`，不删除旧媒体记录。
 
-历史媒体回填不重新连接旧 MyTools schema。第一阶段先用只读适配器封存 `local_file` 并完成 Asset Registry 映射；第二阶段任务完整预检所有图片、视频和音频映射，随后用 `legacy-media:{identitySha256}` 事件建立 Media Library 项。任务中断可重跑，非媒体资产明确计入跳过数量，旧路径只用于推导显示名且不会进入目标事件。
+历史媒体回填不重新连接旧 MyTools schema。第一阶段先用只读适配器在同一快照中封存 `local_file` 和 `file_tag`，并完成 Asset Registry 映射；第二阶段任务完整预检所有图片、视频和音频映射，随后用 `legacy-media:{identitySha256}` 事件在一个事务中建立 Media Library 项及 `LEGACY_MIGRATION` 标签。任务中断可重跑，标签变化会触发幂等冲突而不是静默覆盖，非媒体资产明确计入跳过数量，旧路径只用于推导显示名且不会进入目标事件。缩略图、截图和简介允许通过新分析任务重新生成。
 
 ## 验收
 

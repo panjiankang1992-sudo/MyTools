@@ -13,7 +13,8 @@ def item(legacy_id="7", mime_type="video/mp4"):
     return {"sourceSystem": "MyTools", "legacyAssetId": legacy_id, "asset": {
         "ownerId": 1, "sourceType": "LEGACY_ASSET", "sourceBusinessId": f"local_file:{legacy_id}",
         "contentSha256": legacy_id[0] * 64, "sizeBytes": 128, "mimeType": mime_type,
-        "location": {"storageUri": f"file:///media/file-{legacy_id}.mp4"}}}
+        "location": {"storageUri": f"file:///media/file-{legacy_id}.mp4"}},
+        "mediaMetadata": {"tags": [{"name": "Legacy", "confidence": 0.8}]}}
 
 
 class Client:
@@ -36,8 +37,9 @@ class Client:
                                          + f"{int(identity['legacyAssetId']):012d}"}
                              for identity in identities], "missing": []}
 
-    def import_media(self, event):
-        self.imported.append(event)
+    def import_media(self, request):
+        self.imported.append(request)
+        event = request["event"]
         return {"assetId": event["assetId"], "ownerId": event["ownerId"]}
 
 
@@ -46,6 +48,7 @@ def test_dry_run_preflights_all_mappings_without_writing_media():
     result = MODULE.execute(client, "snapshot-1", True)
     assert result["exported"] == 3
     assert result["mediaItems"] == 2
+    assert result["legacyTags"] == 2
     assert result["skippedNonMedia"] == 1
     assert result["imported"] == 0
     assert len(result["digestSha256"]) == 64
@@ -60,9 +63,11 @@ def test_apply_is_two_pass_and_uses_stable_private_free_events():
     assert result["imported"] == 2
     assert replay["digestSha256"] == result["digestSha256"]
     assert client.imported[2:] == first_events
-    assert [event["displayName"] for event in first_events] == ["file-7.mp4", "file-9.mp4"]
-    assert all(event["eventId"].startswith("legacy-media:") for event in first_events)
-    assert all("location" not in event for event in first_events)
+    assert [request["event"]["displayName"] for request in first_events] == ["file-7.mp4", "file-9.mp4"]
+    assert all(request["event"]["eventId"].startswith("legacy-media:") for request in first_events)
+    assert all(request["tags"] == [{"name": "Legacy", "confidence": 0.8}]
+               for request in first_events)
+    assert all("location" not in request["event"] for request in first_events)
 
 
 def test_missing_mapping_fails_before_any_media_write():

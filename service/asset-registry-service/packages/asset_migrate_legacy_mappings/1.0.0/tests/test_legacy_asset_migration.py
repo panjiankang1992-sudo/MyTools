@@ -12,11 +12,13 @@ SPEC.loader.exec_module(MODULE)
 class FakeClient:
     def __init__(self, pages):
         self.pages = iter(pages)
+        self.batches = []
 
     def page(self, _source_snapshot_id, _after_id):
         return next(self.pages)
 
     def import_batch(self, _migration_key, _source_snapshot_id, dry_run, items):
+        self.batches.append(items)
         return {"dryRun": dry_run, "accepted": len(items), "skipped": 0, "rejected": 0,
                 "digestSha256": "b" * 64}
 
@@ -53,3 +55,12 @@ def test_rejects_source_snapshot_change():
              {"snapshotId": "snapshot-b", "items": [], "nextAfterId": None}]
     with pytest.raises(RuntimeError, match="snapshot changed"):
         MODULE.execute(FakeClient(pages), "asset-migration-4", "snapshot-a", True)
+
+
+def test_does_not_forward_domain_metadata_to_asset_mapping_contract():
+    client = FakeClient([{"snapshotId": "snapshot-5", "items": [{
+        "sourceSystem": "MyTools", "legacyAssetId": "5", "asset": {"ownerId": 1},
+        "mediaMetadata": {"tags": [{"name": "legacy"}]}}], "nextAfterId": None}])
+    MODULE.execute(client, "asset-migration-5", "snapshot-5", False)
+    assert client.batches == [[{"sourceSystem": "MyTools", "legacyAssetId": "5",
+                                "asset": {"ownerId": 1}}]]

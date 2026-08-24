@@ -18,11 +18,15 @@ def row(**changes):
 
 
 def test_normalizes_local_file_without_reading_file_content():
-    result = MODULE.normalize(row(), 0)
+    result = MODULE.normalize(row(), 1, [
+        {"tag_name": "Travel", "confidence": 0.7},
+        {"tag_name": "travel", "confidence": 0.9},
+    ])
     assert result["sourceSystem"] == "MyTools"
     assert result["legacyAssetId"] == "7"
     assert result["asset"]["contentSha256"] == "a" * 64
     assert result["asset"]["location"]["storageUri"] == "file:///opt/resource/a%20file.mp4"
+    assert result["mediaMetadata"]["tags"] == [{"name": "travel", "confidence": 0.9}]
     assert len(MODULE.payload_digest(result)) == 64
 
 
@@ -42,6 +46,15 @@ def test_rejects_owner_that_cannot_be_read_by_target_services(owner_id):
         MODULE.capture(Connection(), Connection(), "snapshot-invalid-owner", owner_id)
 
 
+@pytest.mark.parametrize("tags", [
+    [{"tag_name": "", "confidence": 0.5}],
+    [{"tag_name": "unsafe", "confidence": 1.1}],
+])
+def test_rejects_tags_that_cannot_be_losslessly_imported(tags):
+    with pytest.raises(ValueError, match="TAG_"):
+        MODULE.normalize(row(), 1, tags)
+
+
 class Cursor:
     def __init__(self, connection):
         self.connection = connection
@@ -59,6 +72,8 @@ class Cursor:
             self.result = None
         elif "MAX(id)" in sql:
             self.result = {"high_water_id": 2}
+        elif "FROM file_tag" in sql:
+            self.result = [{"file_id": 1, "tag_name": "Legacy", "confidence": 0.8}]
         elif "FROM local_file" in sql:
             self.result = [row(id=1), row(id=2, file_hash=None)]
 

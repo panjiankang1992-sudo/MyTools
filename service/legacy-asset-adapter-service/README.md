@@ -7,7 +7,7 @@ MyTools `local_file` 到 Asset Registry 的独立只读迁移防腐层。服务�
 1. `legacy_asset_capture_snapshot` 要求显式传入正数 `ownerId`，在旧库的单个 `REPEATABLE READ ... WITH CONSISTENT SNAPSHOT` 事务中读取 `local_file`，把可验证记录物化到适配器 schema，并在目标事务提交时原子标记为 `SEALED`。
 2. `asset_migrate_legacy_mappings` 必须携带明确 `sourceSnapshotId`，通过只读 HTTP API 分页读取该封存快照，再 dry-run 或正式写入 Asset Registry。
 
-旧数据库账号只允许 `SELECT`；适配器数据库账号只访问 `mytools_legacy_asset_adapter`。捕获脚本不读取文件内容，以旧库已有 SHA-256 和大小作为迁移证据；缺失哈希、非法大小或非绝对路径记录进入 `legacy_asset_snapshot_rejection`，不会伪造资产。快照捕获和目标导出使用不同凭据。
+旧数据库账号只允许 `SELECT`；适配器数据库账号只访问 `mytools_legacy_asset_adapter`。捕获脚本不读取文件内容，以旧库已有 SHA-256 和大小作为迁移证据，并在同一一致性事务中读取 `file_tag`。缺失哈希、非法大小、非绝对路径或无法无损表示的标签记录进入 `legacy_asset_snapshot_rejection`，不会伪造资产或静默丢弃标签。快照捕获和目标导出使用不同凭据。
 
 `ownerId` 不再默认使用 `0`。迁移前应先确定一个可通过 Identity/Gateway 正常访问的目标所有者；同一个封存快照不能改绑到其他 owner，避免数据进入新库后无法从业务接口读取。
 
