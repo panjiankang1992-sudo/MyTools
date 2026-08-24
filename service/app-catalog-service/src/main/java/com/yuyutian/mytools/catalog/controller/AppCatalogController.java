@@ -1,0 +1,8 @@
+package com.yuyutian.mytools.catalog.controller;
+import com.yuyutian.mytools.catalog.model.CatalogModels.*;import com.yuyutian.mytools.catalog.service.AppCatalogService;import jakarta.validation.Valid;import org.springframework.beans.factory.annotation.Value;import org.springframework.web.bind.annotation.*;import java.util.List;
+/** 应用目录内部接口。 */ @RestController @RequestMapping("/internal/v1/catalog") public class AppCatalogController {private final AppCatalogService service;private final String token;/** 创建控制器。 @param service 服务 @param token 令牌 */ public AppCatalogController(AppCatalogService service,@Value("${app-catalog.internal-token}")String token){this.service=service;this.token=token;}
+ /** 导入旧应用。 @param authorization 授权 @param request 请求 @return 结果 */ @PostMapping("/migrations/legacy-apps") public ImportResult importLegacy(@RequestHeader("Authorization")String authorization,@Valid @RequestBody LegacyAppImport request){authorize(authorization);return service.importLegacy(request);}
+ /** 查询目录。 @param authorization 授权 @return 目录 */ @GetMapping("/entries") public List<CatalogView> list(@RequestHeader("Authorization")String authorization){authorize(authorization);return service.list();}
+ /** 查询对账。 @param authorization 授权 @return 对账 */ @GetMapping("/reconciliation") public Reconciliation reconciliation(@RequestHeader("Authorization")String authorization){authorize(authorization);return service.reconciliation();}
+ private void authorize(String authorization){if(token.isBlank()||!authorization.equals("Bearer "+token))throw new SecurityException("catalog authorization failed");}
+}

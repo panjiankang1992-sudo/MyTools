@@ -1,0 +1,12 @@
+server:
+  address: ${APP_CATALOG_HTTP_HOST:127.0.0.1}
+  port: ${APP_CATALOG_HTTP_PORT:23310}
+spring:
+  application.name: app-catalog-service
+  datasource:
+    url: jdbc:mysql://${APP_CATALOG_DB_HOST:127.0.0.1}:${APP_CATALOG_DB_PORT:3306}/${APP_CATALOG_DB_NAME:mytools_app_catalog}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: ${APP_CATALOG_DB_USER:}
+    password: ${APP_CATALOG_DB_PASSWORD:}
+  flyway.locations: classpath:db/migration
+management.endpoints.web.exposure.include: health,info
+app-catalog.internal-token: ${APP_CATALOG_INTERNAL_TOKEN:}

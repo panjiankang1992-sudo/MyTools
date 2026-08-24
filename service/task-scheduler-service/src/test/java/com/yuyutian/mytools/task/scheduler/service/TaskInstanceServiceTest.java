@@ -575,4 +575,17 @@ class TaskInstanceServiceTest {
         assertTrue(schema.contains("sourceRelationCount"));
         assertTrue(schema.contains("sourceTagRelationCount"));
     }
+
+    @Test
+    void shouldSeedLegacyAppCatalogMigration() {
+        Map<String, Object> definition = jdbcTemplate.queryForMap(
+                "SELECT d.parameter_schema,d.result_schema,s.script_package FROM task_definition d "
+                        + "JOIN task_step_definition s ON s.task_definition_id=d.id "
+                        + "WHERE d.name=? AND s.name=?",
+                "app_catalog_migrate_legacy", "migrate_app_catalog");
+
+        assertTrue(definition.get("parameter_schema").toString().contains("migrationKey"));
+        assertTrue(definition.get("result_schema").toString().contains("sourceHighWater"));
+        assertEquals("app_catalog_migrate_legacy", definition.get("script_package"));
+    }
 }
