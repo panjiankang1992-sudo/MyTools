@@ -17,4 +17,13 @@ public class EbookSourceNotFoundException extends RuntimeException {
     public EbookSourceNotFoundException(UUID sourceId) {
         super(ErrorCode.EBOOK_SOURCE_NOT_FOUND.code() + ":" + sourceId);
     }
+
+    /**
+     * 按外部书源键创建可用书源不存在异常。
+     *
+     * @param sourceKey 书源外部键
+     */
+    public EbookSourceNotFoundException(String sourceKey) {
+        super(ErrorCode.EBOOK_SOURCE_NOT_FOUND.code() + ":" + sourceKey);
+    }
 }

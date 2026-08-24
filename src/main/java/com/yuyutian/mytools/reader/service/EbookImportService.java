@@ -8,8 +8,10 @@ import com.yuyutian.mytools.localfile.service.LocalFileService;
 import com.yuyutian.mytools.localfile.service.ResourceStorageGuard;
 import com.yuyutian.mytools.reader.model.BookSourceRuntimeReaderModels;
 import com.yuyutian.mytools.reader.model.EbookImportModels;
+import com.yuyutian.mytools.reader.task.ReaderImportSidecarRequested;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,6 +49,7 @@ public class EbookImportService {
     private final LocalFileService localFileService;
     private final ResourceStorageGuard resourceStorageGuard;
     private final BookSourceRuntimeReaderService readerService;
+    private final ApplicationEventPublisher eventPublisher;
     private final Map<String, MutableTask> tasks = new ConcurrentHashMap<>();
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
@@ -98,6 +101,9 @@ public class EbookImportService {
         MutableTask task = new MutableTask(UUID.randomUUID().toString(), userId,
                 safeTitle(request.title()) + ".txt");
         tasks.put(task.taskId, task);
+        // 旁路只复制不可变请求，新服务失败时旧导入仍继续执行。
+        eventPublisher.publishEvent(new ReaderImportSidecarRequested(task.taskId, userId,
+                request.sourceUrl().trim(), request.bookUrl().trim(), request.title(), request.author()));
         executor.submit(() -> importSource(task, directory, request));
         return task.snapshot();
     }

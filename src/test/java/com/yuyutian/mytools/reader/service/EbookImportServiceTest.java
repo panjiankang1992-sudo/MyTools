@@ -5,10 +5,13 @@ import com.yuyutian.mytools.localfile.entity.LocalDirectory;
 import com.yuyutian.mytools.localfile.mapper.LocalDirectoryMapper;
 import com.yuyutian.mytools.localfile.service.LocalFileService;
 import com.yuyutian.mytools.localfile.service.ResourceStorageGuard;
+import com.yuyutian.mytools.reader.model.EbookImportModels;
+import com.yuyutian.mytools.reader.task.ReaderImportSidecarRequested;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.nio.file.Files;
@@ -18,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class EbookImportServiceTest {
@@ -25,6 +29,7 @@ class EbookImportServiceTest {
     Path root;
 
     private EbookImportService service;
+    private ApplicationEventPublisher eventPublisher;
 
     @BeforeEach
     void setUp() {
@@ -37,7 +42,9 @@ class EbookImportServiceTest {
         directory.setDirectoryType("EBOOK");
         directory.setDirectoryPath(root.toString());
         when(directoryMapper.selectById(9L)).thenReturn(directory);
-        service = new EbookImportService(directoryMapper, localFileService, storageGuard, readerService);
+        eventPublisher = mock(ApplicationEventPublisher.class);
+        service = new EbookImportService(directoryMapper, localFileService, storageGuard, readerService,
+                eventPublisher);
     }
 
     @AfterEach
@@ -73,5 +80,19 @@ class EbookImportServiceTest {
                 "unsafe".getBytes());
 
         assertThrows(BusinessException.class, () -> service.upload(9L, file, "script.sh"));
+    }
+
+    /**
+     * 验证旧导入开始后发布不可变旁路请求。
+     */
+    @Test
+    void shouldPublishSourceImportSidecarRequest() {
+        var request = new EbookImportModels.SourceRequest(
+                " https://source.example ", " https://source.example/book ", "Book", "Author");
+
+        var task = service.startSourceImport(7L, 9L, request);
+
+        verify(eventPublisher).publishEvent(new ReaderImportSidecarRequested(task.taskId(), 7L,
+                "https://source.example", "https://source.example/book", "Book", "Author"));
     }
 }

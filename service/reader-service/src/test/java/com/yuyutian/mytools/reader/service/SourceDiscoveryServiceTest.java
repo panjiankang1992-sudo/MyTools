@@ -3,6 +3,7 @@ package com.yuyutian.mytools.reader.service;
 import com.yuyutian.mytools.reader.model.CreateDiscoveryRequest;
 import com.yuyutian.mytools.reader.model.SchedulerResult;
 import com.yuyutian.mytools.reader.model.SourceIngestRequest;
+import com.yuyutian.mytools.reader.repository.DiscoveryRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +31,9 @@ class SourceDiscoveryServiceTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private DiscoveryRepository discoveryRepository;
 
     @MockBean
     private TaskSchedulerClient schedulerClient;
@@ -70,6 +74,8 @@ class SourceDiscoveryServiceTest {
                 SELECT COUNT(*) FROM book_source_version bsv
                 JOIN book_source bs ON bs.id = bsv.book_source_id WHERE bs.owner_id = 17
                 """, Integer.class)).isEqualTo(1);
+        assertThat(discoveryRepository.findExecutionSnapshot(17L, "https://books.example"))
+                .get().extracting(DiscoveryRepository.SourceExecutionSnapshot::version).isEqualTo(1);
         verify(schedulerClient).createTask(anyString(), anyString(), anyString(), any(), anyInt(), anyMap());
     }
 }

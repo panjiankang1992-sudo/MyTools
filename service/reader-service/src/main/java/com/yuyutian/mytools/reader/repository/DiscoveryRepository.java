@@ -187,6 +187,25 @@ public class DiscoveryRepository {
                 ownerId, sourceId.toString()).stream().findFirst();
     }
 
+    /**
+     * 按所有者和书源地址查询当前执行快照。
+     *
+     * @param ownerId 所有者标识
+     * @param sourceUrl 书源地址
+     * @return 书源执行快照
+     */
+    public Optional<SourceExecutionSnapshot> findExecutionSnapshot(long ownerId, String sourceUrl) {
+        return jdbcTemplate.query("""
+                SELECT bs.id, bs.source_url, bs.current_version, bsv.snapshot_json
+                FROM book_source bs JOIN book_source_version bsv
+                  ON bsv.book_source_id = bs.id AND bsv.version = bs.current_version
+                WHERE bs.owner_id = ? AND bs.source_url = ? AND bs.enabled = TRUE
+                """, (resultSet, rowNumber) -> new SourceExecutionSnapshot(
+                UUID.fromString(resultSet.getString("id")), resultSet.getString("source_url"),
+                resultSet.getInt("current_version"), readJson(resultSet.getString("snapshot_json"))),
+                ownerId, sourceUrl.trim()).stream().findFirst();
+    }
+
     private Optional<DiscoveryRecord> query(String sql, Object... arguments) {
         return jdbcTemplate.query(sql, (resultSet, rowNumber) -> {
             String taskId = resultSet.getString("task_instance_id");

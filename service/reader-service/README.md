@@ -32,6 +32,8 @@ Gateway 创建发现任务时注入 `ownerId`，Reader Service 对查询和取�
 
 书源电子书导入使用 `reader_import_ebook` 1.0.0 长任务。Reader Service 固化书源版本和任务参数，脚本逐章读取并在任务工作目录中流式生成有大小边界的 UTF-8 文本，通过 Storage Gateway 校验摘要并原子发布，成功后在 `ebook_asset` 登记稳定 `storage://` URI。后续步骤分别提取元数据并构建持久化目录：TXT/Markdown 目录保存字节范围，EPUB 目录保存经过归档安全校验的 spine 条目，PDF 保存有上限的页引用；脚本以受限批次调用内部写入接口，重试时先清理再重建。编排接口为 `POST /api/v1/ebook-imports`、`GET /api/v1/ebook-imports/{id}`、`GET /api/v1/ebook-imports/{id}/catalog` 和取消接口；客户端不能指定物理目录或任意输出路径。
 
+旧 MyTools 的书源导入可通过默认关闭的 `READER_IMPORT_SIDECAR_ENABLED` 旁路。Reader Service 使用受内部令牌保护的 `GET /api/internal/v1/book-sources/resolve` 按 owner 和书源地址解析已经迁移且启用的书源，再创建持久化导入；未迁移书源直接跳过旁路，旧虚拟线程导入不受影响。导入创建、查询、取消和目录接口同样要求 `READER_INTERNAL_TOKEN`。
+
 Gateway 调用查询、取消和目录接口时会附带 `ownerId`，Reader Service 对导入记录执行所有者校验；内部调用可暂时省略该参数，以兼容尚未迁移的调用方。
 
 电子书导入的第四步使用 `asset_register_content` 将已经由 Storage Gateway 验证的 URI、SHA-256 和大小镜像到 Asset Registry。迁移期该步骤失败可忽略，并保留独立补偿任务；Reader 自有 `ebook_asset` 仍是当前权威数据。
