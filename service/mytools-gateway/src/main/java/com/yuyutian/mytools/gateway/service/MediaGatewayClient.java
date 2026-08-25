@@ -19,6 +19,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.UUID;
+import jakarta.servlet.http.HttpServletResponse;
+import java.net.HttpURLConnection;
+import java.net.URI;
 
 /**
  * 只使用可信主体访问 Media Library 的内部客户端。
@@ -49,7 +52,7 @@ public class MediaGatewayClient {
      * @param correlationId 关联标识
      * @return 媒体页
      */
-    public MediaPage list(long ownerId, UUID afterId, boolean includeMissing, int limit,
+    public MediaPage list(long ownerId, UUID afterId, boolean includeMissing, String mimePrefix, int limit,
                           String correlationId) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/media/items")
                 .queryParam("ownerId", ownerId)
@@ -57,6 +60,9 @@ public class MediaGatewayClient {
                 .queryParam("limit", limit);
         if (afterId != null) {
             builder.queryParam("afterId", afterId);
+        }
+        if (mimePrefix != null && !mimePrefix.isBlank()) {
+            builder.queryParam("mimePrefix", mimePrefix);
         }
         return exchange(builder.toUriString(), HttpMethod.GET, null, MediaPage.class, correlationId);
     }
@@ -73,6 +79,50 @@ public class MediaGatewayClient {
         String url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/media/items/" + mediaId)
                 .queryParam("ownerId", ownerId).toUriString();
         return exchange(url, HttpMethod.GET, null, MediaView.class, correlationId);
+    }
+
+    /**
+     * 将媒体内容以恒定内存转发到客户端。
+     */
+    public void stream(long ownerId, UUID mediaId, boolean thumbnail, String range, HttpServletResponse response,
+                       String correlationId) {
+        try {
+            String url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/media/items/" + mediaId
+                    + "/content").queryParam("ownerId", ownerId).queryParam("thumbnail", thumbnail).toUriString();
+            HttpURLConnection connection = (HttpURLConnection) URI.create(url).toURL().openConnection();
+            connection.setRequestProperty("Authorization", "Bearer " + properties.mediaToken());
+            connection.setRequestProperty("X-Correlation-Id", correlationId);
+            connection.setRequestProperty("Accept-Encoding", "identity");
+            if (range != null && !range.isBlank()) {
+                connection.setRequestProperty("Range", range);
+            }
+            connection.setConnectTimeout(properties.connectTimeoutMillis());
+            connection.setReadTimeout(Math.max(properties.readTimeoutMillis(), 120000));
+            int status = connection.getResponseCode();
+            response.setStatus(status);
+            copyHeader(connection, response, "Content-Type");
+            copyHeader(connection, response, "Content-Length");
+            copyHeader(connection, response, "Content-Range");
+            copyHeader(connection, response, "Accept-Ranges");
+            if (status < 200 || status >= 300) {
+                connection.disconnect();
+                return;
+            }
+            try (var input = connection.getInputStream(); var output = response.getOutputStream()) {
+                input.transferTo(output);
+            } finally {
+                connection.disconnect();
+            }
+        } catch (Exception exception) {
+            throw new GatewayDownstreamException();
+        }
+    }
+
+    private void copyHeader(HttpURLConnection connection, HttpServletResponse response, String name) {
+        String value = connection.getHeaderField(name);
+        if (value != null && !value.isBlank()) {
+            response.setHeader(name, value);
+        }
     }
 
     /**

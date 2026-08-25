@@ -3059,7 +3059,7 @@ struct Index {
               }
             }
           }
-          return { path: `/local/${item.itemId}`, uri: `file://${target}` };
+          return { path: `/media/${item.itemId}`, uri: `file://${target}` };
         } catch (_) {
           return undefined;
         }
@@ -3068,7 +3068,7 @@ struct Index {
       (entry: MediaThumbnailEntry | undefined): boolean => entry !== undefined) as MediaThumbnailEntry[];
     if (revision !== this.mediaDirectoryRevision) return;
     const paths = new Set<string>();
-    candidates.forEach((item: MediaCatalogItem) => paths.add(`/local/${item.itemId}`));
+    candidates.forEach((item: MediaCatalogItem) => paths.add(`/media/${item.itemId}`));
     this.SetMediaBrowseThumbnailEntries(this.mediaBrowseThumbnailEntries.filter(
       (entry: MediaThumbnailEntry) => !paths.has(entry.path)).concat(cached));
   }
@@ -3076,14 +3076,14 @@ struct Index {
   private CatalogRemoteItem(item: MediaCatalogItem): RemoteMediaItem {
     const kind = item.kind === 'IMAGE' ? 'image' : (item.kind === 'VIDEO' ? 'video' :
       (item.kind === 'AUDIO' ? 'audio' : 'other'));
-    return { id: item.itemId, name: item.name, path: `/local/${item.itemId}`, directoryName: item.directoryName, kind,
+    return { id: item.itemId, name: item.name, path: `/media/${item.itemId}`, directoryName: item.directoryName, kind,
       contentType: item.mimeType, size: item.sizeBytes, lastModified: item.modifiedAt,
       tags: item.tags.map((tag: string): RemoteMediaTag => ({ name: tag, type: '', confidence: 1 })) };
   }
 
   /** 返回新版媒体目录使用的虚拟本地数据源。 */
   private CatalogLocalMediaSource(): RemoteMediaSource {
-    return { id: 'local:catalog', name: 'MyTools Media', type: 'MYTOOLS_LOCAL', url: '',
+    return { id: 'library', name: 'MyTools Media', type: 'MYTOOLS_LIBRARY', url: '',
       isDefault: true, isActive: true, localDirectoryType: 'MULTIMEDIA' };
   }
 
@@ -3137,7 +3137,7 @@ struct Index {
     if (source === undefined) return;
     try {
       const descriptor = await new RemoteMediaApi(this.ActiveServiceUrl(), this.authManager)
-        .resolvePlayback(source, `/local/${item.itemId}`);
+        .resolvePlayback(source, `/media/${item.itemId}`);
       const context = this.ApplicationContext();
       if (context === undefined) throw new Error('无法获取系统打开能力');
       try {
@@ -16534,7 +16534,7 @@ struct Index {
       item.kind === this.currentMediaKind);
     if (remote !== undefined) return remote;
     const catalog = this.mediaCatalogItems.concat(this.mediaVideoDirectoryItems)
-      .find((item: MediaCatalogItem) => `/local/${item.itemId}` === this.currentMediaPath);
+      .find((item: MediaCatalogItem) => `/media/${item.itemId}` === this.currentMediaPath);
     return catalog === undefined ? undefined : this.CatalogRemoteItem(catalog);
   }
 

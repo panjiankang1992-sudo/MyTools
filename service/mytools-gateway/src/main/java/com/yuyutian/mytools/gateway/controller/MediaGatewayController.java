@@ -12,6 +12,7 @@ import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartAnalysis;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
 import com.yuyutian.mytools.gateway.service.MediaGatewayClient;
+import com.yuyutian.mytools.gateway.service.MediaPlaybackTicketService;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -29,6 +30,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.http.HttpStatus;
 
 import java.util.UUID;
+import java.util.Map;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * 从可信主体注入 owner 的 Media Gateway 路由。
@@ -38,6 +41,7 @@ import java.util.UUID;
 public class MediaGatewayController {
     private final GatewayProperties properties;
     private final MediaGatewayClient client;
+    private final MediaPlaybackTicketService tickets;
 
     /**
      * 创建 Media Gateway 控制器。
@@ -45,9 +49,11 @@ public class MediaGatewayController {
      * @param properties Gateway 配置
      * @param client Media 客户端
      */
-    public MediaGatewayController(GatewayProperties properties, MediaGatewayClient client) {
+    public MediaGatewayController(GatewayProperties properties, MediaGatewayClient client,
+                                  MediaPlaybackTicketService tickets) {
         this.properties = properties;
         this.client = client;
+        this.tickets = tickets;
     }
 
     /**
@@ -62,10 +68,11 @@ public class MediaGatewayController {
     @GetMapping("/items")
     public MediaPage list(@RequestParam(required = false) UUID afterId,
                           @RequestParam(defaultValue = "false") boolean includeMissing,
+                          @RequestParam(required = false) String mimePrefix,
                           @RequestParam(defaultValue = "50") @Min(1) @Max(100) int limit,
                           HttpServletRequest request) {
         GatewayPrincipal principal = requireEnabled(request);
-        return client.list(principal.userId(), afterId, includeMissing, limit, correlation(request));
+        return client.list(principal.userId(), afterId, includeMissing, mimePrefix, limit, correlation(request));
     }
 
     /**
@@ -79,6 +86,39 @@ public class MediaGatewayController {
     public MediaView view(@PathVariable UUID mediaId, HttpServletRequest request) {
         GatewayPrincipal principal = requireEnabled(request);
         return client.view(principal.userId(), mediaId, correlation(request));
+    }
+
+    /** 读取图片原文件作为图库缩略图。 */
+    @GetMapping("/items/{mediaId}/thumbnail")
+    public void thumbnail(@PathVariable UUID mediaId, HttpServletRequest request, HttpServletResponse response) {
+        GatewayPrincipal principal = requireEnabled(request);
+        client.stream(principal.userId(), mediaId, true, null, response, correlation(request));
+    }
+
+    /** 读取认证媒体原文件。 */
+    @GetMapping("/items/{mediaId}/content")
+    public void content(@PathVariable UUID mediaId, HttpServletRequest request, HttpServletResponse response) {
+        GatewayPrincipal principal = requireEnabled(request);
+        client.stream(principal.userId(), mediaId, false, request.getHeader("Range"), response, correlation(request));
+    }
+
+    /** 为播放器签发短期无头部读取票据。 */
+    @PostMapping("/items/{mediaId}/play-ticket")
+    public Map<String, Object> playTicket(@PathVariable UUID mediaId, HttpServletRequest request) {
+        GatewayPrincipal principal = requireEnabled(request);
+        // 签发前读取一次媒体，确保租户确实拥有目标资源。
+        client.view(principal.userId(), mediaId, correlation(request));
+        var ticket = tickets.issue(principal.userId(), mediaId);
+        return Map.of("ticket", ticket.token(),
+                "streamPath", "/api/app/v1/media/tickets/" + ticket.token(),
+                "expiresAt", ticket.expiresAt().toString());
+    }
+
+    /** 使用短期票据流式播放媒体。 */
+    @GetMapping("/tickets/{ticket}")
+    public void play(@PathVariable String ticket, HttpServletRequest request, HttpServletResponse response) {
+        var value = tickets.require(ticket);
+        client.stream(value.ownerId(), value.mediaId(), false, request.getHeader("Range"), response, correlation(request));
     }
 
     /**

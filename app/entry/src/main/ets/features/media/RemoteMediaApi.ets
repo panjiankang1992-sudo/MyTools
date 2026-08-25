@@ -71,8 +71,8 @@ export class RemoteMediaApi {
 
   /** 获取电子书专用远程来源，包含MyTools EBOOK目录与WebDAV账号。 */
   async listBookSources(cancellation?: DownloadCancellationToken): Promise<RemoteMediaSource[]> {
-    await this.client.get('/api/app/v1/reader/library-index', cancellation);
-    return [{ id: 'ebook-library', name: 'MyTools 电子书', type: 'MYTOOLS_EBOOK_LIBRARY', url: '/',
+    await this.client.get('/api/app/v1/media/items?mimePrefix=text%2F&limit=1', cancellation);
+    return [{ id: 'ebook-library', name: 'MyTools 电子书', type: 'MYTOOLS_LIBRARY', url: '/',
       isDefault: true, isActive: true, localDirectoryType: 'EBOOK' }];
   }
 
@@ -113,8 +113,9 @@ export class RemoteMediaApi {
     cancellation?: DownloadCancellationToken, localRootPath: string = '', page: number = 1,
     pageSize: number = 40, keyword: string = '', excludeAdult: boolean = false): Promise<RemoteDirectory> {
     if (accountId === 'ebook-library') {
-      const envelope = await this.client.get('/api/app/v1/reader/library-index', cancellation);
-      return this.normalizer.normalizeLibraryIndex(envelope.data, keyword, excludeAdult);
+      const textItems = await this.libraryItems('text/', 1000, cancellation);
+      const applicationItems = await this.libraryItems('application/', 1000, cancellation);
+      return this.normalizer.normalizeLibraryBooks(textItems.concat(applicationItems), keyword, excludeAdult);
     }
     if (!accountId.startsWith('local:')) {
       return this.listDirectory(accountId, path, cancellation, localRootPath, page, pageSize);
@@ -147,7 +148,10 @@ export class RemoteMediaApi {
   async resolvePlayback(source: RemoteMediaSource, path: string,
     cancellation?: DownloadCancellationToken): Promise<RemotePlaybackDescriptor> {
     if (source.type === 'MYTOOLS_LIBRARY') {
-      throw new Error('新媒体服务尚未提供播放票据');
+      const match = /^\/media\/([0-9a-f-]{36})$/i.exec(path);
+      if (match === null) throw new Error('媒体库文件标识无效');
+      const envelope = await this.client.post(`/api/app/v1/media/items/${match[1]}/play-ticket`, cancellation);
+      return this.normalizer.normalizePlayback(envelope.data, this.baseUrl, source.type);
     }
     if (source.type === 'MYTOOLS_LOCAL') {
       const match = /^\/local\/([1-9]\d{0,18})$/.exec(path);
@@ -176,6 +180,25 @@ export class RemoteMediaApi {
     const ticketEnvelope = await this.client.post(
       '/api/app/v1/local-media/ebook-tickets?fileId=' + encodeURIComponent(match[1]), cancellation);
     return this.normalizer.normalizePlayback(ticketEnvelope.data, this.baseUrl, source.type);
+  }
+
+  private async libraryItems(mimePrefix: string, maximum: number,
+    cancellation?: DownloadCancellationToken): Promise<Object[]> {
+    const result: Object[] = [];
+    let afterId = '';
+    while (result.length < maximum) {
+      const cursor = afterId.length > 0 ? `&afterId=${encodeURIComponent(afterId)}` : '';
+      const envelope = await this.client.get('/api/app/v1/media/items?includeMissing=false' +
+        `&mimePrefix=${encodeURIComponent(mimePrefix)}&limit=100${cursor}`, cancellation);
+      const record = envelope.data as Record<string, Object>;
+      const raw = record?.['items'];
+      if (!Array.isArray(raw) || raw.length > 100) throw new Error('电子书库分页响应无效');
+      result.push(...raw);
+      const next = record?.['nextAfterId'];
+      if (typeof next !== 'string' || !/^[0-9a-f-]{36}$/i.test(next)) break;
+      afterId = next;
+    }
+    return result.slice(0, maximum);
   }
 
   /** 预读视频开头最多256 KB，建立连接并预热服务端Range链路。 */
@@ -313,6 +336,10 @@ export class RemoteMediaApi {
   /** 下载后端安全缩放后的JPEG缩略图到应用缓存URI。 */
   async downloadThumbnail(accountId: string, path: string, targetUri: string,
     cancellation?: DownloadCancellationToken): Promise<number> {
+    if (accountId === 'library') {
+      const mediaId = this.libraryMediaId(path);
+      return this.client.downloadImageToUri(`/api/app/v1/media/items/${mediaId}/thumbnail`, targetUri, cancellation);
+    }
     if (accountId.startsWith('local:')) {
       const match = /^\/local\/([1-9]\d{0,18})$/.exec(path);
       if (match === null) throw new Error('MyTools本地媒体文件标识无效');
@@ -327,6 +354,10 @@ export class RemoteMediaApi {
   /** 当服务端尚未生成缩略图时，下载受认证的本地原图作为预览降级。 */
   async downloadLocalImagePreview(path: string, targetUri: string,
     cancellation?: DownloadCancellationToken): Promise<number> {
+    const library = /^\/media\/([0-9a-f-]{36})$/i.exec(path);
+    if (library !== null) {
+      return this.client.downloadImageToUri(`/api/app/v1/media/items/${library[1]}/content`, targetUri, cancellation);
+    }
     const fileId = this.localFileId(path);
     return this.client.downloadImageToUri(`/api/localfiles/${fileId}/content`, targetUri, cancellation);
   }
@@ -343,6 +374,10 @@ export class RemoteMediaApi {
   /** 下载最大2048像素的安全JPEG用于系统分享。 */
   async downloadShareImage(accountId: string, path: string, targetUri: string,
     cancellation?: DownloadCancellationToken): Promise<number> {
+    if (accountId === 'library') {
+      return this.client.downloadImageToUri(
+        `/api/app/v1/media/items/${this.libraryMediaId(path)}/content`, targetUri, cancellation);
+    }
     const safeAccountId = this.requestPolicy.accountId(accountId);
     const safePath = this.requestPolicy.path(path, false);
     return this.client.downloadJpegShareToUri(`/api/app/v1/media/thumbnail?accountId=` +
@@ -423,6 +458,13 @@ export class RemoteMediaApi {
   private localFileId(path: string): string {
     const match = /^\/local\/([1-9]\d{0,18})$/.exec(path);
     if (match === null) throw new Error('MyTools本地媒体文件标识无效');
+    return match[1];
+  }
+
+  private libraryMediaId(path: string): string {
+    const match = /^\/media\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i
+      .exec(path);
+    if (match === null) throw new Error('媒体库文件标识无效');
     return match[1];
   }
 

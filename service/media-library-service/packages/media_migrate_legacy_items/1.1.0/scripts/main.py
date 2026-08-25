@@ -20,6 +20,7 @@ MIGRATION_KEY = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
 SOURCE_SYSTEM = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
 SHA256 = re.compile(r"^[a-fA-F0-9]{64}$")
 MEDIA_PREFIXES = ("image/", "video/", "audio/")
+EBOOK_EXTENSIONS = {".txt", ".epub", ".pdf", ".mobi", ".azw3", ".cbz", ".cbr"}
 
 
 class Client:
@@ -220,7 +221,10 @@ def normalize(snapshot_id: str, item: dict) -> dict | None:
             or not isinstance(asset, dict):
         raise RuntimeError("Legacy media identity is invalid")
     mime_type = str(asset.get("mimeType") or "").lower()
-    if not mime_type.startswith(MEDIA_PREFIXES):
+    location = asset.get("location")
+    uri = str(location.get("storageUri") or "") if isinstance(location, dict) else ""
+    extension = Path(unquote(urlparse(uri).path)).suffix.lower()
+    if not mime_type.startswith(MEDIA_PREFIXES) and extension not in EBOOK_EXTENSIONS:
         return None
     owner_id = asset.get("ownerId")
     size = asset.get("sizeBytes")
@@ -232,8 +236,6 @@ def normalize(snapshot_id: str, item: dict) -> dict | None:
             or not SHA256.fullmatch(sha256) or not re.fullmatch(r"^[A-Z][A-Z0-9_]{0,63}$", source_type) \
             or not business_id or len(business_id) > 255:
         raise RuntimeError("Legacy media asset payload is invalid")
-    location = asset.get("location")
-    uri = str(location.get("storageUri") or "") if isinstance(location, dict) else ""
     display_name = Path(unquote(urlparse(uri).path)).name
     if not display_name or len(display_name) > 512:
         display_name = f"legacy-{legacy_id}"[:512]

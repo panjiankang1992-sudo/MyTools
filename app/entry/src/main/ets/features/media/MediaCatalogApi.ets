@@ -8,6 +8,11 @@ import {
 import { RemotePlaybackDescriptor } from './RemoteMediaModels';
 import { RemoteMediaResponseNormalizer } from './RemoteMediaResponseNormalizer';
 
+interface MediaLibraryPageResult {
+  items: Object[];
+  hasMore: boolean;
+}
+
 /**
  * 新版图库与视频目录 API，响应中不接收真实文件路径。
  */
@@ -32,26 +37,22 @@ export class MediaCatalogApi {
   /** 查询图库分页。 */
   async gallery(directoryId: string, tag: string, keyword: string, page: number, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaGalleryPage> {
-    const envelope = await this.client.get('/api/app/v1/media/items?includeMissing=false&limit=100', cancellation);
-    const value = this.record(envelope.data);
-    const raw = value['items'];
-    if (!Array.isArray(raw) || raw.length > 100) throw new Error('图库响应无效');
+    const value = await this.libraryPage('image/', Math.max(1, page), cancellation);
+    const raw = value.items;
     const query = keyword.trim().toLocaleLowerCase();
     const items = raw.map((entry: Object): MediaCatalogItem => this.item(entry))
       .filter((item: MediaCatalogItem): boolean => item.kind === 'IMAGE' &&
         (query.length === 0 || item.name.toLocaleLowerCase().includes(query)) &&
         (tag.length === 0 || item.tags.includes(tag)) &&
         (!excludeAdult || !item.tags.some((name: string): boolean => name.toLocaleLowerCase() === 'r18')));
-    return { items, total: items.length, page, pageSize: 100 };
+    const total = (Math.max(1, page) - 1) * 100 + items.length + (value.hasMore ? 1 : 0);
+    return { items, total, page: Math.max(1, page), pageSize: 100 };
   }
 
   /** 查询视频目录聚合。 */
   async videoDirectories(directoryId: string, tag: string, keyword: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaVideoDirectory[]> {
-    const envelope = await this.client.get('/api/app/v1/media/items?includeMissing=false&limit=100', cancellation);
-    const value = this.record(envelope.data);
-    const raw = value['items'];
-    if (!Array.isArray(raw) || raw.length > 100) throw new Error('视频目录响应无效');
+    const raw = await this.allLibraryItems('video/', 2000, cancellation);
     const query = keyword.trim().toLocaleLowerCase();
     const items = raw.map((entry: Object): MediaCatalogItem => this.item(entry))
       .filter((item: MediaCatalogItem): boolean => item.kind === 'VIDEO' &&
@@ -68,44 +69,42 @@ export class MediaCatalogApi {
   async videoDirectoryItems(directoryId: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaCatalogItem[]> {
     if (!/^[0-9a-f]{24}$/.test(directoryId)) throw new Error('视频目录标识无效');
-    const directories = await this.videoDirectories('', '', '', excludeAdult, cancellation);
-    return directories.length === 0 ? [] : directories[0].topItems;
+    const raw = await this.allLibraryItems('video/', 2000, cancellation);
+    return raw.map((entry: Object): MediaCatalogItem => this.item(entry))
+      .filter((item: MediaCatalogItem): boolean => !excludeAdult ||
+        !item.tags.some((name: string): boolean => name.toLocaleLowerCase() === 'r18'));
   }
 
   /** 查询视频详情。 */
   async videoDetail(videoId: string, cancellation?: DownloadCancellationToken): Promise<MediaVideoDetail> {
-    if (!/^[1-9]\d{0,18}$/.test(videoId)) throw new Error('视频标识无效');
-    const envelope = await this.client.get(`/api/app/v1/videos/${videoId}`, cancellation);
+    if (!this.isUuid(videoId)) throw new Error('视频标识无效');
+    const envelope = await this.client.get(`/api/app/v1/media/items/${videoId}`, cancellation);
     const value = this.record(envelope.data);
-    const rawStoryboard = value['storyboard'];
-    if (!Array.isArray(rawStoryboard) || rawStoryboard.length > 12) throw new Error('视频截图响应无效');
+    const item = this.libraryItem(value);
+    if (item.kind !== 'VIDEO') throw new Error('媒体不是视频');
+    const format = item.mimeType.startsWith('video/') ? item.mimeType.substring(6) : '';
     return {
-      videoId: this.id(value, 'videoId'), name: this.text(value, 'name', 512),
-      sizeBytes: this.number(value, 'sizeBytes'), format: this.optionalText(value, 'format', 64),
-      videoCodec: this.optionalText(value, 'videoCodec', 64), audioCodec: this.optionalText(value, 'audioCodec', 64),
-      durationMs: this.number(value, 'durationMs'), width: this.number(value, 'width'),
-      height: this.number(value, 'height'), directoryName: this.text(value, 'directoryName', 512),
-      summary: this.optionalText(value, 'summary', 500), description: this.optionalText(value, 'description', 2000),
-      descriptionStatus: this.text(value, 'descriptionStatus', 32),
-      thumbnailUrl: this.optionalPath(value, 'thumbnailUrl'),
-      storyboard: rawStoryboard.map((entry: Object): MediaStoryboardFrame => this.storyboard(entry))
+      videoId: item.itemId, name: item.name, sizeBytes: item.sizeBytes, format,
+      videoCodec: '', audioCodec: '', durationMs: 0, width: 0, height: 0,
+      directoryName: item.directoryName, summary: '', description: item.tags.join('·'),
+      descriptionStatus: 'PENDING', thumbnailUrl: item.thumbnailUrl, storyboard: []
     };
   }
 
   /** 为视频详情页签发短期播放票据。 */
   async playTicket(videoId: string, cancellation?: DownloadCancellationToken): Promise<RemotePlaybackDescriptor> {
-    if (!/^[1-9]\d{0,18}$/.test(videoId)) throw new Error('视频标识无效');
-    const envelope = await this.client.post(`/api/app/v1/videos/${videoId}/play-ticket`, cancellation);
-    return this.playbackNormalizer.normalizePlayback(envelope.data, this.baseUrl, 'MYTOOLS_LOCAL');
+    if (!this.isUuid(videoId)) throw new Error('视频标识无效');
+    const envelope = await this.client.post(`/api/app/v1/media/items/${videoId}/play-ticket`, cancellation);
+    return this.playbackNormalizer.normalizePlayback(envelope.data, this.baseUrl, 'MYTOOLS_LIBRARY');
   }
 
   /** 将受认证缩略图或截图下载到缓存URI。 */
   async downloadImage(path: string, targetUri: string,
     cancellation?: DownloadCancellationToken): Promise<number> {
-    if (!/^\/api\/(localfiles\/[1-9]\d{0,18}\/thumbnail|app\/v1\/videos\/[1-9]\d{0,18}\/storyboard\/(?:[1-9]|1[0-2]))$/.test(path)) {
+    if (!/^\/api\/(localfiles\/[1-9]\d{0,18}\/thumbnail|app\/v1\/videos\/[1-9]\d{0,18}\/storyboard\/(?:[1-9]|1[0-2])|app\/v1\/media\/items\/[0-9a-f-]{36}\/thumbnail)$/.test(path)) {
       throw new Error('媒体图片地址无效');
     }
-    return this.client.downloadJpegShareToUri(path, targetUri, cancellation);
+    return this.client.downloadImageToUri(path, targetUri, cancellation);
   }
 
   private videoDirectory(value: Object): MediaVideoDirectory {
@@ -141,7 +140,8 @@ export class MediaCatalogApi {
     const kind = mimeType.startsWith('image/') ? 'IMAGE' : mimeType.startsWith('video/') ? 'VIDEO' :
       mimeType.startsWith('audio/') ? 'AUDIO' : mimeType.startsWith('text/') ? 'TEXT' : 'OTHER';
     return { itemId, name, kind: kind as MediaCatalogKind, mimeType,
-      sizeBytes: this.number(data, 'sizeBytes'), modifiedAt: '', thumbnailUrl: '',
+      sizeBytes: this.number(data, 'sizeBytes'), modifiedAt: '',
+      thumbnailUrl: `/api/app/v1/media/items/${itemId}/thumbnail`,
       tags: rawTags.map((value: Object): string => `${value}`.substring(0, 64)),
       directoryId: '000000000000000000000001', directoryName: '媒体库' };
   }
@@ -218,5 +218,49 @@ export class MediaCatalogApi {
       throw new Error(`多媒体字段${key}无效`);
     }
     return value;
+  }
+
+  private isUuid(value: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  }
+
+  private async libraryPage(mimePrefix: string, page: number,
+    cancellation?: DownloadCancellationToken): Promise<MediaLibraryPageResult> {
+    let afterId = '';
+    let items: Object[] = [];
+    let hasMore = false;
+    for (let current = 1; current <= page; current++) {
+      const cursor = afterId.length > 0 ? `&afterId=${encodeURIComponent(afterId)}` : '';
+      const envelope = await this.client.get('/api/app/v1/media/items?includeMissing=false' +
+        `&mimePrefix=${encodeURIComponent(mimePrefix)}&limit=100${cursor}`, cancellation);
+      const value = this.record(envelope.data);
+      const raw = value['items'];
+      if (!Array.isArray(raw) || raw.length > 100) throw new Error('媒体库分页响应无效');
+      items = raw;
+      const next = value['nextAfterId'];
+      hasMore = typeof next === 'string' && this.isUuid(next);
+      afterId = hasMore ? `${next}` : '';
+      if (current < page && !hasMore) return { items: [], hasMore: false };
+    }
+    return { items, hasMore };
+  }
+
+  private async allLibraryItems(mimePrefix: string, maximum: number,
+    cancellation?: DownloadCancellationToken): Promise<Object[]> {
+    const result: Object[] = [];
+    let afterId = '';
+    while (result.length < maximum) {
+      const cursor = afterId.length > 0 ? `&afterId=${encodeURIComponent(afterId)}` : '';
+      const envelope = await this.client.get('/api/app/v1/media/items?includeMissing=false' +
+        `&mimePrefix=${encodeURIComponent(mimePrefix)}&limit=100${cursor}`, cancellation);
+      const value = this.record(envelope.data);
+      const raw = value['items'];
+      if (!Array.isArray(raw) || raw.length > 100) throw new Error('媒体库分页响应无效');
+      result.push(...raw);
+      const next = value['nextAfterId'];
+      if (typeof next !== 'string' || !this.isUuid(next)) break;
+      afterId = next;
+    }
+    return result.slice(0, maximum);
   }
 }

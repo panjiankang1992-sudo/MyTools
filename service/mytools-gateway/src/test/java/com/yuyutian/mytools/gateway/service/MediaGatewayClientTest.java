@@ -35,7 +35,7 @@ class MediaGatewayClientTest {
                         MediaType.APPLICATION_JSON));
         MediaGatewayClient client = new MediaGatewayClient(restTemplate, properties());
 
-        assertThat(client.list(55L, null, false, 50, "correlation").items()).isEmpty();
+        assertThat(client.list(55L, null, false, null, 50, "correlation").items()).isEmpty();
         server.verify();
     }
 

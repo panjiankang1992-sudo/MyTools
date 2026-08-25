@@ -88,6 +88,9 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
     }
 
     private Route route(String uri) {
+        if (uri.matches("^/api/app/v1/media/tickets/[a-f0-9]{32}$")) {
+            return new Route(false, ignored -> true);
+        }
         if (uri.startsWith("/api/app/v1/reader/")) {
             return new Route(properties.readerRouteEnabled(), properties::readerTenantAllowed);
         }

@@ -58,6 +58,29 @@ export class RemoteMediaResponseNormalizer {
     });
     return { path: '/', items, total: items.length, page: 1, pageSize: 100 };
   }
+  /** 将媒体库中已迁移的电子书文件投影为远程书库。 */
+  normalizeLibraryBooks(values: Object[], keyword: string, excludeAdult: boolean): RemoteDirectory {
+    const query = keyword.trim().toLocaleLowerCase().substring(0, 100);
+    const items: RemoteMediaItem[] = [];
+    values.slice(0, 1000).forEach((item: Object) => {
+      const child = this.record(item);
+      const id = this.uuid(child?.['id']);
+      const name = this.text(child?.['displayName'], 1024);
+      const contentType = this.text(child?.['mimeType'], 256, true) ?? '';
+      const size = child?.['sizeBytes'];
+      const tags = this.plainTags(child?.['tags']);
+      const extension = name?.toLocaleLowerCase().split('.').pop() ?? '';
+      if (child === undefined || id === undefined || name === undefined || /[\\/]/.test(name) ||
+        typeof size !== 'number' || !Number.isSafeInteger(size) || size < 0 ||
+        !['txt', 'epub', 'pdf', 'mobi', 'azw3', 'cbz', 'cbr'].includes(extension) ||
+        query.length > 0 && !name.toLocaleLowerCase().includes(query) ||
+        excludeAdult && tags.some((tag: RemoteMediaTag): boolean => tag.name.toLocaleLowerCase() === 'r18')) return;
+      items.push({ id, name, path: `/media/${id}`, kind: 'other', contentType, size,
+        lastModified: '', tags, bookTitle: name.substring(0, name.length - extension.length - 1),
+        bookAuthor: '', bookMetadataStatus: 'READY' });
+    });
+    return { path: '/', items, total: items.length, page: 1, pageSize: items.length };
+  }
   /** 将MyTools本地远程文件目录转换为App数据源。 */
   normalizeLocalSources(value: Object | undefined): RemoteMediaSource[] {
     if (!Array.isArray(value)) return [];

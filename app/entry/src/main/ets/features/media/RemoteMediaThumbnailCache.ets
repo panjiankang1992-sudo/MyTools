@@ -33,7 +33,7 @@ export class RemoteMediaThumbnailCache {
   /** 返回最大2048像素、仅供系统分享使用的本地JPEG URI。 */
   async cacheShare(context: common.UIAbilityContext, api: RemoteMediaApi, accountId: string,
     path: string, cancellation?: DownloadCancellationToken): Promise<string> {
-    if (accountId.startsWith('local:')) {
+    if (accountId.startsWith('local:') || accountId === 'library') {
       return this.cacheEdge(context, api, accountId, path, 0, cancellation, true);
     }
     return this.cacheEdge(context, api, accountId, path, 2048, cancellation);
@@ -42,7 +42,7 @@ export class RemoteMediaThumbnailCache {
   /** 缓存MyTools本地媒体接口返回的受认证原图，用于全屏查看。 */
   async cacheLocalOriginal(context: common.UIAbilityContext, api: RemoteMediaApi, accountId: string,
     path: string, cancellation?: DownloadCancellationToken): Promise<string> {
-    if (!accountId.startsWith('local:')) throw new Error('当前媒体来源不支持本地原图缓存');
+    if (!accountId.startsWith('local:') && accountId !== 'library') throw new Error('当前媒体来源不支持原图缓存');
     return this.cacheEdge(context, api, accountId, path, 0, cancellation, true);
   }
 
