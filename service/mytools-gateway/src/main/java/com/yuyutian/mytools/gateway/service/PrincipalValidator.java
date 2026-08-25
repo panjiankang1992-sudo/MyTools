@@ -1,5 +1,6 @@
 package com.yuyutian.mytools.gateway.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import org.springframework.http.HttpEntity;
@@ -88,6 +89,7 @@ public class PrincipalValidator {
     /**
      * 下游认证服务统一响应。
      */
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public record ValidationResponse(boolean active, Long userId, String username, List<String> roles,
                                      UUID sessionId) {
     }
