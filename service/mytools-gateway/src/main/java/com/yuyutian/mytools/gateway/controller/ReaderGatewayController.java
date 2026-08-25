@@ -28,6 +28,7 @@ import jakarta.validation.constraints.Size;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,6 +64,26 @@ public class ReaderGatewayController {
     public List<Map<String, Object>> shelves(@RequestParam(defaultValue = "false") boolean includeDeleted,
                                              HttpServletRequest request) {
         return list("shelves", includeDeleted, request);
+    }
+
+    /** 查询当前主体书源快照。 */
+    @GetMapping("/sources")
+    public List<Map<String, Object>> sources(HttpServletRequest request) {
+        requireAllowed(request);
+        return client.sources(principal(request).userId(), correlation(request));
+    }
+
+    /** 保存当前主体书源快照。 */
+    @PutMapping("/sources")
+    public Map<String, Object> saveSource(@Valid @RequestBody SourceRequest body, HttpServletRequest request) {
+        requireAllowed(request);
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("ownerId", principal(request).userId());
+        payload.put("syncKey", body.syncKey());
+        payload.put("sourceUrl", body.sourceUrl());
+        payload.put("snapshotJson", body.snapshotJson());
+        payload.put("deleted", body.deleted());
+        return client.saveSource(payload, correlation(request));
     }
 
     /** 查询当前主体已发布的电子书索引。 @param request HTTP 请求 @return 索引 */
@@ -406,6 +427,15 @@ public class ReaderGatewayController {
     public record ShelfRequest(@NotBlank @Size(max = 512) String bookKey,
                                @NotNull Map<String, Object> metadata,
                                boolean deleted, @Positive Long expectedVersion) {
+    }
+
+    /**
+     * Gateway 书源写入请求，不允许客户端指定 owner。
+     */
+    public record SourceRequest(@NotBlank @Size(max = 255) String syncKey,
+                                @NotBlank @Size(max = 2000) String sourceUrl,
+                                @NotBlank @Size(max = 524288) String snapshotJson,
+                                boolean deleted) {
     }
 
     /**

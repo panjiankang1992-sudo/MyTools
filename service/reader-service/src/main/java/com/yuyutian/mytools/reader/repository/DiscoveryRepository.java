@@ -127,7 +127,7 @@ public class DiscoveryRepository {
             }
             String snapshot = writeJson(source);
             String contentHash = sha256(snapshot);
-            String syncKey = sha256(sourceUrl);
+            String syncKey = "sha256:" + sha256(sourceUrl);
             List<Map<String, Object>> existing = jdbcTemplate.queryForList("""
                     SELECT id, current_version FROM book_source WHERE owner_id = ? AND sync_key = ?
                     """, request.ownerId(), syncKey);
@@ -204,6 +204,79 @@ public class DiscoveryRepository {
                 UUID.fromString(resultSet.getString("id")), resultSet.getString("source_url"),
                 resultSet.getInt("current_version"), readJson(resultSet.getString("snapshot_json"))),
                 ownerId, sourceUrl.trim()).stream().findFirst();
+    }
+
+    /**
+     * 查询所有者的全部同步书源快照。
+     *
+     * @param ownerId 所有者标识
+     * @return 同步快照
+     */
+    public List<Map<String, Object>> listSyncSnapshots(long ownerId) {
+        return jdbcTemplate.query("""
+                SELECT bs.source_url, bs.enabled, bs.current_version, bs.updated_at, bsv.snapshot_json
+                FROM book_source bs JOIN book_source_version bsv
+                  ON bsv.book_source_id = bs.id AND bsv.version = bs.current_version
+                WHERE bs.owner_id = ? ORDER BY bs.updated_at DESC, bs.id
+                """, (resultSet, rowNumber) -> Map.of(
+                "sourceUrl", resultSet.getString("source_url"),
+                "snapshotJson", resultSet.getString("snapshot_json"),
+                "clientUpdatedAt", resultSet.getTimestamp("updated_at").toInstant().toEpochMilli(),
+                "deleted", !resultSet.getBoolean("enabled"),
+                "revision", resultSet.getInt("current_version")), ownerId);
+    }
+
+    /**
+     * 保存客户端同步的书源快照。
+     *
+     * @param ownerId 所有者标识
+     * @param syncKey 同步键
+     * @param sourceUrl 书源地址
+     * @param snapshotJson 快照 JSON
+     * @param deleted 删除标记
+     * @return 保存后的同步快照
+     */
+    public Map<String, Object> saveSyncSnapshot(long ownerId, String syncKey, String sourceUrl,
+                                                 String snapshotJson, boolean deleted) {
+        Map<String, Object> snapshot = readJson(snapshotJson);
+        String sourceName = text(snapshot.get("bookSourceName"));
+        if (sourceName.isBlank()) {
+            sourceName = sourceUrl;
+        }
+        String normalizedSnapshot = writeJson(snapshot);
+        String contentHash = sha256(normalizedSnapshot);
+        List<Map<String, Object>> existing = jdbcTemplate.queryForList(
+                "SELECT id, current_version FROM book_source WHERE owner_id = ? AND sync_key = ?",
+                ownerId, syncKey);
+        Instant now = Instant.now();
+        int version = 1;
+        if (existing.isEmpty()) {
+            UUID sourceId = UUID.randomUUID();
+            jdbcTemplate.update("""
+                    INSERT INTO book_source
+                        (id, owner_id, sync_key, name, source_url, enabled, current_version, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)
+                    """, sourceId.toString(), ownerId, syncKey, sourceName, sourceUrl, !deleted,
+                    Timestamp.from(now), Timestamp.from(now));
+            insertVersion(sourceId, version, normalizedSnapshot, contentHash, now);
+        } else {
+            UUID sourceId = UUID.fromString(String.valueOf(existing.getFirst().get("id")));
+            version = ((Number) existing.getFirst().get("current_version")).intValue();
+            String currentHash = jdbcTemplate.queryForObject("""
+                    SELECT content_sha256 FROM book_source_version WHERE book_source_id = ? AND version = ?
+                    """, String.class, sourceId.toString(), version);
+            // 快照变化时创建不可变的新版本。
+            if (!contentHash.equals(currentHash)) {
+                version++;
+                insertVersion(sourceId, version, normalizedSnapshot, contentHash, now);
+            }
+            jdbcTemplate.update("""
+                    UPDATE book_source SET name = ?, source_url = ?, enabled = ?, current_version = ?, updated_at = ?
+                    WHERE id = ?
+                    """, sourceName, sourceUrl, !deleted, version, Timestamp.from(now), sourceId.toString());
+        }
+        return Map.of("sourceUrl", sourceUrl, "snapshotJson", normalizedSnapshot,
+                "clientUpdatedAt", now.toEpochMilli(), "deleted", deleted, "revision", version);
     }
 
     private Optional<DiscoveryRecord> query(String sql, Object... arguments) {

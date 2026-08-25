@@ -79,6 +79,25 @@ public class ReaderGatewayClient {
         return response.getBody();
     }
 
+    /** 查询当前主体书源快照。 */
+    public List<Map<String, Object>> sources(long ownerId, String correlationId) {
+        String url = UriComponentsBuilder.fromHttpUrl(root() + "/api/v1/reader-state/sources")
+                .queryParam("ownerId", ownerId).toUriString();
+        var response = restTemplate.exchange(url, HttpMethod.GET, entity(null, correlationId),
+                new ParameterizedTypeReference<List<Map<String, Object>>>() { });
+        return response.getBody() == null ? List.of() : response.getBody();
+    }
+
+    /** 保存当前主体书源快照。 */
+    public Map<String, Object> saveSource(Map<String, Object> payload, String correlationId) {
+        var response = restTemplate.exchange(root() + "/api/v1/reader-state/sources", HttpMethod.PUT,
+                entity(payload, correlationId), new ParameterizedTypeReference<Map<String, Object>>() { });
+        if (response.getBody() == null) {
+            throw new IllegalStateException("Reader Service returned an empty response");
+        }
+        return response.getBody();
+    }
+
     /**
      * 创建书源搜索任务。
      *
