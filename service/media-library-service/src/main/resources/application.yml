@@ -16,3 +16,7 @@ media-library.legacy-db-port: ${MYTOOLS_LEGACY_DB_PORT:3306}
 media-library.legacy-db-name: ${MYTOOLS_LEGACY_DB_NAME:mytools}
 media-library.legacy-db-user: ${MYTOOLS_LEGACY_DB_USER:}
 media-library.legacy-db-password: ${MYTOOLS_LEGACY_DB_PASSWORD:}
+media-library.asset-registry-url: ${ASSET_REGISTRY_URL:http://127.0.0.1:23270}
+media-library.asset-registry-token: ${ASSET_REGISTRY_INTERNAL_TOKEN:}
+media-library.storage-gateway-url: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
+media-library.storage-token: ${STORAGE_INTERNAL_TOKEN:}

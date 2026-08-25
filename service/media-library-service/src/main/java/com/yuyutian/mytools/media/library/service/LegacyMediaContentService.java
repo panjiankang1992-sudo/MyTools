@@ -3,6 +3,7 @@ package com.yuyutian.mytools.media.library.service;
 import com.yuyutian.mytools.media.library.config.MediaLibraryConfiguration.LegacyContentDatabase;
 import com.yuyutian.mytools.media.library.repository.MediaRepository;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
@@ -17,16 +18,20 @@ import java.util.UUID;
 public class LegacyMediaContentService {
     private final MediaRepository repository;
     private final LegacyContentDatabase database;
+    private final DerivedThumbnailContentService derivedThumbnailContentService;
 
     /**
      * 创建旧媒体内容服务。
      *
      * @param repository 新媒体仓储
      * @param database 旧库只读配置
+     * @param derivedThumbnailContentService 派生缩略图内容服务
      */
-    public LegacyMediaContentService(MediaRepository repository, LegacyContentDatabase database) {
+    public LegacyMediaContentService(MediaRepository repository, LegacyContentDatabase database,
+                                     DerivedThumbnailContentService derivedThumbnailContentService) {
         this.repository = repository;
         this.database = database;
+        this.derivedThumbnailContentService = derivedThumbnailContentService;
     }
 
     /**
@@ -38,6 +43,13 @@ public class LegacyMediaContentService {
      * @return 文件内容
      */
     public Content content(long ownerId, UUID mediaId, boolean thumbnail) {
+        // 优先读取分析任务产生并登记的版本化缩略图，旧缩略图仅作为迁移期回退。
+        if (thumbnail) {
+            Content derived = derivedThumbnailContentService.content(ownerId, mediaId).orElse(null);
+            if (derived != null) {
+                return derived;
+            }
+        }
         long legacyId = repository.legacyFileId(ownerId, mediaId)
                 .orElseThrow(() -> new IllegalArgumentException("media content not found"));
         String url = "jdbc:mysql://" + database.host() + ":" + database.port() + "/" + database.database()
@@ -82,6 +94,6 @@ public class LegacyMediaContentService {
     }
 
     /** 已验证的媒体文件内容。 */
-    public record Content(FileSystemResource resource, String mimeType, long sizeBytes) {
+    public record Content(Resource resource, String mimeType, long sizeBytes) {
     }
 }
