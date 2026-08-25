@@ -5,6 +5,29 @@ import { RemoteDirectory, RemoteMediaFilterOptions, RemoteMediaItem, RemoteMedia
  * 将MyTools远程媒体响应归一化为有界、可安全交给页面使用的领域对象。
  */
 export class RemoteMediaResponseNormalizer {
+  /** 将新 Reader 已发布书库索引投影为 App 远程书库。 */
+  normalizeLibraryIndex(value: Object | undefined, keyword: string, excludeAdult: boolean): RemoteDirectory {
+    if (!Array.isArray(value) || value.length > 10000) throw new Error('电子书索引响应无效');
+    const query = keyword.trim().toLocaleLowerCase().substring(0, 100);
+    const items: RemoteMediaItem[] = [];
+    value.forEach((entry: Object) => {
+      const record = this.record(entry);
+      const assetId = this.uuid(record?.['assetId']);
+      const title = this.text(record?.['title'], 500);
+      const author = this.text(record?.['author'], 300, true) ?? '';
+      const format = this.text(record?.['format'], 32, true) ?? '';
+      const metadata = this.record(record?.['metadata']);
+      const adult = metadata?.['adult'] === true;
+      if (record === undefined || assetId === undefined || title === undefined || (excludeAdult && adult) ||
+        (query.length > 0 && !`${title} ${author}`.toLocaleLowerCase().includes(query))) return;
+      const name = format.length > 0 && !title.toLocaleLowerCase().endsWith(`.${format.toLocaleLowerCase()}`) ?
+        `${title}.${format.toLocaleLowerCase()}` : title;
+      items.push({ id: assetId, name, path: `/asset/${assetId}`, kind: 'other',
+        contentType: this.ebookContentType(format), size: 0, lastModified: '', bookTitle: title,
+        bookAuthor: author, bookMetadataStatus: 'READY' });
+    });
+    return { path: '/', items, total: items.length, page: 1, pageSize: items.length };
+  }
   /** 将新媒体库分页结果投影为 App 统一目录。 */
   normalizeLibraryPage(value: Object | undefined, keyword: string, fileType: string,
     tagNames: string[], matchAllTags: boolean, excludeAdult: boolean): RemoteDirectory {

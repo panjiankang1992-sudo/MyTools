@@ -71,14 +71,9 @@ export class RemoteMediaApi {
 
   /** 获取电子书专用远程来源，包含MyTools EBOOK目录与WebDAV账号。 */
   async listBookSources(cancellation?: DownloadCancellationToken): Promise<RemoteMediaSource[]> {
-    const localEnvelope = await this.client.get('/api/localfiles/directories', cancellation);
-    const localSources = this.normalizer.normalizeLocalBookSources(localEnvelope.data);
-    try {
-      const remoteEnvelope = await this.client.get('/api/webdav/accounts', cancellation);
-      return localSources.concat(this.normalizer.normalizeSources(remoteEnvelope.data));
-    } catch (_) {
-      return localSources;
-    }
+    await this.client.get('/api/app/v1/reader/library-index', cancellation);
+    return [{ id: 'ebook-library', name: 'MyTools 电子书', type: 'MYTOOLS_EBOOK_LIBRARY', url: '/',
+      isDefault: true, isActive: true, localDirectoryType: 'EBOOK' }];
   }
 
   /**
@@ -117,6 +112,10 @@ export class RemoteMediaApi {
   async listBookDirectory(accountId: string, path: string,
     cancellation?: DownloadCancellationToken, localRootPath: string = '', page: number = 1,
     pageSize: number = 40, keyword: string = '', excludeAdult: boolean = false): Promise<RemoteDirectory> {
+    if (accountId === 'ebook-library') {
+      const envelope = await this.client.get('/api/app/v1/reader/library-index', cancellation);
+      return this.normalizer.normalizeLibraryIndex(envelope.data, keyword, excludeAdult);
+    }
     if (!accountId.startsWith('local:')) {
       return this.listDirectory(accountId, path, cancellation, localRootPath, page, pageSize);
     }
@@ -168,6 +167,9 @@ export class RemoteMediaApi {
   /** 为电子书申请票据，MyTools本地EPUB由后端按需提供安全归一化副本。 */
   async resolveBookPlayback(source: RemoteMediaSource, path: string,
     cancellation?: DownloadCancellationToken): Promise<RemotePlaybackDescriptor> {
+    if (source.type === 'MYTOOLS_EBOOK_LIBRARY') {
+      throw new Error('新电子书服务尚未提供读取票据');
+    }
     if (source.type !== 'MYTOOLS_LOCAL') return this.resolvePlayback(source, path, cancellation);
     const match = /^\/local\/([1-9]\d{0,18})$/.exec(path);
     if (match === null) throw new Error('MyTools本地电子书标识无效');

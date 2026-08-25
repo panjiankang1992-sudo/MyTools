@@ -65,6 +65,13 @@ public class ReaderGatewayController {
         return list("shelves", includeDeleted, request);
     }
 
+    /** 查询当前主体已发布的电子书索引。 @param request HTTP 请求 @return 索引 */
+    @GetMapping("/library-index")
+    public List<Map<String, Object>> libraryIndex(HttpServletRequest request) {
+        requireAllowed(request);
+        return client.libraryIndex(principal(request).userId(), correlation(request));
+    }
+
     /**
      * 写入当前主体书架。
      */

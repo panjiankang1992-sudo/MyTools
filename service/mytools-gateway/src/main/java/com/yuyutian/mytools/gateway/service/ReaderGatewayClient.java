@@ -57,6 +57,15 @@ public class ReaderGatewayClient {
         return response.getBody() == null ? List.of() : response.getBody();
     }
 
+    /** 查询当前用户已发布书库索引。 @param ownerId 用户 @param correlationId 关联标识 @return 索引 */
+    public List<Map<String, Object>> libraryIndex(long ownerId, String correlationId) {
+        String url = UriComponentsBuilder.fromHttpUrl(root() + "/api/v1/library-index")
+                .queryParam("ownerId", ownerId).toUriString();
+        var response = restTemplate.exchange(url, HttpMethod.GET, entity(null, correlationId),
+                new ParameterizedTypeReference<List<Map<String, Object>>>() { });
+        return response.getBody() == null ? List.of() : response.getBody();
+    }
+
     /**
      * 写入 Gateway 已绑定 owner 的 Reader 状态。
      */
