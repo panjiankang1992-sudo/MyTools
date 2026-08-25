@@ -39,8 +39,12 @@ equal(policy.envelope('{"code":"0000","data":null}', 29), {
 }, 'Null data normalization');
 rejects(() => policy.envelope('[]', 2), 'Array envelope rejection');
 rejects(() => policy.envelope('{"code":""}', 11), 'Empty code rejection');
-rejects(() => policy.envelope('{"code":"0000","message":"bad\\nmessage"}', 40), 'Message control rejection');
-rejects(() => policy.envelope('{"code":"0000","traceId":"bad trace"}', 38), 'Trace identifier rejection');
+equal(policy.envelope('{"code":"0000","message":"bad\\nmessage"}', 40), {
+  code: '0000', message: 'bad message', data: undefined, traceId: undefined
+}, 'Message control sanitization');
+equal(policy.envelope('{"code":"0000","traceId":"bad trace"}', 38), {
+  code: '0000', message: '', data: undefined, traceId: undefined
+}, 'Invalid trace identifier omission');
 rejects(() => policy.envelope('{"code":"0000"}', 0), 'Empty byte count rejection');
 rejects(() => policy.envelope('{"code":"0000"}', 64 * 1024 * 1024 + 1), 'Response quota');
 

@@ -17,7 +17,7 @@ node "$TSC_BIN" "$TEST_DIR/network/AuthorizedApiPolicy.ts" "$TEST_DIR/network/Au
   --target ES2020 --module commonjs --outDir "$TEST_DIR/output" --skipLibCheck
 node "$APP_DIR/tests/authorized_api_policy_test.cjs" "$TEST_DIR/output/AuthorizedApiPolicy.js"
 
-grep -Fq 'this.baseUrl = authManager.normalizeBaseUrl(baseUrl)' "$CLIENT"
+grep -Fq 'this.baseUrl = authManager.normalizeBusinessBaseUrl(baseUrl)' "$CLIENT"
 grep -Fq 'const safePath = this.policy.path(path)' "$CLIENT"
 grep -Fq 'this.policy.requestBody(body, bodyBytes)' "$CLIENT"
 grep -Fq "lower === 'location'" "$CLIENT"

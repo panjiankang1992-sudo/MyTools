@@ -1,0 +1,27 @@
+/opt/yuyutian/logs/mytools/rclone-rc/service.log {
+    su mytools mytools
+    daily
+    rotate 9
+    maxage 10
+    maxsize 10M
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    create 0640 mytools mytools
+}
+
+/opt/yuyutian/logs/mytools/rclone-serve/service.log {
+    su mytools mytools
+    daily
+    rotate 9
+    maxage 10
+    maxsize 10M
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    create 0640 mytools mytools
+}
