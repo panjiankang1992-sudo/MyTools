@@ -40,6 +40,8 @@ public class RcloneRemoteConnector implements ProviderObjectConnector {
     private final String configuredUrl;
     private final String user;
     private final String password;
+    private final String configPath;
+    private final String httpProxy;
     private URI baseUri;
 
     /**
@@ -53,11 +55,15 @@ public class RcloneRemoteConnector implements ProviderObjectConnector {
     public RcloneRemoteConnector(ObjectMapper objectMapper,
                                  @Value("${storage.rclone-rc-url:http://127.0.0.1:5572}") String configuredUrl,
                                  @Value("${storage.rclone-rc-user:}") String user,
-                                 @Value("${storage.rclone-rc-password:}") String password) {
+                                 @Value("${storage.rclone-rc-password:}") String password,
+                                 @Value("${storage.rclone-config-path:/opt/yuyutian/mytools/config/rclone.conf}") String configPath,
+                                 @Value("${storage.rclone-http-proxy:http://127.0.0.1:7893}") String httpProxy) {
         this.objectMapper = objectMapper;
         this.configuredUrl = configuredUrl;
         this.user = user;
         this.password = password;
+        this.configPath = configPath;
+        this.httpProxy = httpProxy;
     }
 
     /**
@@ -302,9 +308,12 @@ public class RcloneRemoteConnector implements ProviderObjectConnector {
             throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_TOO_LARGE.code());
         }
         try {
+            String target = remoteKey + ":" + validPath(path, false);
             byte[] requestBody = objectMapper.writeValueAsBytes(Map.of(
-                    "fs", remoteKey + ":", "remote", validPath(path, false)));
-            HttpRequest.Builder builder = HttpRequest.newBuilder(baseUri.resolve("operations/cat"))
+                    "command", "cat", "arg", List.of(target),
+                    "opt", Map.of("config", configPath, "http-proxy", httpProxy),
+                    "returnType", "STREAM_ONLY_STDOUT"));
+            HttpRequest.Builder builder = HttpRequest.newBuilder(baseUri.resolve("core/command"))
                     .timeout(Duration.ofMinutes(5)).header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofByteArray(requestBody));
             if (!user.isBlank() || !password.isBlank()) {

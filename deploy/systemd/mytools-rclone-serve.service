@@ -7,9 +7,9 @@ After=network-online.target
 Type=simple
 User=pankang
 Group=pankang
-EnvironmentFile=/opt/yuyutian/app/MyTools/backend/rclone-rc.env
+EnvironmentFile=/opt/yuyutian/mytools/config/rclone-rc.env
 ExecStartPre=/bin/bash -c 'upstreams="${RCLONE_DRIVE_UPSTREAMS:-pikpak=pikpak:}"; /usr/local/bin/rclone config create mytools-drive combine upstreams "$upstreams" --config /opt/code/DownloadBot/runtime/rclone/rclone.conf --non-interactive'
-ExecStart=/bin/bash -c 'exec /usr/local/bin/rclone serve http mytools-drive: --config /opt/code/DownloadBot/runtime/rclone/rclone.conf --addr 127.0.0.1:5573 --user "$RCLONE_RC_USER" --pass "$RCLONE_RC_PASSWORD" --read-only --log-level INFO'
+ExecStart=/bin/bash -c 'exec /usr/local/bin/rclone serve http mytools-drive: --config /opt/code/DownloadBot/runtime/rclone/rclone.conf --http-proxy "$RCLONE_HTTP_PROXY" --addr 127.0.0.1:5573 --user "$RCLONE_RC_USER" --pass "$RCLONE_RC_PASSWORD" --read-only --log-level INFO'
 Restart=always
 RestartSec=5s
 NoNewPrivileges=true

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/app/v1/drive-tickets")
 public class DriveTicketController {
+    private static final long MAXIMUM_STREAM_BYTES = 100L * 1024 * 1024 * 1024;
+    private static final long INDEX_SIZE_TOLERANCE_BYTES = 1024L * 1024;
     private final DriveGatewayClient client;
     private final DriveOpenTicketService tickets;
 
@@ -29,7 +31,8 @@ public class DriveTicketController {
         String correlation = java.util.Optional.ofNullable(request.getHeader("X-Correlation-Id"))
                 .filter(value -> value.matches("^[A-Za-z0-9._:-]{1,128}$"))
                 .orElseGet(() -> java.util.UUID.randomUUID().toString());
-        long maximumBytes = Math.max(1L, ticket.sizeBytes() == 0 ? 100L * 1024 * 1024 * 1024 : ticket.sizeBytes());
+        long maximumBytes = ticket.sizeBytes() == 0 ? MAXIMUM_STREAM_BYTES
+                : Math.min(MAXIMUM_STREAM_BYTES, ticket.sizeBytes() + INDEX_SIZE_TOLERANCE_BYTES);
         response.setHeader("Cache-Control", "no-store");
         client.stream(ticket.accountId(), ticket.ownerId(), ticket.path(), maximumBytes, response, correlation);
     }

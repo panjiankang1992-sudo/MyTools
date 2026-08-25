@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -78,22 +79,35 @@ public class DriveGatewayClient {
         URI url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/drive/accounts/" + accountId + "/content")
                 .queryParam("ownerId", ownerId).queryParam("path", path).queryParam("maximumBytes", maximumBytes)
                 .build().encode().toUri();
-        restTemplate.execute(url, HttpMethod.GET, request -> request.getHeaders().putAll(headers(correlationId)),
-                source -> {
-                    response.setStatus(source.getStatusCode().value());
-                    if (source.getHeaders().getContentType() != null) {
-                        response.setContentType(source.getHeaders().getContentType().toString());
-                    }
-                    if (source.getHeaders().getContentLength() >= 0) {
-                        response.setContentLengthLong(source.getHeaders().getContentLength());
-                    }
-                    try (var input = source.getBody(); var output = response.getOutputStream()) {
-                        input.transferTo(output);
-                    } catch (IOException exception) {
-                        throw new IllegalStateException("Drive stream failed", exception);
-                    }
-                    return null;
-                });
+        try {
+            HttpURLConnection connection = (HttpURLConnection) url.toURL().openConnection();
+            connection.setRequestProperty("Authorization", "Bearer " + properties.driveToken());
+            connection.setRequestProperty("X-Correlation-Id", correlationId);
+            connection.setRequestProperty("Accept-Encoding", "identity");
+            connection.setConnectTimeout(properties.connectTimeoutMillis());
+            connection.setReadTimeout(Math.max(properties.readTimeoutMillis(), 120000));
+            int status = connection.getResponseCode();
+            response.setStatus(status);
+            copyHeader(connection, response, "Content-Type");
+            copyHeader(connection, response, "Content-Length");
+            if (status < 200 || status >= 300) {
+                connection.disconnect();
+                return;
+            }
+            try (var input = connection.getInputStream(); var output = response.getOutputStream()) {
+                input.transferTo(output);
+            } finally {
+                connection.disconnect();
+            }
+        } catch (IOException exception) {
+            throw new GatewayDownstreamException();
+        }
+    }
+
+    /** 复制安全的响应头。 */
+    private void copyHeader(HttpURLConnection connection, HttpServletResponse response, String name) {
+        String value = connection.getHeaderField(name);
+        if (value != null && !value.isBlank()) response.setHeader(name, value);
     }
 
     /** 查询当前主体的 Drive 账户。 @param ownerId 所有者 @param correlationId 关联标识 @return 安全账户摘要 */

@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.nio.ByteBuffer;
@@ -217,9 +218,17 @@ public class DriveRepository {
     public List<ItemView> list(UUID accountId, String parentPath) {
         return jdbc.query("SELECT * FROM drive_item_index WHERE account_id=? AND parent_path=? AND deleted=FALSE ORDER BY directory DESC,display_name,id",
             (rs,row)->new ItemView(UUID.fromString(rs.getString("id")), rs.getString("remote_id"), rs.getString("remote_path"),
-                rs.getString("parent_path"), rs.getString("display_name"), rs.getString("mime_type"), rs.getLong("size_bytes"),
+                rs.getString("parent_path"), rs.getString("display_name"), inferredMimeType(
+                        rs.getString("mime_type"), rs.getString("display_name")), rs.getLong("size_bytes"),
                 rs.getBoolean("directory"), rs.getTimestamp("modified_at") == null ? null : rs.getTimestamp("modified_at").toInstant(),
                 rs.getString("content_sha256")), accountId.toString(), parentPath);
+    }
+
+    /** 当远端未返回 MIME 时，根据文件名补齐常见类型。 */
+    private static String inferredMimeType(String mimeType, String displayName) {
+        if (mimeType != null && !mimeType.isBlank()) return mimeType;
+        String inferred = URLConnection.guessContentTypeFromName(displayName);
+        return inferred == null ? "" : inferred;
     }
     /** 创建或读取索引刷新操作。 @param operationId 操作标识 @param accountId 账户标识 @param taskId 任务标识 @param idempotencyKey 幂等键 @return 操作 */
     public OperationView saveIndexOperation(UUID operationId, UUID accountId, UUID taskId, String idempotencyKey) {

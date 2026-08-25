@@ -26,7 +26,7 @@ class RcloneRemoteConnectorTest {
     @Test
     void shouldRejectNonLoopbackControlEndpoint() {
         RcloneRemoteConnector connector = new RcloneRemoteConnector(
-                new ObjectMapper(), "http://example.com:5572", "", "");
+                new ObjectMapper(), "http://example.com:5572", "", "", "/tmp/rclone.conf", "http://127.0.0.1:7893");
 
         assertThatThrownBy(connector::validateConfiguration)
                 .isInstanceOf(IllegalStateException.class)
@@ -54,7 +54,7 @@ class RcloneRemoteConnectorTest {
         });
         server.start();
         RcloneRemoteConnector connector = new RcloneRemoteConnector(new ObjectMapper(),
-                "http://127.0.0.1:" + server.getAddress().getPort(), "", "");
+                "http://127.0.0.1:" + server.getAddress().getPort(), "", "", "/tmp/rclone.conf", "http://127.0.0.1:7893");
         connector.validateConfiguration();
 
         long jobId = connector.startTransfer("COPY_TREE", "source", "books", "target", "backup");
@@ -86,7 +86,7 @@ class RcloneRemoteConnectorTest {
                 "{\"finished\":true,\"success\":true,\"output\":{\"success\":false}}"));
         server.start();
         RcloneRemoteConnector connector = new RcloneRemoteConnector(new ObjectMapper(),
-                "http://127.0.0.1:" + server.getAddress().getPort(), "", "");
+                "http://127.0.0.1:" + server.getAddress().getPort(), "", "", "/tmp/rclone.conf", "http://127.0.0.1:7893");
         connector.validateConfiguration();
 
         assertThat(connector.exists("target", "archive/books")).isFalse();
@@ -105,7 +105,7 @@ class RcloneRemoteConnectorTest {
     void shouldStreamOnlyServerResolvedRemoteContentWithinLimit() throws Exception {
         AtomicReference<String> body = new AtomicReference<>();
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-        server.createContext("/operations/cat", exchange -> {
+        server.createContext("/core/command", exchange -> {
             body.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
             byte[] response = "remote-content".getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(200, response.length);
@@ -114,15 +114,17 @@ class RcloneRemoteConnectorTest {
         });
         server.start();
         RcloneRemoteConnector connector = new RcloneRemoteConnector(new ObjectMapper(),
-                "http://127.0.0.1:" + server.getAddress().getPort(), "", "");
+                "http://127.0.0.1:" + server.getAddress().getPort(), "", "", "/tmp/rclone.conf", "http://127.0.0.1:7893");
         connector.validateConfiguration();
 
         var content = connector.openContent("pikpak_remote", "ready/operation/book.epub", 1024);
 
         assertThat(new String(content.stream().readAllBytes(), StandardCharsets.UTF_8))
                 .isEqualTo("remote-content");
-        assertThat(body.get()).contains("\"fs\":\"pikpak_remote:\"")
-                .contains("\"remote\":\"ready/operation/book.epub\"");
+        assertThat(body.get()).contains("\"command\":\"cat\"")
+                .contains("\"pikpak_remote:ready/operation/book.epub\"")
+                .contains("\"config\":\"/tmp/rclone.conf\"")
+                .contains("\"returnType\":\"STREAM_ONLY_STDOUT\"");
     }
 
     private void respond(com.sun.net.httpserver.HttpExchange exchange, String json) throws java.io.IOException {
