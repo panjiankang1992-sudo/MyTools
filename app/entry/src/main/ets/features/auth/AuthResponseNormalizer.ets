@@ -14,7 +14,7 @@ export class AuthResponseNormalizer {
       username: this.requiredString(data['username'], '用户名', 128),
       nickname: this.optionalString(data['nickname'], '昵称', 256),
       avatar: this.avatar(data['avatar']),
-      role: this.requiredString(data['role'], '用户角色', 64, /^[A-Za-z][A-Za-z0-9_-]{0,63}$/),
+      role: this.role(data),
       accessToken: this.token(data['accessToken'], '访问令牌'),
       refreshToken: this.token(data['refreshToken'], '刷新令牌'),
       expiresAt: this.expiry(now, expiresIn)
@@ -89,6 +89,16 @@ export class AuthResponseNormalizer {
       throw new Error(`服务端${label}格式无效`);
     }
     return token;
+  }
+
+  private role(data: Record<string, Object>): string {
+    const direct = data['role'];
+    if (direct !== undefined) {
+      return this.requiredString(direct, '用户角色', 64, /^[A-Za-z][A-Za-z0-9_-]{0,63}$/);
+    }
+    const roles = data['roles'];
+    if (!Array.isArray(roles) || roles.length < 1) throw new Error('服务端用户角色格式无效');
+    return this.requiredString(roles[0], '用户角色', 64, /^[A-Za-z][A-Za-z0-9_-]{0,63}$/);
   }
 
   private avatar(value: Object | undefined): string {

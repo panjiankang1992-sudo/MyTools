@@ -15,7 +15,7 @@ export class ProfileApi {
 
   /** 获取当前用户昵称和头像。 */
   async current(cancellation?: DownloadCancellationToken): Promise<ProfileIdentity> {
-    const envelope = await this.client.get('/api/user/info', cancellation);
+    const envelope = await this.client.get('/api/app/v1/identity/me', cancellation);
     return this.normalizer.normalize(envelope.data);
   }
 }

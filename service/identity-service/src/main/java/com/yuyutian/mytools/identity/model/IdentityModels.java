@@ -14,7 +14,8 @@ public final class IdentityModels {
  public record UserView(long id,String externalUserId,String username,String email,String status,long credentialVersion,List<String> roles) { }
  public record LoginRequest(@NotBlank @Size(max=128) String username,@NotBlank @Size(max=1024) String password,
    @NotBlank @Size(max=255) String deviceId) { }
- public record TokenPair(String accessToken,String refreshToken,String tokenType,long expiresIn,long refreshExpiresIn,UUID sessionId) { }
+ public record TokenPair(String accessToken,String refreshToken,String tokenType,long expiresIn,long refreshExpiresIn,
+   UUID sessionId,long userId,String username,List<String> roles) { }
  public record RefreshRequest(@NotBlank @Size(max=1024) String refreshToken) { }
  public record ValidateRequest(@NotBlank @Size(max=4096) String accessToken) { }
  public record PrincipalView(boolean active,long userId,String username,List<String> roles,UUID sessionId,Instant expiresAt) { }

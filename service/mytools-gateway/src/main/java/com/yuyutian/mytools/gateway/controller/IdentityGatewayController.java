@@ -5,6 +5,7 @@ import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.LoginRequest;
 import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.RefreshRequest;
 import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.TokenPair;
+import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.CurrentIdentity;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
 import com.yuyutian.mytools.gateway.service.IdentityGatewayClient;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
 
 /**
  * 默认关闭的 Identity 会话生命周期入口。
@@ -78,6 +80,23 @@ public class IdentityGatewayController {
             throw new GatewayUnauthorizedException();
         }
         client.logout(principal.sessionId(), correlation(request));
+    }
+
+    /**
+     * 返回当前访问令牌绑定的身份。
+     *
+     * @param request HTTP 请求
+     * @return 当前身份
+     */
+    @GetMapping("/me")
+    public CurrentIdentity current(HttpServletRequest request) {
+        requireEnabled();
+        Object value = request.getAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE);
+        if (!(value instanceof GatewayPrincipal principal)) {
+            throw new GatewayUnauthorizedException();
+        }
+        String role = principal.roles().isEmpty() ? "USER" : principal.roles().get(0);
+        return new CurrentIdentity(principal.userId(), principal.username(), "", "", role);
     }
 
     private void requireEnabled() {

@@ -11,6 +11,16 @@ interface HttpResult {
   envelope: AuthEnvelope;
 }
 
+interface IdentityLoginRequest {
+  username: string;
+  password: string;
+  deviceId: string;
+}
+
+interface IdentityRefreshRequest {
+  refreshToken: string;
+}
+
 /**
  * 表示服务端已明确拒绝当前会话，而非暂时性网络故障。
  */
@@ -89,7 +99,7 @@ export class AuthApi {
         responseError = this.networkPolicy.headerError(headers, 1024 * 1024);
         if (responseError.length > 0) request.destroy();
       });
-      const response = await request.request(`${this.baseUrl}/api/public/profile`, {
+      const response = await request.request(`${this.baseUrl}/actuator/health`, {
         method: http.RequestMethod.GET,
         header: { 'Accept': 'application/json' },
         connectTimeout: 8000,
@@ -117,7 +127,12 @@ export class AuthApi {
    */
   async login(requestBody: LoginRequest): Promise<AuthSession> {
     this.validateLoginRequest(requestBody);
-    const result = await this.post('/api/auth/login', requestBody);
+    const identityRequest: IdentityLoginRequest = {
+      username: requestBody.account,
+      password: requestBody.password,
+      deviceId: requestBody.deviceName
+    };
+    const result = await this.post('/api/app/v1/identity/login', identityRequest);
     if (result.status < 200 || result.status >= 300 || result.envelope.data === undefined) {
       const message = typeof result.envelope.message === 'string' ? result.envelope.message : '';
       throw new Error(message.length > 0 ? message : `登录失败：HTTP ${result.status}`);
@@ -129,7 +144,8 @@ export class AuthApi {
    * 使用刷新令牌获取新的访问令牌。
    */
   async refresh(session: AuthSession): Promise<AuthSession> {
-    const result = await this.post('/api/auth/refresh', undefined, session.refreshToken);
+    const refreshRequest: IdentityRefreshRequest = { refreshToken: session.refreshToken };
+    const result = await this.post('/api/app/v1/identity/refresh', refreshRequest);
     if (result.status < 200 || result.status >= 300 || result.envelope.data === undefined) {
       const responseMessage = typeof result.envelope.message === 'string' ? result.envelope.message : '';
       const message = responseMessage.length > 0 ? responseMessage : '会话刷新失败';
@@ -143,7 +159,7 @@ export class AuthApi {
    * 通知服务端注销当前访问令牌。
    */
   async logout(accessToken: string): Promise<void> {
-    await this.post('/api/auth/logout', undefined, accessToken);
+    await this.post('/api/app/v1/identity/logout', undefined, accessToken);
   }
 
   /**
@@ -158,7 +174,7 @@ export class AuthApi {
         responseError = this.networkPolicy.headerError(headers, 1024 * 1024);
         if (responseError.length > 0) request.destroy();
       });
-      const response = await request.request(`${this.baseUrl}/api/tokens/current`, {
+      const response = await request.request(`${this.baseUrl}/api/app/v1/identity/me`, {
         method: http.RequestMethod.GET,
         header: { 'Accept': 'application/json', 'Authorization': `Bearer ${accessToken}` },
         connectTimeout: 10000,
@@ -175,7 +191,7 @@ export class AuthApi {
       if (envelope.code === '20001' || envelope.code === '20002' || envelope.code === '20004' ||
         envelope.code === '401') return false;
       if (envelope.code !== '0000' || envelope.data === undefined ||
-        this.stringValue(envelope.data, 'id').length === 0) {
+        this.stringValue(envelope.data, 'userId').length === 0) {
         const message = typeof envelope.message === 'string' ? envelope.message : '';
         throw new Error(message.length > 0 ? message : '服务端未返回有效会话');
       }

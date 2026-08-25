@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
+import java.util.List;
 
 /**
  * Gateway 对外认证契约。
@@ -32,6 +33,13 @@ public final class IdentityGatewayModels {
      * Identity 令牌对响应。
      */
     public record TokenPair(String accessToken, String refreshToken, String tokenType,
-                            long expiresIn, long refreshExpiresIn, UUID sessionId) {
+                            long expiresIn, long refreshExpiresIn, UUID sessionId,
+                            long userId, String username, List<String> roles) {
+    }
+
+    /**
+     * 当前登录身份。
+     */
+    public record CurrentIdentity(long userId, String username, String nickname, String avatar, String role) {
     }
 }

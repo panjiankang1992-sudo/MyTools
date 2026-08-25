@@ -136,7 +136,8 @@ class IdentityGatewayControllerTest {
     }
 
     private TokenPair pair() {
-        return new TokenPair("access", "refresh", "Bearer", 300, 3600, UUID.randomUUID());
+        return new TokenPair("access", "refresh", "Bearer", 300, 3600, UUID.randomUUID(),
+                55L, "tester", java.util.List.of("USER"));
     }
 
     private GatewayProperties properties(boolean enabled) {
