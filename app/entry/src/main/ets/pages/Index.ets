@@ -2718,8 +2718,8 @@ struct Index {
     Column({ space: 5 }) {
       Stack({ alignContent: Alignment.TopStart }) {
         Stack() {
-          if (this.BrowseMediaThumbnailUri(`/local/${item.itemId}`).length > 0) {
-            Image(this.BrowseMediaThumbnailUri(`/local/${item.itemId}`)).width('100%').height(82)
+          if (this.BrowseMediaThumbnailUri(`/media/${item.itemId}`).length > 0) {
+            Image(this.BrowseMediaThumbnailUri(`/media/${item.itemId}`)).width('100%').height(82)
               .objectFit(ImageFit.Cover).borderRadius(12)
           } else {
             SymbolGlyph($r(this.MediaCatalogSymbol(item))).width('100%').height(82).fontSize(28)
@@ -2744,8 +2744,8 @@ struct Index {
     Column({ space: 6 }) {
       Stack({ alignContent: Alignment.TopStart }) {
         Stack() {
-          if (this.BrowseMediaThumbnailUri(`/local/${item.itemId}`).length > 0) {
-            Image(this.BrowseMediaThumbnailUri(`/local/${item.itemId}`)).width('100%').height(154)
+          if (this.BrowseMediaThumbnailUri(`/media/${item.itemId}`).length > 0) {
+            Image(this.BrowseMediaThumbnailUri(`/media/${item.itemId}`)).width('100%').height(154)
               .objectFit(ImageFit.Cover)
           } else {
             Column({ space: 8 }) {
@@ -3041,8 +3041,12 @@ struct Index {
     const cancellation = new DownloadCancellationToken();
     // 首屏和视频目录预览优先，限制并发下载规模，避免大目录阻塞页面交互。
     const candidates = items.filter((item: MediaCatalogItem) => item.thumbnailUrl.length > 0).slice(0, 90);
-    const tasks: Promise<MediaThumbnailEntry | undefined>[] = candidates.map(
-      async (item: MediaCatalogItem): Promise<MediaThumbnailEntry | undefined> => {
+    const cached: MediaThumbnailEntry[] = [];
+    // HarmonyOS 虚拟机的网络连接数较小，缩略图必须分批下载，避免大量并发请求长期阻塞。
+    for (let offset = 0; offset < candidates.length; offset++) {
+      const batch = candidates.slice(offset, offset + 1);
+      const tasks: Promise<MediaThumbnailEntry | undefined>[] = batch.map(
+        async (item: MediaCatalogItem): Promise<MediaThumbnailEntry | undefined> => {
         const target = `${directory}/${item.itemId}.jpg`;
         try {
           if (!fs.accessSync(target) || fs.statSync(target).size < 3) {
@@ -3060,12 +3064,25 @@ struct Index {
             }
           }
           return { path: `/media/${item.itemId}`, uri: `file://${target}` };
-        } catch (_) {
+        } catch (error) {
+          if (revision === this.mediaDirectoryRevision && this.mediaCatalogStatus.length === 0) {
+            const message = error instanceof Error ? error.message : '未知错误';
+            this.mediaCatalogStatus = `缩略图加载失败：${message}`;
+          }
           return undefined;
         }
-      });
-    const cached = (await Promise.all(tasks)).filter(
-      (entry: MediaThumbnailEntry | undefined): boolean => entry !== undefined) as MediaThumbnailEntry[];
+        });
+      const resolved = (await Promise.all(tasks)).filter(
+        (entry: MediaThumbnailEntry | undefined): boolean => entry !== undefined) as MediaThumbnailEntry[];
+      cached.push(...resolved);
+      if (revision !== this.mediaDirectoryRevision) return;
+      // 每批完成后立即更新首屏，后续缩略图无需全部完成才可见。
+      if (resolved.length > 0) {
+        const resolvedPaths = new Set<string>(resolved.map((entry: MediaThumbnailEntry) => entry.path));
+        this.SetMediaBrowseThumbnailEntries(this.mediaBrowseThumbnailEntries.filter(
+          (entry: MediaThumbnailEntry) => !resolvedPaths.has(entry.path)).concat(resolved));
+      }
+    }
     if (revision !== this.mediaDirectoryRevision) return;
     const paths = new Set<string>();
     candidates.forEach((item: MediaCatalogItem) => paths.add(`/media/${item.itemId}`));

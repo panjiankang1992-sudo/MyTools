@@ -21,7 +21,7 @@ export class DownloadStreamIntegrityPolicy {
   }
 
   private isSupportedImage(contentType: string, signature: number[]): boolean {
-    if (contentType === 'image/jpeg') {
+    if (contentType === 'image/jpeg' || contentType === 'image/jpg' || contentType === 'image/pjpeg') {
       return signature.length >= 3 && signature[0] === 0xFF && signature[1] === 0xD8 && signature[2] === 0xFF;
     }
     if (contentType === 'image/png') {

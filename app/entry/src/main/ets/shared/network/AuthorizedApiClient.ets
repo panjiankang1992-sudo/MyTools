@@ -198,7 +198,8 @@ export class AuthorizedApiClient {
       });
       const status = await request.requestInStream(`${this.baseUrl}${path}`, {
         method: http.RequestMethod.GET,
-        header: { 'Authorization': `Bearer ${accessToken}` },
+        // 二进制内容必须保持原始字节；代理层压缩会破坏长度与文件签名校验。
+        header: { 'Authorization': `Bearer ${accessToken}`, 'Accept-Encoding': 'identity' },
         connectTimeout: 10000,
         readTimeout: 120000
       });

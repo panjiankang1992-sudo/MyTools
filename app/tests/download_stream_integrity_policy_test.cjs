@@ -19,5 +19,7 @@ if (policy.error(200, 3, 3, 'image/jpeg', 'image/jpeg', [1, 2, 3]) !== '缩略�
   throw new Error('JPEG signature');
 }
 if (policy.error(200, 3, 3, 'image/jpeg', 'image/jpeg', jpeg) !== '') throw new Error('Valid JPEG');
+if (policy.error(200, 3, 3, 'image/*', 'image/jpg', jpeg) !== '') throw new Error('Legacy JPEG MIME alias');
+if (policy.error(200, 3, 3, 'image/*', 'image/pjpeg', jpeg) !== '') throw new Error('Progressive JPEG MIME alias');
 
 console.log('Download stream integrity policy tests passed');

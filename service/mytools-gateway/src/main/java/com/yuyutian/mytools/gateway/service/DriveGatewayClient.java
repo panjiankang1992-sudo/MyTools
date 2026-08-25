@@ -66,9 +66,16 @@ public class DriveGatewayClient {
         URI url=UriComponentsBuilder.fromHttpUrl(root()+"/internal/v1/drive/accounts")
             .queryParam("ownerId",ownerId).build().encode().toUri();
         var response=restTemplate.exchange(url,HttpMethod.GET,entity(correlationId),
-            new ParameterizedTypeReference<List<AccountSummary>>() { });
-        return response.getBody()==null?List.of():response.getBody();
+            new ParameterizedTypeReference<List<InternalAccount>>() { });
+        if(response.getBody()==null)return List.of();
+        return response.getBody().stream().map(account->new AccountSummary(account.id(),account.displayName(),
+            account.providerType(),account.readOnly(),account.enabled(),account.indexGeneration())).toList();
     }
+
+    /** Drive 服务内部账户响应，仅用于丢弃不应暴露给 App 的字段。 */
+    private record InternalAccount(UUID id,long ownerId,String externalAccountId,String displayName,
+                                   String providerType,String remoteKey,boolean readOnly,boolean enabled,
+                                   long indexGeneration) { }
 
     /** 创建账户索引刷新任务。 @param accountId 账户标识 @param ownerId 所有者 @param request 请求 @param correlationId 关联标识 @return 操作 */
     public OperationView refreshIndex(UUID accountId,long ownerId,RefreshIndexRequest request,String correlationId) {
