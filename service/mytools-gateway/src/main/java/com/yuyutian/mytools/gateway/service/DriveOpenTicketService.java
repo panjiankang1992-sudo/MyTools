@@ -8,13 +8,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** 管理租户绑定的短期网盘文件票据。 */
+/** 管理租户绑定的播放会话网盘文件票据。 */
 @Service
 public class DriveOpenTicketService {
-    private static final long TICKET_TTL_SECONDS = 15 * 60;
+    private static final long TICKET_TTL_SECONDS = 6 * 60 * 60;
     private final Map<String, Ticket> tickets = new ConcurrentHashMap<>();
 
-    /** 签发短期只读票据。 @param ownerId 所有者 @param accountId 账户 @param path 路径 @param name 名称 @param mimeType 类型 @param sizeBytes 大小 @return 票据 */
+    /** 签发有界播放会话只读票据。 @param ownerId 所有者 @param accountId 账户 @param path 路径 @param name 名称 @param mimeType 类型 @param sizeBytes 大小 @return 票据 */
     public Ticket issue(long ownerId, UUID accountId, String path, String name, String mimeType, long sizeBytes) {
         UUID value = UUID.randomUUID();
         byte[] bytes = java.nio.ByteBuffer.allocate(16).putLong(value.getMostSignificantBits())

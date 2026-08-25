@@ -10113,7 +10113,7 @@ struct Index {
         // DSH WebView常驻主栈，仅切换可见性，避免切换标签时重新初始化插件。
         Column() {
           this.DshTabPage()
-        }.width('100%').height('100%').padding({ bottom: 68 }).align(Alignment.TopStart)
+        }.width('100%').height('calc(100% - 68vp)').position({ x: 0, y: 0 })
           .opacity(this.currentIndex === 2 ? 1 : 0)
           .enabled(this.currentIndex === 2)
           .hitTestBehavior(this.currentIndex === 2 ? HitTestMode.Default : HitTestMode.Transparent)
