@@ -104,7 +104,7 @@ def target_unit(entries: list[dict[str, Any]]) -> str:
 def tmpfiles_config(deployment_root: str, log_root: str, entries: list[dict[str, Any]]) -> str:
     """Render persistent directory ownership without deleting existing data."""
 
-    paths = ("config", "releases", "runtime/tasks", "migration")
+    paths = ("config", "releases", "runtime/tasks", "runtime/onebot", "migration")
     lines = [f"d {deployment_root}/{path} 0750 mytools mytools -" for path in paths]
     lines.append(f"d {log_root} 0750 mytools mytools -")
     lines.extend(f"d {log_root}/{entry['name']} 0750 mytools mytools -" for entry in entries)
@@ -180,6 +180,29 @@ def logrotate_timer() -> str:
     )
 
 
+def onebot_relogin_service(deployment_root: str) -> str:
+    """Render the privileged fixed-action NapCat relogin service."""
+
+    request_path = f"{deployment_root}/runtime/onebot/relogin.request"
+    return "\n".join((
+        "[Unit]", "Description=MyTools fixed OneBot relogin action",
+        "After=docker.service", "Requires=docker.service", "", "[Service]",
+        "Type=oneshot", "ExecStartPre=/usr/bin/rm -f /opt/napcat/cache/qrcode.png",
+        "ExecStart=/usr/bin/docker restart --time 30 downloadbot-napcat",
+        f"ExecStartPost=/usr/bin/rm -f {request_path}", "TimeoutStartSec=90",
+        "UMask=0077", "NoNewPrivileges=true", "PrivateTmp=true", "ProtectHome=true", ""))
+
+
+def onebot_relogin_path(deployment_root: str) -> str:
+    """Render the fixed request-file watcher for taskized relogin."""
+
+    return "\n".join((
+        "[Unit]", "Description=Watch for MyTools OneBot relogin requests", "", "[Path]",
+        f"PathExists={deployment_root}/runtime/onebot/relogin.request",
+        "Unit=mytools-onebot-relogin.service", "", "[Install]",
+        "WantedBy=multi-user.target", ""))
+
+
 def generate(manifest: dict[str, Any], output: Path) -> list[Path]:
     """Generate units into an empty or previously generated output directory."""
 
@@ -211,6 +234,12 @@ def generate(manifest: dict[str, Any], output: Path) -> list[Path]:
     rotation_timer = output / "mytools-logrotate.timer"
     rotation_timer.write_text(logrotate_timer(), encoding="utf-8")
     generated.append(rotation_timer)
+    relogin_service = output / "mytools-onebot-relogin.service"
+    relogin_service.write_text(onebot_relogin_service(manifest["deploymentRoot"]), encoding="utf-8")
+    generated.append(relogin_service)
+    relogin_path = output / "mytools-onebot-relogin.path"
+    relogin_path.write_text(onebot_relogin_path(manifest["deploymentRoot"]), encoding="utf-8")
+    generated.append(relogin_path)
     return generated
 
 

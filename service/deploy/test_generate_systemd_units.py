@@ -27,7 +27,8 @@ class GenerateSystemdUnitsTest(unittest.TestCase):
             service_units = [
                 path
                 for path in generated
-                if path.suffix == ".service" and path.name != "mytools-logrotate.service"
+            if path.suffix == ".service" and path.name not in {
+                "mytools-logrotate.service", "mytools-onebot-relogin.service"}
             ]
 
         expected = len(self.manifest["services"]) + len(self.manifest["statelessServices"])
@@ -103,6 +104,15 @@ class GenerateSystemdUnitsTest(unittest.TestCase):
 
         self.assertIn("ProtectSystem=full", unit)
         self.assertNotIn("ReadWritePaths=", unit)
+
+    def test_onebot_relogin_units_use_only_fixed_paths_and_action(self) -> None:
+        service = generator.onebot_relogin_service("/opt/yuyutian/mytools")
+        path = generator.onebot_relogin_path("/opt/yuyutian/mytools")
+
+        self.assertIn("docker restart --time 30 downloadbot-napcat", service)
+        self.assertIn("rm -f /opt/napcat/cache/qrcode.png", service)
+        self.assertIn("PathExists=/opt/yuyutian/mytools/runtime/onebot/relogin.request", path)
+        self.assertNotIn("%", service + path)
 
 
 if __name__ == "__main__":
