@@ -2,6 +2,12 @@
 
 本目录仅管理新服务，不修改 MyTools、DownloadBot、MsgService 的旧数据库和启动方式。所有新 HTTP 服务默认绑定 `127.0.0.1`，Gateway 路由、迁移适配器、邮件拉取、OneBot、PikPak、DSH RPC 和自动化 relay 默认关闭。
 
+rclone RC 作为 Storage/Drive 的本机外部依赖时，其进程环境文件统一放在
+`/opt/yuyutian/mytools/config/rclone-rc.env`，权限设为 `0600`。受网络限制的 Provider 可在该文件配置
+`ALL_PROXY`、`HTTP_PROXY`、`HTTPS_PROXY` 和包含 `127.0.0.1,localhost` 的 `NO_PROXY`；代理只影响
+rclone 的远端出站连接，Storage/Drive 仍通过受认证的回环 RC 调用。rclone remote 配置属于业务连接配置，
+可以继续位于既有 DownloadBot 数据目录，不要求随发布版本移动。
+
 以下绝对路径均指远程部署主机，不是开发机本地路径。所有新服务在远程主机统一部署到 `/opt/yuyutian/mytools`，不得分散到其他 `/opt` 目录。目录约定如下：
 
 ```text

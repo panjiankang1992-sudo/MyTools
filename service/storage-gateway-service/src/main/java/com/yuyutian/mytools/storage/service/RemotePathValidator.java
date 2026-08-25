@@ -21,7 +21,7 @@ public final class RemotePathValidator {
     public static String validate(String value, boolean allowEmpty) {
         String path = value == null ? "" : value.trim();
         if ((path.isEmpty() && !allowEmpty) || path.length() > 2048 || path.startsWith("/")
-                || path.contains(":") || path.contains("\\")
+                || path.contains("\\")
                 || Arrays.asList(path.split("/", -1)).contains("..")) {
             throw new IllegalArgumentException(ErrorCode.PATH_INVALID.code());
         }

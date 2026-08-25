@@ -256,7 +256,7 @@ public class DriveService {
     private String normalize(String path) {
         String value=path==null?"":path.trim().replace('\\','/');
         while(value.startsWith("/")) value=value.substring(1);
-        if(value.length()>2048 || value.contains(":") || java.util.Arrays.asList(value.split("/",-1)).contains(".."))
+        if(value.length()>2048 || java.util.Arrays.asList(value.split("/",-1)).contains(".."))
             throw new IllegalArgumentException("drive path is invalid");
         return value;
     }

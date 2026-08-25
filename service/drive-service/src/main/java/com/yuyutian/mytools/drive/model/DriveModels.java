@@ -31,7 +31,7 @@ public final class DriveModels {
     public record LegacyAccountMigrationEvidence(String migrationKey, long itemCount, String digestSha256) { }
     public record IndexDigest(long itemCount, String contentSha256) { }
     public record IndexItem(@Size(max=255) String remoteId, @NotBlank @Size(max=2048) String remotePath,
-        @NotBlank @Size(max=2048) String parentPath, @NotBlank @Size(max=512) String displayName,
+        @NotNull @Size(max=2048) String parentPath, @NotBlank @Size(max=512) String displayName,
         @Size(max=255) String mimeType, @PositiveOrZero long sizeBytes, boolean directory, Instant modifiedAt,
         @Pattern(regexp="^[a-fA-F0-9]{64}$") String contentSha256) { }
     public record IndexBatchRequest(@NotNull UUID runId, @NotBlank @Size(max=255) String batchKey,

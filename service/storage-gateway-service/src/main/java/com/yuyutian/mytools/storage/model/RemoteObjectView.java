@@ -18,7 +18,7 @@ import java.time.Instant;
  * @param contentSha256 SHA-256 摘要
  */
 public record RemoteObjectView(
-        @NotBlank @Size(max = 2048) @Pattern(regexp = "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^:\\\\]+$") String path,
+        @NotBlank @Size(max = 2048) @Pattern(regexp = "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\]+$") String path,
         @NotBlank @Size(max = 512) @Pattern(regexp = "^[^/\\\\]+$") String name,
         boolean directory,
         @Min(0) long sizeBytes,

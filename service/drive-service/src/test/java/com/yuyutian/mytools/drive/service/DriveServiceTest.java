@@ -55,6 +55,20 @@ class DriveServiceTest {
     }
 
     @Test
+    void shouldAcceptRootParentAndColonInRemotePath() {
+        AccountView account=service.register(new RegisterAccountRequest(10L,"legacy-colon","Colon","RCLONE",
+            "secret://drive/legacy-colon","legacy_colon",true,true));
+        UUID runId=UUID.randomUUID();
+
+        IndexBatchView result=service.ingest(account.id(),new IndexBatchRequest(runId,"batch-colon",null,true,
+            List.of(item("movies/part:01.mp4","",8))));
+
+        assertThat(result.status()).isEqualTo("SUCCEEDED");
+        assertThat(service.list(account.id(),10L,""))
+            .extracting(ItemView::remotePath).containsExactly("movies/part:01.mp4");
+    }
+
+    @Test
     void shouldExposeOnlySanitizedStorageMigrationFields() {
         AccountView account=service.register(new RegisterAccountRequest(11L,"external-private","Private Display","RCLONE",
             "secret://drive/migration-safe","migration_safe",true,true));

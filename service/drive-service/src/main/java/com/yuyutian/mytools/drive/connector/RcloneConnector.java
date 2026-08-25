@@ -78,7 +78,7 @@ public class RcloneConnector implements DirectoryConnector {
             Math.max(0,value.path("Size").asLong()),value.path("IsDir").asBoolean(),modified,hash);
     }
     private String validPath(String value) {
-        if(value==null||value.isBlank()||value.length()>2048||value.startsWith("/")||value.contains(":")
+        if(value==null||value.isBlank()||value.length()>2048||value.startsWith("/")
             || Arrays.asList(value.split("/",-1)).contains("..")) throw new IllegalStateException("rclone item path is invalid");
         return value;
     }
