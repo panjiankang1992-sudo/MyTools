@@ -73,8 +73,8 @@ public class DriveGatewayClient {
                 .findFirst().orElseThrow(GatewayNotFoundException::new);
     }
 
-    /** 使用可信内部授权把 Drive 文件流转发给票据持有者。 @param accountId 账户 @param ownerId 所有者 @param path 路径 @param maximumBytes 最大字节数 @param response 响应 @param correlationId 关联标识 */
-    public void stream(UUID accountId, long ownerId, String path, long maximumBytes,
+    /** 使用可信内部授权把 Drive 文件流转发给票据持有者。 @param accountId 账户 @param ownerId 所有者 @param path 路径 @param maximumBytes 最大字节数 @param range HTTP Range @param response 响应 @param correlationId 关联标识 */
+    public void stream(UUID accountId, long ownerId, String path, long maximumBytes, String range,
                        HttpServletResponse response, String correlationId) {
         URI url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/drive/accounts/" + accountId + "/content")
                 .queryParam("ownerId", ownerId).queryParam("path", path).queryParam("maximumBytes", maximumBytes)
@@ -84,12 +84,15 @@ public class DriveGatewayClient {
             connection.setRequestProperty("Authorization", "Bearer " + properties.driveToken());
             connection.setRequestProperty("X-Correlation-Id", correlationId);
             connection.setRequestProperty("Accept-Encoding", "identity");
+            if (range != null && !range.isBlank()) connection.setRequestProperty("Range", range);
             connection.setConnectTimeout(properties.connectTimeoutMillis());
             connection.setReadTimeout(Math.max(properties.readTimeoutMillis(), 120000));
             int status = connection.getResponseCode();
             response.setStatus(status);
             copyHeader(connection, response, "Content-Type");
             copyHeader(connection, response, "Content-Length");
+            copyHeader(connection, response, "Content-Range");
+            copyHeader(connection, response, "Accept-Ranges");
             if (status < 200 || status >= 300) {
                 connection.disconnect();
                 return;

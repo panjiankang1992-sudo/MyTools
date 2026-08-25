@@ -83,13 +83,18 @@ public class StorageProviderService {
      * @return 受限响应流
      */
     public RemoteContent content(UUID providerId, String path, long maximumBytes) {
+        return content(providerId, path, maximumBytes, null);
+    }
+
+    /** 读取可选单区间对象。 @param providerId Provider 标识 @param path 路径 @param maximumBytes 上限 @param range HTTP Range @return 内容 */
+    public RemoteContent content(UUID providerId, String path, long maximumBytes, String range) {
         if (maximumBytes <= 0 || maximumBytes > 100L * 1024 * 1024 * 1024) {
             throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_TOO_LARGE.code());
         }
         StorageProvider provider = repository.findProviderById(providerId)
                 .filter(StorageProvider::enabled)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorCode.PROVIDER_NOT_FOUND.code()));
-        return connectorRegistry.openContent(provider, path, maximumBytes);
+        return connectorRegistry.openContent(provider, path, maximumBytes, range);
     }
 
     private boolean equivalent(StorageProvider provider, CreateProviderRequest request) {

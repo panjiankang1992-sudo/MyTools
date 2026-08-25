@@ -77,6 +77,7 @@ public class StorageProviderController {
      * @param providerId Provider 标识
      * @param path 相对路径
      * @param maximumBytes 最大字节数
+     * @param range HTTP Range
      * @param authorization 内部授权头
      * @return 对象流
      */
@@ -84,13 +85,17 @@ public class StorageProviderController {
     public ResponseEntity<InputStreamResource> content(@PathVariable UUID providerId,
             @RequestParam String path,
             @RequestParam(defaultValue = "21474836480") long maximumBytes,
+            @RequestHeader(value = "Range", required = false) String range,
             @RequestHeader("Authorization") String authorization) {
         authorizer.require(authorization);
-        var content = providerService.content(providerId, path, maximumBytes);
-        ResponseEntity.BodyBuilder response = ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM);
+        var content = providerService.content(providerId, path, maximumBytes, range);
+        ResponseEntity.BodyBuilder response = ResponseEntity.status(content.statusCode())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM);
         if (content.contentLength() >= 0) {
             response.contentLength(content.contentLength());
         }
+        if (content.contentRange() != null) response.header("Content-Range", content.contentRange());
+        if (content.acceptRanges() != null) response.header("Accept-Ranges", content.acceptRanges());
         return response.body(new InputStreamResource(content.stream()));
     }
 }

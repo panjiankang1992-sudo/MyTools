@@ -53,6 +53,13 @@ public class ProviderObjectConnectorRegistry {
         return connector.openContent(provider, path, maximumBytes);
     }
 
+    /** 打开可选单区间对象。 @param provider Provider @param path 路径 @param maximumBytes 上限 @param range HTTP Range @return 内容 */
+    public RemoteContent openContent(StorageProvider provider, String path, long maximumBytes, String range) {
+        ProviderObjectConnector connector = connectors.get(provider.providerType());
+        if (connector == null) throw new IllegalArgumentException(ErrorCode.PROVIDER_INVALID.code());
+        return connector.openContent(provider, path, maximumBytes, range);
+    }
+
     /** 流式写入远端对象。 @param provider Provider @param path 路径 @param content 内容流 @param contentLength 长度 */
     public boolean writeContent(StorageProvider provider, String path, InputStream content, long contentLength) {
         return connector(provider).writeContent(provider, path, content, contentLength);

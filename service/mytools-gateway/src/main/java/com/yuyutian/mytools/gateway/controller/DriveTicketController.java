@@ -24,9 +24,11 @@ public class DriveTicketController {
         this.tickets = tickets;
     }
 
-    /** 读取短期票据绑定的文件。 @param token 票据 @param request HTTP 请求 @param response HTTP 响应 */
+    /** 读取短期票据绑定的文件。 @param token 票据 @param range HTTP Range @param request HTTP 请求 @param response HTTP 响应 */
     @GetMapping("/{token}")
-    public void content(@PathVariable String token, HttpServletRequest request, HttpServletResponse response) {
+    public void content(@PathVariable String token,
+                        @org.springframework.web.bind.annotation.RequestHeader(value = "Range", required = false)
+                        String range, HttpServletRequest request, HttpServletResponse response) {
         var ticket = tickets.require(token);
         String correlation = java.util.Optional.ofNullable(request.getHeader("X-Correlation-Id"))
                 .filter(value -> value.matches("^[A-Za-z0-9._:-]{1,128}$"))
@@ -34,6 +36,6 @@ public class DriveTicketController {
         long maximumBytes = ticket.sizeBytes() == 0 ? MAXIMUM_STREAM_BYTES
                 : Math.min(MAXIMUM_STREAM_BYTES, ticket.sizeBytes() + INDEX_SIZE_TOLERANCE_BYTES);
         response.setHeader("Cache-Control", "no-store");
-        client.stream(ticket.accountId(), ticket.ownerId(), ticket.path(), maximumBytes, response, correlation);
+        client.stream(ticket.accountId(), ticket.ownerId(), ticket.path(), maximumBytes, range, response, correlation);
     }
 }

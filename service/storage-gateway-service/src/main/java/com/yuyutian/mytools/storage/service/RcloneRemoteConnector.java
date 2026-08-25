@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.FilterInputStream;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -40,9 +41,9 @@ public class RcloneRemoteConnector implements ProviderObjectConnector {
     private final String configuredUrl;
     private final String user;
     private final String password;
-    private final String configPath;
-    private final String httpProxy;
+    private final String configuredServeUrl;
     private URI baseUri;
+    private URI serveBaseUri;
 
     /**
      * 创建受控 rclone 连接器。
@@ -51,19 +52,18 @@ public class RcloneRemoteConnector implements ProviderObjectConnector {
      * @param configuredUrl rclone RC 地址
      * @param user RC 用户名
      * @param password RC 密码
+     * @param configuredServeUrl rclone 只读流地址
      */
     public RcloneRemoteConnector(ObjectMapper objectMapper,
                                  @Value("${storage.rclone-rc-url:http://127.0.0.1:5572}") String configuredUrl,
                                  @Value("${storage.rclone-rc-user:}") String user,
                                  @Value("${storage.rclone-rc-password:}") String password,
-                                 @Value("${storage.rclone-config-path:/opt/yuyutian/mytools/config/rclone.conf}") String configPath,
-                                 @Value("${storage.rclone-http-proxy:http://127.0.0.1:7893}") String httpProxy) {
+                                 @Value("${storage.rclone-serve-url:http://127.0.0.1:5573}") String configuredServeUrl) {
         this.objectMapper = objectMapper;
         this.configuredUrl = configuredUrl;
         this.user = user;
         this.password = password;
-        this.configPath = configPath;
-        this.httpProxy = httpProxy;
+        this.configuredServeUrl = configuredServeUrl;
     }
 
     /**
@@ -80,6 +80,15 @@ public class RcloneRemoteConnector implements ProviderObjectConnector {
             throw new IllegalStateException("rclone RC must use a loopback HTTP endpoint");
         }
         baseUri = URI.create(configuredUrl.endsWith("/") ? configuredUrl : configuredUrl + "/");
+        URI serveCandidate = URI.create(configuredServeUrl);
+        String serveHost = serveCandidate.getHost();
+        boolean serveLoopback = "127.0.0.1".equals(serveHost) || "localhost".equalsIgnoreCase(serveHost);
+        if (!"http".equals(serveCandidate.getScheme()) || !serveLoopback || serveCandidate.getUserInfo() != null
+                || serveCandidate.getQuery() != null || serveCandidate.getFragment() != null
+                || !(serveCandidate.getPath().isEmpty() || "/".equals(serveCandidate.getPath()))) {
+            throw new IllegalStateException("rclone serve must use a loopback HTTP endpoint");
+        }
+        serveBaseUri = URI.create(configuredServeUrl.endsWith("/") ? configuredServeUrl : configuredServeUrl + "/");
     }
 
     /**
@@ -303,35 +312,44 @@ public class RcloneRemoteConnector implements ProviderObjectConnector {
      * @return 有硬上限的响应流
      */
     public RemoteContent openContent(String remoteKey, String path, long maximumBytes) {
+        return openContent(remoteKey, path, maximumBytes, null);
+    }
+
+    /** 流式打开可选单区间文件。 @param remoteKey remote 键 @param path 路径 @param maximumBytes 上限 @param range HTTP Range @return 内容 */
+    public RemoteContent openContent(String remoteKey, String path, long maximumBytes, String range) {
         requireRemoteKey(remoteKey);
         if (maximumBytes <= 0) {
             throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_TOO_LARGE.code());
         }
+        if (range != null && !range.matches("^bytes=(?:[0-9]+-[0-9]*|-[0-9]+)$")) {
+            throw new IllegalArgumentException(ErrorCode.REMOTE_FAILURE.code());
+        }
         try {
-            String target = remoteKey + ":" + validPath(path, false);
-            byte[] requestBody = objectMapper.writeValueAsBytes(Map.of(
-                    "command", "cat", "arg", List.of(target),
-                    "opt", Map.of("config", configPath, "http-proxy", httpProxy),
-                    "returnType", "STREAM_ONLY_STDOUT"));
-            HttpRequest.Builder builder = HttpRequest.newBuilder(baseUri.resolve("core/command"))
-                    .timeout(Duration.ofMinutes(5)).header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofByteArray(requestBody));
+            String safePath = validPath(path, false);
+            String encodedPath = encodePath(remoteKey + "/" + safePath);
+            HttpRequest.Builder builder = HttpRequest.newBuilder(serveBaseUri.resolve(encodedPath))
+                    .timeout(Duration.ofMinutes(5)).GET();
+            if (range != null) builder.header("Range", range);
             if (!user.isBlank() || !password.isBlank()) {
                 builder.header("Authorization", "Basic " + Base64.getEncoder().encodeToString(
                         (user + ":" + password).getBytes(StandardCharsets.UTF_8)));
             }
             HttpResponse<InputStream> response = httpClient.send(builder.build(),
                     HttpResponse.BodyHandlers.ofInputStream());
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            if (response.statusCode() != 200 && response.statusCode() != 206) {
                 response.body().close();
                 throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
             }
             long declared = response.headers().firstValueAsLong("Content-Length").orElse(-1);
-            if (declared > maximumBytes) {
+            String contentRange = response.headers().firstValue("Content-Range").orElse(null);
+            long total = contentRange == null ? declared : contentRangeTotal(contentRange);
+            if (declared > maximumBytes || total > maximumBytes) {
                 response.body().close();
                 throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_TOO_LARGE.code());
             }
-            return new RemoteContent(new MaximumInputStream(response.body(), maximumBytes), declared);
+            return new RemoteContent(new MaximumInputStream(response.body(), maximumBytes), declared,
+                    response.statusCode(), contentRange,
+                    response.headers().firstValue("Accept-Ranges").orElse(null));
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code(), exception);
@@ -345,6 +363,31 @@ public class RcloneRemoteConnector implements ProviderObjectConnector {
     public RemoteContent openContent(com.yuyutian.mytools.storage.model.StorageProvider provider,
                                      String path, long maximumBytes) {
         return openContent(provider.remoteKey(), path, maximumBytes);
+    }
+
+    /** 使用 Provider 打开可选单区间文件。 @param provider Provider @param path 路径 @param maximumBytes 上限 @param range HTTP Range @return 内容 */
+    @Override
+    public RemoteContent openContent(com.yuyutian.mytools.storage.model.StorageProvider provider,
+                                     String path, long maximumBytes, String range) {
+        return openContent(provider.remoteKey(), path, maximumBytes, range);
+    }
+
+    /** 对路径的每个段执行百分号编码。 */
+    private String encodePath(String path) {
+        return java.util.Arrays.stream(path.split("/", -1))
+                .map(value -> URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20"))
+                .collect(java.util.stream.Collectors.joining("/"));
+    }
+
+    /** 从 Content-Range 中读取总大小。 */
+    private long contentRangeTotal(String contentRange) {
+        int separator = contentRange.lastIndexOf('/');
+        if (separator < 0 || separator == contentRange.length() - 1) return Long.MAX_VALUE;
+        try {
+            return Long.parseLong(contentRange.substring(separator + 1));
+        } catch (NumberFormatException exception) {
+            return Long.MAX_VALUE;
+        }
     }
 
     /** 在读取超过声明上限时立即关闭上游连接。 */

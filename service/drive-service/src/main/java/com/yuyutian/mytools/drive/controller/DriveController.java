@@ -53,16 +53,20 @@ public class DriveController {
         @RequestParam long ownerId, @RequestParam(defaultValue="") String parentPath) {
         authorize(authorization); return service.list(id,ownerId,parentPath);
     }
-    /** 流式读取文件。 @param authorization 授权头 @param id 账户 @param ownerId 所有者 @param path 文件路径 @param maximumBytes 最大字节数 @return 文件流 */
+    /** 流式读取文件。 @param authorization 授权头 @param id 账户 @param ownerId 所有者 @param path 文件路径 @param range HTTP Range @param maximumBytes 最大字节数 @return 文件流 */
     @GetMapping("/accounts/{id}/content")
     public ResponseEntity<InputStreamResource> content(@RequestHeader("Authorization") String authorization,
         @PathVariable UUID id, @RequestParam long ownerId, @RequestParam String path,
+        @RequestHeader(value="Range", required=false) String range,
         @RequestParam(defaultValue="107374182400") long maximumBytes) {
         authorize(authorization);
-        ItemContent content = service.content(id, ownerId, path, maximumBytes);
-        ResponseEntity.BodyBuilder response = ResponseEntity.ok().contentType(MediaType.parseMediaType(content.mimeType()))
+        ItemContent content = service.content(id, ownerId, path, maximumBytes, range);
+        ResponseEntity.BodyBuilder response = ResponseEntity.status(content.statusCode())
+            .contentType(MediaType.parseMediaType(content.mimeType()))
             .header("Content-Disposition", "inline; filename*=UTF-8''" + java.net.URLEncoder.encode(content.displayName(), StandardCharsets.UTF_8));
         if (content.contentLength() >= 0) response.contentLength(content.contentLength());
+        if (content.contentRange() != null) response.header("Content-Range", content.contentRange());
+        if (content.acceptRanges() != null) response.header("Accept-Ranges", content.acceptRanges());
         return response.body(new InputStreamResource(content.stream()));
     }
     /** 创建索引刷新任务。 @param authorization 授权头 @param id 账户 @param ownerId 所有者 @param request 请求 @return 操作 */

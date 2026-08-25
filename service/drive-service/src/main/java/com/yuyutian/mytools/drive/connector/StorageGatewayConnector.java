@@ -117,15 +117,22 @@ public class StorageGatewayConnector implements DirectoryConnector {
      * @return 远端对象流
      */
     public ItemContent content(UUID providerId, String path, long maximumBytes, String displayName, String mimeType) {
+        return content(providerId, path, maximumBytes, displayName, mimeType, null);
+    }
+
+    /** 读取可选单区间对象。 @param providerId Provider @param path 路径 @param maximumBytes 上限 @param displayName 名称 @param mimeType 类型 @param range HTTP Range @return 内容 */
+    public ItemContent content(UUID providerId, String path, long maximumBytes, String displayName, String mimeType,
+                               String range) {
         String query = "path=" + URLEncoder.encode(path, StandardCharsets.UTF_8)
                 + "&maximumBytes=" + maximumBytes;
         URI uri = baseUri.resolve("api/internal/v1/storage/providers/" + providerId + "/objects/content?" + query);
-        HttpRequest request = HttpRequest.newBuilder(uri).timeout(Duration.ofMinutes(5))
-                .header("Authorization", "Bearer " + internalToken).GET().build();
+        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(uri).timeout(Duration.ofMinutes(5))
+                .header("Authorization", "Bearer " + internalToken).GET();
+        if (range != null && !range.isBlank()) requestBuilder.header("Range", range);
         try {
-            HttpResponse<java.io.InputStream> response = httpClient.send(request,
+            HttpResponse<java.io.InputStream> response = httpClient.send(requestBuilder.build(),
                     HttpResponse.BodyHandlers.ofInputStream());
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            if (response.statusCode() != 200 && response.statusCode() != 206) {
                 response.body().close();
                 throw new IllegalStateException("Storage Gateway content failed");
             }
@@ -135,7 +142,9 @@ public class StorageGatewayConnector implements DirectoryConnector {
                 throw new IllegalStateException("Storage Gateway content is too large");
             }
             return new ItemContent(response.body(), length, displayName,
-                    mimeType == null || mimeType.isBlank() ? "application/octet-stream" : mimeType);
+                    mimeType == null || mimeType.isBlank() ? "application/octet-stream" : mimeType,
+                    response.statusCode(), response.headers().firstValue("Content-Range").orElse(null),
+                    response.headers().firstValue("Accept-Ranges").orElse(null));
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Storage Gateway content interrupted", exception);

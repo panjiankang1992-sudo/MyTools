@@ -27,8 +27,7 @@ storage:
   rclone-rc-url: ${STORAGE_RCLONE_RC_URL:http://127.0.0.1:5572}
   rclone-rc-user: ${STORAGE_RCLONE_RC_USER:}
   rclone-rc-password: ${STORAGE_RCLONE_RC_PASSWORD:}
-  rclone-config-path: ${STORAGE_RCLONE_CONFIG_PATH:/opt/yuyutian/mytools/config/rclone.conf}
-  rclone-http-proxy: ${STORAGE_RCLONE_HTTP_PROXY:http://127.0.0.1:7893}
+  rclone-serve-url: ${STORAGE_RCLONE_SERVE_URL:http://127.0.0.1:5573}
   scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
 
 management:

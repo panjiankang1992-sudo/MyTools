@@ -40,7 +40,13 @@ public final class DriveModels {
     public record IndexBatchView(UUID runId, long generation, String nextCursor, String status, int acceptedItems) { }
     public record ItemView(UUID id, String remoteId, String remotePath, String parentPath, String displayName,
         String mimeType, long sizeBytes, boolean directory, Instant modifiedAt, String contentSha256) { }
-    public record ItemContent(InputStream stream, long contentLength, String displayName, String mimeType) { }
+    public record ItemContent(InputStream stream, long contentLength, String displayName, String mimeType,
+                              int statusCode, String contentRange, String acceptRanges) {
+        /** 创建完整文件流。 @param stream 流 @param contentLength 长度 @param displayName 名称 @param mimeType 类型 */
+        public ItemContent(InputStream stream, long contentLength, String displayName, String mimeType) {
+            this(stream, contentLength, displayName, mimeType, 200, null, null);
+        }
+    }
     public record RefreshIndexRequest(@NotBlank @Size(max=255) String idempotencyKey) { }
     public record CopyObjectRequest(@NotBlank @Size(max=255) String idempotencyKey,
         @NotNull UUID targetAccountId, @NotBlank @Size(max=2048) String sourcePath,

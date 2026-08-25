@@ -67,6 +67,12 @@ public interface ProviderObjectConnector {
         throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_UNSUPPORTED.code());
     }
 
+    /** 打开可选单区间内容。 @param provider Provider @param path 路径 @param maximumBytes 上限 @param range HTTP Range @return 内容 */
+    default RemoteContent openContent(StorageProvider provider, String path, long maximumBytes, String range) {
+        if (range == null || range.isBlank()) return openContent(provider, path, maximumBytes);
+        throw new IllegalArgumentException(ErrorCode.REMOTE_CONTENT_UNSUPPORTED.code());
+    }
+
     /**
      * 流式写入一个普通文件。
      *
