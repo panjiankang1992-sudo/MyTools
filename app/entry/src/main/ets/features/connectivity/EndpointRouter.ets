@@ -32,18 +32,7 @@ export class EndpointRouter {
     const envelope = await new AuthorizedApiClient(this.publicBaseUrl, this.authManager)
       .get('/api/app/v1/connectivity/bootstrap');
     const bootstrap = this.normalizer.normalizeBootstrap(envelope.data);
-    const candidates = await this.discover(bootstrap.serviceType);
-    for (const candidate of candidates) {
-      if (!bootstrap.lanAddresses.includes(candidate.host?.address ?? '')) continue;
-      const endpoint = this.endpoint(candidate);
-      if (endpoint.length === 0) continue;
-      try {
-        if (await this.verifyCandidate(endpoint, bootstrap)) {
-          return { baseUrl: endpoint, instanceId: bootstrap.instanceId };
-        }
-      } catch (_) {
-      }
-    }
+    // 迁移期间旧 23110 端点不包含新微服务路由，统一使用已验证的新公网 Gateway。
     return { baseUrl: this.publicBaseUrl, instanceId: bootstrap.instanceId };
   }
 

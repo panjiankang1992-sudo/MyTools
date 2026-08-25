@@ -5,6 +5,36 @@ import { RemoteDirectory, RemoteMediaFilterOptions, RemoteMediaItem, RemoteMedia
  * 将MyTools远程媒体响应归一化为有界、可安全交给页面使用的领域对象。
  */
 export class RemoteMediaResponseNormalizer {
+  /** 将新媒体库分页结果投影为 App 统一目录。 */
+  normalizeLibraryPage(value: Object | undefined, keyword: string, fileType: string,
+    tagNames: string[], matchAllTags: boolean, excludeAdult: boolean): RemoteDirectory {
+    const record = this.record(value);
+    const rawItems = record?.['items'];
+    if (!Array.isArray(rawItems)) throw new Error('媒体库响应格式无效');
+    const query = keyword.trim().toLocaleLowerCase().substring(0, 100);
+    const requiredTags = tagNames.slice(0, 20);
+    const items: RemoteMediaItem[] = [];
+    rawItems.slice(0, 100).forEach((item: Object) => {
+      const child = this.record(item);
+      const id = this.uuid(child?.['id']);
+      const name = this.text(child?.['displayName'], 1024);
+      const contentType = this.text(child?.['mimeType'], 256, true) ?? '';
+      const size = child?.['sizeBytes'];
+      const tags = this.plainTags(child?.['tags']);
+      if (child === undefined || id === undefined || name === undefined || /[\\/]/.test(name) ||
+        typeof size !== 'number' || !Number.isSafeInteger(size) || size < 0) return;
+      const kind = this.kind(name, contentType, false);
+      if (query.length > 0 && !name.toLocaleLowerCase().includes(query)) return;
+      if (fileType.length > 0 && kind !== fileType) return;
+      if (excludeAdult && tags.some((tag: RemoteMediaTag): boolean => tag.name.toLocaleLowerCase() === 'r18')) return;
+      const matches = requiredTags.filter((tag: string): boolean =>
+        tags.some((entry: RemoteMediaTag): boolean => entry.name === tag)).length;
+      if (requiredTags.length > 0 && (matchAllTags ? matches !== requiredTags.length : matches === 0)) return;
+      items.push({ id, name, path: `/media/${id}`, kind, contentType, size,
+        lastModified: '', tags });
+    });
+    return { path: '/', items, total: items.length, page: 1, pageSize: 100 };
+  }
   /** 将MyTools本地远程文件目录转换为App数据源。 */
   normalizeLocalSources(value: Object | undefined): RemoteMediaSource[] {
     if (!Array.isArray(value)) return [];
@@ -259,6 +289,24 @@ export class RemoteMediaResponseNormalizer {
       tags.set(name, { name, type, confidence });
     });
     return Array.from(tags.values());
+  }
+
+  private plainTags(value: Object | undefined): RemoteMediaTag[] {
+    if (!Array.isArray(value)) return [];
+    const tags: RemoteMediaTag[] = [];
+    value.slice(0, 64).forEach((item: Object) => {
+      const name = this.text(item, 32);
+      if (name !== undefined) tags.push({ name, type: '', confidence: 1 });
+    });
+    return tags;
+  }
+
+  private uuid(value: Object | undefined): string | undefined {
+    if (typeof value !== 'string' ||
+      !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(value)) {
+      return undefined;
+    }
+    return value.toLowerCase();
   }
 
   private localDirectoryName(filePath: string | undefined, rootPath: string): string {

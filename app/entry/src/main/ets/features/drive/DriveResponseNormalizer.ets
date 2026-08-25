@@ -10,12 +10,35 @@ export class DriveResponseNormalizer {
     return value.map((entry: Object): DriveAccount => {
       const data = this.record(entry);
       return {
-        driveId: this.id(data, 'driveId'),
-        name: this.text(data, 'name', 64),
+        driveId: this.uuid(data, 'id'),
+        name: this.text(data, 'displayName', 255),
         readOnly: data['readOnly'] === true,
-        status: this.text(data, 'status', 32)
+        status: data['enabled'] === true ? 'ACTIVE' : 'DISABLED'
       };
     });
+  }
+
+  /** 将新 Drive 索引列表投影为 App 目录。 */
+  normalizeIndexedDirectory(value: Object | undefined, driveId: string, parentPath: string,
+    keyword: string, sort: string, direction: string): DriveDirectory {
+    if (!Array.isArray(value) || value.length > 10000) throw new Error('网盘目录格式无效');
+    const query = keyword.trim().toLocaleLowerCase().substring(0, 100);
+    let items = value.map((entry: Object): DriveItem => this.indexedItem(entry))
+      .filter((item: DriveItem): boolean => query.length === 0 || item.name.toLocaleLowerCase().includes(query));
+    items.sort((left: DriveItem, right: DriveItem): number => {
+      const factor = direction === 'desc' ? -1 : 1;
+      if (sort === 'size') return factor * (left.sizeBytes - right.sizeBytes);
+      if (sort === 'modified') return factor * left.modifiedAt.localeCompare(right.modifiedAt);
+      return factor * left.name.localeCompare(right.name);
+    });
+    return {
+      driveId,
+      currentItemId: parentPath,
+      name: parentPath.length === 0 ? '/' : parentPath,
+      itemCount: items.length,
+      totalSizeBytes: items.reduce((total: number, item: DriveItem): number => total + item.sizeBytes, 0),
+      items
+    };
   }
 
   /** 校验目录统计和文件条目。 */
@@ -68,6 +91,28 @@ export class DriveResponseNormalizer {
     };
   }
 
+  private indexedItem(value: Object): DriveItem {
+    const data = this.record(value);
+    const mimeType = this.optionalText(data, 'mimeType', 255);
+    const directory = data['directory'] === true;
+    return {
+      itemId: this.text(data, 'remotePath', 2048),
+      name: this.text(data, 'displayName', 512),
+      kind: directory ? 'DIRECTORY' : this.kind(mimeType),
+      mimeType,
+      sizeBytes: this.nonNegativeNumber(data, 'sizeBytes'),
+      modifiedAt: this.optionalText(data, 'modifiedAt', 64)
+    };
+  }
+
+  private kind(mimeType: string): DriveItemKind {
+    if (mimeType.startsWith('video/')) return 'VIDEO';
+    if (mimeType.startsWith('image/')) return 'IMAGE';
+    if (mimeType.startsWith('audio/')) return 'AUDIO';
+    if (mimeType.startsWith('text/')) return 'TEXT';
+    return 'OTHER';
+  }
+
   private record(value: Object | undefined): Record<string, Object> {
     if (value === undefined || value === null || Array.isArray(value) || typeof value !== 'object') {
       throw new Error('网盘响应格式无效');
@@ -79,6 +124,14 @@ export class DriveResponseNormalizer {
     const value = `${data[key] ?? ''}`;
     if (!/^[1-9]\d{0,18}$/.test(value)) throw new Error(`网盘字段${key}无效`);
     return value;
+  }
+
+  private uuid(data: Record<string, Object>, key: string): string {
+    const value = `${data[key] ?? ''}`;
+    if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(value)) {
+      throw new Error(`网盘字段${key}无效`);
+    }
+    return value.toLowerCase();
   }
 
   private optionalId(data: Record<string, Object>, key: string): string {

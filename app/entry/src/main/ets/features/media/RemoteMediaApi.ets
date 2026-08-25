@@ -64,14 +64,9 @@ export class RemoteMediaApi {
    * 获取当前用户配置的远程数据源。
    */
   async listSources(cancellation?: DownloadCancellationToken): Promise<RemoteMediaSource[]> {
-    const localEnvelope = await this.client.get('/api/localfiles/directories', cancellation);
-    const localSources = this.normalizer.normalizeLocalSources(localEnvelope.data);
-    try {
-      const remoteEnvelope = await this.client.get('/api/webdav/accounts', cancellation);
-      return localSources.concat(this.normalizer.normalizeSources(remoteEnvelope.data));
-    } catch (_) {
-      return localSources;
-    }
+    // 新架构由媒体库统一汇总已迁移资产，不再暴露旧目录和 WebDAV 账户。
+    await this.client.get('/api/app/v1/media/items?limit=1', cancellation);
+    return [{ id: 'library', name: '媒体库', type: 'MYTOOLS_LIBRARY', url: '/', isDefault: true, isActive: true }];
   }
 
   /** 获取电子书专用远程来源，包含MyTools EBOOK目录与WebDAV账号。 */
@@ -94,6 +89,11 @@ export class RemoteMediaApi {
     pageSize: number = 24, subdirectory: string = '', fileType: string = '',
     tagNames: string[] = [], matchAllTags: boolean = false, keyword: string = '',
     excludeAdult: boolean = false): Promise<RemoteDirectory> {
+    if (accountId === 'library') {
+      const envelope = await this.client.get('/api/app/v1/media/items?limit=100', cancellation);
+      return this.normalizer.normalizeLibraryPage(envelope.data, keyword, fileType, tagNames, matchAllTags,
+        excludeAdult);
+    }
     if (accountId.startsWith('local:')) {
       const directoryId = this.requestPolicy.accountId(accountId.substring(6));
       const queryTags = tagNames.slice(0, 20).map((name: string) =>
@@ -147,6 +147,9 @@ export class RemoteMediaApi {
    */
   async resolvePlayback(source: RemoteMediaSource, path: string,
     cancellation?: DownloadCancellationToken): Promise<RemotePlaybackDescriptor> {
+    if (source.type === 'MYTOOLS_LIBRARY') {
+      throw new Error('新媒体服务尚未提供播放票据');
+    }
     if (source.type === 'MYTOOLS_LOCAL') {
       const match = /^\/local\/([1-9]\d{0,18})$/.exec(path);
       if (match === null) throw new Error('MyTools本地媒体文件标识无效');

@@ -4,6 +4,30 @@ import { AppMarketDetail, AppMarketItem, AppMarketPage } from './AppMarketModels
  * 将应用市场服务端响应投影为只读、有界且不含执行字段的展示模型。
  */
 export class AppMarketResponseNormalizer {
+  /** 将新应用目录列表投影为旧页面使用的分页模型。 */
+  catalogPage(value: Object | undefined, requestedPage: number, requestedPageSize: number,
+    name: string): AppMarketPage {
+    if (!Array.isArray(value) || value.length > 10000) throw new Error('应用目录响应无效');
+    const query = name.trim().toLocaleLowerCase();
+    const all = value.map((entry: Object): AppMarketItem => this.catalogItem(this.requiredRecord(entry,
+      '应用目录条目无效'))).filter((item: AppMarketItem): boolean =>
+        query.length === 0 || item.name.toLocaleLowerCase().includes(query));
+    const start = (requestedPage - 1) * requestedPageSize;
+    return { items: all.slice(start, start + requestedPageSize), total: all.length,
+      page: requestedPage, pageSize: requestedPageSize };
+  }
+
+  /** 从新目录列表中构造只读详情。 */
+  catalogDetail(value: Object | undefined, id: string): AppMarketDetail {
+    if (!Array.isArray(value)) throw new Error('应用目录响应无效');
+    const entry = value.map((item: Object): Record<string, Object> => this.requiredRecord(item,
+      '应用目录条目无效')).find((item: Record<string, Object>): boolean => `${item['id'] ?? ''}` === id);
+    if (entry === undefined) throw new Error('应用已不在发布目录中');
+    const item = this.catalogItem(entry);
+    return { id: item.id, name: item.name, type: item.type, version: item.version, summary: item.summary,
+      status: item.status, author: item.author, updatedAt: item.updatedAt,
+      content: '', fileName: '', fileSize: 0, fileType: '' };
+  }
   /** 解析分页目录并逐项隔离损坏应用。 */
   page(value: Object | undefined, requestedPage: number, requestedPageSize: number): AppMarketPage {
     const record = this.requiredRecord(value, '应用市场响应缺少分页数据');
@@ -55,6 +79,19 @@ export class AppMarketResponseNormalizer {
     return { id: id, name: name, type: type.length > 0 ? type : 'app',
       version: version.length > 0 ? version : '-', summary: this.plainText(preview), status: status,
       author: author.length > 0 ? author : '未知作者', updatedAt: updatedAt };
+  }
+
+  private catalogItem(record: Record<string, Object>): AppMarketItem {
+    const id = this.text(record['id'], 100, false);
+    const name = this.text(record['name'], 200, false);
+    const type = this.optionalText(record['appType'], 50);
+    const version = this.optionalText(record['currentVersion'], 100);
+    const status = this.optionalText(record['status'], 50);
+    if (id === undefined || name === undefined || type === undefined || version === undefined || status === undefined) {
+      throw new Error('应用目录条目无效');
+    }
+    return { id, name, type: type.length > 0 ? type : 'app', version: version.length > 0 ? version : '-',
+      summary: '', status, author: '-', updatedAt: '' };
   }
 
   private plainText(value: string): string {

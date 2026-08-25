@@ -26,10 +26,8 @@ export class AppMarketApi {
     if (!Number.isSafeInteger(page) || page < 1 || page > 1000000 ||
       !Number.isSafeInteger(pageSize) || pageSize < 1 || pageSize > 100 || name.length > 200 ||
       /[\u0000-\u001F\u007F]/.test(name)) throw new Error('应用市场查询参数无效');
-    let path = `/api/market/apps?page=${page}&pageSize=${pageSize}`;
-    if (name.trim().length > 0) path += `&name=${encodeURIComponent(name.trim())}`;
-    const envelope = await this.client.get(path, cancellation);
-    return this.normalizer.page(envelope.data, page, pageSize);
+    const envelope = await this.client.get('/api/app/v1/catalog', cancellation);
+    return this.normalizer.catalogPage(envelope.data, page, pageSize, name);
   }
 
   /**
@@ -39,7 +37,7 @@ export class AppMarketApi {
     if (id.length < 1 || id.length > 100 || /[\u0000-\u001F\u007F]/.test(id)) {
       throw new Error('应用标识无效');
     }
-    const envelope: ApiEnvelope = await this.client.get(`/api/market/apps/${encodeURIComponent(id)}`, cancellation);
-    return this.normalizer.detail(envelope.data);
+    const envelope: ApiEnvelope = await this.client.get('/api/app/v1/catalog', cancellation);
+    return this.normalizer.catalogDetail(envelope.data, id);
   }
 }
