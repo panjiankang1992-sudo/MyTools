@@ -93,6 +93,7 @@ def values(manifest: dict[str, Any], download_root: str, storage_root: str,
         "SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE": "3",
         "SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE": "0",
         "DOWNLOAD_DESTINATION_ROOT": validate_business_path(download_root, "download root"),
+        "DOWNLOAD_STORAGE_ROOT": "managed",
         "STORAGE_DEFAULT_ROOT_PATH": validate_business_path(storage_root, "storage root"),
         "MEDIA_SCAN_ALLOWED_ROOTS": json.dumps(
             [validate_business_path(item, "media root") for item in media_roots], separators=(",", ":")),
@@ -106,6 +107,7 @@ def values(manifest: dict[str, Any], download_root: str, storage_root: str,
         "STORAGE_RCLONE_RC_URL": "http://127.0.0.1:5572",
         "STORAGE_RCLONE_RC_USER": rclone_user,
         "STORAGE_RCLONE_RC_PASSWORD": rclone_password,
+        "STORAGE_RCLONE_SERVE_URL": "http://127.0.0.1:5573",
     }
     for key in TOKEN_KEYS:
         environment[key] = private_value()
