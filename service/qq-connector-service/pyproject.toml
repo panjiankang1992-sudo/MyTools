@@ -1,0 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mytools-qq-connector"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = ["aiohttp>=3.10,<4"]
+
+[project.scripts]
+mytools-qq-connector = "mytools_qq_connector.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mytools_qq_connector"]

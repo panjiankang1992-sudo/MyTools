@@ -48,6 +48,18 @@ def create_handler(service: OneBotConnectorService, internal_token: str,
                     return
                 self._stream_content()
                 return
+            if path == "/internal/v1/control/relogin":
+                if not self._authorized(internal_token):
+                    self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
+                    return
+                self._run_json(HTTPStatus.ACCEPTED, service.request_relogin)
+                return
+            if path == "/internal/v1/control/login-qr/content":
+                if not self._authorized(internal_token):
+                    self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
+                    return
+                self._stream_qr()
+                return
             self._json(HTTPStatus.NOT_FOUND, {"error": "route does not exist"})
 
         def _run_json(self, success: HTTPStatus, operation) -> None:
@@ -79,6 +91,28 @@ def create_handler(service: OneBotConnectorService, internal_token: str,
             self.end_headers()
             try:
                 service.stream_content(source, self.wfile)
+            except (BrokenPipeError, ConnectionError, OSError, RuntimeError, ValueError):
+                self.close_connection = True
+
+        def _stream_qr(self) -> None:
+            try:
+                source, size = service.prepare_qr(self._read_json())
+            except RuntimeError as exception:
+                self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": str(exception)})
+                return
+            except (OSError, UnicodeError):
+                self._json(HTTPStatus.BAD_GATEWAY, {"error": "provider operation failed"})
+                return
+            except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exception:
+                self._json(HTTPStatus.BAD_REQUEST, {"error": str(exception)})
+                return
+            self.send_response(HTTPStatus.OK.value)
+            self.send_header("Content-Type", "image/png")
+            self.send_header("Content-Length", str(size))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            try:
+                service.stream_qr(source, self.wfile)
             except (BrokenPipeError, ConnectionError, OSError, RuntimeError, ValueError):
                 self.close_connection = True
 

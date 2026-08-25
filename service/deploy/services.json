@@ -9,6 +9,7 @@
     {"name": "storage-gateway-service", "port": 23240, "schema": "mytools_storage", "dbPrefix": "STORAGE", "runtime": "java", "after": ["task-scheduler-service"]},
     {"name": "messaging-service", "port": 23250, "schema": "mytools_messaging", "dbPrefix": "MESSAGING", "runtime": "java", "after": ["task-scheduler-service"]},
     {"name": "onebot-connector-service", "port": 23255, "schema": "mytools_onebot_connector", "dbPrefix": "ONEBOT_CONNECTOR", "runtime": "python", "executable": "mytools-onebot-connector", "after": ["messaging-service"], "defaultEnabled": false},
+    {"name": "qq-connector-service", "port": 23256, "schema": "mytools_qq_connector", "dbPrefix": "QQ_CONNECTOR", "runtime": "python", "executable": "mytools-qq-connector", "after": ["messaging-service", "onebot-connector-service", "task-scheduler-service"], "defaultEnabled": false},
     {"name": "message-automation-service", "port": 23260, "schema": "mytools_message_automation", "dbPrefix": "MESSAGE_AUTOMATION", "runtime": "java", "after": ["messaging-service", "download-ingestion-service"], "defaultEnabled": false},
     {"name": "asset-registry-service", "port": 23270, "schema": "mytools_asset", "dbPrefix": "ASSET", "runtime": "java", "after": ["storage-gateway-service"]},
     {"name": "drive-service", "port": 23280, "schema": "mytools_drive", "dbPrefix": "DRIVE", "runtime": "java", "after": ["storage-gateway-service", "task-scheduler-service"]},

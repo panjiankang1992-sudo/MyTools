@@ -28,7 +28,10 @@ def main() -> None:
     service = OneBotConnectorService(
         MySqlAccountRepository(connection_factory), OneBotClient(),
         os.environ.get("ONEBOT_CONNECTOR_ENABLED", "false").lower() == "true",
-        int(os.environ.get("ONEBOT_CONNECTOR_MAXIMUM_BYTES", str(20 * 1024 * 1024 * 1024))))
+        int(os.environ.get("ONEBOT_CONNECTOR_MAXIMUM_BYTES", str(20 * 1024 * 1024 * 1024))),
+        os.environ.get("ONEBOT_CONNECTOR_RELOGIN_REQUEST_PATH"),
+        os.environ.get("ONEBOT_CONNECTOR_QR_PATH"),
+        int(os.environ.get("ONEBOT_CONNECTOR_MAXIMUM_QR_BYTES", str(2 * 1024 * 1024))))
     handler = create_handler(service, os.environ.get("ONEBOT_CONNECTOR_INTERNAL_TOKEN", ""),
                              os.environ.get("ONEBOT_CONNECTOR_ADMIN_TOKEN", ""))
     server = ThreadingHTTPServer((os.environ.get("ONEBOT_CONNECTOR_HTTP_HOST", "127.0.0.1"),

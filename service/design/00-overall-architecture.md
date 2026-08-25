@@ -10,6 +10,9 @@
 flowchart TB
     C[App / Web / MCP / Admin] --> G[MyTools Gateway]
     CH[Email / QQ / Telegram / OneBot] --> M[Messaging Service]
+    QQ[QQ Connector] --> M
+    QQ --> TS[Task Scheduler]
+    TS --> OB[OneBot Connector]
     G --> I[Identity Service]
     G --> ML[Media Library Service]
     G --> D[Drive Service]

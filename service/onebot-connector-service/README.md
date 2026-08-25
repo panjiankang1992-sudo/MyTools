@@ -10,6 +10,7 @@ OneBot Connector owns NapCat/OneBot account routes, credential references, the f
 - Admin and provider-resolution APIs use separate bearer tokens.
 - Only stable credential-free public HTTPS URLs are returned to Messaging. Local files, signed URLs, and authenticated OneBot URLs use the bounded `STREAM` endpoint.
 - The service uses independent schema `mytools_onebot_connector`; it never reads or writes the legacy DownloadBot database.
+- Relogin control uses only server-configured request and QR paths. Callers cannot provide a path or command, and the QR endpoint only returns a fresh bounded PNG.
 
 ## Internal API
 
@@ -29,6 +30,9 @@ Apply `db/migrations/V1__create_onebot_connector_schema.sql` to a new schema bef
 ```bash
 mytools-onebot-account-migration --config /path/to/downloadbot/config.yaml
 mytools-onebot-account-migration --config /path/to/downloadbot/config.yaml --apply
+
+The `onebot_relogin` executor package calls the fixed relogin endpoint, waits for a fresh PNG,
+and records only the account key, request ID, and request timestamp in its result.
 ```
 
 ## Verification

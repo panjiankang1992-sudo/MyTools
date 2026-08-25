@@ -1,4 +1,5 @@
 from io import BytesIO
+from datetime import UTC, datetime
 import json
 from pathlib import Path
 
@@ -33,9 +34,10 @@ class FakeClient:
         return 7
 
 
-def create_service(enabled=True, public_url=None):
+def create_service(enabled=True, public_url=None, relogin_request_path=None, qr_path=None):
     repository = InMemoryAccountRepository()
-    application = OneBotConnectorService(repository, FakeClient(public_url), enabled, 1024)
+    application = OneBotConnectorService(repository, FakeClient(public_url), enabled, 1024,
+                                         relogin_request_path, qr_path)
     application.register(ACCOUNT)
     return application
 
@@ -95,6 +97,31 @@ def test_stream_content_uses_service_ceiling():
     application = create_service()
     assert application.stream_content(application.prepare_content(REQUEST), output) == 7
     assert output.getvalue() == b"content"
+
+
+def test_relogin_request_is_atomic_and_does_not_accept_a_path(tmp_path: Path):
+    request_path = tmp_path / "runtime" / "relogin.request"
+    application = create_service(relogin_request_path=str(request_path))
+    result = application.request_relogin({"accountKey": "qq_primary", "requestId": "request_1"})
+    assert result["status"] == "REQUESTED"
+    document = json.loads(request_path.read_text())
+    assert document["accountId"] == "qq_primary"
+    assert document["requestId"] == "request_1"
+    assert request_path.stat().st_mode & 0o777 == 0o600
+    with pytest.raises(ValueError):
+        application.request_relogin({"accountKey": "qq_primary", "requestId": "request_2",
+                                     "path": "/tmp/other"})
+
+
+def test_qr_must_be_fresh_png_and_bounded(tmp_path: Path):
+    qr_path = tmp_path / "qrcode.png"
+    qr_path.write_bytes(b"\x89PNG\r\n\x1a\ncontent")
+    application = create_service(qr_path=str(qr_path))
+    requested_at = datetime.fromtimestamp(qr_path.stat().st_mtime - 1, UTC).isoformat()
+    source, size = application.prepare_qr({"accountKey": "qq_primary", "requestedAt": requested_at})
+    output = BytesIO()
+    assert application.stream_qr(source, output) == size
+    assert output.getvalue().startswith(b"\x89PNG")
 
 
 class FakeResponse(BytesIO):

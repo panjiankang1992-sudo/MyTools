@@ -1,0 +1,13 @@
+name: onebot_relogin
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - network_http
+parameters:
+  required:
+    - accountKey
+    - requestId
+limits:
+  timeoutSeconds: 180
+  maxOutputBytes: 65536

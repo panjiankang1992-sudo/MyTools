@@ -2,7 +2,7 @@
 
 ## 1. 定位与边界
 
-OneBot Connector 是原子基础适配服务，负责 NapCat/OneBot 的账户路由、凭据引用、固定 `get_file` 调用、本地文件路径映射和受限内容流。Messaging Service 仍拥有消息与附件作业，Download Ingestion 仍拥有下载生命周期；本服务不复制二者的业务状态。
+OneBot Connector 是原子基础适配服务，负责 NapCat/OneBot 的账户路由、凭据引用、固定 `get_file` 调用、本地文件路径映射、受限内容流，以及固定路径的重登录请求和新鲜二维码读取。Messaging Service 仍拥有消息与附件作业，Download Ingestion 仍拥有下载生命周期；本服务不复制二者的业务状态。
 
 重复的 OneBot 鉴权、文件解析和路径映射从 DownloadBot 与消息链路收敛到此处。调用方只传账户稳定键和不透明 provider file id，不能传动作名、任意 URL、Shell 命令或数据库语句。
 
@@ -37,6 +37,11 @@ Messaging attachment job
 4. 启用单账户和全局开关，在 Messaging 侧执行影子附件解析；不改变旧 DownloadBot 消费入口。
 5. 对账解析模式、字节数、SHA-256 和 Asset Registry 记录，通过后按账户灰度。
 6. 观察期内保留旧链路快速回退；稳定后仅下线重复文件解析能力。
+
+登录控制由 `onebot_relogin` 即时任务执行。脚本只能调用 Connector 固定接口，Connector
+以原子替换写入服务端配置的请求文件，由 root 管理的 path unit 重启 NapCat；随后脚本轮询
+二维码接口。二维码必须晚于请求时间、为 PNG 且不超过 2 MiB。任务结果不保存二维码或路径，
+QQ Connector 使用同一 `accountKey + requestedAt` 读取并回发到原会话。
 
 账户表属于配置数据，能可靠映射则幂等迁移；临时解析结果、过期签名 URL 和下载缓存不迁移，按新任务重新生成。
 
