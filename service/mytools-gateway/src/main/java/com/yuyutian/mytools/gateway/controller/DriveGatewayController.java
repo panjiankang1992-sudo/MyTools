@@ -10,6 +10,7 @@ import com.yuyutian.mytools.gateway.model.DriveGatewayModels.CopyTreeRequest;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.MoveTreeRequest;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.DeleteTreeRequest;
 import com.yuyutian.mytools.gateway.service.DriveGatewayClient;
+import com.yuyutian.mytools.gateway.service.DriveOpenTicketService;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
@@ -40,6 +41,7 @@ import java.util.UUID;
 public class DriveGatewayController {
     private final GatewayProperties properties;
     private final DriveGatewayClient client;
+    private final DriveOpenTicketService tickets;
 
     /**
      * 创建 Drive Gateway 控制器。
@@ -47,9 +49,30 @@ public class DriveGatewayController {
      * @param properties Gateway 配置
      * @param client Drive 客户端
      */
-    public DriveGatewayController(GatewayProperties properties, DriveGatewayClient client) {
+    public DriveGatewayController(GatewayProperties properties, DriveGatewayClient client,
+                                  DriveOpenTicketService tickets) {
         this.properties = properties;
         this.client = client;
+        this.tickets = tickets;
+    }
+
+    /** 为当前所有者的索引文件签发短期票据。 @param accountId 账户 @param body 文件路径 @param request HTTP 请求 @return 票据描述 */
+    @PostMapping("/accounts/{accountId}/open-ticket")
+    public Map<String, Object> openTicket(@PathVariable UUID accountId,
+            @RequestBody Map<String, Object> body, HttpServletRequest request) {
+        GatewayPrincipal principal = requireAllowed(request);
+        String path = java.util.Objects.toString(body.get("path"), "");
+        if (path.isBlank() || path.length() > 2048 || path.indexOf('\\') >= 0) {
+            throw new IllegalArgumentException("drive path is invalid");
+        }
+        Map<String, Object> item = client.item(accountId, principal.userId(), path, correlation(request));
+        String name = java.util.Objects.toString(item.get("displayName"), "remote-file");
+        String mimeType = java.util.Objects.toString(item.get("mimeType"), "");
+        long sizeBytes = item.get("sizeBytes") instanceof Number number ? number.longValue() : 0L;
+        var ticket = tickets.issue(principal.userId(), accountId, path, name, mimeType, sizeBytes);
+        return Map.of("ticket", ticket.token(), "streamPath", "/api/app/v1/drive-tickets/" + ticket.token(),
+                "expiresAt", ticket.expiresAt().toString(), "name", name, "mimeType", mimeType,
+                "sizeBytes", sizeBytes);
     }
 
     /**

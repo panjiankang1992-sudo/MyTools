@@ -10,6 +10,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 /** Drive 内部 API。 */
 @RestController
@@ -49,6 +52,18 @@ public class DriveController {
     public List<ItemView> list(@RequestHeader("Authorization") String authorization, @PathVariable UUID id,
         @RequestParam long ownerId, @RequestParam(defaultValue="") String parentPath) {
         authorize(authorization); return service.list(id,ownerId,parentPath);
+    }
+    /** 流式读取文件。 @param authorization 授权头 @param id 账户 @param ownerId 所有者 @param path 文件路径 @param maximumBytes 最大字节数 @return 文件流 */
+    @GetMapping("/accounts/{id}/content")
+    public ResponseEntity<InputStreamResource> content(@RequestHeader("Authorization") String authorization,
+        @PathVariable UUID id, @RequestParam long ownerId, @RequestParam String path,
+        @RequestParam(defaultValue="107374182400") long maximumBytes) {
+        authorize(authorization);
+        ItemContent content = service.content(id, ownerId, path, maximumBytes);
+        ResponseEntity.BodyBuilder response = ResponseEntity.ok().contentType(MediaType.parseMediaType(content.mimeType()))
+            .header("Content-Disposition", "inline; filename*=UTF-8''" + java.net.URLEncoder.encode(content.displayName(), StandardCharsets.UTF_8));
+        if (content.contentLength() >= 0) response.contentLength(content.contentLength());
+        return response.body(new InputStreamResource(content.stream()));
     }
     /** 创建索引刷新任务。 @param authorization 授权头 @param id 账户 @param ownerId 所有者 @param request 请求 @return 操作 */
     @PostMapping("/accounts/{id}/refresh-index") @ResponseStatus(HttpStatus.ACCEPTED)

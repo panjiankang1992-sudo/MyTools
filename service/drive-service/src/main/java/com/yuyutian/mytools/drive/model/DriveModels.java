@@ -3,6 +3,7 @@ package com.yuyutian.mytools.drive.model;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.time.Instant;
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,6 +40,7 @@ public final class DriveModels {
     public record IndexBatchView(UUID runId, long generation, String nextCursor, String status, int acceptedItems) { }
     public record ItemView(UUID id, String remoteId, String remotePath, String parentPath, String displayName,
         String mimeType, long sizeBytes, boolean directory, Instant modifiedAt, String contentSha256) { }
+    public record ItemContent(InputStream stream, long contentLength, String displayName, String mimeType) { }
     public record RefreshIndexRequest(@NotBlank @Size(max=255) String idempotencyKey) { }
     public record CopyObjectRequest(@NotBlank @Size(max=255) String idempotencyKey,
         @NotNull UUID targetAccountId, @NotBlank @Size(max=2048) String sourcePath,

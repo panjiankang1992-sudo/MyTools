@@ -21,6 +21,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 只使用可信主体查询 Drive 索引的内部客户端。
@@ -59,6 +61,39 @@ public class DriveGatewayClient {
         var response = restTemplate.exchange(url, HttpMethod.GET, entity(correlationId),
                 new ParameterizedTypeReference<List<Map<String, Object>>>() { });
         return response.getBody() == null ? List.of() : response.getBody();
+    }
+
+    /** 查询并校验当前所有者的单个文件。 @param accountId 账户 @param ownerId 所有者 @param path 路径 @param correlationId 关联标识 @return 文件索引 */
+    public Map<String, Object> item(UUID accountId, long ownerId, String path, String correlationId) {
+        int separator = path.lastIndexOf('/');
+        String parentPath = separator < 0 ? "" : path.substring(0, separator);
+        return items(accountId, ownerId, parentPath, correlationId).stream()
+                .filter(value -> path.equals(value.get("remotePath")) && !Boolean.TRUE.equals(value.get("directory")))
+                .findFirst().orElseThrow(GatewayNotFoundException::new);
+    }
+
+    /** 使用可信内部授权把 Drive 文件流转发给票据持有者。 @param accountId 账户 @param ownerId 所有者 @param path 路径 @param maximumBytes 最大字节数 @param response 响应 @param correlationId 关联标识 */
+    public void stream(UUID accountId, long ownerId, String path, long maximumBytes,
+                       HttpServletResponse response, String correlationId) {
+        URI url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/drive/accounts/" + accountId + "/content")
+                .queryParam("ownerId", ownerId).queryParam("path", path).queryParam("maximumBytes", maximumBytes)
+                .build().encode().toUri();
+        restTemplate.execute(url, HttpMethod.GET, request -> request.getHeaders().putAll(headers(correlationId)),
+                source -> {
+                    response.setStatus(source.getStatusCode().value());
+                    if (source.getHeaders().getContentType() != null) {
+                        response.setContentType(source.getHeaders().getContentType().toString());
+                    }
+                    if (source.getHeaders().getContentLength() >= 0) {
+                        response.setContentLengthLong(source.getHeaders().getContentLength());
+                    }
+                    try (var input = source.getBody(); var output = response.getOutputStream()) {
+                        input.transferTo(output);
+                    } catch (IOException exception) {
+                        throw new IllegalStateException("Drive stream failed", exception);
+                    }
+                    return null;
+                });
     }
 
     /** 查询当前主体的 Drive 账户。 @param ownerId 所有者 @param correlationId 关联标识 @return 安全账户摘要 */

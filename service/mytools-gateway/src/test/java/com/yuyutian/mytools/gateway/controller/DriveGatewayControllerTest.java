@@ -7,6 +7,7 @@ import com.yuyutian.mytools.gateway.model.DriveGatewayModels.RefreshIndexRequest
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.AccountSummary;
 import com.yuyutian.mytools.gateway.model.DriveGatewayModels.CopyObjectRequest;
 import com.yuyutian.mytools.gateway.service.DriveGatewayClient;
+import com.yuyutian.mytools.gateway.service.DriveOpenTicketService;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ class DriveGatewayControllerTest {
     @Test
     void shouldInjectTrustedOwnerAndCorrelationIntoDriveQuery() {
         DriveGatewayClient client = mock(DriveGatewayClient.class);
-        DriveGatewayController controller = new DriveGatewayController(properties(true), client);
+        DriveGatewayController controller = controller(properties(true), client);
         when(client.items(accountId, 55L, "books", "correlation"))
                 .thenReturn(List.of(Map.of("name", "book.epub")));
 
@@ -47,8 +48,8 @@ class DriveGatewayControllerTest {
     @Test
     void shouldNotCallDriveWhenRouteIsDisabledOrPrincipalIsNotAllowlisted() {
         DriveGatewayClient client = mock(DriveGatewayClient.class);
-        DriveGatewayController disabled = new DriveGatewayController(properties(false), client);
-        DriveGatewayController enabled = new DriveGatewayController(properties(true), client);
+        DriveGatewayController disabled = controller(properties(false), client);
+        DriveGatewayController enabled = controller(properties(true), client);
 
         assertThatThrownBy(() -> disabled.items(accountId, "", request(55L)))
                 .isInstanceOf(GatewayRouteDisabledException.class);
@@ -61,7 +62,7 @@ class DriveGatewayControllerTest {
     @Test
     void shouldInjectTrustedOwnerIntoRefreshLifecycle() {
         DriveGatewayClient client=mock(DriveGatewayClient.class);
-        DriveGatewayController controller=new DriveGatewayController(properties(true),client);
+        DriveGatewayController controller=controller(properties(true),client);
         UUID operationId=UUID.randomUUID();
         OperationView operation=new OperationView(operationId,accountId,"INDEX_ACCOUNT",
             "RUNNING",null,Instant.EPOCH,Instant.EPOCH);
@@ -78,7 +79,7 @@ class DriveGatewayControllerTest {
     @Test
     void shouldInjectTrustedOwnerIntoCopyOperation() {
         DriveGatewayClient client = mock(DriveGatewayClient.class);
-        DriveGatewayController controller = new DriveGatewayController(properties(true), client);
+        DriveGatewayController controller = controller(properties(true), client);
         UUID targetAccountId = UUID.randomUUID();
         UUID operationId = UUID.randomUUID();
         CopyObjectRequest body = new CopyObjectRequest("copy-1", targetAccountId, "a.bin", "b.bin");
@@ -93,7 +94,7 @@ class DriveGatewayControllerTest {
     @Test
     void shouldInjectTrustedOwnerIntoTreeCopyOperation() {
         DriveGatewayClient client = mock(DriveGatewayClient.class);
-        DriveGatewayController controller = new DriveGatewayController(properties(true), client);
+        DriveGatewayController controller = controller(properties(true), client);
         UUID targetAccountId = UUID.randomUUID();
         UUID operationId = UUID.randomUUID();
         var body = new com.yuyutian.mytools.gateway.model.DriveGatewayModels.CopyTreeRequest(
@@ -109,7 +110,7 @@ class DriveGatewayControllerTest {
     @Test
     void shouldInjectTrustedOwnerIntoTreeMoveOperation() {
         DriveGatewayClient client = mock(DriveGatewayClient.class);
-        DriveGatewayController controller = new DriveGatewayController(properties(true), client);
+        DriveGatewayController controller = controller(properties(true), client);
         UUID targetAccountId = UUID.randomUUID();
         UUID operationId = UUID.randomUUID();
         var body = new com.yuyutian.mytools.gateway.model.DriveGatewayModels.MoveTreeRequest(
@@ -125,7 +126,7 @@ class DriveGatewayControllerTest {
     @Test
     void shouldInjectTrustedOwnerIntoTreeDeleteOperation() {
         DriveGatewayClient client = mock(DriveGatewayClient.class);
-        DriveGatewayController controller = new DriveGatewayController(properties(true), client);
+        DriveGatewayController controller = controller(properties(true), client);
         UUID operationId = UUID.randomUUID();
         var body = new com.yuyutian.mytools.gateway.model.DriveGatewayModels.DeleteTreeRequest(
                 "delete-1", "trash/books", 1000);
@@ -143,6 +144,10 @@ class DriveGatewayControllerTest {
                 new GatewayPrincipal(userId, "user", List.of("USER"), null));
         request.setAttribute(GatewayRequestFilter.CORRELATION_ATTRIBUTE, "correlation");
         return request;
+    }
+
+    private DriveGatewayController controller(GatewayProperties properties, DriveGatewayClient client) {
+        return new DriveGatewayController(properties, client, new DriveOpenTicketService());
     }
 
     private GatewayProperties properties(boolean enabled) {

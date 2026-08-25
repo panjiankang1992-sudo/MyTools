@@ -63,6 +63,22 @@ public class DriveService {
         AccountView account=require(id); if (account.ownerId()!=ownerId) throw new IllegalArgumentException("drive account not found");
         return repository.list(id, normalize(parentPath));
     }
+    /** 流式读取当前所有者的单个索引文件。 @param id 账户 @param ownerId 所有者 @param path 文件路径 @param maximumBytes 最大字节数 @return 文件流 */
+    public ItemContent content(UUID id, long ownerId, String path, long maximumBytes) {
+        requireOwner(id, ownerId);
+        if (maximumBytes <= 0 || maximumBytes > 100L * 1024 * 1024 * 1024) {
+            throw new IllegalArgumentException("drive content maximum bytes is invalid");
+        }
+        String normalized = normalizeRequired(path);
+        String parent = parent(normalized);
+        ItemView item = repository.list(id, parent).stream()
+                .filter(value -> value.remotePath().equals(normalized) && !value.directory()).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("drive item not found"));
+        if (item.sizeBytes() > maximumBytes) throw new IllegalArgumentException("drive item is too large");
+        UUID providerId = repository.findStorageProvider(id)
+                .orElseThrow(() -> new IllegalStateException("drive storage provider is not bound"));
+        return storageConnector.content(providerId, normalized, maximumBytes, item.displayName(), item.mimeType());
+    }
     /** 从受控 connector 列出目录。 @param id 账户 @param path 路径 @return 索引候选 */
     public List<IndexItem> scan(UUID id,String path) {
         AccountView account=require(id); String normalized=normalize(path);
@@ -264,6 +280,10 @@ public class DriveService {
         String normalized = normalize(path);
         if (normalized.isBlank()) throw new IllegalArgumentException("drive path is invalid");
         return normalized;
+    }
+    private String parent(String path) {
+        int separator = path.lastIndexOf('/');
+        return separator < 0 ? "" : path.substring(0, separator);
     }
     private java.util.Set<String> signatures(List<IndexItem> items) {
         java.util.Set<String> values=new java.util.TreeSet<>();

@@ -41,7 +41,11 @@ export class DriveApi {
     if (!this.uuid(driveId) || itemId.length === 0) {
       throw new Error('网盘文件标识无效');
     }
-    throw new Error('新网盘服务尚未提供文件打开票据');
+    const request: Record<string, Object> = {};
+    request['path'] = itemId;
+    const envelope = await this.client.postJson(
+      `/api/app/v1/drive/accounts/${encodeURIComponent(driveId)}/open-ticket`, request, cancellation);
+    return this.normalizer.normalizeOpenDescriptor(envelope.data, this.baseUrl);
   }
 
   private uuid(value: string): boolean {

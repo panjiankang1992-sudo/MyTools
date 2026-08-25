@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.drive.model.DriveModels.IndexItem;
 import com.yuyutian.mytools.drive.model.DriveModels.StorageOperationView;
+import com.yuyutian.mytools.drive.model.DriveModels.ItemContent;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -102,6 +103,44 @@ public class StorageGatewayConnector implements DirectoryConnector {
             throw new IllegalStateException("Storage Gateway list interrupted", exception);
         } catch (java.io.IOException | RuntimeException exception) {
             throw new IllegalStateException("Storage Gateway list failed", exception);
+        }
+    }
+
+    /**
+     * 从 Storage Gateway 流式读取一个远端对象。
+     *
+     * @param providerId Provider 标识
+     * @param path 对象路径
+     * @param maximumBytes 最大字节数
+     * @param displayName 展示名称
+     * @param mimeType MIME 类型
+     * @return 远端对象流
+     */
+    public ItemContent content(UUID providerId, String path, long maximumBytes, String displayName, String mimeType) {
+        String query = "path=" + URLEncoder.encode(path, StandardCharsets.UTF_8)
+                + "&maximumBytes=" + maximumBytes;
+        URI uri = baseUri.resolve("api/internal/v1/storage/providers/" + providerId + "/objects/content?" + query);
+        HttpRequest request = HttpRequest.newBuilder(uri).timeout(Duration.ofMinutes(5))
+                .header("Authorization", "Bearer " + internalToken).GET().build();
+        try {
+            HttpResponse<java.io.InputStream> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofInputStream());
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                response.body().close();
+                throw new IllegalStateException("Storage Gateway content failed");
+            }
+            long length = response.headers().firstValueAsLong("Content-Length").orElse(-1L);
+            if (length > maximumBytes) {
+                response.body().close();
+                throw new IllegalStateException("Storage Gateway content is too large");
+            }
+            return new ItemContent(response.body(), length, displayName,
+                    mimeType == null || mimeType.isBlank() ? "application/octet-stream" : mimeType);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Storage Gateway content interrupted", exception);
+        } catch (java.io.IOException | RuntimeException exception) {
+            throw new IllegalStateException("Storage Gateway content failed", exception);
         }
     }
 
