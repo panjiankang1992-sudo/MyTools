@@ -15,7 +15,9 @@ from mytools_task_sdk.storage import StorageGatewayClient
 def execute(context: dict, storage: StorageGatewayClient, assets: AssetRegistryClient) -> dict:
     """Publish the generated thumbnail and link it to its original media asset."""
     parameters = context["parameters"]
-    generated = dict((context.get("stepOutputs") or {}).get("generate_thumbnail") or {})
+    step_outputs = context.get("stepOutputs") or {}
+    generated = dict(step_outputs.get("generate_thumbnail") or {})
+    materialized = dict(step_outputs.get("materialize_input") or {})
     artifact_path = Path(str(generated.get("artifactPath") or ""))
     if not artifact_path.is_file():
         raise ValueError("generated thumbnail does not exist")
@@ -26,7 +28,7 @@ def execute(context: dict, storage: StorageGatewayClient, assets: AssetRegistryC
         "sourceType": "MEDIA_FILE",
         "sourceBusinessId": media_id,
         "contentSha256": str(parameters["contentSha256"]).lower(),
-        "sizeBytes": Path(str(parameters["sourcePath"])).stat().st_size,
+        "sizeBytes": source_size(parameters, materialized),
         "mimeType": str(parameters.get("assetMimeType") or parameters.get("mimeType")
                         or "application/octet-stream"),
         "location": {
@@ -70,6 +72,20 @@ def execute(context: dict, storage: StorageGatewayClient, assets: AssetRegistryC
     })
     return {"parentAssetId": str(parent["id"]), "artifactAssetId": str(artifact["id"]),
             "parentVersion": int(linked["version"]), "storageUri": storage_uri}
+
+
+def source_size(parameters: dict, materialized: dict) -> int:
+    """Resolve the verified source size while retaining legacy task compatibility."""
+    size = materialized.get("sizeBytes")
+    if size is not None:
+        value = int(size)
+        if value < 0:
+            raise ValueError("materialized source size is invalid")
+        return value
+    source_path = Path(str(parameters.get("sourcePath") or ""))
+    if not source_path.is_file():
+        raise ValueError("source media does not exist")
+    return source_path.stat().st_size
 
 
 def write_result(result: dict) -> None:

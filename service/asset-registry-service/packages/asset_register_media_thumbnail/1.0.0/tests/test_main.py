@@ -68,6 +68,26 @@ class MediaThumbnailRegistrationTest(unittest.TestCase):
             self.assertTrue(result["storageUri"].startswith("storage://managed/"))
             self.assertNotIn(str(root), result["storageUri"])
 
+    def test_uses_materialized_size_without_legacy_source_parameter(self):
+        """New analysis tasks must consume the integrity-verified materialization output."""
+        with tempfile.TemporaryDirectory() as directory:
+            thumbnail = Path(directory) / "thumbnail.jpg"
+            thumbnail.write_bytes(b"jpeg")
+            storage = Storage()
+            assets = Assets()
+            MODULE.execute({
+                "parameters": {"assetId": "42", "assetRegistryId":
+                               "00000000-0000-4000-8000-000000000001",
+                               "contentSha256": "a" * 64, "assetMimeType": "video/mp4"},
+                "stepOutputs": {
+                    "materialize_input": {"sizeBytes": 1234},
+                    "generate_thumbnail": {"artifactPath": str(thumbnail),
+                                           "artifactSha256": "b" * 64, "size": 4},
+                },
+            }, storage, assets)
+
+            self.assertEqual(1234, assets.payloads[0]["sizeBytes"])
+
 
 if __name__ == "__main__":
     unittest.main()
