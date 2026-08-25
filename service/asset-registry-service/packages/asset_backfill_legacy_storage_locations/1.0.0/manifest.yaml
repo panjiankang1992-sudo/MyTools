@@ -1,0 +1,17 @@
+name: asset_backfill_legacy_storage_locations
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - legacy_asset_read
+  - asset_registry_write
+parameters:
+  required:
+    - sourceSnapshotId
+    - legacyRootPath
+    - storageRoot
+    - dryRun
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 3600
