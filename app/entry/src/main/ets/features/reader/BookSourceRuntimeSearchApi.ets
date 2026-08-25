@@ -1,11 +1,41 @@
 import { AuthSessionManager } from '../auth/AuthSessionManager';
 import { AuthorizedApiClient } from '../../shared/network/AuthorizedApiClient';
-import { BookSourceSearchResult } from './ReaderModels';
+import { BookSource, BookSourceSearchResult } from './ReaderModels';
 
 interface RuntimeSearchRequest {
+  idempotencyKey: string;
   keyword: string;
   page: number;
   mode: string;
+  sources: RuntimeSourceSnapshot[];
+}
+
+interface RuntimeSourceSnapshot {
+  id: string;
+  name: string;
+  url: string;
+  revision: number;
+  snapshot: RuntimeSourcePayload;
+}
+
+interface RuntimeSourcePayload {
+  bookSourceUrl: string;
+  bookSourceName: string;
+  bookSourceGroup: string;
+  bookSourceType: number;
+  enabled: boolean;
+  enabledExplore: boolean;
+  searchUrl: string;
+  exploreUrl: string;
+  header: string;
+  ruleSearch: Record<string, Object>;
+  ruleExplore: Record<string, Object>;
+  ruleBookInfo: Record<string, Object>;
+  ruleToc: Record<string, Object>;
+  ruleContent: Record<string, Object>;
+}
+
+interface EmptyRequest {
 }
 
 /** 后端书源异步搜索任务。 */
@@ -36,15 +66,30 @@ export class BookSourceRuntimeSearchApi {
   }
 
   /** 启动全量书源搜索任务。 */
-  async start(keyword: string, page: number, mode: string): Promise<BookSourceRuntimeSearchTask> {
-    const request: RuntimeSearchRequest = { keyword: keyword, page: page, mode: mode };
-    return this.task((await this.client.postJson('/api/app/v1/reader/source-search', request)).data);
+  async start(keyword: string, page: number, mode: string, sources: BookSource[]): Promise<BookSourceRuntimeSearchTask> {
+    // 完整规则快照体积较大，单批限制数量以满足统一认证接口的2 MB请求上限。
+    const snapshots = sources.filter((source: BookSource) => source.enabled &&
+      source.bookSourceName.trim().length > 0 && source.bookSourceName.length <= 300 &&
+      source.bookSourceUrl.trim().length > 0 && source.bookSourceUrl.length <= 2000).slice(0, 100)
+      .map((source: BookSource, index: number): RuntimeSourceSnapshot => ({
+        id: `source-${index}`, name: source.bookSourceName, url: source.bookSourceUrl,
+        revision: Number.isSafeInteger(source.syncRevision) && (source.syncRevision ?? 0) >= 0 &&
+          (source.syncRevision ?? 0) <= 2147483647 ?
+          (source.syncRevision ?? 0) : 0, snapshot: this.snapshot(source)
+      }));
+    if (snapshots.length === 0) throw new Error('没有已启用的书源');
+    const request: RuntimeSearchRequest = {
+      idempotencyKey: `app-${Date.now()}-${page}-${mode.toLocaleLowerCase()}`,
+      keyword: keyword, page: page, mode: mode === 'EXACT' ? 'EXACT' : 'FUZZY', sources: snapshots
+    };
+    return this.task((await this.client.postJson('/api/app/v1/reader/book-searches', request)).data);
   }
 
   /** 终止仍在执行的搜索任务。 */
   async cancel(taskId: string): Promise<void> {
     if (!/^[0-9a-f-]{36}$/.test(taskId)) return;
-    await this.client.delete(`/api/app/v1/reader/source-search/${encodeURIComponent(taskId)}`);
+    const request: EmptyRequest = {};
+    await this.client.postJson(`/api/app/v1/reader/book-searches/${encodeURIComponent(taskId)}/cancel`, request);
   }
 
   /** 获取任务新增结果。 */
@@ -52,8 +97,7 @@ export class BookSourceRuntimeSearchApi {
     if (!/^[0-9a-f-]{36}$/.test(taskId) || !Number.isSafeInteger(offset) || offset < 0) {
       throw new Error('书源搜索任务参数无效');
     }
-    return this.task((await this.client.get(`/api/app/v1/reader/source-search/${encodeURIComponent(taskId)}` +
-      `?offset=${offset}&limit=200`)).data);
+    return this.task((await this.client.get(`/api/app/v1/reader/book-searches/${encodeURIComponent(taskId)}`)).data);
   }
 
   private task(value: Object | undefined): BookSourceRuntimeSearchTask {
@@ -61,19 +105,32 @@ export class BookSourceRuntimeSearchApi {
       throw new Error('书源搜索响应无效');
     }
     const data = value as Record<string, Object>;
-    const taskId = `${data['taskId'] ?? ''}`;
-    const status = `${data['status'] ?? ''}`;
-    const processedSources = this.safeInteger(data['processedSources']);
-    const totalSources = this.safeInteger(data['totalSources']);
+    // App 持有搜索实例标识，调度任务标识仅供后端内部聚合，不能用于搜索状态接口。
+    const taskId = `${data['id'] ?? data['taskId'] ?? ''}`;
+    const rawStatus = `${data['status'] ?? ''}`;
+    const status = rawStatus === 'SUCCEEDED' || rawStatus === 'PARTIAL_FAILED' ? 'COMPLETED' :
+      (rawStatus === 'ACCEPTED' || rawStatus === 'QUEUED' ? 'RUNNING' :
+        (rawStatus === 'TIMED_OUT' ? 'FAILED' : rawStatus));
+    const completedShards = this.safeInteger(data['completedShards']);
+    const failedShards = this.safeInteger(data['failedShards']);
+    const totalShards = this.safeInteger(data['totalShards']);
+    const processedSources = this.safeInteger(data['processedSources']) >= 0 ?
+      this.safeInteger(data['processedSources']) : Math.max(0, completedShards) + Math.max(0, failedShards);
+    const totalSources = this.safeInteger(data['totalSources']) >= 0 ?
+      this.safeInteger(data['totalSources']) : Math.max(0, totalShards);
     // 兼容尚未部署搜索进度扩展字段的旧后端，避免升级期间整页搜索不可用。
     const rawCachedSources = this.safeInteger(data['cachedSources']);
     const rawPendingSources = this.safeInteger(data['pendingSources']);
     const cachedSources = rawCachedSources >= 0 ? rawCachedSources : 0;
     const pendingSources = rawPendingSources >= 0 ? rawPendingSources : totalSources;
-    const failedSources = this.safeInteger(data['failedSources']);
-    const resultCount = this.safeInteger(data['resultCount']);
-    const nextOffset = this.safeInteger(data['nextOffset']);
-    const updatedAt = this.safeInteger(data['updatedAt']);
+    const rawFailedSources = this.safeInteger(data['failedSources']);
+    const failedSources = rawFailedSources >= 0 ? rawFailedSources : Math.max(0, failedShards);
+    const rawResults = Array.isArray(data['results']) ? data['results'] as Object[] : [];
+    const resultCount = this.safeInteger(data['resultCount']) >= 0 ? this.safeInteger(data['resultCount']) : rawResults.length;
+    const nextOffset = this.safeInteger(data['nextOffset']) >= 0 ? this.safeInteger(data['nextOffset']) : rawResults.length;
+    const parsedUpdatedAt = Date.parse(`${data['updatedAt'] ?? ''}`);
+    const updatedAt = this.safeInteger(data['updatedAt']) >= 0 ? this.safeInteger(data['updatedAt']) :
+      (Number.isFinite(parsedUpdatedAt) ? Math.floor(parsedUpdatedAt) : Date.now());
     const message = `${data['message'] ?? ''}`.substring(0, 200);
     const hasMore = data['hasMore'] === true;
     if (!/^[0-9a-f-]{36}$/.test(taskId) || !['RUNNING', 'COMPLETED', 'FAILED', 'CANCELLED'].includes(status) ||
@@ -84,7 +141,6 @@ export class BookSourceRuntimeSearchApi {
       updatedAt < 0) {
       throw new Error('书源搜索响应字段无效');
     }
-    const rawResults = Array.isArray(data['results']) ? data['results'] as Object[] : [];
     const results: BookSourceSearchResult[] = [];
     rawResults.forEach((item: Object) => {
       const parsed = this.result(item);
@@ -94,6 +150,17 @@ export class BookSourceRuntimeSearchApi {
       cachedSources: cachedSources, pendingSources: pendingSources, failedSources: failedSources,
       resultCount: resultCount, results: results, nextOffset: nextOffset,
       hasMore: hasMore, message: message, updatedAt: updatedAt };
+  }
+
+  private snapshot(source: BookSource): RuntimeSourcePayload {
+    return {
+      bookSourceUrl: source.bookSourceUrl, bookSourceName: source.bookSourceName,
+      bookSourceGroup: source.bookSourceGroup, bookSourceType: source.bookSourceType,
+      enabled: source.enabled, enabledExplore: source.enabledExplore, searchUrl: source.searchUrl,
+      exploreUrl: source.exploreUrl, header: source.header, ruleSearch: source.ruleSearch,
+      ruleExplore: source.ruleExplore, ruleBookInfo: source.ruleBookInfo,
+      ruleToc: source.ruleToc, ruleContent: source.ruleContent
+    };
   }
 
   private result(value: Object): BookSourceSearchResult | undefined {

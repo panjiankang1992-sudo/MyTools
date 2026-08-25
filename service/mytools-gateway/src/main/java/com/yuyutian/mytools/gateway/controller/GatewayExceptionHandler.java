@@ -12,6 +12,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -20,6 +22,7 @@ import java.util.Map;
  */
 @RestControllerAdvice
 public class GatewayExceptionHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GatewayExceptionHandler.class);
 
     /**
      * 转换认证失败异常。
@@ -46,6 +49,9 @@ public class GatewayExceptionHandler {
             HttpMessageNotReadableException.class, ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> badRequest(Exception exception) {
+        // 仅记录异常类型与框架生成的校验摘要，不记录认证信息或请求正文。
+        LOGGER.warn("Gateway request validation failed: type={}, reason={}",
+                exception.getClass().getSimpleName(), exception.getMessage());
         return Map.of("code", "GATEWAY_003", "message", "Gateway request is invalid");
     }
 

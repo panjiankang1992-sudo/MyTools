@@ -11986,7 +11986,8 @@ struct Index {
   private async RunBookSourceRuntimeSearch(keyword: string, page: number, revision: number,
     cancellation: DownloadCancellationToken, append: boolean): Promise<BookSourceSearchResult[]> {
     const api = new BookSourceRuntimeSearchApi(this.ActiveServiceUrl(), this.authManager);
-    let task: BookSourceRuntimeSearchTask = await api.start(keyword, page, this.sourceSearchMode);
+    let task: BookSourceRuntimeSearchTask = await api.start(keyword, page, this.sourceSearchMode,
+      this.bookSources);
     this.sourceSearchTaskId = task.taskId;
     let offset = 0;
     const pageResults = new Map<string, BookSourceSearchResult>();
