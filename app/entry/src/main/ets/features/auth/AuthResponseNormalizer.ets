@@ -16,7 +16,7 @@ export class AuthResponseNormalizer {
       avatar: this.avatar(data['avatar']),
       role: this.role(data),
       accessToken: this.token(data['accessToken'], '访问令牌'),
-      refreshToken: this.token(data['refreshToken'], '刷新令牌'),
+      refreshToken: this.refreshToken(data['refreshToken']),
       expiresAt: this.expiry(now, expiresIn)
     };
   }
@@ -29,7 +29,7 @@ export class AuthResponseNormalizer {
     // 兼容线上旧版MyTools刷新协议：未轮换刷新令牌时继续使用已校验的原令牌。
     const responseRefreshToken = data['refreshToken'];
     const refreshToken = responseRefreshToken === undefined || responseRefreshToken === null ?
-      identity.refreshToken : this.token(responseRefreshToken, '刷新令牌');
+      identity.refreshToken : this.refreshToken(responseRefreshToken);
     return {
       userId: identity.userId,
       username: identity.username,
@@ -62,7 +62,7 @@ export class AuthResponseNormalizer {
       avatar: this.avatar(session.avatar),
       role: this.requiredString(session.role, '用户角色', 64, /^[A-Za-z][A-Za-z0-9_-]{0,63}$/),
       accessToken: this.token(session.accessToken, '访问令牌'),
-      refreshToken: this.token(session.refreshToken, '刷新令牌'),
+      refreshToken: this.refreshToken(session.refreshToken),
       expiresAt: expiresAt
     };
   }
@@ -88,6 +88,14 @@ export class AuthResponseNormalizer {
       !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token)) {
       throw new Error(`服务端${label}格式无效`);
     }
+    return token;
+  }
+
+  private refreshToken(value: Object | undefined): string {
+    const token = typeof value === 'string' ? value : '';
+    const jwt = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token);
+    const opaque = /^[A-Za-z0-9_-]{32,1024}$/.test(token);
+    if (token.length > 8192 || (!jwt && !opaque)) throw new Error('服务端刷新令牌格式无效');
     return token;
   }
 
