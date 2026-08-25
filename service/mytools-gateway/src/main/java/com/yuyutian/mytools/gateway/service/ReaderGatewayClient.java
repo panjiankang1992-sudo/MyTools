@@ -357,12 +357,21 @@ public class ReaderGatewayClient {
     }
 
     private SearchView exchangeSearch(String url, HttpMethod method, Object body, String correlationId) {
-        var response = restTemplate.exchange(url, method, entity(body, correlationId), SearchView.class);
+        var response = restTemplate.exchange(url, method, entity(body, correlationId), InternalSearchView.class);
         if (response.getBody() == null) {
             throw new IllegalStateException("Reader Service returned an empty response");
         }
-        return response.getBody();
+        var value = response.getBody();
+        return new SearchView(value.id(), value.status(), value.keyword(), value.mode(), value.page(),
+                value.completedShards(), value.failedShards(), value.totalShards(), value.results(),
+                value.createdAt(), value.updatedAt());
     }
+
+    /** Reader 内部搜索响应，调度任务标识不会投影到 App 契约。 */
+    private record InternalSearchView(UUID id, UUID taskId, String status, String keyword, String mode, int page,
+                                      int completedShards, int failedShards, int totalShards,
+                                      java.util.List<java.util.Map<String, Object>> results,
+                                      java.time.Instant createdAt, java.time.Instant updatedAt) { }
 
     private ImportView exchangeImport(String url, HttpMethod method, Object body, String correlationId) {
         var response = restTemplate.exchange(url, method, entity(body, correlationId), ImportView.class);

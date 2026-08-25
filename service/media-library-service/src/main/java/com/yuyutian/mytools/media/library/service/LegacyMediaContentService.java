@@ -53,18 +53,22 @@ public class LegacyMediaContentService {
                 }
                 String thumbnailPath = result.getString("thumbnail_path");
                 Path original = Path.of(result.getString("file_path")).toAbsolutePath().normalize();
+                String originalMimeType = result.getString("mime_type");
                 Path path = thumbnail && thumbnailPath != null && !thumbnailPath.isBlank()
                         ? Path.of(thumbnailPath).toAbsolutePath().normalize() : original;
                 long expectedSize = result.getLong("file_size");
-                // 原文件必须复核迁移时大小；缩略图缺失时回退原图。
+                // 图片缩略图缺失时可回退原图；视频禁止把超大原文件伪装成缩略图返回。
                 if (thumbnail && !Files.isRegularFile(path)) {
+                    if (originalMimeType == null || !originalMimeType.toLowerCase().startsWith("image/")) {
+                        throw new IllegalArgumentException("media thumbnail is unavailable");
+                    }
                     path = original;
                 }
                 if (!Files.isRegularFile(path) || path.equals(original) && Files.size(path) != expectedSize) {
                     throw new IllegalArgumentException("media content is unavailable");
                 }
                 String detected = Files.probeContentType(path);
-                String mimeType = thumbnail && !path.equals(original) ? detected : result.getString("mime_type");
+                String mimeType = thumbnail && !path.equals(original) ? detected : originalMimeType;
                 long actualSize = Files.size(path);
                 return new Content(new FileSystemResource(path),
                         mimeType == null || mimeType.isBlank() ? "application/octet-stream" : mimeType,

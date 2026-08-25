@@ -13,10 +13,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 public class MediaPlaybackTicketService {
+    private static final long TICKET_TTL_SECONDS = 12 * 60 * 60;
     private final Map<String, Ticket> tickets = new ConcurrentHashMap<>();
 
     /**
-     * 签发十分钟播放票据。
+     * 签发可覆盖长视频播放的十二小时票据。
      *
      * @param ownerId 所有者
      * @param mediaId 媒体标识
@@ -27,7 +28,7 @@ public class MediaPlaybackTicketService {
         UUID value = UUID.randomUUID();
         java.nio.ByteBuffer.wrap(bytes).putLong(value.getMostSignificantBits()).putLong(value.getLeastSignificantBits());
         String token = HexFormat.of().formatHex(bytes);
-        Ticket ticket = new Ticket(token, ownerId, mediaId, Instant.now().plusSeconds(600));
+        Ticket ticket = new Ticket(token, ownerId, mediaId, Instant.now().plusSeconds(TICKET_TTL_SECONDS));
         tickets.put(token, ticket);
         tickets.entrySet().removeIf(entry -> entry.getValue().expiresAt().isBefore(Instant.now()));
         return ticket;
