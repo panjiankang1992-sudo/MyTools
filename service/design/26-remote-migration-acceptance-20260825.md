@@ -7,7 +7,7 @@
 - 当前发布：`remote_candidate_20260825_10`。
 - 日志根目录：`/opt/yuyutian/logs/mytools`。
 - 旧 MyTools、DownloadBot、MsgService 保持运行，旧数据库、SQLite 一致备份和附件归档均未删除。
-- 新 Gateway 路由、实时 DownloadBot 旁路、IMAP/OneBot、PikPak Connector 和迁移适配器在验收结束后恢复为关闭状态。
+- 新 Gateway 路由、实时 DownloadBot 旁路、IMAP/OneBot、PikPak Connector 和迁移适配器在验收结束后恢复为关闭状态。IMAP 凭据已配置，但入站轮询仍保持关闭。
 
 迁移证据保存在远程 `/opt/yuyutian/mytools/migration`，权限仅允许部署账号读取。旧 MyTools 备份清单 SHA-256 为 `8ba98940e236246902a5f946ef5e90b4c16031e6e65ce1b1ba55e4324bbeb05f`；迁移计划在创建任务前均校验该清单。
 
@@ -36,17 +36,20 @@ MsgService 的 6 个旧附件中，4 个已进入内容寻址归档并验证 SHA
 ## 3. 任务控制面与可再生数据
 
 - Scheduler 和 Executor 远程验收再次通过成功、失败、超时、取消四种终态；失败、超时、取消均执行对应终端步骤。
+- 外部配置补充后的复验 run key 为 `post-external-20260825-02`，四种终态分别为 `SUCCEEDED`、`FAILED`、`TIMED_OUT`、`CANCELLED`。
 - Reader 书库 generation `7c7e7c59-890d-4c7c-84c9-ec51444dd16f` 已通过任务 `65560f71-6ccf-4bf1-96dd-55c5c10464ed` 原子发布；当前无可索引电子书，因此 `indexedCount=0`。
+- 用户提供的书源 JSON 已验证为 703 条有效输入；由于目标站点持续重置 Ubuntu 的 TLS 连接，采用本机下载校验后经 Reader 受保护的批量接口离线导入。按 `bookSourceUrl` 去重后保存 702 条，数据全部保留，验收仅启用 1 条。健康检查任务 `786f088e-509f-4684-b474-54ca6e7a41ae` 经 Scheduler/Executor 成功完成；该书源规则探测结果为不健康，不影响任务链验收结论。
+- 首次健康检查发现 Executor 环境缺少 `READER_RUNTIME_SECURE_KEY`。远程已从既有 Reader Runtime 的受限配置安全映射该键，Executor 重启后复验成功；部署环境模板同步补充该变量。
 - Media 迁移后对账处于静止状态：暂存扫描、分析中任务和运行中分析均为 0。
 - Storage/Drive 的 PikPak 索引尚未成功。rclone RC 已认证并能识别 `pikpak` remote，但 PikPak 验证码初始化接口持续被对端重置连接，Storage 返回 `STORAGE_014`，Drive 索引任务保留 FAILED 证据。该问题不影响已迁移的 Provider、Drive 账户或其他领域数据，但在外部连接恢复并完成索引及摘要对账前，不能宣称 Storage/Drive 重建完成。
 
 ## 4. 外部连接实测
 
 - SMTP：使用旧 MsgService 当前配置执行 Nodemailer `verify()` 成功；随后将同一主机上的配置安全映射到新 Messaging，启用 Spring Mail 健康检查后 `/actuator/health` 返回 `UP`。两次检查都只完成 TLS/认证握手，没有发送邮件。
-- IMAP：旧 MsgService 的 `EMAIL_IMAP_HOST`、`EMAIL_IMAP_USER`、`EMAIL_IMAP_PASS` 均为空，无法执行真实收件验证；新 Messaging 的邮件入口继续关闭。
-- OneBot：NapCat 容器、HTTP/WS 监听和旧 DownloadBot 服务进程均在线，但只读 `get_status` 请求被连接重置。旧 DownloadBot 的 `adapter_health_states` 同时记录 `OFFLINE`，连续失败 2,070 次，因此不能把进程存活视为 OneBot 可用。
-- PikPak：重复 RC 探测分别返回验证码初始化连接重置和请求超时，Storage/Drive 继续保留失败任务证据。
-- 外部书源：Reader 新 schema 中 `book_source`、`book_source_version`、发现请求及健康检查记录均为 0，当前没有可用于真实连接测试的书源配置。
+- IMAP：Foxmail 隔离账户已写入远程 `0600` 环境文件；对 `imap.qq.com:993` 的只读登录及 `INBOX` 打开成功，确认 6 封现有邮件，未读取正文、未设置已读标志。Messaging 重启健康，`MESSAGING_EMAIL_INGRESS_ENABLED=false` 继续阻止实际轮询。
+- OneBot：NapCat 恢复登录后，只读 `get_status` 返回 HTTP 200、`online=true`、`good=true`。
+- PikPak：最新 RC 探测返回认证失效并伴随连接重置，Storage/Drive 继续保留失败任务证据；需要重新完成 rclone/PikPak 授权。
+- 外部书源：输入 JSON 有效并已登记 702 个去重书源；Scheduler/Executor 健康检查任务成功完成，当前启用的测试书源探测结果为不健康。
 
 ## 5. 部署与安全验收
 
@@ -59,10 +62,9 @@ MsgService 的 6 个旧附件中，4 个已进入内容寻址归档并验证 SHA
 
 ## 6. Gateway 启用条件
 
-Identity、Asset、Media、Reader、Messaging、App Catalog、Feedback、DSH 和 Download 历史的数据条件已经满足。当前仍不启用任何新 Gateway 路由，原因是完整系统验收还缺少：
+Identity、Asset、Media、Reader、Messaging、App Catalog、Feedback、DSH 和 Download 历史的数据条件已经满足。当前仍不启用任何新 Gateway 路由，完整系统验收只剩：
 
 1. PikPak 外部连接恢复后的 Storage 扫描、Drive 索引和双端摘要闭合。
-2. 补充 IMAP 和外部书源的隔离测试配置；恢复 OneBot 登录后完成只读健康检查。SMTP 握手已通过，不需要为本轮验收发送真实邮件。
-3. 在上述两项通过后，重新运行全服务健康、任务控制面和相应业务路由烟雾测试。
+2. PikPak 恢复后重新运行对应业务重建门禁。IMAP、OneBot、外部书源、全服务健康和任务控制面均已复验；SMTP 握手已通过，不需要为本轮验收发送真实邮件。
 
 由于当前没有活跃用户，完成剩余外部验证后可直接启用所需 Gateway 路由，不实施灰度、双写或复杂切流。旧服务与备份在单独确认保留期结束前不得删除。
