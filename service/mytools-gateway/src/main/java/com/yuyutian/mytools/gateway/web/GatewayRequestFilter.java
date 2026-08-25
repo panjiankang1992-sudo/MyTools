@@ -109,7 +109,9 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
         if (uri.equals("/api/app/v1/dsh/sessions") || uri.startsWith("/api/app/v1/dsh/sessions/")) {
             return new Route(dshProperties.routeEnabled(), ignored -> true);
         }
-        if (uri.equals("/api/app/v1/identity/logout") || uri.equals("/api/app/v1/identity/me")) {
+        if (uri.equals("/api/app/v1/identity/logout") || uri.equals("/api/app/v1/identity/me")
+                || uri.equals("/api/app/v1/identity/sessions")
+                || uri.startsWith("/api/app/v1/identity/sessions/")) {
             return new Route(properties.identityRouteUsable(), ignored -> true);
         }
         return new Route(false, ignored -> false);

@@ -21,6 +21,8 @@ public final class IdentityModels {
  public record PrincipalView(boolean active,long userId,String username,List<String> roles,UUID sessionId,Instant expiresAt) { }
  public record SessionRecord(UUID id,long userId,String deviceId,String refreshHash,long version,long credentialVersion,
    Instant issuedAt,Instant refreshExpiresAt,Instant revokedAt) { }
+ public record SessionView(UUID id,String deviceId,String status,Instant issuedAt,Instant refreshExpiresAt,
+   Instant lastSeenAt) { }
  public record LegacyUserMigrationBatch(
    @NotBlank @Pattern(regexp="^[A-Za-z0-9._:-]{1,128}$") String migrationKey,
    boolean dryRun,

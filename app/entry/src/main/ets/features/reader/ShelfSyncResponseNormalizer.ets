@@ -37,6 +37,9 @@ export class ShelfSyncResponseNormalizer {
    */
   saveResult(value: Object | undefined): ShelfSyncResult {
     const record = this.record(value);
+    if (record !== undefined && record['metadata'] !== undefined) {
+      return { accepted: true, book: this.remoteItem(record) };
+    }
     if (record === undefined || typeof record['accepted'] !== 'boolean') {
       throw new Error('服务端书架保存回执无效');
     }
@@ -50,6 +53,12 @@ export class ShelfSyncResponseNormalizer {
   private remoteItem(value: Object): ShelfSyncItem {
     const record = this.record(value);
     if (record === undefined) throw new Error('服务端书架项格式无效');
+    const metadata = this.record(record['metadata']);
+    if (metadata !== undefined) {
+      return this.item(metadata['bookId'], metadata['name'], metadata['author'], metadata['origin'], metadata['format'],
+        metadata['resourceUri'], metadata['sourceId'], metadata['remoteCoverUrl'], metadata['clientUpdatedAt'],
+        record['deleted'], record['version']);
+    }
     return this.item(record['bookId'], record['name'], record['author'], record['origin'], record['format'],
       record['resourceUri'], record['sourceId'], record['remoteCoverUrl'], record['clientUpdatedAt'],
       record['deleted'], record['revision']);

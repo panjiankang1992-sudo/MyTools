@@ -4,6 +4,25 @@ import { DeviceSession, SessionEnvelope } from './SessionModels';
  * 对设备会话接口信封和列表执行有界归一化。
  */
 export class SessionResponseNormalizer {
+  /** 归一化新 Identity 设备会话列表。 */
+  identitySessions(data: Object | undefined): DeviceSession[] {
+    if (!Array.isArray(data) || data.length > 1000) throw new Error('服务端未返回会话列表');
+    const sessions: DeviceSession[] = [];
+    data.forEach((raw: Object) => {
+      const item = this.record(raw);
+      if (item === undefined) return;
+      try {
+        const id = this.uuid(item['id']);
+        sessions.push({ id, name: this.optionalText(item['deviceId'], 255), tokenPrefix: '****',
+          status: this.status(item['status']), createdTime: this.time(item['issuedAt']),
+          expireTime: this.time(item['refreshExpiresAt']), current: item['current'] === true });
+      } catch (_) {
+      }
+    });
+    const current = sessions.find((item: DeviceSession): boolean => item.current);
+    const others = sessions.filter((item: DeviceSession): boolean => !item.current);
+    return current === undefined ? others.slice(0, 200) : [current].concat(others).slice(0, 200);
+  }
   /**
    * 解析最多1 MB的会话JSON信封。
    */
@@ -77,7 +96,15 @@ export class SessionResponseNormalizer {
    * 校验下线请求中的会话ID。
    */
   revokeId(value: string): string {
-    return this.id(value);
+    return this.uuid(value);
+  }
+
+  private uuid(value: Object | undefined): string {
+    const text = typeof value === 'string' ? value : '';
+    if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(text)) {
+      throw new Error('设备会话标识无效');
+    }
+    return text.toLowerCase();
   }
 
   private id(value: Object | undefined): string {

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.UUID;
+import java.util.List;
 /** Identity HTTP API。 */
 @RestController
 public class IdentityController {
@@ -25,5 +26,9 @@ public class IdentityController {
  public PrincipalView validate(@RequestHeader("Authorization") String authorization,@Valid @RequestBody ValidateRequest request){authorize(authorization);return service.validate(request);}
  /** 撤销会话。 @param authorization 内部授权 @param id 会话 @param reason 原因 */ @PostMapping("/internal/v1/identity/sessions/{id}/revoke") @ResponseStatus(HttpStatus.NO_CONTENT)
  public void revoke(@RequestHeader("Authorization") String authorization,@PathVariable UUID id,@RequestParam(defaultValue="ADMIN_REVOKE") String reason){authorize(authorization);if(!reason.matches("^[A-Z][A-Z0-9_]{0,63}$"))throw new IllegalArgumentException("identity revoke reason is invalid");service.revoke(id,reason);}
+ /** 查询用户会话。 @param authorization 授权 @param userId 用户 @return 会话 */ @GetMapping("/internal/v1/identity/users/{userId}/sessions")
+ public List<SessionView> sessions(@RequestHeader("Authorization")String authorization,@PathVariable long userId){authorize(authorization);return service.sessions(userId);}
+ /** 撤销用户会话。 @param authorization 授权 @param userId 用户 @param id 会话 */ @PostMapping("/internal/v1/identity/users/{userId}/sessions/{id}/revoke") @ResponseStatus(HttpStatus.NO_CONTENT)
+ public void revokeOwned(@RequestHeader("Authorization")String authorization,@PathVariable long userId,@PathVariable UUID id){authorize(authorization);service.revokeOwned(userId,id,"USER_REVOKE");}
  private void authorize(String authorization){byte[] expected=("Bearer "+properties.internalToken()).getBytes(StandardCharsets.UTF_8);if(properties.internalToken().isBlank()||!MessageDigest.isEqual(expected,authorization.getBytes(StandardCharsets.UTF_8)))throw new SecurityException("identity internal authorization failed");}
 }

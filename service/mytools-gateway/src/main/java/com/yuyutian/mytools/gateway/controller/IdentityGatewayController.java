@@ -19,6 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import java.util.List;
+import java.util.UUID;
+import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.SessionView;
 
 /**
  * 默认关闭的 Identity 会话生命周期入口。
@@ -97,6 +102,31 @@ public class IdentityGatewayController {
         }
         String role = principal.roles().isEmpty() ? "USER" : principal.roles().get(0);
         return new CurrentIdentity(principal.userId(), principal.username(), "", "", role);
+    }
+
+    /** 查询当前用户设备会话。 @param request HTTP 请求 @return 会话 */
+    @GetMapping("/sessions")
+    public List<SessionView> sessions(HttpServletRequest request) {
+        GatewayPrincipal principal = requirePrincipal(request);
+        return client.sessions(principal.userId(), correlation(request)).stream()
+                .map(item -> new SessionView(item.id(), item.deviceId(), item.status(), item.issuedAt(),
+                        item.refreshExpiresAt(), item.lastSeenAt(), item.id().equals(principal.sessionId())))
+                .toList();
+    }
+
+    /** 撤销当前用户指定会话。 @param id 会话 @param request HTTP 请求 */
+    @DeleteMapping("/sessions/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void revoke(@PathVariable UUID id, HttpServletRequest request) {
+        GatewayPrincipal principal = requirePrincipal(request);
+        client.revoke(principal.userId(), id, correlation(request));
+    }
+
+    private GatewayPrincipal requirePrincipal(HttpServletRequest request) {
+        requireEnabled();
+        Object value = request.getAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE);
+        if (!(value instanceof GatewayPrincipal principal)) throw new GatewayUnauthorizedException();
+        return principal;
     }
 
     private void requireEnabled() {

@@ -19,10 +19,8 @@ export class SessionApi {
    * 查询全部会话并标记当前设备。
    */
   async list(cancellation?: DownloadCancellationToken): Promise<DeviceSession[]> {
-    const current = await this.client.get('/api/tokens/current', cancellation);
-    const currentId = this.normalizer.currentId(current.data);
-    const list = await this.client.get('/api/tokens', cancellation);
-    return this.normalizer.sessions(list.data, currentId);
+    const list = await this.client.get('/api/app/v1/identity/sessions', cancellation);
+    return this.normalizer.identitySessions(list.data);
   }
 
   /**
@@ -30,13 +28,16 @@ export class SessionApi {
    */
   async revoke(sessionId: string): Promise<void> {
     const safeId = this.normalizer.revokeId(sessionId);
-    await this.client.delete(`/api/tokens/${safeId}`);
+    await this.client.delete(`/api/app/v1/identity/sessions/${safeId}`);
   }
 
   /**
    * 下线当前设备之外的全部会话。
    */
   async revokeOthers(): Promise<void> {
-    await this.client.delete('/api/tokens/others');
+    const sessions = await this.list();
+    for (const session of sessions) {
+      if (!session.current) await this.revoke(session.id);
+    }
   }
 }

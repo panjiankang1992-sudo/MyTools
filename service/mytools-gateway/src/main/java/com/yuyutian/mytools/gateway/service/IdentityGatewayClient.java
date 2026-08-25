@@ -4,6 +4,8 @@ import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.LoginRequest;
 import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.RefreshRequest;
 import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.TokenPair;
+import com.yuyutian.mytools.gateway.model.IdentityGatewayModels.SessionView;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.UUID;
+import java.util.List;
 
 /**
  * 只转发稳定认证字段的 Identity 客户端。
@@ -81,6 +84,40 @@ public class IdentityGatewayClient {
         } catch (RestClientException exception) {
             throw new GatewayDownstreamException();
         }
+    }
+
+    /** 查询当前用户会话。 @param userId 用户 @param correlationId 关联标识 @return 会话 */
+    public List<SessionView> sessions(long userId, String correlationId) {
+        HttpHeaders headers = internalHeaders(correlationId);
+        try {
+            var response = restTemplate.exchange(root() + "/internal/v1/identity/users/" + userId + "/sessions",
+                    HttpMethod.GET, new HttpEntity<>(headers), new ParameterizedTypeReference<List<SessionView>>() { });
+            return response.getBody() == null ? List.of() : response.getBody();
+        } catch (RestClientException exception) {
+            throw new GatewayDownstreamException();
+        }
+    }
+
+    /** 撤销当前用户会话。 @param userId 用户 @param sessionId 会话 @param correlationId 关联标识 */
+    public void revoke(long userId, UUID sessionId, String correlationId) {
+        try {
+            restTemplate.exchange(root() + "/internal/v1/identity/users/" + userId + "/sessions/" + sessionId
+                    + "/revoke", HttpMethod.POST, new HttpEntity<>(internalHeaders(correlationId)), Void.class);
+        } catch (HttpClientErrorException.BadRequest exception) {
+            throw new GatewayBadRequestException();
+        } catch (RestClientException exception) {
+            throw new GatewayDownstreamException();
+        }
+    }
+
+    private HttpHeaders internalHeaders(String correlationId) {
+        if (properties.identityToken() == null || properties.identityToken().isBlank()) {
+            throw new GatewayDownstreamException();
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(properties.identityToken());
+        headers.set("X-Correlation-Id", correlationId);
+        return headers;
     }
 
     private TokenPair post(String path, Object body, String correlationId) {

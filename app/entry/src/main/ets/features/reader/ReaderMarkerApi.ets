@@ -9,15 +9,20 @@ export { ReaderMarkerSyncItem, ReaderMarkerSyncResult } from './ReaderSyncModels
 
 interface SaveMarkerRequest {
   markerId: string;
-  kind: string;
-  bookId: string;
+  markerType: string;
+  bookKey: string;
+  chapterIndex: number;
+  position: MarkerPosition;
+  note: string;
+  deleted: boolean;
+  expectedVersion?: number;
+}
+
+interface MarkerPosition {
   chapterTitle: string;
   locator: number;
-  note: string;
   createdAt: number;
-  updatedAt: number;
-  deleted: boolean;
-  revision: number;
+  clientUpdatedAt: number;
 }
 
 /**
@@ -37,7 +42,7 @@ export class ReaderMarkerApi {
    */
   async list(bookIds: string[], knownMarkers: ReaderMarkerSyncItem[],
     cancellation?: DownloadCancellationToken): Promise<ReaderMarkerSyncItem[]> {
-    const envelope = await this.client.get('/api/app/v1/reader/markers', cancellation);
+    const envelope = await this.client.get('/api/app/v1/reader/markers?includeDeleted=true', cancellation);
     this.throwIfCancelled(cancellation);
     const keyMap = new Map<string, string>();
     for (const bookId of bookIds) {
@@ -56,19 +61,20 @@ export class ReaderMarkerApi {
    * 保存活动标记或删除墓碑。
    */
   async save(marker: ReaderMarkerSyncItem): Promise<ReaderMarkerSyncResult> {
+    const position: MarkerPosition = { chapterTitle: marker.chapterTitle,
+      locator: Math.max(0, Math.min(1000000000, Math.round(marker.locator))),
+      createdAt: marker.createdAt, clientUpdatedAt: marker.updatedAt };
     const request: SaveMarkerRequest = {
       markerId: marker.id,
-      kind: marker.kind,
-      bookId: await this.syncKey(marker.bookId),
-      chapterTitle: marker.chapterTitle,
-      locator: Math.max(0, Math.min(1000000000, Math.round(marker.locator))),
+      markerType: marker.kind,
+      bookKey: await this.syncKey(marker.bookId),
+      chapterIndex: 0,
+      position,
       note: marker.note.substring(0, 2000),
-      createdAt: marker.createdAt,
-      updatedAt: marker.updatedAt,
-      deleted: marker.deleted,
-      revision: marker.revision
+      deleted: marker.deleted
     };
-    const envelope = await this.client.putJson('/api/app/v1/reader/markers', request);
+    if (marker.revision > 0) request.expectedVersion = marker.revision;
+    const envelope = await this.client.postJson('/api/app/v1/reader/markers', request);
     return this.normalizer.markerSave(envelope.data, marker.bookId);
   }
 

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 import java.util.List;
+import java.time.Instant;
 
 /**
  * Gateway 对外认证契约。
@@ -42,4 +43,6 @@ public final class IdentityGatewayModels {
      */
     public record CurrentIdentity(long userId, String username, String nickname, String avatar, String role) {
     }
+    public record SessionView(UUID id, String deviceId, String status, Instant issuedAt,
+                              Instant refreshExpiresAt, Instant lastSeenAt, boolean current) { }
 }

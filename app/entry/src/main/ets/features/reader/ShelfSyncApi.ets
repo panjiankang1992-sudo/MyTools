@@ -6,7 +6,13 @@ import { ShelfSyncItem, ShelfSyncResult } from './ShelfSyncModels';
 import { DownloadCancellationToken } from '../../shared/network/DownloadCancellationToken';
 
 interface SaveShelfRequest {
-  syncKey: string;
+  bookKey: string;
+  metadata: ShelfMetadata;
+  deleted: boolean;
+  expectedVersion?: number;
+}
+
+interface ShelfMetadata {
   bookId: string;
   name: string;
   author: string;
@@ -15,9 +21,7 @@ interface SaveShelfRequest {
   resourceUri: string;
   sourceId: string;
   remoteCoverUrl: string;
-  updatedAt: number;
-  deleted: boolean;
-  revision: number;
+  clientUpdatedAt: number;
 }
 
 /**
@@ -36,7 +40,7 @@ export class ShelfSyncApi {
    * 拉取用户书架及删除墓碑。
    */
   async list(cancellation?: DownloadCancellationToken): Promise<ShelfSyncItem[]> {
-    const envelope = await this.client.get('/api/app/v1/reader/shelf', cancellation);
+    const envelope = await this.client.get('/api/app/v1/reader/shelves?includeDeleted=true', cancellation);
     return this.normalizer.list(envelope.data);
   }
 
@@ -45,21 +49,17 @@ export class ShelfSyncApi {
    */
   async save(book: ShelfSyncItem): Promise<ShelfSyncResult> {
     const safeBook = this.normalizer.localItem(book);
+    const metadata: ShelfMetadata = { bookId: safeBook.id, name: safeBook.name, author: safeBook.author,
+      origin: safeBook.origin, format: safeBook.format, resourceUri: safeBook.resourceUri,
+      sourceId: safeBook.sourceId, remoteCoverUrl: safeBook.remoteCoverUrl,
+      clientUpdatedAt: safeBook.updatedAt };
     const request: SaveShelfRequest = {
-      syncKey: `sha256:${await this.digestTool.digestText(safeBook.id, 'SHA256')}`,
-      bookId: safeBook.id,
-      name: safeBook.name,
-      author: safeBook.author,
-      origin: safeBook.origin,
-      format: safeBook.format,
-      resourceUri: safeBook.resourceUri,
-      sourceId: safeBook.sourceId,
-      remoteCoverUrl: safeBook.remoteCoverUrl,
-      updatedAt: safeBook.updatedAt,
-      deleted: safeBook.deleted,
-      revision: safeBook.revision
+      bookKey: `sha256:${await this.digestTool.digestText(safeBook.id, 'SHA256')}`,
+      metadata,
+      deleted: safeBook.deleted
     };
-    const envelope = await this.client.putJson('/api/app/v1/reader/shelf', request);
+    if (safeBook.revision > 0) request.expectedVersion = safeBook.revision;
+    const envelope = await this.client.postJson('/api/app/v1/reader/shelves', request);
     return this.normalizer.saveResult(envelope.data);
   }
 }

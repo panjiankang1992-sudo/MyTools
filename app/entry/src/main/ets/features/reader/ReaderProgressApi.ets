@@ -7,13 +7,19 @@ import { ReaderSyncResponseNormalizer } from './ReaderSyncResponseNormalizer';
 import { DownloadCancellationToken } from '../../shared/network/DownloadCancellationToken';
 
 interface SaveProgressRequest {
-  bookId: string;
+  bookKey: string;
+  chapterIndex: number;
+  chapterUrl: string;
+  position: ProgressPosition;
+  deleted: boolean;
+  expectedVersion?: number;
+}
+
+interface ProgressPosition {
   chapterTitle: string;
   locator: number;
   percentage: number;
-  updatedAt: number;
-  deleted: boolean;
-  revision: number;
+  clientUpdatedAt: number;
 }
 
 /**
@@ -33,7 +39,7 @@ export class ReaderProgressApi {
    */
   async list(localProgress: ReadingProgress[], localBookIds: string[],
     cancellation?: DownloadCancellationToken): Promise<ReadingProgress[]> {
-    const envelope = await this.client.get('/api/app/v1/reader/progress', cancellation);
+    const envelope = await this.client.get('/api/app/v1/reader/progress?includeDeleted=true', cancellation);
     this.throwIfCancelled(cancellation);
     const keyMap = new Map<string, string>();
     for (const bookId of localBookIds) {
@@ -52,25 +58,28 @@ export class ReaderProgressApi {
   async find(bookId: string, cancellation?: DownloadCancellationToken): Promise<ReadingProgress | undefined> {
     const key = await this.syncKey(bookId);
     this.throwIfCancelled(cancellation);
-    const envelope = await this.client.get(`/api/app/v1/reader/progress/${encodeURIComponent(key)}`, cancellation);
+    const envelope = await this.client.get('/api/app/v1/reader/progress?includeDeleted=true', cancellation);
     this.throwIfCancelled(cancellation);
-    return this.normalizer.progressOne(envelope.data, bookId);
+    return this.normalizer.progressByKey(envelope.data, key, bookId);
   }
 
   /**
    * 保存单本书进度，并返回服务端权威版本。
    */
   async save(progress: ReadingProgress): Promise<ProgressSyncResult> {
-    const request: SaveProgressRequest = {
-      bookId: await this.syncKey(progress.bookId),
-      chapterTitle: progress.chapterTitle,
+    const position: ProgressPosition = { chapterTitle: progress.chapterTitle,
       locator: Math.max(0, Math.min(1000000000, Math.round(progress.locator))),
       percentage: Math.max(0, Math.min(100, Math.round(progress.percentage))),
-      updatedAt: progress.updatedAt,
-      deleted: progress.deleted === true,
-      revision: progress.revision ?? 0
+      clientUpdatedAt: progress.updatedAt };
+    const request: SaveProgressRequest = {
+      bookKey: await this.syncKey(progress.bookId),
+      chapterIndex: 0,
+      chapterUrl: '',
+      position,
+      deleted: progress.deleted === true
     };
-    const envelope = await this.client.putJson('/api/app/v1/reader/progress', request);
+    if ((progress.revision ?? 0) > 0) request.expectedVersion = progress.revision;
+    const envelope = await this.client.postJson('/api/app/v1/reader/progress', request);
     return this.normalizer.progressSave(envelope.data, progress.bookId);
   }
 

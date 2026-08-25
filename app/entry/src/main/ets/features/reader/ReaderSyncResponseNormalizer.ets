@@ -16,7 +16,7 @@ export class ReaderSyncResponseNormalizer {
     value.slice(0, ReaderSyncResponseNormalizer.MAX_SCAN_ITEMS).forEach((item: Object) => {
       const record = this.record(item);
       if (record === undefined) return;
-      const remoteBookId = this.syncKey(record['bookId']);
+      const remoteBookId = this.syncKey(record['bookKey'] ?? record['bookId']);
       const localBookId = remoteBookId === undefined ? undefined : keyMap.get(remoteBookId);
       if (localBookId === undefined) return;
       const progress = this.progress(record, localBookId);
@@ -31,6 +31,11 @@ export class ReaderSyncResponseNormalizer {
   /** 解析保存阅读进度的权威回执。 */
   progressSave(value: Object | undefined, localBookId: string): ProgressSyncResult {
     const record = this.requiredRecord(value, '阅读进度保存回执无效');
+    if (record['position'] !== undefined) {
+      const direct = this.progress(record, localBookId);
+      if (direct === undefined) throw new Error('阅读进度保存回执无效');
+      return { accepted: true, progress: direct };
+    }
     const accepted = this.requiredBoolean(record['accepted'], '阅读进度保存回执无效');
     const remoteRecord = this.record(record['progress']);
     const progress = remoteRecord === undefined ? undefined : this.progress(remoteRecord, localBookId);
@@ -46,6 +51,17 @@ export class ReaderSyncResponseNormalizer {
     const record = this.record(value);
     if (record === undefined) throw new Error('单本阅读进度响应无效');
     const progress = this.progress(record, localBookId);
+    if (progress === undefined) throw new Error('单本阅读进度响应无效');
+    return progress;
+  }
+
+  /** 从新 Reader 列表中按书籍键读取单条进度。 */
+  progressByKey(value: Object | undefined, key: string, localBookId: string): ReadingProgress | undefined {
+    if (!Array.isArray(value)) throw new Error('阅读进度列表响应无效');
+    const match = value.map((item: Object): Record<string, Object> | undefined => this.record(item))
+      .find((item: Record<string, Object> | undefined): boolean => item?.['bookKey'] === key);
+    if (match === undefined) return undefined;
+    const progress = this.progress(match, localBookId);
     if (progress === undefined) throw new Error('单本阅读进度响应无效');
     return progress;
   }
@@ -84,7 +100,7 @@ export class ReaderSyncResponseNormalizer {
     value.slice(0, ReaderSyncResponseNormalizer.MAX_SCAN_ITEMS).forEach((item: Object) => {
       const record = this.record(item);
       if (record === undefined) return;
-      const remoteBookId = this.syncKey(record['bookId']);
+      const remoteBookId = this.syncKey(record['bookKey'] ?? record['bookId']);
       const localBookId = remoteBookId === undefined ? undefined : keyMap.get(remoteBookId);
       if (localBookId === undefined) return;
       const marker = this.marker(record, localBookId);
@@ -99,6 +115,11 @@ export class ReaderSyncResponseNormalizer {
   /** 解析保存阅读标记的权威回执。 */
   markerSave(value: Object | undefined, localBookId: string): ReaderMarkerSyncResult {
     const record = this.requiredRecord(value, '阅读标记保存回执无效');
+    if (record['position'] !== undefined) {
+      const direct = this.marker(record, localBookId);
+      if (direct === undefined) throw new Error('阅读标记保存回执无效');
+      return { accepted: true, marker: direct };
+    }
     const accepted = this.requiredBoolean(record['accepted'], '阅读标记保存回执无效');
     const remoteRecord = this.record(record['marker']);
     const marker = remoteRecord === undefined ? undefined : this.marker(remoteRecord, localBookId);
@@ -126,11 +147,13 @@ export class ReaderSyncResponseNormalizer {
   }
 
   private progress(value: Record<string, Object>, bookId: string): ReadingProgress | undefined {
-    const chapterTitle = this.text(value['chapterTitle'], 500, false);
-    const locator = this.optionalInteger(value['locator'], 1000000000);
-    const percentage = this.optionalInteger(value['percentage'], 100);
-    const updatedAt = this.optionalInteger(value['clientUpdatedAt']);
-    const revision = this.optionalInteger(value['revision']);
+    const position = this.record(value['position']);
+    const source = position ?? value;
+    const chapterTitle = this.text(source['chapterTitle'], 500, false);
+    const locator = this.optionalInteger(source['locator'], 1000000000);
+    const percentage = this.optionalInteger(source['percentage'], 100);
+    const updatedAt = this.optionalInteger(source['clientUpdatedAt']);
+    const revision = this.optionalInteger(value['version'] ?? value['revision']);
     const deleted = value['deleted'];
     if (chapterTitle === undefined || locator === undefined || percentage === undefined || updatedAt === undefined ||
       revision === undefined || typeof deleted !== 'boolean') return undefined;
@@ -151,14 +174,16 @@ export class ReaderSyncResponseNormalizer {
   }
 
   private marker(value: Record<string, Object>, bookId: string): ReaderMarkerSyncItem | undefined {
-    const id = this.text(value['markerId'], 100, false);
-    const kind = value['kind'];
-    const chapterTitle = this.text(value['chapterTitle'], 500, false);
+    const position = this.record(value['position']);
+    const source = position ?? value;
+    const id = this.text(value['id'] ?? value['markerId'], 100, false);
+    const kind = value['markerType'] ?? value['kind'];
+    const chapterTitle = this.text(source['chapterTitle'], 500, false);
     const note = this.text(value['note'], 2000, true, true);
-    const locator = this.optionalInteger(value['locator'], 1000000000);
-    const createdAt = this.optionalInteger(value['createdAt']);
-    const updatedAt = this.optionalInteger(value['clientUpdatedAt']);
-    const revision = this.optionalInteger(value['revision']);
+    const locator = this.optionalInteger(source['locator'], 1000000000);
+    const createdAt = this.optionalInteger(source['createdAt']);
+    const updatedAt = this.optionalInteger(source['clientUpdatedAt']);
+    const revision = this.optionalInteger(value['version'] ?? value['revision']);
     const deleted = value['deleted'];
     if (id === undefined || !/^[A-Za-z0-9-]{1,100}$/.test(id) ||
       (kind !== 'BOOKMARK' && kind !== 'ANNOTATION') || chapterTitle === undefined || note === undefined ||

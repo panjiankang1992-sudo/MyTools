@@ -68,6 +68,8 @@ public class IdentityService {
   return new PrincipalView(active,userId,user.username(),user.roles(),sessionId,claims.getExpiration().toInstant());
  }catch(RuntimeException exception){return new PrincipalView(false,0,"",List.of(),null,null);}}
  /** 实时撤销会话。 @param id 会话 @param reason 原因 */ public void revoke(UUID id,String reason){transactions.executeWithoutResult(s->repository.revoke(id,reason));}
+ /** 查询用户会话。 @param userId 用户 @return 会话 */ public List<SessionView> sessions(long userId){return repository.sessions(userId);}
+ /** 撤销归属用户的会话。 @param userId 用户 @param id 会话 @param reason 原因 */ public void revokeOwned(long userId,UUID id,String reason){SessionRecord session=repository.session(id).orElseThrow(()->new IllegalArgumentException("identity session not found"));if(session.userId()!=userId)throw new IllegalArgumentException("identity session not found");revoke(id,reason);}
  private TokenPair pair(UserView user,SessionRecord session,String refresh){return new TokenPair(jwt.issue(user,session),refresh,"Bearer",properties.accessSeconds(),Math.max(0,session.refreshExpiresAt().getEpochSecond()-Instant.now().getEpochSecond()),session.id(),user.id(),user.username(),user.roles());}
  private String token(){byte[] bytes=new byte[32];random.nextBytes(bytes);return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);}
  private String sha256(String value){try{return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));}catch(NoSuchAlgorithmException exception){throw new IllegalStateException(exception);}}
