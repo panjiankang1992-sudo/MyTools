@@ -43,7 +43,7 @@ class ConnectorClient:
                     and 8 <= content_length <= 2 * 1024 * 1024 \
                     and prefix == b"\x89PNG\r\n\x1a\n"
         except HTTPError as exception:
-            if exception.code == 503:
+            if exception.code in {502, 503}:
                 return False
             raise
 

@@ -1,5 +1,6 @@
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
+from urllib.error import HTTPError
 
 MODULE_PATH = Path(__file__).parents[1] / "scripts" / "main.py"
 SPEC = spec_from_file_location("onebot_relogin", MODULE_PATH)
@@ -43,3 +44,12 @@ def test_execute_rejects_unbounded_identifiers():
         pass
     else:
         raise AssertionError("unsafe account key must be rejected")
+
+
+def test_qr_probe_retries_transient_gateway_and_unavailable_responses(monkeypatch):
+    client = MODULE.ConnectorClient("http://127.0.0.1:23255", "token")
+    for status in (502, 503):
+        def unavailable(*_args, response_status=status, **_kwargs):
+            raise HTTPError("http://127.0.0.1", response_status, "temporary", {}, None)
+        monkeypatch.setattr(MODULE, "urlopen", unavailable)
+        assert client.qr_ready("qq_primary", "2026-08-25T10:00:00+00:00") is False

@@ -97,8 +97,11 @@ class OneBotConnectorService:
             raise ValueError("OneBot QR request time is invalid")
         if self._qr_path is None:
             raise RuntimeError("OneBot QR control is not configured")
-        path = self._qr_path.resolve(strict=True)
-        stat = path.stat()
+        try:
+            path = self._qr_path.resolve(strict=True)
+            stat = path.stat()
+        except FileNotFoundError as exception:
+            raise RuntimeError("fresh OneBot login QR is not available") from exception
         generated_at = datetime.fromtimestamp(stat.st_mtime, UTC)
         if generated_at < requested_at.astimezone(UTC):
             raise RuntimeError("fresh OneBot login QR is not available")

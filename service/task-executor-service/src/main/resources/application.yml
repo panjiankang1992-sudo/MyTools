@@ -33,6 +33,9 @@ executor:
     - identity
     - storage
   script-environments:
+    onebot_relogin:
+      ONEBOT_CONNECTOR_URL: ${ONEBOT_CONNECTOR_URL:http://127.0.0.1:23255}
+      ONEBOT_CONNECTOR_INTERNAL_TOKEN: ${ONEBOT_CONNECTOR_INTERNAL_TOKEN:}
     download_http_asset:
       DOWNLOAD_DESTINATION_ROOT: ${DOWNLOAD_DESTINATION_ROOT:./runtime/downloads}
     download_record_result:

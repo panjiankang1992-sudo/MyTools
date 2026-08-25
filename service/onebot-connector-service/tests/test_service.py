@@ -124,6 +124,13 @@ def test_qr_must_be_fresh_png_and_bounded(tmp_path: Path):
     assert output.getvalue().startswith(b"\x89PNG")
 
 
+def test_missing_qr_is_reported_as_temporarily_unavailable(tmp_path: Path):
+    application = create_service(qr_path=str(tmp_path / "qrcode.png"))
+    with pytest.raises(RuntimeError, match="fresh OneBot login QR is not available"):
+        application.prepare_qr({"accountKey": "qq_primary",
+                                "requestedAt": datetime.now(UTC).isoformat()})
+
+
 class FakeResponse(BytesIO):
     status = 200
     headers = {}
