@@ -72,9 +72,10 @@ public class MessageAutomationService {
         if (rule == null) {
             return transactionTemplate.execute(status -> repository.completeRun(messageId, "NO_MATCH", List.of(), null));
         }
-        if ("MESSAGE_ATTACHMENT".equals(rule.requestKind())) {
-            List<InboundMessage.MessagePart> attachments = message.parts().stream()
-                    .filter(part -> "ATTACHMENT".equals(part.type())).limit(rule.maxActions()).toList();
+        List<InboundMessage.MessagePart> attachments = message.parts().stream()
+                .filter(part -> "ATTACHMENT".equals(part.type())).limit(rule.maxActions()).toList();
+        // 渠道已提供结构化附件时优先走附件任务，保留原文件名并避免重复下载正文中的同一URL。
+        if ("MESSAGE_ATTACHMENT".equals(rule.requestKind()) || !attachments.isEmpty()) {
             if (attachments.isEmpty()) return noInput(messageId);
             for (int index = 0; index < attachments.size(); index++) {
                 int sequence = index;

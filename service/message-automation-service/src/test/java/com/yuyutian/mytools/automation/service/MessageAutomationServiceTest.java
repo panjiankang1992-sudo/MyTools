@@ -182,6 +182,32 @@ class MessageAutomationServiceTest {
     }
 
     @Test
+    void shouldPreferStructuredAttachmentForUrlRule() {
+        service.createRule(new CreateAutomationRuleRequest(17L, "qq_download", ChannelType.QQ,
+                null, "qq-user", "", "HTTP_ASSET", 5, 100, true));
+        UUID messageId = UUID.randomUUID();
+        UUID partId = UUID.randomUUID();
+        UUID jobId = UUID.randomUUID();
+        InboundMessage message = new InboundMessage(messageId, 17L, ChannelType.QQ,
+                "external-" + messageId, "qq:c2c:qq-user", "qq-user", null,
+                "https://files.example/download", Instant.now(), Instant.now(),
+                List.of(new InboundMessage.MessagePart(partId, 1, "ATTACHMENT", "IMAGE",
+                        "photo.png", "image/png", 1024L)));
+        when(messagingClient.get(messageId)).thenReturn(message);
+        when(messagingClient.createAttachment(messageId, partId, 17L))
+                .thenReturn(new MessagingClient.AttachmentSnapshot(jobId, "QUEUED"));
+        when(messagingClient.attachment(jobId, 17L))
+                .thenReturn(new MessagingClient.AttachmentSnapshot(jobId, "SUCCEEDED"));
+
+        var completed = service.process(messageId);
+
+        assertThat(completed.status()).isEqualTo("SUCCEEDED");
+        assertThat(completed.actions()).extracting("actionType").containsExactly("ATTACHMENT_DOWNLOAD");
+        verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString());
+        verify(messagingClient).createAttachment(messageId, partId, 17L);
+    }
+
+    @Test
     void shouldRecoverUnknownDownloadCreationByStableActionSequence() {
         service.createRule(new CreateAutomationRuleRequest(14L, "recover_download", ChannelType.EMAIL,
                 "thread-4", "allowed@example.com", "download: ", "HTTP_ASSET", 1, 100, true));
