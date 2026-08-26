@@ -241,6 +241,32 @@ class MessageAutomationServiceTest {
         verify(downloadClient, times(2)).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any());
     }
 
+    @Test
+    void shouldRelayEveryMissedFivePercentMilestone() {
+        service.createRule(new CreateAutomationRuleRequest(18L, "progress_download", ChannelType.QQ,
+                null, "qq-progress-user", "", "HTTP_ASSET", 1, 100, true));
+        UUID messageId = UUID.randomUUID();
+        UUID downloadId = UUID.randomUUID();
+        InboundMessage inbound = new InboundMessage(messageId, 18L, ChannelType.QQ,
+                "qq_main:C2C_MESSAGE_CREATE:progress", "qq:c2c:qq-progress-user", "qq-progress-user", null,
+                "https://files.example/large.zip", Instant.now(), Instant.now());
+        when(messagingClient.get(messageId)).thenReturn(inbound);
+        when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any()))
+                .thenReturn(downloadId.toString());
+        when(downloadClient.get(downloadId, 18L))
+                .thenReturn(new DownloadIngestionClient.DownloadSnapshot(downloadId, "RUNNING"));
+        when(downloadClient.summary(downloadId)).thenReturn(new DownloadIngestionClient.DownloadSummary(
+                downloadId, "RUNNING", 15, 1_887_437L, 12_582_912L, List.of()));
+
+        var running = service.process(messageId);
+
+        assertThat(running.status()).isEqualTo("RUNNING");
+        verify(messagingClient).reply(eq(messageId), anyString(), eq("下载进度：0%（0.0/12.0 MiB）。"));
+        verify(messagingClient).reply(eq(messageId), anyString(), eq("下载进度：5%（0.6/12.0 MiB）。"));
+        verify(messagingClient).reply(eq(messageId), anyString(), eq("下载进度：10%（1.2/12.0 MiB）。"));
+        verify(messagingClient).reply(eq(messageId), anyString(), eq("下载进度：15%（1.8/12.0 MiB）。"));
+    }
+
     private InboundMessage message(UUID id, long ownerId, String conversation, String sender, String body) {
         Instant now = Instant.now();
         return new InboundMessage(id, ownerId, ownerId == 11L ? ChannelType.TELEGRAM : ChannelType.EMAIL,

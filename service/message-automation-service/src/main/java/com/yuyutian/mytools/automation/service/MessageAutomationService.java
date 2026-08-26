@@ -232,11 +232,17 @@ public class MessageAutomationService {
                 || percent % 5 != 0) {
             return;
         }
-        String size = String.format(java.util.Locale.ROOT, "%.1f/%.1f MiB",
-                summary.downloadedBytes() / 1048576.0, summary.totalBytes() / 1048576.0);
-        messagingClient.reply(message.id(), "automation-progress-" + run.id() + "-"
-                + action.id() + "-" + percent, "下载进度：" + percent + "%（" + size + "）。");
-        repository.updateProgress(action.id(), percent);
+        int milestone = action.lastProgressPercent() < 0 ? 0 : action.lastProgressPercent() + 5;
+        while (milestone <= percent) {
+            // 轮询可能跨过多个进度节点，必须逐个补发以保留每 5% 的用户反馈。
+            long milestoneBytes = Math.min(summary.totalBytes(), summary.totalBytes() * milestone / 100);
+            String size = String.format(java.util.Locale.ROOT, "%.1f/%.1f MiB",
+                    milestoneBytes / 1048576.0, summary.totalBytes() / 1048576.0);
+            messagingClient.reply(message.id(), "automation-progress-" + run.id() + "-"
+                    + action.id() + "-" + milestone, "下载进度：" + milestone + "%（" + size + "）。");
+            repository.updateProgress(action.id(), milestone);
+            milestone += 5;
+        }
     }
 
     private AutomationRunView aggregate(UUID messageId) {
