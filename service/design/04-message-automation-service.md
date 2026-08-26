@@ -4,7 +4,7 @@
 
 ## 职责
 
-消费标准化入站消息，匹配规则，提取命令、链接和附件，创建下载或其他业务任务，并请求 Messaging Service 回复结果。
+消费已经由渠道 Connector 回执并写入 Messaging 的标准化入站消息，匹配规则，提取命令、链接和附件，创建下载或其他业务任务，并请求 Messaging Service 按原渠道回复结果。本服务不得依赖 QQ、Telegram 等输入协议。
 
 ## 数据模型
 
@@ -23,7 +23,7 @@
 5. 查询或事件触发时对账动作状态，聚合全部成功、部分失败、失败或取消。
 6. 级联取消仍在运行的子动作并生成完成通知。
 
-完成通知不增加独立通知中心。终态事件由轻量中继读取：EMAIL 使用 `automation-completion-{runId}` 调用 Messaging 幂等创建投递，QQ 通过 QQ Connector 内部鉴权接口回复原会话；只有下游接受请求后才确认 Outbox，失败保留重试。后台协调器周期性查询运行中的任务并推进终态，不依赖外部查询触发。其他渠道在对应 Delivery Provider 可执行前不消费终态事件。
+完成通知不增加独立通知中心。终态事件由轻量中继读取并交给 Messaging 的统一渠道路由，Messaging 再按入站消息保存的 `channelType + accountKey + conversationKey + externalMessageId` 调用 EMAIL、QQ、Telegram 或 OneBot Delivery Provider。只有对应 Provider 接受请求后才确认 Outbox，失败保留重试。后台协调器周期性查询运行中的任务并推进终态，不依赖外部查询触发。当前 QQ Connector 直连发送仅作为统一 Messaging 出站 Provider 完成前的兼容实现，不得把 QQ 分支扩散到分析、分类和任务编排代码。
 
 ## 脚本与子任务
 

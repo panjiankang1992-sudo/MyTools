@@ -17,15 +17,18 @@ class FakeConnector(QQConnector):
         self.received = []
         self.commands = []
         self.replies = []
+        self.actions = []
 
     async def _messaging_receive(self, payload, sender, message_id, content):
+        self.actions.append("persist")
         self.received.append((payload["t"], sender, message_id, content))
         return content or "[empty]"
 
     async def _relogin_and_reply(self, sender, message_id):
         self.commands.append((sender, message_id))
 
-    async def send_text(self, sender, message_id, text):
+    async def send_text(self, sender, message_id, text, sequence=1):
+        self.actions.append("reply")
         self.replies.append((sender, message_id, text))
 
 
@@ -87,12 +90,14 @@ def test_messaging_request_uses_current_inbound_contract():
     asyncio.run(scenario())
 
 
-def test_authorized_url_is_persisted_without_connector_acknowledgement():
+def test_authorized_url_is_acknowledged_before_persistence():
     async def scenario():
         connector = FakeConnector()
         await connector.receive(event(content="https://example.test/file", message_id="message-url"))
         await asyncio.sleep(0)
-        assert connector.replies == []
+        assert connector.replies == [
+            ("allowed", "message-url", "已收到，正在处理；完成后会发送文件名和标签信息。")]
+        assert connector.actions == ["reply", "persist"]
     asyncio.run(scenario())
 
 

@@ -9,9 +9,7 @@
 ```mermaid
 flowchart TB
     C[App / Web / MCP / Admin] --> G[MyTools Gateway]
-    CH[Email / QQ / Telegram / OneBot] --> M[Messaging Service]
-    QQ[QQ Connector] --> M
-    QQ --> TS[Task Scheduler]
+    CH[Email / QQ / Telegram / OneBot Connectors] --> M[Messaging Service]
     TS --> OB[OneBot Connector]
     G --> I[Identity Service]
     G --> ML[Media Library Service]
@@ -20,6 +18,7 @@ flowchart TB
     G --> AC[App Catalog Service]
     G --> DSH[DSH Connector Service]
     M --> A[Message Automation Service]
+    A --> M
     A --> DI[Download Ingestion Service]
     I --> TS[Task Scheduler Service]
     M --> TS

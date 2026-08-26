@@ -208,9 +208,7 @@ class MessageAutomationServiceTest {
         assertThat(completed.actions()).extracting("actionType").containsExactly("ATTACHMENT_DOWNLOAD");
         verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString());
         verify(messagingClient).createAttachment(messageId, partId, 17L);
-        verify(qqConnectorClient).send(org.mockito.ArgumentMatchers.eq("qq-user"),
-                org.mockito.ArgumentMatchers.eq("platform-message"),
-                org.mockito.ArgumentMatchers.contains("已开始处理"), org.mockito.ArgumentMatchers.eq(1));
+        verify(qqConnectorClient, never()).send(anyString(), anyString(), anyString(), anyInt());
     }
 
     @Test

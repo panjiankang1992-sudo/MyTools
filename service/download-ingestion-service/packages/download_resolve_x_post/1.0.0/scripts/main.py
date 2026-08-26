@@ -111,13 +111,13 @@ def execute(context: TaskContext, parameters: dict, resources: list[dict], tweet
     UUID(request_id)
     maximum_bytes = int(parameters.get("maxBytesPerItem", 2 * 1024 * 1024 * 1024))
     children = []
-    for resource in resources:
+    for source_index, resource in enumerate(resources, start=1):
         item_id = f"x:{resource['tweetId']}:{resource['index']}"
         fingerprint = hashlib.sha256(resource["url"].encode()).hexdigest()
         child = context.create_child(
             "download_http_asset",
             {"downloadRequestId": request_id, "itemId": item_id, "url": resource["url"],
-             "fileName": resource["fileName"], "sourceIndex": int(resource["index"]),
+             "fileName": resource["fileName"], "sourceIndex": source_index,
              "maxBytes": maximum_bytes,
              "ownerId": int(parameters.get("ownerId") or 0),
              "assetMimeType": resource["mimeType"],

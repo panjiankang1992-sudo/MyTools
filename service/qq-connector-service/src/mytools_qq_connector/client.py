@@ -62,12 +62,21 @@ class QQConnector:
         content = str(data.get("content") or "").strip()
         if event_type != "C2C_MESSAGE_CREATE" or not sender or not message_id:
             return
-        normalized_body = await self._messaging_receive(payload, sender, message_id, content)
+        attachments = data.get("attachments") if isinstance(data.get("attachments"), list) else []
+        is_download = sender == self.config.allowed_sender \
+            and (URL_PATTERN.search(content) is not None or bool(attachments))
+        if is_download:
+            try:
+                await self.send_text(sender, message_id,
+                                     "已收到，正在处理；完成后会发送文件名和标签信息。", 1)
+            except RuntimeError as exception:
+                # 首次回执失败不得阻断后续入库与任务处理。
+                logger.warning("QQ receipt delivery failed: %s", exception)
+        await self._messaging_receive(payload, sender, message_id, content)
         if sender == self.config.allowed_sender and content in {"登录", "登陆"}:
             task = asyncio.create_task(self._relogin_and_reply(sender, message_id),
                                        name=f"qq-relogin-{message_id[:16]}")
             task.add_done_callback(self._log_background_failure)
-        # 下载回执由消息自动化服务在任务持久化后统一发送，避免同一 msg_seq 重复回复。
 
     @staticmethod
     def _log_background_failure(task: asyncio.Task) -> None:

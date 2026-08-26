@@ -12,6 +12,8 @@ MsgService 模板和已知收件人使用 Messaging 自有 `message_template`、
 
 由 MsgService 演进，统一邮件、QQ、Telegram、OneBot 等渠道的入站与出站消息、附件、模板、投递记录和回执。它不判断消息是否需要下载，不拥有验证码业务状态。
 
+每个渠道 Connector 只负责协议适配：接收外部事件、立即发送渠道回执、转换为统一消息并入库，以及执行 Messaging 下发的出站投递。入库后的内容分析、动作分类、任务创建和状态聚合不允许在 Connector 内实现。标准入站记录必须保存 `channelType`、`accountKey`、`sender`、`conversationKey` 和 `externalMessageId`，终态通知据此路由回原渠道。
+
 ## 数据模型
 
 - `channel_accounts`：渠道配置的密文引用。

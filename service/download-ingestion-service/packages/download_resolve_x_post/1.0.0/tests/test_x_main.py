@@ -51,3 +51,19 @@ def test_parent_creates_http_children_and_waits_for_success():
     assert context.created[0][0] == "download_http_asset"
     assert context.created[0][1]["downloadRequestId"] == request_id
     assert context.created[0][1]["assetSourceBusinessId"].endswith(":x:123:1")
+
+
+def test_parent_assigns_request_global_source_indexes():
+    context = FakeContext()
+    request_id = str(uuid4())
+    resources = [
+        {"tweetId": "123", "index": 1, "url": "https://pbs.twimg.com/media/a.jpg",
+         "fileName": "a.jpg", "mimeType": "image/jpeg"},
+        {"tweetId": "456", "index": 1, "url": "https://pbs.twimg.com/media/b.jpg",
+         "fileName": "b.jpg", "mimeType": "image/jpeg"},
+    ]
+
+    MODULE.execute(context, {"downloadRequestId": request_id, "ownerId": 8},
+                   resources, "123")
+
+    assert [created[1]["sourceIndex"] for created in context.created] == [1, 2]
