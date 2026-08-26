@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
+import java.util.concurrent.*;
 import static org.assertj.core.api.Assertions.*;
 /** Identity 会话生命周期测试。 */
 @SpringBootTest
@@ -46,5 +47,16 @@ class IdentityServiceTest {
   ImportUserRequest user=new ImportUserRequest(10,"mytools:10","fixture","fixture@example.com","$2a$10$"+"x".repeat(53),"ACTIVE",0,List.of("USER","ADMIN"));
   LegacyUserMigrationResult result=service.migrateUsers(new LegacyUserMigrationBatch("identity-users-protocol",true,List.of(user)));
   assertThat(result.digestSha256()).isEqualTo("345a1029ff2e504410b823845302624026cfb86ab74f6857af2f3c571b9b6801");
+ }
+ @Test void shouldValidateConcurrentRequestsWithBoundedConnectionPool() throws Exception {
+  service.importUser(new ImportUserRequest(11,"mytools:11","parallel","parallel@example.com",encoder.encode("correct-password"),"ACTIVE",0,List.of("USER")));
+  TokenPair login=service.login(new LoginRequest("parallel","correct-password","device-parallel"));
+  ExecutorService executor=Executors.newFixedThreadPool(8);
+  CountDownLatch start=new CountDownLatch(1);
+  try {
+   List<Future<PrincipalView>> results=java.util.stream.IntStream.range(0,32).mapToObj(index->executor.submit(()->{start.await();return service.validate(new ValidateRequest(login.accessToken()));})).toList();
+   start.countDown();
+   for(Future<PrincipalView> result:results)assertThat(result.get(5,TimeUnit.SECONDS).active()).isTrue();
+  } finally {executor.shutdownNow();}
  }
 }
