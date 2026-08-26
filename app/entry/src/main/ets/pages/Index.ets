@@ -2726,11 +2726,9 @@ struct Index {
               .fontColor([AppTheme.primary]).backgroundColor(AppTheme.surfaceTint).borderRadius(12)
           }
         }.width('100%').height(82)
-          .priorityGesture(
-            GestureGroup(GestureMode.Exclusive,
-              LongPressGesture({ repeat: false, duration: 500 })
-                .onAction(() => this.OpenMediaCatalogActionSheet(item)),
-              TapGesture({ count: 1 }).onAction(() => this.TapMediaCatalogItem(item, true))))
+          .gesture(LongPressGesture({ repeat: false, duration: 500 })
+            .onAction(() => this.OpenMediaCatalogActionSheet(item)))
+          .onClick(() => this.TapMediaCatalogItem(item, true))
         if (item.tags.length > 0) this.MediaCatalogItemTags(item)
       }.width('100%').height(82).borderRadius(12).clip(true)
       Text(item.name).width('100%').maxLines(2).textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -2755,12 +2753,10 @@ struct Index {
             }.width('100%').height(154).justifyContent(FlexAlign.Center).backgroundColor(AppTheme.surfaceTint)
           }
         }.width('100%').height(154)
-          // 资源手势只覆盖预览底图，不再从父卡片拦截标签按钮的点击。
-          .priorityGesture(
-            GestureGroup(GestureMode.Exclusive,
-              LongPressGesture({ repeat: false, duration: 500 })
-                .onAction(() => this.OpenMediaCatalogActionSheet(item)),
-              TapGesture({ count: 1 }).onAction(() => this.TapMediaCatalogItem(item, false))))
+          // 点击使用组件事件，长按手势只负责操作菜单，避免独占手势吞掉普通点击。
+          .gesture(LongPressGesture({ repeat: false, duration: 500 })
+            .onAction(() => this.OpenMediaCatalogActionSheet(item)))
+          .onClick(() => this.TapMediaCatalogItem(item, false))
         if (item.tags.length > 0) this.MediaCatalogItemTags(item)
       }.width('100%').height(154).borderRadius(14).clip(true)
         .border({ width: 1, color: AppTheme.divider, radius: 14 })
@@ -10115,6 +10111,8 @@ struct Index {
           this.DshTabPage()
         }.width('100%').height('calc(100% - 68vp)').position({ x: 0, y: 0 })
           .opacity(this.currentIndex === 2 ? 1 : 0)
+          // 原生Web组件即使透明且禁用仍可能占用触摸命中层；隐藏渲染节点后才可操作其他页面。
+          .visibility(this.currentIndex === 2 ? Visibility.Visible : Visibility.Hidden)
           .enabled(this.currentIndex === 2)
           .hitTestBehavior(this.currentIndex === 2 ? HitTestMode.Default : HitTestMode.Transparent)
         if (this.currentIndex === 2 && this.dshSidebarOverlayVisible) {

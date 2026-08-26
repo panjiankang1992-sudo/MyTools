@@ -15,8 +15,8 @@ tags="$(sed -n '/private MediaCatalogItemTags(/,/^  }/p' "$page")"
 
 printf '%s\n' "$preview" | grep -Fq 'LongPressGesture({ repeat: false, duration: 500 })'
 printf '%s\n' "$preview" | grep -Fq '.onAction(() => this.OpenMediaActionSheet(item))'
-printf '%s\n' "$gallery" | grep -Fq 'GestureGroup(GestureMode.Exclusive'
-printf '%s\n' "$gallery" | grep -Fq 'TapGesture({ count: 1 }).onAction(() => this.TapMediaCatalogItem(item, false))'
+printf '%s\n' "$gallery" | grep -Fq '.gesture(LongPressGesture({ repeat: false, duration: 500 })'
+printf '%s\n' "$gallery" | grep -Fq '.onClick(() => this.TapMediaCatalogItem(item, false))'
 printf '%s\n' "$tags" | grep -Fq '.onClick(() => this.SelectMediaCatalogItemTag(tag))'
 grep -Fq 'private SelectMediaCatalogItemTag(tag: string): void' "$page"
 grep -Fq 'this.mediaCatalogTapSuppressedUntil = Date.now() + 700;' "$page"
