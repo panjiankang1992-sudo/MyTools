@@ -59,16 +59,20 @@ class TelegramConnector:
         if not kind or not self._allowed(chat_id) or not message_id:
             return
         sender = str(sender_data.get("id") or chat_id)
-        text = str(message.get("text") or message.get("caption") or "").strip()
-        links = self._entity_links(message)
+        chain = self._message_chain(message)
         parts: list[dict[str, Any]] = []
-        if text:
-            parts.append(self._text_part(text))
-        for link in links:
-            if link not in text:
-                parts.append(self._text_part(link))
-        parts.extend(self._attachment_parts(message))
-        body_values = [text, *(link for link in links if link not in text)]
+        body_values = []
+        for item in chain:
+            text = str(item.get("text") or item.get("caption") or "").strip()
+            links = self._entity_links(item)
+            if text:
+                parts.append(self._text_part(text))
+                body_values.append(text)
+            for link in links:
+                if link not in text and link not in body_values:
+                    parts.append(self._text_part(link))
+                    body_values.append(link)
+            parts.extend(self._attachment_parts(item))
         body = "\n".join(value for value in body_values if value) or "[attachment]"
         received_at = datetime.fromtimestamp(int(message.get("date") or 0), UTC) \
             if message.get("date") else datetime.now(UTC)
@@ -78,6 +82,25 @@ class TelegramConnector:
             "conversationKey": f"{self.config.account_key}:{chat_id}", "sender": sender,
             "subject": None, "body": body, "receivedAt": received_at.isoformat(), "parts": parts}
         await self._internal_json(self.config.messaging_url + "/internal/v1/inbound-messages", payload)
+
+    @staticmethod
+    def _message_chain(message: dict[str, Any]) -> list[dict[str, Any]]:
+        """按被回复消息到当前消息的顺序展开有界引用链。"""
+        values = []
+        current = message
+        seen = set()
+        for _ in range(5):
+            message_id = str(current.get("message_id") or "")
+            if message_id and message_id in seen:
+                break
+            if message_id:
+                seen.add(message_id)
+            values.append(current)
+            reply = current.get("reply_to_message")
+            if not isinstance(reply, dict):
+                break
+            current = reply
+        return list(reversed(values))
 
     @staticmethod
     def _text_part(text: str) -> dict[str, Any]:
@@ -117,7 +140,10 @@ class TelegramConnector:
                    ("document", "FILE"), ("sticker", "FILE"))
         for key, attachment_type in mapping:
             if isinstance(message.get(key), dict):
-                candidates.append((attachment_type, message[key]))
+                item = message[key]
+                if key == "sticker" and (item.get("is_video") or item.get("is_animated")):
+                    attachment_type = "VIDEO"
+                candidates.append((attachment_type, item))
         result = []
         for index, (attachment_type, item) in enumerate(candidates[:20]):
             file_id = str(item.get("file_id") or "")

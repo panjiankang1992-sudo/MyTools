@@ -6,6 +6,7 @@ import base64
 from datetime import UTC, datetime
 import json
 import logging
+import mimetypes
 import random
 import re
 import time
@@ -17,6 +18,10 @@ from .config import Config
 
 logger = logging.getLogger(__name__)
 URL_PATTERN = re.compile(r"https?://[^\s<>\"']+", re.IGNORECASE)
+COMPOSITE_ATTACHMENT = re.compile(
+    r"\[附件\d+\]\s+类型:(?P<type>\S+)\s+文件名:(?P<filename>.*?)\s+"
+    r"(?:尺寸:\S+\s+)?大小:(?P<size>\S+)\s+URL:(?P<url>https?://\S+)", re.MULTILINE)
+MAXIMUM_NESTED_VALUES = 100_000
 
 
 class QQConnector:
@@ -94,10 +99,8 @@ class QQConnector:
                   "fileName": None, "mimeType": None, "declaredSize": None}]
         data = payload.get("d") if isinstance(payload.get("d"), dict) else {}
         attachment_urls = []
-        attachments = data.get("attachments") if isinstance(data.get("attachments"), list) else []
-        for index, attachment in enumerate(attachments[:5]):
-            if not isinstance(attachment, dict):
-                continue
+        attachments = self._recursive_attachments(data)
+        for index, attachment in enumerate(attachments[:100]):
             source_url = str(attachment.get("voice_wav_url") or attachment.get("download_url")
                              or attachment.get("file_url") or attachment.get("url") or "").strip()
             if not source_url.startswith(("http://", "https://")):
@@ -133,6 +136,80 @@ class QQConnector:
         await self._internal_json("POST", self.config.messaging_url + "/internal/v1/inbound-messages",
                                   body, self.config.messaging_token)
         return normalized_body
+
+    @staticmethod
+    def _parse_size(value: object) -> int | None:
+        """解析 QQ 复合消息中的有界文件大小。"""
+        try:
+            size = int(value)
+            return size if size > 0 else None
+        except (TypeError, ValueError):
+            match = re.fullmatch(r"(\d+(?:\.\d+)?)\s*([KMGT]?B)", str(value), re.IGNORECASE)
+            if match is None:
+                return None
+            units = {"B": 1, "KB": 1024, "MB": 1024 ** 2,
+                     "GB": 1024 ** 3, "TB": 1024 ** 4}
+            return round(float(match.group(1)) * units[match.group(2).upper()])
+
+    @classmethod
+    def _recursive_attachments(cls, value: Any) -> list[dict[str, Any]]:
+        """迭代扫描 QQ 复合结构和内嵌 JSON，提取并去重全部附件。"""
+        result = []
+        seen_urls = set()
+        seen_containers = set()
+        stack: list[tuple[Any, str]] = [(value, "root")]
+        visited = 0
+
+        def append(item: dict[str, Any]) -> None:
+            url = str(item.get("voice_wav_url") or item.get("download_url")
+                      or item.get("file_url") or item.get("url") or "").strip()
+            if url.startswith(("http://", "https://")) and url not in seen_urls:
+                seen_urls.add(url)
+                result.append(item)
+
+        while stack:
+            current, context = stack.pop()
+            visited += 1
+            if visited > MAXIMUM_NESTED_VALUES:
+                raise ValueError("QQ message exceeds nested value limit")
+            if isinstance(current, dict):
+                identity = id(current)
+                if identity in seen_containers:
+                    continue
+                seen_containers.add(identity)
+                has_url = any(current.get(key) for key in
+                              ("voice_wav_url", "download_url", "file_url", "url"))
+                looks_like = context.lower() in {"attachment", "attachments", "media", "medias",
+                                                  "file", "files", "msg_elements"} \
+                    or any(key in current for key in
+                           ("filename", "file_name", "content_type", "mime", "file_id"))
+                if has_url and looks_like:
+                    append(current)
+                for key, child in reversed(tuple(current.items())):
+                    if isinstance(child, (dict, list)):
+                        stack.append((child, str(key)))
+                    elif isinstance(child, str):
+                        for match in COMPOSITE_ATTACHMENT.finditer(child):
+                            name = match.group("filename").strip()
+                            append({"url": match.group("url"), "filename": name,
+                                    "content_type": mimetypes.guess_type(name)[0]
+                                    or "application/octet-stream",
+                                    "size": cls._parse_size(match.group("size"))})
+                        candidate = child.strip()
+                        if len(candidate) <= 2 * 1024 * 1024 and candidate[:1] in {"{", "["}:
+                            try:
+                                decoded = json.loads(candidate)
+                            except (json.JSONDecodeError, RecursionError):
+                                continue
+                            if isinstance(decoded, (dict, list)):
+                                stack.append((decoded, str(key)))
+            elif isinstance(current, list):
+                identity = id(current)
+                if identity in seen_containers:
+                    continue
+                seen_containers.add(identity)
+                stack.extend((child, context) for child in reversed(current))
+        return result
 
     async def _relogin_and_reply(self, sender: str, message_id: str) -> None:
         request_id = "qq_" + "".join(character for character in message_id if character.isalnum())[-100:]

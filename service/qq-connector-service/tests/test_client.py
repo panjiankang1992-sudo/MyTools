@@ -1,5 +1,6 @@
 import asyncio
 from dataclasses import replace
+import json
 
 from mytools_qq_connector.client import QQConnector
 from mytools_qq_connector.config import Config
@@ -134,4 +135,26 @@ def test_expired_passive_reply_falls_back_to_active_message():
         assert connector.requests == [
             {"msg_type": 0, "content": "done", "msg_id": "message-old", "msg_seq": 2},
             {"msg_type": 0, "content": "done"}]
+    asyncio.run(scenario())
+
+
+def test_nested_and_composite_attachments_are_deduplicated():
+    async def scenario():
+        connector = CapturingConnector()
+        payload = event(content="", message_id="message-composite")
+        payload["d"]["msg_elements"] = [{"payload": json.dumps({"attachments": [
+            {"url": "https://example.test/nested.mp4", "filename": "nested.mp4",
+             "content_type": "video/mp4", "size": 123}]})}]
+        payload["d"]["content"] = ("[附件1] 类型:视频 文件名:nested.mp4 大小:123B "
+                                     "URL:https://example.test/nested.mp4\n"
+                                     "[附件2] 类型:图片 文件名:photo.jpg 大小:2KB "
+                                     "URL:https://example.test/photo.jpg")
+        await connector._messaging_receive(payload, "allowed", "message-composite",
+                                           payload["d"]["content"])
+        parts = [part for part in connector.request[2]["parts"]
+                 if part["type"] == "ATTACHMENT"]
+        by_url = {part["sourceUrl"]: part for part in parts}
+        assert set(by_url) == {"https://example.test/photo.jpg",
+                               "https://example.test/nested.mp4"}
+        assert by_url["https://example.test/photo.jpg"]["declaredSize"] == 2048
     asyncio.run(scenario())
