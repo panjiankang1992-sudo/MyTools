@@ -196,12 +196,12 @@ def resolve(parameters: dict, runner=subprocess.run) -> tuple[str, list[dict]]:
     if proxy:
         command.extend(("--proxy", proxy))
     command.append(canonical)
-    completed = runner(command, capture_output=True, timeout=90, check=False)
     try:
+        completed = runner(command, capture_output=True, timeout=90, check=False)
         if completed.returncode != 0:
             raise ValueError("gallery-dl could not resolve X media")
         resources = parse_resources(completed.stdout, tweet_id, maximum)
-    except (RuntimeError, ValueError):
+    except (OSError, RuntimeError, ValueError):
         resources = fallback_resources(tweet_id, maximum)
     return tweet_id, resources
 

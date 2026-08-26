@@ -42,6 +42,20 @@ def test_resolver_falls_back_when_gallery_has_no_media(monkeypatch):
     assert len(resources) == 1
 
 
+def test_resolver_falls_back_when_gallery_binary_is_missing(monkeypatch):
+    monkeypatch.setattr(MODULE, "fallback_resources", lambda tweet_id, maximum: [{
+        "tweetId": tweet_id, "index": 1, "url": "https://pbs.twimg.com/media/a.jpg",
+        "fileName": "a.jpg", "mimeType": "image/jpeg"}])
+
+    def missing(*_args, **_kwargs):
+        raise FileNotFoundError("gallery-dl")
+
+    tweet_id, resources = MODULE.resolve(
+        {"url": "https://x.com/example/status/123"}, runner=missing)
+    assert tweet_id == "123"
+    assert len(resources) == 1
+
+
 class FakeContext:
     TERMINAL_STATUSES = {"SUCCEEDED", "FAILED", "CANCELLED", "TIMED_OUT"}
 
