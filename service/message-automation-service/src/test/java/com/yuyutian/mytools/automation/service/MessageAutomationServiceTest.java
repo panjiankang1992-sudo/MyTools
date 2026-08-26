@@ -43,9 +43,6 @@ class MessageAutomationServiceTest {
     @MockBean
     private DownloadIngestionClient downloadClient;
 
-    @MockBean
-    private QQConnectorClient qqConnectorClient;
-
     @Test
     void shouldRejectChangedRuleReplay() {
         CreateAutomationRuleRequest request = new CreateAutomationRuleRequest(10L, "stable_rule",
@@ -208,7 +205,6 @@ class MessageAutomationServiceTest {
         assertThat(completed.actions()).extracting("actionType").containsExactly("ATTACHMENT_DOWNLOAD");
         verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString());
         verify(messagingClient).createAttachment(messageId, partId, 17L);
-        verify(qqConnectorClient, never()).send(anyString(), anyString(), anyString(), anyInt());
     }
 
     @Test

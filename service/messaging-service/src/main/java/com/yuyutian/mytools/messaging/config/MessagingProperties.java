@@ -11,5 +11,6 @@ public record MessagingProperties(String schedulerUrl, String internalToken, Str
                                   boolean automationRelayEnabled, int automationRelayBatchSize,
                                   boolean oneBotIngressEnabled, String downloadIngestionUrl,
                                   String downloadIngestionToken, String providerResolverUrl,
-                                  String providerResolverToken) {
+                                  String providerResolverToken, String qqConnectorUrl,
+                                  String qqConnectorToken) {
 }

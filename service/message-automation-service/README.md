@@ -18,7 +18,7 @@ Messaging Service 的默认关闭 Outbox relay 只向 `POST /internal/v1/message
 
 附件动作只保存标准消息部分标识，使用消息 owner 创建、查询和取消 Messaging 附件任务；Provider 私有引用不会进入 Automation schema 或接口响应。
 
-终态通知复用 `automation_outbox`。EMAIL 通过 Messaging 现有异步投递接口发送，QQ 通过 QQ Connector 的内部鉴权接口回复原会话；只有下游接受请求后才标记事件已发布，失败事件保留并按批次重试。后台协调器会周期性查询运行中的任务并推进自动化状态，因此不依赖用户再次查询任务状态。
+终态通知复用 `automation_outbox`。Automation 只向 Messaging 提交“回复原入站消息”，不识别 EMAIL、QQ、Telegram 或 OneBot 的发送协议。Messaging 根据入站消息保存的渠道、账户、会话和外部消息标识选择 Delivery Provider；只有 Messaging 接受请求后才标记事件已发布，失败事件保留并按批次重试。后台协调器会周期性查询运行中的任务并推进自动化状态，因此不依赖用户再次查询任务状态。
 
 规则创建以 owner 和规则名为幂等身份，重复请求必须匹配渠道、会话、发送者、命令前缀、动作类型、动作上限、优先级和启用状态；任一字段变化均拒绝，不能静默复用旧授权规则。
 
@@ -31,6 +31,6 @@ Messaging Service 的默认关闭 Outbox relay 只向 `POST /internal/v1/message
 
 ## 实施要求
 
-- Telegram 和 OneBot 等其他渠道需增加对应 Delivery Provider 后再开放完成通知。
+- Telegram 和 OneBot 等其他渠道只需在 Messaging 增加对应 Inbound Reply Provider，不修改规则匹配、任务创建和状态汇总代码。
 - 迁移已有能力时保留旧实现和功能开关。
 - 在对账与回归通过前不得切换权威数据或生产流量。

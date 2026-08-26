@@ -24,7 +24,6 @@ class CompletionOutboxRelayTest {
     void shouldConfirmOutboxOnlyAfterMessagingAcceptsDelivery() {
         AutomationRepository repository = mock(AutomationRepository.class);
         MessagingClient messagingClient = mock(MessagingClient.class);
-        QQConnectorClient qqConnectorClient = mock(QQConnectorClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
         UUID runId = UUID.randomUUID();
@@ -32,10 +31,10 @@ class CompletionOutboxRelayTest {
         var event = new AutomationRepository.CompletionEvent(eventId, runId, messageId, "SUCCEEDED", 2);
         when(repository.findUnpublishedCompletions(ChannelType.EMAIL, 10)).thenReturn(List.of(event));
         when(messagingClient.get(messageId)).thenReturn(message(messageId));
-        when(messagingClient.createCompletionEmail(runId, 21L, "owner@example.test", "SUCCEEDED", 2))
-                .thenReturn(new MessagingClient.DeliverySnapshot(UUID.randomUUID(), "ACCEPTED"));
+        when(messagingClient.reply(messageId, runId, "下载处理已完成，共 2 个文件。"))
+                .thenReturn(new MessagingClient.InboundReplySnapshot(messageId, "EMAIL", "ACCEPTED"));
 
-        new CompletionOutboxRelay(repository, properties(true), messagingClient, qqConnectorClient,
+        new CompletionOutboxRelay(repository, properties(true), messagingClient,
                 downloadClient).relay();
 
         verify(repository).markOutboxPublished(eventId);
@@ -45,7 +44,6 @@ class CompletionOutboxRelayTest {
     void shouldRetainOutboxWhenMessagingFails() {
         AutomationRepository repository = mock(AutomationRepository.class);
         MessagingClient messagingClient = mock(MessagingClient.class);
-        QQConnectorClient qqConnectorClient = mock(QQConnectorClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
         UUID runId = UUID.randomUUID();
@@ -54,7 +52,7 @@ class CompletionOutboxRelayTest {
                 new AutomationRepository.CompletionEvent(eventId, runId, messageId, "FAILED", 1)));
         when(messagingClient.get(messageId)).thenThrow(new IllegalStateException("temporary failure"));
 
-        new CompletionOutboxRelay(repository, properties(true), messagingClient, qqConnectorClient,
+        new CompletionOutboxRelay(repository, properties(true), messagingClient,
                 downloadClient).relay();
 
         verify(repository, never()).markOutboxPublished(eventId);
@@ -64,7 +62,6 @@ class CompletionOutboxRelayTest {
     void shouldRelayQqCompletionToOriginalPassiveMessage() {
         AutomationRepository repository = mock(AutomationRepository.class);
         MessagingClient messagingClient = mock(MessagingClient.class);
-        QQConnectorClient qqConnectorClient = mock(QQConnectorClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
         UUID runId = UUID.randomUUID();
@@ -83,17 +80,21 @@ class CompletionOutboxRelayTest {
                 "video.mp4", "TAGGED", List.of(new DownloadIngestionClient.DownloadTag(
                 "cosplay", "topic", 0.98))))));
 
-        new CompletionOutboxRelay(repository, properties(true), messagingClient, qqConnectorClient,
+        when(messagingClient.reply(messageId, runId,
+                "下载与标签已完成，共 1 个文件：\n\n1. video.mp4\n   标签：cosplay（topic，0.98）"))
+                .thenReturn(new MessagingClient.InboundReplySnapshot(messageId, "QQ", "ACCEPTED"));
+
+        new CompletionOutboxRelay(repository, properties(true), messagingClient,
                 downloadClient).relay();
 
-        verify(qqConnectorClient).send("user", "platform-message",
-                "下载与标签已完成，共 1 个文件：\n\n1. video.mp4\n   标签：cosplay（topic，0.98）", 2);
+        verify(messagingClient).reply(messageId, runId,
+                "下载与标签已完成，共 1 个文件：\n\n1. video.mp4\n   标签：cosplay（topic，0.98）");
         verify(repository).markOutboxPublished(eventId);
     }
 
     private AutomationProperties properties(boolean enabled) {
         return new AutomationProperties("internal", "http://messaging.test", "messaging-token",
-                "http://download.test", "download-token", "http://qq.test", "qq-token",
+                "http://download.test", "download-token",
                 enabled, 10, 100);
     }
 

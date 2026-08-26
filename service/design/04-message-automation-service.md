@@ -37,7 +37,7 @@
 2. 已建立默认关闭、只转发消息标识的 Messaging Outbox relay；继续让原 Bot 入口镜像产生标准消息事件。
 3. 已将动作引用升级为规范化子动作记录，支持创建结果未知恢复、下载状态聚合和级联取消；兼容 JSON 引用仅作为投影保留。下载创建使用消息租户作为权威 owner，状态查询和取消均走 owner-bound 内部接口。
 4. 已实现 `MESSAGE_ATTACHMENT` 白名单动作，仅持久化标准消息部分标识，并通过 owner-bound Messaging 接口创建、查询和取消附件任务。
-5. 已实现 EMAIL 和 QQ 终态 Outbox 投递中继，投递与事件确认均可幂等重试。
+5. 已将终态 Outbox 收口为 Messaging 的统一原消息回复接口；EMAIL 和 QQ Provider 已接入，Telegram 和 OneBot 只需补充同契约 Provider，投递失败时事件保留重试。
 6. 对比新旧规则执行结果。
 7. 切换创建任务入口，最后移除 DownloadBot 渠道耦合。
 

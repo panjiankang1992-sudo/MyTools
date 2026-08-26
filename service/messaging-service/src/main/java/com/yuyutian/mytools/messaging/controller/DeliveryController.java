@@ -12,11 +12,14 @@ import com.yuyutian.mytools.messaging.model.ExecuteAttachmentDownloadResult;
 import com.yuyutian.mytools.messaging.model.ResolveAttachmentResult;
 import com.yuyutian.mytools.messaging.model.EmailPollRequest;
 import com.yuyutian.mytools.messaging.model.EmailPollResult;
+import com.yuyutian.mytools.messaging.model.CreateInboundReplyRequest;
+import com.yuyutian.mytools.messaging.model.InboundReplyView;
 import com.yuyutian.mytools.messaging.service.DeliveryService;
 import com.yuyutian.mytools.messaging.service.InternalRequestAuthorizer;
 import com.yuyutian.mytools.messaging.service.OneBotInboundAdapter;
 import com.yuyutian.mytools.messaging.service.AttachmentDownloadService;
 import com.yuyutian.mytools.messaging.service.EmailIngressService;
+import com.yuyutian.mytools.messaging.service.InboundReplyService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,6 +46,7 @@ public class DeliveryController {
     private final OneBotInboundAdapter oneBotInboundAdapter;
     private final AttachmentDownloadService attachmentDownloadService;
     private final EmailIngressService emailIngressService;
+    private final InboundReplyService inboundReplyService;
 
     /**
      * 创建消息内部控制器。
@@ -50,12 +54,14 @@ public class DeliveryController {
     public DeliveryController(DeliveryService service, InternalRequestAuthorizer authorizer,
                               OneBotInboundAdapter oneBotInboundAdapter,
                               AttachmentDownloadService attachmentDownloadService,
-                              EmailIngressService emailIngressService) {
+                              EmailIngressService emailIngressService,
+                              InboundReplyService inboundReplyService) {
         this.service = service;
         this.authorizer = authorizer;
         this.oneBotInboundAdapter = oneBotInboundAdapter;
         this.attachmentDownloadService = attachmentDownloadService;
         this.emailIngressService = emailIngressService;
+        this.inboundReplyService = inboundReplyService;
     }
 
     /**
@@ -139,6 +145,17 @@ public class DeliveryController {
             @PathVariable UUID id, @RequestParam(required = false) Long ownerId) {
         authorizer.requireAuthorized(authorization);
         return ownerId == null ? service.inbound(id) : service.inbound(id, ownerId);
+    }
+
+    /**
+     * 按原入站消息保存的渠道和会话路由回复。
+     */
+    @PostMapping("/inbound-messages/{id}/replies")
+    public ResponseEntity<InboundReplyView> replyInbound(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable UUID id, @Valid @RequestBody CreateInboundReplyRequest request) {
+        authorizer.requireAuthorized(authorization);
+        return ResponseEntity.accepted().body(inboundReplyService.reply(id, request));
     }
 
     /**

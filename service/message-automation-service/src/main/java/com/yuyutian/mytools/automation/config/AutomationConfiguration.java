@@ -2,7 +2,6 @@ package com.yuyutian.mytools.automation.config;
 
 import com.yuyutian.mytools.automation.service.DownloadIngestionClient;
 import com.yuyutian.mytools.automation.service.MessagingClient;
-import com.yuyutian.mytools.automation.service.QQConnectorClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,12 +33,4 @@ public class AutomationConfiguration {
                 properties.downloadToken());
     }
 
-    /**
-     * 创建 QQ Connector 终态回执客户端。
-     */
-    @Bean
-    public QQConnectorClient qqConnectorClient(RestClient.Builder builder, AutomationProperties properties) {
-        return new QQConnectorClient(builder.clone().baseUrl(properties.qqConnectorUrl()).build(),
-                properties.qqConnectorToken());
-    }
 }

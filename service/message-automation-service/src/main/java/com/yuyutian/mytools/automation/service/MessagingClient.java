@@ -102,21 +102,17 @@ public class MessagingClient {
      * @param actionCount 动作数量
      * @return 投递任务快照
      */
-    public DeliverySnapshot createCompletionEmail(UUID runId, long ownerId, String recipient,
-                                                   String status, int actionCount) {
-        DeliverySnapshot result = restClient.post().uri("/internal/v1/deliveries")
+    public InboundReplySnapshot reply(UUID messageId, UUID runId, String body) {
+        InboundReplySnapshot result = restClient.post()
+                .uri("/internal/v1/inbound-messages/{id}/replies", messageId)
                 .header("Authorization", "Bearer " + requiredToken())
                 .contentType(MediaType.APPLICATION_JSON).body(Map.of(
-                        "ownerId", ownerId,
                         "idempotencyKey", "automation-completion-" + runId,
-                        "channelType", "EMAIL",
-                        "recipient", recipient,
-                        "subject", "Automation run completed: " + status,
-                        "body", "Automation run " + runId + " completed with status " + status
-                                + " and " + actionCount + " action(s)."))
-                .retrieve().body(DeliverySnapshot.class);
-        if (result == null || result.id() == null || result.status() == null || result.status().isBlank()) {
-            throw new IllegalStateException("Messaging Service returned an invalid delivery");
+                        "body", body))
+                .retrieve().body(InboundReplySnapshot.class);
+        if (result == null || !messageId.equals(result.messageId())
+                || result.status() == null || result.status().isBlank()) {
+            throw new IllegalStateException("Messaging Service returned an invalid reply");
         }
         return result;
     }
@@ -147,5 +143,11 @@ public class MessagingClient {
      * 消息投递最小状态快照。
      */
     public record DeliverySnapshot(UUID id, String status) {
+    }
+
+    /**
+     * 原入站会话回复受理快照。
+     */
+    public record InboundReplySnapshot(UUID messageId, String channelType, String status) {
     }
 }

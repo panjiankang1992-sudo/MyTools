@@ -24,8 +24,6 @@ automation:
   messaging-token: ${MESSAGING_INTERNAL_TOKEN:}
   download-url: ${DOWNLOAD_INGESTION_URL:http://127.0.0.1:23220}
   download-token: ${DOWNLOAD_INTERNAL_TOKEN:}
-  qq-connector-url: ${QQ_CONNECTOR_URL:http://127.0.0.1:23256}
-  qq-connector-token: ${MESSAGE_AUTOMATION_INTERNAL_TOKEN:}
   completion-relay-enabled: ${MESSAGE_AUTOMATION_COMPLETION_RELAY_ENABLED:false}
   completion-relay-batch-size: ${MESSAGE_AUTOMATION_COMPLETION_RELAY_BATCH_SIZE:50}
   reconciliation-batch-size: ${MESSAGE_AUTOMATION_RECONCILIATION_BATCH_SIZE:100}

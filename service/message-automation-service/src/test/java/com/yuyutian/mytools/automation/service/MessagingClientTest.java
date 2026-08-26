@@ -21,23 +21,22 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 class MessagingClientTest {
 
     @Test
-    void shouldCreateIdempotentCompletionEmail() {
+    void shouldCreateIdempotentInboundReply() {
         UUID runId = UUID.randomUUID();
-        UUID deliveryId = UUID.randomUUID();
+        UUID messageId = UUID.randomUUID();
         RestClient.Builder builder = RestClient.builder().baseUrl("http://messaging.test");
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
-        server.expect(requestTo("http://messaging.test/internal/v1/deliveries"))
+        server.expect(requestTo("http://messaging.test/internal/v1/inbound-messages/" + messageId + "/replies"))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(header("Authorization", "Bearer messaging-token"))
-                .andExpect(jsonPath("$.ownerId").value(17))
                 .andExpect(jsonPath("$.idempotencyKey").value("automation-completion-" + runId))
-                .andExpect(jsonPath("$.channelType").value("EMAIL"))
-                .andExpect(jsonPath("$.recipient").value("owner@example.test"))
                 .andExpect(jsonPath("$.body").value(org.hamcrest.Matchers.containsString("SUCCEEDED")))
-                .andRespond(withSuccess(response(deliveryId, "ACCEPTED"), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("{\"messageId\":\"" + messageId
+                        + "\",\"channelType\":\"TELEGRAM\",\"status\":\"ACCEPTED\"}",
+                        MediaType.APPLICATION_JSON));
         MessagingClient client = new MessagingClient(builder.build(), "messaging-token");
 
-        assertThat(client.createCompletionEmail(runId, 17L, "owner@example.test", "SUCCEEDED", 2).status())
+        assertThat(client.reply(messageId, runId, "SUCCEEDED").status())
                 .isEqualTo("ACCEPTED");
         server.verify();
     }

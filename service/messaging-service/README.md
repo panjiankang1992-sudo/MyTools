@@ -21,6 +21,7 @@ Java 21 / Spring Boot
 - `POST /internal/v1/deliveries/{id}/cancel?ownerId=`：在 Provider 调用前取消 owner-bound 投递；已经开始发送时执行尽力取消。
 - `POST /internal/v1/deliveries/{id}/execute`：Executor 触发原子 provider 调用。
 - `POST /internal/v1/inbound-messages`：provider adapter 幂等写入标准入站消息。
+- `POST /internal/v1/inbound-messages/{id}/replies`：按原消息保存的渠道路由幂等回复；Automation 不直接依赖任何 Connector。
 - `GET /internal/v1/inbound-messages/{id}`：Automation 按消息标识读取标准消息。
 - `GET /internal/v1/inbound-messages?ownerId=&afterId=&limit=`：按所有者和稳定游标分页读取历史消息；详情接口携带 `ownerId` 时同时执行所有权检查。
 
@@ -36,7 +37,7 @@ V7 将旧 MyTools `t_feedback` 归入消息域的 `support_feedback`，完整保
 - `POST /internal/v1/migrations/msgservice-reference-data/batches`：dry-run 或幂等导入旧模板和已知收件人。
 - `GET /internal/v1/migrations/msgservice-reference-data/{migrationKey}/reconciliation`：返回模板和收件人分类数量及集合摘要。
 
-OneBot 入站默认由 `MESSAGING_ONEBOT_INGRESS_ENABLED=false` 关闭。灰度时由独立 adapter/反向代理携带内部令牌调用，不修改 DownloadBot 的现有事件消费链。事件幂等键包含 account、self、message type、conversation 和 message id；消息正文与附件分段写入 `inbound_message_part`，附件只保存 provider file id、远程 URL、文件名、MIME 和声明大小，不在 HTTP 入站事务中下载文件。合并转发内容需要由上游 OneBot adapter 展开后提交；未展开的 provider 文件引用将在后续附件下载任务中解析。
+所有 Connector 遵守同一入口契约：接收渠道事件、立即确认、标准化并幂等写入 Messaging；写入后的分类、任务创建、执行、聚合和终态通知完全复用。Messaging 保存来源渠道并在终态时路由到对应 Inbound Reply Provider。OneBot 入站默认由 `MESSAGING_ONEBOT_INGRESS_ENABLED=false` 关闭。事件幂等键包含 account、self、message type、conversation 和 message id；消息正文与附件分段写入 `inbound_message_part`，附件只保存 provider file id、远程 URL、文件名、MIME 和声明大小，不在 HTTP 入站事务中下载文件。合并转发内容需要由上游 adapter 展开后提交；未展开的 provider 文件引用将在后续附件下载任务中解析。
 
 远程 HTTP 附件可通过消息分段接口幂等创建 `message_download_attachment` 任务。父任务的 Scheduler 参数只保存 `attachmentJobId`；第一步由 Messaging 在自身信任边界内把 provider file id 交给独立、凭据隔离的 OneBot Connector，第二步根据解析模式创建下载请求，并由 1.1.0 提交脚本幂等创建独立的 `message_reconcile_attachment_download` 子任务。对账子任务通过 Messaging 接口有界轮询终态，网络失败、超时和最终结果都保留在 Scheduler，不依赖用户主动查询。`PUBLIC_URL` 仅接受无用户信息、query 和 fragment 的公开 HTTPS URL；`STREAM` 使用新的 `MESSAGE_ATTACHMENT` 下载类型，从 Messaging 内容接口经 Connector 有界流式读取。下载完成后由 Download Ingestion 重新校验并发布到 Storage Gateway，资产登记和结果只引用持久化 `storage://` URI。provider account key、provider file id、Connector 令牌和签名 URL 均不会进入 Scheduler 参数或步骤结果。
 

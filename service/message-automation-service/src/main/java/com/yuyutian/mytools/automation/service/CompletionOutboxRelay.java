@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
- * 将邮件渠道自动化终态可靠转交给 Messaging。
+ * 将所有渠道的自动化终态可靠转交给 Messaging。
  */
 @Component
 public class CompletionOutboxRelay {
@@ -19,7 +19,6 @@ public class CompletionOutboxRelay {
     private final AutomationRepository repository;
     private final AutomationProperties properties;
     private final MessagingClient messagingClient;
-    private final QQConnectorClient qqConnectorClient;
     private final DownloadIngestionClient downloadClient;
 
     /**
@@ -30,12 +29,11 @@ public class CompletionOutboxRelay {
      * @param messagingClient 消息服务客户端
      */
     public CompletionOutboxRelay(AutomationRepository repository, AutomationProperties properties,
-                                 MessagingClient messagingClient, QQConnectorClient qqConnectorClient,
+                                 MessagingClient messagingClient,
                                  DownloadIngestionClient downloadClient) {
         this.repository = repository;
         this.properties = properties;
         this.messagingClient = messagingClient;
-        this.qqConnectorClient = qqConnectorClient;
         this.downloadClient = downloadClient;
     }
 
@@ -48,42 +46,21 @@ public class CompletionOutboxRelay {
             return;
         }
         int limit = properties.completionRelayBatchSize() <= 0 ? 50 : properties.completionRelayBatchSize();
-        relayEmail(limit);
-        relayQq(limit);
+        for (ChannelType channelType : ChannelType.values()) {
+            relayChannel(channelType, limit);
+        }
     }
 
-    private void relayEmail(int limit) {
+    private void relayChannel(ChannelType channelType, int limit) {
         for (AutomationRepository.CompletionEvent event
-                : repository.findUnpublishedCompletions(ChannelType.EMAIL, limit)) {
+                : repository.findUnpublishedCompletions(channelType, limit)) {
             try {
                 InboundMessage message = messagingClient.get(event.messageId());
-                messagingClient.createCompletionEmail(event.runId(), message.ownerId(), message.sender(),
-                        event.status(), event.actionCount());
+                messagingClient.reply(event.messageId(), event.runId(), completionText(event, message));
                 repository.markOutboxPublished(event.eventId());
             } catch (RuntimeException exception) {
                 // 保留未确认事件供下次重试，日志不包含收件地址、正文或鉴权信息。
                 LOGGER.warn("Completion relay failed: eventId={}, errorType={}",
-                        event.eventId(), exception.getClass().getSimpleName());
-                break;
-            }
-        }
-    }
-
-    private void relayQq(int limit) {
-        for (AutomationRepository.CompletionEvent event
-                : repository.findUnpublishedCompletions(ChannelType.QQ, limit)) {
-            try {
-                InboundMessage message = messagingClient.get(event.messageId());
-                String prefix = message.externalMessageId().split(":", 3).length == 3
-                        ? message.externalMessageId().split(":", 3)[2] : "";
-                if (prefix.isBlank()) {
-                    throw new IllegalStateException("QQ message id is missing");
-                }
-                String text = completionText(event, message);
-                qqConnectorClient.send(message.sender(), prefix, text, 2);
-                repository.markOutboxPublished(event.eventId());
-            } catch (RuntimeException exception) {
-                LOGGER.warn("QQ completion relay failed: eventId={}, errorType={}",
                         event.eventId(), exception.getClass().getSimpleName());
                 break;
             }

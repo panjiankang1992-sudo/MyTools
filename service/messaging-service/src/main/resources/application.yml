@@ -42,6 +42,8 @@ messaging:
   download-ingestion-token: ${DOWNLOAD_INTERNAL_TOKEN:}
   provider-resolver-url: ${MESSAGE_PROVIDER_RESOLVER_URL:http://127.0.0.1:23255}
   provider-resolver-token: ${MESSAGE_PROVIDER_RESOLVER_TOKEN:}
+  qq-connector-url: ${QQ_CONNECTOR_URL:http://127.0.0.1:23256}
+  qq-connector-token: ${QQ_CONNECTOR_INTERNAL_TOKEN:${MESSAGE_AUTOMATION_INTERNAL_TOKEN:}}
   email-ingress:
     enabled: ${MESSAGING_EMAIL_INGRESS_ENABLED:false}
     owner-id: ${MESSAGING_EMAIL_OWNER_ID:0}

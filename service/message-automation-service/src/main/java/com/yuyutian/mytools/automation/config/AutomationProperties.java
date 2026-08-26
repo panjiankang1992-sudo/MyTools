@@ -8,7 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "automation")
 public record AutomationProperties(String internalToken, String messagingUrl, String messagingToken,
                                    String downloadUrl, String downloadToken,
-                                   String qqConnectorUrl, String qqConnectorToken,
                                    boolean completionRelayEnabled, int completionRelayBatchSize,
                                    int reconciliationBatchSize) {
 }

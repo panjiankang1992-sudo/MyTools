@@ -37,7 +37,7 @@ flowchart TB
 ### 接入层
 
 - MyTools Gateway：客户端统一入口和响应聚合。
-- Messaging Service：外部消息渠道统一入口。
+- Messaging Service：外部消息渠道统一入口和回复路由。Connector 只负责接收、即时确认、标准化、入库和实际发送；入库后的分类、建任务、执行与状态聚合不属于 Connector。
 
 ### 领域层
 

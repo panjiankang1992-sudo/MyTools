@@ -30,7 +30,7 @@ async def run() -> None:
     health.router.add_get("/health", lambda _request: web.json_response({"status": "UP"}))
 
     async def send_text(request: web.Request) -> web.Response:
-        """接收 Automation 的受鉴权终态文本回执。"""
+        """接收 Messaging 路由的受鉴权终态文本回执。"""
         authorization = request.headers.get("Authorization", "")
         if not hmac.compare_digest(authorization, f"Bearer {config.automation_token}"):
             raise web.HTTPUnauthorized()
