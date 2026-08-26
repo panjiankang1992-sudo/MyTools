@@ -38,7 +38,8 @@ class Config:
             int(os.getenv("QQ_CONNECTOR_INTENTS", "33554432")),
             os.getenv("QQ_CONNECTOR_MESSAGING_URL", "http://127.0.0.1:23250"),
             os.environ["MESSAGING_INTERNAL_TOKEN"],
-            os.getenv("QQ_CONNECTOR_SCHEDULER_URL", "http://127.0.0.1:23210"),
+            os.getenv("QQ_CONNECTOR_SCHEDULER_URL",
+                      os.getenv("TASK_SCHEDULER_URL", "http://127.0.0.1:23410")),
             os.getenv("QQ_CONNECTOR_ONEBOT_URL", "http://127.0.0.1:23255"),
             os.environ["ONEBOT_CONNECTOR_INTERNAL_TOKEN"],
             os.getenv("QQ_CONNECTOR_ONEBOT_ACCOUNT_KEY", "qq-napcat"))
