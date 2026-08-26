@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 from datetime import UTC, datetime
 import logging
+import time
 from typing import Any, AsyncIterator
 
 import aiohttp
@@ -11,6 +12,7 @@ import aiohttp
 from .config import Config
 
 logger = logging.getLogger(__name__)
+ALBUM_WINDOW_SECONDS = 2.0
 
 
 class TelegramConnector:
@@ -20,6 +22,7 @@ class TelegramConnector:
         self.config = config
         self.session = session
         self.offset = 0
+        self.albums: dict[tuple[str, str], tuple[float, str, list[dict[str, Any]]]] = {}
 
     async def api(self, method: str, payload: dict[str, Any] | None = None) -> Any:
         """调用 Bot API，异常中不包含 token 或消息正文。"""
@@ -32,8 +35,9 @@ class TelegramConnector:
 
     async def poll_once(self) -> None:
         """拉取并依次处理一批更新。"""
+        timeout = min(self.config.poll_timeout, 2) if self.albums else self.config.poll_timeout
         updates = await self.api("getUpdates", {
-            "offset": self.offset, "timeout": self.config.poll_timeout,
+            "offset": self.offset, "timeout": timeout,
             "allowed_updates": ["message", "channel_post", "edited_message",
                                 "edited_channel_post"]})
         if not isinstance(updates, list):
@@ -46,6 +50,7 @@ class TelegramConnector:
             finally:
                 # 无效或未授权消息也必须前移，内部写入由 externalMessageId 保证重放幂等。
                 self.offset = max(self.offset, int(update["update_id"]) + 1)
+        await self.flush_albums(False)
 
     async def receive(self, update: dict[str, Any]) -> None:
         """标准化一个 Telegram 更新并写入 Messaging。"""
@@ -58,27 +63,60 @@ class TelegramConnector:
         message_id = str(message.get("message_id") or "")
         if not kind or not self._allowed(chat_id) or not message_id:
             return
+        album_id = str(message.get("media_group_id") or "").strip()
+        if album_id:
+            key = (chat_id, album_id)
+            current = self.albums.get(key)
+            messages = [] if current is None else current[2]
+            messages.append(message)
+            self.albums[key] = (time.monotonic(), kind, messages)
+            return
+        await self._deliver(kind, [message], "")
+
+    async def flush_albums(self, force: bool) -> None:
+        """在短窗口结束后把同一 media_group_id 合并为一条入站消息。"""
+        now = time.monotonic()
+        ready = [key for key, value in self.albums.items()
+                 if force or now - value[0] >= ALBUM_WINDOW_SECONDS]
+        for key in ready:
+            _, kind, messages = self.albums.pop(key)
+            await self._deliver(kind, sorted(messages, key=lambda item: int(item.get("message_id") or 0)), key[1])
+
+    async def _deliver(self, kind: str, messages: list[dict[str, Any]], album_id: str) -> None:
+        """标准化一条消息或已聚合的 Telegram 相册。"""
+        message = messages[0]
+        chat = message.get("chat") if isinstance(message.get("chat"), dict) else {}
+        sender_data = message.get("from") if isinstance(message.get("from"), dict) else {}
+        chat_id = str(chat.get("id") or "")
+        message_id = str(message.get("message_id") or "")
         sender = str(sender_data.get("id") or chat_id)
-        chain = self._message_chain(message)
         parts: list[dict[str, Any]] = []
         body_values = []
-        for item in chain:
-            text = str(item.get("text") or item.get("caption") or "").strip()
-            links = self._entity_links(item)
-            if text:
-                parts.append(self._text_part(text))
-                body_values.append(text)
-            for link in links:
-                if link not in text and link not in body_values:
-                    parts.append(self._text_part(link))
-                    body_values.append(link)
-            parts.extend(self._attachment_parts(item))
+        seen_messages = set()
+        for album_message in messages:
+            for item in self._message_chain(album_message):
+                identity = str(item.get("message_id") or id(item))
+                if identity in seen_messages:
+                    continue
+                seen_messages.add(identity)
+                text = str(item.get("text") or item.get("caption") or "").strip()
+                links = self._entity_links(item)
+                if text and text not in body_values:
+                    parts.append(self._text_part(text))
+                    body_values.append(text)
+                for link in links:
+                    if link not in text and link not in body_values:
+                        parts.append(self._text_part(link))
+                        body_values.append(link)
+                parts.extend(self._attachment_parts(item))
+        parts = parts[:20]
         body = "\n".join(value for value in body_values if value) or "[attachment]"
-        received_at = datetime.fromtimestamp(int(message.get("date") or 0), UTC) \
-            if message.get("date") else datetime.now(UTC)
+        dates = [int(value.get("date") or 0) for value in messages if value.get("date")]
+        received_at = datetime.fromtimestamp(min(dates), UTC) if dates else datetime.now(UTC)
+        external = f"album:{album_id}" if album_id else message_id
         payload = {
             "ownerId": self.config.owner_id, "channelType": "TELEGRAM",
-            "externalMessageId": f"{self.config.account_key}:{chat_id}:{message_id}",
+            "externalMessageId": f"{self.config.account_key}:{chat_id}:{external}",
             "conversationKey": f"{self.config.account_key}:{chat_id}", "sender": sender,
             "subject": None, "body": body, "receivedAt": received_at.isoformat(), "parts": parts}
         await self._internal_json(self.config.messaging_url + "/internal/v1/inbound-messages", payload)
@@ -206,13 +244,17 @@ class TelegramConnector:
     async def run(self, stop: asyncio.Event) -> None:
         """持续轮询并在瞬时错误后退避。"""
         backoff = 1.0
-        while not stop.is_set():
-            try:
-                await self.poll_once()
-                backoff = 1.0
-            except asyncio.CancelledError:
-                raise
-            except Exception as exception:
-                logger.warning("Telegram polling failed: %s", exception)
-                await asyncio.sleep(backoff)
-                backoff = min(backoff * 2, 60.0)
+        try:
+            while not stop.is_set():
+                try:
+                    await self.poll_once()
+                    backoff = 1.0
+                except asyncio.CancelledError:
+                    raise
+                except Exception as exception:
+                    logger.warning("Telegram polling failed: %s", exception)
+                    await asyncio.sleep(backoff)
+                    backoff = min(backoff * 2, 60.0)
+        finally:
+            # offset 只在入队后推进，正常停机前必须把窗口内相册全部写入 Messaging。
+            await self.flush_albums(True)

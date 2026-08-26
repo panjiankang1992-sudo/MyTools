@@ -16,9 +16,11 @@ class RecordingConnector(TelegramConnector):
                         "internal-token", 45, 1024 * 1024)
         super().__init__(config, object())  # type: ignore[arg-type]
         self.payload = None
+        self.payloads = []
 
     async def _internal_json(self, url: str, payload: dict) -> dict:
         self.payload = payload
+        self.payloads.append(payload)
         return {"id": "message-id"}
 
 
@@ -80,3 +82,22 @@ def test_video_sticker_keeps_video_semantics() -> None:
         "sticker": {"file_id": "video-sticker", "is_video": True,
                     "mime_type": "video/webm"}}}))
     assert connector.payload["parts"][0]["attachmentType"] == "VIDEO"
+
+
+def test_groups_media_album_into_one_inbound_message() -> None:
+    """同一 media_group_id 的多个更新应形成一条稳定入站消息。"""
+    async def scenario() -> RecordingConnector:
+        connector = RecordingConnector()
+        for message_id, file_id in ((31, "photo-a"), (32, "photo-b")):
+            await connector.receive({"update_id": message_id, "message": {
+                "message_id": message_id, "date": 1_700_000_000, "chat": {"id": 42},
+                "from": {"id": 99}, "media_group_id": "album-7",
+                "photo": [{"file_id": file_id, "file_size": 20}]}})
+        assert connector.payload is None
+        await connector.flush_albums(True)
+        return connector
+
+    connector = asyncio.run(scenario())
+    assert len(connector.payloads) == 1
+    assert connector.payload["externalMessageId"] == "telegram_main:42:album:album-7"
+    assert [part["providerFileId"] for part in connector.payload["parts"]] == ["photo-a", "photo-b"]
