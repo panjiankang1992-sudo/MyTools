@@ -2,7 +2,9 @@
 
 PikPak 外部协议适配服务，使用 Java 21、Spring Boot 和独立
 `mytools_pikpak_connector` schema。已实现账户登记、幂等离线操作、文件集合稳定性观察、
-异步受控移动、取消收敛、Outbox 和内部 HTTP API；默认关闭，不接管旧 DownloadBot watcher。
+异步受控移动、取消收敛、Outbox 和内部 HTTP API。固定目录 watcher 通过独立持久化状态机
+按顶层文件或目录分批，稳定后由定时扫描任务创建 Download Request；逐文件任务全部成功后
+才把来源移动到服务端配置的备份目录。
 
 该服务只允许服务端定义的回环 rclone RC 白名单操作。PikPak 凭据使用 Secret 引用，任务脚本和调用方不能读取 remote key、凭据或任意执行命令。
 
@@ -13,6 +15,10 @@ PikPak 外部协议适配服务，使用 Java 21、Spring Boot 和独立
 - `POST /api/internal/v1/pikpak/operations/{id}/advance`：执行一次有界状态推进。
 - `GET /api/internal/v1/pikpak/operations/{id}`：读取脱敏状态和稳定对象。
 - `POST /api/internal/v1/pikpak/operations/{id}/cancel`：取消并按移动阶段安全收敛。
+- `POST /api/internal/v1/pikpak/watchers`：配置账户固定监听目录、备份目录和稳定窗口。
+- `POST /api/internal/v1/pikpak/watchers/scan`：扫描全部启用 watcher，仅返回稳定批次。
+- `GET /api/internal/v1/pikpak/watch-batches/{id}`：读取批次和固定 Provider 路径。
+- `POST /api/internal/v1/pikpak/watch-batches/{id}/archive`：下载成功后异步归档来源。
 
 首次推进会再次携带 magnet URI，用于与已保存摘要核对后提交；服务不会把原文写入数据库、
 Outbox 或响应。READY 响应只提供 Storage Provider UUID 和逻辑远端路径，不返回 remote key；

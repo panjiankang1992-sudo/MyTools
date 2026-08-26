@@ -17,6 +17,7 @@ TASK_NAMES = {
     "WEB_ARCHIVE": "download_web_archive",
     "MAGNET": "download_pikpak_magnet",
     "LOCAL_MAGNET": "download_local_magnet",
+    "PIKPAK_WATCH_BATCH": "download_pikpak_watch_batch",
     "MESSAGE_ATTACHMENT": "download_message_attachment",
     "MESSAGE_URL_BATCH": "download_message_url_batch",
 }

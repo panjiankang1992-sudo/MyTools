@@ -1,0 +1,13 @@
+name: pikpak_watch_scan
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - network_http
+parameters:
+  required: []
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 300
+  maxOutputBytes: 65536

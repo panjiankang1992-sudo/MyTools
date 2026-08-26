@@ -1,0 +1,16 @@
+name: download_pikpak_watch_batch
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - network_http
+parameters:
+  required:
+    - downloadRequestId
+    - batchId
+    - accountId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 21600
+  maxOutputBytes: 1048576

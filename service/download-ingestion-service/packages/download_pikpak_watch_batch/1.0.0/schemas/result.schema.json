@@ -1,0 +1,1 @@
+{"type":"object","required":["requestId","batchId","status","childTaskIds"],"properties":{"requestId":{"type":"string","format":"uuid"},"batchId":{"type":"string","format":"uuid"},"status":{"const":"ARCHIVED"},"childTaskIds":{"type":"array","maxItems":10000,"items":{"type":"string","format":"uuid"}}},"additionalProperties":false}

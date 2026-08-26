@@ -72,6 +72,11 @@ staging；任务重试复用 `.aria2` 与 session 控制文件完成断点续传
 上限，完成后把文件先发布为 `storage://managed` 对象，再逐文件创建
 `download_storage_object` 子任务，复用统一的资产登记和结果回写流水线。
 
+PikPak 固定目录由 `pikpak_watch_scan` 每分钟扫描。稳定批次以
+`PIKPAK_WATCH_BATCH` 请求进入 `download_pikpak_watch_batch`，逐文件创建
+`download_remote_storage_object` 子任务；只有全部资产登记和结果回写成功后才调用
+Connector 归档批次，因此扫描、下载、归档任一步骤重试都不会提前删除远端数据。
+
 历史迁移使用 `V3__create_legacy_history_import.sql` 的独立不可变历史表，不把旧完成记录
 伪装成新的 `download_request`，因此不会触发下载。内部接口
 `POST /internal/v1/migrations/downloadbot-history/batches` 支持 dry-run、幂等重放和身份冲突

@@ -1,0 +1,1 @@
+{"type":"object","required":["accountCount","readyBatchCount","downloadRequestIds"],"properties":{"accountCount":{"type":"integer","minimum":0},"readyBatchCount":{"type":"integer","minimum":0},"downloadRequestIds":{"type":"array","maxItems":1000,"items":{"type":"string","format":"uuid"}}},"additionalProperties":false}

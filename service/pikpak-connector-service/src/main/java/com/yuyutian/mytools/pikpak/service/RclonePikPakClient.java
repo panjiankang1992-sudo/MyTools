@@ -104,6 +104,16 @@ public class RclonePikPakClient {
         return id;
     }
 
+    /** 启动受控单文件移动。 @param remoteKey 远端键 @param source 来源 @param target 目标 @return 后台任务 */
+    public long startMoveFile(String remoteKey, String source, String target) {
+        JsonNode response = call("operations/movefile", Map.of("srcFs", remoteKey + ":",
+            "srcRemote", validPath(source), "dstFs", remoteKey + ":",
+            "dstRemote", validPath(target), "_async", true), Duration.ofSeconds(30));
+        long id = response.path("jobid").asLong(0);
+        if (id <= 0) throw new IllegalStateException(RCLONE_JOB_INVALID.code());
+        return id;
+    }
+
     /** 查询后台任务。 @param id rclone 任务标识 @return 状态 */
     public RemoteJob job(long id) {
         JsonNode response = call("job/status", Map.of("jobid", id), Duration.ofSeconds(30));
