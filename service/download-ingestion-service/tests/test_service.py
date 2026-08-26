@@ -126,6 +126,19 @@ class DownloadRequestServiceTest(unittest.TestCase):
         self.assertEqual("download_x_post", scheduler.calls[0]["task_name"])
         self.assertEqual(str(created.id), scheduler.calls[0]["parameters"]["downloadRequestId"])
 
+    def test_routes_message_url_batch_to_message_orchestrator(self):
+        """同一消息的多个链接必须先进入整批解析父任务。"""
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(InMemoryDownloadRequestRepository(), scheduler)
+        created = service.create(CreateDownloadRequest(
+            "message:batch-1", "MESSAGE", "batch-1", "MESSAGE_URL_BATCH",
+            {"messageBatchId": "batch-1", "receivedAt": "2026-08-26T07:53:08Z",
+             "items": [{"url": "https://x.com/user/status/123", "fileName": "123"},
+                       {"url": "https://example.invalid/a.jpg", "fileName": "a.jpg"}]},
+            owner_id=7))
+        self.assertEqual("download_message_url_batch", scheduler.calls[0]["task_name"])
+        self.assertEqual(str(created.id), scheduler.calls[0]["parameters"]["downloadRequestId"])
+
     def test_routes_web_archive_to_resource_orchestrator(self):
         """A web archive request binds to the public-page resolver parent."""
         scheduler = FakeScheduler()

@@ -16,6 +16,8 @@ Messaging Service 的默认关闭 Outbox relay 只向 `POST /internal/v1/message
 
 每个下载动作在外部调用前先写入 `automation_action` 占位记录，保存稳定序号和私有恢复输入；Download Ingestion 返回后绑定业务请求标识。查询运行时逐项对账运行/成功/失败/取消状态，并重新计算 `RUNNING`、`SUCCEEDED`、`FAILED`、`PARTIAL_FAILED` 或 `CANCELLED` 聚合结果。创建结果未知的动作保留 `CREATING`，后续使用相同幂等键恢复；动作 API 响应不暴露保存的源 URL。`action_refs_json` 在迁移期保留为兼容投影，不再作为动作权威记录。
 
+同一标准消息包含多个 URL 时，Automation 不再直接创建多个互不关联的完整下载请求，而是创建一个 `MESSAGE_URL_BATCH`。批次父任务为每个 X URL 创建独立解析子任务，收齐全部媒体清单后按整条消息的真实媒体总数统一决定当天目录或消息专属目录，再为每个媒体创建独立下载、发布、资产登记和标签子任务。单 URL 消息继续走原子请求，既有任务实例不回填也不改变。
+
 附件动作只保存标准消息部分标识，使用消息 owner 创建、查询和取消 Messaging 附件任务；Provider 私有引用不会进入 Automation schema 或接口响应。
 
 终态通知复用 `automation_outbox`。Automation 只向 Messaging 提交“回复原入站消息”，不识别 EMAIL、QQ、Telegram 或 OneBot 的发送协议。Messaging 根据入站消息保存的渠道、账户、会话和外部消息标识选择 Delivery Provider；只有 Messaging 接受请求后才标记事件已发布，失败事件保留并按批次重试。后台协调器会周期性查询运行中的任务并推进自动化状态，因此不依赖用户再次查询任务状态。

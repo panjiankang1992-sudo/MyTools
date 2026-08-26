@@ -62,6 +62,42 @@ public class DownloadIngestionClient {
         return response.path("id").asText();
     }
 
+    /**
+     * 幂等创建一个整消息 URL 下载批次。
+     *
+     * @param messageId 标准消息标识
+     * @param ownerId 所有者标识
+     * @param ruleId 自动化规则标识
+     * @param urls 消息内按出现顺序去重后的链接
+     * @param receivedAt 消息接收时间
+     * @return 下载业务请求标识
+     */
+    public String createBatch(UUID messageId, long ownerId, UUID ruleId, List<String> urls, Instant receivedAt) {
+        if (urls == null || urls.size() < 2 || urls.size() > 20) {
+            throw new IllegalArgumentException("Message URL batch size is invalid");
+        }
+        List<Map<String, Object>> items = new java.util.ArrayList<>();
+        for (int index = 0; index < urls.size(); index++) {
+            String url = urls.get(index);
+            items.add(Map.of("url", url, "fileName", fileName(url, index)));
+        }
+        Map<String, Object> payload = Map.of(
+                "ownerId", ownerId,
+                "idempotencyKey", "automation-batch:" + messageId + ":" + ruleId,
+                "sourceType", "MESSAGE",
+                "sourceKey", messageId.toString(),
+                "requestKind", "MESSAGE_URL_BATCH",
+                "parameters", Map.of("ownerId", ownerId, "messageBatchId", messageId.toString(),
+                        "receivedAt", receivedAt.toString(), "items", List.copyOf(items)));
+        JsonNode response = restClient.post().uri("/api/v1/download-requests")
+                .header("Authorization", "Bearer " + requiredToken())
+                .contentType(MediaType.APPLICATION_JSON).body(jsonBytes(payload)).retrieve().body(JsonNode.class);
+        if (response == null || response.path("id").isMissingNode()) {
+            throw new IllegalStateException("Download Ingestion returned an invalid response");
+        }
+        return response.path("id").asText();
+    }
+
     private String effectiveRequestKind(String requestKind, String url) {
         if (!"HTTP_ASSET".equals(requestKind)) {
             return requestKind;
@@ -77,6 +113,19 @@ public class DownloadIngestionClient {
             // URL 有效性由下载服务统一校验，此处仅做业务类型识别。
         }
         return requestKind;
+    }
+
+    private String fileName(String url, int index) {
+        try {
+            String path = URI.create(url).getPath();
+            String raw = path == null || path.isBlank() || path.endsWith("/")
+                    ? "download-" + index + ".bin" : path.substring(path.lastIndexOf('/') + 1);
+            String safe = raw.replaceAll("[\\x00-\\x1f\\x7f/\\\\:*?\"<>|]", "_");
+            return safe.isBlank() ? "download-" + index + ".bin"
+                    : safe.substring(0, Math.min(180, safe.length()));
+        } catch (IllegalArgumentException exception) {
+            return "download-" + index + ".bin";
+        }
     }
 
     /**

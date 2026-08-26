@@ -1,5 +1,8 @@
 package com.yuyutian.mytools.automation.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.automation.model.AutomationRuleRecord;
 import com.yuyutian.mytools.automation.model.AutomationRunView;
 import com.yuyutian.mytools.automation.model.CreateAutomationRuleRequest;
@@ -28,6 +31,7 @@ import java.util.regex.Pattern;
 public class MessageAutomationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageAutomationService.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Pattern URL_PATTERN = Pattern.compile("https?://[^\\s<>\"']+", Pattern.CASE_INSENSITIVE);
     private static final Pattern INVALID_FILE_NAME = Pattern.compile("[\\x00-\\x1f\\x7f/\\\\:*?\"<>|]");
     private final AutomationRepository repository;
@@ -88,6 +92,13 @@ public class MessageAutomationService {
         } else {
             List<String> urls = extractUrls(message.body(), rule.maxActions());
             if (urls.isEmpty()) return noInput(messageId);
+            if (urls.size() > 1) {
+                var action = transactionTemplate.execute(status -> repository.createAction(
+                        started.id(), 0, "DOWNLOAD_BATCH", batchInput(urls), "message-url-batch"));
+                if (action == null) throw new IllegalStateException("Automation action transaction returned no action");
+                submitBatch(started, message, rule.id(), action.id(), urls);
+                return reconcile(repository.findRun(messageId).orElseThrow(), false);
+            }
             for (int index = 0; index < urls.size(); index++) {
                 int sequence = index;
                 String url = urls.get(index);
@@ -143,6 +154,19 @@ public class MessageAutomationService {
         }
     }
 
+    private void submitBatch(AutomationRunView run, InboundMessage message, UUID ruleId,
+                             UUID actionId, List<String> urls) {
+        try {
+            UUID requestId = UUID.fromString(downloadClient.createBatch(run.messageId(), message.ownerId(),
+                    ruleId, urls, message.receivedAt()));
+            transactionTemplate.executeWithoutResult(status -> repository.bindAction(actionId, requestId));
+        } catch (RuntimeException exception) {
+            logDownloadFailure(actionId, exception);
+            transactionTemplate.executeWithoutResult(status ->
+                    repository.failAction(actionId, ErrorCode.DOWNLOAD_CREATE_FAILED.code()));
+        }
+    }
+
     private void logDownloadFailure(UUID actionId, RuntimeException exception) {
         String reason = exception.getClass().getSimpleName();
         if (exception instanceof RestClientResponseException response) {
@@ -169,6 +193,8 @@ public class MessageAutomationService {
             if ("CREATING".equals(action.status()) && recoverCreating && run.ruleId() != null) {
                 if ("ATTACHMENT_DOWNLOAD".equals(action.actionType())) {
                     submitAttachment(message, action.id(), UUID.fromString(action.sourceUrl()));
+                } else if ("DOWNLOAD_BATCH".equals(action.actionType())) {
+                    submitBatch(run, message, run.ruleId(), action.id(), batchUrls(action.sourceUrl()));
                 } else {
                     String requestKind = repository.findRule(run.ruleId()).orElseThrow().requestKind();
                     submit(run, message, run.ruleId(), requestKind, action.id(), action.sequence(),
@@ -265,6 +291,28 @@ public class MessageAutomationService {
             }
         }
         return List.copyOf(urls);
+    }
+
+    private String batchInput(List<String> urls) {
+        try {
+            String value = OBJECT_MAPPER.writeValueAsString(urls);
+            if (value.length() > 4096) throw new IllegalArgumentException("Message URL batch is too large");
+            return value;
+        } catch (JsonProcessingException exception) {
+            throw new IllegalArgumentException("Message URL batch is invalid", exception);
+        }
+    }
+
+    private List<String> batchUrls(String value) {
+        try {
+            List<String> urls = OBJECT_MAPPER.readValue(value, new TypeReference<List<String>>() { });
+            if (urls.size() < 2 || urls.size() > 20 || urls.stream().anyMatch(String::isBlank)) {
+                throw new IllegalArgumentException("Message URL batch is invalid");
+            }
+            return List.copyOf(urls);
+        } catch (JsonProcessingException exception) {
+            throw new IllegalArgumentException("Message URL batch is invalid", exception);
+        }
     }
 
     private String fileName(String url, int index) {

@@ -23,6 +23,8 @@
 5. 查询或事件触发时对账动作状态，聚合全部成功、部分失败、失败或取消。
 6. 级联取消仍在运行的子动作并生成完成通知。
 
+多个 URL 属于同一个消息批次：Automation 只创建一个业务下载聚合，Download Ingestion 在执行面为每个 URL 创建解析子任务，并在整批解析完成后创建逐媒体下载子任务。这样目录阈值、取消、结果摘要和完成通知均以原始消息为边界，而不是以单个 URL 为边界。结构化附件仍使用受保护的消息部分标识，后续与 URL 混合批次合并时不得退化为把 provider 签名地址长期保存为普通 HTTP 输入。
+
 完成通知不增加独立通知中心。终态事件由轻量中继读取并交给 Messaging 的统一渠道路由，Messaging 再按入站消息保存的 `channelType + accountKey + conversationKey + externalMessageId` 调用 EMAIL、QQ、Telegram 或 OneBot Delivery Provider。只有对应 Provider 接受请求后才确认 Outbox，失败保留重试。后台协调器周期性查询运行中的任务并推进终态，不依赖外部查询触发。当前 QQ Connector 直连发送仅作为统一 Messaging 出站 Provider 完成前的兼容实现，不得把 QQ 分支扩散到分析、分类和任务编排代码。
 
 ## 脚本与子任务

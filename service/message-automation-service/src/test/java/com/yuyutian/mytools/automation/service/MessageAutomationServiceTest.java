@@ -65,9 +65,9 @@ class MessageAutomationServiceTest {
         UUID messageId = UUID.randomUUID();
         when(messagingClient.get(messageId)).thenReturn(message(messageId, 11L, "chat-7", "user-9",
                 "/download https://files.example/a.zip https://files.example/b.zip https://files.example/c.zip"));
-        List<UUID> downloadIds = List.of(UUID.randomUUID(), UUID.randomUUID());
-        when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any()))
-                .thenAnswer(invocation -> downloadIds.get(invocation.getArgument(3)).toString());
+        UUID downloadId = UUID.randomUUID();
+        when(downloadClient.createBatch(any(), anyLong(), any(), any(), any()))
+                .thenReturn(downloadId.toString());
         when(downloadClient.get(any(), anyLong())).thenAnswer(invocation ->
                 new DownloadIngestionClient.DownloadSnapshot(invocation.getArgument(0), "SUCCEEDED"));
 
@@ -76,9 +76,9 @@ class MessageAutomationServiceTest {
 
         assertThat(running.status()).isEqualTo("SUCCEEDED");
         assertThat(duplicate.status()).isEqualTo("SUCCEEDED");
-        assertThat(duplicate.actionRefs()).containsExactly(downloadIds.get(0).toString(), downloadIds.get(1).toString());
+        assertThat(duplicate.actionRefs()).containsExactly(downloadId.toString());
         assertThat(duplicate.id()).isEqualTo(running.id());
-        verify(downloadClient, times(2)).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any());
+        verify(downloadClient).createBatch(any(), anyLong(), any(), any(), any());
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM automation_run WHERE inbound_message_id = ?",
                 Integer.class, messageId.toString())).isEqualTo(1);
@@ -87,7 +87,7 @@ class MessageAutomationServiceTest {
                 Integer.class, running.id().toString())).isEqualTo(1);
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM automation_action WHERE automation_run_id = ?",
-                Integer.class, running.id().toString())).isEqualTo(2);
+                Integer.class, running.id().toString())).isEqualTo(1);
     }
 
     @Test
@@ -139,8 +139,9 @@ class MessageAutomationServiceTest {
         when(messagingClient.get(messageId)).thenReturn(new InboundMessage(messageId, 13L, ChannelType.EMAIL,
                 "external-" + messageId, "thread-3", "allowed@example.com", null,
                 "download: https://files.example/a https://files.example/b", Instant.now(), Instant.now()));
-        when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any()))
-                .thenAnswer(invocation -> UUID.randomUUID().toString());
+        UUID downloadId = UUID.randomUUID();
+        when(downloadClient.createBatch(any(), anyLong(), any(), any(), any()))
+                .thenReturn(downloadId.toString());
         when(downloadClient.cancel(any(), anyLong())).thenAnswer(invocation ->
                 new DownloadIngestionClient.DownloadSnapshot(invocation.getArgument(0), "CANCELLED"));
 
@@ -149,7 +150,7 @@ class MessageAutomationServiceTest {
 
         assertThat(cancelled.status()).isEqualTo("CANCELLED");
         assertThat(cancelled.actions()).extracting("status").containsOnly("CANCELLED");
-        verify(downloadClient, times(2)).cancel(any(), org.mockito.ArgumentMatchers.eq(13L));
+        verify(downloadClient).cancel(downloadId, 13L);
     }
 
     @Test

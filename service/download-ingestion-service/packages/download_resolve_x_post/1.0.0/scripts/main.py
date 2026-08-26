@@ -254,6 +254,11 @@ def main() -> None:
     context = TaskContext.load()
     parameters = context.parameters
     tweet_id, resources = resolve(parameters)
+    # 消息批次父任务先只收集所有链接的媒体清单，再统一决定目录并创建下载子任务。
+    if parameters.get("resolveOnly") is True:
+        write_result({"tweetId": tweet_id, "resources": resources,
+                      "mediaCount": len(resources)})
+        return
     write_result(execute(context, parameters, resources, tweet_id))
 
 

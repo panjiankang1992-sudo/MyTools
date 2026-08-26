@@ -1,0 +1,6 @@
+name: download_message_url_batch
+version: 1.0.0
+runtime: python3
+entrypoint: scripts/main.py
+description: Resolve every URL in one message before creating atomic media downloads.
+

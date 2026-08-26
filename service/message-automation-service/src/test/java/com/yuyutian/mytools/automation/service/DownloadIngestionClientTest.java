@@ -8,6 +8,7 @@ import org.springframework.web.client.RestClient;
 
 import java.util.UUID;
 import java.time.Instant;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
@@ -81,6 +82,31 @@ class DownloadIngestionClientTest {
         assertThat(client.create(messageId, 17L, ruleId, 0, "HTTP_ASSET",
                 "https://mobile.x.com/user/status/123456", "123456", Instant.parse("2026-08-26T07:53:08Z")))
                 .isEqualTo(downloadId.toString());
+        server.verify();
+    }
+
+    @Test
+    void shouldCreateOneMessageBatchWithOrderedUrlItems() {
+        UUID messageId = UUID.randomUUID();
+        UUID ruleId = UUID.randomUUID();
+        UUID downloadId = UUID.randomUUID();
+        RestClient.Builder builder = RestClient.builder().baseUrl("http://download.test");
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(requestTo("http://download.test/api/v1/download-requests"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(jsonPath("$.sourceKey").value(messageId.toString()))
+                .andExpect(jsonPath("$.requestKind").value("MESSAGE_URL_BATCH"))
+                .andExpect(jsonPath("$.parameters.messageBatchId").value(messageId.toString()))
+                .andExpect(jsonPath("$.parameters.items.length()").value(2))
+                .andExpect(jsonPath("$.parameters.items[0].url").value("https://x.com/a/status/1"))
+                .andExpect(jsonPath("$.parameters.items[1].url").value("https://cdn.example/b.jpg"))
+                .andRespond(withAccepted().contentType(MediaType.APPLICATION_JSON)
+                        .body("{\"id\":\"" + downloadId + "\"}"));
+        DownloadIngestionClient client = new DownloadIngestionClient(builder.build(), "download-token");
+
+        assertThat(client.createBatch(messageId, 17L, ruleId,
+                List.of("https://x.com/a/status/1", "https://cdn.example/b.jpg"),
+                Instant.parse("2026-08-26T07:53:08Z"))).isEqualTo(downloadId.toString());
         server.verify();
     }
 
