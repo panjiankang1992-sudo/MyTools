@@ -60,6 +60,44 @@ class OneBotClient:
             raise RuntimeError("OneBot get_file returned an invalid response")
         return payload["data"]
 
+    def send_text(self, account: Account, message_type: str, target_id: str, text: str) -> dict:
+        """通过固定 OneBot 动作发送有界文本消息。"""
+        if message_type not in {"private", "group"} or not target_id.isdigit() \
+                or not text or len(text) > 4000:
+            raise ValueError("OneBot text message is invalid")
+        action = "/send_private_msg" if message_type == "private" else "/send_group_msg"
+        target_key = "user_id" if message_type == "private" else "group_id"
+        return self._json_action(account, action, {target_key: int(target_id), "message": text})
+
+    def get_forward_message(self, account: Account, forward_id: str) -> list:
+        """通过固定动作读取一条合并转发消息。"""
+        if not forward_id or len(forward_id) > 512:
+            raise ValueError("OneBot forward id is invalid")
+        data = self._json_action(account, "/get_forward_msg", {"message_id": forward_id})
+        messages = data.get("messages") if isinstance(data, dict) else None
+        if not isinstance(messages, list):
+            raise RuntimeError("OneBot get_forward_msg returned no messages")
+        return messages
+
+    def _json_action(self, account: Account, path: str, payload: dict) -> dict:
+        """调用受控 OneBot JSON 动作并校验通用响应。"""
+        token = self._secret_resolver(account.secret_ref)
+        request = Request(account.http_base_url.rstrip("/") + path,
+                          data=json.dumps(payload, separators=(",", ":")).encode(), method="POST",
+                          headers={"Authorization": f"Bearer {token}",
+                                   "Content-Type": "application/json", "Accept": "application/json"})
+        opener = self._opener or build_opener().open
+        with opener(request, timeout=30) as response:
+            raw = response.read(4 * 1024 * 1024 + 1)
+            if getattr(response, "status", 200) >= 400 or len(raw) > 4 * 1024 * 1024:
+                raise RuntimeError("OneBot action request failed")
+        value = json.loads(raw.decode("utf-8"))
+        if not isinstance(value, dict) or value.get("status") not in (None, "ok") \
+                or int(value.get("retcode", 0)) != 0:
+            raise RuntimeError("OneBot action returned an invalid response")
+        data = value.get("data")
+        return data if isinstance(data, dict) else {}
+
     def prepare(self, account: Account, provider_file_id: str) -> ContentSource:
         """优先使用安全映射的本地文件，否则校验返回的 URL。"""
         data = self.get_file(account, provider_file_id)

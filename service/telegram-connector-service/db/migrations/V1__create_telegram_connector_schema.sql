@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS telegram_poll_checkpoint (
+    account_key VARCHAR(128) PRIMARY KEY,
+    next_update_id BIGINT NOT NULL,
+    updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)
+);

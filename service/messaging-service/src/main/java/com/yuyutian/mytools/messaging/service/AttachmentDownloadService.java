@@ -147,13 +147,13 @@ public class AttachmentDownloadService {
             transactionTemplate.executeWithoutResult(status -> repository.bindResolvedSource(jobId, "STREAM", null));
             return new ResolveAttachmentResult(jobId, required(jobId).status(), true);
         }
-        if (!"ONEBOT".equals(source.channelType())
+        if (!("ONEBOT".equals(source.channelType()) || "TELEGRAM".equals(source.channelType()))
                 || source.providerAccountKey() == null || source.providerAccountKey().isBlank()
                 || source.providerFileId() == null || source.providerFileId().isBlank()
                 || source.attachmentType() == null) {
             throw new AttachmentDownloadInvalidException();
         }
-        ProviderFileResolverClient.Resolution resolution = resolverClient.resolve(
+        ProviderFileResolverClient.Resolution resolution = resolverClient.resolve(source.channelType(),
                 source.providerAccountKey(), source.attachmentType(),
                 source.providerFileId());
         transactionTemplate.executeWithoutResult(status -> repository.bindResolvedSource(jobId,
@@ -178,11 +178,11 @@ public class AttachmentDownloadService {
                     byteLimit(source.declaredSize()));
             return;
         }
-        if (!"ONEBOT".equals(source.channelType())) {
+        if (!("ONEBOT".equals(source.channelType()) || "TELEGRAM".equals(source.channelType()))) {
             throw new AttachmentDownloadInvalidException();
         }
-        resolverClient.stream(source.providerAccountKey(), source.attachmentType(), source.providerFileId(),
-                output, byteLimit(source.declaredSize()));
+        resolverClient.stream(source.channelType(), source.providerAccountKey(), source.attachmentType(),
+                source.providerFileId(), output, byteLimit(source.declaredSize()));
     }
 
     private AttachmentDownloadRecord insert(UUID messageId, UUID partId) {
@@ -210,7 +210,8 @@ public class AttachmentDownloadService {
         boolean direct = isHttp(source.sourceUrl());
         boolean resolvable = source.providerFileId() != null && !source.providerFileId().isBlank()
                 && source.providerAccountKey() != null && !source.providerAccountKey().isBlank()
-                && ("ONEBOT".equals(source.channelType()) || "EMAIL".equals(source.channelType()));
+                && ("ONEBOT".equals(source.channelType()) || "TELEGRAM".equals(source.channelType())
+                    || "EMAIL".equals(source.channelType()));
         if (!"ATTACHMENT".equals(source.partType()) || !(direct || resolvable)) {
             throw new AttachmentDownloadInvalidException();
         }

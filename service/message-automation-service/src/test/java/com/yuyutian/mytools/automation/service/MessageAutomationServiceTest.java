@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -183,12 +184,13 @@ class MessageAutomationServiceTest {
     }
 
     @Test
-    void shouldPreferStructuredAttachmentForUrlRule() {
+    void shouldProcessStructuredAttachmentAndBodyUrlIndependently() {
         service.createRule(new CreateAutomationRuleRequest(17L, "qq_download", ChannelType.QQ,
                 null, "qq-user", "", "HTTP_ASSET", 5, 100, true));
         UUID messageId = UUID.randomUUID();
         UUID partId = UUID.randomUUID();
         UUID jobId = UUID.randomUUID();
+        UUID requestId = UUID.randomUUID();
         InboundMessage message = new InboundMessage(messageId, 17L, ChannelType.QQ,
                 "qq_main:C2C_MESSAGE_CREATE:platform-message", "qq:c2c:qq-user", "qq-user", null,
                 "https://files.example/download", Instant.now(), Instant.now(),
@@ -199,12 +201,17 @@ class MessageAutomationServiceTest {
                 .thenReturn(new MessagingClient.AttachmentSnapshot(jobId, "QUEUED"));
         when(messagingClient.attachment(jobId, 17L))
                 .thenReturn(new MessagingClient.AttachmentSnapshot(jobId, "SUCCEEDED"));
+        when(downloadClient.create(eq(messageId), eq(17L), any(), eq(1), eq("HTTP_ASSET"),
+                eq("https://files.example/download"), anyString(), any()))
+                .thenReturn(requestId.toString());
+        when(downloadClient.get(requestId, 17L))
+                .thenReturn(new DownloadIngestionClient.DownloadSnapshot(requestId, "SUCCEEDED"));
 
         var completed = service.process(messageId);
 
         assertThat(completed.status()).isEqualTo("SUCCEEDED");
-        assertThat(completed.actions()).extracting("actionType").containsExactly("ATTACHMENT_DOWNLOAD");
-        verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any());
+        assertThat(completed.actions()).extracting("actionType")
+                .containsExactly("ATTACHMENT_DOWNLOAD", "DOWNLOAD_REQUEST");
         verify(messagingClient).createAttachment(messageId, partId, 17L);
     }
 

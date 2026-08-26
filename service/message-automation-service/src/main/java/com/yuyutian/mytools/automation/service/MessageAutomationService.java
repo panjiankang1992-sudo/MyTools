@@ -76,40 +76,48 @@ public class MessageAutomationService {
         if (rule == null) {
             return transactionTemplate.execute(status -> repository.completeRun(messageId, "NO_MATCH", List.of(), null));
         }
+        acknowledge(messageId, started.id());
         List<InboundMessage.MessagePart> attachments = message.parts().stream()
                 .filter(part -> "ATTACHMENT".equals(part.type())).limit(rule.maxActions()).toList();
-        // 渠道已提供结构化附件时优先走附件任务，保留原文件名并避免重复下载正文中的同一URL。
-        if ("MESSAGE_ATTACHMENT".equals(rule.requestKind()) || !attachments.isEmpty()) {
-            if (attachments.isEmpty()) return noInput(messageId);
-            for (int index = 0; index < attachments.size(); index++) {
-                int sequence = index;
-                InboundMessage.MessagePart part = attachments.get(index);
-                var action = transactionTemplate.execute(status -> repository.createAction(started.id(), sequence,
-                        "ATTACHMENT_DOWNLOAD", part.id().toString(), attachmentName(part, sequence)));
-                if (action == null) throw new IllegalStateException("Automation action transaction returned no action");
-                submitAttachment(message, action.id(), part.id());
-            }
-        } else {
-            List<String> urls = extractUrls(message.body(), rule.maxActions());
-            if (urls.isEmpty()) return noInput(messageId);
+        int sequence = 0;
+        for (InboundMessage.MessagePart part : attachments) {
+            int currentSequence = sequence++;
+            var action = transactionTemplate.execute(status -> repository.createAction(started.id(), currentSequence,
+                    "ATTACHMENT_DOWNLOAD", part.id().toString(), attachmentName(part, currentSequence)));
+            if (action == null) throw new IllegalStateException("Automation action transaction returned no action");
+            submitAttachment(message, action.id(), part.id());
+        }
+        List<String> urls = extractUrls(message.body(), Math.max(0, rule.maxActions() - sequence));
+        if (!urls.isEmpty()) {
             if (urls.size() > 1) {
+                int currentSequence = sequence;
                 var action = transactionTemplate.execute(status -> repository.createAction(
-                        started.id(), 0, "DOWNLOAD_BATCH", batchInput(urls), "message-url-batch"));
+                        started.id(), currentSequence, "DOWNLOAD_BATCH", batchInput(urls), "message-url-batch"));
                 if (action == null) throw new IllegalStateException("Automation action transaction returned no action");
                 submitBatch(started, message, rule.id(), action.id(), urls);
-                return reconcile(repository.findRun(messageId).orElseThrow(), false);
-            }
-            for (int index = 0; index < urls.size(); index++) {
-                int sequence = index;
-                String url = urls.get(index);
+            } else {
+                String url = urls.get(0);
+                int currentSequence = sequence;
                 var action = transactionTemplate.execute(status -> repository.createAction(
-                        started.id(), sequence, "DOWNLOAD_REQUEST", url, fileName(url, sequence)));
+                        started.id(), currentSequence, "DOWNLOAD_REQUEST", url, fileName(url, currentSequence)));
                 if (action == null) throw new IllegalStateException("Automation action transaction returned no action");
-                submit(started, message, rule.id(), rule.requestKind(), action.id(), sequence, url,
-                        fileName(url, sequence));
+                submit(started, message, rule.id(), "HTTP_ASSET", action.id(), currentSequence, url,
+                        fileName(url, currentSequence));
             }
         }
+        if (attachments.isEmpty() && urls.isEmpty()) return noInput(messageId);
         return reconcile(repository.findRun(messageId).orElseThrow(), false);
+    }
+
+    private void acknowledge(UUID messageId, UUID runId) {
+        try {
+            messagingClient.reply(messageId, "automation-start-" + runId,
+                    "已收到，正在处理；完成后会发送文件名和标签信息。");
+        } catch (RuntimeException exception) {
+            // 回执失败不能阻断消息入库和任务创建，终态通知仍由可靠 outbox 重试。
+            LOGGER.warn("Automation acknowledgement failed: runId={}, errorType={}",
+                    runId, exception.getClass().getSimpleName());
+        }
     }
 
     /**
@@ -196,8 +204,7 @@ public class MessageAutomationService {
                 } else if ("DOWNLOAD_BATCH".equals(action.actionType())) {
                     submitBatch(run, message, run.ruleId(), action.id(), batchUrls(action.sourceUrl()));
                 } else {
-                    String requestKind = repository.findRule(run.ruleId()).orElseThrow().requestKind();
-                    submit(run, message, run.ruleId(), requestKind, action.id(), action.sequence(),
+                    submit(run, message, run.ruleId(), "HTTP_ASSET", action.id(), action.sequence(),
                             action.sourceUrl(), action.fileName());
                 }
             } else if (action.externalRequestId() != null && !terminalAction(action.status())) {

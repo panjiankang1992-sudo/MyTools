@@ -1,0 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mytools-telegram-connector"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = ["aiohttp>=3.10,<4"]
+
+[project.scripts]
+mytools-telegram-connector = "mytools_telegram_connector.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mytools_telegram_connector"]

@@ -12,5 +12,6 @@ public record MessagingProperties(String schedulerUrl, String internalToken, Str
                                   boolean oneBotIngressEnabled, String downloadIngestionUrl,
                                   String downloadIngestionToken, String providerResolverUrl,
                                   String providerResolverToken, String qqConnectorUrl,
-                                  String qqConnectorToken) {
+                                  String qqConnectorToken, String telegramConnectorUrl,
+                                  String telegramConnectorToken) {
 }

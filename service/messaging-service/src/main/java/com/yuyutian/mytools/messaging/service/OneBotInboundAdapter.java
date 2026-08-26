@@ -8,6 +8,8 @@ import com.yuyutian.mytools.messaging.model.CreateInboundMessageRequest;
 import com.yuyutian.mytools.messaging.model.InboundMessageView;
 import com.yuyutian.mytools.messaging.model.OneBotInboundRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClient;
 
 import java.time.Instant;
 import java.util.ArrayDeque;
@@ -28,13 +30,16 @@ public class OneBotInboundAdapter {
     private static final int MAX_BODY_LENGTH = 10_485_760;
     private final DeliveryService deliveryService;
     private final MessagingProperties properties;
+    private final RestClient connectorClient;
 
     /**
      * 创建 OneBot 入站适配器。
      */
-    public OneBotInboundAdapter(DeliveryService deliveryService, MessagingProperties properties) {
+    public OneBotInboundAdapter(DeliveryService deliveryService, MessagingProperties properties,
+                                RestClient.Builder builder) {
         this.deliveryService = deliveryService;
         this.properties = properties;
+        this.connectorClient = builder.clone().baseUrl(properties.providerResolverUrl()).build();
     }
 
     /**
@@ -115,6 +120,13 @@ public class OneBotInboundAdapter {
             if (data.isContainerNode() && "forward".equals(type)) {
                 stack.push(data);
             }
+            if ("forward".equals(type)) {
+                String forwardId = firstText(data, "id", "message_id", "res_id", "file");
+                JsonNode expanded = expandForward(accountKey, forwardId);
+                if (expanded != null) {
+                    stack.push(expanded);
+                }
+            }
         }
         String rawMessage = text(event, "raw_message");
         if (parts.stream().noneMatch(part -> "TEXT".equals(part.type()))) {
@@ -130,6 +142,24 @@ public class OneBotInboundAdapter {
         String normalized = value == null ? "" : value.trim();
         if (!normalized.isBlank()) {
             parts.add(new CreateInboundMessagePart("TEXT", normalized, null, null, null, null, null, null, null));
+        }
+    }
+
+    private JsonNode expandForward(String accountKey, String forwardId) {
+        if (forwardId.isBlank() || properties.providerResolverToken() == null
+                || properties.providerResolverToken().isBlank()) {
+            return null;
+        }
+        try {
+            JsonNode response = connectorClient.post().uri("/internal/v1/messages/forward/expand")
+                    .header("Authorization", "Bearer " + properties.providerResolverToken())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(java.util.Map.of("accountKey", accountKey, "forwardId", forwardId))
+                    .retrieve().body(JsonNode.class);
+            return response == null ? null : response.path("messages");
+        } catch (RuntimeException exception) {
+            // 合并转发临时读取失败时保留原消息，避免阻断其他分段入库。
+            return null;
         }
     }
 

@@ -103,11 +103,23 @@ public class MessagingClient {
      * @return 投递任务快照
      */
     public InboundReplySnapshot reply(UUID messageId, UUID runId, String body) {
+        return reply(messageId, "automation-completion-" + runId, body);
+    }
+
+    /**
+     * 使用调用方提供的稳定幂等键回复原会话。
+     *
+     * @param messageId 入站消息标识
+     * @param idempotencyKey 幂等键
+     * @param body 回复正文
+     * @return 回复受理快照
+     */
+    public InboundReplySnapshot reply(UUID messageId, String idempotencyKey, String body) {
         InboundReplySnapshot result = restClient.post()
                 .uri("/internal/v1/inbound-messages/{id}/replies", messageId)
                 .header("Authorization", "Bearer " + requiredToken())
                 .contentType(MediaType.APPLICATION_JSON).body(Map.of(
-                        "idempotencyKey", "automation-completion-" + runId,
+                        "idempotencyKey", idempotencyKey,
                         "body", body))
                 .retrieve().body(InboundReplySnapshot.class);
         if (result == null || !messageId.equals(result.messageId())

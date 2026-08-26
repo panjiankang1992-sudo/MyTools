@@ -84,6 +84,28 @@ class OneBotConnectorService:
         return {"accountKey": account.external_key, "requestId": request_id,
                 "requestedAt": requested_at.isoformat(), "status": "REQUESTED"}
 
+    def send_text(self, payload: dict) -> dict:
+        """向已登记 OneBot 账户发送原会话文本。"""
+        required = {"accountKey", "messageType", "targetId", "messageId", "text", "idempotencyKey"}
+        if set(payload) != required:
+            raise ValueError("OneBot text request is invalid")
+        account = self._control_account(payload)
+        message_id = str(payload["messageId"])
+        idempotency_key = str(payload["idempotencyKey"])
+        if not message_id or len(message_id) > 512 or not idempotency_key or len(idempotency_key) > 255:
+            raise ValueError("OneBot text request is invalid")
+        result = self._client.send_text(account, str(payload["messageType"]),
+                                        str(payload["targetId"]), str(payload["text"]))
+        return {"status": "SENT", "providerMessageId": str(result.get("message_id") or "")}
+
+    def expand_forward(self, payload: dict) -> dict:
+        """展开一条合并转发消息供入站适配器标准化。"""
+        if set(payload) != {"accountKey", "forwardId"}:
+            raise ValueError("OneBot forward request is invalid")
+        account = self._control_account(payload)
+        messages = self._client.get_forward_message(account, str(payload["forwardId"]))
+        return {"messages": messages[:500]}
+
     def prepare_qr(self, payload: dict) -> tuple[Path, int]:
         """校验并准备固定二维码文件，不接受调用方提供路径。"""
         self._control_account(payload)

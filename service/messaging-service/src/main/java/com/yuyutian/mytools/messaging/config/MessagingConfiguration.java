@@ -39,7 +39,10 @@ public class MessagingConfiguration {
     @Bean
     public ProviderFileResolverClient providerFileResolverClient(RestClient.Builder builder,
                                                                  MessagingProperties properties) {
-        return new ProviderFileResolverClient(builder.baseUrl(properties.providerResolverUrl()).build(),
-                properties.providerResolverToken());
+        return new ProviderFileResolverClient(
+                builder.clone().baseUrl(properties.providerResolverUrl()).build(),
+                properties.providerResolverToken(),
+                builder.clone().baseUrl(properties.telegramConnectorUrl()).build(),
+                properties.telegramConnectorToken());
     }
 }

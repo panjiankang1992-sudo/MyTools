@@ -33,6 +33,14 @@ class FakeClient:
         output.write(b"content")
         return 7
 
+    def send_text(self, _account, message_type, target_id, text):
+        assert (message_type, target_id, text) == ("private", "123", "done")
+        return {"message_id": 88}
+
+    def get_forward_message(self, _account, forward_id):
+        assert forward_id == "forward-1"
+        return [{"content": [{"type": "text", "data": {"text": "nested"}}]}]
+
 
 def create_service(enabled=True, public_url=None, relogin_request_path=None, qr_path=None):
     repository = InMemoryAccountRepository()
@@ -129,6 +137,15 @@ def test_missing_qr_is_reported_as_temporarily_unavailable(tmp_path: Path):
     with pytest.raises(RuntimeError, match="fresh OneBot login QR is not available"):
         application.prepare_qr({"accountKey": "qq_primary",
                                 "requestedAt": datetime.now(UTC).isoformat()})
+
+
+def test_send_text_and_expand_forward_use_registered_account():
+    application = create_service()
+    sent = application.send_text({"accountKey": "qq_primary", "messageType": "private",
+        "targetId": "123", "messageId": "7", "text": "done", "idempotencyKey": "reply-7"})
+    assert sent == {"status": "SENT", "providerMessageId": "88"}
+    assert application.expand_forward({"accountKey": "qq_primary", "forwardId": "forward-1"}) == {
+        "messages": [{"content": [{"type": "text", "data": {"text": "nested"}}]}]}
 
 
 class FakeResponse(BytesIO):

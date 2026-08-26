@@ -30,6 +30,12 @@ class FakeService:
         output.write(b"png-data")
         return 8
 
+    def send_text(self, _payload):
+        return {"status": "SENT"}
+
+    def expand_forward(self, _payload):
+        return {"messages": []}
+
 
 def request(server, path, token, payload):
     connection = HTTPConnection("127.0.0.1", server.server_port)
@@ -84,6 +90,17 @@ def test_relogin_and_qr_endpoints_require_internal_token():
         assert status == 200
         assert content_type == "image/png"
         assert body == b"png-data"
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_message_routes_require_internal_token():
+    server = start_server()
+    try:
+        assert request(server, "/internal/v1/messages/text", "admin", {})[0] == 401
+        assert request(server, "/internal/v1/messages/text", "internal", {})[0] == 200
+        assert request(server, "/internal/v1/messages/forward/expand", "internal", {})[0] == 200
     finally:
         server.shutdown()
         server.server_close()

@@ -38,7 +38,7 @@ class AutomationOutboxRelayTest {
         MessagingProperties properties = new MessagingProperties("http://scheduler", "messaging-token",
                 "sender@example.com", "http://automation.test", "automation-token", true, 10, false,
                 "http://download.test", "download-token", "http://resolver.test", "resolver-token",
-                "http://qq.test", "qq-token");
+                "http://qq.test", "qq-token", "http://telegram.test", "telegram-token");
 
         new AutomationOutboxRelay(repository, properties, builder).relay();
 

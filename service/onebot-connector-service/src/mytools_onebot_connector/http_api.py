@@ -60,6 +60,18 @@ def create_handler(service: OneBotConnectorService, internal_token: str,
                     return
                 self._stream_qr()
                 return
+            if path == "/internal/v1/messages/text":
+                if not self._authorized(internal_token):
+                    self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
+                    return
+                self._run_json(HTTPStatus.OK, service.send_text)
+                return
+            if path == "/internal/v1/messages/forward/expand":
+                if not self._authorized(internal_token):
+                    self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
+                    return
+                self._run_json(HTTPStatus.OK, service.expand_forward)
+                return
             self._json(HTTPStatus.NOT_FOUND, {"error": "route does not exist"})
 
         def _run_json(self, success: HTTPStatus, operation) -> None:

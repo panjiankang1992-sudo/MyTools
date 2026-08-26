@@ -13,8 +13,10 @@ import java.util.Map;
  */
 public class ProviderFileResolverClient {
 
-    private final RestClient restClient;
-    private final String token;
+    private final RestClient oneBotRestClient;
+    private final String oneBotToken;
+    private final RestClient telegramRestClient;
+    private final String telegramToken;
 
     /**
      * 创建渠道文件解析客户端。
@@ -23,8 +25,23 @@ public class ProviderFileResolverClient {
      * @param token 解析器内部令牌
      */
     public ProviderFileResolverClient(RestClient restClient, String token) {
-        this.restClient = restClient;
-        this.token = token;
+        this(restClient, token, restClient, token);
+    }
+
+    /**
+     * 创建支持多个 provider 的文件解析客户端。
+     *
+     * @param oneBotRestClient OneBot 客户端
+     * @param oneBotToken OneBot 内部令牌
+     * @param telegramRestClient Telegram 客户端
+     * @param telegramToken Telegram 内部令牌
+     */
+    public ProviderFileResolverClient(RestClient oneBotRestClient, String oneBotToken,
+                                      RestClient telegramRestClient, String telegramToken) {
+        this.oneBotRestClient = oneBotRestClient;
+        this.oneBotToken = oneBotToken;
+        this.telegramRestClient = telegramRestClient;
+        this.telegramToken = telegramToken;
     }
 
     /**
@@ -36,11 +53,25 @@ public class ProviderFileResolverClient {
      * @return 解析模式和可选公开地址
      */
     public Resolution resolve(String accountKey, String attachmentType, String providerFileId) {
-        requireToken();
-        Resolution response = restClient.post().uri("/internal/v1/provider-files/resolve")
-                .header("Authorization", "Bearer " + token)
+        return resolve("ONEBOT", accountKey, attachmentType, providerFileId);
+    }
+
+    /**
+     * 按渠道解析 provider 文件引用。
+     *
+     * @param channelType 渠道类型
+     * @param accountKey 渠道账户键
+     * @param attachmentType 附件类型
+     * @param providerFileId provider 文件标识
+     * @return 解析模式和可选公开地址
+     */
+    public Resolution resolve(String channelType, String accountKey, String attachmentType,
+                              String providerFileId) {
+        Target target = target(channelType);
+        Resolution response = target.client().post().uri("/internal/v1/provider-files/resolve")
+                .header("Authorization", "Bearer " + target.token())
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("channelType", "ONEBOT", "accountKey", accountKey,
+                .body(Map.of("channelType", channelType, "accountKey", accountKey,
                         "attachmentType", attachmentType, "providerFileId", providerFileId))
                 .retrieve().body(Resolution.class);
         if (response == null || response.mode() == null) {
@@ -72,11 +103,26 @@ public class ProviderFileResolverClient {
      */
     public void stream(String accountKey, String attachmentType, String providerFileId,
                        OutputStream output, long maximumBytes) {
-        requireToken();
-        restClient.post().uri("/internal/v1/provider-files/content")
-                .header("Authorization", "Bearer " + token)
+        stream("ONEBOT", accountKey, attachmentType, providerFileId, output, maximumBytes);
+    }
+
+    /**
+     * 按渠道流式代理 provider 文件内容。
+     *
+     * @param channelType 渠道类型
+     * @param accountKey 渠道账户键
+     * @param attachmentType 附件类型
+     * @param providerFileId provider 文件标识
+     * @param output 受控响应输出流
+     * @param maximumBytes 最大允许字节数
+     */
+    public void stream(String channelType, String accountKey, String attachmentType, String providerFileId,
+                       OutputStream output, long maximumBytes) {
+        Target target = target(channelType);
+        target.client().post().uri("/internal/v1/provider-files/content")
+                .header("Authorization", "Bearer " + target.token())
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("channelType", "ONEBOT", "accountKey", accountKey,
+                .body(Map.of("channelType", channelType, "accountKey", accountKey,
                         "attachmentType", attachmentType, "providerFileId", providerFileId))
                 .exchange((request, response) -> {
                     if (!response.getStatusCode().is2xxSuccessful()) {
@@ -104,15 +150,24 @@ public class ProviderFileResolverClient {
                 });
     }
 
-    private void requireToken() {
+    private Target target(String channelType) {
+        RestClient client = "TELEGRAM".equals(channelType) ? telegramRestClient : oneBotRestClient;
+        String token = "TELEGRAM".equals(channelType) ? telegramToken : oneBotToken;
+        if (!("TELEGRAM".equals(channelType) || "ONEBOT".equals(channelType))) {
+            throw new IllegalStateException("Provider resolver channel is unsupported");
+        }
         if (token == null || token.isBlank()) {
             throw new IllegalStateException("Provider resolver internal token is missing");
         }
+        return new Target(client, token);
     }
 
     /**
      * 解析器最小响应。
      */
     public record Resolution(String mode, String downloadUrl) {
+    }
+
+    private record Target(RestClient client, String token) {
     }
 }
