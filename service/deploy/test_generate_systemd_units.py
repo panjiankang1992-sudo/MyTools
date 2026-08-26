@@ -91,9 +91,12 @@ class GenerateSystemdUnitsTest(unittest.TestCase):
 
     def test_logrotate_is_checked_every_minute(self) -> None:
         timer = generator.logrotate_timer()
+        service = generator.logrotate_service(self.manifest["deploymentRoot"])
 
         self.assertIn("OnCalendar=*-*-* *:*:00", timer)
         self.assertIn("Persistent=true", timer)
+        self.assertIn("/etc/logrotate.d/mytools-services", service)
+        self.assertIn("/etc/logrotate.d/mytools-rclone-services", service)
 
     def test_units_allow_external_business_data_mounts(self) -> None:
         unit = generator.service_unit(

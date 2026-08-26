@@ -8040,7 +8040,8 @@ struct Index {
     this.books = this.books.map((book: Book) => book.id === current.id ? current : book);
     this.RememberRemoteBookProgress(current, progress.chapterTitle, progress.updatedAt);
     this.PersistReaderState();
-    this.SyncReadingProgress(progress);
+    // 试读图书尚未进入服务端书架，只保存本地进度，避免创建无归属的远程阅读状态。
+    if (this.books.some((book: Book) => book.id === current.id)) this.SyncReadingProgress(progress);
   }
 
   private SyncReadingProgress(progress: ReadingProgress): void {
@@ -8775,12 +8776,14 @@ struct Index {
   }
 
   private AllLocalReadingProgress(): ReadingProgress[] {
+    const shelfBookIds = new Set<string>(this.books.map((book: Book): string => book.id));
     const tombstones = this.readingProgressTombstones.map(
       (value: ReadingProgressTombstone): ReadingProgress => ({
         bookId: value.bookId, chapterTitle: value.chapterTitle, locator: value.locator,
         percentage: value.percentage, updatedAt: value.updatedAt, revision: value.revision, deleted: true
       }));
-    return this.readingProgress.concat(tombstones);
+    // 活跃进度只同步书架图书；移出书架产生的墓碑仍需同步到服务端完成删除。
+    return this.readingProgress.filter((value: ReadingProgress) => shelfBookIds.has(value.bookId)).concat(tombstones);
   }
 
   private StartReaderPersistenceTimer(): void {
@@ -13679,6 +13682,8 @@ struct Index {
       this.RememberRemoteBookProgress(book, local.deleted === true ? '' : local.chapterTitle, local.updatedAt);
       return;
     }
+    // 服务端阅读状态从属于书架，未加入书架的远程条目不发起无效进度查询。
+    if (!this.books.some((value: Book) => value.id === book.id)) return;
     try {
       const progress = await new ReaderProgressApi(this.ActiveServiceUrl(), this.authManager).find(book.id);
       if (progress === undefined || !this.authenticated || generation !== this.readerProgressSyncGeneration ||

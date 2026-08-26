@@ -46,6 +46,10 @@ interface ZipArchiveManifest {
   files: Map<string, number>;
 }
 
+interface TicketContentRange {
+  total: number;
+}
+
 export interface IndexedTextSearchHit {
   chapterIndex: number;
   characterIndex: number;
@@ -138,7 +142,10 @@ export class ReaderContentLoader {
   async loadRemoteText(context: common.UIAbilityContext, url: string,
     requestHeaders?: Record<string, string>): Promise<ReaderDocument> {
     const cachePath = this.prepareWorkspace(context, 'txt');
-    const size = await this.downloadTextStream(url, cachePath, requestHeaders);
+    // MyTools票据流经过网关和代理时按固定范围读取，避免设备网络栈长连接丢失结束事件。
+    const size = this.isMyToolsTicketUrl(url) ?
+      await this.downloadTicketTextRanges(url, cachePath, requestHeaders) :
+      await this.downloadTextStream(url, cachePath, requestHeaders);
     if (size > ReaderContentLoader.MAX_TEXT_BYTES) return await this.indexLargeText(cachePath, size, context);
     return this.loadTextFile(cachePath, size);
   }
@@ -299,6 +306,102 @@ export class ReaderContentLoader {
       if (!completed) this.removePartialDownload(path);
       if (this.activeRequest === request) this.activeRequest = undefined;
     }
+  }
+
+  private isMyToolsTicketUrl(url: string): boolean {
+    return /^https?:\/\/[^/?#]+\/api\/app\/v1\/(?:media\/tickets|local-media\/tickets|drive-tickets)\/[a-f0-9]{32}$/.test(url);
+  }
+
+  private async downloadTicketTextRanges(url: string, path: string,
+    requestHeaders?: Record<string, string>): Promise<number> {
+    const safeUrl = this.remoteDownloadPolicy.url(url);
+    const baseHeaders = this.remoteDownloadPolicy.requestHeaders(requestHeaders);
+    let file: fs.File | undefined = undefined;
+    let received = 0;
+    let receivedHash = 2166136261;
+    let totalSize: number | undefined = undefined;
+    let completed = false;
+    try {
+      file = fs.openSync(path, fs.OpenMode.CREATE | fs.OpenMode.WRITE_ONLY | fs.OpenMode.TRUNC);
+      while (totalSize === undefined || received < totalSize) {
+        this.assertNotCancelled();
+        const request = http.createHttp();
+        this.activeRequest = request;
+        try {
+          const rangeEnd = received + ReaderContentLoader.TEXT_CHUNK_BYTES - 1;
+          baseHeaders['Range'] = `bytes=${received}-${rangeEnd}`;
+          const response = await request.request(safeUrl, {
+            method: http.RequestMethod.GET,
+            header: baseHeaders,
+            expectDataType: http.HttpDataType.ARRAY_BUFFER,
+            connectTimeout: 15000,
+            readTimeout: 30000
+          });
+          this.assertNotCancelled();
+          if (response.responseCode !== 206) throw new Error(`远程文本分段读取失败（${response.responseCode}）`);
+          const headerResult = this.remoteDownloadPolicy.headers(response.header,
+            ReaderContentLoader.TEXT_CHUNK_BYTES, 'text');
+          if (headerResult.error.length > 0) throw new Error(headerResult.error);
+          if (!(response.result instanceof ArrayBuffer)) throw new Error('远程TXT分段响应格式无效');
+          const buffer = response.result as ArrayBuffer;
+          if (buffer.byteLength === 0 || buffer.byteLength > ReaderContentLoader.TEXT_CHUNK_BYTES) {
+            throw new Error('远程TXT分段长度无效');
+          }
+          const contentRange = this.ticketContentRange(response.header, received, buffer.byteLength);
+          if (totalSize !== undefined && totalSize !== contentRange.total) {
+            throw new Error('远程TXT总长度发生变化');
+          }
+          totalSize = contentRange.total;
+          if (totalSize > ReaderContentLoader.MAX_LARGE_TEXT_BYTES) throw new Error('远程TXT超过500 MB');
+          const written = this.writeRemoteBookChunk(file, buffer);
+          if (written !== buffer.byteLength) throw new Error('远程TXT缓存写入不完整');
+          const bytes = new Uint8Array(buffer);
+          for (let index = 0; index < bytes.length; index++) {
+            receivedHash = Math.imul((receivedHash ^ bytes[index]) >>> 0, 16777619);
+          }
+          received += buffer.byteLength;
+          await new Promise<void>((resolve: () => void) => setTimeout(resolve, 0));
+        } finally {
+          request.destroy();
+          if (this.activeRequest === request) this.activeRequest = undefined;
+        }
+      }
+      if (received === 0 || totalSize !== received) throw new Error('远程TXT响应长度不一致');
+      const cachedFingerprint = await this.fileFingerprintAsync(path, received,
+        (): boolean => this.cancelled, '图书加载已取消');
+      if (cachedFingerprint !== `${received}-${receivedHash >>> 0}`) throw new Error('远程TXT缓存内容校验失败');
+      completed = true;
+      return received;
+    } catch (error) {
+      if (error instanceof Error) throw error;
+      throw new Error('无法读取远程图书');
+    } finally {
+      if (file !== undefined) {
+        try {
+          fs.closeSync(file);
+        } catch (_) {
+        }
+      }
+      if (!completed) this.removePartialDownload(path);
+    }
+  }
+
+  private ticketContentRange(headers: Object, expectedStart: number, chunkLength: number):
+    TicketContentRange {
+    const values = headers as Record<string, Object>;
+    const key = Object.keys(values).find((value: string) => value.toLowerCase() === 'content-range');
+    if (key === undefined || typeof values[key] !== 'string') throw new Error('远程TXT缺少分段范围');
+    const match = /^bytes (\d+)-(\d+)\/(\d+)$/.exec(`${values[key]}`.trim());
+    if (match === null) throw new Error('远程TXT分段范围无效');
+    const start = Number(match[1]);
+    const end = Number(match[2]);
+    const total = Number(match[3]);
+    if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || !Number.isSafeInteger(total) ||
+      start !== expectedStart || end < start || end - start + 1 !== chunkLength || total <= end) {
+      throw new Error('远程TXT分段范围不一致');
+    }
+    const result: TicketContentRange = { total: total };
+    return result;
   }
 
   /** 分块复制本地图书，在切书或关闭时停止并清理不完整副本。 */

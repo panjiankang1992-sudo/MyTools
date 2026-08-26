@@ -149,7 +149,8 @@ def logrotate_service(deployment_root: str) -> str:
             "",
             "[Service]",
             "Type=oneshot",
-            f"ExecStart=/usr/sbin/logrotate --state {deployment_root}/runtime/logrotate.status /etc/logrotate.d/mytools-services",
+            f"ExecStart=/usr/sbin/logrotate --state {deployment_root}/runtime/logrotate.status "
+            "/etc/logrotate.d/mytools-services /etc/logrotate.d/mytools-rclone-services",
             "NoNewPrivileges=true",
             "PrivateTmp=true",
             "ProtectSystem=full",
