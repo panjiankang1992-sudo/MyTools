@@ -43,6 +43,9 @@ class MessageAutomationServiceTest {
     @MockBean
     private DownloadIngestionClient downloadClient;
 
+    @MockBean
+    private QQConnectorClient qqConnectorClient;
+
     @Test
     void shouldRejectChangedRuleReplay() {
         CreateAutomationRuleRequest request = new CreateAutomationRuleRequest(10L, "stable_rule",
@@ -189,7 +192,7 @@ class MessageAutomationServiceTest {
         UUID partId = UUID.randomUUID();
         UUID jobId = UUID.randomUUID();
         InboundMessage message = new InboundMessage(messageId, 17L, ChannelType.QQ,
-                "external-" + messageId, "qq:c2c:qq-user", "qq-user", null,
+                "qq_main:C2C_MESSAGE_CREATE:platform-message", "qq:c2c:qq-user", "qq-user", null,
                 "https://files.example/download", Instant.now(), Instant.now(),
                 List.of(new InboundMessage.MessagePart(partId, 1, "ATTACHMENT", "IMAGE",
                         "photo.png", "image/png", 1024L)));
@@ -205,6 +208,9 @@ class MessageAutomationServiceTest {
         assertThat(completed.actions()).extracting("actionType").containsExactly("ATTACHMENT_DOWNLOAD");
         verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString());
         verify(messagingClient).createAttachment(messageId, partId, 17L);
+        verify(qqConnectorClient).send(org.mockito.ArgumentMatchers.eq("qq-user"),
+                org.mockito.ArgumentMatchers.eq("platform-message"),
+                org.mockito.ArgumentMatchers.contains("已开始处理"), org.mockito.ArgumentMatchers.eq(1));
     }
 
     @Test

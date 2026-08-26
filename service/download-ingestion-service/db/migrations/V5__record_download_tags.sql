@@ -1,0 +1,3 @@
+ALTER TABLE download_item
+    ADD COLUMN tag_status VARCHAR(32) NOT NULL DEFAULT 'PENDING' AFTER asset_id,
+    ADD COLUMN tags_json JSON NOT NULL DEFAULT (JSON_ARRAY()) AFTER tag_status;

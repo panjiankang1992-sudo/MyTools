@@ -257,6 +257,25 @@ class DownloadRequestServiceTest(unittest.TestCase):
         self.assertNotIn("parameters", summary)
         self.assertNotIn("https://example.invalid/private", str(summary))
 
+    def test_records_terminal_tags_and_rejects_conflicting_replay(self):
+        """Tag callbacks are bounded, terminal, and idempotent."""
+        repository = InMemoryDownloadRequestRepository()
+        service = DownloadRequestService(repository, FakeScheduler())
+        created = service.create(CreateDownloadRequest(
+            "http:tagged", "HTTP", "tagged", "HTTP_ASSET",
+            {"itemId": "item", "url": "https://example.invalid/a", "fileName": "a.jpg"}))
+        service.record_result(created.id, {
+            "itemId": "item", "fileName": "a.jpg", "contentSha256": "a" * 64,
+            "sizeBytes": 3, "storageUri": "storage://downloads/a.jpg", "assetId": str(uuid4())})
+        result = {"itemId": "item", "tagStatus": "TAGGED",
+                  "tags": [{"name": "cosplay", "type": "topic", "confidence": 0.98}]}
+
+        self.assertEqual(result, service.record_tags(created.id, result))
+        self.assertEqual(result, service.record_tags(created.id, result))
+        self.assertEqual("TAGGED", service.result_summary(created.id)["items"][0]["tagStatus"])
+        with self.assertRaisesRegex(ValueError, "idempotency conflict"):
+            service.record_tags(created.id, {"itemId": "item", "tagStatus": "SKIPPED", "tags": []})
+
 
 if __name__ == "__main__":
     unittest.main()

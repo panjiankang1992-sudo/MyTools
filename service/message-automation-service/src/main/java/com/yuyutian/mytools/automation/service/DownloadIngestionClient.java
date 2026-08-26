@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
 import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -67,6 +68,28 @@ public class DownloadIngestionClient {
     }
 
     /**
+     * 查询下载文件名和终态标签，不返回来源地址或物理路径。
+     */
+    public DownloadSummary summary(UUID requestId) {
+        JsonNode response = restClient.get().uri("/api/v1/download-requests/{id}/result-summary", requestId)
+                .header("Authorization", "Bearer " + requiredToken()).retrieve().body(JsonNode.class);
+        if (response == null || !requestId.toString().equals(response.path("downloadRequestId").asText())) {
+            throw new IllegalStateException("Download Ingestion returned an invalid result summary");
+        }
+        List<DownloadItem> items = new java.util.ArrayList<>();
+        for (JsonNode item : response.path("items")) {
+            List<DownloadTag> tags = new java.util.ArrayList<>();
+            for (JsonNode tag : item.path("tags")) {
+                tags.add(new DownloadTag(tag.path("name").asText(), tag.path("type").asText("topic"),
+                        tag.path("confidence").asDouble()));
+            }
+            items.add(new DownloadItem(item.path("fileName").asText(), item.path("tagStatus").asText("PENDING"),
+                    List.copyOf(tags)));
+        }
+        return new DownloadSummary(requestId, response.path("status").asText(), List.copyOf(items));
+    }
+
+    /**
      * 取消下载子动作。
      */
     public DownloadSnapshot cancel(UUID requestId, long ownerId) {
@@ -106,5 +129,17 @@ public class DownloadIngestionClient {
      * 下载子动作最小状态快照。
      */
     public record DownloadSnapshot(UUID id, String status) {
+    }
+
+    /** 下载结果通知快照。 */
+    public record DownloadSummary(UUID id, String status, List<DownloadItem> items) {
+    }
+
+    /** 单个下载文件的通知快照。 */
+    public record DownloadItem(String fileName, String tagStatus, List<DownloadTag> tags) {
+    }
+
+    /** 单个自动标签的通知快照。 */
+    public record DownloadTag(String name, String type, double confidence) {
     }
 }

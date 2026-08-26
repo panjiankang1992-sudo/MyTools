@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import base64
 import json
+import mimetypes
 import os
 from pathlib import Path
 import tempfile
@@ -29,6 +30,15 @@ def load_parameters() -> dict:
     materialized = (context.get("stepOutputs") or {}).get("materialize_input") or {}
     if materialized.get("sourcePath"):
         parameters["sourcePath"] = materialized["sourcePath"]
+    downloaded = (context.get("stepOutputs") or {}).get("download_asset") or {}
+    relative = downloaded.get("relativePath")
+    if relative and not parameters.get("sourcePath"):
+        parameters["sourcePath"] = str(Path(os.environ["DOWNLOAD_DESTINATION_ROOT"]) / str(relative))
+    filename = str(downloaded.get("fileName") or parameters.get("fileName") or "download")
+    parameters.setdefault("filename", filename)
+    parameters.setdefault("mimeType", mimetypes.guess_type(filename)[0] or "application/octet-stream")
+    if downloaded.get("contentSha256"):
+        parameters.setdefault("contentSha256", downloaded["contentSha256"])
     return parameters
 
 

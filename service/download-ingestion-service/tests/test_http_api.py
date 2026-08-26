@@ -134,8 +134,15 @@ class DownloadHttpApiTest(unittest.TestCase):
         self.assertEqual(3, summary["totalBytes"])
         self.assertEqual(64, len(summary["collectionSha256"]))
         self.assertEqual(64, len(summary["contentSetSha256"]))
-        self.assertEqual([payload], summary["items"])
+        self.assertEqual([{**payload, "tagStatus": "PENDING", "tags": []}], summary["items"])
         self.assertNotIn("url", summary)
+
+        tags = {"itemId": "item-1", "tagStatus": "TAGGED",
+                "tags": [{"name": "cosplay", "type": "topic", "confidence": 0.98}]}
+        tag_path = f"/internal/v1/download-requests/{created['id']}/tags"
+        self.assertEqual(tags, self._request("POST", tag_path, tags))
+        tagged = self._request("GET", f"/api/v1/download-requests/{created['id']}/result-summary")
+        self.assertEqual("TAGGED", tagged["items"][0]["tagStatus"])
 
     def test_imports_sanitized_downloadbot_history_batch(self):
         """The protected migration endpoint supports dry-run and apply modes."""

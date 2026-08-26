@@ -33,6 +33,7 @@ public class MessageAutomationService {
     private final AutomationRepository repository;
     private final MessagingClient messagingClient;
     private final DownloadIngestionClient downloadClient;
+    private final QQConnectorClient qqConnectorClient;
     private final TransactionTemplate transactionTemplate;
 
     /**
@@ -40,10 +41,12 @@ public class MessageAutomationService {
      */
     public MessageAutomationService(AutomationRepository repository, MessagingClient messagingClient,
                                     DownloadIngestionClient downloadClient,
+                                    QQConnectorClient qqConnectorClient,
                                     TransactionTemplate transactionTemplate) {
         this.repository = repository;
         this.messagingClient = messagingClient;
         this.downloadClient = downloadClient;
+        this.qqConnectorClient = qqConnectorClient;
         this.transactionTemplate = transactionTemplate;
     }
 
@@ -98,7 +101,32 @@ public class MessageAutomationService {
                         fileName(url, sequence));
             }
         }
+        sendReceipt(message, started);
         return reconcile(repository.findRun(messageId).orElseThrow(), false);
+    }
+
+    private void sendReceipt(InboundMessage message, AutomationRunView run) {
+        if (message.channelType() != com.yuyutian.mytools.automation.model.ChannelType.QQ) {
+            return;
+        }
+        try {
+            String platformMessageId = qqMessageId(message);
+            String taskReference = run.id().toString().substring(0, 8);
+            qqConnectorClient.send(message.sender(), platformMessageId,
+                    "已收到，任务 #" + taskReference + " 已开始处理；完成后会发送文件名和标签信息。", 1);
+        } catch (RuntimeException exception) {
+            // 接收回执是提示信息，发送失败不得回滚已经持久化的下载任务。
+            LOGGER.warn("QQ receipt delivery failed: runId={}, errorType={}", run.id(),
+                    exception.getClass().getSimpleName());
+        }
+    }
+
+    private String qqMessageId(InboundMessage message) {
+        String[] parts = message.externalMessageId().split(":", 3);
+        if (parts.length != 3 || parts[2].isBlank()) {
+            throw new IllegalStateException("QQ message id is missing");
+        }
+        return parts[2];
     }
 
     /**

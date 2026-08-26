@@ -136,7 +136,11 @@ public class MessagingClient {
     }
 
     /** 附件任务最小状态快照。 */
-    public record AttachmentSnapshot(UUID id, String status) {
+    public record AttachmentSnapshot(UUID id, String status, UUID downloadRequestId) {
+        /** 创建尚未绑定下载请求的附件快照。 */
+        public AttachmentSnapshot(UUID id, String status) {
+            this(id, status, null);
+        }
     }
 
     /**

@@ -61,6 +61,10 @@ def resolve_source(parameters: dict, step_outputs: dict) -> Path:
     """Resolve the durable materialized input with a legacy parameter fallback."""
     materialized = step_outputs.get("materialize_input")
     value = materialized.get("sourcePath") if isinstance(materialized, dict) else None
+    downloaded = step_outputs.get("download_asset")
+    relative = downloaded.get("relativePath") if isinstance(downloaded, dict) else None
+    if not value and isinstance(relative, str) and relative.strip():
+        value = str(Path(os.environ["DOWNLOAD_DESTINATION_ROOT"]) / relative)
     value = value or parameters.get("sourcePath")
     if not isinstance(value, str) or not value.strip():
         raise ValueError("media source is missing")
@@ -70,10 +74,17 @@ def resolve_source(parameters: dict, step_outputs: dict) -> Path:
 def main() -> None:
     """Execute one thumbnail generation task."""
     context = json.loads(Path(os.environ["TASK_CONTEXT_FILE"]).read_text(encoding="utf-8"))
-    parameters = context["parameters"]
+    parameters = dict(context["parameters"])
+    outputs = context.get("stepOutputs", {})
+    downloaded = outputs.get("download_asset") or {}
+    registered = outputs.get("register_asset") or {}
+    if not parameters.get("assetId"):
+        parameters["assetId"] = registered.get("assetId") or parameters.get("itemId")
+    if not parameters.get("contentSha256"):
+        parameters["contentSha256"] = downloaded.get("contentSha256")
     work_directory = Path(os.environ["TASK_WORK_DIR"])
     target = work_directory / "thumbnail.jpg"
-    generate(resolve_source(parameters, context.get("stepOutputs", {})), target,
+    generate(resolve_source(parameters, outputs), target,
              float(parameters.get("seekSeconds", 1)))
     write_result(build_result(parameters, target))
 

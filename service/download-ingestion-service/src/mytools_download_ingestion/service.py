@@ -41,6 +41,9 @@ class DownloadRequestRepository(Protocol):
     def record_result(self, request_id: UUID, result: dict) -> dict:
         """Idempotently record one verified item and its registered asset."""
 
+    def record_tags(self, request_id: UUID, result: dict) -> dict:
+        """Idempotently record the terminal tagging result for one downloaded item."""
+
     def list_results(self, request_id: UUID) -> list[dict]:
         """Return immutable verified item results for reconciliation."""
 
@@ -144,6 +147,36 @@ class DownloadRequestService:
         if int(result["sizeBytes"]) < 0:
             raise ValueError("download result size is invalid")
         return self._repository.record_result(request_id, {**result, "contentSha256": digest})
+
+    def record_tags(self, request_id: UUID, result: dict) -> dict:
+        """Validate and persist a terminal, bounded tagging result."""
+        current = self._repository.find_by_id(request_id)
+        if current is None:
+            raise KeyError("download request does not exist")
+        item_id = str(result.get("itemId") or "")
+        status = str(result.get("tagStatus") or "")
+        tags = result.get("tags")
+        if not item_id or len(item_id) > 255 or status not in {"TAGGED", "FAILED", "SKIPPED"}:
+            raise ValueError("download tag result is invalid")
+        if not isinstance(tags, list) or len(tags) > 6:
+            raise ValueError("download tags are invalid")
+        normalized = []
+        for tag in tags:
+            if not isinstance(tag, dict):
+                raise ValueError("download tag is invalid")
+            name = str(tag.get("name") or "").strip()
+            tag_type = str(tag.get("type") or "topic").strip()
+            confidence = float(tag.get("confidence", 0.0))
+            if not name or len(name) > 128 or not tag_type or len(tag_type) > 64 \
+                    or confidence < 0.0 or confidence > 1.0:
+                raise ValueError("download tag is invalid")
+            normalized.append({"name": name, "type": tag_type, "confidence": confidence})
+        if status == "TAGGED" and not normalized:
+            raise ValueError("tagged download must contain tags")
+        if status != "TAGGED" and normalized:
+            raise ValueError("non-tagged download cannot contain tags")
+        return self._repository.record_tags(request_id, {
+            "itemId": item_id, "tagStatus": status, "tags": normalized})
 
     def result_summary(self, request_id: UUID) -> dict | None:
         """Return a source-secret-free digest summary after lifecycle reconciliation."""
@@ -283,9 +316,26 @@ class InMemoryDownloadRequestRepository:
         """Record an immutable result or reject a conflicting replay."""
         key = (request_id, str(result["itemId"]))
         existing = self._results.get(key)
-        if existing is not None and existing != result:
-            raise ValueError("download result idempotency conflict")
-        self._results[key] = dict(result)
+        if existing is not None:
+            immutable = {name: existing[name] for name in result}
+            if immutable != result:
+                raise ValueError("download result idempotency conflict")
+            return dict(result)
+        stored = {**result, "tagStatus": "PENDING", "tags": []}
+        self._results[key] = stored
+        return dict(result)
+
+    def record_tags(self, request_id: UUID, result: dict) -> dict:
+        """Record one terminal tag result without changing immutable asset fields."""
+        key = (request_id, str(result["itemId"]))
+        existing = self._results.get(key)
+        if existing is None:
+            raise KeyError("download item does not exist")
+        current = {"itemId": existing["itemId"], "tagStatus": existing["tagStatus"],
+                   "tags": existing["tags"]}
+        if current["tagStatus"] != "PENDING" and current != result:
+            raise ValueError("download tag result idempotency conflict")
+        existing.update({"tagStatus": result["tagStatus"], "tags": list(result["tags"])})
         return dict(result)
 
     def list_results(self, request_id: UUID) -> list[dict]:

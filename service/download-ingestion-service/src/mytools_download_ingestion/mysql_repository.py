@@ -144,7 +144,7 @@ class MySqlDownloadRequestRepository:
             with connection.cursor() as cursor:
                 cursor.execute(
                     """SELECT external_item_id, file_name, content_sha256, size_bytes,
-                              storage_uri, asset_id
+                              storage_uri, asset_id, tag_status, tags_json
                        FROM download_item
                        WHERE download_request_id = %s AND status = 'COMPLETED'
                        ORDER BY external_item_id""",
@@ -158,7 +158,44 @@ class MySqlDownloadRequestRepository:
                 "sizeBytes": int(row["size_bytes"]),
                 "storageUri": str(row["storage_uri"]),
                 "assetId": str(row["asset_id"]),
+                "tagStatus": str(row["tag_status"]),
+                "tags": json.loads(row["tags_json"]) if isinstance(row["tags_json"], str)
+                else row["tags_json"],
             } for row in rows]
+        finally:
+            connection.close()
+
+    def record_tags(self, request_id: UUID, result: dict) -> dict:
+        """Idempotently persist a terminal tagging result for an existing item."""
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT tag_status,tags_json FROM download_item "
+                    "WHERE download_request_id=%s AND external_item_id=%s FOR UPDATE",
+                    (str(request_id), str(result["itemId"])))
+                existing = cursor.fetchone()
+                if existing is None:
+                    raise KeyError("download item does not exist")
+                tags = existing["tags_json"]
+                if isinstance(tags, (str, bytes, bytearray)):
+                    tags = json.loads(tags)
+                current = {"itemId": str(result["itemId"]),
+                           "tagStatus": str(existing["tag_status"]), "tags": tags}
+                if current["tagStatus"] != "PENDING" and current != result:
+                    raise ValueError("download tag result idempotency conflict")
+                if current["tagStatus"] == "PENDING":
+                    cursor.execute(
+                        "UPDATE download_item SET tag_status=%s,tags_json=%s,updated_at=%s "
+                        "WHERE download_request_id=%s AND external_item_id=%s",
+                        (result["tagStatus"], json.dumps(result["tags"], ensure_ascii=False,
+                                                         separators=(",", ":")), datetime.now(UTC),
+                         str(request_id), str(result["itemId"])))
+            connection.commit()
+            return dict(result)
+        except Exception:
+            connection.rollback()
+            raise
         finally:
             connection.close()
 

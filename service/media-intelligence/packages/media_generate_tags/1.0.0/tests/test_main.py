@@ -44,6 +44,24 @@ class MediaGenerateTagsTest(unittest.TestCase):
             self.assertEqual(["nature", "photo"], [tag["name"] for tag in generated["tags"]])
             self.assertEqual([1.0, 0.0], [tag["confidence"] for tag in generated["tags"]])
 
+    def test_uses_download_step_output_as_tagging_input(self):
+        """Downloaded files should reuse the common media-intelligence tagger."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            downloaded = root / "request" / "clip.mp4"
+            downloaded.parent.mkdir()
+            downloaded.write_bytes(b"video")
+            context = root / "context.json"
+            context.write_text(json.dumps({"parameters": {"itemId": "item-1"}, "stepOutputs": {
+                "download_asset": {"relativePath": "request/clip.mp4", "fileName": "clip.mp4",
+                                   "contentSha256": "c" * 64}}}), encoding="utf-8")
+            with patch.dict(os.environ, {"TASK_CONTEXT_FILE": str(context),
+                                         "DOWNLOAD_DESTINATION_ROOT": str(root)}):
+                parameters = MODULE.load_parameters()
+            self.assertEqual(str(downloaded), parameters["sourcePath"])
+            self.assertEqual("video/mp4", parameters["mimeType"])
+            self.assertEqual("c" * 64, parameters["contentSha256"])
+
 
 if __name__ == "__main__":
     unittest.main()

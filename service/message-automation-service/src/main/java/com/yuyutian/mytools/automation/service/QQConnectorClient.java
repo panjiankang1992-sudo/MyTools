@@ -24,14 +24,21 @@ public class QQConnectorClient {
     /**
      * 被动回复原始 QQ 消息。
      */
-    public void send(String sender, String messageId, String text) {
+    public void send(String sender, String messageId, String text, int sequence) {
         if (token == null || token.isBlank()) {
             throw new IllegalStateException("QQ Connector token is missing");
         }
         restClient.post().uri("/internal/v1/messages/text")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("sender", sender, "messageId", messageId, "text", text, "sequence", 2))
+                .body(Map.of("sender", sender, "messageId", messageId, "text", text, "sequence", sequence))
                 .retrieve().toBodilessEntity();
+    }
+
+    /**
+     * 使用完成通知默认序号被动回复原始 QQ 消息。
+     */
+    public void send(String sender, String messageId, String text) {
+        send(sender, messageId, text, 2);
     }
 }

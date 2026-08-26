@@ -25,6 +25,7 @@ class CompletionOutboxRelayTest {
         AutomationRepository repository = mock(AutomationRepository.class);
         MessagingClient messagingClient = mock(MessagingClient.class);
         QQConnectorClient qqConnectorClient = mock(QQConnectorClient.class);
+        DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
         UUID runId = UUID.randomUUID();
         UUID messageId = UUID.randomUUID();
@@ -34,7 +35,8 @@ class CompletionOutboxRelayTest {
         when(messagingClient.createCompletionEmail(runId, 21L, "owner@example.test", "SUCCEEDED", 2))
                 .thenReturn(new MessagingClient.DeliverySnapshot(UUID.randomUUID(), "ACCEPTED"));
 
-        new CompletionOutboxRelay(repository, properties(true), messagingClient, qqConnectorClient).relay();
+        new CompletionOutboxRelay(repository, properties(true), messagingClient, qqConnectorClient,
+                downloadClient).relay();
 
         verify(repository).markOutboxPublished(eventId);
     }
@@ -44,6 +46,7 @@ class CompletionOutboxRelayTest {
         AutomationRepository repository = mock(AutomationRepository.class);
         MessagingClient messagingClient = mock(MessagingClient.class);
         QQConnectorClient qqConnectorClient = mock(QQConnectorClient.class);
+        DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
         UUID runId = UUID.randomUUID();
         UUID messageId = UUID.randomUUID();
@@ -51,7 +54,8 @@ class CompletionOutboxRelayTest {
                 new AutomationRepository.CompletionEvent(eventId, runId, messageId, "FAILED", 1)));
         when(messagingClient.get(messageId)).thenThrow(new IllegalStateException("temporary failure"));
 
-        new CompletionOutboxRelay(repository, properties(true), messagingClient, qqConnectorClient).relay();
+        new CompletionOutboxRelay(repository, properties(true), messagingClient, qqConnectorClient,
+                downloadClient).relay();
 
         verify(repository, never()).markOutboxPublished(eventId);
     }
@@ -61,6 +65,7 @@ class CompletionOutboxRelayTest {
         AutomationRepository repository = mock(AutomationRepository.class);
         MessagingClient messagingClient = mock(MessagingClient.class);
         QQConnectorClient qqConnectorClient = mock(QQConnectorClient.class);
+        DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
         UUID runId = UUID.randomUUID();
         UUID messageId = UUID.randomUUID();
@@ -69,10 +74,20 @@ class CompletionOutboxRelayTest {
         when(messagingClient.get(messageId)).thenReturn(new InboundMessage(messageId, 21L, ChannelType.QQ,
                 "qq_main:C2C_MESSAGE_CREATE:platform-message", "qq_main:c2c:user", "user",
                 null, "https://example.test/file", Instant.now(), Instant.now()));
+        UUID downloadId = UUID.randomUUID();
+        when(repository.findActionExecutions(runId)).thenReturn(List.of(
+                new AutomationRepository.ActionExecution(UUID.randomUUID(), 0, "DOWNLOAD_REQUEST", "source",
+                        "video.mp4", downloadId, "SUCCEEDED")));
+        when(downloadClient.summary(downloadId)).thenReturn(new DownloadIngestionClient.DownloadSummary(
+                downloadId, "SUCCEEDED", List.of(new DownloadIngestionClient.DownloadItem(
+                "video.mp4", "TAGGED", List.of(new DownloadIngestionClient.DownloadTag(
+                "cosplay", "topic", 0.98))))));
 
-        new CompletionOutboxRelay(repository, properties(true), messagingClient, qqConnectorClient).relay();
+        new CompletionOutboxRelay(repository, properties(true), messagingClient, qqConnectorClient,
+                downloadClient).relay();
 
-        verify(qqConnectorClient).send("user", "platform-message", "下载任务已完成，共 1 项。");
+        verify(qqConnectorClient).send("user", "platform-message",
+                "下载与标签已完成，共 1 个文件：\n\n1. video.mp4\n   标签：cosplay（topic，0.98）", 2);
         verify(repository).markOutboxPublished(eventId);
     }
 

@@ -20,6 +20,7 @@ public class CompletionOutboxRelay {
     private final AutomationProperties properties;
     private final MessagingClient messagingClient;
     private final QQConnectorClient qqConnectorClient;
+    private final DownloadIngestionClient downloadClient;
 
     /**
      * 创建自动化完成通知中继。
@@ -29,11 +30,13 @@ public class CompletionOutboxRelay {
      * @param messagingClient 消息服务客户端
      */
     public CompletionOutboxRelay(AutomationRepository repository, AutomationProperties properties,
-                                 MessagingClient messagingClient, QQConnectorClient qqConnectorClient) {
+                                 MessagingClient messagingClient, QQConnectorClient qqConnectorClient,
+                                 DownloadIngestionClient downloadClient) {
         this.repository = repository;
         this.properties = properties;
         this.messagingClient = messagingClient;
         this.qqConnectorClient = qqConnectorClient;
+        this.downloadClient = downloadClient;
     }
 
     /**
@@ -76,10 +79,8 @@ public class CompletionOutboxRelay {
                 if (prefix.isBlank()) {
                     throw new IllegalStateException("QQ message id is missing");
                 }
-                String text = "SUCCEEDED".equals(event.status())
-                        ? "下载任务已完成，共 " + event.actionCount() + " 项。"
-                        : "下载任务已结束，状态：" + event.status() + "。";
-                qqConnectorClient.send(message.sender(), prefix, text);
+                String text = completionText(event, message);
+                qqConnectorClient.send(message.sender(), prefix, text, 2);
                 repository.markOutboxPublished(event.eventId());
             } catch (RuntimeException exception) {
                 LOGGER.warn("QQ completion relay failed: eventId={}, errorType={}",
@@ -87,5 +88,50 @@ public class CompletionOutboxRelay {
                 break;
             }
         }
+    }
+
+    private String completionText(AutomationRepository.CompletionEvent event, InboundMessage message) {
+        if (!"SUCCEEDED".equals(event.status())) {
+            return "下载任务已结束，状态：" + event.status() + "。";
+        }
+        java.util.List<DownloadIngestionClient.DownloadItem> items = new java.util.ArrayList<>();
+        for (AutomationRepository.ActionExecution action : repository.findActionExecutions(event.runId())) {
+            java.util.UUID requestId = action.externalRequestId();
+            if ("ATTACHMENT_DOWNLOAD".equals(action.actionType())) {
+                MessagingClient.AttachmentSnapshot attachment = messagingClient.attachment(
+                        action.externalRequestId(), message.ownerId());
+                requestId = attachment.downloadRequestId();
+            }
+            if (requestId != null) {
+                items.addAll(downloadClient.summary(requestId).items());
+            }
+        }
+        if (items.isEmpty()) {
+            return "下载处理已完成，共 " + event.actionCount() + " 个文件。";
+        }
+        boolean allTagged = items.stream().allMatch(item -> "TAGGED".equals(item.tagStatus()));
+        StringBuilder text = new StringBuilder(allTagged ? "下载与标签已完成" : "下载处理已完成")
+                .append("，共 ").append(items.size()).append(" 个文件：");
+        for (int index = 0; index < items.size(); index++) {
+            DownloadIngestionClient.DownloadItem item = items.get(index);
+            text.append("\n\n").append(index + 1).append(". ").append(item.fileName())
+                    .append("\n   标签：").append(formatTags(item));
+        }
+        return text.length() <= 1800 ? text.toString() : text.substring(0, 1797) + "...";
+    }
+
+    private String formatTags(DownloadIngestionClient.DownloadItem item) {
+        if ("TAGGED".equals(item.tagStatus()) && !item.tags().isEmpty()) {
+            return item.tags().stream().map(tag -> tag.name() + "（" + tag.type() + "，"
+                    + String.format(java.util.Locale.ROOT, "%.2f", tag.confidence()) + "）")
+                    .collect(java.util.stream.Collectors.joining("、"));
+        }
+        if ("SKIPPED".equals(item.tagStatus())) {
+            return "已跳过（文件不支持）";
+        }
+        if ("FAILED".equals(item.tagStatus())) {
+            return "失败（文件已保存）";
+        }
+        return "处理中";
     }
 }

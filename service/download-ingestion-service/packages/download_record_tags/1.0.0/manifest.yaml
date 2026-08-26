@@ -1,0 +1,14 @@
+name: download_record_tags
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - network_http
+parameters:
+  required:
+    - downloadRequestId
+    - itemId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 30

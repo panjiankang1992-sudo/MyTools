@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["itemId", "tagStatus", "tags"],
+  "properties": {
+    "itemId": {"type": "string", "minLength": 1, "maxLength": 255},
+    "tagStatus": {"enum": ["TAGGED", "FAILED", "SKIPPED"]},
+    "tags": {"type": "array", "maxItems": 6}
+  },
+  "additionalProperties": false
+}
