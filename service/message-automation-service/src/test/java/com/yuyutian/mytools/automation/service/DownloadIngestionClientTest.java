@@ -7,6 +7,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 import java.util.UUID;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
@@ -34,12 +35,15 @@ class DownloadIngestionClientTest {
                 .andExpect(jsonPath("$.ownerId").value(17))
                 .andExpect(jsonPath("$.sourceKey").value(messageId + ":2"))
                 .andExpect(jsonPath("$.parameters.ownerId").value(17))
+                .andExpect(jsonPath("$.parameters.messageBatchId").value(messageId.toString()))
+                .andExpect(jsonPath("$.parameters.receivedAt").value("2026-08-26T07:53:08Z"))
                 .andRespond(withAccepted().contentType(MediaType.APPLICATION_JSON)
                         .body("{\"id\":\"" + downloadId + "\"}"));
         DownloadIngestionClient client = new DownloadIngestionClient(builder.build(), "download-token");
 
         assertThat(client.create(messageId, 17L, ruleId, 2, "HTTP_ASSET",
-                "https://example.test/file", "file.bin")).isEqualTo(downloadId.toString());
+                "https://example.test/file", "file.bin", Instant.parse("2026-08-26T07:53:08Z")))
+                .isEqualTo(downloadId.toString());
         server.verify();
     }
 
@@ -75,7 +79,7 @@ class DownloadIngestionClientTest {
         DownloadIngestionClient client = new DownloadIngestionClient(builder.build(), "download-token");
 
         assertThat(client.create(messageId, 17L, ruleId, 0, "HTTP_ASSET",
-                "https://mobile.x.com/user/status/123456", "123456"))
+                "https://mobile.x.com/user/status/123456", "123456", Instant.parse("2026-08-26T07:53:08Z")))
                 .isEqualTo(downloadId.toString());
         server.verify();
     }

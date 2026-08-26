@@ -134,7 +134,7 @@ public class MessageAutomationService {
                         UUID actionId, int index, String url, String fileName) {
         try {
             UUID requestId = UUID.fromString(downloadClient.create(run.messageId(), message.ownerId(), ruleId,
-                    index, requestKind, url, fileName));
+                    index, requestKind, url, fileName, message.receivedAt()));
             transactionTemplate.executeWithoutResult(status -> repository.bindAction(actionId, requestId));
         } catch (RuntimeException exception) {
             logDownloadFailure(actionId, exception);

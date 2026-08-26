@@ -11,7 +11,8 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
+from urllib.request import ProxyHandler, Request, build_opener
 from uuid import UUID
 
 from mytools_task_sdk.context import TaskContext
@@ -20,6 +21,7 @@ from mytools_task_sdk.orchestration import wait_all_or_cancel
 X_PATH = re.compile(r"^/(?:[^/]+/status|i/(?:web/)?status)/(\d{1,24})(?:/.*)?$", re.I)
 SAFE_PART = re.compile(r"[^A-Za-z0-9_-]+")
 MAX_METADATA_BYTES = 8 * 1024 * 1024
+DEFAULT_FALLBACK_API = "https://api.fxtwitter.com/status/{tweet_id}"
 
 
 def canonical_x_url(value: object) -> tuple[str, str]:
@@ -81,6 +83,101 @@ def parse_resources(raw: bytes, tweet_id: str, maximum: int) -> list[dict]:
     return resources
 
 
+def original_photo_url(value: str) -> str:
+    """将 FxTwitter 图片地址规范化为原图地址。"""
+    parsed = urlparse(value)
+    query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+    query["name"] = "orig"
+    return urlunparse(parsed._replace(query=urlencode(query)))
+
+
+def parse_fallback_resources(raw: bytes, tweet_id: str, maximum: int) -> list[dict]:
+    """从有界 FxTwitter 响应递归提取主帖和引用帖媒体。"""
+    if len(raw) > MAX_METADATA_BYTES:
+        raise ValueError("X fallback metadata exceeds limit")
+    try:
+        payload = json.loads(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exception:
+        raise ValueError("X fallback returned invalid metadata") from exception
+    if not isinstance(payload, dict) or payload.get("code") not in (None, 200):
+        raise ValueError("X fallback returned an unsuccessful response")
+    root = payload.get("tweet")
+    if not isinstance(root, dict) or str(root.get("id") or tweet_id) != tweet_id:
+        raise ValueError("X fallback returned mismatched tweet metadata")
+    resources: list[dict] = []
+    seen_posts: set[str] = set()
+    seen_urls: set[tuple[str, str]] = set()
+
+    def collect(post: dict) -> None:
+        resource_tweet = str(post.get("id") or tweet_id)
+        if not re.fullmatch(r"[0-9]{1,24}", resource_tweet) or resource_tweet in seen_posts:
+            return
+        seen_posts.add(resource_tweet)
+        media = post.get("media")
+        items = []
+        if isinstance(media, dict):
+            if isinstance(media.get("all"), list):
+                items = media["all"]
+            else:
+                for key in ("photos", "videos"):
+                    if isinstance(media.get(key), list):
+                        items.extend(media[key])
+        index = 0
+        for item in items:
+            if not isinstance(item, dict) or not isinstance(item.get("url"), str):
+                continue
+            media_type = str(item.get("type") or "file").lower()
+            url = original_photo_url(item["url"]) if media_type == "photo" else item["url"]
+            parsed = urlparse(url)
+            if parsed.scheme != "https" or not (parsed.hostname or "").lower().endswith(".twimg.com"):
+                continue
+            key = resource_tweet, url
+            if key in seen_urls:
+                continue
+            seen_urls.add(key)
+            index += 1
+            query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+            extension = str(item.get("format") or query.get("format") or
+                            Path(parsed.path).suffix.lstrip(".") or
+                            ("mp4" if media_type in {"video", "gif", "animated_gif"} else "bin"))
+            extension = extension.lower().strip(". ")
+            if not re.fullmatch(r"[a-z0-9]{1,10}", extension):
+                extension = "bin"
+            media_id = SAFE_PART.sub("_", str(item.get("id") or "media")).strip("_") or "media"
+            file_name = f"x-{resource_tweet}-{index:02d}-{media_id[:120]}.{extension}"
+            resources.append({"tweetId": resource_tweet, "index": index, "url": url,
+                              "fileName": file_name,
+                              "mimeType": str(item.get("format") or "")
+                              or mimetypes.guess_type(file_name)[0]
+                              or "application/octet-stream"})
+            if len(resources) > maximum:
+                raise ValueError("X media count exceeds limit")
+        quote = post.get("quote")
+        if isinstance(quote, dict):
+            collect(quote)
+
+    collect(root)
+    if not resources:
+        raise ValueError("X post contains no downloadable media")
+    return resources
+
+
+def fallback_resources(tweet_id: str, maximum: int, opener=None) -> list[dict]:
+    """通过受控 FxTwitter API 回退解析公开帖子。"""
+    endpoint = os.getenv("X_FALLBACK_API_URL", DEFAULT_FALLBACK_API).format(tweet_id=tweet_id)
+    parsed = urlparse(endpoint)
+    if parsed.scheme != "https" or parsed.hostname not in {"api.fxtwitter.com", "api.vxtwitter.com"}:
+        raise ValueError("X fallback API URL is invalid")
+    proxy = os.getenv("X_PROXY_URL", "").strip()
+    handlers = [ProxyHandler({"http": proxy, "https": proxy})] if proxy else []
+    request_opener = opener or build_opener(*handlers).open
+    request = Request(endpoint, headers={"Accept": "application/json",
+                                         "User-Agent": "MyTools-X-Resolver/1.0"})
+    with request_opener(request, timeout=90) as response:
+        raw = response.read(MAX_METADATA_BYTES + 1)
+    return parse_fallback_resources(raw, tweet_id, maximum)
+
+
 def resolve(parameters: dict, runner=subprocess.run) -> tuple[str, list[dict]]:
     """运行无下载模式的 gallery-dl 并返回标准化媒体。"""
     canonical, tweet_id = canonical_x_url(parameters["url"])
@@ -100,9 +197,13 @@ def resolve(parameters: dict, runner=subprocess.run) -> tuple[str, list[dict]]:
         command.extend(("--proxy", proxy))
     command.append(canonical)
     completed = runner(command, capture_output=True, timeout=90, check=False)
-    if completed.returncode != 0:
-        raise RuntimeError("gallery-dl could not resolve X media")
-    return tweet_id, parse_resources(completed.stdout, tweet_id, maximum)
+    try:
+        if completed.returncode != 0:
+            raise ValueError("gallery-dl could not resolve X media")
+        resources = parse_resources(completed.stdout, tweet_id, maximum)
+    except (RuntimeError, ValueError):
+        resources = fallback_resources(tweet_id, maximum)
+    return tweet_id, resources
 
 
 def execute(context: TaskContext, parameters: dict, resources: list[dict], tweet_id: str) -> dict:
@@ -110,6 +211,11 @@ def execute(context: TaskContext, parameters: dict, resources: list[dict], tweet
     request_id = str(parameters["downloadRequestId"])
     UUID(request_id)
     maximum_bytes = int(parameters.get("maxBytesPerItem", 2 * 1024 * 1024 * 1024))
+    album_threshold = int(parameters.get("albumMediaThreshold", 10))
+    album_folder = ""
+    if len(resources) > album_threshold:
+        batch_id = SAFE_PART.sub("_", str(parameters.get("messageBatchId") or request_id)).strip("_")
+        album_folder = f"message-{batch_id[:48]}"
     children = []
     for source_index, resource in enumerate(resources, start=1):
         item_id = f"x:{resource['tweetId']}:{resource['index']}"
@@ -120,6 +226,8 @@ def execute(context: TaskContext, parameters: dict, resources: list[dict], tweet
              "fileName": resource["fileName"], "sourceIndex": source_index,
              "maxBytes": maximum_bytes,
              "ownerId": int(parameters.get("ownerId") or 0),
+             "receivedAt": str(parameters.get("receivedAt") or ""),
+             "albumFolder": album_folder,
              "assetMimeType": resource["mimeType"],
              "assetSourceBusinessId": f"{request_id}:{item_id}"},
             f"x-media:{request_id}:{resource['tweetId']}:{resource['index']}:{fingerprint}",

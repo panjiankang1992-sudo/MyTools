@@ -66,7 +66,7 @@ class MessageAutomationServiceTest {
         when(messagingClient.get(messageId)).thenReturn(message(messageId, 11L, "chat-7", "user-9",
                 "/download https://files.example/a.zip https://files.example/b.zip https://files.example/c.zip"));
         List<UUID> downloadIds = List.of(UUID.randomUUID(), UUID.randomUUID());
-        when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString()))
+        when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any()))
                 .thenAnswer(invocation -> downloadIds.get(invocation.getArgument(3)).toString());
         when(downloadClient.get(any(), anyLong())).thenAnswer(invocation ->
                 new DownloadIngestionClient.DownloadSnapshot(invocation.getArgument(0), "SUCCEEDED"));
@@ -78,7 +78,7 @@ class MessageAutomationServiceTest {
         assertThat(duplicate.status()).isEqualTo("SUCCEEDED");
         assertThat(duplicate.actionRefs()).containsExactly(downloadIds.get(0).toString(), downloadIds.get(1).toString());
         assertThat(duplicate.id()).isEqualTo(running.id());
-        verify(downloadClient, times(2)).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString());
+        verify(downloadClient, times(2)).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any());
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM automation_run WHERE inbound_message_id = ?",
                 Integer.class, messageId.toString())).isEqualTo(1);
@@ -99,7 +99,7 @@ class MessageAutomationServiceTest {
         when(messagingClient.get(messageId)).thenReturn(new InboundMessage(messageId, 16L, ChannelType.EMAIL,
                 "external-" + messageId, "thread-16", "owner@example.test", null,
                 "download: https://files.example/archive.zip", Instant.now(), Instant.now()));
-        when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString()))
+        when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any()))
                 .thenReturn(downloadId.toString());
         when(downloadClient.get(downloadId, 16L))
                 .thenReturn(new DownloadIngestionClient.DownloadSnapshot(downloadId, "SUCCEEDED"));
@@ -128,7 +128,7 @@ class MessageAutomationServiceTest {
 
         assertThat(completed.status()).isEqualTo("NO_MATCH");
         assertThat(completed.actionCount()).isZero();
-        verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString());
+        verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
@@ -139,7 +139,7 @@ class MessageAutomationServiceTest {
         when(messagingClient.get(messageId)).thenReturn(new InboundMessage(messageId, 13L, ChannelType.EMAIL,
                 "external-" + messageId, "thread-3", "allowed@example.com", null,
                 "download: https://files.example/a https://files.example/b", Instant.now(), Instant.now()));
-        when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString()))
+        when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any()))
                 .thenAnswer(invocation -> UUID.randomUUID().toString());
         when(downloadClient.cancel(any(), anyLong())).thenAnswer(invocation ->
                 new DownloadIngestionClient.DownloadSnapshot(invocation.getArgument(0), "CANCELLED"));
@@ -177,7 +177,7 @@ class MessageAutomationServiceTest {
         assertThat(running.status()).isEqualTo("RUNNING");
         assertThat(running.actions()).extracting("actionType").containsExactly("ATTACHMENT_DOWNLOAD");
         assertThat(cancelled.status()).isEqualTo("CANCELLED");
-        verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString());
+        verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any());
         verify(messagingClient).cancelAttachment(jobId, 15L);
     }
 
@@ -203,7 +203,7 @@ class MessageAutomationServiceTest {
 
         assertThat(completed.status()).isEqualTo("SUCCEEDED");
         assertThat(completed.actions()).extracting("actionType").containsExactly("ATTACHMENT_DOWNLOAD");
-        verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString());
+        verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any());
         verify(messagingClient).createAttachment(messageId, partId, 17L);
     }
 
@@ -217,7 +217,7 @@ class MessageAutomationServiceTest {
                 "external-" + messageId, "thread-4", "allowed@example.com", null,
                 "download: https://files.example/recover", Instant.now(), Instant.now());
         when(messagingClient.get(messageId)).thenReturn(inbound);
-        when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString()))
+        when(downloadClient.create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any()))
                 .thenThrow(new IllegalStateException("unknown result")).thenReturn(downloadId.toString());
         when(downloadClient.get(downloadId, 14L)).thenReturn(
                 new DownloadIngestionClient.DownloadSnapshot(downloadId, "SUCCEEDED"));
@@ -230,7 +230,7 @@ class MessageAutomationServiceTest {
         assertThat(recovered.status()).isEqualTo("RUNNING");
         assertThat(reconciled.status()).isEqualTo("SUCCEEDED");
         assertThat(reconciled.actions()).extracting("externalRequestId").containsExactly(downloadId);
-        verify(downloadClient, times(2)).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString());
+        verify(downloadClient, times(2)).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any());
     }
 
     private InboundMessage message(UUID id, long ownerId, String conversation, String sender, String body) {

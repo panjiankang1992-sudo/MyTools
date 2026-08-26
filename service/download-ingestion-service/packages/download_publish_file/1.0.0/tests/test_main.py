@@ -39,6 +39,20 @@ def test_reverifies_and_publishes_download():
         assert storage.arguments[5] == digest
 
 
+def test_routes_visual_media_by_message_date_and_album():
+    output = {"fileName": "photo.jpg", "sizeBytes": 7}
+    parameters = {"receivedAt": "2026-08-26T15:53:08+08:00", "assetMimeType": "image/jpeg",
+                  "albumFolder": "message-batch"}
+    assert MODULE.managed_directory(parameters, output) == "media/202608/20260826/message-batch"
+
+
+def test_routes_large_video_to_independent_package():
+    output = {"fileName": "clip.mp4", "sizeBytes": 50 * 1024 * 1024 + 1}
+    parameters = {"receivedAt": "2026-08-26T15:53:08+08:00", "assetMimeType": "video/mp4",
+                  "albumFolder": "ignored"}
+    assert MODULE.managed_directory(parameters, output) == "big_media/20260826_155308_clip"
+
+
 def test_rejects_changed_download():
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)

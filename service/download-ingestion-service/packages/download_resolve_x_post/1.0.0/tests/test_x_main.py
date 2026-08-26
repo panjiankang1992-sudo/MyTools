@@ -19,6 +19,29 @@ def test_parser_accepts_only_twimg_https_resources():
     assert resources[0]["fileName"] == "x-123-01-photo.jpg"
 
 
+def test_fallback_parser_recurses_quote_and_uses_original_photo():
+    raw = json.dumps({"code": 200, "tweet": {"id": "123", "media": {"all": [
+        {"id": "photo-a", "type": "photo", "url": "https://pbs.twimg.com/media/a.jpg?name=small"}
+    ]}, "quote": {"id": "456", "media": {"videos": [
+        {"id": "video-b", "type": "video", "url": "https://video.twimg.com/ext_tw_video/b.mp4"}
+    ]}}}}).encode()
+    resources = MODULE.parse_fallback_resources(raw, "123", 4)
+    assert [resource["tweetId"] for resource in resources] == ["123", "456"]
+    assert "name=orig" in resources[0]["url"]
+    assert resources[1]["mimeType"] == "video/mp4"
+
+
+def test_resolver_falls_back_when_gallery_has_no_media(monkeypatch):
+    completed = SimpleNamespace(returncode=0, stdout=b"[]")
+    monkeypatch.setattr(MODULE, "fallback_resources", lambda tweet_id, maximum: [{
+        "tweetId": tweet_id, "index": 1, "url": "https://pbs.twimg.com/media/a.jpg",
+        "fileName": "a.jpg", "mimeType": "image/jpeg"}])
+    tweet_id, resources = MODULE.resolve(
+        {"url": "https://x.com/example/status/123"}, runner=lambda *_args, **_kwargs: completed)
+    assert tweet_id == "123"
+    assert len(resources) == 1
+
+
 class FakeContext:
     TERMINAL_STATUSES = {"SUCCEEDED", "FAILED", "CANCELLED", "TIMED_OUT"}
 

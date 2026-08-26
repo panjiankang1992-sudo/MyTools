@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.UUID;
 import java.net.URI;
+import java.time.Instant;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -39,7 +40,7 @@ public class DownloadIngestionClient {
      * @return 下载业务请求标识
      */
     public String create(UUID messageId, long ownerId, UUID ruleId, int index, String requestKind,
-                         String url, String fileName) {
+                         String url, String fileName, Instant receivedAt) {
         String idempotencyKey = "automation:" + messageId + ":" + ruleId + ":" + index;
         String effectiveRequestKind = effectiveRequestKind(requestKind, url);
         Map<String, Object> payload = Map.of(
@@ -50,7 +51,8 @@ public class DownloadIngestionClient {
                 "sourceKey", messageId + ":" + index,
                 "requestKind", effectiveRequestKind,
                 "parameters", Map.of("ownerId", ownerId, "itemId", messageId + "-" + index,
-                        "url", url, "fileName", fileName));
+                        "url", url, "fileName", fileName, "messageBatchId", messageId.toString(),
+                        "receivedAt", receivedAt.toString()));
         JsonNode response = restClient.post().uri("/api/v1/download-requests")
                 .header("Authorization", "Bearer " + requiredToken())
                 .contentType(MediaType.APPLICATION_JSON).body(jsonBytes(payload)).retrieve().body(JsonNode.class);
