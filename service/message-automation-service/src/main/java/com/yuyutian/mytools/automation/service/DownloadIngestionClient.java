@@ -1,6 +1,7 @@
 package com.yuyutian.mytools.automation.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
  */
 public class DownloadIngestionClient {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final RestClient restClient;
     private final String internalToken;
 
@@ -41,7 +43,7 @@ public class DownloadIngestionClient {
                         "url", url, "fileName", fileName));
         JsonNode response = restClient.post().uri("/api/v1/download-requests")
                 .header("Authorization", "Bearer " + requiredToken())
-                .contentType(MediaType.APPLICATION_JSON).body(payload).retrieve().body(JsonNode.class);
+                .contentType(MediaType.APPLICATION_JSON).body(jsonBytes(payload)).retrieve().body(JsonNode.class);
         if (response == null || response.path("id").isMissingNode()) {
             throw new IllegalStateException("Download Ingestion returned an invalid response");
         }
@@ -86,6 +88,18 @@ public class DownloadIngestionClient {
             throw new IllegalStateException("Download Ingestion internal token is missing");
         }
         return internalToken;
+    }
+
+    private byte[] jsonBytes(Map<String, Object> payload) {
+        try {
+            byte[] value = OBJECT_MAPPER.writeValueAsBytes(payload);
+            if (value.length == 0 || value.length > 1024 * 1024) {
+                throw new IllegalArgumentException("Download request body size is invalid");
+            }
+            return value;
+        } catch (com.fasterxml.jackson.core.JsonProcessingException exception) {
+            throw new IllegalArgumentException("Download request body is invalid", exception);
+        }
     }
 
     /**

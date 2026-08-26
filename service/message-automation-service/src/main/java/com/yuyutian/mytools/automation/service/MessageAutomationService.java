@@ -9,6 +9,9 @@ import com.yuyutian.mytools.automation.model.AutomationActionView;
 import com.yuyutian.mytools.automation.repository.AutomationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,6 +27,7 @@ import java.util.regex.Pattern;
 @Service
 public class MessageAutomationService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageAutomationService.class);
     private static final Pattern URL_PATTERN = Pattern.compile("https?://[^\\s<>\"']+", Pattern.CASE_INSENSITIVE);
     private static final Pattern INVALID_FILE_NAME = Pattern.compile("[\\x00-\\x1f\\x7f/\\\\:*?\"<>|]");
     private final AutomationRepository repository;
@@ -81,7 +85,7 @@ public class MessageAutomationService {
                 submitAttachment(message, action.id(), part.id());
             }
         } else {
-            List<String> urls = extractUrls(message.body().substring(rule.commandPrefix().length()), rule.maxActions());
+            List<String> urls = extractUrls(message.body(), rule.maxActions());
             if (urls.isEmpty()) return noInput(messageId);
             for (int index = 0; index < urls.size(); index++) {
                 int sequence = index;
@@ -132,9 +136,20 @@ public class MessageAutomationService {
                     index, requestKind, url, fileName));
             transactionTemplate.executeWithoutResult(status -> repository.bindAction(actionId, requestId));
         } catch (RuntimeException exception) {
+            logDownloadFailure(actionId, exception);
             transactionTemplate.executeWithoutResult(status ->
                     repository.failAction(actionId, ErrorCode.DOWNLOAD_CREATE_FAILED.code()));
         }
+    }
+
+    private void logDownloadFailure(UUID actionId, RuntimeException exception) {
+        String reason = exception.getClass().getSimpleName();
+        if (exception instanceof RestClientResponseException response) {
+            String safeBody = response.getResponseBodyAsString().replaceAll("[^A-Za-z0-9 _.-]", "_");
+            reason = "HTTP_" + response.getStatusCode().value() + "_"
+                    + safeBody.substring(0, Math.min(160, safeBody.length()));
+        }
+        LOGGER.warn("Download action submission failed: actionId={}, reason={}", actionId, reason);
     }
 
     private void submitAttachment(InboundMessage message, UUID actionId, UUID partId) {

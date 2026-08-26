@@ -16,12 +16,17 @@ class FakeConnector(QQConnector):
         super().__init__(config, object())
         self.received = []
         self.commands = []
+        self.replies = []
 
     async def _messaging_receive(self, payload, sender, message_id, content):
         self.received.append((payload["t"], sender, message_id, content))
+        return content or "[empty]"
 
     async def _relogin_and_reply(self, sender, message_id):
         self.commands.append((sender, message_id))
+
+    async def send_text(self, sender, message_id, text):
+        self.replies.append((sender, message_id, text))
 
 
 class CapturingConnector(QQConnector):
@@ -79,4 +84,29 @@ def test_messaging_request_uses_current_inbound_contract():
         payload = connector.request[2]
         assert payload["externalMessageId"] == "qq_main:C2C_MESSAGE_CREATE:message-1"
         assert "externalId" not in payload
+    asyncio.run(scenario())
+
+
+def test_authorized_url_is_persisted_and_acknowledged():
+    async def scenario():
+        connector = FakeConnector()
+        await connector.receive(event(content="https://example.test/file", message_id="message-url"))
+        await asyncio.sleep(0)
+        assert connector.replies == [
+            ("allowed", "message-url", "已接收，正在创建下载任务。")]
+    asyncio.run(scenario())
+
+
+def test_qq_attachment_is_normalized_for_messaging():
+    async def scenario():
+        connector = CapturingConnector()
+        payload = event(content="", message_id="message-file")
+        payload["d"]["attachments"] = [{"url": "https://example.test/photo.jpg",
+            "content_type": "image/jpeg", "filename": "photo.jpg", "size": 123}]
+        normalized = await connector._messaging_receive(
+            payload, "allowed", "message-file", "")
+        request = connector.request[2]
+        assert normalized == "https://example.test/photo.jpg"
+        assert request["parts"][1]["attachmentType"] == "IMAGE"
+        assert request["parts"][1]["declaredSize"] == 123
     asyncio.run(scenario())

@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 import json
 import logging
 import random
+import re
 import time
 from typing import Any, Awaitable, Callable
 
@@ -15,6 +16,7 @@ import aiohttp
 from .config import Config
 
 logger = logging.getLogger(__name__)
+URL_PATTERN = re.compile(r"https?://[^\s<>\"']+", re.IGNORECASE)
 
 
 class QQConnector:
@@ -60,10 +62,15 @@ class QQConnector:
         content = str(data.get("content") or "").strip()
         if event_type != "C2C_MESSAGE_CREATE" or not sender or not message_id:
             return
-        await self._messaging_receive(payload, sender, message_id, content)
+        normalized_body = await self._messaging_receive(payload, sender, message_id, content)
         if sender == self.config.allowed_sender and content in {"登录", "登陆"}:
             task = asyncio.create_task(self._relogin_and_reply(sender, message_id),
                                        name=f"qq-relogin-{message_id[:16]}")
+            task.add_done_callback(self._log_background_failure)
+        elif sender == self.config.allowed_sender and URL_PATTERN.search(normalized_body):
+            task = asyncio.create_task(self.send_text(
+                sender, message_id, "已接收，正在创建下载任务。"),
+                name=f"qq-download-ack-{message_id[:16]}")
             task.add_done_callback(self._log_background_failure)
 
     @staticmethod
@@ -73,20 +80,54 @@ class QQConnector:
             return
         exception = task.exception()
         if exception is not None:
-            logger.error("QQ relogin command failed: %s", type(exception).__name__)
+            logger.error("QQ background command failed: %s", exception)
 
     async def _messaging_receive(self, payload: dict[str, Any], sender: str,
-                                 message_id: str, content: str) -> None:
+                                 message_id: str, content: str) -> str:
         parts = [{"type": "TEXT", "text": content or "[empty]", "attachmentType": None,
                   "providerFileId": None, "providerAccountKey": None, "sourceUrl": None,
                   "fileName": None, "mimeType": None, "declaredSize": None}]
+        data = payload.get("d") if isinstance(payload.get("d"), dict) else {}
+        attachment_urls = []
+        attachments = data.get("attachments") if isinstance(data.get("attachments"), list) else []
+        for index, attachment in enumerate(attachments[:5]):
+            if not isinstance(attachment, dict):
+                continue
+            source_url = str(attachment.get("voice_wav_url") or attachment.get("download_url")
+                             or attachment.get("file_url") or attachment.get("url") or "").strip()
+            if not source_url.startswith(("http://", "https://")):
+                continue
+            mime_type = str(attachment.get("content_type") or attachment.get("mime")
+                            or "application/octet-stream")[:255]
+            attachment_type = ("IMAGE" if mime_type.startswith("image/") else
+                               "VIDEO" if mime_type.startswith("video/") else
+                               "RECORD" if mime_type.startswith("audio/") else "FILE")
+            raw_size = attachment.get("size") or attachment.get("file_size")
+            try:
+                declared_size = int(raw_size) if raw_size is not None else None
+            except (TypeError, ValueError):
+                declared_size = None
+            if declared_size is not None and declared_size <= 0:
+                declared_size = None
+            attachment_urls.append(source_url)
+            parts.append({"type": "ATTACHMENT", "text": None,
+                          "attachmentType": attachment_type,
+                          "providerFileId": str(attachment.get("file_id") or attachment.get("id") or "")[:512]
+                              or None,
+                          "providerAccountKey": self.config.account_key,
+                          "sourceUrl": source_url[:4096],
+                          "fileName": str(attachment.get("filename") or attachment.get("file_name")
+                                          or attachment.get("name") or f"qq-attachment-{index + 1}")[:1024],
+                          "mimeType": mime_type, "declaredSize": declared_size})
+        normalized_body = "\n".join(value for value in [content, *attachment_urls] if value) or "[empty]"
         body = {"ownerId": self.config.owner_id, "channelType": "QQ",
                 "externalMessageId": f"{self.config.account_key}:C2C_MESSAGE_CREATE:{message_id}",
                 "conversationKey": f"{self.config.account_key}:c2c:{sender}", "sender": sender,
-                "subject": None, "body": content or "[empty]",
+                "subject": None, "body": normalized_body,
                 "receivedAt": datetime.now(UTC).isoformat(), "parts": parts}
         await self._internal_json("POST", self.config.messaging_url + "/internal/v1/inbound-messages",
                                   body, self.config.messaging_token)
+        return normalized_body
 
     async def _relogin_and_reply(self, sender: str, message_id: str) -> None:
         request_id = "qq_" + "".join(character for character in message_id if character.isalnum())[-100:]
@@ -142,6 +183,13 @@ class QQConnector:
         await self._qq_request("POST", f"/v2/users/{sender}/messages", {
             "msg_type": 7, "media": {"file_info": file_info}, "content": text,
             "msg_id": message_id, "msg_seq": 1})
+
+    async def send_text(self, sender: str, message_id: str, text: str) -> None:
+        """被动回复一条有界文本消息。"""
+        if not text or len(text) > 2000:
+            raise ValueError("QQ text size is invalid")
+        await self._qq_request("POST", f"/v2/users/{sender}/messages", {
+            "msg_type": 0, "content": text, "msg_id": message_id, "msg_seq": 1})
 
     async def _qq_request(self, method: str, path: str,
                           payload: dict | None = None) -> dict:
