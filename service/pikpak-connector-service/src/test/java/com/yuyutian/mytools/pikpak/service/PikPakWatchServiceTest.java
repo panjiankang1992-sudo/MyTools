@@ -25,7 +25,7 @@ class PikPakWatchServiceTest {
             fixture.signature(items), fixture.now.minusSeconds(121), "OBSERVING", null, null, 1);
         WatchBatch ready = new WatchBatch(fixture.batchId, fixture.accountId, "album",
             observing.signature(), observing.stableSince(), "READY", null, null, 2);
-        when(fixture.connector.list("pikpak", "watch")).thenReturn(items);
+        when(fixture.connector.listWatchRoot("pikpak", "watch")).thenReturn(items);
         when(fixture.watches.find(fixture.accountId, "album")).thenReturn(Optional.of(observing));
         when(fixture.watches.transition(observing, observing.signature(), observing.stableSince(),
             "READY", null, null)).thenReturn(ready);

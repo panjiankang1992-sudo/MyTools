@@ -68,29 +68,69 @@ public class RclonePikPakClient {
 
     /** 递归列出隔离目录文件。 @param remoteKey 远端键 @param path 路径 @return 文件 */
     public List<RemoteItem> list(String remoteKey, String path) {
-        JsonNode response = call("operations/list", Map.of("fs", remoteKey + ":", "remote", validPath(path),
-            "opt", Map.of("recurse", true)), Duration.ofMinutes(2));
+        return listFiles(remoteKey, path, true, Duration.ofMinutes(2));
+    }
+
+    /** 按收件箱顶层批次列出文件，避免对整个收件箱执行一次无界递归。 @param remoteKey 远端键 @param path 路径 @return 文件 */
+    public List<RemoteItem> listWatchRoot(String remoteKey, String path) {
+        JsonNode response = listResponse(remoteKey, path, false, Duration.ofSeconds(20));
         JsonNode values = response.path("list");
-        if (!values.isArray() || values.size() > 10000) {
-            throw new IllegalStateException(RCLONE_LIST_INVALID.code());
+        validateList(values);
+        List<RemoteItem> result = new ArrayList<>();
+        for (JsonNode value : values) {
+            String relative = validPath(value.path("Path").asText());
+            if (!value.path("IsDir").asBoolean(false)) {
+                result.add(toRemoteItem(value, relative));
+                continue;
+            }
+            // 每个顶层目录是独立批次，只递归展开该批次，避免历史目录拖慢全部扫描。
+            for (RemoteItem item : listFiles(remoteKey, validPath(path) + "/" + relative, true,
+                    Duration.ofMinutes(2))) {
+                String itemPath = item.relativePath().startsWith(relative + "/")
+                    ? item.relativePath() : relative + "/" + item.relativePath();
+                result.add(new RemoteItem(item.remoteFileId(), itemPath, item.sizeBytes(), item.modifiedAt()));
+            }
         }
+        return List.copyOf(result);
+    }
+
+    private List<RemoteItem> listFiles(String remoteKey, String path, boolean recurse, Duration timeout) {
+        JsonNode response = listResponse(remoteKey, path, recurse, timeout);
+        JsonNode values = response.path("list");
+        validateList(values);
         List<RemoteItem> result = new ArrayList<>();
         for (JsonNode value : values) {
             if (value.path("IsDir").asBoolean(false)) {
                 continue;
             }
             String relative = validPath(value.path("Path").asText());
-            long size = value.path("Size").asLong(-1);
-            if (size < 0) {
-                throw new IllegalStateException(RCLONE_LIST_INVALID.code());
-            }
-            String id = value.path("ID").asText("");
-            if (id.isBlank() || id.length() > 255) {
-                id = "path:" + sha256(relative);
-            }
-            result.add(new RemoteItem(id, relative, size, value.path("ModTime").asText("")));
+            result.add(toRemoteItem(value, relative));
         }
         return List.copyOf(result);
+    }
+
+    private JsonNode listResponse(String remoteKey, String path, boolean recurse, Duration timeout) {
+        remotePath(remoteKey, path);
+        return call("operations/list", Map.of("fs", remoteKey + ":", "remote", validPath(path),
+            "opt", Map.of("recurse", recurse)), timeout);
+    }
+
+    private void validateList(JsonNode values) {
+        if (!values.isArray() || values.size() > 10000) {
+            throw new IllegalStateException(RCLONE_LIST_INVALID.code());
+        }
+    }
+
+    private RemoteItem toRemoteItem(JsonNode value, String relative) {
+        long size = value.path("Size").asLong(-1);
+        if (size < 0) {
+            throw new IllegalStateException(RCLONE_LIST_INVALID.code());
+        }
+        String id = value.path("ID").asText("");
+        if (id.isBlank() || id.length() > 255) {
+            id = "path:" + sha256(relative);
+        }
+        return new RemoteItem(id, relative, size, value.path("ModTime").asText(""));
     }
 
     /** 启动受控目录移动。 @param remoteKey 远端键 @param source 来源 @param target 目标 @return 后台任务 */
