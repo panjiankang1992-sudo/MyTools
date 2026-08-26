@@ -167,6 +167,54 @@ class MySqlDownloadRequestRepository:
         finally:
             connection.close()
 
+    def record_progress(self, request_id: UUID, progress: dict) -> dict:
+        """Persist one monotonic progress milestone without allowing total-size drift."""
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO download_progress(download_request_id,external_item_id,downloaded_bytes,
+                        total_bytes,progress_percent,updated_at) VALUES (%s,%s,%s,%s,%s,%s)
+                    ON DUPLICATE KEY UPDATE
+                        downloaded_bytes=IF(total_bytes=VALUES(total_bytes),
+                            GREATEST(downloaded_bytes,VALUES(downloaded_bytes)),downloaded_bytes),
+                        progress_percent=IF(total_bytes=VALUES(total_bytes),
+                            GREATEST(progress_percent,VALUES(progress_percent)),progress_percent),
+                        updated_at=IF(total_bytes=VALUES(total_bytes),VALUES(updated_at),updated_at)
+                    """, (str(request_id), progress["itemId"], progress["downloadedBytes"],
+                          progress["totalBytes"], progress["progressPercent"], datetime.now(UTC)))
+                cursor.execute("SELECT downloaded_bytes,total_bytes,progress_percent FROM download_progress "
+                               "WHERE download_request_id=%s AND external_item_id=%s",
+                               (str(request_id), progress["itemId"]))
+                row = cursor.fetchone()
+            connection.commit()
+            if int(row["total_bytes"]) != progress["totalBytes"]:
+                raise ValueError("download progress idempotency conflict")
+            return {"itemId": progress["itemId"], "downloadedBytes": int(row["downloaded_bytes"]),
+                    "totalBytes": int(row["total_bytes"]),
+                    "progressPercent": int(row["progress_percent"])}
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            connection.close()
+
+    def progress_summary(self, request_id: UUID) -> dict:
+        """Return aggregate byte progress across active request items."""
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT COALESCE(SUM(downloaded_bytes),0) downloaded_bytes,"
+                               "COALESCE(SUM(total_bytes),0) total_bytes FROM download_progress "
+                               "WHERE download_request_id=%s", (str(request_id),))
+                row = cursor.fetchone()
+            total = int(row["total_bytes"])
+            downloaded = int(row["downloaded_bytes"])
+            return {"progressDownloadedBytes": downloaded, "progressTotalBytes": total,
+                    "progressPercent": 0 if total == 0 else downloaded * 100 // total}
+        finally:
+            connection.close()
+
     def record_tags(self, request_id: UUID, result: dict) -> dict:
         """Idempotently persist a terminal tagging result for an existing item."""
         connection = self._connection_factory()

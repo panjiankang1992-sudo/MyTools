@@ -74,9 +74,9 @@ class CompletionOutboxRelayTest {
         UUID downloadId = UUID.randomUUID();
         when(repository.findActionExecutions(runId)).thenReturn(List.of(
                 new AutomationRepository.ActionExecution(UUID.randomUUID(), 0, "DOWNLOAD_REQUEST", "source",
-                        "video.mp4", downloadId, "SUCCEEDED")));
+                        "video.mp4", downloadId, "SUCCEEDED", 100)));
         when(downloadClient.summary(downloadId)).thenReturn(new DownloadIngestionClient.DownloadSummary(
-                downloadId, "SUCCEEDED", List.of(new DownloadIngestionClient.DownloadItem(
+                downloadId, "SUCCEEDED", 100, 12, 12, List.of(new DownloadIngestionClient.DownloadItem(
                 "video.mp4", "TAGGED", List.of(new DownloadIngestionClient.DownloadTag(
                 "cosplay", "topic", 0.98))))));
 

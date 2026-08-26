@@ -85,6 +85,21 @@ class DownloadHttpAssetTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "loopback"):
             MODULE.validated_proxy("http://proxy.example:7891")
 
+    def test_reports_large_download_at_five_percent_milestones(self):
+        """Large known-length streams emit a start and every five-percent milestone."""
+        content = b"x" * (11 * 1024 * 1024)
+        reports = []
+        parameters = {"downloadRequestId": "request-progress", "itemId": "item-progress",
+                      "url": "https://example.invalid/file", "fileName": "large.bin",
+                      "maxBytes": len(content)}
+        with tempfile.TemporaryDirectory() as directory:
+            MODULE.stream_download(parameters, Path(directory),
+                opener=lambda *_args, **_kwargs: FakeResponse(content), resolver=public_resolver,
+                progress_reporter=lambda _request, _item, downloaded, total, percent:
+                    reports.append((downloaded, total, percent)))
+        self.assertEqual([0, *range(5, 101, 5)], [report[2] for report in reports])
+        self.assertTrue(all(report[1] == len(content) for report in reports))
+
 
 def public_resolver(*_args, **_kwargs):
     """Resolve test hosts to one deterministic public documentation address."""

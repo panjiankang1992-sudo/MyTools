@@ -50,6 +50,12 @@ class DownloadRequestRepository(Protocol):
     def list_results(self, request_id: UUID) -> list[dict]:
         """Return immutable verified item results for reconciliation."""
 
+    def record_progress(self, request_id: UUID, progress: dict) -> dict:
+        """Persist one monotonic download progress milestone."""
+
+    def progress_summary(self, request_id: UUID) -> dict:
+        """Return the aggregate progress snapshot."""
+
 
 class TaskScheduler(Protocol):
     """Task Scheduler operations used by download orchestration."""
@@ -155,6 +161,22 @@ class DownloadRequestService:
         return self._repository.record_result(request_id, {
             **result, "sourceIndex": source_index, "contentSha256": digest})
 
+    def record_progress(self, request_id: UUID, progress: dict) -> dict:
+        """Validate and persist a bounded, monotonic byte milestone."""
+        if self._repository.find_by_id(request_id) is None:
+            raise KeyError("download request does not exist")
+        item_id = str(progress.get("itemId") or "")
+        downloaded = int(progress.get("downloadedBytes", -1))
+        total = int(progress.get("totalBytes", -1))
+        percent = int(progress.get("progressPercent", -1))
+        if not item_id or len(item_id) > 255 or total <= 10 * 1024 * 1024 \
+                or downloaded < 0 or downloaded > total or percent < 0 or percent > 100 \
+                or percent % 5 != 0 or percent > min(100, downloaded * 100 // total):
+            raise ValueError("download progress is invalid")
+        return self._repository.record_progress(request_id, {
+            "itemId": item_id, "downloadedBytes": downloaded,
+            "totalBytes": total, "progressPercent": percent})
+
     def record_tags(self, request_id: UUID, result: dict) -> dict:
         """Validate and persist a terminal, bounded tagging result."""
         current = self._repository.find_by_id(request_id)
@@ -191,7 +213,7 @@ class DownloadRequestService:
         if current is None:
             return None
         items = sorted(self._repository.list_results(request_id), key=lambda item: str(item["itemId"]))
-        return self._summary(current, items)
+        return {**self._summary(current, items), **self._repository.progress_summary(request_id)}
 
     def result_summary_for_owner(self, request_id: UUID, owner_id: int) -> dict | None:
         """仅向匹配所有者返回不含来源 Secret 的结果摘要。"""
@@ -199,7 +221,7 @@ class DownloadRequestService:
         if current is None:
             return None
         items = sorted(self._repository.list_results(request_id), key=lambda item: str(item["itemId"]))
-        return self._summary(current, items)
+        return {**self._summary(current, items), **self._repository.progress_summary(request_id)}
 
     @staticmethod
     def _summary(current: DownloadRequest, items: list[dict]) -> dict:
@@ -286,6 +308,7 @@ class InMemoryDownloadRequestRepository:
         self._by_id: dict[UUID, DownloadRequest] = {}
         self._by_key: dict[str, UUID] = {}
         self._results: dict[tuple[UUID, str], dict] = {}
+        self._progress: dict[tuple[UUID, str], dict] = {}
 
     def find_by_idempotency_key(self, key: str) -> DownloadRequest | None:
         """Return a request by key."""
@@ -348,3 +371,21 @@ class InMemoryDownloadRequestRepository:
     def list_results(self, request_id: UUID) -> list[dict]:
         """Return copied results without exposing mutable repository state."""
         return [dict(value) for (owner, _), value in self._results.items() if owner == request_id]
+
+    def record_progress(self, request_id: UUID, progress: dict) -> dict:
+        """Record one monotonic in-memory progress milestone."""
+        key = (request_id, progress["itemId"])
+        existing = self._progress.get(key)
+        if existing and (existing["totalBytes"] != progress["totalBytes"]
+                         or existing["progressPercent"] > progress["progressPercent"]):
+            raise ValueError("download progress idempotency conflict")
+        self._progress[key] = dict(progress)
+        return dict(progress)
+
+    def progress_summary(self, request_id: UUID) -> dict:
+        """Return aggregate in-memory byte progress."""
+        values = [value for (owner, _), value in self._progress.items() if owner == request_id]
+        total = sum(value["totalBytes"] for value in values)
+        downloaded = sum(value["downloadedBytes"] for value in values)
+        return {"progressDownloadedBytes": downloaded, "progressTotalBytes": total,
+                "progressPercent": 0 if total == 0 else downloaded * 100 // total}

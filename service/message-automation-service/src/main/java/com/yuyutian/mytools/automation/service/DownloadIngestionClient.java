@@ -163,7 +163,9 @@ public class DownloadIngestionClient {
             items.add(new DownloadItem(item.path("fileName").asText(), item.path("tagStatus").asText("PENDING"),
                     List.copyOf(tags)));
         }
-        return new DownloadSummary(requestId, response.path("status").asText(), List.copyOf(items));
+        return new DownloadSummary(requestId, response.path("status").asText(),
+                response.path("progressPercent").asInt(0), response.path("progressDownloadedBytes").asLong(0),
+                response.path("progressTotalBytes").asLong(0), List.copyOf(items));
     }
 
     /**
@@ -209,7 +211,8 @@ public class DownloadIngestionClient {
     }
 
     /** 下载结果通知快照。 */
-    public record DownloadSummary(UUID id, String status, List<DownloadItem> items) {
+    public record DownloadSummary(UUID id, String status, int progressPercent,
+                                  long downloadedBytes, long totalBytes, List<DownloadItem> items) {
     }
 
     /** 单个下载文件的通知快照。 */

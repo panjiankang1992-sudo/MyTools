@@ -191,7 +191,7 @@ public class AutomationRepository {
                     resultSet.getInt("sequence_number"), resultSet.getString("action_type"),
                     resultSet.getString("source_url"),
                     resultSet.getString("file_name"), externalId == null ? null : UUID.fromString(externalId),
-                    resultSet.getString("status"));
+                    resultSet.getString("status"), resultSet.getInt("last_progress_percent"));
         }, runId.toString());
     }
 
@@ -202,6 +202,14 @@ public class AutomationRepository {
         jdbcTemplate.update("""
                 UPDATE automation_action SET status = ?, error_code = ?, updated_at = ? WHERE id = ?
                 """, status, errorCode, Timestamp.from(Instant.now()), actionId.toString());
+    }
+
+    /** 持久化已确认投递的下载进度。 @param actionId 动作标识 @param percent 百分比 */
+    public void updateProgress(UUID actionId, int percent) {
+        jdbcTemplate.update("""
+                UPDATE automation_action SET last_progress_percent = GREATEST(last_progress_percent, ?),
+                    updated_at = ? WHERE id = ?
+                """, percent, Timestamp.from(Instant.now()), actionId.toString());
     }
 
     /**
@@ -377,7 +385,7 @@ public class AutomationRepository {
      * 服务内部使用的子动作执行快照，不得直接作为 API 响应。
      */
     public record ActionExecution(UUID id, int sequence, String actionType, String sourceUrl, String fileName,
-                                  UUID externalRequestId, String status) {
+                                  UUID externalRequestId, String status, int lastProgressPercent) {
     }
 
     /**

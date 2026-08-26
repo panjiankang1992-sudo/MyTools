@@ -129,6 +129,18 @@ def create_handler(service: DownloadRequestService,
                     return
                 self._json(HTTPStatus.OK, result)
                 return
+            if path.startswith(internal_prefix) and path.endswith("/progress"):
+                identifier = path.removeprefix(internal_prefix).removesuffix("/progress").rstrip("/")
+                try:
+                    result = service.record_progress(UUID(identifier), self._read_json())
+                except KeyError as exception:
+                    self._json(HTTPStatus.NOT_FOUND, {"error": str(exception)})
+                    return
+                except (TypeError, ValueError, json.JSONDecodeError) as exception:
+                    self._json(HTTPStatus.CONFLICT, {"error": str(exception)})
+                    return
+                self._json(HTTPStatus.OK, result)
+                return
             if path.startswith(internal_prefix) and path.endswith("/tags"):
                 identifier = path.removeprefix(internal_prefix).removesuffix("/tags").rstrip("/")
                 try:

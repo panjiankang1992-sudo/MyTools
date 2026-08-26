@@ -213,12 +213,30 @@ public class MessageAutomationService {
                             ? messagingClient.attachment(action.externalRequestId(), message.ownerId()).status()
                             : downloadClient.get(action.externalRequestId(), message.ownerId()).status();
                     repository.updateActionStatus(action.id(), mapActionStatus(status), null);
+                    if (!"ATTACHMENT_DOWNLOAD".equals(action.actionType()) && !terminalAction(status)) {
+                        relayProgress(run, message, action);
+                    }
                 } catch (RuntimeException exception) {
                     // 临时查询失败不覆盖已知子任务状态，下一次查询继续对账。
                 }
             }
         }
         return aggregate(run.messageId());
+    }
+
+    private void relayProgress(AutomationRunView run, InboundMessage message,
+                               AutomationRepository.ActionExecution action) {
+        DownloadIngestionClient.DownloadSummary summary = downloadClient.summary(action.externalRequestId());
+        int percent = summary.progressPercent();
+        if (summary.totalBytes() <= 10L * 1024 * 1024 || percent <= action.lastProgressPercent()
+                || percent % 5 != 0) {
+            return;
+        }
+        String size = String.format(java.util.Locale.ROOT, "%.1f/%.1f MiB",
+                summary.downloadedBytes() / 1048576.0, summary.totalBytes() / 1048576.0);
+        messagingClient.reply(message.id(), "automation-progress-" + run.id() + "-"
+                + action.id() + "-" + percent, "下载进度：" + percent + "%（" + size + "）。");
+        repository.updateProgress(action.id(), percent);
     }
 
     private AutomationRunView aggregate(UUID messageId) {

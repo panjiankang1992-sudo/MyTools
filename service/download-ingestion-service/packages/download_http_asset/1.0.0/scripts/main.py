@@ -12,7 +12,7 @@ import re
 import socket
 import tempfile
 from urllib.parse import urlparse
-from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
+from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener, urlopen
 
 CHUNK_BYTES = 1024 * 1024
 DEFAULT_MAX_BYTES = 2 * 1024 * 1024 * 1024
@@ -83,7 +83,7 @@ def byte_limit(parameters: dict) -> int:
 
 
 def stream_download(parameters: dict, destination_root: Path, opener=None,
-                    resolver=socket.getaddrinfo) -> dict:
+                    resolver=socket.getaddrinfo, progress_reporter=None) -> dict:
     """Stream an asset to staging, validate it, and atomically publish it."""
     request_id = str(parameters["downloadRequestId"])
     item_id = str(parameters["itemId"])
@@ -107,6 +107,11 @@ def stream_download(parameters: dict, destination_root: Path, opener=None,
             declared = response.headers.get("Content-Length")
             if declared is not None and int(declared) > limit:
                 raise ValueError("declared content length exceeds maxBytes")
+            total = int(declared) if declared is not None else 0
+            next_percent = 0
+            if total > 10 * 1024 * 1024 and progress_reporter is not None:
+                progress_reporter(request_id, item_id, 0, total, 0)
+                next_percent = 5
             with tempfile.NamedTemporaryFile("wb", dir=target_dir, delete=False) as handle:
                 temporary_path = Path(handle.name)
                 while chunk := response.read(CHUNK_BYTES):
@@ -115,6 +120,10 @@ def stream_download(parameters: dict, destination_root: Path, opener=None,
                         raise ValueError("download exceeds maxBytes")
                     digest.update(chunk)
                     handle.write(chunk)
+                    percent = min(100, size * 100 // total) if total else 0
+                    while next_percent and percent >= next_percent:
+                        progress_reporter(request_id, item_id, size, total, next_percent)
+                        next_percent += 5
         content_sha256 = digest.hexdigest()
         expected = str(parameters.get("expectedSha256") or "").lower()
         if expected and expected != content_sha256:
@@ -134,6 +143,20 @@ def stream_download(parameters: dict, destination_root: Path, opener=None,
     }
 
 
+def report_progress(request_id: str, item_id: str, downloaded: int, total: int,
+                    percent: int) -> None:
+    """向 Download Ingestion 持久化一个进度里程碑。"""
+    base = os.environ.get("DOWNLOAD_INGESTION_URL", "http://127.0.0.1:23220").rstrip("/")
+    token = os.environ.get("DOWNLOAD_INTERNAL_TOKEN", "")
+    payload = json.dumps({"itemId": item_id, "downloadedBytes": downloaded,
+                          "totalBytes": total, "progressPercent": percent}).encode()
+    request = Request(f"{base}/internal/v1/download-requests/{request_id}/progress",
+                      data=payload, method="POST", headers={"Content-Type": "application/json",
+                                                            "Authorization": f"Bearer {token}"})
+    with urlopen(request, timeout=10):
+        pass
+
+
 def write_result(result: dict) -> None:
     """Atomically write the executor result document."""
     target = Path(os.environ["TASK_RESULT_FILE"])
@@ -149,7 +172,8 @@ def main() -> None:
     context = json.loads(Path(os.environ["TASK_CONTEXT_FILE"]).read_text(encoding="utf-8"))
     destination_root = Path(os.environ["DOWNLOAD_DESTINATION_ROOT"]).resolve()
     destination_root.mkdir(parents=True, exist_ok=True)
-    write_result(stream_download(context["parameters"], destination_root))
+    write_result(stream_download(context["parameters"], destination_root,
+                                 progress_reporter=report_progress))
 
 
 if __name__ == "__main__":
