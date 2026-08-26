@@ -6,7 +6,7 @@ After=network-online.target docker.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/opt/yuyutian/app/MyTools/reader-runtime
+WorkingDirectory=/opt/yuyutian/mytools/runtime/reader-runtime
 ExecStart=/usr/bin/docker compose --env-file runtime.env -f docker-compose.yml up -d
 ExecStop=/usr/bin/docker compose --env-file runtime.env -f docker-compose.yml down
 TimeoutStartSec=180

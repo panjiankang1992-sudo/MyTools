@@ -1,0 +1,17 @@
+[Unit]
+Description=MyTools NapCat OneBot provider
+Wants=network-online.target docker.service
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/yuyutian/mytools/runtime/napcat
+EnvironmentFile=-/opt/napcat/login.env
+ExecStart=/usr/bin/docker compose -p mytools-napcat -f docker-compose.yml up -d
+ExecStop=/usr/bin/docker compose -p mytools-napcat -f docker-compose.yml down
+TimeoutStartSec=180
+TimeoutStopSec=60
+
+[Install]
+WantedBy=multi-user.target

@@ -4,7 +4,7 @@ set -euo pipefail
 backend_url="${BACKEND_URL:-http://127.0.0.1:23110}"
 runtime_url="${READER_RUNTIME_URL:-http://127.0.0.1:23120}"
 backend_env="${BACKEND_ENV:-/opt/yuyutian/app/MyTools/backend/mytools-prod.env}"
-runtime_env="${RUNTIME_ENV:-/opt/yuyutian/app/MyTools/reader-runtime/runtime.env}"
+runtime_env="${RUNTIME_ENV:-/opt/yuyutian/mytools/runtime/reader-runtime/runtime.env}"
 user_id="${1:?user id is required}"
 keyword="${2:-斗罗大陆}"
 candidate_limit="${CANDIDATE_LIMIT:-40}"

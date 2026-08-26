@@ -2,8 +2,8 @@
 set -euo pipefail
 
 project_dir="${1:-/opt/code/MyTools}"
-runtime_dir="${2:-/opt/yuyutian/app/MyTools/reader-runtime}"
-backend_env="${3:-/opt/yuyutian/app/MyTools/backend/mytools-prod.env}"
+runtime_dir="${2:-/opt/yuyutian/mytools/runtime/reader-runtime}"
+backend_env="${3:-/opt/yuyutian/mytools/config/services.env}"
 source_dir="$project_dir/deploy/reader-runtime"
 env_file="$runtime_dir/runtime.env"
 

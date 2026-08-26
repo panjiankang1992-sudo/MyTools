@@ -1,5 +1,9 @@
 # OneBot Connector Service
 
+NapCat 运行配置统一放在 `/opt/yuyutian/mytools/runtime/napcat`，登录状态和缓存仍使用
+`/opt/napcat` 的独立业务数据目录。容器日志使用 `10m × 10` 的 Docker `json-file`
+轮转上限，避免绕过微服务日志保留策略。
+
 OneBot Connector owns NapCat/OneBot account routes, credential references, the fixed `get_file` call, safe local-path mapping, and bounded provider-content streaming. It is an atomic infrastructure connector used by Messaging Service; it does not own message or download business state.
 
 ## Safety defaults

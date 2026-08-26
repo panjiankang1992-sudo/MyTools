@@ -20,3 +20,8 @@ services:
       USER_LOCAL_BOOK_LIMIT: 0
     volumes:
       - ./storage:/app/storage
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "10"
