@@ -67,7 +67,8 @@ def execute(parameters: dict, work_dir: Path, client: StorageGatewayClient) -> d
     expected = str(parameters.get("expectedSha256") or "").lower()
     if expected and expected != content_sha256:
         raise ValueError("storage object checksum mismatch")
-    root_name = str(parameters.get("destinationRootName") or "downloads")
+    root_name = str(parameters.get("destinationRootName")
+                    or os.getenv("DOWNLOAD_STORAGE_ROOT", "managed"))
     relative_path = managed_directory(parameters, file_name, size) + "/" + quote(file_name, safe="")
     storage_uri = client.publish(
         temporary, root_name, relative_path,

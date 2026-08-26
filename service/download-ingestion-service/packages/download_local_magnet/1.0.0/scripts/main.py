@@ -130,7 +130,8 @@ def execute(context: TaskContext, storage: StorageGatewayClient,
             "downloadRequestId": request_id, "itemId": item_id,
             "sourceStorageUri": source_uri, "fileName": file_name,
             "expectedSha256": digest, "maxBytes": maximum,
-            "destinationRootName": str(parameters.get("destinationRootName") or "downloads"),
+            "destinationRootName": str(parameters.get("destinationRootName")
+                                       or os.getenv("DOWNLOAD_STORAGE_ROOT", "managed")),
             "ownerId": owner_id, "assetSourceBusinessId": f"{request_id}:{item_id}"},
             f"local-magnet-object:{request_id}:{index}:{digest}",
             business_type="DOWNLOAD_REQUEST", business_id=request_id)

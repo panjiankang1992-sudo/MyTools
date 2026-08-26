@@ -31,7 +31,7 @@ def test_storage_object_is_verified_and_published(tmp_path):
     result = MODULE.execute({"downloadRequestId": request_id, "itemId": "item-1",
                              "sourceStorageUri": "storage://legacy/a.bin",
                              "fileName": "a.bin"}, tmp_path, storage)
-    assert result["storageUri"].startswith("storage://downloads/")
+    assert result["storageUri"].startswith("storage://managed/")
     assert result["sizeBytes"] == len(b"managed")
     assert storage.published[0] == b"managed"
 
