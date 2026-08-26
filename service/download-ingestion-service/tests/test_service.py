@@ -84,7 +84,7 @@ class DownloadRequestServiceTest(unittest.TestCase):
             {"itemId": "item-1", "sourceStorageUri": "storage://legacy/object-1",
              "fileName": "object.bin"})
         created = service.create(command)
-        self.assertEqual("download_storage_object", scheduler.calls[0]["task_name"])
+        self.assertEqual("download_local_import", scheduler.calls[0]["task_name"])
         self.assertEqual(str(created.id), scheduler.calls[0]["parameters"]["downloadRequestId"])
 
     def test_owner_is_persisted_and_overrides_untrusted_scheduler_parameter(self):

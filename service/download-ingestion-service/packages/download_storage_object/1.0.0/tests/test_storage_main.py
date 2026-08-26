@@ -41,3 +41,13 @@ def test_storage_object_rejects_checksum_mismatch(tmp_path):
         MODULE.execute({"downloadRequestId": str(uuid4()), "itemId": "item-1",
                         "sourceStorageUri": "storage://legacy/a.bin", "fileName": "a.bin",
                         "expectedSha256": "0" * 64}, tmp_path, FakeStorage())
+
+
+def test_storage_object_routes_imported_album_by_received_date(tmp_path):
+    storage = FakeStorage(b"image")
+    MODULE.execute({"downloadRequestId": str(uuid4()), "itemId": "item-1",
+                    "sourceStorageUri": "storage://managed/staging/photo.jpg",
+                    "fileName": "photo.jpg", "assetMimeType": "image/jpeg",
+                    "receivedAt": "2026-08-26T15:53:08+08:00",
+                    "albumFolder": "Beach--12345678"}, tmp_path, storage)
+    assert storage.published[2] == "media/202608/20260826/Beach--12345678/photo.jpg"

@@ -9,14 +9,38 @@ import os
 from pathlib import Path
 import re
 import tempfile
+from datetime import UTC, datetime
 from urllib.parse import quote
 from uuid import UUID
+from zoneinfo import ZoneInfo
 
 from mytools_task_sdk.storage import StorageGatewayClient
 
 DEFAULT_MAX_BYTES = 20 * 1024 * 1024 * 1024
 MAX_CONFIGURED_BYTES = 100 * 1024 * 1024 * 1024
 SAFE_NAME = re.compile(r"^[^/\\\x00]{1,255}$")
+SAFE_DIRECTORY = re.compile(r"[^A-Za-z0-9._-]+")
+
+
+def managed_directory(parameters: dict, file_name: str, size: int) -> str:
+    """按媒体时间、相册和业务类型生成统一存储目录。"""
+    try:
+        received = datetime.fromisoformat(str(parameters.get("receivedAt") or "").replace("Z", "+00:00"))
+    except ValueError:
+        received = datetime.now(UTC)
+    received = received.astimezone(ZoneInfo(os.getenv("DOWNLOAD_STORAGE_TIMEZONE", "Asia/Shanghai")))
+    mime = str(parameters.get("assetMimeType") or "application/octet-stream").lower()
+    if mime.startswith("video/") and size > 50 * 1024 * 1024:
+        stem = SAFE_DIRECTORY.sub("_", Path(file_name).stem).strip("._-") or "video"
+        return f"big_media/{received.strftime('%Y%m%d_%H%M%S')}_{stem[:72]}"
+    if mime.startswith(("image/", "video/")):
+        directory = f"media/{received.strftime('%Y%m')}/{received.strftime('%Y%m%d')}"
+        album = SAFE_DIRECTORY.sub("_", str(parameters.get("albumFolder") or "")).strip("._-")
+        return f"{directory}/{album[:96]}" if album else directory
+    suffix = Path(file_name).suffix.lower()
+    if mime in {"application/epub+zip", "application/pdf"} or suffix in {".epub", ".mobi", ".azw3", ".txt"}:
+        return "ebook"
+    return "other"
 
 
 def execute(parameters: dict, work_dir: Path, client: StorageGatewayClient) -> dict:
@@ -44,7 +68,7 @@ def execute(parameters: dict, work_dir: Path, client: StorageGatewayClient) -> d
     if expected and expected != content_sha256:
         raise ValueError("storage object checksum mismatch")
     root_name = str(parameters.get("destinationRootName") or "downloads")
-    relative_path = quote(request_id, safe="") + "/" + quote(file_name, safe="")
+    relative_path = managed_directory(parameters, file_name, size) + "/" + quote(file_name, safe="")
     storage_uri = client.publish(
         temporary, root_name, relative_path,
         f"download-storage:{request_id}:{item_id}", size, content_sha256)
