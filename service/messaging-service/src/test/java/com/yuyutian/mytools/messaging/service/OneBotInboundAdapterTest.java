@@ -160,7 +160,7 @@ class OneBotInboundAdapterTest {
         UUID schedulerTaskId = UUID.randomUUID();
         UUID downloadRequestId = UUID.randomUUID();
         when(schedulerClient.createAttachmentDownloadTask(any())).thenReturn(schedulerTaskId);
-        when(providerFileResolverClient.resolve("napcat-main", "FILE", "opaque-book"))
+        when(providerFileResolverClient.resolve("ONEBOT", "napcat-main", "FILE", "opaque-book"))
                 .thenReturn(new ProviderFileResolverClient.Resolution(
                         "PUBLIC_URL", "https://cdn.example.test/book.txt"));
         when(downloadIngestionClient.createHttpAttachment(any(), anyLong(), any(), anyString(), anyString(), any()))
@@ -175,7 +175,7 @@ class OneBotInboundAdapterTest {
         assertThat(resolved.resolved()).isTrue();
         assertThat(replay.resolved()).isTrue();
         assertThat(submitted.downloadRequestId()).isEqualTo(downloadRequestId);
-        verify(providerFileResolverClient, times(1)).resolve("napcat-main", "FILE", "opaque-book");
+        verify(providerFileResolverClient, times(1)).resolve("ONEBOT", "napcat-main", "FILE", "opaque-book");
         verify(downloadIngestionClient).createHttpAttachment(any(), anyLong(), any(),
                 org.mockito.ArgumentMatchers.eq("https://cdn.example.test/book.txt"), anyString(), any());
     }
@@ -193,14 +193,14 @@ class OneBotInboundAdapterTest {
         var part = message.parts().getFirst();
         UUID downloadRequestId = UUID.randomUUID();
         when(schedulerClient.createAttachmentDownloadTask(any())).thenReturn(UUID.randomUUID());
-        when(providerFileResolverClient.resolve("napcat-private", "FILE", "private-book"))
+        when(providerFileResolverClient.resolve("ONEBOT", "napcat-private", "FILE", "private-book"))
                 .thenReturn(new ProviderFileResolverClient.Resolution("STREAM", null));
         when(downloadIngestionClient.createStreamedAttachment(any(), anyLong(), any(), anyString(), any()))
                 .thenReturn(downloadRequestId);
         doAnswer(invocation -> {
-            ((java.io.OutputStream) invocation.getArgument(3)).write("private".getBytes());
+            ((java.io.OutputStream) invocation.getArgument(4)).write("private".getBytes());
             return null;
-        }).when(providerFileResolverClient).stream(anyString(), anyString(), anyString(), any(), anyLong());
+        }).when(providerFileResolverClient).stream(anyString(), anyString(), anyString(), anyString(), any(), anyLong());
 
         var job = attachmentDownloadService.create(message.id(), part.id());
         attachmentDownloadService.resolve(job.id());

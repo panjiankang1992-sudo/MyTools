@@ -79,6 +79,16 @@ public class AttachmentDownloadService {
      */
     public AttachmentDownloadView get(UUID jobId) {
         AttachmentDownloadRecord current = required(jobId);
+        if (current.downloadRequestId() == null && current.taskId() != null && !terminal(current.status())) {
+            String taskStatus = schedulerClient.status(current.taskId());
+            if ("FAILED".equals(taskStatus) || "TIMED_OUT".equals(taskStatus)
+                    || "CANCELLED".equals(taskStatus)) {
+                String status = "CANCELLED".equals(taskStatus) ? "CANCELLED" : "FAILED";
+                transactionTemplate.executeWithoutResult(transaction -> repository.updateAttachmentJobStatus(
+                        jobId, status, "ATTACHMENT_TASK_" + taskStatus));
+                current = required(jobId);
+            }
+        }
         if (current.downloadRequestId() == null || terminal(current.status())) {
             return view(current);
         }

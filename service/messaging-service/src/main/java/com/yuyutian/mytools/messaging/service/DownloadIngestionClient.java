@@ -1,6 +1,7 @@
 package com.yuyutian.mytools.messaging.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
@@ -11,6 +12,8 @@ import java.util.UUID;
  * 下载接入服务内部客户端。
  */
 public class DownloadIngestionClient {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final RestClient restClient;
     private final String token;
@@ -48,7 +51,7 @@ public class DownloadIngestionClient {
                 "parameters", parameters);
         JsonNode response = restClient.post().uri("/api/v1/download-requests")
                 .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
+                .contentType(MediaType.APPLICATION_JSON).body(jsonBytes(request)).retrieve().body(JsonNode.class);
         String identifier = response == null ? "" : response.path("id").asText();
         if (identifier.isBlank()) {
             throw new IllegalStateException("Download Ingestion returned an invalid response");
@@ -86,7 +89,7 @@ public class DownloadIngestionClient {
                 "parameters", parameters);
         JsonNode response = restClient.post().uri("/api/v1/download-requests")
                 .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
+                .contentType(MediaType.APPLICATION_JSON).body(jsonBytes(request)).retrieve().body(JsonNode.class);
         String identifier = response == null ? "" : response.path("id").asText();
         if (identifier.isBlank()) {
             throw new IllegalStateException("Download Ingestion returned an invalid response");
@@ -117,5 +120,13 @@ public class DownloadIngestionClient {
      * 下载请求最小状态快照。
      */
     public record DownloadSnapshot(UUID id, String status) {
+    }
+
+    private byte[] jsonBytes(Map<String, Object> request) {
+        try {
+            return OBJECT_MAPPER.writeValueAsBytes(request);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException exception) {
+            throw new IllegalStateException("Download Ingestion request serialization failed", exception);
+        }
     }
 }

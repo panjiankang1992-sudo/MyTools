@@ -70,6 +70,22 @@ public class TaskSchedulerClient {
     }
 
     /**
+     * 查询任务实例状态。
+     *
+     * @param taskId 任务标识
+     * @return 调度状态
+     */
+    public String status(UUID taskId) {
+        JsonNode response = restClient.get().uri("/api/v1/task-instances/{id}", taskId)
+                .retrieve().body(JsonNode.class);
+        String status = response == null ? "" : response.path("status").asText();
+        if (status.isBlank()) {
+            throw new IllegalStateException("Scheduler returned an invalid task status");
+        }
+        return status;
+    }
+
+    /**
      * 渠道到白名单任务定义的映射。
      */
     public record ChannelTask(String taskName) {
