@@ -31,7 +31,8 @@ def execute(context: TaskContext, base: str, token: str, sleeper=time.sleep) -> 
             "downloadRequestId":request_id,"itemId":item_id,"sourceProviderId":str(item["storageProviderId"]),
             "sourcePath":str(item["storagePath"]),"fileName":Path(relative).name,
             "expectedSize":int(item["sizeBytes"]),"maxBytes":20*1024*1024*1024,
-            "destinationRelativePath":relative,"destinationRootName":"downloads","ownerId":0,
+            "destinationRelativePath":relative,
+            "destinationRootName":os.getenv("DOWNLOAD_STORAGE_ROOT", "downloads"),"ownerId":0,
             "assetSourceBusinessId":f"{request_id}:{item_id}"},
             f"pikpak-watch-object:{batch_id}:{fingerprint}",business_type="DOWNLOAD_REQUEST",business_id=request_id))
     if not children: raise RuntimeError("PikPak watch batch has no files")
