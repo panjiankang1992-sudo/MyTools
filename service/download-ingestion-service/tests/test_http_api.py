@@ -126,15 +126,16 @@ class DownloadHttpApiTest(unittest.TestCase):
                    "sizeBytes": 3, "storageUri": "download://executor/r/file.bin",
                    "assetId": str(uuid4())}
         path = f"/internal/v1/download-requests/{created['id']}/result"
-        self.assertEqual(payload, self._request("POST", path, payload))
-        self.assertEqual(payload, self._request("POST", path, payload))
+        self.assertEqual({**payload, "sourceIndex": 0}, self._request("POST", path, payload))
+        self.assertEqual({**payload, "sourceIndex": 0}, self._request("POST", path, payload))
         summary = self._request("GET", f"/api/v1/download-requests/{created['id']}/result-summary")
         self.assertEqual(created["id"], summary["downloadRequestId"])
         self.assertEqual(1, summary["itemCount"])
         self.assertEqual(3, summary["totalBytes"])
         self.assertEqual(64, len(summary["collectionSha256"]))
         self.assertEqual(64, len(summary["contentSetSha256"]))
-        self.assertEqual([{**payload, "tagStatus": "PENDING", "tags": []}], summary["items"])
+        self.assertEqual([{**payload, "sourceIndex": 0,
+                           "tagStatus": "PENDING", "tags": []}], summary["items"])
         self.assertNotIn("url", summary)
 
         tags = {"itemId": "item-1", "tagStatus": "TAGGED",

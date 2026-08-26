@@ -146,7 +146,11 @@ class DownloadRequestService:
             raise ValueError("download result checksum is invalid")
         if int(result["sizeBytes"]) < 0:
             raise ValueError("download result size is invalid")
-        return self._repository.record_result(request_id, {**result, "contentSha256": digest})
+        source_index = result.get("sourceIndex", 0)
+        if not isinstance(source_index, int) or isinstance(source_index, bool) or source_index < 0:
+            raise ValueError("download result source index is invalid")
+        return self._repository.record_result(request_id, {
+            **result, "sourceIndex": source_index, "contentSha256": digest})
 
     def record_tags(self, request_id: UUID, result: dict) -> dict:
         """Validate and persist a terminal, bounded tagging result."""

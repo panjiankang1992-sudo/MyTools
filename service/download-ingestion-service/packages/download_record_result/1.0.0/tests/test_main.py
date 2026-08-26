@@ -16,11 +16,13 @@ class DownloadRecordResultTest(unittest.TestCase):
 
     def test_combines_step_outputs(self):
         """The callback carries verified identity and a logical storage URI."""
-        context = {"stepOutputs": {"download_asset": {"itemId": "i1", "fileName": "a.bin",
+        context = {"parameters": {"sourceIndex": 3},
+                   "stepOutputs": {"download_asset": {"itemId": "i1", "fileName": "a.bin",
                     "contentSha256": "a" * 64, "sizeBytes": 7, "relativePath": "r/a.bin"},
                     "register_asset": {"assetId": "asset-1"}}}
         payload = MODULE.build_payload(context)
         self.assertEqual("asset-1", payload["assetId"])
+        self.assertEqual(3, payload["sourceIndex"])
         self.assertEqual("download://executor/r/a.bin", payload["storageUri"])
         self.assertNotIn("sourcePath", json.dumps(payload))
 

@@ -94,18 +94,20 @@ class MySqlDownloadRequestRepository:
         try:
             with connection.cursor() as cursor:
                 cursor.execute(
-                    """SELECT external_item_id, file_name, content_sha256, size_bytes, storage_uri, asset_id
+                    """SELECT source_index, external_item_id, file_name, content_sha256, size_bytes, storage_uri, asset_id
                        FROM download_item WHERE download_request_id = %s AND external_item_id = %s""",
                     (str(request_id), str(result["itemId"])),
                 )
                 existing = cursor.fetchone()
                 comparable = {
+                    "sourceIndex": int(result.get("sourceIndex", 0)),
                     "itemId": str(result["itemId"]), "fileName": str(result["fileName"]),
                     "contentSha256": str(result["contentSha256"]), "sizeBytes": int(result["sizeBytes"]),
                     "storageUri": str(result["storageUri"]), "assetId": str(result["assetId"]),
                 }
                 if existing is not None:
-                    persisted = {"itemId": existing["external_item_id"], "fileName": existing["file_name"],
+                    persisted = {"sourceIndex": int(existing["source_index"]),
+                                 "itemId": existing["external_item_id"], "fileName": existing["file_name"],
                                  "contentSha256": existing["content_sha256"],
                                  "sizeBytes": int(existing["size_bytes"]), "storageUri": existing["storage_uri"],
                                  "assetId": existing["asset_id"]}
@@ -118,8 +120,8 @@ class MySqlDownloadRequestRepository:
                     """INSERT INTO download_item (
                        id, download_request_id, source_index, external_item_id, file_name,
                        content_sha256, size_bytes, storage_uri, asset_id, status, created_at, updated_at
-                       ) VALUES (%s, %s, 0, %s, %s, %s, %s, %s, %s, 'COMPLETED', %s, %s)""",
-                    (item_id, str(request_id), comparable["itemId"], comparable["fileName"],
+                       ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'COMPLETED', %s, %s)""",
+                    (item_id, str(request_id), comparable["sourceIndex"], comparable["itemId"], comparable["fileName"],
                      comparable["contentSha256"], comparable["sizeBytes"], comparable["storageUri"],
                      comparable["assetId"], now, now),
                 )

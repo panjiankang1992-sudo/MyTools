@@ -117,7 +117,8 @@ def execute(context: TaskContext, parameters: dict, resources: list[dict], tweet
         child = context.create_child(
             "download_http_asset",
             {"downloadRequestId": request_id, "itemId": item_id, "url": resource["url"],
-             "fileName": resource["fileName"], "maxBytes": maximum_bytes,
+             "fileName": resource["fileName"], "sourceIndex": int(resource["index"]),
+             "maxBytes": maximum_bytes,
              "ownerId": int(parameters.get("ownerId") or 0),
              "assetMimeType": resource["mimeType"],
              "assetSourceBusinessId": f"{request_id}:{item_id}"},

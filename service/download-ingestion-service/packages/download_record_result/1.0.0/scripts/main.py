@@ -22,6 +22,7 @@ def build_payload(context: dict) -> dict:
     if not storage_uri:
         raise ValueError("preceding download storage output is incomplete")
     return {
+        "sourceIndex": int((context.get("parameters") or {}).get("sourceIndex", 0)),
         "itemId": str(download["itemId"]),
         "fileName": str(download["fileName"]),
         "contentSha256": str(download["contentSha256"]).lower(),
