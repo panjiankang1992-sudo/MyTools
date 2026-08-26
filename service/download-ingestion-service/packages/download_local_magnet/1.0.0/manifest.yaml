@@ -1,0 +1,17 @@
+name: download_local_magnet
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - network_http
+  - filesystem_write
+  - storage_write
+parameters:
+  required:
+    - downloadRequestId
+    - magnetUri
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 21600
+  maxOutputBytes: 1048576

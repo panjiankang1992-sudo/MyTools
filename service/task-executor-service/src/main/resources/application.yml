@@ -261,6 +261,11 @@ executor:
     download_pikpak_magnet:
       PIKPAK_CONNECTOR_URL: ${PIKPAK_CONNECTOR_URL:http://127.0.0.1:23285}
       PIKPAK_CONNECTOR_TOKEN: ${PIKPAK_CONNECTOR_TOKEN:}
+    download_local_magnet:
+      ARIA2_BINARY: ${ARIA2_BINARY:aria2c}
+      LOCAL_MAGNET_STAGING_ROOT: ${LOCAL_MAGNET_STAGING_ROOT:/opt/yuyutian/mytools/runtime/executor/magnet}
+      STORAGE_GATEWAY_URL: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
+      STORAGE_GATEWAY_INTERNAL_TOKEN: ${STORAGE_INTERNAL_TOKEN:}
     download_resolve_x_post:
       GALLERY_DL_BINARY: ${GALLERY_DL_BINARY:gallery-dl}
       X_COOKIES_PATH: ${X_COOKIES_PATH:}

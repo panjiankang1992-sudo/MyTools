@@ -66,6 +66,12 @@ Connector 创建并推进可恢复操作；账户凭据、rclone remote key 和�
 校验，发布至受管 Root，然后复用 Asset Registry 登记和结果回写步骤。父任务仍默认禁用，完成
 真实 PikPak/rclone 集成和旧新摘要对账后才允许灰度启用。
 
+`LOCAL_MAGNET` 映射到 `download_local_magnet`。该父任务只接受合法 BTIH magnet，使用
+Executor 节点固定的 aria2 二进制和 `/opt/yuyutian/mytools/runtime/executor/magnet` 持久
+staging；任务重试复用 `.aria2` 与 session 控制文件完成断点续传。下载过程持续检查总字节
+上限，完成后把文件先发布为 `storage://managed` 对象，再逐文件创建
+`download_storage_object` 子任务，复用统一的资产登记和结果回写流水线。
+
 历史迁移使用 `V3__create_legacy_history_import.sql` 的独立不可变历史表，不把旧完成记录
 伪装成新的 `download_request`，因此不会触发下载。内部接口
 `POST /internal/v1/migrations/downloadbot-history/batches` 支持 dry-run、幂等重放和身份冲突
