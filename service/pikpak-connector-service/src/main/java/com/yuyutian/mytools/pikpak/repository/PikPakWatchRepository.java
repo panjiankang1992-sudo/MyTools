@@ -24,12 +24,13 @@ public class PikPakWatchRepository {
     public Watcher register(RegisterWatcherRequest request) {
         Instant now = Instant.now();
         jdbc.update("""
-            INSERT INTO pikpak_watcher(account_id,watch_root,backup_root,enabled,stable_seconds,created_at,updated_at)
-            VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE watch_root=VALUES(watch_root),
+            INSERT INTO pikpak_watcher(account_id,watch_root,backup_root,enabled,stable_seconds,process_existing,
+            baseline_completed,created_at,updated_at) VALUES (?,?,?,?,?,?,FALSE,?,?)
+            ON DUPLICATE KEY UPDATE watch_root=VALUES(watch_root),
             backup_root=VALUES(backup_root),enabled=VALUES(enabled),stable_seconds=VALUES(stable_seconds),
-            updated_at=VALUES(updated_at)
+            process_existing=VALUES(process_existing),updated_at=VALUES(updated_at)
             """, request.accountId().toString(), request.watchRoot(), request.backupRoot(), request.enabled(),
-            request.stableSeconds(), Timestamp.from(now), Timestamp.from(now));
+            request.stableSeconds(), request.processExisting(), Timestamp.from(now), Timestamp.from(now));
         return requireWatcher(request.accountId());
     }
 
@@ -37,7 +38,8 @@ public class PikPakWatchRepository {
     public Watcher requireWatcher(UUID accountId) {
         return jdbc.query("SELECT * FROM pikpak_watcher WHERE account_id=?", (rs, row) ->
             new Watcher(UUID.fromString(rs.getString("account_id")), rs.getString("watch_root"),
-                rs.getString("backup_root"), rs.getBoolean("enabled"), rs.getInt("stable_seconds")),
+                rs.getString("backup_root"), rs.getBoolean("enabled"), rs.getInt("stable_seconds"),
+                rs.getBoolean("process_existing"), rs.getBoolean("baseline_completed")),
             accountId.toString()).stream().findFirst()
             .orElseThrow(() -> new IllegalArgumentException("PIKPAK_WATCHER_NOT_FOUND"));
     }
@@ -46,7 +48,8 @@ public class PikPakWatchRepository {
     public List<Watcher> enabledWatchers() {
         return jdbc.query("SELECT * FROM pikpak_watcher WHERE enabled=TRUE ORDER BY account_id", (rs, row) ->
             new Watcher(UUID.fromString(rs.getString("account_id")), rs.getString("watch_root"),
-                rs.getString("backup_root"), true, rs.getInt("stable_seconds")));
+                rs.getString("backup_root"), true, rs.getInt("stable_seconds"),
+                rs.getBoolean("process_existing"), rs.getBoolean("baseline_completed")));
     }
 
     /** 查询批次。 @param accountId 账户 @param path 批次路径 @return 批次 */
@@ -62,12 +65,19 @@ public class PikPakWatchRepository {
     }
 
     /** 创建观察批次。 @param accountId 账户 @param path 路径 @param signature 签名 @param now 时间 @return 批次 */
-    public WatchBatch insert(UUID accountId, String path, String signature, Instant now) {
+    public WatchBatch insert(UUID accountId, String path, String signature, Instant now, boolean baseline) {
         UUID id = UUID.randomUUID();
-        jdbc.update("INSERT INTO pikpak_watch_batch VALUES (?,?,?,?,?,'OBSERVING',NULL,NULL,0,?,?)",
+        jdbc.update("INSERT INTO pikpak_watch_batch VALUES (?,?,?,?,?,'OBSERVING',NULL,?,0,?,?)",
             id.toString(), accountId.toString(), path, signature, Timestamp.from(now),
+            baseline ? "PIKPAK_WATCH_BASELINED" : null,
             Timestamp.from(now), Timestamp.from(now));
         return requireBatch(id);
+    }
+
+    /** 标记 watcher 已完成历史目录基线。 @param accountId 账户 */
+    public void completeBaseline(UUID accountId) {
+        jdbc.update("UPDATE pikpak_watcher SET baseline_completed=TRUE,updated_at=? WHERE account_id=?",
+            Timestamp.from(Instant.now()), accountId.toString());
     }
 
     /** 原子更新批次。 @param current 当前值 @param signature 签名 @param stableSince 稳定时间 @param phase 阶段 @param jobId 任务 @param error 错误 @return 批次 */

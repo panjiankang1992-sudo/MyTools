@@ -68,7 +68,7 @@ class PikPakWatchServiceTest {
         private final RclonePikPakClient connector = mock(RclonePikPakClient.class);
         private final Account account = new Account(accountId, "main", UUID.randomUUID(), "secret://main",
             "pikpak", "offline", "ready", true, 120);
-        private final Watcher watcher = new Watcher(accountId, "watch", "backup", true, 120);
+        private final Watcher watcher = new Watcher(accountId, "watch", "backup", true, 120, true, true);
         private final PikPakWatchService service;
 
         private Fixture() {

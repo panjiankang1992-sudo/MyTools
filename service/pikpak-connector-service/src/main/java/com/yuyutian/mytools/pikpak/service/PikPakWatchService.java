@@ -63,10 +63,14 @@ public class PikPakWatchService {
         Map<String, List<RemoteItem>> groups = group(connector.listWatchRoot(account.remoteKey(), watcher.watchRoot()));
         List<WatchBatchView> ready = new ArrayList<>();
         Instant now = clock.instant();
+        boolean baseline = !watcher.processExisting() && !watcher.baselineCompleted();
         for (Map.Entry<String, List<RemoteItem>> entry : groups.entrySet()) {
             String signature = signature(entry.getValue());
             WatchBatch batch = watches.find(accountId, entry.getKey()).orElseGet(() ->
-                watches.insert(accountId, entry.getKey(), signature, now));
+                watches.insert(accountId, entry.getKey(), signature, now, baseline));
+            if ("PIKPAK_WATCH_BASELINED".equals(batch.errorCode()) && signature.equals(batch.signature())) {
+                continue;
+            }
             boolean changed = !signature.equals(batch.signature()) || List.of("ARCHIVED", "FAILED").contains(batch.phase());
             if (changed) {
                 batch = watches.transition(batch, signature, now, "OBSERVING", null, null);
@@ -78,6 +82,7 @@ public class PikPakWatchService {
             }
             if ("READY".equals(batch.phase())) ready.add(view(batch, account, watcher));
         }
+        if (baseline) watches.completeBaseline(accountId);
         return new WatchScanView(accountId, List.copyOf(ready));
     }
 

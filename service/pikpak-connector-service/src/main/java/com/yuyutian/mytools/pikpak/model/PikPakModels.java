@@ -36,9 +36,9 @@ public final class PikPakModels {
     public record RemoteJob(long id, boolean finished, boolean success) { }
     public record RegisterWatcherRequest(@NotNull UUID accountId,
         @NotBlank @Size(max=512) String watchRoot, @NotBlank @Size(max=512) String backupRoot,
-        boolean enabled, @Min(1) @Max(86400) int stableSeconds) { }
+        boolean enabled, @Min(1) @Max(86400) int stableSeconds, boolean processExisting) { }
     public record Watcher(UUID accountId, String watchRoot, String backupRoot,
-        boolean enabled, int stableSeconds) { }
+        boolean enabled, int stableSeconds, boolean processExisting, boolean baselineCompleted) { }
     public record WatchBatch(UUID id, UUID accountId, String batchPath, String signature,
         Instant stableSince, String phase, Long remoteJobId, String errorCode, long version) { }
     public record WatchItem(String remoteFileId, String relativePath, long sizeBytes,

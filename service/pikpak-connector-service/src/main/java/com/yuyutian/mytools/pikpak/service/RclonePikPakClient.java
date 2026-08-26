@@ -78,7 +78,7 @@ public class RclonePikPakClient {
         validateList(values);
         List<RemoteItem> result = new ArrayList<>();
         for (JsonNode value : values) {
-            String relative = validPath(value.path("Path").asText());
+            String relative = relativePath(path, value.path("Path").asText());
             if (!value.path("IsDir").asBoolean(false)) {
                 result.add(toRemoteItem(value, relative));
                 continue;
@@ -103,7 +103,7 @@ public class RclonePikPakClient {
             if (value.path("IsDir").asBoolean(false)) {
                 continue;
             }
-            String relative = validPath(value.path("Path").asText());
+            String relative = relativePath(path, value.path("Path").asText());
             result.add(toRemoteItem(value, relative));
         }
         return List.copyOf(result);
@@ -131,6 +131,14 @@ public class RclonePikPakClient {
             id = "path:" + sha256(relative);
         }
         return new RemoteItem(id, relative, size, value.path("ModTime").asText(""));
+    }
+
+    private String relativePath(String root, String value) {
+        String normalizedRoot = validPath(root);
+        String normalizedValue = validPath(value);
+        String prefix = normalizedRoot + "/";
+        return normalizedValue.startsWith(prefix)
+            ? validPath(normalizedValue.substring(prefix.length())) : normalizedValue;
     }
 
     /** 启动受控目录移动。 @param remoteKey 远端键 @param source 来源 @param target 目标 @return 后台任务 */
