@@ -5,7 +5,7 @@ app_dir="$(cd "$(dirname "$0")/.." && pwd)"
 page="$app_dir/entry/src/main/ets/pages/Index.ets"
 
 grep -Fq "SymbolGlyph(\$r('sys.symbol.magnifyingglass'))" "$page"
-grep -Fq "placeholder: '搜索远程媒体'" "$page"
+grep -Fq "placeholder: '搜索媒体'" "$page"
 grep -Fq "SymbolGlyph(\$r('sys.symbol.xmark'))" "$page"
 grep -Fq "accessibilityText('清除媒体搜索')" "$page"
 grep -Fq 'private ClearMediaSearch(): void {' "$page"

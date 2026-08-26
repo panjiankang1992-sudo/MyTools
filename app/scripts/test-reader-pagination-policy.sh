@@ -27,7 +27,7 @@ grep -Fq "this.ApplyReaderOrientation('system')" "$PAGE"
 grep -Fq '.fontFamily(this.ReaderFontName())' "$PAGE"
 grep -Fq "this.ReaderFontButton('宋体', 'serif')" "$PAGE"
 grep -Fq 'this.ReaderSystemFontScale());' "$PAGE"
-grep -Fq '.duration(300)' "$PAGE"
+grep -Fq 'setTimeout(() => this.RebuildReaderPages(), 180);' "$PAGE"
 [[ "$(grep -cF ".align(Alignment.TopStart).scrollBar(BarState.Off)" "$PAGE")" -ge 2 ]]
 grep -Fq 'private ReaderCompactProgressLabel(): string' "$PAGE"
 grep -Fq 'this.readerTextPages.length}页' "$PAGE"

@@ -22,10 +22,10 @@ node "$APP_DIR/tests/tool_service_response_policy_test.cjs" \
 
 MARKET_API="$TOOLS_DIR/AppMarketApi.ets"
 FEEDBACK_API="$TOOLS_DIR/FeedbackApi.ets"
-grep -Fq 'this.normalizer.page(envelope.data, page, pageSize)' "$MARKET_API"
-grep -Fq 'this.normalizer.detail(envelope.data)' "$MARKET_API"
+grep -Fq 'this.normalizer.catalogPage(envelope.data, page, pageSize, name)' "$MARKET_API"
+grep -Fq 'this.normalizer.catalogDetail(envelope.data, id)' "$MARKET_API"
 ! grep -Fq 'envelope.data as' "$MARKET_API"
-grep -Fq 'AuthApi.normalizeBaseUrl(baseUrl)' "$FEEDBACK_API"
+grep -Fq 'AuthApi.normalizeBusinessBaseUrl(baseUrl)' "$FEEDBACK_API"
 grep -Fq "lower === 'location'" "$FEEDBACK_API"
 grep -Fq 'length > 1024 * 1024' "$FEEDBACK_API"
 grep -Fq 'this.feedbackPolicy.receipt(envelope)' "$FEEDBACK_API"

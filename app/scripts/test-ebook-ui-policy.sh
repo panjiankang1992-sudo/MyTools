@@ -32,7 +32,7 @@ for pattern in \
   'this.sourceSearchReturnOffset = Math.max(0, this.tabScrollers[0].currentOffset().yOffset);' \
   'this.tabScrollers[0].scrollTo({ xOffset: 0, yOffset: offset, animation: false });' \
   'private ReaderContentHorizontalPadding(): number' \
-  'return Math.max(10, this.readerSettings.horizontalPadding - 10);' \
+  'return Math.max(6, this.readerSettings.horizontalPadding - 16);' \
   'left: this.ReaderContentHorizontalPadding()' \
   'right: this.ReaderContentHorizontalPadding()' \
   'this.readerViewportWidth - this.ReaderContentHorizontalPadding() * 2' \

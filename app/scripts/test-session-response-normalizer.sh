@@ -15,11 +15,11 @@ node "$TSC_BIN" "$TEST_DIR/SessionResponseNormalizer.ts" "$TEST_DIR/SessionModel
   --target ES2020 --module commonjs --outDir "$TEST_DIR/output" --skipLibCheck
 node "$APP_DIR/tests/session_response_normalizer_test.cjs" "$TEST_DIR/output/SessionResponseNormalizer.js"
 
-grep -Fq "this.normalizer.currentId" "$API"
-grep -Fq "this.normalizer.sessions" "$API"
+grep -Fq "this.normalizer.identitySessions" "$API"
 grep -Fq "this.normalizer.revokeId" "$API"
 grep -Fq "new AuthorizedApiClient(baseUrl, authManager)" "$API"
-grep -Fq "this.client.get('/api/tokens/current', cancellation)" "$API"
-grep -Fq "this.client.delete('/api/tokens/others')" "$API"
+grep -Fq "this.client.get('/api/app/v1/identity/sessions', cancellation)" "$API"
+grep -Fq 'this.client.delete(`/api/app/v1/identity/sessions/${safeId}`)' "$API"
+grep -Fq 'if (!session.current) await this.revoke(session.id);' "$API"
 
 echo "Session response integration policy tests passed"

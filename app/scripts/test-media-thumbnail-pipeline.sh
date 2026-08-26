@@ -24,7 +24,7 @@ grep -Fq 'this.mediaBrowseViewerSnapshotEntries = this.mediaBrowseThumbnailEntri
 grep -Fq 'this.RestoreMediaBrowseThumbnailsAfterViewer();' "$PAGE"
 grep -Fq 'this.SetMediaBrowseThumbnailEntries(restored);' "$PAGE"
 grep -Fq 'this.mediaThumbnailCache.protectBrowseUris(entries.map' "$PAGE"
-grep -Fq 'this.LoadMediaBrowseThumbnails(new RemoteMediaApi(this.serviceUrl, this.authManager), sourceId,' "$PAGE"
+grep -Fq 'this.LoadMediaBrowseThumbnails(new RemoteMediaApi(this.ActiveServiceUrl(), this.authManager), sourceId,' "$PAGE"
 grep -Fq 'const retained = this.mediaBrowseThumbnailEntries.filter' "$PAGE"
 grep -Fq 'const newEntries: MediaThumbnailEntry[]' "$PAGE"
 grep -Fq '每批只发布一次状态' "$PAGE"

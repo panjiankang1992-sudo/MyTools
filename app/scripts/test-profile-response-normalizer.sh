@@ -18,7 +18,7 @@ node "$TSC_BIN" "$TEST_DIR/profile/ProfileResponseNormalizer.ts" "$TEST_DIR/prof
 node "$APP_DIR/tests/profile_response_normalizer_test.cjs" \
   "$TEST_DIR/output/ProfileResponseNormalizer.js"
 
-grep -Fq "this.client.get('/api/user/info', cancellation)" "$API"
+grep -Fq "this.client.get('/api/app/v1/identity/me', cancellation)" "$API"
 grep -Fq 'this.RefreshProfileIdentity();' "$PAGE"
 grep -Fq 'new util.Base64Helper().decodeSync' "$PAGE"
 grep -Fq 'image.createImageSource(bytes.buffer as ArrayBuffer)' "$PAGE"

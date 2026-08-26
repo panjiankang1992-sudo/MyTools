@@ -29,13 +29,14 @@ equal(normalizer.sessions({ list: new Array(300).fill(null).map((_, index) => se
   200, 'Retained session quota');
 equal(normalizer.sessions({ list: new Array(1100).fill(null).map((_, index) => session(index + 1)) }, '999')[0].id,
   '999', 'Scanned session quota keeps current');
-equal(normalizer.revokeId('123456789'), '123456789', 'Revoke id validation');
+equal(normalizer.revokeId('123e4567-e89b-42d3-a456-426614174000'),
+  '123e4567-e89b-42d3-a456-426614174000', 'Revoke id validation');
 
 rejects(() => normalizer.parseEnvelope(''), 'Empty envelope rejection');
 rejects(() => normalizer.parseEnvelope('x'.repeat(1024 * 1024 + 1)), 'Oversize envelope rejection');
 rejects(() => normalizer.currentId({ id: '../1' }), 'Unsafe current id rejection');
 rejects(() => normalizer.sessions({ list: {} }, '1'), 'Non-array list rejection');
-rejects(() => normalizer.revokeId('0'), 'Zero revoke id rejection');
+rejects(() => normalizer.revokeId('0'), 'Non-UUID revoke id rejection');
 rejects(() => normalizer.revokeId('1/others'), 'Path injection rejection');
 
 console.log('Session response normalizer tests passed');

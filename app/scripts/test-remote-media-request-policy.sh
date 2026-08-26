@@ -14,7 +14,7 @@ node "$TSC_BIN" "$TEST_DIR/RemoteMediaRequestPolicy.ts" --target ES2020 --module
   --outDir "$TEST_DIR/output" --skipLibCheck
 node "$APP_DIR/tests/remote_media_request_policy_test.cjs" "$TEST_DIR/output/RemoteMediaRequestPolicy.js"
 
-grep -Fq 'this.baseUrl = authManager.normalizeBaseUrl(baseUrl)' "$API"
+grep -Fq 'this.baseUrl = authManager.normalizeBusinessBaseUrl(baseUrl)' "$API"
 grep -Fq 'this.requestPolicy.accountId(accountId)' "$API"
 grep -Fq 'this.requestPolicy.path(path, false)' "$API"
 grep -Fq 'this.requestPolicy.name(filename)' "$API"
@@ -23,7 +23,7 @@ grep -Fq 'this.requestPolicy.ticket(ticket)' "$API"
 grep -Fq 'encodeURIComponent(safeAccountId)' "$API"
 ! grep -Eq 'accountId=\$\{accountId\}' "$API"
 grep -Fq "Button('确认永久删除')" "$PAGE" || grep -Fq "'确认永久删除'" "$PAGE"
-grep -Fq "item.path === path && item.kind === 'image'" "$PAGE"
+grep -Fq 'const target = this.CurrentRemoteMediaItem();' "$PAGE"
 grep -Fq 'await api.deleteEntry(accountId, path, false)' "$PAGE"
 grep -Fq 'item.id === accountId && item.isActive' "$PAGE"
 grep -Fq 'this.PersistMediaFavorites();' "$PAGE"

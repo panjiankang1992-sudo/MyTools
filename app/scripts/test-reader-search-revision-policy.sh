@@ -12,7 +12,8 @@ grep -Fq 'searchRevision !== this.readerSearchRevision' "$SOURCE"
 grep -Fq 'searchedBook !== this.currentBook' "$SOURCE"
 grep -Fq 'searchedLoader !== this.readerContentLoader' "$SOURCE"
 grep -Fq 'searchedLoader !== this.readerContentLoader || !this.readerVisible' "$SOURCE"
-grep -A4 -F 'private CloseReader(): void {' "$SOURCE" | grep -Fq 'this.readerSearchRevision++;'
-grep -A5 -F 'private CloseReader(): void {' "$SOURCE" | grep -Fq 'this.readerSearchBusy = false;'
+close_reader="$(sed -n '/private CloseReader(skipShelfPrompt: boolean = false)/,/^  }/p' "$SOURCE")"
+grep -Fq 'this.readerSearchRevision++;' <<<"$close_reader"
+grep -Fq 'this.readerSearchBusy = false;' <<<"$close_reader"
 
 echo "Reader search revision integration tests passed"

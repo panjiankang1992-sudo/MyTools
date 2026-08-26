@@ -13,7 +13,7 @@ node "$TSC_BIN" "$TEST_DIR/TextPayloadPolicy.ts" --target ES2020 --module common
   --outDir "$TEST_DIR/output" --skipLibCheck
 node "$APP_DIR/tests/text_payload_policy_test.cjs" "$TEST_DIR/output/TextPayloadPolicy.js"
 
-grep -Fq 'this.validateDecodedText(decoded.text)' "$LOADER"
+grep -Fq 'this.validateDecodedText(sanitized)' "$LOADER"
 grep -Fq 'this.validateDecodedText(decodedChunk)' "$LOADER"
 grep -Fq 'content: chapters.length === 0 ? decodedChunk.trim()' "$LOADER"
 grep -Fq 'trim <= Math.min(3, bytes.length - 1)' "$LOADER"
