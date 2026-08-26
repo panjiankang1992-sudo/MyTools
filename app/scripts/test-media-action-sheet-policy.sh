@@ -12,17 +12,21 @@ execute="$(sed -n '/private async ExecuteMediaAction(/,/^  }/p' "$page")"
 refresh="$(sed -n '/private async RefreshMediaAfterMutation(/,/^  }/p' "$page")"
 projection="$(sed -n '/private RemoveMediaMutationProjection(/,/^  }/p' "$page")"
 tags="$(sed -n '/private MediaCatalogItemTags(/,/^  }/p' "$page")"
+action_button="$(sed -n '/private MediaCatalogActionButton(/,/^  }/p' "$page")"
 
 printf '%s\n' "$preview" | grep -Fq 'LongPressGesture({ repeat: false, duration: 500 })'
 printf '%s\n' "$preview" | grep -Fq '.onAction(() => this.OpenMediaActionSheet(item))'
-printf '%s\n' "$gallery" | grep -Fq '.gesture(LongPressGesture({ repeat: false, duration: 500 })'
 printf '%s\n' "$gallery" | grep -Fq '.onClick(() => this.TapMediaCatalogItem(item, false))'
+printf '%s\n' "$gallery" | grep -Fq 'this.MediaCatalogActionButton(item)'
+printf '%s\n' "$action_button" | grep -Fq '.onClick(() => this.OpenMediaCatalogActionSheet(item))'
 printf '%s\n' "$tags" | grep -Fq '.onClick(() => this.SelectMediaCatalogItemTag(tag))'
 grep -Fq 'private SelectMediaCatalogItemTag(tag: string): void' "$page"
-grep -Fq 'this.mediaCatalogTapSuppressedUntil = Date.now() + 700;' "$page"
-grep -Fq 'if (Date.now() < this.mediaCatalogTapSuppressedUntil) return;' "$page"
-if printf '%s\n' "$gallery" | grep -Fq '.parallelGesture(LongPressGesture'; then
-  echo 'Gallery long press still runs in parallel with click' >&2
+if grep -Fq 'mediaCatalogTapSuppressedUntil' "$page"; then
+  echo 'Obsolete media tap suppression remains' >&2
+  exit 1
+fi
+if printf '%s\n' "$gallery" | grep -Fq 'LongPressGesture'; then
+  echo 'Gallery preview still competes with a long-press gesture' >&2
   exit 1
 fi
 for action in 重命名 移动到 管理标签 查看详情 删除 取消; do

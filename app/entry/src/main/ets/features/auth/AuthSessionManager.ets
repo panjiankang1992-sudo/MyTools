@@ -129,7 +129,10 @@ export class AuthSessionManager {
   /**
    * 服务端返回未授权时强制刷新访问令牌。
    */
-  async forceRefresh(): Promise<string> {
+  async forceRefresh(rejectedAccessToken?: string): Promise<string> {
+    // 并发请求可能稍后才收到旧令牌的401；已有请求完成轮换后直接复用新令牌，避免重复轮换雪崩。
+    if (rejectedAccessToken !== undefined && this.session !== undefined &&
+      this.session.accessToken !== rejectedAccessToken) return this.session.accessToken;
     return (await this.refresh()).accessToken;
   }
 

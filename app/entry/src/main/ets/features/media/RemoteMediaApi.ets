@@ -505,7 +505,7 @@ export class RemoteMediaApi {
     let token = await this.authManager.validAccessToken();
     let result = await this.uploadFileOnce(context, safeAccountId, safeDirectory, safeUri, safeFilename, token, onProgress);
     if (result.authenticationRejected) {
-      token = await this.authManager.forceRefresh();
+      token = await this.authManager.forceRefresh(token);
       result = await this.uploadFileOnce(context, safeAccountId, safeDirectory, safeUri, safeFilename, token, onProgress);
     }
     if (!result.succeeded) throw new Error(result.message.length > 0 ? result.message : '远程文件上传失败');

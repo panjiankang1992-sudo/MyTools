@@ -56,7 +56,7 @@ export class EbookImportApi {
       let token = await this.authManager.validAccessToken();
       let result = await this.uploadOnce(context, stagedUri, filename, token, onProgress);
       if (result.authenticationRejected) {
-        token = await this.authManager.forceRefresh();
+        token = await this.authManager.forceRefresh(token);
         result = await this.uploadOnce(context, stagedUri, filename, token, onProgress);
       }
       if (!result.succeeded) throw new Error(result.message.length > 0 ? result.message : '电子书上传失败');

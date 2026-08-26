@@ -2,6 +2,7 @@
 set -euo pipefail
 APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 MANAGER="$APP_DIR/entry/src/main/ets/features/auth/AuthSessionManager.ets"
+CLIENT="$APP_DIR/entry/src/main/ets/shared/network/AuthorizedApiClient.ets"
 PAGE="$APP_DIR/entry/src/main/ets/pages/Index.ets"
 
 grep -Fq 'private authenticationRevision: number = 0;' "$MANAGER"
@@ -36,6 +37,13 @@ printf '%s\n' "$restore_block" | grep -Fq 'throw error;' || {
 grep -Fq 'const current = previous.catch(() => {}).then(async () =>' "$MANAGER"
 grep -Fq 'return new AuthApi().testConnection(baseUrl);' "$MANAGER"
 grep -Fq '++this.authenticationRevision;' "$MANAGER"
+grep -Fq 'async forceRefresh(rejectedAccessToken?: string): Promise<string>' "$MANAGER"
+grep -Fq 'this.session.accessToken !== rejectedAccessToken' "$MANAGER"
+grep -Fq 'this.authManager.forceRefresh(accessToken)' "$CLIENT"
+if grep -Fq 'this.authManager.forceRefresh()' "$CLIENT"; then
+  echo 'authorized requests must identify the rejected token to avoid repeated refresh rotation' >&2
+  exit 1
+fi
 
 for method in SubmitLogin TestConnection RestoreSession; do
   block="$(sed -n "/private async ${method}(/,/^  }/p" "$PAGE")"

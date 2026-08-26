@@ -629,7 +629,6 @@ struct Index {
   private readonly mediaVideoDetailScroller: Scroller = new Scroller();
   private mediaTagSelectorOffset: number = 0;
   private mediaDirectorySelectorOffset: number = 0;
-  private mediaCatalogTapSuppressedUntil: number = 0;
   private readonly tabScrollers: Scroller[] = [new Scroller(), new Scroller(), new Scroller(), new Scroller(),
     new Scroller()];
   private sourceSearchReturnOffset: number = 0;
@@ -2726,10 +2725,9 @@ struct Index {
               .fontColor([AppTheme.primary]).backgroundColor(AppTheme.surfaceTint).borderRadius(12)
           }
         }.width('100%').height(82)
-          .gesture(LongPressGesture({ repeat: false, duration: 500 })
-            .onAction(() => this.OpenMediaCatalogActionSheet(item)))
           .onClick(() => this.TapMediaCatalogItem(item, true))
         if (item.tags.length > 0) this.MediaCatalogItemTags(item)
+        this.MediaCatalogActionButton(item)
       }.width('100%').height(82).borderRadius(12).clip(true)
       Text(item.name).width('100%').maxLines(2).textOverflow({ overflow: TextOverflow.Ellipsis })
         .fontSize(11).fontColor(AppTheme.textPrimary)
@@ -2753,11 +2751,10 @@ struct Index {
             }.width('100%').height(154).justifyContent(FlexAlign.Center).backgroundColor(AppTheme.surfaceTint)
           }
         }.width('100%').height(154)
-          // 点击使用组件事件，长按手势只负责操作菜单，避免独占手势吞掉普通点击。
-          .gesture(LongPressGesture({ repeat: false, duration: 500 })
-            .onAction(() => this.OpenMediaCatalogActionSheet(item)))
+          // 预览区只处理查看动作，避免长按手势与普通点击竞争。
           .onClick(() => this.TapMediaCatalogItem(item, false))
         if (item.tags.length > 0) this.MediaCatalogItemTags(item)
+        this.MediaCatalogActionButton(item)
       }.width('100%').height(154).borderRadius(14).clip(true)
         .border({ width: 1, color: AppTheme.divider, radius: 14 })
       Text(item.name).width('100%').maxLines(2).textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -2784,6 +2781,16 @@ struct Index {
           .padding({ left: 7, right: 7 }).borderRadius(9).backgroundColor('#B30F172A')
       }
     }.width('100%').padding(8)
+  }
+
+  @Builder
+  private MediaCatalogActionButton(item: MediaCatalogItem) {
+    Button() {
+      SymbolGlyph($r('sys.symbol.ellipsis_circle')).fontSize(17).fontColor([Color.White])
+    }.width(34).height(34).padding(0).borderRadius(17).backgroundColor('#B30F172A')
+      .align(Alignment.TopEnd).margin({ top: 7, right: 7 })
+      .accessibilityText(`管理媒体：${item.name}`)
+      .onClick(() => this.OpenMediaCatalogActionSheet(item))
   }
 
   private MediaCatalogGalleryDirectories(): MediaDirectoryFilter[] {
@@ -2922,9 +2929,8 @@ struct Index {
     this.LoadMediaCatalog();
   }
 
-  /** 从资源卡片的标签立即应用筛选，并抑制底图补发的单击事件。 */
+  /** 从资源卡片的标签立即应用筛选。 */
   private SelectMediaCatalogItemTag(tag: string): void {
-    this.mediaCatalogTapSuppressedUntil = Date.now() + 500;
     this.SelectMediaCatalogTag(tag);
   }
 
@@ -3093,6 +3099,16 @@ struct Index {
     return { id: item.itemId, name: item.name, path: `/media/${item.itemId}`, directoryName: item.directoryName, kind,
       contentType: item.mimeType, size: item.sizeBytes, lastModified: item.modifiedAt,
       tags: item.tags.map((tag: string): RemoteMediaTag => ({ name: tag, type: '', confidence: 1 })) };
+  }
+
+  private IsCatalogMediaPath(path: string): boolean {
+    return path.startsWith('/media/') || path.startsWith('/local/');
+  }
+
+  private CatalogMediaItemId(path: string, fallback: string): string {
+    if (path.startsWith('/media/')) return path.substring('/media/'.length);
+    if (path.startsWith('/local/')) return path.substring('/local/'.length);
+    return fallback;
   }
 
   /** 返回新版媒体目录使用的虚拟本地数据源。 */
@@ -14652,13 +14668,10 @@ struct Index {
   }
 
   private OpenMediaCatalogActionSheet(item: MediaCatalogItem): void {
-    // 部分设备会在长按手势结束后补发一次Tap，显式设置短暂抑制窗口避免打开全屏页。
-    this.mediaCatalogTapSuppressedUntil = Date.now() + 700;
     this.OpenMediaActionSheet(this.CatalogRemoteItem(item));
   }
 
   private TapMediaCatalogItem(item: MediaCatalogItem, videoDetail: boolean): void {
-    if (Date.now() < this.mediaCatalogTapSuppressedUntil) return;
     this.OpenMediaCatalogItem(item, videoDetail);
   }
 
@@ -14666,7 +14679,7 @@ struct Index {
     const item = this.mediaItems.find((value: RemoteMediaItem) => value.path === this.mediaActionPath);
     if (item !== undefined) return item;
     const catalogItem = this.mediaCatalogItems.find((value: MediaCatalogItem) =>
-      `/local/${value.itemId}` === this.mediaActionPath);
+      `/media/${value.itemId}` === this.mediaActionPath || `/local/${value.itemId}` === this.mediaActionPath);
     return catalogItem === undefined ? undefined : this.CatalogRemoteItem(catalogItem);
   }
 
@@ -14697,7 +14710,7 @@ struct Index {
     this.mediaActionError = '';
     try {
       const api = new RemoteMediaApi(this.ActiveServiceUrl(), this.authManager);
-      const accountId = item.path.startsWith('/local/') ? this.CatalogLocalMediaSource().id :
+      const accountId = this.IsCatalogMediaPath(item.path) ? this.CatalogLocalMediaSource().id :
         this.selectedMediaSourceId;
       if (this.mediaActionMode === 'rename') {
         await api.renameEntry(accountId, item.path, this.mediaActionInput.trim());
@@ -14725,7 +14738,7 @@ struct Index {
 
   /** 媒体变更成功后按当前图片、视频目录或远程目录状态重新读取权威列表。 */
   private async RefreshMediaAfterMutation(item: RemoteMediaItem): Promise<void> {
-    if (!item.path.startsWith('/local/')) {
+    if (!this.IsCatalogMediaPath(item.path)) {
       await this.LoadMediaDirectory();
       return;
     }
@@ -14756,7 +14769,7 @@ struct Index {
 
   /** 删除成功后同步移除图片、视频目录和缩略图中的当前投影。 */
   private RemoveMediaMutationProjection(item: RemoteMediaItem): void {
-    const itemId = item.path.startsWith('/local/') ? item.path.substring('/local/'.length) : item.id;
+    const itemId = this.CatalogMediaItemId(item.path, item.id ?? '');
     const catalogItem = this.mediaCatalogItems.find((value: MediaCatalogItem) => value.itemId === itemId) ??
       this.mediaVideoDirectoryItems.find((value: MediaCatalogItem) => value.itemId === itemId);
     const directoryId = catalogItem?.directoryId ?? this.selectedVideoDirectoryId;
@@ -15943,7 +15956,7 @@ struct Index {
     this.activeThumbnailCancellation?.cancel();
     const configuredSource = this.mediaSources.find((value: RemoteMediaSource) =>
       value.id === this.selectedMediaSourceId);
-    const source = configuredSource ?? (item.path.startsWith('/local/') ? this.CatalogLocalMediaSource() : undefined);
+    const source = configuredSource ?? (this.IsCatalogMediaPath(item.path) ? this.CatalogLocalMediaSource() : undefined);
     if (source === undefined) {
       this.mediaStatus = '远程数据源不可用';
       return;
@@ -16137,7 +16150,7 @@ struct Index {
   private async DeleteCurrentRemoteImage(): Promise<void> {
     if (this.mediaImageDeleting || this.currentMediaKind !== 'image' || !this.authenticated) return;
     const path = this.currentMediaPath;
-    const localCatalog = path.startsWith('/local/');
+    const localCatalog = this.IsCatalogMediaPath(path);
     const accountId = localCatalog ? this.CatalogLocalMediaSource().id : this.selectedMediaSourceId;
     const source = localCatalog ? this.CatalogLocalMediaSource() :
       this.mediaSources.find((item: RemoteMediaSource) => item.id === accountId && item.isActive);

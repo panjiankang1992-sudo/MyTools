@@ -73,11 +73,13 @@ export class AuthorizedApiClient {
     cancellation?: DownloadCancellationToken): Promise<number> {
     const safePath = this.policy.path(path);
     this.throwIfCancelled(cancellation);
-    let result = await this.streamToUri(safePath, targetUri, await this.authManager.validAccessToken(), onProgress,
+    let accessToken = await this.authManager.validAccessToken();
+    let result = await this.streamToUri(safePath, targetUri, accessToken, onProgress,
       AuthorizedApiClient.MAX_DOWNLOAD_BYTES, '', cancellation);
     if (result.status === 401 && cancellation?.isCancelled() !== true) {
       if (onProgress !== undefined) onProgress(0, 0);
-      result = await this.streamToUri(safePath, targetUri, await this.authManager.forceRefresh(), onProgress,
+      accessToken = await this.authManager.forceRefresh(accessToken);
+      result = await this.streamToUri(safePath, targetUri, accessToken, onProgress,
         AuthorizedApiClient.MAX_DOWNLOAD_BYTES, '', cancellation);
     }
     this.throwIfCancelled(cancellation);
@@ -105,10 +107,12 @@ export class AuthorizedApiClient {
     cancellation?: DownloadCancellationToken): Promise<number> {
     const safePath = this.policy.path(path);
     this.throwIfCancelled(cancellation);
-    let result = await this.streamToUri(safePath, targetUri, await this.authManager.validAccessToken(), undefined,
+    let accessToken = await this.authManager.validAccessToken();
+    let result = await this.streamToUri(safePath, targetUri, accessToken, undefined,
       64 * 1024 * 1024, 'image/*', cancellation);
     if (result.status === 401 && cancellation?.isCancelled() !== true) {
-      result = await this.streamToUri(safePath, targetUri, await this.authManager.forceRefresh(), undefined,
+      accessToken = await this.authManager.forceRefresh(accessToken);
+      result = await this.streamToUri(safePath, targetUri, accessToken, undefined,
         64 * 1024 * 1024, 'image/*', cancellation);
     }
     this.throwIfCancelled(cancellation);
@@ -121,10 +125,12 @@ export class AuthorizedApiClient {
     cancellation?: DownloadCancellationToken): Promise<number> {
     const safePath = this.policy.path(path);
     this.throwIfCancelled(cancellation);
-    let result = await this.streamToUri(safePath, targetUri, await this.authManager.validAccessToken(), undefined,
+    let accessToken = await this.authManager.validAccessToken();
+    let result = await this.streamToUri(safePath, targetUri, accessToken, undefined,
       maxBytes, 'image/jpeg', cancellation);
     if (result.status === 401 && cancellation?.isCancelled() !== true) {
-      result = await this.streamToUri(safePath, targetUri, await this.authManager.forceRefresh(), undefined,
+      accessToken = await this.authManager.forceRefresh(accessToken);
+      result = await this.streamToUri(safePath, targetUri, accessToken, undefined,
         maxBytes, 'image/jpeg', cancellation);
     }
     this.throwIfCancelled(cancellation);
@@ -255,11 +261,11 @@ export class AuthorizedApiClient {
     const bodyBytes = body === undefined ? 0 : new util.TextEncoder().encodeInto(body).length;
     this.policy.requestBody(body, bodyBytes);
     this.throwIfCancelled(cancellation);
-    let response = await this.requestWithFallback(safePath, method,
-      await this.authManager.validAccessToken(), body, cancellation);
+    let accessToken = await this.authManager.validAccessToken();
+    let response = await this.requestWithFallback(safePath, method, accessToken, body, cancellation);
     if (response.status === 401 && cancellation?.isCancelled() !== true) {
-      response = await this.requestWithFallback(safePath, method,
-        await this.authManager.forceRefresh(), body, cancellation);
+      accessToken = await this.authManager.forceRefresh(accessToken);
+      response = await this.requestWithFallback(safePath, method, accessToken, body, cancellation);
     }
     this.throwIfCancelled(cancellation);
     if (response.status < 200 || response.status >= 300 || response.envelope.code !== '0000') {
