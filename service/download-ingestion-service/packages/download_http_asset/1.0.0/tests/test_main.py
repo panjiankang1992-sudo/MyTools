@@ -80,8 +80,8 @@ class DownloadHttpAssetTest(unittest.TestCase):
 
     def test_accepts_only_loopback_http_proxy(self):
         """Restricted downloads may use the local managed proxy only."""
-        self.assertEqual("http://127.0.0.1:7891",
-                         MODULE.validated_proxy("http://127.0.0.1:7891/"))
+        self.assertEqual("http://127.0.0.1:17890",
+                         MODULE.validated_proxy("http://127.0.0.1:17890/"))
         with self.assertRaisesRegex(ValueError, "loopback"):
             MODULE.validated_proxy("http://proxy.example:7891")
 

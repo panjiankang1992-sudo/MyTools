@@ -264,7 +264,7 @@ executor:
     download_resolve_x_post:
       GALLERY_DL_BINARY: ${GALLERY_DL_BINARY:gallery-dl}
       X_COOKIES_PATH: ${X_COOKIES_PATH:}
-      X_PROXY_URL: ${X_PROXY_URL:}
+      X_PROXY_URL: ${X_PROXY_URL:${DOWNLOAD_HTTP_PROXY:}}
     download_resolve_web_archive:
       WEB_ARCHIVE_PROXY_URL: ${WEB_ARCHIVE_PROXY_URL:}
     download_migrate_legacy_history:

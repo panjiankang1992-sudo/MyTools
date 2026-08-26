@@ -60,6 +60,26 @@ class DownloadIngestionClientTest {
         server.verify();
     }
 
+    @Test
+    void shouldRouteXStatusToXPostTask() {
+        UUID messageId = UUID.randomUUID();
+        UUID ruleId = UUID.randomUUID();
+        UUID downloadId = UUID.randomUUID();
+        RestClient.Builder builder = RestClient.builder().baseUrl("http://download.test");
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(requestTo("http://download.test/api/v1/download-requests"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(jsonPath("$.requestKind").value("X_POST"))
+                .andRespond(withAccepted().contentType(MediaType.APPLICATION_JSON)
+                        .body("{\"id\":\"" + downloadId + "\"}"));
+        DownloadIngestionClient client = new DownloadIngestionClient(builder.build(), "download-token");
+
+        assertThat(client.create(messageId, 17L, ruleId, 0, "HTTP_ASSET",
+                "https://mobile.x.com/user/status/123456", "123456"))
+                .isEqualTo(downloadId.toString());
+        server.verify();
+    }
+
     private String response(UUID id, String status) {
         return "{\"id\":\"" + id + "\",\"status\":\"" + status + "\"}";
     }

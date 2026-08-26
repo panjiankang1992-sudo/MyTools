@@ -8,6 +8,9 @@ import org.springframework.web.client.RestClient;
 import java.util.Map;
 import java.util.List;
 import java.util.UUID;
+import java.net.URI;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * 下载接入服务业务请求客户端。
@@ -15,6 +18,10 @@ import java.util.UUID;
 public class DownloadIngestionClient {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Set<String> X_HOSTS = Set.of("x.com", "twitter.com");
+    private static final Pattern X_STATUS_PATH = Pattern.compile(
+            "^/(?:[^/]+/status|i/(?:web/)?status)/[0-9]{1,24}(?:/.*)?$",
+            Pattern.CASE_INSENSITIVE);
     private final RestClient restClient;
     private final String internalToken;
 
@@ -34,13 +41,14 @@ public class DownloadIngestionClient {
     public String create(UUID messageId, long ownerId, UUID ruleId, int index, String requestKind,
                          String url, String fileName) {
         String idempotencyKey = "automation:" + messageId + ":" + ruleId + ":" + index;
+        String effectiveRequestKind = effectiveRequestKind(requestKind, url);
         Map<String, Object> payload = Map.of(
                 "ownerId", ownerId,
                 "idempotencyKey", idempotencyKey,
                 "sourceType", "MESSAGE",
                 // 同一消息可包含多个下载动作，来源键必须包含稳定序号。
                 "sourceKey", messageId + ":" + index,
-                "requestKind", requestKind,
+                "requestKind", effectiveRequestKind,
                 "parameters", Map.of("ownerId", ownerId, "itemId", messageId + "-" + index,
                         "url", url, "fileName", fileName));
         JsonNode response = restClient.post().uri("/api/v1/download-requests")
@@ -50,6 +58,23 @@ public class DownloadIngestionClient {
             throw new IllegalStateException("Download Ingestion returned an invalid response");
         }
         return response.path("id").asText();
+    }
+
+    private String effectiveRequestKind(String requestKind, String url) {
+        if (!"HTTP_ASSET".equals(requestKind)) {
+            return requestKind;
+        }
+        try {
+            URI uri = URI.create(url);
+            String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase();
+            host = host.replaceFirst("^(?:www\\.|mobile\\.)", "");
+            if (X_HOSTS.contains(host) && X_STATUS_PATH.matcher(uri.getPath()).matches()) {
+                return "X_POST";
+            }
+        } catch (IllegalArgumentException ignored) {
+            // URL 有效性由下载服务统一校验，此处仅做业务类型识别。
+        }
+        return requestKind;
     }
 
     /**
