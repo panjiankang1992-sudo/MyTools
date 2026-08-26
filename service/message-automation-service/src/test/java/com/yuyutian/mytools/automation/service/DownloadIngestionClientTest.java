@@ -97,6 +97,7 @@ class DownloadIngestionClientTest {
                 .andExpect(jsonPath("$.sourceKey").value(messageId.toString()))
                 .andExpect(jsonPath("$.requestKind").value("MESSAGE_URL_BATCH"))
                 .andExpect(jsonPath("$.parameters.messageBatchId").value(messageId.toString()))
+                .andExpect(jsonPath("$.parameters.albumTitleText").value("海边写真"))
                 .andExpect(jsonPath("$.parameters.items.length()").value(2))
                 .andExpect(jsonPath("$.parameters.items[0].url").value("https://x.com/a/status/1"))
                 .andExpect(jsonPath("$.parameters.items[1].url").value("https://cdn.example/b.jpg"))
@@ -106,7 +107,7 @@ class DownloadIngestionClientTest {
 
         assertThat(client.createBatch(messageId, 17L, ruleId,
                 List.of("https://x.com/a/status/1", "https://cdn.example/b.jpg"),
-                Instant.parse("2026-08-26T07:53:08Z"))).isEqualTo(downloadId.toString());
+                Instant.parse("2026-08-26T07:53:08Z"), "海边写真")).isEqualTo(downloadId.toString());
         server.verify();
     }
 

@@ -166,7 +166,7 @@ public class MessageAutomationService {
                              UUID actionId, List<String> urls) {
         try {
             UUID requestId = UUID.fromString(downloadClient.createBatch(run.messageId(), message.ownerId(),
-                    ruleId, urls, message.receivedAt()));
+                    ruleId, urls, message.receivedAt(), message.body()));
             transactionTemplate.executeWithoutResult(status -> repository.bindAction(actionId, requestId));
         } catch (RuntimeException exception) {
             logDownloadFailure(actionId, exception);

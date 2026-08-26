@@ -70,9 +70,11 @@ public class DownloadIngestionClient {
      * @param ruleId 自动化规则标识
      * @param urls 消息内按出现顺序去重后的链接
      * @param receivedAt 消息接收时间
+     * @param messageText 用于相册标题的有界消息文本
      * @return 下载业务请求标识
      */
-    public String createBatch(UUID messageId, long ownerId, UUID ruleId, List<String> urls, Instant receivedAt) {
+    public String createBatch(UUID messageId, long ownerId, UUID ruleId, List<String> urls,
+                              Instant receivedAt, String messageText) {
         if (urls == null || urls.size() < 2 || urls.size() > 20) {
             throw new IllegalArgumentException("Message URL batch size is invalid");
         }
@@ -88,7 +90,9 @@ public class DownloadIngestionClient {
                 "sourceKey", messageId.toString(),
                 "requestKind", "MESSAGE_URL_BATCH",
                 "parameters", Map.of("ownerId", ownerId, "messageBatchId", messageId.toString(),
-                        "receivedAt", receivedAt.toString(), "items", List.copyOf(items)));
+                        "receivedAt", receivedAt.toString(), "items", List.copyOf(items),
+                        "albumTitleText", messageText == null ? "" : messageText.substring(
+                                0, Math.min(500, messageText.length()))));
         JsonNode response = restClient.post().uri("/api/v1/download-requests")
                 .header("Authorization", "Bearer " + requiredToken())
                 .contentType(MediaType.APPLICATION_JSON).body(jsonBytes(payload)).retrieve().body(JsonNode.class);

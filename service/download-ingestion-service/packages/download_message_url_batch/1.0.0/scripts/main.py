@@ -18,6 +18,8 @@ from mytools_task_sdk.orchestration import wait_all_or_cancel
 
 X_PATH = re.compile(r"^/(?:[^/]+/status|i/(?:web/)?status)/\d{1,24}(?:/.*)?$", re.IGNORECASE)
 SAFE_PART = re.compile(r"[^A-Za-z0-9_-]+")
+SAFE_TITLE = re.compile(r"[^\w.-]+", re.UNICODE)
+URL_TEXT = re.compile(r"https?://\S+", re.IGNORECASE)
 MAX_URLS = 20
 MAX_MEDIA = 100
 
@@ -28,6 +30,27 @@ def is_x_post(value: str) -> bool:
     host = (parsed.hostname or "").lower().removeprefix("www.").removeprefix("mobile.")
     return parsed.scheme in {"http", "https"} and host in {"x.com", "twitter.com"} \
         and X_PATH.fullmatch(parsed.path) is not None
+
+
+def album_title(parameters: dict) -> str:
+    """从明确标题或第一条非 URL 文本中生成稳定相册名。"""
+    text = str(parameters.get("albumTitleText") or "")[:500]
+    candidates = []
+    preferred = ""
+    for raw in text.splitlines():
+        line = URL_TEXT.sub("", raw).strip()
+        if not line:
+            continue
+        explicit = re.match(r"^(?:标题|专辑|相册|图集|album)\s*[:：]\s*(.+)$", line,
+                            re.IGNORECASE)
+        candidates.append((explicit.group(1) if explicit else line).strip())
+        if explicit:
+            preferred = explicit.group(1).strip()
+            break
+    if not candidates:
+        return ""
+    title = SAFE_TITLE.sub("_", preferred or candidates[0])
+    return title.strip("._-")[:72]
 
 
 def validate(parameters: dict) -> tuple[str, list[dict]]:
@@ -133,7 +156,9 @@ def execute(context: TaskContext) -> dict:
     if len(resources) > threshold:
         raw_batch = str(parameters.get("messageBatchId") or request_id)
         batch = SAFE_PART.sub("_", raw_batch).strip("_")
-        album_folder = f"message-{batch[:48]}"
+        title = album_title(parameters)
+        album_folder = f"{title}--{hashlib.sha256(raw_batch.encode()).hexdigest()[:8]}" \
+            if title else f"message-{batch[:48]}"
     download_children = []
     for source_index, resource in enumerate(resources, start=1):
         item_id = f"message:{resource['sourceAction']}:{resource['resourceIndex']}"

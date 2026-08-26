@@ -67,7 +67,7 @@ class MessageAutomationServiceTest {
         when(messagingClient.get(messageId)).thenReturn(message(messageId, 11L, "chat-7", "user-9",
                 "/download https://files.example/a.zip https://files.example/b.zip https://files.example/c.zip"));
         UUID downloadId = UUID.randomUUID();
-        when(downloadClient.createBatch(any(), anyLong(), any(), any(), any()))
+        when(downloadClient.createBatch(any(), anyLong(), any(), any(), any(), anyString()))
                 .thenReturn(downloadId.toString());
         when(downloadClient.get(any(), anyLong())).thenAnswer(invocation ->
                 new DownloadIngestionClient.DownloadSnapshot(invocation.getArgument(0), "SUCCEEDED"));
@@ -79,7 +79,7 @@ class MessageAutomationServiceTest {
         assertThat(duplicate.status()).isEqualTo("SUCCEEDED");
         assertThat(duplicate.actionRefs()).containsExactly(downloadId.toString());
         assertThat(duplicate.id()).isEqualTo(running.id());
-        verify(downloadClient).createBatch(any(), anyLong(), any(), any(), any());
+        verify(downloadClient).createBatch(any(), anyLong(), any(), any(), any(), anyString());
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM automation_run WHERE inbound_message_id = ?",
                 Integer.class, messageId.toString())).isEqualTo(1);
@@ -141,7 +141,7 @@ class MessageAutomationServiceTest {
                 "external-" + messageId, "thread-3", "allowed@example.com", null,
                 "download: https://files.example/a https://files.example/b", Instant.now(), Instant.now()));
         UUID downloadId = UUID.randomUUID();
-        when(downloadClient.createBatch(any(), anyLong(), any(), any(), any()))
+        when(downloadClient.createBatch(any(), anyLong(), any(), any(), any(), anyString()))
                 .thenReturn(downloadId.toString());
         when(downloadClient.cancel(any(), anyLong())).thenAnswer(invocation ->
                 new DownloadIngestionClient.DownloadSnapshot(invocation.getArgument(0), "CANCELLED"));

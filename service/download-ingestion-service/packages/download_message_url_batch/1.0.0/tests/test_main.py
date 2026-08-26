@@ -56,13 +56,14 @@ def test_uses_one_message_folder_after_aggregate_threshold():
     items = [{"url": f"https://x.com/user/status/{100 + index}",
               "fileName": f"post-{index}"} for index in range(5)]
     context = Context(items, [1, 1, 1, 11, 3])
+    context.parameters["albumTitleText"] = "标题：海边写真\nhttps://x.com/user/status/100"
     result = MODULE.execute(context)
     downloads = [parameters for child, parameters in context.children
                  if child.task_name == "download_http_asset"]
     assert result["mediaCount"] == 17
-    assert result["albumFolder"] == "message-message-id"
+    assert result["albumFolder"].startswith("海边写真--")
     assert len(downloads) == 17
-    assert {item["albumFolder"] for item in downloads} == {"message-message-id"}
+    assert {item["albumFolder"] for item in downloads} == {result["albumFolder"]}
     assert [item["sourceIndex"] for item in downloads] == list(range(1, 18))
 
 
