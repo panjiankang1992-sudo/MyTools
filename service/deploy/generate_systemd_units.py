@@ -121,7 +121,7 @@ def logrotate_config(entries: list[dict[str, Any]], log_root: str) -> str:
             "\n".join(
                 (
                     f"{log_root}/{name}/service.log {{",
-                    "    su mytools mytools",
+                    "    su root root",
                     "    daily",
                     "    rotate 9",
                     "    maxage 10",
@@ -131,7 +131,7 @@ def logrotate_config(entries: list[dict[str, Any]], log_root: str) -> str:
                     "    missingok",
                     "    notifempty",
                     "    copytruncate",
-                    "    create 0640 mytools mytools",
+                    "    create 0640 root root",
                     "}",
                 )
             )
