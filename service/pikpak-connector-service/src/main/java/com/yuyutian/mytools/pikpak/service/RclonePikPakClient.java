@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -71,8 +72,8 @@ public class RclonePikPakClient {
         return listFiles(remoteKey, path, true, Duration.ofMinutes(2));
     }
 
-    /** 按收件箱顶层批次列出文件，避免对整个收件箱执行一次无界递归。 @param remoteKey 远端键 @param path 路径 @return 文件 */
-    public List<RemoteItem> listWatchRoot(String remoteKey, String path) {
+    /** 按收件箱顶层批次列出文件，避免对整个收件箱执行一次无界递归。 @param remoteKey 远端键 @param path 路径 @param ignoredBatches 已基线批次 @return 文件 */
+    public List<RemoteItem> listWatchRoot(String remoteKey, String path, Set<String> ignoredBatches) {
         JsonNode response = listResponse(remoteKey, path, false, Duration.ofSeconds(20));
         JsonNode values = response.path("list");
         validateList(values);
@@ -81,6 +82,9 @@ public class RclonePikPakClient {
             String relative = relativePath(path, value.path("Path").asText());
             if (!value.path("IsDir").asBoolean(false)) {
                 result.add(toRemoteItem(value, relative));
+                continue;
+            }
+            if (ignoredBatches.contains(relative)) {
                 continue;
             }
             // 每个顶层目录是独立批次，只递归展开该批次，避免历史目录拖慢全部扫描。

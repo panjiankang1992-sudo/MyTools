@@ -60,7 +60,8 @@ public class PikPakWatchService {
         Account account = accounts.requireAccount(accountId);
         Watcher watcher = watches.requireWatcher(accountId);
         if (!account.enabled() || !watcher.enabled()) throw new IllegalStateException("PIKPAK_WATCHER_DISABLED");
-        Map<String, List<RemoteItem>> groups = group(connector.listWatchRoot(account.remoteKey(), watcher.watchRoot()));
+        Map<String, List<RemoteItem>> groups = group(connector.listWatchRoot(account.remoteKey(), watcher.watchRoot(),
+            watches.baselinedPaths(accountId)));
         List<WatchBatchView> ready = new ArrayList<>();
         Instant now = clock.instant();
         boolean baseline = !watcher.processExisting() && !watcher.baselineCompleted();

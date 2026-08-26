@@ -8,6 +8,8 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -50,6 +52,14 @@ public class PikPakWatchRepository {
             new Watcher(UUID.fromString(rs.getString("account_id")), rs.getString("watch_root"),
                 rs.getString("backup_root"), true, rs.getInt("stable_seconds"),
                 rs.getBoolean("process_existing"), rs.getBoolean("baseline_completed")));
+    }
+
+    /** 读取明确忽略的历史批次路径。 @param accountId 账户 @return 路径 */
+    public Set<String> baselinedPaths(UUID accountId) {
+        return new HashSet<>(jdbc.queryForList("""
+            SELECT batch_path FROM pikpak_watch_batch
+            WHERE account_id=? AND error_code='PIKPAK_WATCH_BASELINED'
+            """, String.class, accountId.toString()));
     }
 
     /** 查询批次。 @param accountId 账户 @param path 批次路径 @return 批次 */
