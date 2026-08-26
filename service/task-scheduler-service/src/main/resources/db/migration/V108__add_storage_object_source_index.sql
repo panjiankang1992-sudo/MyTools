@@ -1,0 +1,5 @@
+UPDATE task_definition
+SET parameter_schema = '{"type":"object","required":["downloadRequestId","itemId","sourceStorageUri","fileName"],"properties":{"downloadRequestId":{"type":"string","format":"uuid"},"itemId":{"type":"string","minLength":1,"maxLength":255},"sourceStorageUri":{"type":"string","pattern":"^storage://"},"fileName":{"type":"string","minLength":1,"maxLength":255},"expectedSha256":{"type":"string","pattern":"^[a-fA-F0-9]{64}$"},"maxBytes":{"type":"integer","minimum":1,"maximum":107374182400},"destinationRootName":{"type":"string","pattern":"^[A-Za-z0-9_-]{1,64}$"},"ownerId":{"type":"integer","minimum":0},"sourceIndex":{"type":"integer","minimum":0},"receivedAt":{"type":"string","format":"date-time"},"assetMimeType":{"type":"string","maxLength":255},"albumFolder":{"type":"string","maxLength":128},"assetSourceBusinessId":{"type":"string","maxLength":255}} ,"additionalProperties":false}',
+    version = version + 1,
+    updated_at = CURRENT_TIMESTAMP
+WHERE name = 'download_storage_object';

@@ -61,6 +61,7 @@ def test_archive_creates_classified_children_and_album(tmp_path, monkeypatch):
     assert {child.name for child in context.children} == {"download_storage_object"}
     assert len({child.parameters["albumFolder"] for child in context.children}) == 1
     assert context.children[0].parameters["albumFolder"].startswith("Beach--")
+    assert [child.parameters["sourceIndex"] for child in context.children] == [0, 1]
 
 
 def test_regular_image_uses_single_child_without_album(tmp_path, monkeypatch):

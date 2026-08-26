@@ -129,6 +129,7 @@ def execute(context: TaskContext, storage: StorageGatewayClient,
         child = context.create_child("download_storage_object", {
             "downloadRequestId": request_id, "itemId": item_id,
             "sourceStorageUri": source_uri, "fileName": file_name,
+            "sourceIndex": index - 1,
             "expectedSha256": digest, "maxBytes": maximum,
             "destinationRootName": str(parameters.get("destinationRootName")
                                        or os.getenv("DOWNLOAD_STORAGE_ROOT", "managed")),

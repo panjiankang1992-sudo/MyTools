@@ -41,6 +41,7 @@ def test_execute_resumes_and_creates_one_child(tmp_path, monkeypatch):
     assert result["itemCount"] == 1
     assert context.children[0].name == "download_storage_object"
     assert context.children[0].parameters["sourceStorageUri"].startswith("storage://")
+    assert context.children[0].parameters["sourceIndex"] == 0
 
 
 def test_validate_magnet_rejects_invalid_uri():

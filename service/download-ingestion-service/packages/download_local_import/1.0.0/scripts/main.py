@@ -182,6 +182,7 @@ def execute(context: TaskContext, storage: StorageGatewayClient) -> dict:
         child = context.create_child("download_storage_object", {
             "downloadRequestId": request_id, "itemId": item_id, "sourceStorageUri": staging_uri,
             "fileName": path.name, "expectedSha256": digest, "maxBytes": maximum,
+            "sourceIndex": index - 1,
             "destinationRootName": str(parameters.get("destinationRootName")
                                        or os.getenv("DOWNLOAD_STORAGE_ROOT", "managed")),
             "ownerId": owner_id, "receivedAt": created_at(path, mime, os.getenv("EXIFTOOL_BINARY", "exiftool")).isoformat(),
