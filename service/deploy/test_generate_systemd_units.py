@@ -97,6 +97,7 @@ class GenerateSystemdUnitsTest(unittest.TestCase):
         self.assertIn("Persistent=true", timer)
         self.assertIn("/etc/logrotate.d/mytools-services", service)
         self.assertIn("/etc/logrotate.d/mytools-rclone-services", service)
+        self.assertIn("/etc/logrotate.d/mytools-container-services", service)
 
     def test_units_allow_external_business_data_mounts(self) -> None:
         unit = generator.service_unit(

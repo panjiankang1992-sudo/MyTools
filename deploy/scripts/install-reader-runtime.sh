@@ -28,8 +28,15 @@ fi
 
 sudo install -m 644 "$project_dir/deploy/systemd/mytools-reader-runtime.service" \
   /etc/systemd/system/mytools-reader-runtime.service
+sudo install -m 644 "$project_dir/deploy/systemd/mytools-container-log@.service" \
+  /etc/systemd/system/mytools-container-log@.service
+sudo install -d -m 750 /opt/yuyutian/logs/mytools/mytools-reader-runtime
+sudo install -d -m 755 /etc/logrotate.d
+sudo install -m 644 "$project_dir/deploy/logrotate/mytools-container-services" \
+  /etc/logrotate.d/mytools-container-services
 sudo install -d -m 755 /etc/systemd/system/mytools-backend.service.d
 sudo install -m 644 "$project_dir/deploy/systemd/mytools-backend-reader-runtime.conf" \
   /etc/systemd/system/mytools-backend.service.d/reader-runtime.conf
 sudo systemctl daemon-reload
 sudo systemctl enable --now mytools-reader-runtime.service
+sudo systemctl enable --now mytools-container-log@mytools-reader-runtime.service

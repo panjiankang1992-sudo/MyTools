@@ -1,0 +1,18 @@
+[Unit]
+Description=Forward bounded container logs for %i
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/docker logs --follow --since 0s %i
+Restart=always
+RestartSec=5
+StandardOutput=append:/opt/yuyutian/logs/mytools/%i/service.log
+StandardError=append:/opt/yuyutian/logs/mytools/%i/service.log
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
