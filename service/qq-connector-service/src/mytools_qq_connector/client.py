@@ -174,9 +174,14 @@ class QQConnector:
             if int(hello.get("op", -1)) != 10:
                 raise RuntimeError("QQ gateway did not send HELLO")
             interval = float(hello.get("d", {}).get("heartbeat_interval", 45000)) / 1000
-            await websocket.send_json({"op": 2, "d": {"token": f"QQBot {token}",
-                "intents": self.config.intents, "shard": [0, 1],
-                "properties": {"$os": "linux", "$browser": "mytools", "$device": "mytools"}}})
+            if self._session_id and self._sequence is not None:
+                await websocket.send_json({"op": 6, "d": {"token": f"QQBot {token}",
+                    "session_id": self._session_id, "seq": self._sequence}})
+            else:
+                await websocket.send_json({"op": 2, "d": {"token": f"QQBot {token}",
+                    "intents": self.config.intents, "shard": [0, 1],
+                    "properties": {"$os": "linux", "$browser": "mytools",
+                                   "$device": "mytools"}}})
 
             async def heartbeat() -> None:
                 while not stop.is_set() and not websocket.closed:
@@ -189,12 +194,28 @@ class QQConnector:
                     if message.type != aiohttp.WSMsgType.TEXT:
                         continue
                     payload = json.loads(message.data)
-                    if payload.get("s") is not None:
-                        self._sequence = int(payload["s"])
-                    if int(payload.get("op", -1)) == 0:
-                        await self.receive(payload)
-                    elif int(payload.get("op", -1)) in {7, 9}:
+                    incoming_sequence = (int(payload["s"])
+                                         if payload.get("s") is not None else None)
+                    opcode = int(payload.get("op", -1))
+                    if opcode == 0:
+                        event_type = str(payload.get("t") or "")
+                        data = payload.get("d") if isinstance(payload.get("d"), dict) else {}
+                        if event_type == "READY":
+                            self._session_id = str(data.get("session_id") or "")
+                            logger.info("QQ gateway ready")
+                        elif event_type == "RESUMED":
+                            logger.info("QQ gateway session resumed")
+                        else:
+                            logger.info("QQ gateway dispatch received: %s", event_type or "UNKNOWN")
+                            await self.receive(payload)
+                        if incoming_sequence is not None:
+                            self._sequence = incoming_sequence
+                    elif opcode == 7:
                         raise RuntimeError("QQ gateway requested reconnect")
+                    elif opcode == 9:
+                        self._session_id = ""
+                        self._sequence = None
+                        raise RuntimeError("QQ gateway invalidated the session")
             finally:
                 task.cancel()
                 await asyncio.gather(task, return_exceptions=True)
@@ -209,6 +230,6 @@ class QQConnector:
             except asyncio.CancelledError:
                 raise
             except Exception as exception:
-                logger.warning("QQ gateway disconnected: %s", type(exception).__name__)
+                logger.warning("QQ gateway disconnected: %s", exception)
                 await asyncio.sleep(backoff)
                 backoff = min(backoff * 2, 60.0)

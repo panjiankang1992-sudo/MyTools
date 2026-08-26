@@ -35,7 +35,7 @@ class Config:
             os.getenv("QQ_CONNECTOR_API_BASE_URL", "https://api.sgroup.qq.com"),
             os.getenv("QQ_CONNECTOR_TOKEN_URL", "https://bots.qq.com/app/getAppAccessToken"),
             os.getenv("QQ_CONNECTOR_GATEWAY_URL", ""),
-            int(os.getenv("QQ_CONNECTOR_INTENTS", "33554435")),
+            int(os.getenv("QQ_CONNECTOR_INTENTS", "33554432")),
             os.getenv("QQ_CONNECTOR_MESSAGING_URL", "http://127.0.0.1:23250"),
             os.environ["MESSAGING_INTERNAL_TOKEN"],
             os.getenv("QQ_CONNECTOR_SCHEDULER_URL", "http://127.0.0.1:23210"),
