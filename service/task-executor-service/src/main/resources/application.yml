@@ -269,6 +269,7 @@ executor:
     download_pikpak_watch_batch:
       PIKPAK_CONNECTOR_URL: ${PIKPAK_CONNECTOR_URL:http://127.0.0.1:23285}
       PIKPAK_CONNECTOR_TOKEN: ${PIKPAK_CONNECTOR_TOKEN:}
+      DOWNLOAD_STORAGE_ROOT: ${DOWNLOAD_STORAGE_ROOT:downloads}
     download_local_magnet:
       ARIA2_BINARY: ${ARIA2_BINARY:aria2c}
       LOCAL_MAGNET_STAGING_ROOT: ${LOCAL_MAGNET_STAGING_ROOT:/opt/yuyutian/mytools/runtime/executor/magnet}
