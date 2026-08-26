@@ -81,7 +81,7 @@ class QQConnector:
                   "providerFileId": None, "providerAccountKey": None, "sourceUrl": None,
                   "fileName": None, "mimeType": None, "declaredSize": None}]
         body = {"ownerId": self.config.owner_id, "channelType": "QQ",
-                "externalId": f"{self.config.account_key}:C2C_MESSAGE_CREATE:{message_id}",
+                "externalMessageId": f"{self.config.account_key}:C2C_MESSAGE_CREATE:{message_id}",
                 "conversationKey": f"{self.config.account_key}:c2c:{sender}", "sender": sender,
                 "subject": None, "body": content or "[empty]",
                 "receivedAt": datetime.now(UTC).isoformat(), "parts": parts}

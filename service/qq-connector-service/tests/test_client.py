@@ -24,6 +24,16 @@ class FakeConnector(QQConnector):
         self.commands.append((sender, message_id))
 
 
+class CapturingConnector(QQConnector):
+    def __init__(self, config=CONFIG):
+        super().__init__(config, object())
+        self.request = None
+
+    async def _internal_json(self, method, url, payload, token):
+        self.request = (method, url, payload, token)
+        return {"id": "inbound-message"}
+
+
 def event(content="登录", sender="allowed", message_id="message-1"):
     return {"t": "C2C_MESSAGE_CREATE", "d": {"id": message_id, "content": content,
             "author": {"user_openid": sender}}}
@@ -59,4 +69,14 @@ def test_send_image_is_bounded_before_any_network_call():
             pass
         else:
             raise AssertionError("empty image must be rejected")
+    asyncio.run(scenario())
+
+
+def test_messaging_request_uses_current_inbound_contract():
+    async def scenario():
+        connector = CapturingConnector()
+        await connector._messaging_receive(event(), "allowed", "message-1", "登录")
+        payload = connector.request[2]
+        assert payload["externalMessageId"] == "qq_main:C2C_MESSAGE_CREATE:message-1"
+        assert "externalId" not in payload
     asyncio.run(scenario())
