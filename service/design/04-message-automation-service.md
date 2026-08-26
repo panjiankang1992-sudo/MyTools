@@ -23,7 +23,7 @@
 5. 查询或事件触发时对账动作状态，聚合全部成功、部分失败、失败或取消。
 6. 级联取消仍在运行的子动作并生成完成通知。
 
-完成通知不增加独立通知中心。邮件规则的终态事件由默认关闭的轻量中继读取，使用 `automation-completion-{runId}` 调用 Messaging 幂等创建投递；只有 Messaging 接受请求后才确认 Outbox。失败保留重试。非邮件渠道在对应 Delivery Provider 可执行前不消费终态事件，避免产生不可执行的任务或丢失未来通知依据。
+完成通知不增加独立通知中心。终态事件由轻量中继读取：EMAIL 使用 `automation-completion-{runId}` 调用 Messaging 幂等创建投递，QQ 通过 QQ Connector 内部鉴权接口回复原会话；只有下游接受请求后才确认 Outbox，失败保留重试。后台协调器周期性查询运行中的任务并推进终态，不依赖外部查询触发。其他渠道在对应 Delivery Provider 可执行前不消费终态事件。
 
 ## 脚本与子任务
 
@@ -37,7 +37,7 @@
 2. 已建立默认关闭、只转发消息标识的 Messaging Outbox relay；继续让原 Bot 入口镜像产生标准消息事件。
 3. 已将动作引用升级为规范化子动作记录，支持创建结果未知恢复、下载状态聚合和级联取消；兼容 JSON 引用仅作为投影保留。下载创建使用消息租户作为权威 owner，状态查询和取消均走 owner-bound 内部接口。
 4. 已实现 `MESSAGE_ATTACHMENT` 白名单动作，仅持久化标准消息部分标识，并通过 owner-bound Messaging 接口创建、查询和取消附件任务。
-5. 已实现 EMAIL 终态 Outbox 到 Messaging 投递的默认关闭中继，投递与事件确认均可幂等重试。
+5. 已实现 EMAIL 和 QQ 终态 Outbox 投递中继，投递与事件确认均可幂等重试。
 6. 对比新旧规则执行结果。
 7. 切换创建任务入口，最后移除 DownloadBot 渠道耦合。
 

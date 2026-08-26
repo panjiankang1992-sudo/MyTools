@@ -8,7 +8,7 @@ from mytools_qq_connector.config import Config
 CONFIG = Config("qq_main", "app", "secret", 55, "allowed", "https://api.example.test",
                 "https://token.example.test", "wss://gateway.example.test", 1,
                 "http://messaging", "messaging-token", "http://scheduler",
-                "http://onebot", "onebot-token", "qq-napcat")
+                "http://onebot", "onebot-token", "qq-napcat", "automation-token")
 
 
 class FakeConnector(QQConnector):
@@ -109,4 +109,25 @@ def test_qq_attachment_is_normalized_for_messaging():
         assert normalized == "https://example.test/photo.jpg"
         assert request["parts"][1]["attachmentType"] == "IMAGE"
         assert request["parts"][1]["declaredSize"] == 123
+    asyncio.run(scenario())
+
+
+def test_expired_passive_reply_falls_back_to_active_message():
+    class ReplyConnector(FakeConnector):
+        def __init__(self):
+            super().__init__()
+            self.requests = []
+
+        async def _qq_request(self, method, path, payload=None):
+            self.requests.append(payload)
+            if len(self.requests) == 1:
+                raise RuntimeError("QQ request failed with HTTP 400, code=40034024, reason=expired")
+            return {"id": "sent"}
+
+    async def scenario():
+        connector = ReplyConnector()
+        await QQConnector.send_text(connector, "allowed", "message-old", "done", 2)
+        assert connector.requests == [
+            {"msg_type": 0, "content": "done", "msg_id": "message-old", "msg_seq": 2},
+            {"msg_type": 0, "content": "done"}]
     asyncio.run(scenario())

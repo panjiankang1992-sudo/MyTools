@@ -105,7 +105,7 @@ class MessageAutomationServiceTest {
                 .thenReturn(new DownloadIngestionClient.DownloadSnapshot(downloadId, "SUCCEEDED"));
 
         var run = service.process(messageId);
-        var events = repository.findUnpublishedEmailCompletions(10);
+        var events = repository.findUnpublishedCompletions(ChannelType.EMAIL, 10);
 
         assertThat(run.status()).isEqualTo("SUCCEEDED");
         assertThat(events).anySatisfy(event -> {

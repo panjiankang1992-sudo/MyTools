@@ -184,12 +184,18 @@ class QQConnector:
             "msg_type": 7, "media": {"file_info": file_info}, "content": text,
             "msg_id": message_id, "msg_seq": 1})
 
-    async def send_text(self, sender: str, message_id: str, text: str) -> None:
+    async def send_text(self, sender: str, message_id: str, text: str, sequence: int = 1) -> None:
         """被动回复一条有界文本消息。"""
-        if not text or len(text) > 2000:
+        if not text or len(text) > 2000 or sequence < 1 or sequence > 10:
             raise ValueError("QQ text size is invalid")
-        await self._qq_request("POST", f"/v2/users/{sender}/messages", {
-            "msg_type": 0, "content": text, "msg_id": message_id, "msg_seq": 1})
+        path = f"/v2/users/{sender}/messages"
+        try:
+            await self._qq_request("POST", path, {
+                "msg_type": 0, "content": text, "msg_id": message_id, "msg_seq": sequence})
+        except RuntimeError as exception:
+            if "code=40034024" not in str(exception):
+                raise
+            await self._qq_request("POST", path, {"msg_type": 0, "content": text})
 
     async def _qq_request(self, method: str, path: str,
                           payload: dict | None = None) -> dict:
@@ -199,7 +205,11 @@ class QQConnector:
                                         headers=headers, json=payload) as response:
             body = await response.json(content_type=None)
             if response.status >= 400 or not isinstance(body, dict):
-                raise RuntimeError(f"QQ request failed with HTTP {response.status}")
+                code = str(body.get("code") or "unknown") if isinstance(body, dict) else "unknown"
+                reason = str(body.get("message") or body.get("msg") or "request rejected")[:160] \
+                    if isinstance(body, dict) else "request rejected"
+                raise RuntimeError(
+                    f"QQ request failed with HTTP {response.status}, code={code}, reason={reason}")
             return body
 
     async def _internal_json(self, method: str, url: str, payload: dict | None,

@@ -2,7 +2,7 @@
 
 ## 定位
 
-QQ Connector 是官方 QQ Bot 的原子渠道适配器，负责 App Access Token、Gateway 长连接、C2C 入站转交和文本/图片出站。Messaging 保存标准消息，Task Scheduler 保存重登录执行状态，OneBot Connector 控制 NapCat；本服务不下载附件、不执行 Shell，也不拥有通用自动化规则。
+QQ Connector 是官方 QQ Bot 的原子渠道适配器，负责 App Access Token、Gateway 长连接、C2C 入站与附件标准化，以及文本/图片出站。Messaging 保存标准消息，Message Automation 创建下载任务并中继完成回执，Task Scheduler 保存执行状态，OneBot Connector 控制 NapCat；本服务不下载附件、不执行 Shell，也不拥有通用自动化规则。
 
 ## 登录命令链路
 
@@ -18,6 +18,8 @@ QQ C2C “登录/登陆”
 ```
 
 只有精确命令、C2C 事件和服务端配置的发送者可以触发。幂等键绑定官方 QQ message ID；二维码路径、Bot Secret、OneBot Token 均不进入任务参数、结果或日志。
+
+下载完成回执使用内部 Bearer 鉴权接口发送。连接器优先回复原消息；官方被动回复窗口失效时降级为主动消息，以保证长耗时任务仍能返回终态。
 
 ## 数据与恢复
 

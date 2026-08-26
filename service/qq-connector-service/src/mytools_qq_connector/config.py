@@ -24,6 +24,7 @@ class Config:
     onebot_url: str
     onebot_token: str
     onebot_account_key: str
+    automation_token: str
 
     @classmethod
     def load(cls) -> "Config":
@@ -42,7 +43,8 @@ class Config:
                       os.getenv("TASK_SCHEDULER_URL", "http://127.0.0.1:23410")),
             os.getenv("QQ_CONNECTOR_ONEBOT_URL", "http://127.0.0.1:23255"),
             os.environ["ONEBOT_CONNECTOR_INTERNAL_TOKEN"],
-            os.getenv("QQ_CONNECTOR_ONEBOT_ACCOUNT_KEY", "qq-napcat"))
+            os.getenv("QQ_CONNECTOR_ONEBOT_ACCOUNT_KEY", "qq-napcat"),
+            os.environ["MESSAGE_AUTOMATION_INTERNAL_TOKEN"])
         if value.owner_id <= 0 or not value.allowed_sender:
             raise ValueError("QQ Connector owner and allowed sender are required")
         return value
