@@ -145,6 +145,20 @@ public class ReaderGatewayClient {
         return exchangeSearch(url, HttpMethod.POST, null, correlationId);
     }
 
+    /** 执行书源目录规则。 */
+    public Map<String, Object> sourceCatalog(long ownerId, String sourceUrl, String bookUrl,
+                                              String correlationId) {
+        return runtime("catalog", Map.of("ownerId", ownerId, "sourceUrl", sourceUrl,
+                "bookUrl", bookUrl), correlationId);
+    }
+
+    /** 执行书源正文规则。 */
+    public Map<String, Object> sourceContent(long ownerId, String sourceUrl, String chapterUrl,
+                                              int chapterIndex, String correlationId) {
+        return runtime("content", Map.of("ownerId", ownerId, "sourceUrl", sourceUrl,
+                "chapterUrl", chapterUrl, "chapterIndex", chapterIndex), correlationId);
+    }
+
     /**
      * 创建电子书导入任务。
      *
@@ -365,6 +379,14 @@ public class ReaderGatewayClient {
         return new SearchView(value.id(), value.status(), value.keyword(), value.mode(), value.page(),
                 value.completedShards(), value.failedShards(), value.totalShards(), value.results(),
                 value.createdAt(), value.updatedAt());
+    }
+
+    private Map<String, Object> runtime(String operation, Map<String, Object> payload, String correlationId) {
+        var response = restTemplate.exchange(root() + "/api/v1/source-runtime/" + operation,
+                HttpMethod.POST, entity(payload, correlationId),
+                new ParameterizedTypeReference<Map<String, Object>>() { });
+        if (response.getBody() == null) throw new IllegalStateException("Reader Service returned an empty response");
+        return response.getBody();
     }
 
     /** Reader 内部搜索响应，调度任务标识不会投影到 App 契约。 */

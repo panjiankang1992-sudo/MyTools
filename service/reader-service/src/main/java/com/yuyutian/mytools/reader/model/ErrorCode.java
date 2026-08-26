@@ -21,7 +21,8 @@ public enum ErrorCode {
     LIBRARY_REBUILD_NOT_FOUND("READER_015", "Library rebuild was not found"),
     LIBRARY_REBUILD_CONFLICT("READER_016", "Library rebuild conflicts with existing state"),
     READER_STATE_NOT_FOUND("READER_017", "Reader state was not found"),
-    READER_STATE_CONFLICT("READER_018", "Reader state version conflicts with existing state");
+    READER_STATE_CONFLICT("READER_018", "Reader state version conflicts with existing state"),
+    RUNTIME_UNAVAILABLE("READER_019", "Reader runtime is unavailable");
 
     private final String code;
     private final String message;

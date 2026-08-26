@@ -17,6 +17,7 @@ import com.yuyutian.mytools.reader.service.LibraryRebuildConflictException;
 import com.yuyutian.mytools.reader.service.LibraryRebuildNotFoundException;
 import com.yuyutian.mytools.reader.service.ReaderStateConflictException;
 import com.yuyutian.mytools.reader.service.ReaderStateNotFoundException;
+import com.yuyutian.mytools.reader.service.ReaderRuntimeUnavailableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -209,5 +210,13 @@ public class ReaderExceptionHandler {
     public Map<String, String> handleReaderStateConflict(ReaderStateConflictException exception) {
         return Map.of("code", ErrorCode.READER_STATE_CONFLICT.code(),
                 "message", ErrorCode.READER_STATE_CONFLICT.message());
+    }
+
+    /** 转换书源执行器不可用异常。 */
+    @ExceptionHandler(ReaderRuntimeUnavailableException.class)
+    @ResponseStatus(HttpStatus.BAD_GATEWAY)
+    public Map<String, String> handleRuntimeUnavailable(ReaderRuntimeUnavailableException exception) {
+        return Map.of("code", ErrorCode.RUNTIME_UNAVAILABLE.code(),
+                "message", ErrorCode.RUNTIME_UNAVAILABLE.message());
     }
 }

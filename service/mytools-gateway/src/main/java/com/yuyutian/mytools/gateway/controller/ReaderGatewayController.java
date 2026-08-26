@@ -201,6 +201,24 @@ public class ReaderGatewayController {
         return client.cancelSearch(principal(request).userId(), id, correlation(request));
     }
 
+    /** 执行书源目录规则。 */
+    @PostMapping("/source-runtime/catalog")
+    public Map<String, Object> sourceCatalog(@Valid @RequestBody RuntimeCatalogRequest body,
+                                             HttpServletRequest request) {
+        requireAllowed(request);
+        return client.sourceCatalog(principal(request).userId(), body.sourceUrl(), body.bookUrl(),
+                correlation(request));
+    }
+
+    /** 执行书源正文规则。 */
+    @PostMapping("/source-runtime/content")
+    public Map<String, Object> sourceContent(@Valid @RequestBody RuntimeContentRequest body,
+                                             HttpServletRequest request) {
+        requireAllowed(request);
+        return client.sourceContent(principal(request).userId(), body.sourceUrl(), body.chapterUrl(),
+                body.chapterIndex(), correlation(request));
+    }
+
     /**
      * 创建电子书导入任务。
      *
@@ -428,6 +446,15 @@ public class ReaderGatewayController {
                                @NotNull Map<String, Object> metadata,
                                boolean deleted, @Positive Long expectedVersion) {
     }
+
+    /** 书源目录请求。 */
+    public record RuntimeCatalogRequest(@NotBlank @Size(max = 4096) String sourceUrl,
+                                        @NotBlank @Size(max = 4096) String bookUrl) { }
+
+    /** 书源正文请求。 */
+    public record RuntimeContentRequest(@NotBlank @Size(max = 4096) String sourceUrl,
+                                        @NotBlank @Size(max = 4096) String chapterUrl,
+                                        @Min(0) int chapterIndex) { }
 
     /**
      * Gateway 书源写入请求，不允许客户端指定 owner。

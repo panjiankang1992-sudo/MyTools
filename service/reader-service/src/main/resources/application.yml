@@ -22,3 +22,5 @@ reader:
   scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
   internal-token: ${READER_INTERNAL_TOKEN:}
   ebook-storage-root: ${READER_EBOOK_STORAGE_ROOT:managed}
+  runtime-base-url: ${READER_RUNTIME_BASE_URL:http://127.0.0.1:23120}
+  runtime-secure-key: ${READER_RUNTIME_SECURE_KEY:}
