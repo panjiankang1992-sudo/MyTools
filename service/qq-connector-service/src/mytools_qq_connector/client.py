@@ -67,11 +67,7 @@ class QQConnector:
             task = asyncio.create_task(self._relogin_and_reply(sender, message_id),
                                        name=f"qq-relogin-{message_id[:16]}")
             task.add_done_callback(self._log_background_failure)
-        elif sender == self.config.allowed_sender and URL_PATTERN.search(normalized_body):
-            task = asyncio.create_task(self.send_text(
-                sender, message_id, "已接收，正在创建下载任务。"),
-                name=f"qq-download-ack-{message_id[:16]}")
-            task.add_done_callback(self._log_background_failure)
+        # 下载回执由消息自动化服务在任务持久化后统一发送，避免同一 msg_seq 重复回复。
 
     @staticmethod
     def _log_background_failure(task: asyncio.Task) -> None:

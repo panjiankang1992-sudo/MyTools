@@ -288,7 +288,10 @@ public class AutomationRepository {
                 && rule.enabled() == request.enabled();
     }
 
-    private Optional<AutomationRuleRecord> findRule(UUID id) {
+    /**
+     * 按标识查询自动化规则。
+     */
+    public Optional<AutomationRuleRecord> findRule(UUID id) {
         return queryRules("WHERE ar.id = ?", id.toString()).stream().findFirst();
     }
 

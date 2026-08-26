@@ -87,13 +87,12 @@ def test_messaging_request_uses_current_inbound_contract():
     asyncio.run(scenario())
 
 
-def test_authorized_url_is_persisted_and_acknowledged():
+def test_authorized_url_is_persisted_without_connector_acknowledgement():
     async def scenario():
         connector = FakeConnector()
         await connector.receive(event(content="https://example.test/file", message_id="message-url"))
         await asyncio.sleep(0)
-        assert connector.replies == [
-            ("allowed", "message-url", "已接收，正在创建下载任务。")]
+        assert connector.replies == []
     asyncio.run(scenario())
 
 

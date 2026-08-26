@@ -198,7 +198,8 @@ public class MessageAutomationService {
                 if ("ATTACHMENT_DOWNLOAD".equals(action.actionType())) {
                     submitAttachment(message, action.id(), UUID.fromString(action.sourceUrl()));
                 } else {
-                    submit(run, message, run.ruleId(), "HTTP_ASSET", action.id(), action.sequence(),
+                    String requestKind = repository.findRule(run.ruleId()).orElseThrow().requestKind();
+                    submit(run, message, run.ruleId(), requestKind, action.id(), action.sequence(),
                             action.sourceUrl(), action.fileName());
                 }
             } else if (action.externalRequestId() != null && !terminalAction(action.status())) {
