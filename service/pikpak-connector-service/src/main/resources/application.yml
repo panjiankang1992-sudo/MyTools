@@ -12,7 +12,7 @@ management.endpoints.web.exposure.include: health,info
 pikpak:
   enabled: ${PIKPAK_CONNECTOR_ENABLED:false}
   internal-token: ${PIKPAK_CONNECTOR_TOKEN:}
-  rclone-rc-url: ${PIKPAK_RCLONE_RC_URL:http://127.0.0.1:5572}
-  rclone-rc-user: ${PIKPAK_RCLONE_RC_USER:}
-  rclone-rc-password: ${PIKPAK_RCLONE_RC_PASSWORD:}
+  rclone-rc-url: ${PIKPAK_RCLONE_RC_URL:${RCLONE_RC_URL:http://127.0.0.1:5572}}
+  rclone-rc-user: ${PIKPAK_RCLONE_RC_USER:${RCLONE_RC_USER:}}
+  rclone-rc-password: ${PIKPAK_RCLONE_RC_PASSWORD:${RCLONE_RC_PASSWORD:}}
   stable-seconds: ${PIKPAK_STABLE_SECONDS:120}
