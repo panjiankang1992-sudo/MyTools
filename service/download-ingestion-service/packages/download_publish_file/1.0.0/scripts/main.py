@@ -11,6 +11,7 @@ import re
 import tempfile
 from datetime import UTC, datetime
 from urllib.parse import quote
+from zoneinfo import ZoneInfo
 
 from mytools_task_sdk.storage import StorageGatewayClient
 
@@ -26,6 +27,8 @@ def managed_directory(parameters: dict, output: dict) -> str:
         received_at = datetime.fromisoformat(received.replace("Z", "+00:00"))
     except ValueError:
         received_at = datetime.now(UTC)
+    received_at = received_at.astimezone(ZoneInfo(os.getenv(
+        "DOWNLOAD_STORAGE_TIMEZONE", "Asia/Shanghai")))
     mime = str(parameters.get("assetMimeType") or "application/octet-stream").lower()
     size = int(output["sizeBytes"])
     file_name = str(output["fileName"])

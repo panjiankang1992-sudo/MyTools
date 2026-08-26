@@ -53,6 +53,12 @@ def test_routes_large_video_to_independent_package():
     assert MODULE.managed_directory(parameters, output) == "big_media/20260826_155308_clip"
 
 
+def test_converts_utc_message_time_to_storage_timezone():
+    output = {"fileName": "clip.mp4", "sizeBytes": 50 * 1024 * 1024 + 1}
+    parameters = {"receivedAt": "2026-08-26T07:53:08Z", "assetMimeType": "video/mp4"}
+    assert MODULE.managed_directory(parameters, output) == "big_media/20260826_155308_clip"
+
+
 def test_rejects_changed_download():
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
