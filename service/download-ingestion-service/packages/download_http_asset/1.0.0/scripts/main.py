@@ -12,12 +12,25 @@ import re
 import socket
 import tempfile
 from urllib.parse import urlparse
-from urllib.request import HTTPRedirectHandler, Request, build_opener
+from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
 CHUNK_BYTES = 1024 * 1024
 DEFAULT_MAX_BYTES = 2 * 1024 * 1024 * 1024
 MAX_CONFIGURED_BYTES = 20 * 1024 * 1024 * 1024
 SAFE_NAME = re.compile(r"^[^/\\\x00]{1,255}$")
+
+
+def validated_proxy(value: object) -> str | None:
+    """Allow an optional trusted loopback HTTP proxy for restricted networks."""
+    proxy = str(value or "").strip()
+    if not proxy:
+        return None
+    parsed = urlparse(proxy)
+    if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost"} \
+            or parsed.port is None or parsed.username or parsed.password \
+            or parsed.path not in {"", "/"} or parsed.query or parsed.fragment:
+        raise ValueError("DOWNLOAD_HTTP_PROXY must be a loopback HTTP proxy")
+    return proxy.rstrip("/")
 
 
 def validated_name(value: object) -> str:
@@ -84,7 +97,11 @@ def stream_download(parameters: dict, destination_root: Path, opener=None,
     size = 0
     temporary_path: Path | None = None
     request = Request(url, headers={"User-Agent": "MyTools-Download-Executor/1.0"})
-    request_opener = opener or build_opener(SafeRedirectHandler(resolver)).open
+    proxy = validated_proxy(os.environ.get("DOWNLOAD_HTTP_PROXY"))
+    handlers = [SafeRedirectHandler(resolver)]
+    if proxy is not None:
+        handlers.insert(0, ProxyHandler({"http": proxy, "https": proxy}))
+    request_opener = opener or build_opener(*handlers).open
     try:
         with request_opener(request, timeout=30) as response:
             declared = response.headers.get("Content-Length")

@@ -78,6 +78,13 @@ class DownloadHttpAssetTest(unittest.TestCase):
             MODULE.validated_url("http://internal.example/secret", resolver=lambda *_args, **_kwargs: [
                 (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("127.0.0.1", 80))])
 
+    def test_accepts_only_loopback_http_proxy(self):
+        """Restricted downloads may use the local managed proxy only."""
+        self.assertEqual("http://127.0.0.1:7891",
+                         MODULE.validated_proxy("http://127.0.0.1:7891/"))
+        with self.assertRaisesRegex(ValueError, "loopback"):
+            MODULE.validated_proxy("http://proxy.example:7891")
+
 
 def public_resolver(*_args, **_kwargs):
     """Resolve test hosts to one deterministic public documentation address."""
