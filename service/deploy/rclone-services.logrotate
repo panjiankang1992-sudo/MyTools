@@ -1,5 +1,6 @@
 /opt/yuyutian/logs/mytools/rclone-rc/service.log {
-    su mytools mytools
+    # systemd 在降权前以 root 身份打开 StandardOutput=append 文件。
+    su root root
     daily
     rotate 9
     maxage 10
@@ -9,11 +10,12 @@
     missingok
     notifempty
     copytruncate
-    create 0640 mytools mytools
+    create 0640 root root
 }
 
 /opt/yuyutian/logs/mytools/rclone-serve/service.log {
-    su mytools mytools
+    # systemd 在降权前以 root 身份打开 StandardOutput=append 文件。
+    su root root
     daily
     rotate 9
     maxage 10
@@ -23,5 +25,5 @@
     missingok
     notifempty
     copytruncate
-    create 0640 mytools mytools
+    create 0640 root root
 }
