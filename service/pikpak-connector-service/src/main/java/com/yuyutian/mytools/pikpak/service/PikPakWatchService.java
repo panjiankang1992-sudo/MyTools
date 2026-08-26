@@ -131,6 +131,7 @@ public class PikPakWatchService {
         items.stream().sorted(Comparator.comparing(RemoteItem::relativePath)).forEach(item -> {
             String path = validPath(item.relativePath());
             String batch = path.contains("/") ? path.substring(0, path.indexOf('/')) : path;
+            if (batch.length() > 512) throw new IllegalArgumentException("PIKPAK_WATCH_BATCH_PATH_INVALID");
             groups.computeIfAbsent(batch, ignored -> new ArrayList<>()).add(item);
         });
         return groups;

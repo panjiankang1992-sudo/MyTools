@@ -14,7 +14,7 @@ CREATE TABLE pikpak_watcher (
 CREATE TABLE pikpak_watch_batch (
     id CHAR(36) PRIMARY KEY,
     account_id CHAR(36) NOT NULL,
-    batch_path VARCHAR(1024) NOT NULL,
+    batch_path VARCHAR(512) NOT NULL,
     signature CHAR(64) NOT NULL,
     stable_since TIMESTAMP(6) NOT NULL,
     phase VARCHAR(32) NOT NULL,
