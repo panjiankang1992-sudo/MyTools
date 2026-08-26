@@ -24,7 +24,7 @@ class TelegramConnector:
     async def api(self, method: str, payload: dict[str, Any] | None = None) -> Any:
         """调用 Bot API，异常中不包含 token 或消息正文。"""
         url = f"{self.config.api_base_url}/bot{self.config.bot_token}/{method}"
-        async with self.session.post(url, json=payload or {}) as response:
+        async with self.session.post(url, json=payload or {}, proxy=self.config.proxy_url) as response:
             body = await response.json(content_type=None)
             if response.status >= 400 or not isinstance(body, dict) or not body.get("ok"):
                 raise RuntimeError(f"Telegram API {method} failed with HTTP {response.status}")
@@ -56,7 +56,7 @@ class TelegramConnector:
         sender_data = message.get("from") if isinstance(message.get("from"), dict) else {}
         chat_id = str(chat.get("id") or "")
         message_id = str(message.get("message_id") or "")
-        if not kind or chat_id not in self.config.allowed_chat_ids or not message_id:
+        if not kind or not self._allowed(chat_id) or not message_id:
             return
         sender = str(sender_data.get("id") or chat_id)
         text = str(message.get("text") or message.get("caption") or "").strip()
@@ -133,7 +133,7 @@ class TelegramConnector:
 
     async def send_text(self, chat_id: str, message_id: int, text: str) -> None:
         """回复原 Telegram 会话。"""
-        if chat_id not in self.config.allowed_chat_ids or not text or len(text) > 4096:
+        if not self._allowed(chat_id) or not text or len(text) > 4096:
             raise ValueError("Telegram reply is invalid")
         await self.api("sendMessage", {"chat_id": chat_id, "text": text,
                                        "reply_parameters": {"message_id": message_id,
@@ -148,7 +148,7 @@ class TelegramConnector:
         if size > self.config.maximum_file_bytes:
             raise ValueError("Telegram file exceeds configured limit")
         url = f"{self.config.api_base_url}/file/bot{self.config.bot_token}/{result['file_path']}"
-        response = await self.session.get(url)
+        response = await self.session.get(url, proxy=self.config.proxy_url)
         if response.status >= 400:
             response.release()
             raise RuntimeError(f"Telegram file request failed with HTTP {response.status}")
@@ -163,6 +163,11 @@ class TelegramConnector:
             finally:
                 response.release()
         return headers, chunks()
+
+    def _allowed(self, chat_id: str) -> bool:
+        """空白名单沿用旧服务语义，允许所有 Telegram 会话。"""
+        return bool(chat_id) and (not self.config.allowed_chat_ids
+                                  or chat_id in self.config.allowed_chat_ids)
 
     async def _internal_json(self, url: str, payload: dict[str, Any]) -> dict[str, Any]:
         headers = {"Authorization": f"Bearer {self.config.messaging_token}"}

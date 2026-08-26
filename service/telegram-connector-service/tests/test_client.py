@@ -12,7 +12,7 @@ class RecordingConnector(TelegramConnector):
 
     def __init__(self) -> None:
         config = Config("telegram_main", "secret", 7, frozenset({"42"}),
-                        "http://telegram.test", "http://messaging.test", "message-token",
+                        "http://telegram.test", None, "http://messaging.test", "message-token",
                         "internal-token", 45, 1024 * 1024)
         super().__init__(config, object())  # type: ignore[arg-type]
         self.payload = None
@@ -47,3 +47,12 @@ def test_rejects_unapproved_chat() -> None:
     asyncio.run(connector.receive({"update_id": 10, "message": {
         "message_id": 13, "chat": {"id": 43}, "text": "ignored"}}))
     assert connector.payload is None
+
+
+def test_empty_allowlist_preserves_legacy_allow_all_semantics() -> None:
+    """旧配置空白名单应继续接收全部会话。"""
+    connector = RecordingConnector()
+    object.__setattr__(connector.config, "allowed_chat_ids", frozenset())
+    asyncio.run(connector.receive({"update_id": 11, "message": {
+        "message_id": 14, "chat": {"id": 43}, "text": "accepted"}}))
+    assert connector.payload is not None
