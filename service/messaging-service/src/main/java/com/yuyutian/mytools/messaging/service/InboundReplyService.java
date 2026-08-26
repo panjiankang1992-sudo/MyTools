@@ -6,6 +6,7 @@ import com.yuyutian.mytools.messaging.model.InboundMessageView;
 import com.yuyutian.mytools.messaging.model.InboundReplyView;
 import com.yuyutian.mytools.messaging.provider.InboundReplyProvider;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -45,7 +46,15 @@ public class InboundReplyService {
         if (provider == null) {
             throw new ProviderNotConfiguredException(message.channelType());
         }
-        provider.reply(message, request.idempotencyKey(), request.body());
+        try {
+            provider.reply(message, request.idempotencyKey(), request.body());
+        } catch (HttpClientErrorException exception) {
+            // 渠道侧的请求无效或目标不存在不会通过重试恢复，转换为稳定的永久失败。
+            if (exception.getStatusCode().value() == 400 || exception.getStatusCode().value() == 404) {
+                throw new InboundReplyRejectedException(exception);
+            }
+            throw exception;
+        }
         return new InboundReplyView(messageId, message.channelType(), "ACCEPTED");
     }
 }

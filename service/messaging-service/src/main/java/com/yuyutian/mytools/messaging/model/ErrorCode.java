@@ -15,7 +15,8 @@ public enum ErrorCode {
     ATTACHMENT_DOWNLOAD_NOT_FOUND("MESSAGING_009", "Attachment download was not found"),
     ATTACHMENT_DOWNLOAD_INVALID("MESSAGING_010", "Attachment cannot be downloaded through the HTTP pipeline"),
     EMAIL_INGRESS_DISABLED("MESSAGING_011", "Email ingress adapter is disabled"),
-    EMAIL_INGRESS_FAILED("MESSAGING_012", "Email ingress poll failed");
+    EMAIL_INGRESS_FAILED("MESSAGING_012", "Email ingress poll failed"),
+    INBOUND_REPLY_REJECTED("MESSAGING_013", "Inbound reply was rejected by the channel provider");
 
     private final String code;
     private final String message;

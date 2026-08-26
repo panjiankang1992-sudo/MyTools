@@ -6,6 +6,7 @@ import com.yuyutian.mytools.messaging.service.DeliveryStateInvalidException;
 import com.yuyutian.mytools.messaging.service.DeliveryInvalidException;
 import com.yuyutian.mytools.messaging.service.ProviderNotConfiguredException;
 import com.yuyutian.mytools.messaging.service.InboundMessageNotFoundException;
+import com.yuyutian.mytools.messaging.service.InboundReplyRejectedException;
 import com.yuyutian.mytools.messaging.service.OneBotIngressDisabledException;
 import com.yuyutian.mytools.messaging.service.OneBotPayloadInvalidException;
 import com.yuyutian.mytools.messaging.service.AttachmentDownloadInvalidException;
@@ -132,5 +133,15 @@ public class MessagingExceptionHandler {
     public Map<String, String> handleEmailIngressFailed(EmailIngressException exception) {
         return Map.of("code", ErrorCode.EMAIL_INGRESS_FAILED.code(),
                 "message", ErrorCode.EMAIL_INGRESS_FAILED.message());
+    }
+
+    /**
+     * 转换渠道提供方永久拒绝回复异常。
+     */
+    @ExceptionHandler(InboundReplyRejectedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleInboundReplyRejected(InboundReplyRejectedException exception) {
+        return Map.of("code", ErrorCode.INBOUND_REPLY_REJECTED.code(),
+                "message", ErrorCode.INBOUND_REPLY_REJECTED.message());
     }
 }

@@ -240,23 +240,21 @@ public class AutomationRepository {
      * @param limit 最大返回数量
      * @return 按创建时间排序的终态事件
      */
-    public List<CompletionEvent> findUnpublishedCompletions(ChannelType channelType, int limit) {
+    public List<CompletionEvent> findUnpublishedCompletions(int limit) {
         return jdbcTemplate.query("""
                 SELECT ao.id AS event_id, ar.id AS run_id, ar.inbound_message_id,
                        ar.status, ar.action_count
                 FROM automation_outbox ao
                 JOIN automation_run ar ON ar.id = ao.aggregate_id
-                JOIN automation_rule rule ON rule.id = ar.automation_rule_id
                 WHERE ao.published_at IS NULL
                   AND ao.event_type = 'AutomationRunCompleted'
-                  AND rule.channel_type = ?
                 ORDER BY ao.created_at, ao.id
                 LIMIT ?
                 """, (resultSet, rowNumber) -> new CompletionEvent(
                 UUID.fromString(resultSet.getString("event_id")),
                 UUID.fromString(resultSet.getString("run_id")),
                 UUID.fromString(resultSet.getString("inbound_message_id")),
-                resultSet.getString("status"), resultSet.getInt("action_count")), channelType.name(), limit);
+                resultSet.getString("status"), resultSet.getInt("action_count")), limit);
     }
 
     /**

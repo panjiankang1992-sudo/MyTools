@@ -2,10 +2,10 @@ package com.yuyutian.mytools.automation.service;
 
 import com.yuyutian.mytools.automation.config.AutomationProperties;
 import com.yuyutian.mytools.automation.model.InboundMessage;
-import com.yuyutian.mytools.automation.model.ChannelType;
 import com.yuyutian.mytools.automation.repository.AutomationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -46,23 +46,30 @@ public class CompletionOutboxRelay {
             return;
         }
         int limit = properties.completionRelayBatchSize() <= 0 ? 50 : properties.completionRelayBatchSize();
-        for (ChannelType channelType : ChannelType.values()) {
-            relayChannel(channelType, limit);
-        }
+        relayBatch(limit);
     }
 
-    private void relayChannel(ChannelType channelType, int limit) {
+    private void relayBatch(int limit) {
         for (AutomationRepository.CompletionEvent event
-                : repository.findUnpublishedCompletions(channelType, limit)) {
+                : repository.findUnpublishedCompletions(limit)) {
             try {
                 InboundMessage message = messagingClient.get(event.messageId());
                 messagingClient.reply(event.messageId(), event.runId(), completionText(event, message));
                 repository.markOutboxPublished(event.eventId());
+            } catch (HttpClientErrorException exception) {
+                if (exception.getStatusCode().value() == 400 || exception.getStatusCode().value() == 404) {
+                    // 历史消息或请求已永久失效，确认丢弃以免单个毒事件阻塞整个完成通知队列。
+                    repository.markOutboxPublished(event.eventId());
+                    LOGGER.warn("Completion relay discarded permanent event: eventId={}, errorType={}",
+                            event.eventId(), exception.getClass().getSimpleName());
+                } else {
+                    LOGGER.warn("Completion relay failed: eventId={}, errorType={}",
+                            event.eventId(), exception.getClass().getSimpleName());
+                }
             } catch (RuntimeException exception) {
                 // 保留未确认事件供下次重试，日志不包含收件地址、正文或鉴权信息。
                 LOGGER.warn("Completion relay failed: eventId={}, errorType={}",
                         event.eventId(), exception.getClass().getSimpleName());
-                break;
             }
         }
     }

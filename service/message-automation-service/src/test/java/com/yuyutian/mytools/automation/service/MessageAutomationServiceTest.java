@@ -106,7 +106,9 @@ class MessageAutomationServiceTest {
                 .thenReturn(new DownloadIngestionClient.DownloadSnapshot(downloadId, "SUCCEEDED"));
 
         var run = service.process(messageId);
-        var events = repository.findUnpublishedCompletions(ChannelType.EMAIL, 10);
+        // 历史迁移运行可能没有保留规则关联，完成通知仍须按入站消息原渠道投递。
+        jdbcTemplate.update("UPDATE automation_run SET automation_rule_id = NULL WHERE id = ?", run.id().toString());
+        var events = repository.findUnpublishedCompletions(10);
 
         assertThat(run.status()).isEqualTo("SUCCEEDED");
         assertThat(events).anySatisfy(event -> {

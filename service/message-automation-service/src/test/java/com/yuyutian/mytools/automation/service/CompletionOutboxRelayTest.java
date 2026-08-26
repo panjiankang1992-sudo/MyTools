@@ -5,6 +5,8 @@ import com.yuyutian.mytools.automation.model.ChannelType;
 import com.yuyutian.mytools.automation.model.InboundMessage;
 import com.yuyutian.mytools.automation.repository.AutomationRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.Instant;
 import java.util.List;
@@ -29,7 +31,7 @@ class CompletionOutboxRelayTest {
         UUID runId = UUID.randomUUID();
         UUID messageId = UUID.randomUUID();
         var event = new AutomationRepository.CompletionEvent(eventId, runId, messageId, "SUCCEEDED", 2);
-        when(repository.findUnpublishedCompletions(ChannelType.EMAIL, 10)).thenReturn(List.of(event));
+        when(repository.findUnpublishedCompletions(10)).thenReturn(List.of(event));
         when(messagingClient.get(messageId)).thenReturn(message(messageId));
         when(messagingClient.reply(messageId, runId, "下载处理已完成，共 2 个文件。"))
                 .thenReturn(new MessagingClient.InboundReplySnapshot(messageId, "EMAIL", "ACCEPTED"));
@@ -48,7 +50,7 @@ class CompletionOutboxRelayTest {
         UUID eventId = UUID.randomUUID();
         UUID runId = UUID.randomUUID();
         UUID messageId = UUID.randomUUID();
-        when(repository.findUnpublishedCompletions(ChannelType.EMAIL, 10)).thenReturn(List.of(
+        when(repository.findUnpublishedCompletions(10)).thenReturn(List.of(
                 new AutomationRepository.CompletionEvent(eventId, runId, messageId, "FAILED", 1)));
         when(messagingClient.get(messageId)).thenThrow(new IllegalStateException("temporary failure"));
 
@@ -56,6 +58,33 @@ class CompletionOutboxRelayTest {
                 downloadClient).relay();
 
         verify(repository, never()).markOutboxPublished(eventId);
+    }
+
+    @Test
+    void shouldDiscardPermanentFailureAndContinueBatch() {
+        AutomationRepository repository = mock(AutomationRepository.class);
+        MessagingClient messagingClient = mock(MessagingClient.class);
+        DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
+        UUID badEventId = UUID.randomUUID();
+        UUID badMessageId = UUID.randomUUID();
+        UUID goodEventId = UUID.randomUUID();
+        UUID goodRunId = UUID.randomUUID();
+        UUID goodMessageId = UUID.randomUUID();
+        when(repository.findUnpublishedCompletions(10)).thenReturn(List.of(
+                new AutomationRepository.CompletionEvent(badEventId, UUID.randomUUID(), badMessageId,
+                        "FAILED", 1),
+                new AutomationRepository.CompletionEvent(goodEventId, goodRunId, goodMessageId,
+                        "SUCCEEDED", 1)));
+        when(messagingClient.get(badMessageId)).thenThrow(
+                new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+        when(messagingClient.get(goodMessageId)).thenReturn(message(goodMessageId));
+        when(messagingClient.reply(goodMessageId, goodRunId, "下载处理已完成，共 1 个文件。"))
+                .thenReturn(new MessagingClient.InboundReplySnapshot(goodMessageId, "EMAIL", "ACCEPTED"));
+
+        new CompletionOutboxRelay(repository, properties(true), messagingClient, downloadClient).relay();
+
+        verify(repository).markOutboxPublished(badEventId);
+        verify(repository).markOutboxPublished(goodEventId);
     }
 
     @Test
@@ -67,7 +96,7 @@ class CompletionOutboxRelayTest {
         UUID runId = UUID.randomUUID();
         UUID messageId = UUID.randomUUID();
         var event = new AutomationRepository.CompletionEvent(eventId, runId, messageId, "SUCCEEDED", 1);
-        when(repository.findUnpublishedCompletions(ChannelType.QQ, 10)).thenReturn(List.of(event));
+        when(repository.findUnpublishedCompletions(10)).thenReturn(List.of(event));
         when(messagingClient.get(messageId)).thenReturn(new InboundMessage(messageId, 21L, ChannelType.QQ,
                 "qq_main:C2C_MESSAGE_CREATE:platform-message", "qq_main:c2c:user", "user",
                 null, "https://example.test/file", Instant.now(), Instant.now()));
