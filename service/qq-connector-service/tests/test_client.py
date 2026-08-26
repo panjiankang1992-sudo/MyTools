@@ -20,7 +20,8 @@ class FakeConnector(QQConnector):
         self.replies = []
         self.actions = []
 
-    async def _messaging_receive(self, payload, sender, message_id, content):
+    async def _messaging_receive(self, payload, sender, message_id, content, target=None,
+                                 conversation_type="c2c"):
         self.actions.append("persist")
         self.received.append((payload["t"], sender, message_id, content))
         return content or "[empty]"
@@ -28,7 +29,8 @@ class FakeConnector(QQConnector):
     async def _relogin_and_reply(self, sender, message_id):
         self.commands.append((sender, message_id))
 
-    async def send_text(self, sender, message_id, text, sequence=1):
+    async def send_text(self, sender, message_id, text, sequence=1,
+                        event_type="C2C_MESSAGE_CREATE"):
         self.actions.append("reply")
         self.replies.append((sender, message_id, text))
 
@@ -55,6 +57,19 @@ def test_exact_authorized_login_command_is_persisted_and_taskized():
         await asyncio.sleep(0)
         assert connector.received == [("C2C_MESSAGE_CREATE", "allowed", "message-1", "登录")]
         assert connector.commands == [("allowed", "message-1")]
+    asyncio.run(scenario())
+
+
+def test_authorized_group_message_is_acknowledged_and_persisted():
+    async def scenario():
+        connector = FakeConnector()
+        payload = event(content="https://example.test/group", message_id="group-message")
+        payload["t"] = "GROUP_AT_MESSAGE_CREATE"
+        payload["d"]["group_openid"] = "group-target"
+        await connector.receive(payload)
+        assert connector.received == [("GROUP_AT_MESSAGE_CREATE", "allowed",
+                                       "group-message", "https://example.test/group")]
+        assert connector.replies[0][0] == "group-target"
     asyncio.run(scenario())
 
 

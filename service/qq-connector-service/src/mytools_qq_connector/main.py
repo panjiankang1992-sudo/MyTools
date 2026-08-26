@@ -36,13 +36,17 @@ async def run() -> None:
             raise web.HTTPUnauthorized()
         payload = await request.json()
         sender = str(payload.get("sender") or "")
+        target = str(payload.get("target") or sender)
+        event_type = str(payload.get("eventType") or "C2C_MESSAGE_CREATE")
         message_id = str(payload.get("messageId") or "")
         text = str(payload.get("text") or "")
         sequence = int(payload.get("sequence") or 2)
-        if sender != config.allowed_sender or not message_id or len(message_id) > 512 \
+        if sender != config.allowed_sender or event_type not in {"C2C_MESSAGE_CREATE", "GROUP_AT_MESSAGE_CREATE",
+                "AT_MESSAGE_CREATE", "DIRECT_MESSAGE_CREATE"} or not target or len(target) > 512 \
+                or not message_id or len(message_id) > 512 \
                 or not text or len(text) > 2000 or sequence < 1 or sequence > 10:
             raise web.HTTPBadRequest()
-        await connector.send_text(sender, message_id, text, sequence)
+        await connector.send_text(target, message_id, text, sequence, event_type)
         return web.json_response({"status": "SENT"})
 
     health.router.add_post("/internal/v1/messages/text", send_text)

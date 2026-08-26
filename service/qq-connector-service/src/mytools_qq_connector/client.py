@@ -22,6 +22,8 @@ COMPOSITE_ATTACHMENT = re.compile(
     r"\[附件\d+\]\s+类型:(?P<type>\S+)\s+文件名:(?P<filename>.*?)\s+"
     r"(?:尺寸:\S+\s+)?大小:(?P<size>\S+)\s+URL:(?P<url>https?://\S+)", re.MULTILINE)
 MAXIMUM_NESTED_VALUES = 100_000
+SUPPORTED_MESSAGE_EVENTS = {"C2C_MESSAGE_CREATE", "GROUP_AT_MESSAGE_CREATE",
+                            "AT_MESSAGE_CREATE", "DIRECT_MESSAGE_CREATE"}
 
 
 class QQConnector:
@@ -65,20 +67,24 @@ class QQConnector:
         sender = str(author.get("user_openid") or author.get("member_openid") or author.get("id") or "")
         message_id = str(data.get("id") or "")
         content = str(data.get("content") or "").strip()
-        if event_type != "C2C_MESSAGE_CREATE" or not sender or not message_id:
+        target, conversation_type = self._conversation(data, event_type, sender)
+        if event_type not in SUPPORTED_MESSAGE_EVENTS or not sender or not message_id or not target:
             return
         attachments = data.get("attachments") if isinstance(data.get("attachments"), list) else []
         is_download = sender == self.config.allowed_sender \
             and (URL_PATTERN.search(content) is not None or bool(attachments))
         if is_download:
             try:
-                await self.send_text(sender, message_id,
-                                     "已收到，正在处理；完成后会发送文件名和标签信息。", 1)
+                await self.send_text(target, message_id,
+                                     "已收到，正在处理；完成后会发送文件名和标签信息。", 1,
+                                     event_type)
             except RuntimeError as exception:
                 # 首次回执失败不得阻断后续入库与任务处理。
                 logger.warning("QQ receipt delivery failed: %s", exception)
-        await self._messaging_receive(payload, sender, message_id, content)
-        if sender == self.config.allowed_sender and content in {"登录", "登陆"}:
+        await self._messaging_receive(payload, sender, message_id, content,
+                                      target, conversation_type)
+        if event_type == "C2C_MESSAGE_CREATE" and sender == self.config.allowed_sender \
+                and content in {"登录", "登陆"}:
             task = asyncio.create_task(self._relogin_and_reply(sender, message_id),
                                        name=f"qq-relogin-{message_id[:16]}")
             task.add_done_callback(self._log_background_failure)
@@ -93,7 +99,8 @@ class QQConnector:
             logger.error("QQ background command failed: %s", exception)
 
     async def _messaging_receive(self, payload: dict[str, Any], sender: str,
-                                 message_id: str, content: str) -> str:
+                                 message_id: str, content: str, target: str | None = None,
+                                 conversation_type: str = "c2c") -> str:
         parts = [{"type": "TEXT", "text": content or "[empty]", "attachmentType": None,
                   "providerFileId": None, "providerAccountKey": None, "sourceUrl": None,
                   "fileName": None, "mimeType": None, "declaredSize": None}]
@@ -128,14 +135,26 @@ class QQConnector:
                                           or attachment.get("name") or f"qq-attachment-{index + 1}")[:1024],
                           "mimeType": mime_type, "declaredSize": declared_size})
         normalized_body = "\n".join(value for value in [content, *attachment_urls] if value) or "[empty]"
+        event_type = str(payload.get("t") or "C2C_MESSAGE_CREATE")
         body = {"ownerId": self.config.owner_id, "channelType": "QQ",
-                "externalMessageId": f"{self.config.account_key}:C2C_MESSAGE_CREATE:{message_id}",
-                "conversationKey": f"{self.config.account_key}:c2c:{sender}", "sender": sender,
+                "externalMessageId": f"{self.config.account_key}:{event_type}:{message_id}",
+                "conversationKey": f"{self.config.account_key}:{conversation_type}:{target or sender}", "sender": sender,
                 "subject": None, "body": normalized_body,
                 "receivedAt": datetime.now(UTC).isoformat(), "parts": parts}
         await self._internal_json("POST", self.config.messaging_url + "/internal/v1/inbound-messages",
                                   body, self.config.messaging_token)
         return normalized_body
+
+    @staticmethod
+    def _conversation(data: dict[str, Any], event_type: str, sender: str) -> tuple[str, str]:
+        """解析不同官方 QQ 消息事件的回复目标和会话类型。"""
+        if event_type == "C2C_MESSAGE_CREATE":
+            return sender, "c2c"
+        if event_type == "GROUP_AT_MESSAGE_CREATE":
+            return str(data.get("group_openid") or ""), "group"
+        if event_type in {"AT_MESSAGE_CREATE", "DIRECT_MESSAGE_CREATE"}:
+            return str(data.get("channel_id") or ""), "channel"
+        return "", "unknown"
 
     @staticmethod
     def _parse_size(value: object) -> int | None:
@@ -266,18 +285,29 @@ class QQConnector:
             "msg_type": 7, "media": {"file_info": file_info}, "content": text,
             "msg_id": message_id, "msg_seq": 1})
 
-    async def send_text(self, sender: str, message_id: str, text: str, sequence: int = 1) -> None:
+    async def send_text(self, target: str, message_id: str, text: str, sequence: int = 1,
+                        event_type: str = "C2C_MESSAGE_CREATE") -> None:
         """被动回复一条有界文本消息。"""
         if not text or len(text) > 2000 or sequence < 1 or sequence > 10:
             raise ValueError("QQ text size is invalid")
-        path = f"/v2/users/{sender}/messages"
+        if event_type == "GROUP_AT_MESSAGE_CREATE":
+            path = f"/v2/groups/{target}/messages"
+        elif event_type in {"AT_MESSAGE_CREATE", "DIRECT_MESSAGE_CREATE"}:
+            path = f"/channels/{target}/messages"
+        else:
+            path = f"/v2/users/{target}/messages"
+        passive = {"content": text, "msg_id": message_id, "msg_seq": sequence}
+        if event_type not in {"AT_MESSAGE_CREATE", "DIRECT_MESSAGE_CREATE"}:
+            passive["msg_type"] = 0
         try:
-            await self._qq_request("POST", path, {
-                "msg_type": 0, "content": text, "msg_id": message_id, "msg_seq": sequence})
+            await self._qq_request("POST", path, passive)
         except RuntimeError as exception:
             if "code=40034024" not in str(exception):
                 raise
-            await self._qq_request("POST", path, {"msg_type": 0, "content": text})
+            active = {"content": text}
+            if event_type not in {"AT_MESSAGE_CREATE", "DIRECT_MESSAGE_CREATE"}:
+                active["msg_type"] = 0
+            await self._qq_request("POST", path, active)
 
     async def _qq_request(self, method: str, path: str,
                           payload: dict | None = None) -> dict:

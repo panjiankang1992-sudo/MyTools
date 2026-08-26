@@ -45,10 +45,15 @@ public class QqInboundReplyProvider implements InboundReplyProvider {
         if (properties.qqConnectorToken() == null || properties.qqConnectorToken().isBlank()) {
             throw new IllegalStateException("QQ Connector token is missing");
         }
+        String[] conversation = message.conversationKey().split(":", 3);
+        if (conversation.length != 3 || conversation[2].isBlank()) {
+            throw new IllegalStateException("QQ conversation identity is invalid");
+        }
         restClient.post().uri("/internal/v1/messages/text")
                 .header("Authorization", "Bearer " + properties.qqConnectorToken())
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("sender", message.sender(), "messageId", identity[2],
+                .body(Map.of("sender", message.sender(), "target", conversation[2],
+                        "eventType", identity[1], "messageId", identity[2],
                         "text", body, "sequence", 2, "idempotencyKey", idempotencyKey))
                 .retrieve().toBodilessEntity();
     }
