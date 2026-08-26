@@ -43,6 +43,14 @@ class CreateDownloadRequest:
             raise ValueError("download request type exceeds maximum length")
         if not isinstance(self.owner_id, int) or isinstance(self.owner_id, bool) or self.owner_id < 0:
             raise ValueError("download request owner is invalid")
+        if not isinstance(self.parameters, dict):
+            raise ValueError("download request parameters are invalid")
+        if self.request_kind == "HTTP_ASSET":
+            # HTTP 原子任务依赖这些稳定字段，必须在创建任务前拒绝不可执行请求。
+            required = ("itemId", "url", "fileName")
+            if any(not isinstance(self.parameters.get(key), str)
+                   or not self.parameters[key].strip() for key in required):
+                raise ValueError("HTTP asset parameters are incomplete")
 
 
 @dataclass(frozen=True, slots=True)

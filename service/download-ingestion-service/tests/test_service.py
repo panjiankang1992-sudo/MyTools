@@ -55,7 +55,8 @@ class DownloadRequestServiceTest(unittest.TestCase):
             source_type="HTTP",
             source_key="https://example.invalid/file",
             request_kind="HTTP_ASSET",
-            parameters={"mediaIndex": 0},
+            parameters={"itemId": "item-42", "url": "https://example.invalid/file",
+                        "fileName": "file.bin", "mediaIndex": 0},
         )
 
         first = service.create(command)
@@ -65,6 +66,17 @@ class DownloadRequestServiceTest(unittest.TestCase):
         self.assertEqual(DownloadStatus.RUNNING, first.status)
         self.assertEqual(1, len(scheduler.calls))
         self.assertEqual("download_http_asset", scheduler.calls[0]["task_name"])
+
+    def test_rejects_incomplete_http_request_before_scheduling(self):
+        """缺少原子任务必需字段的 HTTP 请求不能进入永久失败队列。"""
+        with self.assertRaisesRegex(ValueError, "HTTP asset parameters are incomplete"):
+            CreateDownloadRequest(
+                idempotency_key="http-incomplete",
+                source_type="GATEWAY_HTTP",
+                source_key="incomplete",
+                request_kind="HTTP_ASSET",
+                parameters={"url": "https://example.invalid/file", "fileName": "file.bin"},
+            )
 
     def test_routes_message_attachment_to_controlled_stream_task(self):
         """Provider attachment content is fetched by opaque job id instead of a signed URL."""
@@ -93,7 +105,8 @@ class DownloadRequestServiceTest(unittest.TestCase):
         service = DownloadRequestService(InMemoryDownloadRequestRepository(), scheduler)
         command = CreateDownloadRequest(
             "http:owner-7", "HTTP", "owner-7", "HTTP_ASSET",
-            {"url": "https://example.invalid/7", "fileName": "7.bin", "ownerId": 99},
+            {"itemId": "item-7", "url": "https://example.invalid/7",
+             "fileName": "7.bin", "ownerId": 99},
             owner_id=7)
 
         created = service.create(command)
@@ -108,7 +121,8 @@ class DownloadRequestServiceTest(unittest.TestCase):
         service = DownloadRequestService(repository, scheduler)
         created = service.create(CreateDownloadRequest(
             "http:owner-8", "HTTP", "owner-8", "HTTP_ASSET",
-            {"url": "https://example.invalid/8", "fileName": "8.bin"}, owner_id=8))
+            {"itemId": "item-8", "url": "https://example.invalid/8",
+             "fileName": "8.bin"}, owner_id=8))
 
         self.assertIsNone(service.get_for_owner(created.id, 9))
         self.assertIsNone(service.cancel_for_owner(created.id, 9))
@@ -176,9 +190,9 @@ class DownloadRequestServiceTest(unittest.TestCase):
         repository = InMemoryDownloadRequestRepository()
         service = DownloadRequestService(repository, FakeScheduler())
         first = CreateDownloadRequest("http:key", "HTTP", "source", "HTTP_ASSET",
-                                      {"url": "https://example.invalid/a", "fileName": "a"})
+                                      {"itemId": "a", "url": "https://example.invalid/a", "fileName": "a"})
         second = CreateDownloadRequest("http:key", "HTTP", "source", "HTTP_ASSET",
-                                       {"url": "https://example.invalid/b", "fileName": "b"})
+                                       {"itemId": "b", "url": "https://example.invalid/b", "fileName": "b"})
         service.create(first)
         with self.assertRaisesRegex(ValueError, "idempotency conflict"):
             service.create(second)
@@ -188,12 +202,12 @@ class DownloadRequestServiceTest(unittest.TestCase):
         service = DownloadRequestService(InMemoryDownloadRequestRepository(), FakeScheduler())
         service.create(CreateDownloadRequest(
             "shared:key", "HTTP", "source", "HTTP_ASSET",
-            {"url": "https://example.invalid/a", "fileName": "a"}, owner_id=7))
+            {"itemId": "a", "url": "https://example.invalid/a", "fileName": "a"}, owner_id=7))
 
         with self.assertRaisesRegex(ValueError, "idempotency conflict"):
             service.create(CreateDownloadRequest(
                 "shared:key", "HTTP", "source", "HTTP_ASSET",
-                {"url": "https://example.invalid/a", "fileName": "a"}, owner_id=8))
+                {"itemId": "a", "url": "https://example.invalid/a", "fileName": "a"}, owner_id=8))
 
     def test_reconciles_bound_scheduler_task(self):
         """Query must mirror scheduler state into the aggregate."""

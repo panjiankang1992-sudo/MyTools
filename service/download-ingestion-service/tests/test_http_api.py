@@ -85,7 +85,8 @@ class DownloadHttpApiTest(unittest.TestCase):
         created = self._request("POST", "/api/v1/download-requests", {
             "ownerId": 55, "idempotencyKey": "gateway:55:event-1", "sourceType": "GATEWAY",
             "sourceKey": "55:event-1", "requestKind": "HTTP_ASSET",
-            "parameters": {"url": "https://example.invalid/file", "fileName": "file.bin"}})
+            "parameters": {"itemId": "item-1", "url": "https://example.invalid/file",
+                           "fileName": "file.bin"}})
 
         owned = self._request(
             "GET", f"/internal/v1/download-requests/{created['id']}?ownerId=55")
@@ -104,7 +105,8 @@ class DownloadHttpApiTest(unittest.TestCase):
             self._request("POST", "/api/v1/download-requests", {
                 "ownerId": 55, "idempotencyKey": "gateway:55:event-2", "sourceType": "GATEWAY",
                 "sourceKey": "55:event-2", "requestKind": "HTTP_ASSET",
-                "parameters": {"ownerId": 56, "url": "https://example.invalid/file",
+                "parameters": {"ownerId": 56, "itemId": "item-2",
+                               "url": "https://example.invalid/file",
                                "fileName": "file.bin"}})
         self.assertEqual(400, raised.exception.code)
 
