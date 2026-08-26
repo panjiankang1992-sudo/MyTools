@@ -38,7 +38,8 @@ public class DownloadIngestionClient {
                 "ownerId", ownerId,
                 "idempotencyKey", idempotencyKey,
                 "sourceType", "MESSAGE",
-                "sourceKey", messageId.toString(),
+                // 同一消息可包含多个下载动作，来源键必须包含稳定序号。
+                "sourceKey", messageId + ":" + index,
                 "requestKind", requestKind,
                 "parameters", Map.of("ownerId", ownerId, "itemId", messageId + "-" + index,
                         "url", url, "fileName", fileName));

@@ -32,12 +32,13 @@ class DownloadIngestionClientTest {
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(header("Authorization", "Bearer download-token"))
                 .andExpect(jsonPath("$.ownerId").value(17))
+                .andExpect(jsonPath("$.sourceKey").value(messageId + ":2"))
                 .andExpect(jsonPath("$.parameters.ownerId").value(17))
                 .andRespond(withAccepted().contentType(MediaType.APPLICATION_JSON)
                         .body("{\"id\":\"" + downloadId + "\"}"));
         DownloadIngestionClient client = new DownloadIngestionClient(builder.build(), "download-token");
 
-        assertThat(client.create(messageId, 17L, ruleId, 0, "HTTP_ASSET",
+        assertThat(client.create(messageId, 17L, ruleId, 2, "HTTP_ASSET",
                 "https://example.test/file", "file.bin")).isEqualTo(downloadId.toString());
         server.verify();
     }
