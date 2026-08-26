@@ -26,6 +26,9 @@ def verified_output(context: dict) -> tuple[dict, str]:
     if not output:
         output = dict((context.get("stepOutputs") or {}).get("download_asset") or {})
         producer = "download"
+    if not output:
+        output = dict((context.get("stepOutputs") or {}).get("download_remote_asset") or {})
+        producer = "download"
     if not output and (context.get("stepOutputs") or {}).get("probe"):
         source = Path(str(parameters.get("sourcePath") or ""))
         if not source.is_file():

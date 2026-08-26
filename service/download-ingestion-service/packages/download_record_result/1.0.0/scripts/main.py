@@ -11,8 +11,9 @@ from urllib.request import Request, urlopen
 def build_payload(context: dict) -> dict:
     """Combine immutable outputs from the download and asset registration steps."""
     outputs = context.get("stepOutputs") or {}
-    download = dict(outputs.get("publish_asset") or outputs.get("download_asset") or {})
-    asset = dict(outputs.get("register_asset") or {})
+    download = dict(outputs.get("publish_asset") or outputs.get("download_asset")
+                    or outputs.get("download_remote_asset") or {})
+    asset = dict(outputs.get("register_asset") or outputs.get("register_remote_asset") or {})
     required = ("itemId", "fileName", "contentSha256", "sizeBytes")
     if any(download.get(key) in (None, "") for key in required) or not asset.get("assetId"):
         raise ValueError("preceding download outputs are incomplete")

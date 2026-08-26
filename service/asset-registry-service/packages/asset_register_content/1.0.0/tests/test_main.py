@@ -56,6 +56,15 @@ class AssetRegisterContentTest(unittest.TestCase):
         }, client)
         self.assertEqual("STORAGE_GATEWAY", client.payload["location"]["providerType"])
 
+    def test_registers_remote_download_step_output(self):
+        client = Client()
+        MODULE.execute({
+            "parameters": {"downloadRequestId": "00000000-0000-4000-8000-000000000006"},
+            "stepOutputs": {"download_remote_asset": {"storageUri": "storage://managed/r/a.bin",
+                "contentSha256": "1" * 64, "sizeBytes": 12}}
+        }, client)
+        self.assertEqual("storage://managed/r/a.bin", client.payload["location"]["storageUri"])
+
     def test_prefers_durable_published_download(self):
         client = Client()
         MODULE.execute({

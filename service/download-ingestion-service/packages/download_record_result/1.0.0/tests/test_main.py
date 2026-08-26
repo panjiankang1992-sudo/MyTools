@@ -44,6 +44,16 @@ class DownloadRecordResultTest(unittest.TestCase):
                     "register_asset": {"assetId": "asset-3"}}}
         self.assertEqual("storage://downloads/r/c.bin", MODULE.build_payload(context)["storageUri"])
 
+    def test_combines_remote_storage_step_outputs(self):
+        """Remote storage tasks use their explicit step names."""
+        context = {"stepOutputs": {"download_remote_asset": {"itemId": "i4", "fileName": "d.bin",
+                    "contentSha256": "d" * 64, "sizeBytes": 9,
+                    "storageUri": "storage://managed/r/d.bin"},
+                    "register_remote_asset": {"assetId": "asset-4"}}}
+        payload = MODULE.build_payload(context)
+        self.assertEqual("asset-4", payload["assetId"])
+        self.assertEqual("storage://managed/r/d.bin", payload["storageUri"])
+
 
 if __name__ == "__main__":
     unittest.main()
