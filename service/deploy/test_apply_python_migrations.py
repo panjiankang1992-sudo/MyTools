@@ -25,8 +25,8 @@ class ApplyPythonMigrationsTest(unittest.TestCase):
         manifest = initializer.load_manifest(directory / "services.json")
         services = migrator.python_services(manifest, directory.parent)
 
-        self.assertEqual(5, len(services))
-        self.assertEqual(13, sum(len(migrations) for _, migrations in services))
+        self.assertEqual(6, len(services))
+        self.assertEqual(15, sum(len(migrations) for _, migrations in services))
         self.assertTrue(all(len(migration.checksum) == 64 for _, items in services for migration in items))
 
     def test_rejects_non_contiguous_versions(self) -> None:
