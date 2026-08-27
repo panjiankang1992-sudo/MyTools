@@ -43,14 +43,16 @@ export class ReaderPaginationPolicy {
   private capacity(settings: ReaderSettings, viewport: ReaderViewport, fontScale: number): number {
     const contentWidth = Math.max(160, viewport.width - settings.horizontalPadding * 2);
     const contentHeight = Math.max(240, viewport.height - 122);
-    const widthFactor = Math.max(0.45, Math.min(3.5, contentWidth / 312));
-    const heightFactor = Math.max(0.45, Math.min(3.5, contentHeight / 578));
+    const safeFontScale = Number.isFinite(fontScale) ? Math.max(0.8, Math.min(3.2, fontScale)) : 1;
+    const effectiveFontSize = Math.max(8, settings.fontSize * safeFontScale);
+    // 中文字符接近一个字号宽度，按真实行列数估算，避免单页正文超过可视高度后被内部滚动截断。
+    const charactersPerLine = Math.max(6, Math.floor(contentWidth / effectiveFontSize));
+    const linesPerPage = Math.max(4,
+      Math.floor(contentHeight / Math.max(effectiveFontSize, effectiveFontSize * settings.lineHeight)));
     const spacingFactor = Math.max(0.65, Math.min(1.15, 14 / Math.max(8, settings.paragraphSpacing)));
     const fontFactor = settings.fontFamily === 'monospace' ? 0.82 : (settings.fontFamily === 'serif' ? 0.93 : 1);
-    const safeFontScale = Number.isFinite(fontScale) ? Math.max(0.8, Math.min(3.2, fontScale)) : 1;
-    const value = 1200 * (19 / (settings.fontSize * safeFontScale)) * (1.8 / settings.lineHeight) *
-      widthFactor * heightFactor * spacingFactor * fontFactor;
-    return Math.max(300, Math.min(2400, Math.floor(value)));
+    const value = charactersPerLine * linesPerPage * spacingFactor * fontFactor * 0.9;
+    return Math.max(40, Math.min(1800, Math.floor(value)));
   }
 
   private weight(kind: string): number {

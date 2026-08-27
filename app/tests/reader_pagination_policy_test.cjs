@@ -15,6 +15,17 @@ if (pages.flat().filter(block => block.kind === 'paragraph').map(block => block.
   throw new Error('Pagination must preserve paragraph text');
 }
 
+const screenText = '正文'.repeat(600);
+const screenPages = policy.paginate([], screenText, settings, { width: 360, height: 700 });
+if (screenPages.length < 4) throw new Error('Phone viewport pages must fit their visible text');
+if (screenPages.flat().map(block => block.text).join('') !== screenText) {
+  throw new Error('The final page must preserve the end of the chapter');
+}
+const finalPage = screenPages[screenPages.length - 1];
+if (!finalPage[finalPage.length - 1].text.endsWith(screenText.slice(-16))) {
+  throw new Error('The final page must remain reachable');
+}
+
 const largerFont = policy.paginate([], long, { ...settings, fontSize: 30 });
 if (largerFont.length <= policy.paginate([], long, settings).length) throw new Error('Font size affects page capacity');
 const largerSpacing = policy.paginate([], long, { ...settings, paragraphSpacing: 32 });
