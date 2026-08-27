@@ -16,7 +16,7 @@ interface CachedCatalogResult {
 export class BookSourceLocalCache {
   private static readonly ROOT_NAME: string = 'reader-source-cache-v1';
   private static readonly MAX_RECORD_BYTES: number = 8 * 1024 * 1024;
-  private static readonly MAX_CHAPTER_FILES_PER_BOOK: number = 64;
+  private static readonly MAX_CHAPTER_FILES_PER_BOOK: number = 10000;
   private readonly digestTool: DigestTool = new DigestTool();
   private readonly policy: BookSourceLocalCachePolicy = new BookSourceLocalCachePolicy();
 

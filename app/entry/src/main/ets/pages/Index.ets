@@ -7535,7 +7535,7 @@ struct Index {
    */
   private async PrefetchReaderChapterWindow(book: Book, startIndex: number, revision: number,
     cancellation: DownloadCancellationToken): Promise<void> {
-    const firstIndex = Math.max(0, startIndex - 1);
+    const firstIndex = Math.max(0, startIndex);
     const endIndex = Math.min(this.readerChapters.length - 1, startIndex + this.readerChapterPrefetchCount);
     const source = book.origin === 'source' && book.format === 'unknown' ?
       this.bookSources.find((value: BookSource) => value.bookSourceUrl === book.sourceId) : undefined;
@@ -7548,7 +7548,16 @@ struct Index {
     for (let index = firstIndex; index <= endIndex; index++) {
       if (!this.ReaderChapterPrefetchCurrent(book, revision, cancellation)) return;
       const chapter = this.readerChapters[index];
-      if (chapter === undefined || chapter.content.length > 0) continue;
+      if (chapter === undefined) continue;
+      if (chapter.content.trim().length > 0) {
+        // 当前或已阅读章节可能先进入内存，加入书架后仍必须补写到账户隔离的持久缓存。
+        if (localCacheEnabled && context !== undefined) {
+          await this.bookSourceLocalCache.putChapter(context, this.localAccountScope,
+            source?.bookSourceUrl ?? book.sourceId, book.resourceUri, chapter, index,
+            { kind: 'text', text: chapter.content, imageUris: [], remoteImageUrls: [] });
+        }
+        continue;
+      }
       const resourceUri = chapter.resourceUri ?? '';
       if (resourceUri.startsWith('txt-index:')) {
         chapter.content = this.readerContentLoader.loadIndexedTextChapter(resourceUri);
@@ -13216,6 +13225,60 @@ struct Index {
     this.PersistReaderState();
     if (stored.origin !== 'local') this.QueueShelfBook(this.ShelfItemFromBook(stored));
     this.bookStatus = `已将《${book.name}》加入书架`;
+    this.ScheduleShelfBookLocalCache(stored, this.detailCatalog);
+  }
+
+  /** 加入书架后独立缓存目录、当前阅读位置和后续二十章，不依赖阅读页面继续显示。 */
+  private ScheduleShelfBookLocalCache(book: Book, preparedDocument?: ReaderDocument): void {
+    if (book.origin !== 'source' || book.format !== 'unknown' || this.localAccountScope.length === 0) return;
+    const accountRevision = this.accountOperationRevision;
+    const owner = this.localAccountScope;
+    setTimeout(() => {
+      this.CacheShelfBookWindow(book, preparedDocument, accountRevision, owner)
+        .catch((error: Error) => console.warn(`Shelf book cache failed: ${error.message}`));
+    }, 0);
+  }
+
+  /** 执行书架图书的本地章节缓存窗口。 */
+  private async CacheShelfBookWindow(book: Book, preparedDocument: ReaderDocument | undefined,
+    accountRevision: number, owner: string): Promise<void> {
+    const context = this.ApplicationContext();
+    const source = this.bookSources.find((value: BookSource) => value.bookSourceUrl === book.sourceId);
+    if (context === undefined || source === undefined || !this.ShelfBookCacheCurrent(book, accountRevision, owner)) {
+      return;
+    }
+    const api = new BookSourceRuntimeReaderApi(this.ActiveServiceUrl(), this.authManager);
+    const document = preparedDocument ?? (await api.catalog(source.bookSourceUrl, book.resourceUri)).document;
+    if (!this.ShelfBookCacheCurrent(book, accountRevision, owner)) return;
+    await this.bookSourceLocalCache.putCatalog(context, owner, source.bookSourceUrl, book.resourceUri, document);
+    const progress = this.readingProgress.find((value: ReadingProgress) => value.bookId === book.id);
+    const progressIndex = progress === undefined ? -1 :
+      document.chapters.findIndex((chapter: ReaderChapter) => chapter.title === progress.chapterTitle);
+    const startIndex = Math.max(0, progressIndex);
+    const endIndex = Math.min(document.chapters.length - 1, startIndex + this.readerChapterPrefetchCount);
+    for (let index = startIndex; index <= endIndex; index++) {
+      if (!this.ShelfBookCacheCurrent(book, accountRevision, owner)) return;
+      const chapter = document.chapters[index];
+      if (chapter === undefined) continue;
+      const cached = await this.bookSourceLocalCache.chapter(context, owner, source.bookSourceUrl,
+        book.resourceUri, chapter, index);
+      if (cached !== undefined) continue;
+      const loadedChapter = this.currentBook?.id === book.id ? this.readerChapters[index] : undefined;
+      const content = loadedChapter !== undefined && loadedChapter.content.trim().length > 0 ?
+        { kind: 'text', text: loadedChapter.content, imageUris: [], remoteImageUrls: [] } as SourceChapterContent :
+        await api.content(source.bookSourceUrl, chapter, index);
+      if (content.kind === 'text' && this.ShelfBookCacheCurrent(book, accountRevision, owner)) {
+        await this.bookSourceLocalCache.putChapter(context, owner, source.bookSourceUrl,
+          book.resourceUri, chapter, index, content);
+      }
+      await new Promise<void>((resolve: () => void) => setTimeout(resolve, 40));
+    }
+  }
+
+  private ShelfBookCacheCurrent(book: Book, accountRevision: number, owner: string): boolean {
+    return this.AccountOperationCurrent(accountRevision, owner) &&
+      this.books.some((value: Book) => value.id === book.id && value.sourceId === book.sourceId &&
+        value.resourceUri === book.resourceUri);
   }
 
   private BuildStoredAlternatives(): BookSourceAlternative[] {
@@ -13368,6 +13431,8 @@ struct Index {
         stored.resourceUri, { kind: 'text', chapters: this.readerChapters, imageUris: [] })
         .catch((error: Error) => console.warn(`Source catalog cache failed: ${error.message}`));
     }
+    this.ScheduleShelfBookLocalCache(stored,
+      this.readerChapters.length > 0 ? { kind: 'text', chapters: this.readerChapters, imageUris: [] } : undefined);
     // 试读加入书架后立即把当前章节和后续二十章转为账户隔离的持久缓存。
     this.ScheduleReaderChapterPrefetch();
   }
