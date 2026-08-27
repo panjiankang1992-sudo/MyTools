@@ -437,6 +437,11 @@ export class RemoteMediaApi {
    * 删除当前用户远程账号中的文件或目录。
    */
   async deleteEntry(accountId: string, path: string, recursive: boolean): Promise<void> {
+    if (accountId === 'library' || accountId === 'ebook-library') {
+      if (recursive) throw new Error('MyTools媒体文件不支持递归删除');
+      await this.client.delete(`/api/app/v1/media/items/${this.libraryMediaId(path)}`);
+      return;
+    }
     if (accountId.startsWith('local:')) {
       if (recursive) throw new Error('MyTools媒体文件不支持递归删除');
       await this.client.delete(`/api/localfiles/${this.localFileId(path)}`);

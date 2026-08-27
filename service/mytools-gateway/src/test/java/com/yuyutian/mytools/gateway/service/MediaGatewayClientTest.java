@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
@@ -24,6 +25,22 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class MediaGatewayClientTest {
+    @Test
+    void shouldBindOwnerWhenDeletingMedia() {
+        RestTemplate restTemplate = new RestTemplate();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
+        UUID mediaId = UUID.randomUUID();
+        server.expect(requestTo("http://media/internal/v1/media/items/" + mediaId + "?ownerId=55"))
+                .andExpect(method(DELETE))
+                .andExpect(header("Authorization", "Bearer media-token"))
+                .andExpect(header("X-Correlation-Id", "correlation"))
+                .andRespond(withSuccess());
+
+        new MediaGatewayClient(restTemplate, properties()).delete(55L, mediaId, "correlation");
+
+        server.verify();
+    }
+
     @Test
     void shouldBindOwnerAndForwardOnlyStableListFields() {
         RestTemplate restTemplate = new RestTemplate();

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.http.HttpStatus;
 
@@ -86,6 +87,14 @@ public class MediaGatewayController {
     public MediaView view(@PathVariable UUID mediaId, HttpServletRequest request) {
         GatewayPrincipal principal = requireEnabled(request);
         return client.view(principal.userId(), mediaId, correlation(request));
+    }
+
+    /** 删除当前主体媒体投影。 @param mediaId 媒体标识 @param request HTTP 请求 */
+    @DeleteMapping("/items/{mediaId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable UUID mediaId, HttpServletRequest request) {
+        GatewayPrincipal principal = requireEnabled(request);
+        client.delete(principal.userId(), mediaId, correlation(request));
     }
 
     /** 读取图片原文件作为图库缩略图。 */

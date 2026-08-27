@@ -81,6 +81,21 @@ public class MediaGatewayClient {
         return exchange(url, HttpMethod.GET, null, MediaView.class, correlationId);
     }
 
+    /** 删除当前所有者媒体投影。 @param ownerId 所有者 @param mediaId 媒体标识 @param correlationId 关联标识 */
+    public void delete(long ownerId, UUID mediaId, String correlationId) {
+        String url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/media/items/" + mediaId)
+                .queryParam("ownerId", ownerId).toUriString();
+        try {
+            restTemplate.exchange(url, HttpMethod.DELETE, entity(null, correlationId), Void.class);
+        } catch (HttpStatusCodeException exception) {
+            if (exception.getStatusCode().value() == 404) throw new GatewayNotFoundException();
+            if (exception.getStatusCode().is4xxClientError()) throw new GatewayBadRequestException();
+            throw new GatewayDownstreamException();
+        } catch (ResourceAccessException exception) {
+            throw new GatewayDownstreamException();
+        }
+    }
+
     /**
      * 将媒体内容以恒定内存转发到客户端。
      */

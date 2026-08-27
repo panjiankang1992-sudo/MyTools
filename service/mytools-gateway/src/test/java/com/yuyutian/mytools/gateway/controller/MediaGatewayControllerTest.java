@@ -59,6 +59,17 @@ class MediaGatewayControllerTest {
         MediaGatewayClient client=mock(MediaGatewayClient.class);MediaGatewayController controller=controller(true,client);UUID mediaId=UUID.randomUUID();UUID operationId=UUID.randomUUID();StartAnalysis body=new StartAnalysis("analysis-1","analysis-v2",8,1.5);OperationView operation=new OperationView(operationId,55L,"ANALYSIS","PENDING",Instant.EPOCH,Instant.EPOCH);when(client.startAnalysis(55L,mediaId,body,"correlation")).thenReturn(operation);assertThat(controller.startAnalysis(mediaId,body,request(55L))).isEqualTo(operation);verify(client).startAnalysis(55L,mediaId,body,"correlation");
     }
 
+    @Test
+    void shouldBindOwnerWhenDeletingMedia() {
+        MediaGatewayClient client = mock(MediaGatewayClient.class);
+        MediaGatewayController controller = controller(true, client);
+        UUID mediaId = UUID.randomUUID();
+
+        controller.delete(mediaId, request(55L));
+
+        verify(client).delete(55L, mediaId, "correlation");
+    }
+
     private MockHttpServletRequest request(long userId) {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE,

@@ -50,5 +50,7 @@ printf '%s\n' "$refresh" | grep -Fq 'await this.LoadMediaCatalog();'
 printf '%s\n' "$refresh" | grep -Fq '.videoDirectoryItems(directoryId, this.hideAdultContent, cancellation);'
 printf '%s\n' "$refresh" | grep -Fq 'await this.LoadMediaDirectory();'
 grep -Fq 'await this.client.delete(`/api/localfiles/${this.localFileId(path)}`);' "$api"
+grep -Fq "accountId === 'library' || accountId === 'ebook-library'" "$api"
+grep -Fq 'await this.client.delete(`/api/app/v1/media/items/${this.libraryMediaId(path)}`);' "$api"
 
 echo 'Media action sheet integration policy tests passed'
