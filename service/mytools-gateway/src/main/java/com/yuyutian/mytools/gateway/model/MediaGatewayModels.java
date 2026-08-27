@@ -31,6 +31,9 @@ public final class MediaGatewayModels {
     public record MediaPage(List<MediaView> items, UUID nextAfterId) {
     }
 
+    public record EbookPage(List<MediaView> items, long total, int page, int pageSize) {
+    }
+
     /**
      * 播放进度写入请求，不允许客户端指定 owner。
      */

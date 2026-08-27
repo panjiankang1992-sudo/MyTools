@@ -71,7 +71,7 @@ export class RemoteMediaApi {
 
   /** 获取电子书专用远程来源，包含MyTools EBOOK目录与WebDAV账号。 */
   async listBookSources(cancellation?: DownloadCancellationToken): Promise<RemoteMediaSource[]> {
-    await this.client.get('/api/app/v1/media/items?mimePrefix=text%2F&limit=1', cancellation);
+    await this.client.get('/api/app/v1/media/ebooks?page=1&pageSize=1', cancellation);
     return [{ id: 'ebook-library', name: 'MyTools 电子书', type: 'MYTOOLS_LIBRARY', url: '/',
       isDefault: true, isActive: true, localDirectoryType: 'EBOOK' }];
   }
@@ -113,10 +113,9 @@ export class RemoteMediaApi {
     cancellation?: DownloadCancellationToken, localRootPath: string = '', page: number = 1,
     pageSize: number = 40, keyword: string = '', excludeAdult: boolean = false): Promise<RemoteDirectory> {
     if (accountId === 'ebook-library') {
-      const textItems = await this.libraryItems('text/', 1000, cancellation);
-      const applicationItems = await this.libraryItems('application/', 1000, cancellation);
-      return this.normalizer.normalizeLibraryBooks(textItems.concat(applicationItems), keyword, excludeAdult,
-        page, pageSize);
+      const envelope = await this.client.get(`/api/app/v1/media/ebooks?page=${encodeURIComponent(`${page}`)}` +
+        `&pageSize=${encodeURIComponent(`${pageSize}`)}&keyword=${encodeURIComponent(keyword)}`, cancellation);
+      return this.normalizer.normalizeLibraryBookPage(envelope.data, excludeAdult, page, pageSize);
     }
     if (!accountId.startsWith('local:')) {
       return this.listDirectory(accountId, path, cancellation, localRootPath, page, pageSize);

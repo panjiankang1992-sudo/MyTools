@@ -3,6 +3,7 @@ package com.yuyutian.mytools.gateway.controller;
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaPage;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.EbookPage;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaView;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressRequest;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressView;
@@ -74,6 +75,15 @@ public class MediaGatewayController {
                           HttpServletRequest request) {
         GatewayPrincipal principal = requireEnabled(request);
         return client.list(principal.userId(), afterId, includeMissing, mimePrefix, limit, correlation(request));
+    }
+
+    /** 查询当前主体 EBOOK 目录电子书。 @param page 页码 @param pageSize 页大小 @param keyword 关键字 @param request HTTP 请求 @return 页面 */
+    @GetMapping("/ebooks")
+    public EbookPage ebooks(@RequestParam(defaultValue = "1") @Min(1) int page,
+                            @RequestParam(defaultValue = "40") @Min(1) @Max(100) int pageSize,
+                            @RequestParam(defaultValue = "") String keyword, HttpServletRequest request) {
+        GatewayPrincipal principal = requireEnabled(request);
+        return client.ebooks(principal.userId(), page, pageSize, keyword, correlation(request));
     }
 
     /**

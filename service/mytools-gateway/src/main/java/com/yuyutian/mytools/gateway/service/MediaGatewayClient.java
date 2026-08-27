@@ -2,6 +2,7 @@ package com.yuyutian.mytools.gateway.service;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaPage;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.EbookPage;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaView;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressRequest;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressView;
@@ -65,6 +66,14 @@ public class MediaGatewayClient {
             builder.queryParam("mimePrefix", mimePrefix);
         }
         return exchange(builder.toUriString(), HttpMethod.GET, null, MediaPage.class, correlationId);
+    }
+
+    /** 查询 EBOOK 目录电子书。 @param ownerId 所有者 @param page 页码 @param pageSize 页大小 @param keyword 关键字 @param correlationId 关联标识 @return 页面 */
+    public EbookPage ebooks(long ownerId, int page, int pageSize, String keyword, String correlationId) {
+        String url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/media/ebooks")
+                .queryParam("ownerId", ownerId).queryParam("page", page).queryParam("pageSize", pageSize)
+                .queryParam("keyword", keyword == null ? "" : keyword).toUriString();
+        return exchange(url, HttpMethod.GET, null, EbookPage.class, correlationId);
     }
 
     /**

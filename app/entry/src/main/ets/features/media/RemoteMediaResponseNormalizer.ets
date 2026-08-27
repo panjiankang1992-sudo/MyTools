@@ -59,6 +59,19 @@ export class RemoteMediaResponseNormalizer {
     return { path: '/', items, total: items.length, page: 1, pageSize: 100 };
   }
   /** 将媒体库中已迁移的电子书文件投影为远程书库。 */
+  normalizeLibraryBookPage(value: Object | undefined, excludeAdult: boolean,
+    page: number = 1, pageSize: number = 40): RemoteDirectory {
+    const record = this.record(value);
+    const raw = record?.['items'];
+    const total = record?.['total'];
+    if (!Array.isArray(raw) || typeof total !== 'number' || !Number.isSafeInteger(total) || total < 0) {
+      throw new Error('电子书目录分页响应无效');
+    }
+    const normalized = this.normalizeLibraryBooks(raw, '', excludeAdult, 1, Math.min(100, Math.max(1, pageSize)));
+    return { path: normalized.path, items: normalized.items, total, page, pageSize };
+  }
+
+  /** 将媒体库中已迁移的电子书文件投影为远程书库。 */
   normalizeLibraryBooks(values: Object[], keyword: string, excludeAdult: boolean,
     page: number = 1, pageSize: number = 40): RemoteDirectory {
     const query = keyword.trim().toLocaleLowerCase().substring(0, 100);
@@ -74,7 +87,6 @@ export class RemoteMediaResponseNormalizer {
       const extension = normalizedName.split('.').pop() ?? '';
       if (child === undefined || id === undefined || name === undefined || /[\\/]/.test(name) ||
         typeof size !== 'number' || !Number.isSafeInteger(size) || size < 0 ||
-        normalizedName === 'summary.txt' ||
         !['txt', 'epub', 'pdf', 'mobi', 'azw3', 'cbz', 'cbr'].includes(extension) ||
         query.length > 0 && !name.toLocaleLowerCase().includes(query) ||
         excludeAdult && tags.some((tag: RemoteMediaTag): boolean => tag.name.toLocaleLowerCase() === 'r18')) return;
