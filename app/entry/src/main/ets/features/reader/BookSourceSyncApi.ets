@@ -11,9 +11,7 @@ interface SaveSourceRequest {
   syncKey: string;
   sourceUrl: string;
   snapshotJson: string;
-  updatedAt: number;
   deleted: boolean;
-  revision: number;
 }
 
 interface BatchSaveSourceRequest {
@@ -24,8 +22,8 @@ interface BatchSaveSourceRequest {
  * 与MyTools后端同步不含凭据的声明式书源快照。
  */
 export class BookSourceSyncApi {
-  private static readonly MAX_BATCH_ITEMS: number = 200;
-  private static readonly MAX_BATCH_ESTIMATED_BYTES: number = 1536 * 1024;
+  private static readonly MAX_BATCH_ITEMS: number = 50;
+  private static readonly MAX_BATCH_ESTIMATED_BYTES: number = 256 * 1024;
   private readonly client: AuthorizedApiClient;
   private readonly digestTool: DigestTool = new DigestTool();
   private readonly normalizer: ReaderSyncResponseNormalizer = new ReaderSyncResponseNormalizer();
@@ -80,9 +78,7 @@ export class BookSourceSyncApi {
       syncKey: `sha256:${await this.digestTool.digestText(source.sourceUrl, 'SHA256')}`,
       sourceUrl: source.sourceUrl,
       snapshotJson: source.snapshotJson,
-      updatedAt: source.updatedAt,
-      deleted: source.deleted,
-      revision: source.revision
+      deleted: source.deleted
     };
   }
 }

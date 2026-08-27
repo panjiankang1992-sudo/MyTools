@@ -1,0 +1,37 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="14" y1="8" x2="116" y2="124" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#16C08D"/>
+      <stop offset="0.46" stop-color="#0DA678"/>
+      <stop offset="1" stop-color="#09835E"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(26 26) rotate(90) scale(40)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D7FFEE"/>
+      <stop offset="1" stop-color="#D7FFEE" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="mark" x1="42" y1="47" x2="86" y2="59" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#066A49"/>
+      <stop offset="0.5" stop-color="#0DA678"/>
+      <stop offset="1" stop-color="#066A49"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="128" height="128" rx="30" fill="url(#bg)"/>
+  <circle cx="25" cy="25" r="34" fill="url(#glow)" opacity="0.55"/>
+
+  <!-- 顶部玻璃高光 -->
+  <path d="M16 34C24 12 44 4 66 6C84 8 100 18 112 34L112 16C112 10.5 107.5 6 102 6L26 6C20.5 6 16 10.5 16 16V34Z" fill="white" opacity="0.16"/>
+
+  <!-- 开卷书本（左/右页） -->
+  <path d="M27 39C27 33.4772 31.4772 29 37 29H53C59.0751 29 64 33.9249 64 40V94C60.7028 88.5562 54.8013 85 48 85H37C31.4772 85 27 80.5228 27 75V39Z" fill="white"/>
+  <path d="M101 39C101 33.4772 96.5228 29 91 29H75C68.9249 29 64 33.9249 64 40V94C67.2972 88.5562 73.1987 85 80 85H91C96.5228 85 101 80.5228 101 75V39Z" fill="white" fill-opacity="0.94"/>
+
+  <!-- 阅读进度折线 -->
+  <path d="M42 47L54 58L64 46L74 58L86 47" stroke="url(#mark)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M43 70H54M74 70H85" stroke="#0DA678" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- 多功能圆点 -->
+  <circle cx="64" cy="103" r="4" fill="white"/>
+  <circle cx="49" cy="101" r="3" fill="white" fill-opacity="0.58"/>
+  <circle cx="79" cy="101" r="3" fill="white" fill-opacity="0.58"/>
+</svg>

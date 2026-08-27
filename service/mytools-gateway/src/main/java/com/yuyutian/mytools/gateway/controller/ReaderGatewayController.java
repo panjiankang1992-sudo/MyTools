@@ -17,6 +17,7 @@ import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.HealthCheckVie
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
 import com.yuyutian.mytools.gateway.service.ReaderGatewayClient;
+import com.yuyutian.mytools.gateway.service.BookSourceRuntimeSearchGatewayClient;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,13 +51,28 @@ public class ReaderGatewayController {
 
     private final GatewayProperties properties;
     private final ReaderGatewayClient client;
+    private final BookSourceRuntimeSearchGatewayClient runtimeSearchClient;
 
     /**
      * 创建 Reader Gateway 控制器。
      */
     public ReaderGatewayController(GatewayProperties properties, ReaderGatewayClient client) {
+        this(properties, client, null);
+    }
+
+    /**
+     * 创建包含书源运行时搜索代理的 Reader Gateway 控制器。
+     *
+     * @param properties Gateway配置
+     * @param client Reader服务客户端
+     * @param runtimeSearchClient 书源运行时搜索客户端
+     */
+    @Autowired
+    public ReaderGatewayController(GatewayProperties properties, ReaderGatewayClient client,
+                                   BookSourceRuntimeSearchGatewayClient runtimeSearchClient) {
         this.properties = properties;
         this.client = client;
+        this.runtimeSearchClient = runtimeSearchClient;
     }
 
     /**
@@ -109,6 +126,39 @@ public class ReaderGatewayController {
             return payload;
         }).toList();
         return client.saveSources(payloads, correlation(request));
+    }
+
+    /** 启动全部已启用书源的并发搜索。 */
+    @PostMapping("/source-search")
+    public Map<String, Object> startRuntimeSearch(@Valid @RequestBody RuntimeSearchRequest body,
+                                                  HttpServletRequest request) {
+        requireAllowed(request);
+        return requiredRuntimeSearchClient().start(principal(request).userId(), Map.of("keyword", body.keyword(),
+                "page", body.page(), "mode", body.mode()), correlation(request));
+    }
+
+    /** 查询书源并发搜索任务。 */
+    @GetMapping("/source-search/{taskId}")
+    public Map<String, Object> runtimeSearch(@PathVariable UUID taskId,
+                                             @RequestParam(defaultValue = "0") @Min(0) int offset,
+                                             @RequestParam(defaultValue = "200") @Min(1) int limit,
+                                             HttpServletRequest request) {
+        requireAllowed(request);
+        return requiredRuntimeSearchClient().find(principal(request).userId(), taskId.toString(), offset,
+                Math.min(limit, 200), correlation(request));
+    }
+
+    /** 取消书源并发搜索任务。 */
+    @org.springframework.web.bind.annotation.DeleteMapping("/source-search/{taskId}")
+    public Map<String, Object> cancelRuntimeSearch(@PathVariable UUID taskId, HttpServletRequest request) {
+        requireAllowed(request);
+        return requiredRuntimeSearchClient().cancel(principal(request).userId(), taskId.toString(),
+                correlation(request));
+    }
+
+    private BookSourceRuntimeSearchGatewayClient requiredRuntimeSearchClient() {
+        if (runtimeSearchClient == null) throw new IllegalStateException("Reader Runtime search is unavailable");
+        return runtimeSearchClient;
     }
 
     /** 查询当前主体已发布的电子书索引。 @param request HTTP 请求 @return 索引 */
@@ -487,11 +537,17 @@ public class ReaderGatewayController {
     public record SourceRequest(@NotBlank @Size(max = 255) String syncKey,
                                 @NotBlank @Size(max = 2000) String sourceUrl,
                                 @NotBlank @Size(max = 524288) String snapshotJson,
-                                boolean deleted) {
+                                boolean deleted, Long updatedAt, Long revision) {
     }
 
     /** Gateway 书源批量写入请求。 */
     public record SourceBatchRequest(@NotEmpty @Size(max = 200) List<@Valid SourceRequest> sources) {
+    }
+
+    /** Gateway书源并发搜索请求。 */
+    public record RuntimeSearchRequest(@NotBlank @Size(max = 200) String keyword,
+                                       @Min(1) int page,
+                                       @jakarta.validation.constraints.Pattern(regexp = "EXACT|FUZZY") String mode) {
     }
 
     /**

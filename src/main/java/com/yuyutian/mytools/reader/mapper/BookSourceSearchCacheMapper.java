@@ -26,8 +26,8 @@ public interface BookSourceSearchCacheMapper {
      * @return 当前查询下仍有效的各书源缓存
      */
     @Select("SELECT user_id AS userId, normalized_keyword AS normalizedKeyword, query_mode AS queryMode, "
-            + "source_id AS sourceId, page, source_revision AS sourceRevision, results_json AS resultsJson, "
-            + "cache_status AS cacheStatus, result_count AS resultCount, created_at AS createdAt, "
+            + "source_id AS sourceId, page, source_revision AS sourceRevision, cache_status AS cacheStatus, "
+            + "results_json AS resultsJson, result_count AS resultCount, created_at AS createdAt, "
             + "expires_at AS expiresAt "
             + "FROM t_book_source_search_cache WHERE user_id = #{userId} "
             + "AND normalized_keyword = #{normalizedKeyword} AND query_mode = #{queryMode} "

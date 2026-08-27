@@ -84,7 +84,8 @@ class ReaderGatewayControllerTest {
         ReaderGatewayClient client = mock(ReaderGatewayClient.class);
         ReaderGatewayController controller = new ReaderGatewayController(properties(true), client);
         var source = new ReaderGatewayController.SourceRequest(
-                "sha256:key", "https://source.example", "{\"bookSourceUrl\":\"https://source.example\"}", false);
+                "sha256:key", "https://source.example", "{\"bookSourceUrl\":\"https://source.example\"}",
+                false, 1720000000000L, 2L);
         when(client.saveSources(org.mockito.ArgumentMatchers.anyList(), eq("correlation")))
                 .thenReturn(Map.of("accepted", 1));
 

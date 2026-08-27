@@ -28,7 +28,8 @@ if grep -Fq '/api/app/v1/reader/book-searches' "$api"; then
 fi
 grep -Fq '缓存 ${task.cachedSources} · 已查 ${searchedSources}/${task.pendingSources}' "$page"
 grep -Fq 'await this.EnsureRuntimeBookSourcesSynchronized();' "$page"
-grep -Fq 'private static readonly MAX_BATCH_ITEMS: number = 200;' "$sync_api"
+grep -Fq 'private static readonly MAX_BATCH_ITEMS: number = 50;' "$sync_api"
+grep -Fq 'private static readonly MAX_BATCH_ESTIMATED_BYTES: number = 256 * 1024;' "$sync_api"
 grep -Fq "putJson('/api/app/v1/reader/sources/batch', request)" "$sync_api"
 
 echo 'book source search mode policy tests passed'
