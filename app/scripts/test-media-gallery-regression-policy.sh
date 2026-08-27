@@ -17,6 +17,10 @@ grep -Fq 'this.activeMediaCatalogThumbnailCancellation?.cancel();' "$page"
 grep -Fq '标签筛选后先恢复磁盘缓存' "$page"
 grep -Fq 'revision !== this.mediaCatalogThumbnailRevision' "$page"
 grep -Fq 'Text(`${this.mediaCatalogTotal} 个`)' "$page"
+if sed -n '/private MediaCatalogItemTags(/,/^  }/p' "$page" | grep -Fq "}.width('100%').padding(8)"; then
+  echo 'media tag overlay must not cover the whole thumbnail click area' >&2
+  exit 1
+fi
 grep -Fq 'const source = this.IsCatalogMediaPath(item.path) ? this.CatalogLocalMediaSource() : configuredSource;' "$page"
 grep -Fq "SymbolGlyph(\$r('sys.symbol.ellipsis_circle')).fontSize(16)" "$page"
 if grep -Fq ".backgroundColor('#B30F172A')" <(sed -n '/private MediaCatalogActionButton(/,/^  }/p' "$page"); then

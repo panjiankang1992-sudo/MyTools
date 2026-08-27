@@ -2858,7 +2858,8 @@ struct Index {
         Text(`+${item.tags.length - 3}`).height(26).fontSize(10).fontColor(Color.White)
           .padding({ left: 7, right: 7 }).borderRadius(9).backgroundColor('#B30F172A')
       }
-    }.width('100%').padding(8)
+    // 标签浮层只占用实际内容宽度，避免透明区域吞掉底层图片的查看点击。
+    }.padding(8)
   }
 
   @Builder
