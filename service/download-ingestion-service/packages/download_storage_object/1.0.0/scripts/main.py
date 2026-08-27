@@ -26,8 +26,16 @@ USERNAME = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
 
 def music_metadata(parameters: dict, file_name: str, opener=urlopen) -> dict:
     """使用模型选择专辑并生成音频描述，模型不可用时确定性降级。"""
+    candidates = list(parameters.get("musicAlbums") or [])
+    if not candidates:
+        username = str(parameters.get("resourceUsername") or "")
+        library = Path(os.getenv("MUSIC_LIBRARY_ROOT", "/opt/extend/resource")) / username / "music"
+        try:
+            candidates = [path.name for path in library.iterdir() if path.is_dir() and not path.is_symlink()]
+        except OSError:
+            candidates = []
     existing = [SAFE_DIRECTORY.sub("_", str(value)).strip("._-")[:96]
-                for value in (parameters.get("musicAlbums") or [])][:200]
+                for value in candidates][:200]
     existing = [value for value in existing if value]
     fallback = SAFE_DIRECTORY.sub("_", str(parameters.get("musicAlbum") or "Unknown")).strip("._-") or "Unknown"
     description = f"Audio file {file_name}."[:2000]

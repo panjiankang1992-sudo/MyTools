@@ -31,6 +31,17 @@ class ResourceMigrationTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 MODULE.migrate(root, "yuyutian", False)
 
+    def test_rechecks_an_already_migrated_layout(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            for name in MODULE.DIRECTORIES:
+                target = root / "yuyutian" / name
+                target.mkdir(parents=True)
+                (target / f"{name}.bin").write_bytes(name.encode())
+            report = MODULE.migrate(root, "yuyutian", True)
+            self.assertTrue(all(item["alreadyMigrated"] for item in report["operations"]))
+            self.assertTrue((root / "yuyutian" / "music").is_dir())
+
 
 if __name__ == "__main__":
     unittest.main()

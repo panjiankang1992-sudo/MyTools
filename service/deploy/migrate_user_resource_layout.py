@@ -24,8 +24,12 @@ def inventory(path: Path) -> tuple[int, int]:
         for name in names:
             candidate = Path(root) / name
             if candidate.is_file() and not candidate.is_symlink():
-                files += 1
-                size += candidate.stat().st_size
+                try:
+                    size += candidate.stat().st_size
+                    files += 1
+                except FileNotFoundError:
+                    # 盘点期间派生文件可能被原子替换，忽略已消失的目录项并继续核验稳定文件。
+                    continue
     return files, size
 
 
@@ -43,8 +47,10 @@ def migrate(root: Path, username: str, apply: bool) -> dict:
         before = inventory(source)
         if source.exists() and target.exists():
             raise ValueError(f"both source and target exist: {name}")
+        current = before if source.exists() else inventory(target)
         operations.append({"name": name, "source": str(source), "target": str(target),
-                           "files": before[0], "bytes": before[1], "present": source.exists()})
+                           "files": current[0], "bytes": current[1], "present": source.exists(),
+                           "alreadyMigrated": target.exists() and not source.exists()})
     if apply:
         user_root.mkdir(mode=0o750, parents=True, exist_ok=True)
         for operation in operations:
