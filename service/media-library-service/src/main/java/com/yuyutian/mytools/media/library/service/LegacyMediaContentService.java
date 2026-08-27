@@ -108,14 +108,20 @@ public class LegacyMediaContentService {
         }
     }
 
-    private Path resolveMigratedPath(Path storedPath) {
+    Path resolveMigratedPath(Path storedPath) {
         Path normalized = storedPath.toAbsolutePath().normalize();
-        if (Files.exists(normalized) || !normalized.startsWith(RESOURCE_ROOT)) {
+        Path userResourceRoot = RESOURCE_ROOT.resolve(resourceUsername).normalize();
+        // 新目录已经包含用户名层时必须原样解析，不能在文件暂时缺失时重复拼接用户名。
+        if (normalized.startsWith(userResourceRoot)) {
             return normalized;
         }
+        if (!normalized.startsWith(RESOURCE_ROOT)) {
+            return normalized;
+        }
+        // 旧库仍可能保存 resource/media/...，只为这种旧路径补齐用户名层。
         Path relative = RESOURCE_ROOT.relativize(normalized);
-        Path migrated = RESOURCE_ROOT.resolve(resourceUsername).resolve(relative).normalize();
-        if (!migrated.startsWith(RESOURCE_ROOT.resolve(resourceUsername))) {
+        Path migrated = userResourceRoot.resolve(relative).normalize();
+        if (!migrated.startsWith(userResourceRoot)) {
             throw new IllegalArgumentException("media content path is invalid");
         }
         return migrated;
