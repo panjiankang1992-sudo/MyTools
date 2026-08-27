@@ -625,6 +625,7 @@ struct Index {
   private readonly tabScrollers: Scroller[] = [new Scroller(), new Scroller(), new Scroller(), new Scroller(),
     new Scroller()];
   private sourceSearchReturnOffset: number = 0;
+  private sourceSearchScroller: Scroller = new Scroller();
   private sourceSearchReturnPending: boolean = false;
   private sourceSearchReturnRevision: number = 0;
   private sourceSearchReturnRestoreScheduled: boolean = false;
@@ -992,6 +993,9 @@ struct Index {
       this.PageHeader(this.tabs[index].title)
       if (index === 3) {
         this.MediaPage()
+      } else if (index === 0 && this.bookModeIndex === 0 && this.sourceSearchPageVisible) {
+        // 搜索页的返回栏和搜索框固定，只让结果列表滚动。
+        this.BookSourceSearchResultsPage()
       } else {
         Scroll(this.tabScrollers[index]) {
           Column({ space: 14 }) {
@@ -4758,16 +4762,22 @@ struct Index {
       if (this.bookStatus.length > 0) {
         Text(this.bookStatus).width('100%').maxLines(2).fontSize(12).fontColor(AppTheme.textSecondary)
       }
-      if (this.sourceSearchResults.length > 0) {
-        ForEach(this.VisibleBookSourceSearchResults(), (result: BookSourceSearchResult) => {
-          this.BookSourceResultRow(result)
-        }, (result: BookSourceSearchResult) => this.BookSourceResultIdentity(result))
-      } else if (this.sourceSearchLoading) {
-        this.NetworkLoadingRows('后端正在搜索已启用书源')
-      } else {
-        this.PlaceholderRow('暂无搜索结果', '可以更换关键词或搜索模式')
-      }
-    }.width('100%').alignItems(HorizontalAlign.Start)
+      Scroll(this.sourceSearchScroller) {
+        Column() {
+          if (this.sourceSearchResults.length > 0) {
+            ForEach(this.VisibleBookSourceSearchResults(), (result: BookSourceSearchResult) => {
+              this.BookSourceResultRow(result)
+            }, (result: BookSourceSearchResult) => this.BookSourceResultIdentity(result))
+          } else if (this.sourceSearchLoading) {
+            this.NetworkLoadingRows('后端正在搜索已启用书源')
+          } else {
+            this.PlaceholderRow('暂无搜索结果', '可以更换关键词或搜索模式')
+          }
+        }.width('100%').alignItems(HorizontalAlign.Start).padding({ bottom: 18 })
+      }.width('100%').layoutWeight(1).align(Alignment.TopStart)
+        .edgeEffect(EdgeEffect.None).scrollBar(BarState.Off)
+        .onReachEnd(() => this.LoadMoreBookSourceSearchResults())
+    }.width('100%').layoutWeight(1).alignItems(HorizontalAlign.Start)
       .onAppear(() => this.RestoreBookSourceSearchReturnPosition())
   }
 
@@ -6878,7 +6888,7 @@ struct Index {
     const openRevision = ++this.readerOpenRevision;
     const accountRevision = this.accountOperationRevision;
     const owner = this.localAccountScope;
-    const lifecycleRevision = this.pageLifecycleRevision;
+    let lifecycleRevision = this.pageLifecycleRevision;
     const loader = new ReaderContentLoader();
     this.readerOpeningLoader = loader;
     this.sourceChapterLoadRevision++;
@@ -6890,6 +6900,8 @@ struct Index {
     this.readerViewportWidth = 360;
     this.readerViewportHeight = 700;
     this.ApplyReaderOrientation(this.readerSettings.orientation);
+    // 应用阅读方向可能触发页面可见性回调；以方向切换完成后的生命周期为本次打开基线。
+    lifecycleRevision = this.pageLifecycleRevision;
     this.StartReaderPersistenceTimer();
     this.readerControlsVisible = false;
     this.readerSettingsVisible = false;
@@ -6977,20 +6989,27 @@ struct Index {
           loader, await loader.loadRemoteArchive(context, descriptor.url, book.format, undefined,
             book.id, book.cacheVersion));
       } else if (book.origin === 'source') {
+        this.readerStatus = '正在准备书源图书…';
         if (!book.resourceUri.startsWith('https://') && !book.resourceUri.startsWith('http://')) {
           throw new Error('书源没有返回有效图书地址');
         }
         // 规则型小说命中本地目录和正文时不触发DNS或临时网络请求；真正回源前再执行地址安全校验。
-        if (book.format !== 'unknown') await this.sourceUrlPolicy.assertSafe(book.resourceUri);
-        if (!this.ReaderOpenCurrent(openRevision, accountRevision, owner, lifecycleRevision, book)) return;
-        let sourceRequestHeaders: Record<string, string> = {};
-        if (book.id.startsWith('opds:')) {
-          const authorization = await this.opdsCredentialStore.authorizationFor(book.resourceUri);
-          if (authorization !== undefined) sourceRequestHeaders.Authorization = authorization;
-        } else {
-          sourceRequestHeaders = await this.bookSourceCredentialStore.headersFor(book.sourceId, book.resourceUri);
+        if (book.format !== 'unknown') {
+          this.readerStatus = '正在验证图书地址…';
+          await this.sourceUrlPolicy.assertSafe(book.resourceUri);
         }
         if (!this.ReaderOpenCurrent(openRevision, accountRevision, owner, lifecycleRevision, book)) return;
+        let sourceRequestHeaders: Record<string, string> = {};
+        if (book.format !== 'unknown') {
+          // 只有APP直连文件时才读取端侧凭据；规则型书源由后端执行，避免Asset Store阻塞打开流程。
+          if (book.id.startsWith('opds:')) {
+            const authorization = await this.opdsCredentialStore.authorizationFor(book.resourceUri);
+            if (authorization !== undefined) sourceRequestHeaders.Authorization = authorization;
+          } else {
+            sourceRequestHeaders = await this.bookSourceCredentialStore.headersFor(book.sourceId, book.resourceUri);
+          }
+          if (!this.ReaderOpenCurrent(openRevision, accountRevision, owner, lifecycleRevision, book)) return;
+        }
         if (book.format === 'txt') {
           this.ApplyOpenedReaderDocument(openRevision, accountRevision, owner, lifecycleRevision, book,
             loader, await loader.loadRemoteText(context, book.resourceUri, sourceRequestHeaders));
@@ -7013,6 +7032,7 @@ struct Index {
           let catalog = cachedCatalog;
           let localCatalogCachedAt = 0;
           if (catalog === undefined && localCacheEnabled) {
+            this.readerStatus = '正在读取本地目录…';
             const localCatalog = await this.bookSourceLocalCache.catalog(context, owner,
               source.bookSourceUrl, book.resourceUri);
             if (localCatalog !== undefined) {
@@ -7021,12 +7041,13 @@ struct Index {
             }
           }
           if (catalog === undefined) {
-            await this.sourceUrlPolicy.assertSafe(book.resourceUri);
+            // 规则型书源由后端代理执行并完成SSRF校验，APP不再使用无超时的本地DNS解析阻塞打开。
+            this.readerStatus = '正在加载图书目录…';
             const cancellation = new DownloadCancellationToken();
             this.activeSourceCatalogCancellation = cancellation;
             try {
               catalog = (await new BookSourceRuntimeReaderApi(this.ActiveServiceUrl(), this.authManager)
-                .catalog(source.bookSourceUrl, book.resourceUri)).document;
+                .catalog(source.bookSourceUrl, book.resourceUri, cancellation)).document;
               if (localCacheEnabled) {
                 await this.bookSourceLocalCache.putCatalog(context, owner, source.bookSourceUrl,
                   book.resourceUri, catalog);
@@ -7068,9 +7089,10 @@ struct Index {
   }
 
   private ReaderOpenCurrent(openRevision: number, accountRevision: number, owner: string,
-    lifecycleRevision: number, book: Book): boolean {
-    return openRevision === this.readerOpenRevision && lifecycleRevision === this.pageLifecycleRevision &&
-      this.AccountOperationCurrent(accountRevision, owner) && this.readerVisible && this.currentBook === book;
+    _lifecycleRevision: number, book: Book): boolean {
+    // 阅读方向切换会触发页面可见性回调，不能据此误杀仍在前台的打开任务；销毁时由取消令牌负责终止网络。
+    return openRevision === this.readerOpenRevision && this.AccountOperationCurrent(accountRevision, owner) &&
+      this.readerVisible && this.currentBook?.id === book.id;
   }
 
   /** 仅对已加入当前账户书架的规则型网络小说启用持久化章节缓存。 */
@@ -7262,7 +7284,9 @@ struct Index {
       return;
     }
     this.readerContinuousStartIndex = Math.max(0, index - 1);
-    this.readerContinuousEndIndex = Math.min(this.readerChapters.length - 1, index + 1);
+    // 与本地缓存策略保持一致，当前章后的20章直接挂载到连续阅读窗口。
+    this.readerContinuousEndIndex = Math.min(this.readerChapters.length - 1,
+      index + this.readerChapterPrefetchCount);
     this.EnsureContinuousReaderContent(this.readerContinuousStartIndex, this.readerContinuousEndIndex);
   }
 
@@ -7271,7 +7295,7 @@ struct Index {
     if (this.readerChapters.length === 0) return;
     this.readerContinuousStartIndex = Math.max(0, Math.min(index, this.readerChapters.length - 1));
     this.readerContinuousEndIndex = Math.min(this.readerChapters.length - 1,
-      this.readerContinuousStartIndex + 1);
+      this.readerContinuousStartIndex + this.readerChapterPrefetchCount);
     this.EnsureContinuousReaderContent(this.readerContinuousStartIndex, this.readerContinuousEndIndex);
   }
 
@@ -7350,7 +7374,8 @@ struct Index {
   private ExtendReaderContinuousWindow(direction: number): void {
     if (!this.ReaderUsesWindowedContinuousText() || this.readerChapters.length === 0) return;
     if (direction > 0) {
-      const end = Math.min(this.readerChapters.length - 1, this.readerContinuousEndIndex + 1);
+      const end = Math.min(this.readerChapters.length - 1,
+        this.readerContinuousEndIndex + this.readerChapterPrefetchCount);
       if (end === this.readerContinuousEndIndex) return;
       this.EnsureContinuousReaderContent(this.readerContinuousEndIndex + 1, end);
       this.readerContinuousEndIndex = end;
@@ -7583,6 +7608,8 @@ struct Index {
           if (content.kind === 'text') {
             chapter.content = content.text;
             changed = true;
+            // 每章完成就刷新连续阅读窗口，不等后续20章全部请求完成。
+            this.readerChapters = this.readerChapters.slice();
           }
         } catch (error) {
           if (cancellation.isCancelled()) return;
@@ -7666,7 +7693,12 @@ struct Index {
       }
     } catch (error) {
       if (revision !== this.sourceChapterLoadRevision) return;
-      if (cancellation.isCancelled()) return;
+      if (cancellation.isCancelled()) {
+        if (this.currentBook === book && this.readerChapters[this.readerChapterIndex] === chapter) {
+          this.readerStatus = '章节加载已中断，请点击重试';
+        }
+        return;
+      }
       this.readerStatus = error instanceof Error ? error.message : '章节正文加载失败';
     } finally {
       if (this.activeSourceChapterCancellation === cancellation) this.activeSourceChapterCancellation = undefined;
@@ -11957,6 +11989,10 @@ struct Index {
     this.sourceSearchReturnPending = false;
     this.sourceSearchReturnRestoreScheduled = false;
     this.sourceSearchReturnRevision++;
+    try {
+      this.sourceSearchScroller.scrollEdge(Edge.Top);
+    } catch (_) {
+    }
     this.sourceSearchPageVisible = true;
     this.sourceSearchActiveKeyword = keyword;
     this.sourceSearchVisibleCount = this.sourceSearchRenderBatchSize;
@@ -12925,7 +12961,7 @@ struct Index {
   private CaptureBookSourceSearchReturnPosition(): void {
     if (!this.sourceSearchPageVisible || this.bookModeIndex !== 0 || this.currentIndex !== 0) return;
     try {
-      this.sourceSearchReturnOffset = Math.max(0, this.tabScrollers[0].currentOffset().yOffset);
+      this.sourceSearchReturnOffset = Math.max(0, this.sourceSearchScroller.currentOffset().yOffset);
     } catch (_) {
       this.sourceSearchReturnOffset = 0;
     }
@@ -12958,7 +12994,7 @@ struct Index {
         return;
       }
       try {
-        this.tabScrollers[0].scrollTo({ xOffset: 0, yOffset: offset, animation: false });
+        this.sourceSearchScroller.scrollTo({ xOffset: 0, yOffset: offset, animation: false });
       } catch (_) {
       }
       if (attempt + 1 < delays.length) {

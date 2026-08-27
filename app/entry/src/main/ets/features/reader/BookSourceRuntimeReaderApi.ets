@@ -35,9 +35,11 @@ export class BookSourceRuntimeReaderApi {
   }
 
   /** 加载书源图书的详情与完整目录。 */
-  async catalog(sourceUrl: string, bookUrl: string): Promise<BookSourceRuntimeCatalog> {
+  async catalog(sourceUrl: string, bookUrl: string,
+    cancellation?: DownloadCancellationToken): Promise<BookSourceRuntimeCatalog> {
     const request: RuntimeCatalogRequest = { sourceUrl: sourceUrl, bookUrl: bookUrl };
-    const value = (await this.client.postJson('/api/app/v1/reader/source-runtime/catalog', request)).data;
+    const value = (await this.client.postJson('/api/app/v1/reader/source-runtime/catalog', request,
+      cancellation)).data;
     if (value === undefined || value === null || Array.isArray(value) || typeof value !== 'object') {
       throw new Error('书源目录响应无效');
     }
