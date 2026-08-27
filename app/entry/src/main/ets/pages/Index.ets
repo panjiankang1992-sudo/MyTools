@@ -626,6 +626,8 @@ struct Index {
     new Scroller()];
   private sourceSearchReturnOffset: number = 0;
   private sourceSearchReturnPending: boolean = false;
+  private sourceSearchReturnRevision: number = 0;
+  private sourceSearchReturnRestoreScheduled: boolean = false;
   private readerReturnToDetail: boolean = false;
   private detailReturnToReader: boolean = false;
   private settingsPreferences?: preferences.Preferences;
@@ -4764,6 +4766,7 @@ struct Index {
         this.PlaceholderRow('暂无搜索结果', '可以更换关键词或搜索模式')
       }
     }.width('100%').alignItems(HorizontalAlign.Start)
+      .onAppear(() => this.RestoreBookSourceSearchReturnPosition())
   }
 
   /** 关闭书源搜索结果并回到当前书源书架。 */
@@ -4772,6 +4775,8 @@ struct Index {
     this.sourceSearchPageVisible = false;
     this.sourceSearchReturnOffset = 0;
     this.sourceSearchReturnPending = false;
+    this.sourceSearchReturnRestoreScheduled = false;
+    this.sourceSearchReturnRevision++;
   }
 
   @Builder
@@ -11940,6 +11945,8 @@ struct Index {
     this.ResetBookSourceExplorePaging();
     this.sourceSearchReturnOffset = 0;
     this.sourceSearchReturnPending = false;
+    this.sourceSearchReturnRestoreScheduled = false;
+    this.sourceSearchReturnRevision++;
     this.sourceSearchPageVisible = true;
     this.sourceSearchActiveKeyword = keyword;
     this.sourceSearchVisibleCount = this.sourceSearchRenderBatchSize;
@@ -12924,22 +12931,44 @@ struct Index {
       this.sourceSearchReturnOffset = 0;
     }
     this.sourceSearchReturnPending = true;
+    this.sourceSearchReturnRestoreScheduled = false;
+    this.sourceSearchReturnRevision++;
   }
 
   /** 在全屏详情或阅读页关闭、搜索列表重新挂载后恢复原位置。 */
   private RestoreBookSourceSearchReturnPosition(): void {
     if (!this.sourceSearchReturnPending || !this.sourceSearchPageVisible || this.bookModeIndex !== 0 ||
-      this.currentIndex !== 0) return;
+      this.currentIndex !== 0 || this.sourceSearchReturnRestoreScheduled) return;
     const offset = this.sourceSearchReturnOffset;
-    this.sourceSearchReturnPending = false;
+    const revision = this.sourceSearchReturnRevision;
+    this.sourceSearchReturnRestoreScheduled = true;
+    this.RestoreBookSourceSearchReturnPositionAttempt(revision, offset, 0);
+  }
+
+  /** 等待搜索列表完成布局后恢复滚动位置，避免首次scrollTo被未挂载容器忽略。 */
+  private RestoreBookSourceSearchReturnPositionAttempt(revision: number, offset: number, attempt: number): void {
+    const delays: number[] = [0, 16, 64, 160, 320];
     setTimeout(() => {
-      if (!this.sourceSearchPageVisible || this.bookModeIndex !== 0 || this.currentIndex !== 0 ||
-        this.bookDetailVisible || this.readerVisible) return;
+      if (revision !== this.sourceSearchReturnRevision || !this.sourceSearchReturnPending ||
+        !this.sourceSearchPageVisible || this.bookModeIndex !== 0 || this.currentIndex !== 0) {
+        if (revision === this.sourceSearchReturnRevision) this.sourceSearchReturnRestoreScheduled = false;
+        return;
+      }
+      if (this.bookDetailVisible || this.readerVisible) {
+        this.sourceSearchReturnRestoreScheduled = false;
+        return;
+      }
       try {
         this.tabScrollers[0].scrollTo({ xOffset: 0, yOffset: offset, animation: false });
       } catch (_) {
       }
-    }, 0);
+      if (attempt + 1 < delays.length) {
+        this.RestoreBookSourceSearchReturnPositionAttempt(revision, offset, attempt + 1);
+        return;
+      }
+      this.sourceSearchReturnPending = false;
+      this.sourceSearchReturnRestoreScheduled = false;
+    }, delays[attempt]);
   }
 
   /** 清除当前书源图书已持久化的目录和章节缓存。 */
