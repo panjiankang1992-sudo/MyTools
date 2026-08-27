@@ -37,7 +37,8 @@ def execute(parameters: dict, work_dir: Path, client: StorageGatewayClient) -> d
     content_sha256 = hashlib.sha256(encoded).hexdigest()
     source = work_dir / "generated.txt"
     source.write_bytes(encoded)
-    root_name = str(parameters.get("destinationRootName") or "downloads")
+    root_name = str(parameters.get("destinationRootName")
+                    or os.getenv("DOWNLOAD_STORAGE_ROOT", "managed"))
     relative_path = quote(request_id, safe="") + "/" + quote(file_name, safe="")
     storage_uri = client.publish(
         source, root_name, relative_path, f"download-text:{request_id}:{item_id}",

@@ -23,7 +23,7 @@ def test_generated_text_is_published_as_utf8(tmp_path):
                             tmp_path, storage)
     assert result["sizeBytes"] == len("title\n正文".encode())
     assert storage.value[0] == "title\n正文".encode()
-    assert result["storageUri"].startswith("storage://downloads/")
+    assert result["storageUri"].startswith("storage://managed/")
 
 
 def test_generated_text_enforces_byte_limit(tmp_path):
