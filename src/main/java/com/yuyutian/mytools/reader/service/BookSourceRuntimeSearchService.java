@@ -221,8 +221,10 @@ public class BookSourceRuntimeSearchService {
             for (String term : terms) {
                 if (task.cancelled) return;
                 // 同一书源的探测词串行执行，不占用额外并发槽位。
-                for (BookSourceRuntimeSearchModels.SearchResult value : runtimeClient.search(task.userId,
+                for (BookSourceRuntimeSearchModels.SearchResult rawValue : runtimeClient.search(task.userId,
                         source.url, source.name, term, task.page)) {
+                    // 执行器返回的origin可能只是站点主页，结果必须绑定到实际执行规则的完整书源地址。
+                    BookSourceRuntimeSearchModels.SearchResult value = bindToSource(rawValue, source);
                     if (!matches(value, term, task.mode)) continue;
                     if (sourceResultKeys.putIfAbsent(canonicalResultKey(value), Boolean.TRUE) == null) values.add(value);
                 }
@@ -321,7 +323,8 @@ public class BookSourceRuntimeSearchService {
                 List<BookSourceRuntimeSearchModels.SearchResult> values = objectMapper.readValue(cache.resultsJson(),
                         objectMapper.getTypeFactory().constructCollectionType(List.class,
                                 BookSourceRuntimeSearchModels.SearchResult.class));
-                values.forEach(value -> addResult(task, value));
+                // 兼容修复前已写入的缓存，将旧origin标识重新绑定到当前版本书源。
+                values.forEach(value -> addResult(task, bindToSource(value, source)));
                 task.cachedSources.incrementAndGet();
                 task.processedSources.incrementAndGet();
                 if (CACHE_ERROR.equals(cache.cacheStatus())) task.failedSources.incrementAndGet();
@@ -334,6 +337,12 @@ public class BookSourceRuntimeSearchService {
             }
         }
         return pending;
+    }
+
+    private BookSourceRuntimeSearchModels.SearchResult bindToSource(
+            BookSourceRuntimeSearchModels.SearchResult value, SourceSnapshot source) {
+        return new BookSourceRuntimeSearchModels.SearchResult(value.name(), value.author(), value.intro(),
+                value.lastChapter(), value.coverUrl(), value.bookUrl(), source.url(), source.name());
     }
 
     private void complete(SearchTask task) {

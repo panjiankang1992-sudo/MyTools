@@ -93,10 +93,9 @@ public class ReaderRuntimeClient {
             String bookUrl = text(item, "bookUrl");
             String name = text(item, "name");
             if (bookUrl.isBlank() || name.isBlank()) continue;
-            String origin = text(item, "origin");
             output.add(new BookSourceRuntimeSearchModels.SearchResult(name, text(item, "author"),
                     text(item, "intro"), text(item, "lastChapter"), text(item, "coverUrl"), bookUrl,
-                    origin.isBlank() ? sourceUrl : origin, sourceName));
+                    sourceUrl, sourceName));
         }
         return output;
     }

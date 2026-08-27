@@ -93,9 +93,11 @@ class BookSourceRuntimeSearchServiceTest {
         BookSourceSearchCacheMapper cacheMapper = mock(BookSourceSearchCacheMapper.class);
         ReaderRuntimeClient runtimeClient = mock(ReaderRuntimeClient.class);
         when(sourceMapper.findAllByUserId(7L)).thenReturn(List.of(source("source-1", 3L)));
+        BookSourceRuntimeSearchModels.SearchResult staleResult = new BookSourceRuntimeSearchModels.SearchResult(
+                "Book", "Author", "", "", "", "https://book.example", "https://origin.example", "Origin");
         when(cacheMapper.findValidForSearch(eq(7L), eq("hello"), eq("FUZZY"), eq(1), anyLong()))
                 .thenReturn(List.of(cache("hello", "FUZZY", "source-1", 3L,
-                        new ObjectMapper().writeValueAsString(List.of(result())), 1)));
+                        new ObjectMapper().writeValueAsString(List.of(staleResult)), 1)));
         BookSourceRuntimeSearchService service = service(sourceMapper, cacheMapper, runtimeClient);
 
         BookSourceRuntimeSearchModels.Task completed = service.start(7L, " hello ", 1, "FUZZY");
@@ -104,6 +106,10 @@ class BookSourceRuntimeSearchServiceTest {
         assertThat(completed.resultCount()).isEqualTo(1);
         assertThat(completed.cachedSources()).isEqualTo(1);
         assertThat(completed.pendingSources()).isZero();
+        assertThat(completed.results()).singleElement().satisfies(value -> {
+            assertThat(value.sourceUrl()).isEqualTo("https://source.example");
+            assertThat(value.sourceName()).isEqualTo("Source");
+        });
         assertThat(completed.message()).contains("缓存命中1个").contains("实际查询0个");
         verify(runtimeClient, never()).search(anyLong(), anyString(), anyString(), anyString(), anyInt());
     }
