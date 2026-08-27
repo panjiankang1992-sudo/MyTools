@@ -24,6 +24,7 @@ export class MediaCatalogApi {
   private readonly baseUrl: string;
   private readonly playbackNormalizer: RemoteMediaResponseNormalizer = new RemoteMediaResponseNormalizer();
   private readonly libraryItemCache: Map<string, Object[]> = new Map<string, Object[]>();
+  private readonly catalogCache: Map<string, CatalogQueryData> = new Map<string, CatalogQueryData>();
 
   constructor(baseUrl: string, authManager: AuthSessionManager) {
     this.baseUrl = authManager.normalizeBusinessBaseUrl(baseUrl);
@@ -248,6 +249,9 @@ export class MediaCatalogApi {
   /** 调用媒体库同步目录接口，查询过程不创建任务。 */
   private async catalog(mimePrefix: string, tag: string, keyword: string, page: number, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<CatalogQueryData> {
+    const cacheKey = `${mimePrefix}|${tag}|${keyword.trim()}|${page}|${excludeAdult}`;
+    const cached = this.catalogCache.get(cacheKey);
+    if (cached !== undefined) return cached;
     const envelope = await this.client.get('/api/app/v1/media/catalog' +
       `?mimePrefix=${encodeURIComponent(mimePrefix)}&tag=${encodeURIComponent(tag)}` +
       `&keyword=${encodeURIComponent(keyword.trim())}&page=${page}` +
@@ -257,8 +261,10 @@ export class MediaCatalogApi {
     const rawTags = data['tags'];
     if (!Array.isArray(rawItems) || rawItems.length > MediaCatalogApi.GALLERY_PAGE_SIZE ||
       !Array.isArray(rawTags) || rawTags.length > 500) throw new Error('媒体目录响应无效');
-    return { items: rawItems.map((entry: Object): MediaCatalogItem => this.item(entry)),
+    const result: CatalogQueryData = { items: rawItems.map((entry: Object): MediaCatalogItem => this.item(entry)),
       total: this.number(data, 'total'), tags: rawTags.map((entry: Object): MediaTagFilter => this.tagFilter(entry)) };
+    this.catalogCache.set(cacheKey, result);
+    return result;
   }
 
   /** 分页读取聚合视图所需媒体，仍由媒体库服务逐页直接查询。 */

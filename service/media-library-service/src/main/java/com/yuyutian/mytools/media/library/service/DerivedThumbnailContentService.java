@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
@@ -91,7 +92,16 @@ public class DerivedThumbnailContentService {
         String path = parsed.getPath().replaceFirst("^/", "");
         String requestUri = UriComponentsBuilder.fromPath("/api/internal/v1/storage/objects/content")
                 .queryParam("rootName", parsed.getHost()).queryParam("path", path).build().encode().toUriString();
-        byte[] body = storageClient.get().uri(requestUri).retrieve().body(byte[].class);
+        byte[] body;
+        try {
+            body = storageClient.get().uri(requestUri).retrieve().body(byte[].class);
+        } catch (RestClientResponseException exception) {
+            // 迁移清单可能早于存储对象落盘，缺失时继续回退旧文件而不是放大成服务异常。
+            if (exception.getStatusCode().value() == 404) {
+                return Optional.empty();
+            }
+            throw exception;
+        }
         if (body == null || body.length != expectedSize) {
             throw new IllegalStateException("derived media thumbnail content is invalid");
         }

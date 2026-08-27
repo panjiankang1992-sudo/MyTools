@@ -3165,12 +3165,7 @@ struct Index {
           }
           return { path: `/media/${item.itemId}`, uri: `file://${target}` };
         } catch (error) {
-          // 视频尚未生成派生缩略图时保留类型占位卡，不把预期缺失显示成整个目录故障。
-          if (item.kind !== 'VIDEO' && revision === this.mediaCatalogThumbnailRevision &&
-            !cancellation.isCancelled() && this.mediaCatalogStatus.length === 0) {
-            const message = error instanceof Error ? error.message : '未知错误';
-            this.mediaCatalogStatus = `缩略图加载失败：${message}`;
-          }
+          // 单个资源尚无可读缩略图时保留类型占位卡，不把它显示成整个目录故障。
           return undefined;
         }
         });
