@@ -92,7 +92,7 @@ def write_result(result: dict) -> None:
 def main() -> None:
     """执行一个托管对象下载任务。"""
     context = json.loads(Path(os.environ["TASK_CONTEXT_FILE"]).read_text(encoding="utf-8"))
-    client = StorageGatewayClient(os.getenv("STORAGE_GATEWAY_URL", "http://127.0.0.1:23260"),
+    client = StorageGatewayClient(os.getenv("STORAGE_GATEWAY_URL", "http://127.0.0.1:23240"),
                                   os.getenv("STORAGE_GATEWAY_INTERNAL_TOKEN", ""))
     work_dir = Path(os.environ["TASK_WORK_DIR"])
     write_result(execute(context["parameters"], work_dir, client))

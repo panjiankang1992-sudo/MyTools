@@ -61,7 +61,7 @@ def write_result(result: dict) -> None:
 def main() -> None:
     """执行一个生成文本发布任务。"""
     context = json.loads(Path(os.environ["TASK_CONTEXT_FILE"]).read_text(encoding="utf-8"))
-    client = StorageGatewayClient(os.getenv("STORAGE_GATEWAY_URL", "http://127.0.0.1:23260"),
+    client = StorageGatewayClient(os.getenv("STORAGE_GATEWAY_URL", "http://127.0.0.1:23240"),
                                   os.getenv("STORAGE_GATEWAY_INTERNAL_TOKEN", ""))
     write_result(execute(context["parameters"], Path(os.environ["TASK_WORK_DIR"]), client))
 
