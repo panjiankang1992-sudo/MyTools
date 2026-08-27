@@ -209,3 +209,46 @@ export struct AppSearchField {
     .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
   }
 }
+
+/** 统一设置与入口列表行。 */
+@Component
+export struct AppSettingsRow {
+  @Prop title: string = '';
+  @Prop subtitle: string = '';
+  action: () => void = () => {};
+
+  build() {
+    Button({ type: ButtonType.Normal }) {
+      Row({ space: 12 }) {
+        Column({ space: 5 }) {
+          Text(this.title)
+            .width('100%')
+            .fontSize(15)
+            .fontFamily('HarmonyOS Sans')
+            .fontColor(AppTheme.textPrimary)
+          Text(this.subtitle)
+            .width('100%')
+            .maxLines(2)
+            .fontSize(12)
+            .fontFamily('HarmonyOS Sans')
+            .fontColor(AppTheme.textSecondary)
+        }
+        .layoutWeight(1)
+        .alignItems(HorizontalAlign.Start)
+        SymbolGlyph($r('sys.symbol.chevron_right'))
+          .fontSize(18)
+          .fontColor([AppTheme.textSecondary])
+      }
+      .width('100%')
+    }
+    .width('100%')
+    .constraintSize({ minHeight: 68 })
+    .padding({ left: 0, right: 0, top: 10, bottom: 10 })
+    .backgroundColor(Color.Transparent)
+    .borderRadius(0)
+    .border({ width: { bottom: 1 }, color: AppTheme.divider, radius: 0 })
+    .accessibilityText(this.title)
+    .accessibilityDescription(this.subtitle)
+    .onClick(this.action)
+  }
+}

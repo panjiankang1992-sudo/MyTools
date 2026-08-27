@@ -183,8 +183,18 @@ printf '%s\n' "$hero_panel" | rg -q -F 'AppPrimaryPillButton({ label: action' ||
   fail "hero action must use the shared primary button"
 
 tool_entry="$(sed -n '/private ToolEntryRow(/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$tool_entry" | rg -q -F 'Button() {' || fail "tool entries must be focusable buttons"
-printf '%s\n' "$tool_entry" | rg -q -F '.height(62)' || fail "tool entries must meet the 48 vp touch target"
+printf '%s\n' "$tool_entry" | rg -q -F 'AppSettingsRow({' ||
+  fail "tool entries must use the shared settings row"
+rg -q -F 'export struct AppSettingsRow' "$CONTROLS" || fail "shared settings row is missing"
+settings_row="$(sed -n '/export struct AppSettingsRow/,/^}/p' "$CONTROLS")"
+printf '%s\n' "$settings_row" | rg -q -F 'Button({ type: ButtonType.Normal }) {' ||
+  fail "shared settings rows must be focusable buttons"
+printf '%s\n' "$settings_row" | rg -q -F '.constraintSize({ minHeight: 68 })' ||
+  fail "shared settings rows must meet the minimum touch target"
+printf '%s\n' "$settings_row" | rg -q -F '.borderRadius(0)' ||
+  fail "unselected settings rows must not retain a pill background"
+printf '%s\n' "$settings_row" | rg -q -F 'color: AppTheme.divider, radius: 0' ||
+  fail "settings row dividers must stay square instead of curving into a pill"
 printf '%s\n' "$tool_entry" | rg -q -F '.accessibilityText(`工具：${title}`)' ||
   fail "tool entries must expose their title"
 

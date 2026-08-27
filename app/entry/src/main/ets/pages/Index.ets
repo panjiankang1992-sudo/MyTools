@@ -1,6 +1,6 @@
 import { AppTheme } from '../theme/AppTheme';
 import { AppDangerPillButton, AppFilterChip, AppGlassTextInput, AppPrimaryPillButton, AppSearchField,
-  AppSecondaryPillButton, AppSegmentItem } from '../components/AppControls';
+  AppSecondaryPillButton, AppSegmentItem, AppSettingsRow } from '../components/AppControls';
 import { AuthSessionManager } from '../features/auth/AuthSessionManager';
 import common from '@ohos.app.ability.common';
 import window from '@ohos.window';
@@ -1662,7 +1662,7 @@ struct Index {
           Text(item.summary).width('100%').fontSize(13).fontColor(AppTheme.textSecondary).maxLines(2)
         }
       }.layoutWeight(1).alignItems(HorizontalAlign.Start)
-      Text('›').fontSize(24).fontColor(AppTheme.textSecondary)
+      SymbolGlyph($r('sys.symbol.chevron_right')).fontSize(18).fontColor([AppTheme.textSecondary])
     }.width('100%').padding({ top: 14, bottom: 14 })
       .border({ width: { bottom: 1 }, color: AppTheme.divider })
       .onClick(() => this.LoadMarketDetail(item.id))
@@ -1969,8 +1969,9 @@ struct Index {
     Row({ space: 12 }) {
       Button() {
         Row({ space: 12 }) {
-          Text(item.kind === 'directory' ? '▰' : '▤').width(38).height(38).textAlign(TextAlign.Center)
-            .fontSize(18).fontColor(AppTheme.primary).backgroundColor(AppTheme.surfaceTint).borderRadius(10)
+          SymbolGlyph($r(item.kind === 'directory' ? 'sys.symbol.folder_fill' : 'sys.symbol.doc_fill'))
+            .width(38).height(38).fontSize(18).fontColor([AppTheme.primary])
+            .backgroundColor(AppTheme.surfaceTint).borderRadius(10)
           Column({ space: 4 }) {
             Text(item.name).width('100%').maxLines(1).fontSize(15).fontColor(AppTheme.textPrimary)
             if (item.kind !== 'directory') {
@@ -1978,7 +1979,9 @@ struct Index {
                 .fontSize(12).fontColor(AppTheme.textSecondary)
             }
           }.layoutWeight(1).alignItems(HorizontalAlign.Start)
-          if (item.kind === 'directory') Text('›').fontSize(22).fontColor(AppTheme.textSecondary)
+          if (item.kind === 'directory') {
+            SymbolGlyph($r('sys.symbol.chevron_right')).fontSize(17).fontColor([AppTheme.textSecondary])
+          }
         }.width('100%')
       }.layoutWeight(1).height(58).padding({ left: 0, right: 0 }).backgroundColor(Color.Transparent)
         .accessibilityText(`${item.kind === 'directory' ? '打开远程目录' : '远程文件'}：${item.name}`)
@@ -2054,16 +2057,8 @@ struct Index {
 
   @Builder
   private ToolEntryRow(title: string, subtitle: string, action: () => void) {
-    Button() {
-      Row() {
-        Column({ space: 4 }) {
-          Text(title).fontSize(16).fontColor(AppTheme.textPrimary)
-          Text(subtitle).fontSize(13).fontColor(AppTheme.textSecondary)
-        }.layoutWeight(1).alignItems(HorizontalAlign.Start)
-        Text('›').fontSize(24).fontColor(AppTheme.primary)
-      }.width('100%')
-    }.width('100%').height(62).padding({ left: 0, right: 0 }).backgroundColor(Color.Transparent)
-      .accessibilityText(`工具：${title}`).accessibilityDescription(subtitle).onClick(action)
+    AppSettingsRow({ title: title, subtitle: subtitle, action: action })
+      .accessibilityText(`工具：${title}`)
   }
 
   @Builder
@@ -2402,7 +2397,7 @@ struct Index {
         Text(title).fontSize(16).fontColor(AppTheme.textPrimary)
         Text(subtitle).fontSize(13).fontColor(AppTheme.textSecondary)
       }.layoutWeight(1).alignItems(HorizontalAlign.Start)
-      Text('›').fontSize(24).fontColor(AppTheme.primary)
+      SymbolGlyph($r('sys.symbol.chevron_right')).fontSize(18).fontColor([AppTheme.primary])
     }.width('100%').padding({ top: 12, bottom: 12 })
     .onClick(() => this.copilotInput = title)
   }
@@ -4272,7 +4267,7 @@ struct Index {
               .width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
           }
         }.layoutWeight(1).alignItems(HorizontalAlign.Start)
-        Text('›').fontSize(24).fontColor(AppTheme.textSecondary)
+        SymbolGlyph($r('sys.symbol.chevron_right')).fontSize(18).fontColor([AppTheme.textSecondary])
       }.width('100%')
     }.width('100%').constraintSize({ minHeight: 64 }).padding({ left: 0, right: 0, top: 13, bottom: 13 })
       .backgroundColor(Color.Transparent).border({ width: { bottom: 1 }, color: AppTheme.divider })
@@ -4538,16 +4533,7 @@ struct Index {
 
   @Builder
   private ProfileActionRow(title: string, subtitle: string, action: () => void) {
-    Row({ space: 12 }) {
-      Column({ space: 5 }) {
-        Text(title).width('100%').fontSize(15).fontColor(AppTheme.textPrimary)
-        Text(subtitle).width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
-      }.layoutWeight(1).alignItems(HorizontalAlign.Start)
-      Text('›').fontSize(24).fontColor(AppTheme.textSecondary)
-    }.width('100%').height(68).padding({ left: 0, right: 0, top: 10, bottom: 10 })
-      .backgroundColor(Color.Transparent)
-      .border({ width: { bottom: 1 }, color: AppTheme.divider })
-      .accessibilityText(title).accessibilityDescription(subtitle).onClick(action)
+    AppSettingsRow({ title: title, subtitle: subtitle, action: action })
   }
 
   @Builder
@@ -4870,7 +4856,7 @@ struct Index {
       }
       .alignItems(HorizontalAlign.Start)
       .layoutWeight(1)
-      Text('›').fontSize(24).fontColor(AppTheme.textSecondary)
+      SymbolGlyph($r('sys.symbol.chevron_right')).fontSize(18).fontColor([AppTheme.textSecondary])
     }
     .width('100%')
     .padding({ top: 14, bottom: 14 })
@@ -6503,7 +6489,7 @@ struct Index {
                     Text(bookmark.note.length > 0 ? bookmark.note : `位置 ${bookmark.locator}`)
                       .width('100%').maxLines(1).fontSize(12).fontColor(AppTheme.textSecondary)
                   }.layoutWeight(1).alignItems(HorizontalAlign.Start)
-                  Text('›').fontSize(22).fontColor(AppTheme.textSecondary)
+                  SymbolGlyph($r('sys.symbol.chevron_right')).fontSize(17).fontColor([AppTheme.textSecondary])
                 }.width('100%').padding({ top: 12, bottom: 12 })
                   .border({ width: { bottom: 1 }, color: AppTheme.divider })
                   .onClick(() => this.OpenReaderBookmark(bookmark))
@@ -10439,8 +10425,8 @@ struct Index {
         .margin({ top: 28, bottom: 12 })
 
         Row({ space: 12 }) {
-          Text('◇').width(42).height(42).textAlign(TextAlign.Center).fontSize(18)
-            .fontColor(AppTheme.primary).backgroundColor(AppTheme.surfaceTint).borderRadius(12)
+          SymbolGlyph($r('sys.symbol.cloud_fill')).width(42).height(42).fontSize(19)
+            .fontColor([AppTheme.primary]).backgroundColor(AppTheme.surfaceTint).borderRadius(12)
           Column({ space: 4 }) {
             Text('MyTools 云服务').fontSize(15).fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary)
             Text(this.connectionStatus.length > 0 ? this.connectionStatus : '正在检查服务连接…')
@@ -10470,7 +10456,7 @@ struct Index {
           description: '使用当前账号和密码登录MyTools', action: () => this.SubmitLogin() }).width('100%')
 
         Row({ space: 8 }) {
-          Text('◇').fontSize(18).fontColor(AppTheme.primary)
+          SymbolGlyph($r('sys.symbol.lock_fill')).fontSize(18).fontColor([AppTheme.primary])
           Text('登录凭证将使用系统安全能力加密保存')
             .fontSize(13)
             .fontColor(AppTheme.textSecondary)
@@ -15672,8 +15658,8 @@ struct Index {
                       if (this.MediaThumbnailUri(item.path).length > 0) {
                         Image(this.MediaThumbnailUri(item.path)).width(56).height(56).objectFit(ImageFit.Cover)
                       } else {
-                        Text('…').width(56).height(56).textAlign(TextAlign.Center).fontColor(Color.White)
-                          .backgroundColor('#303646')
+                        SymbolGlyph($r('sys.symbol.ellipsis_circle')).width(56).height(56).fontSize(18)
+                          .fontColor([Color.White]).backgroundColor('#303646')
                       }
                     }
                   }.width(56).height(56).padding(0).borderRadius(8).backgroundColor(Color.Transparent)

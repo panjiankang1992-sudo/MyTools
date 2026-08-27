@@ -9,7 +9,7 @@ device_link="/dev/disk/by-uuid/${device_uuid}"
 
 resource_layout_ready() {
   [[ -d "${resource_root}/.thumbnails" ]] &&
-    { [[ -d "${resource_root}/media" ]] || [[ -d "${resource_root}/${resource_username}/media" ]]; }
+    [[ -d "${resource_root}/${resource_username}/media" ]]
 }
 
 if mountpoint -q "${mount_point}"; then

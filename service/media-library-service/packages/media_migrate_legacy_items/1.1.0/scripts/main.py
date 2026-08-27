@@ -228,18 +228,27 @@ def directory_binding_for(owner_id: int, legacy_id: str, storage_uri: str,
                           snapshot_id: str = "") -> dict:
     """Derive a stable opaque directory key and a user-visible folder name."""
     path = Path(unquote(urlparse(storage_uri).path))
-    parent = path.parent
     parts = path.parts
     if len(parts) < 6 or parts[1:4] != ("opt", "extend", "resource"):
         raise RuntimeError("Legacy media directory hierarchy is invalid")
-    month_index = 6 if parts[5] == "media" else 5
+
+    # 当前用户媒体必须位于 resource/<username>/media/yyyyMM/yyyyMMdd 下，不能再吞掉 media 层。
+    scoped_media = len(parts) >= 9 and re.fullmatch(r"[A-Za-z0-9._-]{1,128}", parts[4]) \
+        and parts[4] not in {".", ".."} and parts[5] == "media"
+    legacy_global_media = len(parts) >= 8 and parts[4] == "media"
+    month_index = 6 if scoped_media else 5
     day_index = month_index + 1
-    if len(parts) > day_index + 1 and re.fullmatch(r"\d{6}", parts[month_index]) \
+    if (scoped_media or legacy_global_media) and len(parts) > day_index + 1 \
+            and re.fullmatch(r"\d{6}", parts[month_index]) \
             and re.fullmatch(r"\d{8}", parts[day_index]):
         month_name = parts[month_index]
         day_name = parts[day_index]
     else:
-        dated = next((re.match(r"^(20\d{6})", value) for value in parts[5:]
+        # 仅为真正的旧分类目录保留日期恢复；用户目录下缺少 media 的路径视为损坏数据。
+        legacy_category_index = 5 if len(parts) > 5 and parts[5] in {"big_media", "other"} else 4
+        if parts[legacy_category_index] not in {"big_media", "other"}:
+            raise RuntimeError("Legacy media directory hierarchy is invalid")
+        dated = next((re.match(r"^(20\d{6})", value) for value in parts[legacy_category_index + 1:]
                       if re.match(r"^(20\d{6})", value)), None)
         snapshot_date = re.search(r"(20\d{6})", snapshot_id)
         if dated is None and snapshot_date is None:

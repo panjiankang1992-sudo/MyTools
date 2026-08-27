@@ -120,23 +120,21 @@ def test_directory_binding_uses_daily_media_directory():
     assert len(binding["directoryKey"]) == 24
 
 
-def test_directory_binding_restores_implicit_media_root_from_snapshot():
-    binding = MODULE.directory_binding_for(
-        7, "43", "file:///opt/extend/resource/yuyutian/202608/20260825/image.jpg")
-    assert binding["parentDirectoryName"] == "202608"
-    assert binding["directoryName"] == "20260825"
+def test_directory_binding_rejects_missing_media_level():
+    with pytest.raises(RuntimeError, match="hierarchy"):
+        MODULE.directory_binding_for(
+            7, "43", "file:///opt/extend/resource/yuyutian/202608/20260825/image.jpg")
 
 
-def test_directory_binding_groups_legacy_storyboard_by_timestamp_date():
-    binding = MODULE.directory_binding_for(
-        7, "44", "file:///opt/extend/resource/yuyutian/20260825_120000_video/storyboard/1.jpg")
-    assert binding["parentDirectoryName"] == "202608"
-    assert binding["directoryName"] == "20260825"
+def test_directory_binding_rejects_user_media_outside_media_level():
+    with pytest.raises(RuntimeError, match="hierarchy"):
+        MODULE.directory_binding_for(
+            7, "44", "file:///opt/extend/resource/yuyutian/20260825_120000_video/storyboard/1.jpg")
 
 
 def test_directory_binding_groups_legacy_root_by_owner_and_date():
     standard = MODULE.directory_binding_for(
-        7, "45", "file:///opt/extend/resource/yuyutian/202608/20260825/image.jpg")
+        7, "45", "file:///opt/extend/resource/yuyutian/media/202608/20260825/image.jpg")
     legacy = MODULE.directory_binding_for(
         7, "46", "file:///opt/extend/resource/big_media/20260825_120000_video.jpg")
     assert legacy["parentDirectoryKey"] == standard["parentDirectoryKey"]
