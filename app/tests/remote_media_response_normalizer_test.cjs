@@ -134,6 +134,17 @@ equal(ebookCatalog.items[0].bookFileHash, '0123456789abcdef0123456789abcdef', 'E
 equal(ebookCatalog.items[0].bookCoverAvailable, true, 'Ebook catalog cover availability');
 equal(ebookCatalog.items[0].contentType, 'text/plain', 'Ebook content type');
 
+const libraryBooks = normalizer.normalizeLibraryBooks([
+  { id: '0061ae59-ab11-404d-aa5e-a0c3c40546dc', displayName: '御仙.txt', mimeType: 'text/plain',
+    sizeBytes: 3352018, tags: [] },
+  { id: '00ee9873-7fc4-429b-9cbf-f8919a39c110', displayName: 'summary.txt', mimeType: 'text/plain',
+    sizeBytes: 19, tags: [] },
+  { id: '017fef44-9fe3-4a15-b004-9a544679de69', displayName: 'SUMMARY.TXT', mimeType: 'text/plain',
+    sizeBytes: 88, tags: [] }
+], '', false, 1, 40);
+equal(libraryBooks.items.map(item => item.name), ['御仙.txt'],
+  'Media summary derivatives should not appear in remote books');
+
 let rejected = false;
 try {
   normalizer.normalizePlayback({ ticket, streamPath: `/api/app/v1/media/tickets/${ticket}extra`,

@@ -70,9 +70,11 @@ export class RemoteMediaResponseNormalizer {
       const contentType = this.text(child?.['mimeType'], 256, true) ?? '';
       const size = child?.['sizeBytes'];
       const tags = this.plainTags(child?.['tags']);
-      const extension = name?.toLocaleLowerCase().split('.').pop() ?? '';
+      const normalizedName = name?.toLocaleLowerCase() ?? '';
+      const extension = normalizedName.split('.').pop() ?? '';
       if (child === undefined || id === undefined || name === undefined || /[\\/]/.test(name) ||
         typeof size !== 'number' || !Number.isSafeInteger(size) || size < 0 ||
+        normalizedName === 'summary.txt' ||
         !['txt', 'epub', 'pdf', 'mobi', 'azw3', 'cbz', 'cbr'].includes(extension) ||
         query.length > 0 && !name.toLocaleLowerCase().includes(query) ||
         excludeAdult && tags.some((tag: RemoteMediaTag): boolean => tag.name.toLocaleLowerCase() === 'r18')) return;
