@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import io
+import json
 
 import pytest
 
-from mytools_download_ingestion.mcp_server import McpServer, classify, load_env_file
+from mytools_download_ingestion.mcp_server import IngestionClient, McpServer, classify, load_env_file
 
 
 class Client:
@@ -34,6 +35,31 @@ def test_rejects_invalid_link() -> None:
     """Reject unsupported schemes before reaching Download Ingestion."""
     with pytest.raises(ValueError):
         classify("file:///etc/passwd", "auto")
+
+
+def test_web_submission_keeps_web_archive_kind(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Do not confuse the local web strategy with the local magnet task kind."""
+    captured = {}
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return b'{"id":"request-1","status":"RUNNING"}'
+
+    def open_request(request, timeout):
+        captured.update(json.loads(request.data))
+        assert timeout == 15.0
+        return Response()
+
+    monkeypatch.setattr("mytools_download_ingestion.mcp_server.urlopen", open_request)
+    IngestionClient("http://ingestion", "token", 0).submit("https://example.org/", "auto")
+
+    assert captured["requestKind"] == "WEB_ARCHIVE"
 
 
 def test_lists_and_calls_analyze_download() -> None:

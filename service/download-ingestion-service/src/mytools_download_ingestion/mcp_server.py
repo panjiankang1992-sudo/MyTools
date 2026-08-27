@@ -45,7 +45,7 @@ class IngestionClient:
             "idempotencyKey": f"mcp:{digest}",
             "sourceType": "MCP",
             "sourceKey": f"mcp:{uuid4()}",
-            "requestKind": "LOCAL_MAGNET" if strategy == "LOCAL" else kind,
+            "requestKind": "LOCAL_MAGNET" if kind == "MAGNET" and strategy == "LOCAL" else kind,
             "ownerId": self.owner_id,
             "parameters": parameters,
         }
