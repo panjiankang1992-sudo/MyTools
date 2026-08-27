@@ -203,11 +203,15 @@ printf '%s\n' "$tool_file_row" | rg -q -F '.accessibilityText(`${item.kind ===' 
 
 tool_file_operation="$(sed -n '/private ToolFileOperationPanel()/,/^  }/p' "$SOURCE")"
 for operation in 重命名 移动 删除; do
-  printf '%s\n' "$tool_file_operation" | rg -q "Button\('$operation'\).*height\(48\)" ||
-    fail "remote file $operation action must meet the 48 vp touch target"
+  printf '%s\n' "$tool_file_operation" | rg -q "(Button|AppDangerPillButton).*'$operation'" ||
+    fail "remote file $operation action must remain available"
 done
-printf '%s\n' "$tool_file_operation" | rg -q -F "Button(this.toolSelectedDirectory ? '确认删除目录' : '确认删除文件').layoutWeight(1)" ||
+printf '%s\n' "$tool_file_operation" | rg -q -F "AppDangerPillButton({ label: this.toolSelectedDirectory ? '确认删除目录' : '确认删除文件'" ||
   fail "remote deletion confirmation must name the target kind"
+for shared_control in AppPrimaryPillButton AppSecondaryPillButton AppDangerPillButton; do
+  rg -q -F "export struct $shared_control" "$CONTROLS" ||
+    fail "shared control $shared_control is missing"
+done
 
 media_selector="$(sed -n '/private MediaSourceSelector()/,/^  }/p' "$SOURCE")"
 printf '%s\n' "$media_selector" | rg -q -F 'Button(source.name.length > 0 ?' ||

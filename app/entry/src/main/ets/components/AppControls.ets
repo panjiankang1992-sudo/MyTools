@@ -46,6 +46,52 @@ export struct AppPrimaryPillButton {
   }
 }
 
+/** 统一浅色胶囊次按钮。 */
+@Component
+export struct AppSecondaryPillButton {
+  @Prop label: string = '';
+  @Prop available: boolean = true;
+  action: () => void = () => {};
+
+  build() {
+    Button(this.label)
+      .height(AppTheme.controlHeight)
+      .padding({ left: 18, right: 18 })
+      .fontSize(14)
+      .fontFamily('HarmonyOS Sans')
+      .fontWeight(FontWeight.Medium)
+      .fontColor(AppTheme.textPrimary)
+      .backgroundColor(AppTheme.surfaceTint)
+      .border({ width: 1, color: AppTheme.divider, radius: AppTheme.pillRadius })
+      .borderRadius(AppTheme.pillRadius)
+      .enabled(this.available)
+      .onClick(this.action)
+  }
+}
+
+/** 统一柔和危险操作胶囊按钮。 */
+@Component
+export struct AppDangerPillButton {
+  @Prop label: string = '';
+  @Prop available: boolean = true;
+  action: () => void = () => {};
+
+  build() {
+    Button(this.label)
+      .height(AppTheme.controlHeight)
+      .padding({ left: 18, right: 18 })
+      .fontSize(14)
+      .fontFamily('HarmonyOS Sans')
+      .fontWeight(FontWeight.Medium)
+      .fontColor(AppTheme.danger)
+      .backgroundColor(AppTheme.dangerSoft)
+      .border({ width: 1, color: AppTheme.danger, radius: AppTheme.pillRadius })
+      .borderRadius(AppTheme.pillRadius)
+      .enabled(this.available)
+      .onClick(this.action)
+  }
+}
+
 /** 可复用的描边筛选标签。 */
 @Component
 export struct AppFilterChip {

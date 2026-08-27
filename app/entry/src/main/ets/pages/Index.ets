@@ -1,5 +1,6 @@
 import { AppTheme } from '../theme/AppTheme';
-import { AppFilterChip, AppGlassTextInput, AppPrimaryPillButton, AppSegmentItem } from '../components/AppControls';
+import { AppDangerPillButton, AppFilterChip, AppGlassTextInput, AppPrimaryPillButton, AppSecondaryPillButton,
+  AppSegmentItem } from '../components/AppControls';
 import { AuthSessionManager } from '../features/auth/AuthSessionManager';
 import common from '@ohos.app.ability.common';
 import window from '@ohos.window';
@@ -1238,15 +1239,7 @@ struct Index {
       }
       .layoutWeight(1)
       .alignItems(HorizontalAlign.Start)
-      Button(action)
-        .height(AppTheme.controlHeight).padding({ left: 18, right: 18 }).fontSize(14)
-        .fontFamily('HarmonyOS Sans')
-        .fontColor(Color.White)
-        .backgroundColor(AppTheme.primary)
-        .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
-        .borderRadius(AppTheme.pillRadius)
-        .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
-        .onClick(onAction)
+      AppPrimaryPillButton({ label: action, action: onAction })
     }
     .width('100%')
     .padding(18)
@@ -1631,11 +1624,7 @@ struct Index {
         AppGlassTextInput({ value: this.marketQuery, placeholder: '按名称搜索应用',
           valueChanged: (value: string) => this.marketQuery = value,
           submitted: () => this.LoadMarketApps(true) }).layoutWeight(1)
-        Button('搜索').height(AppTheme.controlHeight).padding({ left: 18, right: 18 })
-          .fontColor(Color.White).backgroundColor(AppTheme.primary).borderRadius(AppTheme.pillRadius)
-          .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
-          .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
-          .onClick(() => this.LoadMarketApps(true))
+        AppPrimaryPillButton({ label: '搜索', action: () => this.LoadMarketApps(true) })
       }.width('100%')
       Text(`共 ${this.marketTotal} 项 · 第 ${this.marketPage} 页`)
         .width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
@@ -2029,16 +2018,10 @@ struct Index {
             this.toolOperationInput = this.toolFilePath;
           })
           if (!this.toolSelectedDirectory) {
-            Button(this.toolOperationBusy ? '下载中' : '下载').layoutWeight(1).height(48)
-              .enabled(!this.toolOperationBusy)
-              .fontColor(Color.White).backgroundColor(AppTheme.primary).borderRadius(AppTheme.pillRadius)
-              .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
-              .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
-              .onClick(() => this.DownloadToolFile())
+            AppPrimaryPillButton({ label: this.toolOperationBusy ? '下载中' : '下载',
+              available: !this.toolOperationBusy, action: () => this.DownloadToolFile() }).layoutWeight(1)
           }
-          Button('删除').layoutWeight(1).height(48).fontColor(AppTheme.danger).backgroundColor(AppTheme.dangerSoft).onClick(() => {
-            this.toolOperation = 'delete';
-          })
+          AppDangerPillButton({ label: '删除', action: () => this.toolOperation = 'delete' }).layoutWeight(1)
         }.width('100%')
       } else if (this.toolOperation === 'rename' || this.toolOperation === 'move' || this.toolOperation === 'mkdir') {
         Text(this.toolOperation === 'rename' ? '输入新名称' :
@@ -2047,27 +2030,19 @@ struct Index {
         AppGlassTextInput({ value: this.toolOperationInput,
           valueChanged: (value: string) => this.toolOperationInput = value })
         Row({ space: 10 }) {
-          Button('取消').layoutWeight(1).height(48).backgroundColor(AppTheme.surfaceTint)
-            .fontColor(AppTheme.textPrimary).onClick(() => this.CloseToolOperation())
-          Button(this.toolOperation === 'rename' ? '确认重命名' :
-            (this.toolOperation === 'move' ? '确认移动' : '确认新建')).layoutWeight(1)
-            .height(48).fontColor(Color.White).backgroundColor(AppTheme.primary)
-            .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
-            .borderRadius(AppTheme.pillRadius)
-            .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
-            .enabled(!this.toolOperationBusy).onClick(() => this.ConfirmToolOperation())
+          AppSecondaryPillButton({ label: '取消', action: () => this.CloseToolOperation() }).layoutWeight(1)
+          AppPrimaryPillButton({ label: this.toolOperation === 'rename' ? '确认重命名' :
+            (this.toolOperation === 'move' ? '确认移动' : '确认新建'), available: !this.toolOperationBusy,
+            action: () => this.ConfirmToolOperation() }).layoutWeight(1)
         }.width('100%')
       } else {
         Text(this.toolSelectedDirectory ?
           '将递归删除此目录及其中全部内容，此操作不可撤销。' : '将永久删除这个远程文件，此操作不可撤销。')
           .width('100%').fontSize(13).fontColor(AppTheme.danger)
         Row({ space: 10 }) {
-          Button('取消').layoutWeight(1).height(48).backgroundColor(AppTheme.surfaceTint)
-            .fontColor(AppTheme.textPrimary).onClick(() => this.CloseToolOperation())
-          Button(this.toolSelectedDirectory ? '确认删除目录' : '确认删除文件').layoutWeight(1)
-            .height(48)
-            .fontColor(Color.White).backgroundColor(AppTheme.danger).enabled(!this.toolOperationBusy)
-            .onClick(() => this.ConfirmToolOperation())
+          AppSecondaryPillButton({ label: '取消', action: () => this.CloseToolOperation() }).layoutWeight(1)
+          AppDangerPillButton({ label: this.toolSelectedDirectory ? '确认删除目录' : '确认删除文件',
+            available: !this.toolOperationBusy, action: () => this.ConfirmToolOperation() }).layoutWeight(1)
         }.width('100%')
       }
     }.width('100%').padding(16).borderRadius(16).backgroundColor(AppTheme.surfaceTint)
