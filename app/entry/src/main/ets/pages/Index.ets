@@ -245,7 +245,7 @@ struct Index {
   @State mediaVideoDirectories: MediaVideoDirectory[] = [];
   @State mediaVideoDirectoryItems: MediaCatalogItem[] = [];
   @State mediaCatalogDirectoryId: string = '';
-  @State mediaCatalogDirectoryParentId: string = '';
+  @State mediaCatalogDirectoryParentId: string = '__media_root__';
   @State mediaCatalogTag: string = '';
   @State mediaCatalogKeyword: string = '';
   @State mediaCatalogTotal: number = 0;
@@ -2588,7 +2588,8 @@ struct Index {
         this.mediaCatalogSelectorQuery = '';
         if (mode === 'directory') {
           this.mediaCatalogDirectoryParentId = this.mediaCatalogFilters.directories.find(
-            (value: MediaDirectoryFilter) => value.directoryId === this.mediaCatalogDirectoryId)?.parentDirectoryId ?? '';
+            (value: MediaDirectoryFilter) => value.directoryId === this.mediaCatalogDirectoryId)?.parentDirectoryId ??
+            '__media_root__';
         }
         this.mediaCatalogDirectorySelectorVisible = mode === 'directory' && !this.mediaCatalogDirectorySelectorVisible;
         this.mediaCatalogTagSelectorVisible = mode === 'tag' && !this.mediaCatalogTagSelectorVisible;
@@ -2631,16 +2632,19 @@ struct Index {
         Text(this.MediaCatalogSelectorSummary()).width('calc(100% - 36vp)').fontSize(12)
           .fontColor(AppTheme.textSecondary)
         List({ space: 2 }) {
-          if (this.mediaCatalogDirectorySelectorVisible && this.mediaCatalogDirectoryParentId.length > 0) {
+          if (this.mediaCatalogDirectorySelectorVisible &&
+            this.mediaCatalogDirectoryParentId !== '__media_root__') {
             ListItem() {
               Button() {
                 Row({ space: 8 }) {
                   SymbolGlyph($r('sys.symbol.chevron_left')).fontSize(16).fontColor([AppTheme.primary])
-                  Text('返回月份').fontSize(15).fontColor(AppTheme.primary)
+                  Text(this.mediaCatalogDirectoryParentId.length > 0 ? '返回月份' : '返回媒体目录')
+                    .fontSize(15).fontColor(AppTheme.primary)
                 }.width('100%')
               }.width('100%').height(48).padding({ left: 14, right: 14 }).backgroundColor(Color.Transparent)
                 .onClick(() => {
-                  this.mediaCatalogDirectoryParentId = '';
+                  this.mediaCatalogDirectoryParentId = this.mediaCatalogDirectoryParentId.length > 0 ? '' :
+                    '__media_root__';
                   this.mediaCatalogSelectorQuery = '';
                 })
             }
@@ -2911,7 +2915,7 @@ struct Index {
     this.mediaCatalogMode = mode;
     // 图片和视频拥有独立目录集合，切换页面时不能沿用另一页面的目录或标签标识。
     this.mediaCatalogDirectoryId = '';
-    this.mediaCatalogDirectoryParentId = '';
+    this.mediaCatalogDirectoryParentId = '__media_root__';
     this.mediaCatalogTag = '';
     this.mediaCatalogFilters = { directories: [], tags: [] };
     this.selectedVideoDirectoryId = '';
@@ -2924,7 +2928,7 @@ struct Index {
     if (this.mediaCatalogDirectoryId.length === 0) return '全部目录';
     const directory = this.mediaCatalogFilters.directories.find((value: MediaDirectoryFilter) =>
       value.directoryId === this.mediaCatalogDirectoryId);
-    return directory === undefined ? '全部目录' : `${directory.parentDirectoryName}/${directory.name}`;
+    return directory === undefined ? '全部目录' : `media/${directory.parentDirectoryName}/${directory.name}`;
   }
 
   private MediaCatalogFilterSelected(mode: string): boolean {
@@ -2936,10 +2940,16 @@ struct Index {
     if (query.length > 0) return this.mediaCatalogFilters.directories.filter((value: MediaDirectoryFilter) =>
       value.name.toLowerCase().includes(query) || value.parentDirectoryName.toLowerCase().includes(query))
       .map((value: MediaDirectoryFilter): MediaDirectoryFilter => ({ directoryId: value.directoryId,
-        name: `${value.parentDirectoryName}/${value.name}`, fileCount: value.fileCount,
+        name: `media/${value.parentDirectoryName}/${value.name}`, fileCount: value.fileCount,
         latestModifiedAt: value.latestModifiedAt, parentDirectoryId: value.parentDirectoryId,
         parentDirectoryName: value.parentDirectoryName }))
       .sort((left: MediaDirectoryFilter, right: MediaDirectoryFilter) => right.name.localeCompare(left.name));
+    if (this.mediaCatalogDirectoryParentId === '__media_root__') {
+      const total = this.mediaCatalogFilters.directories.reduce((sum: number, value: MediaDirectoryFilter) =>
+        sum + value.fileCount, 0);
+      return [{ directoryId: '__media__', name: 'media', fileCount: total, latestModifiedAt: '',
+        parentDirectoryId: '__media_root__', parentDirectoryName: '' }];
+    }
     if (this.mediaCatalogDirectoryParentId.length > 0) {
       return this.mediaCatalogFilters.directories.filter((value: MediaDirectoryFilter) =>
         value.parentDirectoryId === this.mediaCatalogDirectoryParentId)
@@ -2994,6 +3004,11 @@ struct Index {
   }
 
   private SelectMediaCatalogDirectory(directoryId: string, _name: string): void {
+    if (directoryId === '__media__') {
+      this.mediaCatalogDirectoryParentId = '';
+      this.mediaCatalogSelectorQuery = '';
+      return;
+    }
     if (directoryId.length > 0 && this.mediaCatalogDirectoryParentId.length === 0 &&
       this.mediaCatalogFilters.directories.some((value: MediaDirectoryFilter) =>
         value.parentDirectoryId === directoryId)) {
