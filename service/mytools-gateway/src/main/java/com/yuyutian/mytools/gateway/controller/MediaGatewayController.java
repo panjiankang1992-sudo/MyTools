@@ -83,7 +83,7 @@ public class MediaGatewayController {
                             @RequestParam(defaultValue = "40") @Min(1) @Max(100) int pageSize,
                             @RequestParam(defaultValue = "") String keyword, HttpServletRequest request) {
         GatewayPrincipal principal = requireEnabled(request);
-        return client.ebooks(principal.userId(), page, pageSize, keyword, correlation(request));
+        return client.ebooks(principal.userId(), principal.username(), page, pageSize, keyword, correlation(request));
     }
 
     /**

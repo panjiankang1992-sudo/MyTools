@@ -28,7 +28,7 @@ def test_reverifies_and_publishes_download():
         target.parent.mkdir()
         target.write_bytes(b"content")
         digest = hashlib.sha256(b"content").hexdigest()
-        context = {"parameters": {"storageRoot": "downloads"}, "stepOutputs": {
+        context = {"parameters": {"storageRoot": "downloads", "resourceUsername": "yuyutian"}, "stepOutputs": {
             "download_asset": {"requestId": "request", "itemId": "item", "fileName": "file.bin",
                                "relativePath": "request/file.bin", "sizeBytes": 7,
                                "contentSha256": digest}}}
@@ -41,22 +41,22 @@ def test_reverifies_and_publishes_download():
 
 def test_routes_visual_media_by_message_date_and_album():
     output = {"fileName": "photo.jpg", "sizeBytes": 7}
-    parameters = {"receivedAt": "2026-08-26T15:53:08+08:00", "assetMimeType": "image/jpeg",
+    parameters = {"resourceUsername": "yuyutian", "receivedAt": "2026-08-26T15:53:08+08:00", "assetMimeType": "image/jpeg",
                   "albumFolder": "message-batch"}
-    assert MODULE.managed_directory(parameters, output) == "media/202608/20260826/message-batch"
+    assert MODULE.managed_directory(parameters, output) == "yuyutian/media/202608/20260826/message-batch"
 
 
 def test_routes_large_video_to_independent_package():
     output = {"fileName": "clip.mp4", "sizeBytes": 50 * 1024 * 1024 + 1}
-    parameters = {"receivedAt": "2026-08-26T15:53:08+08:00", "assetMimeType": "video/mp4",
+    parameters = {"resourceUsername": "yuyutian", "receivedAt": "2026-08-26T15:53:08+08:00", "assetMimeType": "video/mp4",
                   "albumFolder": "ignored"}
-    assert MODULE.managed_directory(parameters, output) == "big_media/20260826_155308_clip"
+    assert MODULE.managed_directory(parameters, output) == "yuyutian/big_media/20260826_155308_clip"
 
 
 def test_converts_utc_message_time_to_storage_timezone():
     output = {"fileName": "clip.mp4", "sizeBytes": 50 * 1024 * 1024 + 1}
-    parameters = {"receivedAt": "2026-08-26T07:53:08Z", "assetMimeType": "video/mp4"}
-    assert MODULE.managed_directory(parameters, output) == "big_media/20260826_155308_clip"
+    parameters = {"resourceUsername": "yuyutian", "receivedAt": "2026-08-26T07:53:08Z", "assetMimeType": "video/mp4"}
+    assert MODULE.managed_directory(parameters, output) == "yuyutian/big_media/20260826_155308_clip"
 
 
 def test_rejects_changed_download():

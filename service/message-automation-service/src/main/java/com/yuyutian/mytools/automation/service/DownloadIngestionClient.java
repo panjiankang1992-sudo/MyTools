@@ -51,6 +51,7 @@ public class DownloadIngestionClient {
                 "sourceKey", messageId + ":" + index,
                 "requestKind", effectiveRequestKind,
                 "parameters", Map.of("ownerId", ownerId, "itemId", messageId + "-" + index,
+                        "resourceUsername", messageResourceUsername(),
                         "url", url, "fileName", fileName, "messageBatchId", messageId.toString(),
                         "receivedAt", receivedAt.toString()));
         JsonNode response = restClient.post().uri("/api/v1/download-requests")
@@ -90,6 +91,7 @@ public class DownloadIngestionClient {
                 "sourceKey", messageId.toString(),
                 "requestKind", "MESSAGE_URL_BATCH",
                 "parameters", Map.of("ownerId", ownerId, "messageBatchId", messageId.toString(),
+                        "resourceUsername", messageResourceUsername(),
                         "receivedAt", receivedAt.toString(), "items", List.copyOf(items),
                         "albumTitleText", messageText == null ? "" : messageText.substring(
                                 0, Math.min(500, messageText.length()))));
@@ -117,6 +119,14 @@ public class DownloadIngestionClient {
             // URL 有效性由下载服务统一校验，此处仅做业务类型识别。
         }
         return requestKind;
+    }
+
+    private String messageResourceUsername() {
+        String value = System.getenv().getOrDefault("MESSAGE_RESOURCE_USERNAME", "yuyutian");
+        if (!value.matches("^[A-Za-z0-9._-]{1,128}$") || value.equals(".") || value.equals("..")) {
+            throw new IllegalStateException("Message resource username is invalid");
+        }
+        return value;
     }
 
     private String fileName(String url, int index) {

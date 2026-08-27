@@ -52,7 +52,7 @@ public class DownloadGatewayController {
                                    HttpServletRequest request) {
         validateSource(body);
         GatewayPrincipal principal = requireAllowed(request);
-        return client.createHttp(body, principal.userId(), correlation(request));
+        return client.createHttp(body, principal.userId(), principal.username(), correlation(request));
     }
 
     /**

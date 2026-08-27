@@ -30,10 +30,10 @@ class DownloadGatewayControllerTest {
         CreateHttpDownload body = new CreateHttpDownload("asset-1", "https://example.org/file",
                 "file.bin", 1024L);
         DownloadView expected = new DownloadView(UUID.randomUUID(), "PENDING", null, null);
-        when(client.createHttp(body, 55L, "correlation")).thenReturn(expected);
+        when(client.createHttp(body, 55L, "user", "correlation")).thenReturn(expected);
 
         assertThat(controller.createHttp(body, request(55L))).isEqualTo(expected);
-        verify(client).createHttp(body, 55L, "correlation");
+        verify(client).createHttp(body, 55L, "user", "correlation");
     }
 
     @Test
@@ -45,7 +45,7 @@ class DownloadGatewayControllerTest {
 
         assertThatThrownBy(() -> controller.createHttp(body, request(55L)))
                 .isInstanceOf(GatewayBadRequestException.class);
-        verify(client, never()).createHttp(body, 55L, "correlation");
+        verify(client, never()).createHttp(body, 55L, "user", "correlation");
     }
 
     @Test
@@ -59,7 +59,8 @@ class DownloadGatewayControllerTest {
         assertThatThrownBy(() -> new DownloadGatewayController(properties(true), client)
                 .createHttp(body, request(56L))).isInstanceOf(GatewayRouteDisabledException.class);
         verify(client, never()).createHttp(org.mockito.ArgumentMatchers.any(),
-                org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.anyString());
+                org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString());
     }
 
     private MockHttpServletRequest request(long userId) {

@@ -45,9 +45,10 @@ public class DownloadGatewayClient {
     /**
      * 创建属于可信主体的 HTTP 下载。
      */
-    public DownloadView createHttp(CreateHttpDownload request, long ownerId, String correlationId) {
+    public DownloadView createHttp(CreateHttpDownload request, long ownerId, String username, String correlationId) {
         Map<String, Object> parameters = new LinkedHashMap<>();
         parameters.put("ownerId", ownerId);
+        parameters.put("resourceUsername", username);
         parameters.put("itemId", request.idempotencyKey());
         parameters.put("url", request.url());
         parameters.put("fileName", request.fileName());

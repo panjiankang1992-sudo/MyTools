@@ -226,6 +226,7 @@ def execute(context: TaskContext, parameters: dict, resources: list[dict], tweet
              "fileName": resource["fileName"], "sourceIndex": source_index,
              "maxBytes": maximum_bytes,
              "ownerId": int(parameters.get("ownerId") or 0),
+             "resourceUsername": str(parameters.get("resourceUsername") or ""),
              "receivedAt": str(parameters.get("receivedAt") or ""),
              "albumFolder": album_folder,
              "assetMimeType": resource["mimeType"],

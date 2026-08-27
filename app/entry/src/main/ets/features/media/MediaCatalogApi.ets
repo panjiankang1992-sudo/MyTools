@@ -26,10 +26,10 @@ export class MediaCatalogApi {
     this.client = new AuthorizedApiClient(baseUrl, authManager);
   }
 
-  /** 查询图片或视频页面独立的目录与标签筛选项。 */
+  /** 查询图片、视频或音频页面独立的目录与标签筛选项。 */
   async filters(mode: string, keyword: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaCatalogFilters> {
-    if (mode !== 'gallery' && mode !== 'video') throw new Error('多媒体页面模式无效');
+    if (mode !== 'gallery' && mode !== 'video' && mode !== 'audio') throw new Error('多媒体页面模式无效');
     // 新媒体服务尚未提供聚合筛选接口，页面先使用完整媒体列表的客户端筛选。
     return { directories: [], tags: [] };
   }
@@ -73,6 +73,42 @@ export class MediaCatalogApi {
     return raw.map((entry: Object): MediaCatalogItem => this.item(entry))
       .filter((item: MediaCatalogItem): boolean => !excludeAdult ||
         !item.tags.some((name: string): boolean => name.toLocaleLowerCase() === 'r18'));
+  }
+
+  /** 查询音频专辑聚合。 */
+  async audioDirectories(directoryId: string, tag: string, keyword: string, excludeAdult: boolean,
+    cancellation?: DownloadCancellationToken): Promise<MediaVideoDirectory[]> {
+    const raw = await this.allLibraryItems('audio/', 2000, cancellation);
+    const query = keyword.trim().toLocaleLowerCase();
+    const items = raw.map((entry: Object): MediaCatalogItem => this.item(entry))
+      .filter((item: MediaCatalogItem): boolean => item.kind === 'AUDIO' &&
+        (query.length === 0 || item.name.toLocaleLowerCase().includes(query)) &&
+        (tag.length === 0 || item.tags.includes(tag)) &&
+        (!excludeAdult || !item.tags.some((name: string): boolean => name.toLocaleLowerCase() === 'r18')));
+    const grouped = new Map<string, MediaCatalogItem[]>();
+    items.forEach((item: MediaCatalogItem): void => {
+      const name = item.directoryName.length > 0 ? item.directoryName : 'Unknown';
+      grouped.set(name, (grouped.get(name) ?? []).concat(item));
+    });
+    const directories: MediaVideoDirectory[] = [];
+    let index = 0;
+    grouped.forEach((albumItems: MediaCatalogItem[], name: string): void => {
+      directories.push({ directoryId: index.toString(16).padStart(24, '0'), name,
+        fileCount: albumItems.length,
+        totalSizeBytes: albumItems.reduce((total: number, item: MediaCatalogItem): number => total + item.sizeBytes, 0),
+        latestModifiedAt: albumItems.length > 0 ? albumItems[0].modifiedAt : '', topItems: albumItems.slice(0, 3) });
+      index++;
+    });
+    return directories;
+  }
+
+  /** 查询一个音频专辑中的文件。 */
+  async audioDirectoryItems(directoryName: string, excludeAdult: boolean,
+    cancellation?: DownloadCancellationToken): Promise<MediaCatalogItem[]> {
+    const raw = await this.allLibraryItems('audio/', 2000, cancellation);
+    return raw.map((entry: Object): MediaCatalogItem => this.item(entry))
+      .filter((item: MediaCatalogItem): boolean => item.directoryName === directoryName &&
+        (!excludeAdult || !item.tags.some((name: string): boolean => name.toLocaleLowerCase() === 'r18')));
   }
 
   /** 查询视频详情。 */

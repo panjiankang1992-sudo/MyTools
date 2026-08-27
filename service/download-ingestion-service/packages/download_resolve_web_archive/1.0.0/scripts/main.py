@@ -252,6 +252,7 @@ def execute(context: TaskContext, parameters: dict, final_url: str,
         common = {"downloadRequestId": request_id, "itemId": item_id,
                   "fileName": resource["fileName"],
                   "ownerId": int(parameters.get("ownerId") or 0),
+                  "resourceUsername": str(parameters.get("resourceUsername") or ""),
                   "assetMimeType": resource["mimeType"],
                   "assetSourceBusinessId": f"{request_id}:{item_id}"}
         if resource["kind"] == "TEXT":

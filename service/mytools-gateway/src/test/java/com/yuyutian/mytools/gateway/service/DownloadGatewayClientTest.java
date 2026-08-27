@@ -34,7 +34,7 @@ class DownloadGatewayClientTest {
                 .andExpect(content().json("""
                         {"ownerId":55,"idempotencyKey":"gateway:55:asset-1",
                          "sourceType":"GATEWAY_HTTP","sourceKey":"55:asset-1",
-                         "requestKind":"HTTP_ASSET","parameters":{"ownerId":55,
+                         "requestKind":"HTTP_ASSET","parameters":{"ownerId":55,"resourceUsername":"user",
                          "itemId":"asset-1","url":"https://example.org/file","fileName":"file.bin",
                          "maxBytes":21474836480}}
                         """))
@@ -42,7 +42,7 @@ class DownloadGatewayClientTest {
         DownloadGatewayClient client = new DownloadGatewayClient(template, properties());
 
         var result = client.createHttp(new CreateHttpDownload("asset-1",
-                "https://example.org/file", "file.bin", null), 55L, "correlation");
+                "https://example.org/file", "file.bin", null), 55L, "user", "correlation");
 
         assertThat(result.id()).isEqualTo(requestId);
         assertThat(result.status()).isEqualTo("RUNNING");

@@ -1079,6 +1079,10 @@ struct Index {
         .fontColor(this.mediaCatalogMode === 'video' ? Color.White : AppTheme.textPrimary)
         .backgroundColor(this.mediaCatalogMode === 'video' ? AppTheme.primary : Color.Transparent)
         .onClick(() => this.ChangeMediaCatalogMode('video'))
+      Button('音频').height(36).padding({ left: 14, right: 14 }).fontSize(13)
+        .fontColor(this.mediaCatalogMode === 'audio' ? Color.White : AppTheme.textPrimary)
+        .backgroundColor(this.mediaCatalogMode === 'audio' ? AppTheme.primary : Color.Transparent)
+        .onClick(() => this.ChangeMediaCatalogMode('audio'))
     }.height(40).padding(2).borderRadius(20).backgroundColor(AppTheme.surfaceTint).margin({ right: 4 })
   }
 
@@ -2486,7 +2490,8 @@ struct Index {
             }
             if (this.mediaCatalogLoading && this.mediaCatalogItems.length === 0 &&
               this.mediaVideoDirectories.length === 0) {
-              this.NetworkLoadingRows(this.mediaCatalogMode === 'gallery' ? '正在读取图库' : '正在读取视频目录')
+              this.NetworkLoadingRows(this.mediaCatalogMode === 'gallery' ? '正在读取图库' :
+                (this.mediaCatalogMode === 'audio' ? '正在读取音频专辑' : '正在读取视频目录'))
             } else if (this.mediaCatalogMode === 'gallery') {
               this.MediaCatalogGallery()
             } else {
@@ -2850,7 +2855,7 @@ struct Index {
   }
 
   private ChangeMediaCatalogMode(mode: string): void {
-    if (mode !== 'gallery' && mode !== 'video' || mode === this.mediaCatalogMode) return;
+    if (mode !== 'gallery' && mode !== 'video' && mode !== 'audio' || mode === this.mediaCatalogMode) return;
     this.mediaCatalogMode = mode;
     // 图片和视频拥有独立目录集合，切换页面时不能沿用另一页面的目录或标签标识。
     this.mediaCatalogDirectoryId = '';
@@ -2961,8 +2966,11 @@ struct Index {
       } else {
         this.mediaCatalogItems = [];
         this.mediaCatalogTotal = 0;
-        this.mediaVideoDirectories = await api.videoDirectories(this.mediaCatalogDirectoryId,
-          this.mediaCatalogTag, this.mediaCatalogKeyword, this.hideAdultContent, cancellation);
+        this.mediaVideoDirectories = this.mediaCatalogMode === 'audio' ?
+          await api.audioDirectories(this.mediaCatalogDirectoryId, this.mediaCatalogTag,
+            this.mediaCatalogKeyword, this.hideAdultContent, cancellation) :
+          await api.videoDirectories(this.mediaCatalogDirectoryId, this.mediaCatalogTag,
+            this.mediaCatalogKeyword, this.hideAdultContent, cancellation);
         if (cancellation.isCancelled()) return;
         const previews: MediaCatalogItem[] = [];
         this.mediaVideoDirectories.forEach((directory: MediaVideoDirectory) =>
@@ -3188,8 +3196,10 @@ struct Index {
     this.activeMediaCatalogCancellation = cancellation;
     this.mediaCatalogLoading = true;
     try {
-      const items = await new MediaCatalogApi(this.ActiveServiceUrl(), this.authManager)
-        .videoDirectoryItems(directory.directoryId, this.hideAdultContent, cancellation);
+      const api = new MediaCatalogApi(this.ActiveServiceUrl(), this.authManager);
+      const items = this.mediaCatalogMode === 'audio' ?
+        await api.audioDirectoryItems(directory.name, this.hideAdultContent, cancellation) :
+        await api.videoDirectoryItems(directory.directoryId, this.hideAdultContent, cancellation);
       if (cancellation.isCancelled()) return;
       this.selectedVideoDirectoryId = directory.directoryId;
       this.selectedVideoDirectoryName = directory.name;
@@ -14752,7 +14762,7 @@ struct Index {
     const directoryId = this.selectedVideoDirectoryId;
     const directoryName = this.selectedVideoDirectoryName;
     await this.LoadMediaCatalog();
-    if (this.mediaCatalogMode !== 'video' || directoryId.length === 0) return;
+    if (this.mediaCatalogMode === 'gallery' || directoryId.length === 0) return;
     const directory = this.mediaVideoDirectories.find((value: MediaVideoDirectory) =>
       value.directoryId === directoryId);
     if (directory === undefined) {
@@ -14763,8 +14773,10 @@ struct Index {
     this.activeMediaCatalogCancellation?.cancel();
     this.activeMediaCatalogCancellation = cancellation;
     try {
-      const items = await new MediaCatalogApi(this.ActiveServiceUrl(), this.authManager)
-        .videoDirectoryItems(directoryId, this.hideAdultContent, cancellation);
+      const api = new MediaCatalogApi(this.ActiveServiceUrl(), this.authManager);
+      const items = this.mediaCatalogMode === 'audio' ?
+        await api.audioDirectoryItems(directory.name, this.hideAdultContent, cancellation) :
+        await api.videoDirectoryItems(directoryId, this.hideAdultContent, cancellation);
       if (cancellation.isCancelled() || this.selectedVideoDirectoryId !== directoryId) return;
       this.selectedVideoDirectoryName = directory.name.length > 0 ? directory.name : directoryName;
       this.mediaVideoDirectoryItems = items;

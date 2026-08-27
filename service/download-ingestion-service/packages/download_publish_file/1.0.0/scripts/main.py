@@ -16,12 +16,16 @@ from zoneinfo import ZoneInfo
 from mytools_task_sdk.storage import StorageGatewayClient
 
 ROOT = re.compile(r"^[A-Za-z][A-Za-z0-9._-]{0,127}$")
+USERNAME = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
 SAFE_DIRECTORY = re.compile(r"[^A-Za-z0-9._-]+")
 BIG_VIDEO_THRESHOLD = 50 * 1024 * 1024
 
 
 def managed_directory(parameters: dict, output: dict) -> str:
     """依据实际 MIME、大小和消息时间生成兼容 DownloadBot 的业务目录。"""
+    username = str(parameters.get("resourceUsername") or "")
+    if not USERNAME.fullmatch(username) or username in {".", ".."}:
+        raise ValueError("resource username is invalid")
     received = str(parameters.get("receivedAt") or "")
     try:
         received_at = datetime.fromisoformat(received.replace("Z", "+00:00"))
@@ -36,15 +40,19 @@ def managed_directory(parameters: dict, output: dict) -> str:
             "bigVideoThresholdBytes", BIG_VIDEO_THRESHOLD)):
         stem = SAFE_DIRECTORY.sub("_", Path(file_name).stem).strip("._-") or "video"
         package = f"{received_at.strftime('%Y%m%d_%H%M%S')}_{stem[:72]}"
-        return f"big_media/{package}"
+        return f"{username}/big_media/{package}"
     if mime.startswith(("image/", "video/")):
         directory = f"media/{received_at.strftime('%Y%m')}/{received_at.strftime('%Y%m%d')}"
         album = SAFE_DIRECTORY.sub("_", str(parameters.get("albumFolder") or "")).strip("._-")
-        return f"{directory}/{album[:96]}" if album else directory
+        path = f"{directory}/{album[:96]}" if album else directory
+        return f"{username}/{path}"
+    if mime.startswith("audio/") or Path(file_name).suffix.lower() in {".mp3", ".flac", ".aac", ".m4a", ".ogg", ".wav", ".opus"}:
+        album = SAFE_DIRECTORY.sub("_", str(parameters.get("musicAlbum") or "Unknown")).strip("._-") or "Unknown"
+        return f"{username}/music/{album[:96]}"
     suffix = Path(file_name).suffix.lower()
     if mime in {"application/epub+zip", "application/pdf"} or suffix in {".epub", ".mobi", ".azw3", ".txt"}:
-        return "ebook"
-    return "other"
+        return f"{username}/ebook"
+    return f"{username}/other"
 
 
 def execute(context: dict, destination_root: Path, storage: StorageGatewayClient) -> dict:

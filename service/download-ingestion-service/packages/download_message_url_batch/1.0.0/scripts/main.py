@@ -168,6 +168,7 @@ def execute(context: TaskContext) -> dict:
             {"downloadRequestId": request_id, "itemId": item_id, "url": resource["url"],
              "fileName": resource["fileName"], "sourceIndex": source_index,
              "maxBytes": maximum_bytes, "ownerId": owner_id,
+             "resourceUsername": str(parameters.get("resourceUsername") or ""),
              "receivedAt": str(parameters.get("receivedAt") or ""),
              "albumFolder": album_folder, "assetMimeType": resource["mimeType"],
              "assetSourceBusinessId": f"{request_id}:{item_id}"},

@@ -185,7 +185,8 @@ def execute(context: TaskContext, storage: StorageGatewayClient) -> dict:
             "sourceIndex": index - 1,
             "destinationRootName": str(parameters.get("destinationRootName")
                                        or os.getenv("DOWNLOAD_STORAGE_ROOT", "managed")),
-            "ownerId": owner_id, "receivedAt": created_at(path, mime, os.getenv("EXIFTOOL_BINARY", "exiftool")).isoformat(),
+            "ownerId": owner_id, "resourceUsername": str(parameters.get("resourceUsername") or ""),
+            "receivedAt": created_at(path, mime, os.getenv("EXIFTOOL_BINARY", "exiftool")).isoformat(),
             "assetMimeType": mime, "albumFolder": album,
             "assetSourceBusinessId": f"{request_id}:{item_id}"},
             f"local-import-object:{request_id}:{index}:{digest}",
