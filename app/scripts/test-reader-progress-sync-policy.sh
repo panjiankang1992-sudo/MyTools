@@ -62,7 +62,7 @@ rg -q -F 'this.bookSourceImporter.importJson(item.snapshotJson)' "$INDEX_SOURCE"
   fail "downloaded book sources must pass the current importer again"
 rg -q -F 'this.PullBookSources();' "$INDEX_SOURCE" ||
   fail "login must restore sources before shelf and reading data"
-rg -q -F "this.ProfileActionRow('阅读同步'" "$INDEX_SOURCE" ||
+rg -q -F "this.ProfileActionRow('阅读数据'" "$INDEX_SOURCE" ||
   fail "the profile page must expose reading sync state"
 rg -q -F 'this.HandleSyncedBookSourceRemoval(item.sourceUrl);' "$INDEX_SOURCE" ||
   fail "remote source deletion must migrate affected shelf books"

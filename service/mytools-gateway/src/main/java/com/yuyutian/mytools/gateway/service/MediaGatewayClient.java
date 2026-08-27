@@ -74,6 +74,7 @@ public class MediaGatewayClient {
      *
      * @param ownerId 所有者
      * @param mimePrefix MIME 前缀
+     * @param directoryId 目录标识
      * @param tag 标签
      * @param keyword 关键字
      * @param page 页码
@@ -82,11 +83,11 @@ public class MediaGatewayClient {
      * @param correlationId 关联标识
      * @return 媒体目录分页
      */
-    public MediaCatalogPage catalog(long ownerId, String mimePrefix, String tag, String keyword, int page,
+    public MediaCatalogPage catalog(long ownerId, String mimePrefix, String directoryId, String tag, String keyword, int page,
                                     int pageSize, boolean excludeAdult, String correlationId) {
         URI url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/media/catalog")
                 .queryParam("ownerId", ownerId).queryParam("mimePrefix", mimePrefix)
-                .queryParam("tag", tag).queryParam("keyword", keyword).queryParam("page", page)
+                .queryParam("directoryId", directoryId).queryParam("tag", tag).queryParam("keyword", keyword).queryParam("page", page)
                 .queryParam("pageSize", pageSize).queryParam("excludeAdult", excludeAdult)
                 .build().encode().toUri();
         return exchange(url, HttpMethod.GET, null, MediaCatalogPage.class, correlationId);

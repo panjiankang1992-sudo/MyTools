@@ -1,4 +1,5 @@
 import { AppTheme } from '../theme/AppTheme';
+import { AppFilterChip, AppGlassTextInput, AppPrimaryPillButton, AppSegmentItem } from '../components/AppControls';
 import { AuthSessionManager } from '../features/auth/AuthSessionManager';
 import common from '@ohos.app.ability.common';
 import window from '@ohos.window';
@@ -244,6 +245,7 @@ struct Index {
   @State mediaVideoDirectories: MediaVideoDirectory[] = [];
   @State mediaVideoDirectoryItems: MediaCatalogItem[] = [];
   @State mediaCatalogDirectoryId: string = '';
+  @State mediaCatalogDirectoryParentId: string = '';
   @State mediaCatalogTag: string = '';
   @State mediaCatalogKeyword: string = '';
   @State mediaCatalogTotal: number = 0;
@@ -1073,24 +1075,12 @@ struct Index {
   @Builder
   private MediaModeSwitch() {
     Row() {
-      Button('图片').height(36).padding({ left: 14, right: 14 }).fontSize(13)
-        .fontWeight(this.mediaCatalogMode === 'gallery' ? FontWeight.Medium : FontWeight.Normal)
-        .fontColor(this.mediaCatalogMode === 'gallery' ? AppTheme.primary : AppTheme.textSecondary)
-        .backgroundColor(this.mediaCatalogMode === 'gallery' ? AppTheme.accentSoft : Color.Transparent)
-        .borderRadius(AppTheme.pillRadius)
-        .onClick(() => this.ChangeMediaCatalogMode('gallery'))
-      Button('视频').height(36).padding({ left: 14, right: 14 }).fontSize(13)
-        .fontWeight(this.mediaCatalogMode === 'video' ? FontWeight.Medium : FontWeight.Normal)
-        .fontColor(this.mediaCatalogMode === 'video' ? AppTheme.primary : AppTheme.textSecondary)
-        .backgroundColor(this.mediaCatalogMode === 'video' ? AppTheme.accentSoft : Color.Transparent)
-        .borderRadius(AppTheme.pillRadius)
-        .onClick(() => this.ChangeMediaCatalogMode('video'))
-      Button('音频').height(36).padding({ left: 14, right: 14 }).fontSize(13)
-        .fontWeight(this.mediaCatalogMode === 'audio' ? FontWeight.Medium : FontWeight.Normal)
-        .fontColor(this.mediaCatalogMode === 'audio' ? AppTheme.primary : AppTheme.textSecondary)
-        .backgroundColor(this.mediaCatalogMode === 'audio' ? AppTheme.accentSoft : Color.Transparent)
-        .borderRadius(AppTheme.pillRadius)
-        .onClick(() => this.ChangeMediaCatalogMode('audio'))
+      AppSegmentItem({ label: '图片', selected: this.mediaCatalogMode === 'gallery',
+        action: () => this.ChangeMediaCatalogMode('gallery') })
+      AppSegmentItem({ label: '视频', selected: this.mediaCatalogMode === 'video',
+        action: () => this.ChangeMediaCatalogMode('video') })
+      AppSegmentItem({ label: '音频', selected: this.mediaCatalogMode === 'audio',
+        action: () => this.ChangeMediaCatalogMode('audio') })
     }.height(40).padding(2).borderRadius(AppTheme.pillRadius).backgroundColor(AppTheme.glass)
       .border({ width: 1, color: AppTheme.glassBorder, radius: AppTheme.pillRadius })
       .backdropBlur(14).margin({ right: 4 })
@@ -1129,13 +1119,8 @@ struct Index {
         this.BookShelfSection()
       }
     } else if (this.bookModeIndex === 1) {
-      TextInput({ text: this.remoteBookSearchText, placeholder: '搜索远程书名、作者或标签' })
-        .width('100%').height(AppTheme.inputHeight).padding({ left: 16, right: 16 })
-        .backgroundColor(AppTheme.glass)
-        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
-        .borderRadius(AppTheme.inputRadius)
-        .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
-        .onChange((value: string) => this.OnRemoteBookSearchChanged(value))
+      AppGlassTextInput({ value: this.remoteBookSearchText, placeholder: '搜索远程书名、作者或标签',
+        valueChanged: (value: string) => this.OnRemoteBookSearchChanged(value) })
       this.BookShelfHeader()
       if (!this.authenticated) {
         this.BookActionCard('连接远程书库', '登录后浏览MyTools后端管理的电子书', '登录', () => {
@@ -1198,13 +1183,9 @@ struct Index {
   private BookShelfTagFilterRow() {
     Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start }) {
       ForEach(this.BookShelfFilterTags(), (tag: string) => {
-        Button(tag).height(32).padding({ left: 10, right: 10 }).margin({ right: 6, bottom: 6 })
-          .fontSize(11).fontColor(this.shelfSearchText === tag ? AppTheme.primary : AppTheme.textSecondary)
-          .backgroundColor(this.shelfSearchText === tag ? AppTheme.accentSoft : AppTheme.surface)
-          .border({ width: 1, color: this.shelfSearchText === tag ? AppTheme.primary : AppTheme.divider,
-            radius: AppTheme.pillRadius })
-          .borderRadius(AppTheme.pillRadius).accessibilityText(`筛选书架标签：${tag}`)
-          .onClick(() => this.shelfSearchText = this.shelfSearchText === tag ? '' : tag)
+        AppFilterChip({ label: tag, selected: this.shelfSearchText === tag,
+          action: () => this.shelfSearchText = this.shelfSearchText === tag ? '' : tag })
+          .margin({ right: 6, bottom: 6 }).accessibilityText(`筛选书架标签：${tag}`)
       }, (tag: string) => tag)
     }.width('100%')
   }
@@ -1226,22 +1207,15 @@ struct Index {
   private BookModeSelector() {
     Row() {
       ForEach(['书源', '远程', '本地'], (item: string, index: number) => {
-        Button(item)
-          .height(36).padding({ left: 12, right: 12 }).fontSize(13).fontFamily('HarmonyOS Sans')
-          .fontWeight(this.bookModeIndex === index ? FontWeight.Medium : FontWeight.Normal)
-          .fontColor(this.bookModeIndex === index ? AppTheme.primary : AppTheme.textSecondary)
-          .backgroundColor(this.bookModeIndex === index ? AppTheme.accentSoft : Color.Transparent)
-          .borderRadius(AppTheme.pillRadius)
+        AppSegmentItem({ label: item, selected: this.bookModeIndex === index, action: () => {
+          if (index !== 0 && this.sourceSearchLoading) this.CancelBookSourceSearch();
+          this.bookModeIndex = index;
+          this.bookSourceManagementVisible = false;
+          if (index !== 0) this.sourceSearchPageVisible = false;
+          this.bookStatus = '';
+          if (index === 1 && this.authenticated) this.LoadRemoteBooks();
+        } })
           .accessibilityText(`${item}添加图书方式`)
-          .accessibilityDescription(this.bookModeIndex === index ? '已选择' : '未选择')
-          .onClick(() => {
-            if (index !== 0 && this.sourceSearchLoading) this.CancelBookSourceSearch();
-            this.bookModeIndex = index;
-            this.bookSourceManagementVisible = false;
-            if (index !== 0) this.sourceSearchPageVisible = false;
-            this.bookStatus = '';
-            if (index === 1 && this.authenticated) this.LoadRemoteBooks();
-          })
       })
     }
     .height(40)
@@ -1344,13 +1318,8 @@ struct Index {
     } else if (this.toolMode === 'downloads') {
       this.ToolDownloadsPage()
     } else {
-      TextInput({ text: this.toolSearchText, placeholder: '搜索工具' })
-        .width('100%').height(AppTheme.inputHeight).padding({ left: 16, right: 16 })
-        .backgroundColor(AppTheme.glass)
-        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
-        .borderRadius(AppTheme.inputRadius)
-        .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
-        .onChange((value: string) => this.toolSearchText = value)
+      AppGlassTextInput({ value: this.toolSearchText, placeholder: '搜索工具',
+        valueChanged: (value: string) => this.toolSearchText = value })
       this.HeroPanel('远程文件管理', '浏览MyTools、NAS与WebDAV文件，不扫描本地目录', '打开文件管理', () => {
         this.RecordRecentTool('files');
         if (!this.authenticated) {
@@ -1473,10 +1442,8 @@ struct Index {
       .width('100%').height(140).maxLength(2048)
       .onChange((value: string) => this.qrInput = value)
     Row({ space: 12 }) {
-      Button(this.qrBusy ? '处理中…' : '生成二维码').layoutWeight(1).enabled(!this.qrBusy)
-        .backgroundColor(AppTheme.primary)
-        .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
-        .borderRadius(AppTheme.pillRadius).onClick(() => this.GenerateQrCode())
+      AppPrimaryPillButton({ label: this.qrBusy ? '处理中…' : '生成二维码', available: !this.qrBusy,
+        action: () => this.GenerateQrCode() }).layoutWeight(1)
       Button('系统扫码').layoutWeight(1).enabled(!this.qrBusy)
         .fontColor(AppTheme.primary).backgroundColor(AppTheme.surfaceTint).onClick(() => this.ScanQrCode())
     }.width('100%')
@@ -1525,10 +1492,8 @@ struct Index {
         this.digestOutput = '';
         this.digestStatus = '';
       })
-    Button(this.digestBusy ? '计算中…' : '计算摘要').width('100%').height(48)
-      .enabled(!this.digestBusy).backgroundColor(AppTheme.primary)
-      .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
-      .borderRadius(AppTheme.pillRadius).onClick(() => this.CalculateDigest())
+    AppPrimaryPillButton({ label: this.digestBusy ? '计算中…' : '计算摘要', available: !this.digestBusy,
+      action: () => this.CalculateDigest() })
     if (this.digestOutput.length > 0) {
       TextArea({ text: this.digestOutput }).width('100%').height(130)
         .backgroundColor(AppTheme.surfaceTint).copyOption(CopyOptions.LocalDevice)
@@ -1570,10 +1535,8 @@ struct Index {
         .width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
       Text('不会扫描设备目录，不会修改或删除原文件。')
         .width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
-      Button(this.archiveBusy ? '正在创建ZIP…' : '选择文件并创建ZIP').width('100%').height(48)
-        .enabled(!this.archiveBusy).backgroundColor(AppTheme.primary)
-        .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
-        .borderRadius(AppTheme.pillRadius).onClick(() => this.CreateToolArchive())
+      AppPrimaryPillButton({ label: this.archiveBusy ? '正在创建ZIP…' : '选择文件并创建ZIP',
+        available: !this.archiveBusy, action: () => this.CreateToolArchive() })
     }.width('100%').padding(18).borderRadius(18).backgroundColor(AppTheme.surfaceTint)
     Column({ space: 10 }) {
       Text('安全解压').width('100%').fontSize(20).fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
@@ -1665,14 +1628,13 @@ struct Index {
       this.ToolMarketDetail(this.marketDetail)
     } else {
       Row({ space: 10 }) {
-        TextInput({ text: this.marketQuery, placeholder: '按名称搜索应用' }).layoutWeight(1)
-          .height(AppTheme.inputHeight).padding({ left: 16, right: 16 })
-          .backgroundColor(AppTheme.glass).borderRadius(AppTheme.inputRadius)
-          .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
-          .onChange((value: string) => this.marketQuery = value)
-          .onSubmit(() => this.LoadMarketApps(true))
+        AppGlassTextInput({ value: this.marketQuery, placeholder: '按名称搜索应用',
+          valueChanged: (value: string) => this.marketQuery = value,
+          submitted: () => this.LoadMarketApps(true) }).layoutWeight(1)
         Button('搜索').height(AppTheme.controlHeight).padding({ left: 18, right: 18 })
           .fontColor(Color.White).backgroundColor(AppTheme.primary).borderRadius(AppTheme.pillRadius)
+          .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+          .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
           .onClick(() => this.LoadMarketApps(true))
       }.width('100%')
       Text(`共 ${this.marketTotal} 项 · 第 ${this.marketPage} 页`)
@@ -1756,15 +1718,10 @@ struct Index {
         })
       }.width('100%').padding(24).borderRadius(18).backgroundColor(AppTheme.surfaceTint)
     } else {
-      TextInput({ text: this.feedbackName, placeholder: '称呼（必填）' })
-        .width('100%').height(AppTheme.inputHeight).maxLength(50).backgroundColor(AppTheme.glass)
-        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
-        .borderRadius(AppTheme.inputRadius).onChange((value: string) => this.feedbackName = value)
-      TextInput({ text: this.feedbackEmail, placeholder: '联系邮箱（必填）' })
-        .width('100%').height(AppTheme.inputHeight).maxLength(100).type(InputType.Email)
-        .backgroundColor(AppTheme.glass).borderRadius(AppTheme.inputRadius)
-        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
-        .onChange((value: string) => this.feedbackEmail = value)
+      AppGlassTextInput({ value: this.feedbackName, placeholder: '称呼（必填）', limit: 50,
+        valueChanged: (value: string) => this.feedbackName = value })
+      AppGlassTextInput({ value: this.feedbackEmail, placeholder: '联系邮箱（必填）', limit: 100,
+        inputType: InputType.Email, valueChanged: (value: string) => this.feedbackEmail = value })
       Text('反馈类型').width('100%').fontSize(14).fontColor(AppTheme.textSecondary)
       Row({ space: 8 }) {
         ForEach(['功能建议', '使用问题', '内容问题', '其他'], (category: string) => {
@@ -1778,10 +1735,8 @@ struct Index {
             .onClick(() => this.feedbackCategory = category)
         })
       }.width('100%')
-      TextInput({ text: this.feedbackTitle, placeholder: '标题（必填，最多200字）' })
-        .width('100%').height(AppTheme.inputHeight).maxLength(200).backgroundColor(AppTheme.glass)
-        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
-        .borderRadius(AppTheme.inputRadius).onChange((value: string) => this.feedbackTitle = value)
+      AppGlassTextInput({ value: this.feedbackTitle, placeholder: '标题（必填，最多200字）', limit: 200,
+        valueChanged: (value: string) => this.feedbackTitle = value })
       TextArea({ text: this.feedbackContent, placeholder: '请描述问题、期望结果和复现步骤（必填，最多5000字）' })
         .width('100%').height(220).maxLength(5000).backgroundColor(AppTheme.glass)
         .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
@@ -1792,11 +1747,8 @@ struct Index {
       if (this.feedbackStatus.length > 0) {
         Text(this.feedbackStatus).width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
       }
-      Button(this.feedbackSubmitting ? '提交中…' : '提交反馈')
-        .width('100%').height(48).enabled(!this.feedbackSubmitting)
-        .backgroundColor(AppTheme.primary)
-        .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
-        .borderRadius(AppTheme.pillRadius).onClick(() => this.SubmitFeedback())
+      AppPrimaryPillButton({ label: this.feedbackSubmitting ? '提交中…' : '提交反馈',
+        available: !this.feedbackSubmitting, action: () => this.SubmitFeedback() })
     }
   }
 
@@ -2080,6 +2032,8 @@ struct Index {
             Button(this.toolOperationBusy ? '下载中' : '下载').layoutWeight(1).height(48)
               .enabled(!this.toolOperationBusy)
               .fontColor(Color.White).backgroundColor(AppTheme.primary).borderRadius(AppTheme.pillRadius)
+              .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+              .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
               .onClick(() => this.DownloadToolFile())
           }
           Button('删除').layoutWeight(1).height(48).fontColor(AppTheme.danger).backgroundColor(AppTheme.dangerSoft).onClick(() => {
@@ -2090,15 +2044,17 @@ struct Index {
         Text(this.toolOperation === 'rename' ? '输入新名称' :
           (this.toolOperation === 'move' ? '输入目标目录绝对路径' : '输入文件夹名称'))
           .width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
-        TextInput({ text: this.toolOperationInput }).width('100%')
-          .onChange((value: string) => this.toolOperationInput = value)
+        AppGlassTextInput({ value: this.toolOperationInput,
+          valueChanged: (value: string) => this.toolOperationInput = value })
         Row({ space: 10 }) {
           Button('取消').layoutWeight(1).height(48).backgroundColor(AppTheme.surfaceTint)
             .fontColor(AppTheme.textPrimary).onClick(() => this.CloseToolOperation())
           Button(this.toolOperation === 'rename' ? '确认重命名' :
             (this.toolOperation === 'move' ? '确认移动' : '确认新建')).layoutWeight(1)
             .height(48).fontColor(Color.White).backgroundColor(AppTheme.primary)
+            .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
             .borderRadius(AppTheme.pillRadius)
+            .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
             .enabled(!this.toolOperationBusy).onClick(() => this.ConfirmToolOperation())
         }.width('100%')
       } else {
@@ -2622,7 +2578,7 @@ struct Index {
           .fontColor([this.MediaCatalogFilterSelected(mode) ? AppTheme.primary : AppTheme.textSecondary])
       }
     }.width(94).height(48).padding({ left: 8, right: 8 }).fontColor(AppTheme.textPrimary)
-      .backgroundColor(this.MediaCatalogFilterSelected(mode) ? AppTheme.surfaceTint : AppTheme.surface)
+      .backgroundColor(this.MediaCatalogFilterSelected(mode) ? AppTheme.accentSoft : AppTheme.surface)
       .border({ width: 1, color: this.MediaCatalogFilterSelected(mode) ? AppTheme.primary : AppTheme.divider,
         radius: 16 })
       .accessibilityText(mode === 'directory' ? this.SelectedMediaCatalogDirectoryName() :
@@ -2630,6 +2586,10 @@ struct Index {
       .accessibilityDescription(mode === 'directory' ? '打开目录选择器' : '打开标签选择器')
       .onClick(() => {
         this.mediaCatalogSelectorQuery = '';
+        if (mode === 'directory') {
+          this.mediaCatalogDirectoryParentId = this.mediaCatalogFilters.directories.find(
+            (value: MediaDirectoryFilter) => value.directoryId === this.mediaCatalogDirectoryId)?.parentDirectoryId ?? '';
+        }
         this.mediaCatalogDirectorySelectorVisible = mode === 'directory' && !this.mediaCatalogDirectorySelectorVisible;
         this.mediaCatalogTagSelectorVisible = mode === 'tag' && !this.mediaCatalogTagSelectorVisible;
       })
@@ -2671,6 +2631,20 @@ struct Index {
         Text(this.MediaCatalogSelectorSummary()).width('calc(100% - 36vp)').fontSize(12)
           .fontColor(AppTheme.textSecondary)
         List({ space: 2 }) {
+          if (this.mediaCatalogDirectorySelectorVisible && this.mediaCatalogDirectoryParentId.length > 0) {
+            ListItem() {
+              Button() {
+                Row({ space: 8 }) {
+                  SymbolGlyph($r('sys.symbol.chevron_left')).fontSize(16).fontColor([AppTheme.primary])
+                  Text('返回月份').fontSize(15).fontColor(AppTheme.primary)
+                }.width('100%')
+              }.width('100%').height(48).padding({ left: 14, right: 14 }).backgroundColor(Color.Transparent)
+                .onClick(() => {
+                  this.mediaCatalogDirectoryParentId = '';
+                  this.mediaCatalogSelectorQuery = '';
+                })
+            }
+          }
           ListItem() {
             this.MediaCatalogSelectorRow('', this.mediaCatalogDirectorySelectorVisible ? '全部目录' : '全部标签', 0)
           }
@@ -2884,14 +2858,18 @@ struct Index {
           directoryId: item.directoryId,
           name: filter?.name ?? item.directoryName,
           fileCount: filter?.fileCount ?? 1,
-          latestModifiedAt: filter?.latestModifiedAt ?? item.modifiedAt
+          latestModifiedAt: filter?.latestModifiedAt ?? item.modifiedAt,
+          parentDirectoryId: filter?.parentDirectoryId ?? '',
+          parentDirectoryName: filter?.parentDirectoryName ?? ''
         });
       } else if (item.modifiedAt.localeCompare(current.latestModifiedAt) > 0) {
         directories.set(item.directoryId, {
           directoryId: current.directoryId,
           name: current.name,
           fileCount: current.fileCount,
-          latestModifiedAt: item.modifiedAt
+          latestModifiedAt: item.modifiedAt,
+          parentDirectoryId: current.parentDirectoryId,
+          parentDirectoryName: current.parentDirectoryName
         });
       }
     });
@@ -2933,6 +2911,7 @@ struct Index {
     this.mediaCatalogMode = mode;
     // 图片和视频拥有独立目录集合，切换页面时不能沿用另一页面的目录或标签标识。
     this.mediaCatalogDirectoryId = '';
+    this.mediaCatalogDirectoryParentId = '';
     this.mediaCatalogTag = '';
     this.mediaCatalogFilters = { directories: [], tags: [] };
     this.selectedVideoDirectoryId = '';
@@ -2943,8 +2922,9 @@ struct Index {
 
   private SelectedMediaCatalogDirectoryName(): string {
     if (this.mediaCatalogDirectoryId.length === 0) return '全部目录';
-    return this.mediaCatalogFilters.directories.find((value: MediaDirectoryFilter) =>
-      value.directoryId === this.mediaCatalogDirectoryId)?.name ?? '全部目录';
+    const directory = this.mediaCatalogFilters.directories.find((value: MediaDirectoryFilter) =>
+      value.directoryId === this.mediaCatalogDirectoryId);
+    return directory === undefined ? '全部目录' : `${directory.parentDirectoryName}/${directory.name}`;
   }
 
   private MediaCatalogFilterSelected(mode: string): boolean {
@@ -2953,10 +2933,30 @@ struct Index {
 
   private FilteredMediaCatalogDirectories(): MediaDirectoryFilter[] {
     const query = this.mediaCatalogSelectorQuery.trim().toLowerCase();
-    if (query.length === 0) return this.mediaCatalogFilters.directories.slice()
+    if (query.length > 0) return this.mediaCatalogFilters.directories.filter((value: MediaDirectoryFilter) =>
+      value.name.toLowerCase().includes(query) || value.parentDirectoryName.toLowerCase().includes(query))
+      .map((value: MediaDirectoryFilter): MediaDirectoryFilter => ({ directoryId: value.directoryId,
+        name: `${value.parentDirectoryName}/${value.name}`, fileCount: value.fileCount,
+        latestModifiedAt: value.latestModifiedAt, parentDirectoryId: value.parentDirectoryId,
+        parentDirectoryName: value.parentDirectoryName }))
       .sort((left: MediaDirectoryFilter, right: MediaDirectoryFilter) => right.name.localeCompare(left.name));
-    return this.mediaCatalogFilters.directories.filter((value: MediaDirectoryFilter) =>
-      value.name.toLowerCase().includes(query))
+    if (this.mediaCatalogDirectoryParentId.length > 0) {
+      return this.mediaCatalogFilters.directories.filter((value: MediaDirectoryFilter) =>
+        value.parentDirectoryId === this.mediaCatalogDirectoryParentId)
+        .sort((left: MediaDirectoryFilter, right: MediaDirectoryFilter) => right.name.localeCompare(left.name));
+    }
+    const parents = new Map<string, MediaDirectoryFilter>();
+    this.mediaCatalogFilters.directories.forEach((value: MediaDirectoryFilter): void => {
+      const current = parents.get(value.parentDirectoryId);
+      if (current === undefined) {
+        parents.set(value.parentDirectoryId, { directoryId: value.parentDirectoryId,
+          name: value.parentDirectoryName, fileCount: value.fileCount, latestModifiedAt: '',
+          parentDirectoryId: '', parentDirectoryName: '' });
+      } else {
+        current.fileCount += value.fileCount;
+      }
+    });
+    return Array.from(parents.values())
       .sort((left: MediaDirectoryFilter, right: MediaDirectoryFilter) => right.name.localeCompare(left.name));
   }
 
@@ -2994,6 +2994,13 @@ struct Index {
   }
 
   private SelectMediaCatalogDirectory(directoryId: string, _name: string): void {
+    if (directoryId.length > 0 && this.mediaCatalogDirectoryParentId.length === 0 &&
+      this.mediaCatalogFilters.directories.some((value: MediaDirectoryFilter) =>
+        value.parentDirectoryId === directoryId)) {
+      this.mediaCatalogDirectoryParentId = directoryId;
+      this.mediaCatalogSelectorQuery = '';
+      return;
+    }
     this.mediaCatalogDirectoryId = directoryId;
     this.CloseMediaCatalogSelector();
     this.selectedVideoDirectoryId = '';
@@ -3359,6 +3366,9 @@ struct Index {
                 Text(`上次播放：${this.FormatDuration(this.MediaVideoDetailProgress())}`)
                   .width('100%').fontSize(12).fontColor(AppTheme.primary)
                 Button('播放').width('100%').height(42).fontColor(Color.White).backgroundColor(AppTheme.primary)
+                  .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+                  .borderRadius(AppTheme.pillRadius)
+                  .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
                   .onClick(() => this.PlayMediaVideoDetail())
               }.layoutWeight(1).alignItems(HorizontalAlign.Start)
             }.width('100%')
@@ -3863,6 +3873,9 @@ struct Index {
       if (this.HasActiveMediaFilters()) {
         Button('清除筛选').height(44).padding({ left: 22, right: 22 }).fontSize(14)
           .fontFamily('HarmonyOS Sans').fontColor(Color.White).backgroundColor(AppTheme.primary)
+          .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+          .borderRadius(AppTheme.pillRadius)
+          .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
           .accessibilityText('清除全部媒体筛选条件').onClick(() => this.ResetMediaFilters())
       }
     }.width('100%').padding({ top: 38, bottom: 38, left: 20, right: 20 })
@@ -5038,15 +5051,13 @@ struct Index {
         this.BookSourceCredentialTypeButton('Cookie')
         this.BookSourceCredentialTypeButton('X-API-Key')
       }.width('100%')
-      TextInput({ text: this.sourceCredentialValue,
-        placeholder: this.sourceCredentialHeader === 'Authorization' ? '例如：Bearer token' : '输入敏感凭据值' })
-        .type(InputType.Password).width('100%').height(AppTheme.inputHeight).enabled(!this.sourceCredentialBusy)
-        .backgroundColor(AppTheme.glass).borderRadius(AppTheme.inputRadius)
-        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
-        .onChange((value: string) => {
+      AppGlassTextInput({ value: this.sourceCredentialValue,
+        placeholder: this.sourceCredentialHeader === 'Authorization' ? '例如：Bearer token' : '输入敏感凭据值',
+        inputType: InputType.Password, available: !this.sourceCredentialBusy,
+        valueChanged: (value: string) => {
           this.sourceCredentialValue = value;
           this.sourceCredentialStatus = '';
-        })
+        } })
       Row({ space: 10 }) {
         Button('取消').layoutWeight(1).backgroundColor(AppTheme.surfaceTint).fontColor(AppTheme.textPrimary)
           .onClick(() => this.CloseBookSourceCredential())
@@ -5055,6 +5066,9 @@ struct Index {
           .onClick(() => this.ClearBookSourceCredential(source.bookSourceUrl))
         Button(this.sourceCredentialBusy ? '处理中…' : '安全保存').layoutWeight(1)
           .enabled(!this.sourceCredentialBusy).backgroundColor(AppTheme.primary).fontColor(Color.White)
+          .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+          .borderRadius(AppTheme.pillRadius)
+          .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
           .onClick(() => this.SaveBookSourceCredential(source.bookSourceUrl))
       }.width('100%')
       if (this.sourceCredentialStatus.length > 0) {
@@ -5152,16 +5166,11 @@ struct Index {
 
   @Builder
   private BookSourceFilterButton(label: string, filter: string) {
-    Button(label).layoutWeight(1).height(40).fontSize(13)
-      .fontColor(this.sourceManageFilter === filter ? AppTheme.primary : AppTheme.textSecondary)
-      .backgroundColor(this.sourceManageFilter === filter ? AppTheme.accentSoft : AppTheme.surface)
-      .border({ width: 1, color: this.sourceManageFilter === filter ? AppTheme.primary : AppTheme.divider,
-        radius: AppTheme.pillRadius }).borderRadius(AppTheme.pillRadius)
-      .onClick(() => {
+    AppFilterChip({ label, selected: this.sourceManageFilter === filter, action: () => {
         this.sourceManageFilter = filter;
         this.sourceManageVisibleCount = this.sourceManageRenderBatchSize;
         this.CancelDeleteBookSource();
-      })
+      } }).layoutWeight(1)
   }
 
   @Builder
@@ -6440,7 +6449,9 @@ struct Index {
         .width('100%').height(100).onChange((value: string) => this.readerAnnotationInput = value)
       Button('保存当前位置批注').width('100%').enabled(this.readerAnnotationInput.trim().length > 0)
         .height(48).fontColor(Color.White).backgroundColor(AppTheme.primary)
+        .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
         .borderRadius(AppTheme.pillRadius).accessibilityDescription('保存批注并关联当前阅读位置')
+        .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
         .onClick(() => this.AddCurrentReaderAnnotation())
       Text(`本书批注 · ${this.CurrentReaderAnnotations().length}`).width('100%').fontSize(16)
         .fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
@@ -10304,10 +10315,10 @@ struct Index {
             .tabBar(this.TabBarItem(tab, index))
           })
         }
+        .barWidth('calc(100% - 24vp)')
         .barHeight(60)
-        .barBackgroundColor(AppTheme.glass)
-        .barBackgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
-        .divider({ strokeWidth: 1, color: AppTheme.glassBorder })
+        .barBackgroundColor(Color.Transparent)
+        .divider({ strokeWidth: 0, color: Color.Transparent })
         .onChange((index: number) => {
           this.ChangeMainTab(index);
           if (index === 3 && this.authenticated && this.mediaCatalogItems.length === 0 &&
@@ -10508,8 +10519,21 @@ struct Index {
       }
     }
     .width('100%')
-    .height(64)
+    .height(60)
     .justifyContent(FlexAlign.Center)
+    .backgroundColor(AppTheme.glass)
+    .backdropBlur(22)
+    .border({
+      width: { top: 1, bottom: 1, left: index === 0 ? 1 : 0, right: index === this.tabs.length - 1 ? 1 : 0 },
+      color: AppTheme.glassBorder
+    })
+    .borderRadius({
+      topLeft: index === 0 ? 26 : 0,
+      bottomLeft: index === 0 ? 26 : 0,
+      topRight: index === this.tabs.length - 1 ? 26 : 0,
+      bottomRight: index === this.tabs.length - 1 ? 26 : 0
+    })
+    .shadow({ radius: 8, color: AppTheme.shadow, offsetY: 2 })
     .accessibilityText(`${tab.title}，${this.currentIndex === index ? '已选择' : '未选择'}`)
     .accessibilityDescription(`主导航第${index + 1}项，共${this.tabs.length}项`)
   }
@@ -10632,18 +10656,8 @@ struct Index {
         .fontSize(15)
         .fontWeight(FontWeight.Medium)
         .fontColor(AppTheme.textPrimary)
-      TextInput({ text: value, placeholder: placeholder })
-        .width('100%')
-        .height(54)
-        .type(password ? InputType.Password : InputType.Normal)
-        .fontSize(15)
-        .fontColor(AppTheme.textPrimary)
-        .placeholderColor(AppTheme.textTertiary)
-        .backgroundColor(AppTheme.glass)
-        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
-        .borderRadius(AppTheme.inputRadius)
-        .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
-        .onChange(onChange)
+      AppGlassTextInput({ value: value, placeholder: placeholder,
+        inputType: password ? InputType.Password : InputType.Normal, valueChanged: onChange })
     }
     .width('100%')
     .alignItems(HorizontalAlign.Start)

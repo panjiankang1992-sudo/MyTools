@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 SOURCE="$APP_DIR/entry/src/main/ets/pages/Index.ets"
+CONTROLS="$APP_DIR/entry/src/main/ets/components/AppControls.ets"
 
 fail() {
   echo "UI design policy failed: $1" >&2
@@ -28,12 +29,14 @@ printf '%s\n' "$book_selector" | rg -q -F "ForEach(['书源', '远程', '本地'
   fail "ebook modes must remain 书源/远程/本地"
 printf '%s\n' "$book_selector" | rg -q -F 'this.bookModeIndex = index;' ||
   fail "ebook mode selector must update the active mode"
-printf '%s\n' "$book_selector" | rg -q -F 'Button(item)' ||
-  fail "ebook mode selector must use focusable buttons"
+printf '%s\n' "$book_selector" | rg -q -F 'AppSegmentItem({ label: item' ||
+  fail "ebook mode selector must use the shared segment control"
+rg -q -F 'Button(this.label)' "$CONTROLS" ||
+  fail "shared segment control must remain a focusable button"
 printf '%s\n' "$page_header" | rg -q -F 'this.BookModeSelector()' ||
   fail "ebook modes must stay in the fixed page header"
-printf '%s\n' "$book_selector" | rg -q -F '.accessibilityDescription(this.bookModeIndex === index ?' ||
-  fail "ebook mode selector must expose selected state"
+rg -q -F ".accessibilityDescription(this.selected ? '已选择' : '未选择')" "$CONTROLS" ||
+  fail "shared segment control must expose selected state"
 printf '%s\n' "$book_selector" | rg -q -F 'if (index === 1 && this.authenticated) this.LoadRemoteBooks();' ||
   fail "remote ebook mode must load the remote library"
 
@@ -161,8 +164,8 @@ if printf '%s\n' "$media_page" | rg -q -F 'CurrentMediaSourceLabel'; then
   fail "media page must not expose Alist or WebDAV source selection"
 fi
 media_mode_switch="$(sed -n '/private MediaModeSwitch()/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$media_mode_switch" | rg -q -F "Button('图片')" || fail "media header needs gallery mode"
-printf '%s\n' "$media_mode_switch" | rg -q -F "Button('视频')" || fail "media header needs video mode"
+printf '%s\n' "$media_mode_switch" | rg -q -F "AppSegmentItem({ label: '图片'" || fail "media header needs gallery mode"
+printf '%s\n' "$media_mode_switch" | rg -q -F "AppSegmentItem({ label: '视频'" || fail "media header needs video mode"
 rg -q -F 'private MediaCatalogVideos()' "$SOURCE" || fail "video directory aggregation view is missing"
 rg -q -F 'directory.topItems' "$SOURCE" || fail "video directories must show top three items"
 rg -q -F 'private MediaVideoDetailPage()' "$SOURCE" || fail "multimedia video detail page is missing"
@@ -290,7 +293,7 @@ printf '%s\n' "$page_header" | rg -q -F ".accessibilityDescription(this.profileV
   fail "account avatar must independently open the profile page"
 
 tab_bar="$(sed -n '/private TabBarItem(/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$tab_bar" | rg -q -F '.height(64)' || fail "tab targets must remain at least 48 vp"
+printf '%s\n' "$tab_bar" | rg -q -F '.height(60)' || fail "compact tab targets must remain at least 48 vp"
 printf '%s\n' "$tab_bar" | rg -q -F '.accessibilityDescription(`主导航第${index + 1}项，共${this.tabs.length}项`)' ||
   fail "tab bar must expose navigation position"
 

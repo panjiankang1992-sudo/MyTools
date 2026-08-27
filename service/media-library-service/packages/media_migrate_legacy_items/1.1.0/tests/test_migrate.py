@@ -13,7 +13,7 @@ def item(legacy_id="7", mime_type="video/mp4"):
     return {"sourceSystem": "MyTools", "legacyAssetId": legacy_id, "asset": {
         "ownerId": 1, "sourceType": "LEGACY_ASSET", "sourceBusinessId": f"local_file:{legacy_id}",
         "contentSha256": legacy_id[0] * 64, "sizeBytes": 128, "mimeType": mime_type,
-        "location": {"storageUri": f"file:///media/file-{legacy_id}.mp4"}},
+        "location": {"storageUri": f"file:///opt/extend/resource/yuyutian/media/202608/20260824/file-{legacy_id}.mp4"}},
         "mediaMetadata": {"tags": [{"name": "Legacy", "confidence": 0.8}]}}
 
 
@@ -22,6 +22,7 @@ class Client:
         self.missing = missing
         self.bad_target = bad_target
         self.imported = []
+        self.directories = []
 
     def page(self, snapshot_id, after_id):
         assert snapshot_id == "snapshot-1"
@@ -42,6 +43,9 @@ class Client:
         self.imported.append(request)
         event = request["event"]
         return {"assetId": event["assetId"], "ownerId": event["ownerId"]}
+
+    def backfill_directories(self, bindings):
+        self.directories.extend(bindings)
 
     def evidence(self, migration_key):
         digest = MODULE.scan(self, migration_key, "snapshot-1", False)[4]
@@ -76,6 +80,9 @@ def test_apply_is_two_pass_and_uses_stable_private_free_events():
     assert all(request["tags"] == [{"name": "Legacy", "confidence": 0.8}]
                for request in first_events)
     assert all("location" not in request["event"] for request in first_events)
+    assert [binding["directoryName"] for binding in client.directories[:2]] == ["20260824", "20260824"]
+    assert [binding["parentDirectoryName"] for binding in client.directories[:2]] == ["202608", "202608"]
+    assert all(len(binding["directoryKey"]) == 24 for binding in client.directories)
     assert all(request["migrationKey"] == "media-v1" for request in first_events)
     assert result["targetVerified"] is True
 
@@ -103,3 +110,41 @@ def test_payload_digest_matches_java_protocol_fixture():
                         {"name": "R18-否", "confidence": None}]}
     assert MODULE.migration_payload_digest(request) == \
         "eb8e0d754703394181a4e0b091201b01981610a9095822bfa90ef380d2cb5b85"
+
+
+def test_directory_binding_uses_daily_media_directory():
+    binding = MODULE.directory_binding_for(
+        7, "42", "file:///opt/extend/resource/yuyutian/media/202608/20260827/image.jpg")
+    assert binding["directoryName"] == "20260827"
+    assert binding["parentDirectoryName"] == "202608"
+    assert len(binding["directoryKey"]) == 24
+
+
+def test_directory_binding_restores_implicit_media_root_from_snapshot():
+    binding = MODULE.directory_binding_for(
+        7, "43", "file:///opt/extend/resource/yuyutian/202608/20260825/image.jpg")
+    assert binding["parentDirectoryName"] == "202608"
+    assert binding["directoryName"] == "20260825"
+
+
+def test_directory_binding_groups_legacy_storyboard_by_timestamp_date():
+    binding = MODULE.directory_binding_for(
+        7, "44", "file:///opt/extend/resource/yuyutian/20260825_120000_video/storyboard/1.jpg")
+    assert binding["parentDirectoryName"] == "202608"
+    assert binding["directoryName"] == "20260825"
+
+
+def test_directory_binding_groups_legacy_root_by_owner_and_date():
+    standard = MODULE.directory_binding_for(
+        7, "45", "file:///opt/extend/resource/yuyutian/202608/20260825/image.jpg")
+    legacy = MODULE.directory_binding_for(
+        7, "46", "file:///opt/extend/resource/big_media/20260825_120000_video.jpg")
+    assert legacy["parentDirectoryKey"] == standard["parentDirectoryKey"]
+    assert legacy["directoryKey"] == standard["directoryKey"]
+
+
+def test_directory_binding_uses_snapshot_date_when_path_has_no_date():
+    binding = MODULE.directory_binding_for(
+        7, "47", "file:///opt/extend/resource/other/song.mp3", "legacy_asset_20260824_02")
+    assert binding["parentDirectoryName"] == "202608"
+    assert binding["directoryName"] == "20260824"

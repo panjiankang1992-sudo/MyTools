@@ -54,13 +54,13 @@ class MediaGatewayControllerTest {
     void shouldBindOwnerForDirectCatalogQuery() {
         MediaGatewayClient client = mock(MediaGatewayClient.class);
         MediaGatewayController controller = controller(true, client);
-        MediaCatalogPage page = new MediaCatalogPage(List.of(), 0, 1, 100, List.of());
-        when(client.catalog(55L, "image/", "nature", "mountain", 1, 100, false, "correlation"))
+        MediaCatalogPage page = new MediaCatalogPage(List.of(), 0, 1, 100, List.of(), List.of());
+        when(client.catalog(55L, "image/", "", "nature", "mountain", 1, 100, false, "correlation"))
                 .thenReturn(page);
 
-        assertThat(controller.catalog("image/", "nature", "mountain", 1, 100, false, request(55L)))
+        assertThat(controller.catalog("image/", "", "nature", "mountain", 1, 100, false, request(55L)))
                 .isEqualTo(page);
-        verify(client).catalog(55L, "image/", "nature", "mountain", 1, 100, false, "correlation");
+        verify(client).catalog(55L, "image/", "", "nature", "mountain", 1, 100, false, "correlation");
     }
 
     @Test

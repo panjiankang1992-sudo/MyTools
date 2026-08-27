@@ -29,8 +29,8 @@ for pattern in \
   '.deleteEntry(book.sourceId, book.resourceUri, false);' \
   'private CaptureBookSourceSearchReturnPosition(): void' \
   'private RestoreBookSourceSearchReturnPosition(): void' \
-  'this.sourceSearchReturnOffset = Math.max(0, this.tabScrollers[0].currentOffset().yOffset);' \
-  'this.tabScrollers[0].scrollTo({ xOffset: 0, yOffset: offset, animation: false });' \
+  'this.sourceSearchReturnOffset = Math.max(0, this.sourceSearchScroller.currentOffset().yOffset);' \
+  'this.sourceSearchScroller.scrollTo({ xOffset: 0, yOffset: offset, animation: false });' \
   'private ReaderContentHorizontalPadding(): number' \
   'return Math.max(6, this.readerSettings.horizontalPadding - 16);' \
   'left: this.ReaderContentHorizontalPadding()' \

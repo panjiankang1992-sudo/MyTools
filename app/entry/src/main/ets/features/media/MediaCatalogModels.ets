@@ -5,6 +5,8 @@ export interface MediaDirectoryFilter {
   name: string;
   fileCount: number;
   latestModifiedAt: string;
+  parentDirectoryId: string;
+  parentDirectoryName: string;
 }
 
 export interface MediaTagFilter {

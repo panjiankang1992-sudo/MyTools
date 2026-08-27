@@ -2,15 +2,18 @@ package com.yuyutian.mytools.media.library.model;
 import jakarta.validation.Valid;import jakarta.validation.constraints.*;import java.time.Instant;import java.util.*;
 /** Media Library API 模型。 */ public final class MediaModels { private MediaModels(){}
  public record AssetEvent(@NotBlank @Size(max=255)String eventId,@NotNull UUID assetId,@NotNull Long ownerId,@NotBlank @Pattern(regexp="^[A-Z][A-Z0-9_]{0,63}$")String sourceType,@NotBlank @Size(max=255)String sourceBusinessId,@NotBlank @Size(max=512)String displayName,@NotBlank @Size(max=255)String mimeType,@Positive long sizeBytes,@NotBlank @Pattern(regexp="^[a-fA-F0-9]{64}$")String contentSha256,@Size(max=255)String directoryKey,@Size(max=512)String directoryName,UUID scanId){}
- public record MediaView(UUID id,long ownerId,UUID assetId,String displayName,String mimeType,long sizeBytes,String contentSha256,String status,long version,List<String>tags){}
+ public record MediaView(UUID id,long ownerId,UUID assetId,String displayName,String mimeType,long sizeBytes,String contentSha256,String status,long version,List<String>tags,String directoryId,String directoryName){}
  public record MediaPage(List<MediaView>items,UUID nextAfterId){}
  public record MediaTagCount(String name,long fileCount){}
- public record MediaCatalogPage(List<MediaView>items,long total,int page,int pageSize,List<MediaTagCount>tags){}
+ public record MediaDirectoryCount(String directoryId,String name,long fileCount,String parentDirectoryId,String parentDirectoryName){}
+ public record MediaCatalogPage(List<MediaView>items,long total,int page,int pageSize,List<MediaTagCount>tags,List<MediaDirectoryCount>directories){}
  public record EbookPage(List<MediaView>items,long total,int page,int pageSize){}
  public record BeginAnalysis(@NotBlank @Pattern(regexp="^[A-Za-z0-9._-]{1,64}$")String analysisVersion,@NotNull UUID taskInstanceId,@NotNull UUID assetId){}
  public record AnalysisView(UUID id,UUID mediaItemId,String analysisVersion,UUID taskInstanceId,String status){}
  public record TagInput(@NotBlank @Size(max=128)String name,@DecimalMin("0.0") @DecimalMax("1.0")Double confidence){}
  public record LegacyMediaImport(@NotBlank @Pattern(regexp="^[A-Za-z0-9._:-]{1,128}$")String migrationKey,@NotBlank @Pattern(regexp="^[A-Za-z0-9._:-]{1,128}$")String sourceSnapshotId,@NotBlank @Pattern(regexp="^[A-Za-z0-9._-]{1,64}$")String sourceSystem,@NotBlank @Size(max=255)String legacyAssetId,@NotNull @Valid AssetEvent event,@NotNull @Size(max=256)List<@Valid TagInput>tags){}
+ public record LegacyDirectoryBinding(@NotNull Long ownerId,@NotBlank @Size(max=255)String legacyAssetId,@NotBlank @Pattern(regexp="^[a-f0-9]{24}$")String directoryKey,@NotBlank @Size(max=512)String directoryName,@NotBlank @Pattern(regexp="^[a-f0-9]{24}$")String parentDirectoryKey,@NotBlank @Size(max=512)String parentDirectoryName){}
+ public record LegacyDirectoryBackfill(@NotNull @Size(max=1000)List<@Valid LegacyDirectoryBinding>bindings){}
  public record LegacyMigrationEvidence(String migrationKey,String sourceSnapshotId,int itemCount,int tagCount,String collectionSha256){}
  public record ArtifactInput(@NotNull UUID assetId,@NotBlank @Pattern(regexp="^[A-Z][A-Z0-9_]{0,63}$")String kind,@NotBlank @Size(max=64)String generatorVersion){}
  public record CompleteAnalysis(@NotNull UUID taskInstanceId,@Size(max=2000)String summary,@Size(max=20000)String description,@Size(max=32)List<@Valid TagInput>tags,@Size(max=64)List<@Valid ArtifactInput>artifacts){}

@@ -12,6 +12,7 @@ interface CatalogQueryData {
   items: MediaCatalogItem[];
   total: number;
   tags: MediaTagFilter[];
+  directories: MediaDirectoryFilter[];
 }
 
 /**
@@ -36,56 +37,50 @@ export class MediaCatalogApi {
     cancellation?: DownloadCancellationToken): Promise<MediaCatalogFilters> {
     if (mode !== 'gallery' && mode !== 'video' && mode !== 'audio') throw new Error('多媒体页面模式无效');
     const prefix = mode === 'gallery' ? 'image/' : (mode === 'video' ? 'video/' : 'audio/');
-    const data = await this.catalog(prefix, '', keyword, 1, excludeAdult, cancellation);
-    const tags: MediaTagFilter[] = data.tags;
-    const directories: MediaDirectoryFilter[] = data.total === 0 ? [] : [{
-      directoryId: '000000000000000000000001', name: '媒体库', fileCount: data.total, latestModifiedAt: ''
-    }];
-    return { directories, tags };
+    const data = await this.catalog(prefix, '', '', keyword, 1, excludeAdult, cancellation);
+    return { directories: data.directories, tags: data.tags };
   }
 
   /** 查询图库分页。 */
   async gallery(directoryId: string, tag: string, keyword: string, page: number, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaGalleryPage> {
     const safePage = Math.max(1, page);
-    const data = await this.catalog('image/', tag, keyword, safePage, excludeAdult, cancellation);
+    const data = await this.catalog('image/', directoryId, tag, keyword, safePage, excludeAdult, cancellation);
     return { items: data.items, total: data.total, page: safePage, pageSize: MediaCatalogApi.GALLERY_PAGE_SIZE };
   }
 
   /** 查询视频目录聚合。 */
   async videoDirectories(directoryId: string, tag: string, keyword: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaVideoDirectory[]> {
-    const items = await this.allCatalogItems('video/', tag, keyword, excludeAdult, cancellation);
-    if (items.length === 0) return [];
-    return [{ directoryId: '000000000000000000000001', name: '媒体库', fileCount: items.length,
-      totalSizeBytes: items.reduce((total: number, item: MediaCatalogItem): number => total + item.sizeBytes, 0),
-      latestModifiedAt: '', topItems: items.slice(0, 3) }];
+    const items = await this.allCatalogItems('video/', directoryId, tag, keyword, excludeAdult, cancellation);
+    return this.groupDirectories(items);
   }
 
   /** 查询一个视频目录中的文件。 */
   async videoDirectoryItems(directoryId: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaCatalogItem[]> {
     if (!/^[0-9a-f]{24}$/.test(directoryId)) throw new Error('视频目录标识无效');
-    return this.allCatalogItems('video/', '', '', excludeAdult, cancellation);
+    return this.allCatalogItems('video/', directoryId, '', '', excludeAdult, cancellation);
   }
 
   /** 查询音频专辑聚合。 */
   async audioDirectories(directoryId: string, tag: string, keyword: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaVideoDirectory[]> {
-    const items = await this.allCatalogItems('audio/', tag, keyword, excludeAdult, cancellation);
+    const items = await this.allCatalogItems('audio/', directoryId, tag, keyword, excludeAdult, cancellation);
+    return this.groupDirectories(items);
+  }
+
+  private groupDirectories(items: MediaCatalogItem[]): MediaVideoDirectory[] {
     const grouped = new Map<string, MediaCatalogItem[]>();
     items.forEach((item: MediaCatalogItem): void => {
-      const name = item.directoryName.length > 0 ? item.directoryName : 'Unknown';
-      grouped.set(name, (grouped.get(name) ?? []).concat(item));
+      grouped.set(item.directoryId, (grouped.get(item.directoryId) ?? []).concat(item));
     });
     const directories: MediaVideoDirectory[] = [];
-    let index = 0;
-    grouped.forEach((albumItems: MediaCatalogItem[], name: string): void => {
-      directories.push({ directoryId: index.toString(16).padStart(24, '0'), name,
-        fileCount: albumItems.length,
-        totalSizeBytes: albumItems.reduce((total: number, item: MediaCatalogItem): number => total + item.sizeBytes, 0),
-        latestModifiedAt: albumItems.length > 0 ? albumItems[0].modifiedAt : '', topItems: albumItems.slice(0, 3) });
-      index++;
+    grouped.forEach((directoryItems: MediaCatalogItem[], directoryId: string): void => {
+      directories.push({ directoryId, name: directoryItems[0].directoryName,
+        fileCount: directoryItems.length,
+        totalSizeBytes: directoryItems.reduce((total: number, item: MediaCatalogItem): number => total + item.sizeBytes, 0),
+        latestModifiedAt: directoryItems[0].modifiedAt, topItems: directoryItems.slice(0, 3) });
     });
     return directories;
   }
@@ -93,7 +88,7 @@ export class MediaCatalogApi {
   /** 查询一个音频专辑中的文件。 */
   async audioDirectoryItems(directoryName: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaCatalogItem[]> {
-    return (await this.allCatalogItems('audio/', '', '', excludeAdult, cancellation))
+    return (await this.allCatalogItems('audio/', '', '', '', excludeAdult, cancellation))
       .filter((item: MediaCatalogItem): boolean => item.directoryName === directoryName);
   }
 
@@ -165,13 +160,16 @@ export class MediaCatalogApi {
       sizeBytes: this.number(data, 'sizeBytes'), modifiedAt: '',
       thumbnailUrl: kind === 'IMAGE' || kind === 'VIDEO' ? `/api/app/v1/media/items/${itemId}/thumbnail` : '',
       tags: rawTags.map((value: Object): string => `${value}`.substring(0, 64)),
-      directoryId: '000000000000000000000001', directoryName: '媒体库' };
+      directoryId: this.optionalText(data, 'directoryId', 255),
+      directoryName: this.optionalText(data, 'directoryName', 512) };
   }
 
   private directoryFilter(value: Object): MediaDirectoryFilter {
     const data = this.record(value);
     return { directoryId: this.hashId(data, 'directoryId'), name: this.text(data, 'name', 512),
-      fileCount: this.number(data, 'fileCount'), latestModifiedAt: this.optionalText(data, 'latestModifiedAt', 64) };
+      fileCount: this.number(data, 'fileCount'), latestModifiedAt: this.optionalText(data, 'latestModifiedAt', 64),
+      parentDirectoryId: this.hashId(data, 'parentDirectoryId'),
+      parentDirectoryName: this.text(data, 'parentDirectoryName', 512) };
   }
 
   private tagFilter(value: Object): MediaTagFilter {
@@ -247,32 +245,36 @@ export class MediaCatalogApi {
   }
 
   /** 调用媒体库同步目录接口，查询过程不创建任务。 */
-  private async catalog(mimePrefix: string, tag: string, keyword: string, page: number, excludeAdult: boolean,
+  private async catalog(mimePrefix: string, directoryId: string, tag: string, keyword: string, page: number, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<CatalogQueryData> {
-    const cacheKey = `${mimePrefix}|${tag}|${keyword.trim()}|${page}|${excludeAdult}`;
+    const cacheKey = `${mimePrefix}|${directoryId}|${tag}|${keyword.trim()}|${page}|${excludeAdult}`;
     const cached = this.catalogCache.get(cacheKey);
     if (cached !== undefined) return cached;
     const envelope = await this.client.get('/api/app/v1/media/catalog' +
       `?mimePrefix=${encodeURIComponent(mimePrefix)}&tag=${encodeURIComponent(tag)}` +
+      `&directoryId=${encodeURIComponent(directoryId)}` +
       `&keyword=${encodeURIComponent(keyword.trim())}&page=${page}` +
       `&pageSize=${MediaCatalogApi.GALLERY_PAGE_SIZE}&excludeAdult=${excludeAdult}`, cancellation);
     const data = this.record(envelope.data);
     const rawItems = data['items'];
     const rawTags = data['tags'];
+    const rawDirectories = data['directories'];
     if (!Array.isArray(rawItems) || rawItems.length > MediaCatalogApi.GALLERY_PAGE_SIZE ||
-      !Array.isArray(rawTags) || rawTags.length > 500) throw new Error('媒体目录响应无效');
+      !Array.isArray(rawTags) || rawTags.length > 500 || !Array.isArray(rawDirectories) ||
+      rawDirectories.length > 5000) throw new Error('媒体目录响应无效');
     const result: CatalogQueryData = { items: rawItems.map((entry: Object): MediaCatalogItem => this.item(entry)),
-      total: this.number(data, 'total'), tags: rawTags.map((entry: Object): MediaTagFilter => this.tagFilter(entry)) };
+      total: this.number(data, 'total'), tags: rawTags.map((entry: Object): MediaTagFilter => this.tagFilter(entry)),
+      directories: rawDirectories.map((entry: Object): MediaDirectoryFilter => this.directoryFilter(entry)) };
     this.catalogCache.set(cacheKey, result);
     return result;
   }
 
   /** 分页读取聚合视图所需媒体，仍由媒体库服务逐页直接查询。 */
-  private async allCatalogItems(mimePrefix: string, tag: string, keyword: string, excludeAdult: boolean,
+  private async allCatalogItems(mimePrefix: string, directoryId: string, tag: string, keyword: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaCatalogItem[]> {
     const items: MediaCatalogItem[] = [];
     for (let page = 1; items.length < 2000; page++) {
-      const data = await this.catalog(mimePrefix, tag, keyword, page, excludeAdult, cancellation);
+      const data = await this.catalog(mimePrefix, directoryId, tag, keyword, page, excludeAdult, cancellation);
       items.push(...data.items);
       if (items.length >= data.total || data.items.length < MediaCatalogApi.GALLERY_PAGE_SIZE) break;
     }

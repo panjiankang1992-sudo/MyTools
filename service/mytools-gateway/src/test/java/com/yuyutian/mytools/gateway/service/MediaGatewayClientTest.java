@@ -30,14 +30,14 @@ class MediaGatewayClientTest {
         RestTemplate restTemplate = new RestTemplate();
         MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
         server.expect(requestTo("http://media/internal/v1/media/catalog?ownerId=55&mimePrefix=image/"
-                        + "&tag=%E5%8F%8C%E9%A9%AC%E5%B0%BE&keyword=%E5%9C%B0%E9%93%81&page=1"
+                        + "&directoryId=&tag=%E5%8F%8C%E9%A9%AC%E5%B0%BE&keyword=%E5%9C%B0%E9%93%81&page=1"
                         + "&pageSize=100&excludeAdult=false"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess("{\"items\":[],\"total\":0,\"page\":1,\"pageSize\":100,\"tags\":[]}",
+                .andRespond(withSuccess("{\"items\":[],\"total\":0,\"page\":1,\"pageSize\":100,\"tags\":[],\"directories\":[]}",
                         MediaType.APPLICATION_JSON));
 
         var result = new MediaGatewayClient(restTemplate, properties())
-                .catalog(55L, "image/", "双马尾", "地铁", 1, 100, false, "correlation");
+                .catalog(55L, "image/", "", "双马尾", "地铁", 1, 100, false, "correlation");
 
         assertThat(result.total()).isZero();
         server.verify();

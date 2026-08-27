@@ -8,9 +8,8 @@ grep -Fq 'private AccountOperationCurrent(revision: number, owner: string): bool
 grep -Fq 'this.accountOperationRevision++;' "$SOURCE"
 grep -Fq 'this.activeDownloadCancellation?.cancel();' "$SOURCE"
 
-for method in LoadMarketApps LoadMarketDetail LoadToolFileDirectory LoadDeviceSessions LoadRemoteBookDirectory \
-  LoadMediaSources LoadMediaDirectory UploadToolFile ConfirmToolOperation RevokeDeviceSession \
-  RevokeOtherSessions; do
+for method in LoadMarketApps LoadMarketDetail LoadToolFileDirectory LoadRemoteBookDirectory \
+  LoadMediaSources LoadMediaDirectory UploadToolFile ConfirmToolOperation; do
   block="$(sed -n "/private async ${method}(/,/^  }/p" "$SOURCE")"
   printf '%s\n' "$block" | grep -Fq 'const revision = this.accountOperationRevision;' || {
     echo "$method does not capture the account revision" >&2

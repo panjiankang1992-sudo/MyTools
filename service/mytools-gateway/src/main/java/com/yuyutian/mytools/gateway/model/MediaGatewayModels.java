@@ -22,7 +22,8 @@ public final class MediaGatewayModels {
      */
     public record MediaView(UUID id, long ownerId, UUID assetId, String displayName,
                             String mimeType, long sizeBytes, String contentSha256,
-                            String status, long version, List<String> tags) {
+                            String status, long version, List<String> tags,
+                            String directoryId, String directoryName) {
     }
 
     /**
@@ -35,9 +36,14 @@ public final class MediaGatewayModels {
     public record MediaTagCount(String name, long fileCount) {
     }
 
+    /** 媒体目录及其实际文件数量。 */
+    public record MediaDirectoryCount(String directoryId, String name, long fileCount,
+                                      String parentDirectoryId, String parentDirectoryName) {
+    }
+
     /** 由媒体库服务直接返回的筛选分页，不创建调度任务。 */
     public record MediaCatalogPage(List<MediaView> items, long total, int page, int pageSize,
-                                   List<MediaTagCount> tags) {
+                                   List<MediaTagCount> tags, List<MediaDirectoryCount> directories) {
     }
 
     public record EbookPage(List<MediaView> items, long total, int page, int pageSize) {

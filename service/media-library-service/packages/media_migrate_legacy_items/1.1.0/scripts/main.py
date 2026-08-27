@@ -58,6 +58,12 @@ class Client:
         return self._request(self.media_url + "/internal/v1/media/migrations/legacy-items",
                              "POST", event, self.media_token)
 
+    def backfill_directories(self, bindings: list[dict]) -> None:
+        """Idempotently restore directory relations without changing legacy event digests."""
+        if bindings:
+            self._request(self.media_url + "/internal/v1/media/migrations/legacy-directories",
+                          "POST", {"bindings": bindings}, self.media_token)
+
     def evidence(self, migration_key: str) -> dict:
         """Read independently recomputed evidence for this migration only."""
         return self._request(self.media_url + "/internal/v1/media/migrations/legacy-items/"
@@ -124,15 +130,20 @@ def scan(client: Client, migration_key: str, snapshot_id: str,
         media_items += len(events)
         tag_count += sum(len(request["tags"]) for request in events)
         skipped += len(items) - len(events)
+        bindings = []
         for request in events:
             payload_digest = migration_payload_digest(request)
             evidence.append((request["sourceSystem"], request["legacyAssetId"],
                              payload_digest, len(request["tags"])))
             if apply:
-                result = client.import_media(request)
+                result = client.import_media({key: value for key, value in request.items()
+                                              if key != "_directoryBinding"})
                 event = request["event"]
                 if str(result.get("assetId")) != event["assetId"] or int(result.get("ownerId", -1)) != event["ownerId"]:
                     raise RuntimeError("Media Library returned a conflicting migrated item")
+                bindings.append(request["_directoryBinding"])
+        if apply:
+            client.backfill_directories(bindings)
         next_after_id = page.get("nextAfterId")
         if next_after_id is None:
             break
@@ -180,9 +191,12 @@ def prepare_events(client: Client, migration_key: str, snapshot_id: str,
         raise RuntimeError("Legacy media asset mapping set does not close")
     events = []
     for key, request in prepared:
+        directory_binding = directory_binding_for(request["event"]["ownerId"], key[1],
+                                                  request.pop("_storageUri"), snapshot_id)
         events.append({"migrationKey": migration_key, "sourceSnapshotId": snapshot_id,
                        "sourceSystem": key[0], "legacyAssetId": key[1], **request,
-                       "event": {**request["event"], "assetId": by_identity[key]}})
+                       "event": {**request["event"], "assetId": by_identity[key]},
+                       "_directoryBinding": directory_binding})
     return events
 
 
@@ -208,6 +222,42 @@ def update_digest(digest, *values: object) -> None:
         encoded = ("" if value is None else str(value)).encode("utf-8")
         digest.update(len(encoded).to_bytes(4, "big"))
         digest.update(encoded)
+
+
+def directory_binding_for(owner_id: int, legacy_id: str, storage_uri: str,
+                          snapshot_id: str = "") -> dict:
+    """Derive a stable opaque directory key and a user-visible folder name."""
+    path = Path(unquote(urlparse(storage_uri).path))
+    parent = path.parent
+    parts = path.parts
+    if len(parts) < 6 or parts[1:4] != ("opt", "extend", "resource"):
+        raise RuntimeError("Legacy media directory hierarchy is invalid")
+    month_index = 6 if parts[5] == "media" else 5
+    day_index = month_index + 1
+    if len(parts) > day_index + 1 and re.fullmatch(r"\d{6}", parts[month_index]) \
+            and re.fullmatch(r"\d{8}", parts[day_index]):
+        month_name = parts[month_index]
+        day_name = parts[day_index]
+    else:
+        dated = next((re.match(r"^(20\d{6})", value) for value in parts[5:]
+                      if re.match(r"^(20\d{6})", value)), None)
+        snapshot_date = re.search(r"(20\d{6})", snapshot_id)
+        if dated is None and snapshot_date is None:
+            raise RuntimeError("Legacy media directory hierarchy is invalid")
+        day_name = dated.group(1) if dated is not None else snapshot_date.group(1)
+        month_name = day_name[:6]
+    logical_root = Path("/media")
+    month = logical_root / month_name
+    parent = month / day_name
+    normalized = parent.as_posix().rstrip("/")
+    normalized_month = month.as_posix().rstrip("/")
+    directory_key = hashlib.sha256(f"{owner_id}\0{normalized}".encode()).hexdigest()[:24]
+    parent_directory_key = hashlib.sha256(
+        f"{owner_id}\0{normalized_month}".encode()).hexdigest()[:24]
+    return {"ownerId": owner_id, "legacyAssetId": legacy_id,
+            "directoryKey": directory_key, "directoryName": parent.name[:512],
+            "parentDirectoryKey": parent_directory_key,
+            "parentDirectoryName": month.name[:512]}
 
 
 def normalize(snapshot_id: str, item: dict) -> dict | None:
@@ -262,7 +312,7 @@ def normalize(snapshot_id: str, item: dict) -> dict | None:
              "sourceType": source_type, "sourceBusinessId": business_id,
              "displayName": display_name, "mimeType": mime_type, "sizeBytes": size,
              "contentSha256": sha256}
-    return {"event": event, "tags": tags}
+    return {"event": event, "tags": tags, "_storageUri": uri}
 
 
 def write_result(result: dict) -> None:
@@ -283,7 +333,7 @@ def main() -> None:
                     os.getenv("LEGACY_ASSET_ADAPTER_TOKEN", ""),
                     os.getenv("ASSET_REGISTRY_URL", "http://127.0.0.1:23270"),
                     os.getenv("ASSET_REGISTRY_INTERNAL_TOKEN", ""),
-                    os.getenv("MEDIA_LIBRARY_URL", "http://127.0.0.1:23280"),
+                    os.getenv("MEDIA_LIBRARY_URL", "http://127.0.0.1:23300"),
                     os.getenv("MEDIA_LIBRARY_INTERNAL_TOKEN", ""))
     write_result(execute(client, str(parameters["migrationKey"]),
                          str(parameters["sourceSnapshotId"]), bool(parameters["dryRun"])))

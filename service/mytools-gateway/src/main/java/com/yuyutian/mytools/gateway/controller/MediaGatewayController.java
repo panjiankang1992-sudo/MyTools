@@ -82,6 +82,7 @@ public class MediaGatewayController {
      * 由媒体库服务直接执行同步筛选与分页，不创建任务实例。
      *
      * @param mimePrefix MIME 前缀
+     * @param directoryId 目录标识
      * @param tag 标签
      * @param keyword 关键字
      * @param page 页码
@@ -92,6 +93,7 @@ public class MediaGatewayController {
      */
     @GetMapping("/catalog")
     public MediaCatalogPage catalog(@RequestParam String mimePrefix,
+                                    @RequestParam(defaultValue = "") String directoryId,
                                     @RequestParam(defaultValue = "") String tag,
                                     @RequestParam(defaultValue = "") String keyword,
                                     @RequestParam(defaultValue = "1") @Min(1) int page,
@@ -99,7 +101,7 @@ public class MediaGatewayController {
                                     @RequestParam(defaultValue = "false") boolean excludeAdult,
                                     HttpServletRequest request) {
         GatewayPrincipal principal = requireEnabled(request);
-        return client.catalog(principal.userId(), mimePrefix, tag, keyword, page, pageSize, excludeAdult,
+        return client.catalog(principal.userId(), mimePrefix, directoryId, tag, keyword, page, pageSize, excludeAdult,
                 correlation(request));
     }
 
