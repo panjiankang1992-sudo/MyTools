@@ -20,7 +20,31 @@ MYTOOLS_ENCRYPTION_KEY
 轮换WebDAV凭据加密密钥时，把旧密钥暂存到`MYTOOLS_ENCRYPTION_PREVIOUS_KEY`，把新密钥设置为
 `MYTOOLS_ENCRYPTION_KEY`。账号下一次保存或更新时会使用新密钥重新加密；确认所有账号完成迁移后删除旧密钥变量。
 
-### 方式一：使用部署脚本（推荐）
+### 方式一：通过SSH通道远程部署（推荐）
+
+远程入口统一使用 `ssh.yuyutian.top`。脚本只调用系统 `ssh`/`scp`，认证必须来自 SSH
+配置、指定的私钥文件或 `ssh-agent`；不要把密码放入参数、环境变量或仓库文件。
+
+```bash
+export MYTOOLS_SSH_USER='<remote-user>'
+# 可选：export MYTOOLS_SSH_IDENTITY='/absolute/path/to/private-key'
+
+# 验证新服务部署根；具体版本以发布清单和 releases/current 为准
+scripts/remote-ssh.sh run -- test -d /opt/yuyutian/mytools
+scripts/remote-ssh.sh run -- readlink /opt/yuyutian/mytools/releases/current
+
+# 上传已经在本机验证过的发布包
+scripts/remote-ssh.sh upload service/build/mytools-services.tar.gz /tmp/mytools-services.tar.gz
+
+# 需要交互排查时进入远端终端
+scripts/remote-ssh.sh connect
+```
+
+新服务统一部署到 `/opt/yuyutian/mytools`，以不可变版本目录和 `releases/current` 原子切换；远端不要求
+存在 Git 工作区。旧应用目录 `/opt/yuyutian/app/MyTools` 不由新服务发布器覆盖。任何安装、迁移或
+重启动作都应先通过只读命令确认远端发布根和当前版本，再执行 `service/deploy/README.md` 中的流程。
+
+### 方式二：在目标服务器使用部署脚本
 
 ```bash
 # 进入脚本目录
@@ -42,7 +66,7 @@ Windows 用户使用:
 scripts\deploy.bat --all
 ```
 
-### 方式二：手动部署
+### 方式三：在目标服务器手动部署
 
 ```bash
 # 1. 拉取最新代码
@@ -183,7 +207,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
       - name: Build
         run: mvn clean package -DskipTests
       - name: Deploy
