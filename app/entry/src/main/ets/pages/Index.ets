@@ -2725,7 +2725,7 @@ struct Index {
         Row() {
           Text(directory.name).layoutWeight(1).maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis })
             .fontSize(18).fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
-          Text(`${this.MediaCatalogDirectoryItems(directory.directoryId).length} 个`)
+          Text(`${this.mediaCatalogTotal} 个`)
             .fontSize(12).fontColor(AppTheme.textSecondary)
         }.width('100%')
         Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.SpaceBetween }) {
