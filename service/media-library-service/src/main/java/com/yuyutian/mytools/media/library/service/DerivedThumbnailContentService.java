@@ -54,9 +54,32 @@ public class DerivedThumbnailContentService {
         if (assetId == null) {
             return Optional.empty();
         }
+        return assetContent(assetId, true);
+    }
+
+    /**
+     * 读取当前媒体登记在资产服务中的原始图片。
+     *
+     * @param ownerId 所有者
+     * @param mediaId 媒体标识
+     * @return 图片内容
+     */
+    public Optional<LegacyMediaContentService.Content> originalImage(long ownerId, UUID mediaId) {
+        var media = repository.view(mediaId)
+                .filter(value -> value.ownerId() == ownerId)
+                .orElseThrow(() -> new IllegalArgumentException("media content not found"));
+        if (!media.mimeType().toLowerCase().startsWith("image/")) {
+            return Optional.empty();
+        }
+        return assetContent(media.assetId(), false);
+    }
+
+    private Optional<LegacyMediaContentService.Content> assetContent(UUID assetId, boolean requireJpeg) {
         Map<?, ?> asset = assetClient.get().uri("/internal/v1/assets/{id}", assetId).retrieve().body(Map.class);
         Map<?, ?> location = availableLocation(asset);
-        if (asset == null || location == null || !"image/jpeg".equals(asset.get("mimeType"))) {
+        String mimeType = asset == null ? "" : String.valueOf(asset.get("mimeType"));
+        if (asset == null || location == null || !mimeType.startsWith("image/")
+                || requireJpeg && !"image/jpeg".equals(mimeType)) {
             return Optional.empty();
         }
         long expectedSize = ((Number) asset.get("sizeBytes")).longValue();
@@ -72,7 +95,7 @@ public class DerivedThumbnailContentService {
         if (body == null || body.length != expectedSize) {
             throw new IllegalStateException("derived media thumbnail content is invalid");
         }
-        return Optional.of(new LegacyMediaContentService.Content(new ByteArrayResource(body), "image/jpeg", body.length));
+        return Optional.of(new LegacyMediaContentService.Content(new ByteArrayResource(body), mimeType, body.length));
     }
 
     private Map<?, ?> availableLocation(Map<?, ?> asset) {

@@ -49,6 +49,11 @@ public class LegacyMediaContentService {
             if (derived != null) {
                 return derived;
             }
+            // 派生缩略图尚未生成时，图片可直接回退到资产存储中的原图。
+            Content originalImage = derivedThumbnailContentService.originalImage(ownerId, mediaId).orElse(null);
+            if (originalImage != null) {
+                return originalImage;
+            }
         }
         long legacyId = repository.legacyFileId(ownerId, mediaId)
                 .orElseThrow(() -> new IllegalArgumentException("media content not found"));
