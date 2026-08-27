@@ -2694,7 +2694,8 @@ struct Index {
       }.width('100%').margin({ top: 12 })
     } else {
       if (!this.mediaCatalogLoading && this.mediaVideoDirectories.length === 0) {
-        this.PlaceholderRow('没有符合条件的视频目录', '目录中至少需要包含一个视频')
+        this.PlaceholderRow(this.mediaCatalogMode === 'audio' ? '没有符合条件的音频专辑' : '没有符合条件的视频目录',
+          this.mediaCatalogMode === 'audio' ? '专辑中至少需要包含一个音频文件' : '目录中至少需要包含一个视频')
       }
       ForEach(this.mediaVideoDirectories, (directory: MediaVideoDirectory) => {
         Column({ space: 10 }) {

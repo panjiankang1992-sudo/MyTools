@@ -177,7 +177,7 @@ export class MediaCatalogApi {
       mimeType.startsWith('audio/') ? 'AUDIO' : mimeType.startsWith('text/') ? 'TEXT' : 'OTHER';
     return { itemId, name, kind: kind as MediaCatalogKind, mimeType,
       sizeBytes: this.number(data, 'sizeBytes'), modifiedAt: '',
-      thumbnailUrl: `/api/app/v1/media/items/${itemId}/thumbnail`,
+      thumbnailUrl: kind === 'IMAGE' || kind === 'VIDEO' ? `/api/app/v1/media/items/${itemId}/thumbnail` : '',
       tags: rawTags.map((value: Object): string => `${value}`.substring(0, 64)),
       directoryId: '000000000000000000000001', directoryName: '媒体库' };
   }
