@@ -5927,9 +5927,10 @@ struct Index {
       Scroll() {
         this.ReaderBlocksContent(this.readerTextPages[this.readerTextPageIndex] ?? [])
       }.width('100%').height('100%').align(Alignment.TopStart).scrollBar(BarState.Off)
+        // 手势挂在实际接收触摸的Scroll上，保留单页纵向滚动并稳定识别横向翻页。
+        .parallelGesture(PanGesture({ fingers: 1, direction: PanDirection.Horizontal, distance: 12 })
+          .onActionEnd((event: GestureEvent) => this.TurnReaderTextPageBySwipe(event.offsetX)))
     }.width('100%').layoutWeight(1)
-      .gesture(PanGesture({ fingers: 1, direction: PanDirection.Horizontal, distance: 12 })
-        .onActionEnd((event: GestureEvent) => this.TurnReaderTextPageBySwipe(event.offsetX)))
       .animation({ duration: this.readerSettings.pageTurnMode === 'cover' ? 160 : 260, curve: Curve.EaseOut })
   }
 
@@ -5950,11 +5951,23 @@ struct Index {
   @Builder
   private ReaderFooter() {
     Row() {
+      if (!this.pdfMode && this.comicImageUris.length === 0 && !this.ReaderUsesContinuousText()) {
+        Button() {
+          SymbolGlyph($r('sys.symbol.chevron_left')).fontSize(14).fontColor([this.ReaderSecondaryColor()])
+        }.width(44).height(34).padding(0).backgroundColor(Color.Transparent)
+          .accessibilityText('上一页').onClick(() => this.ChangeReaderPageFromFooter(-1))
+      }
       Text(this.ReaderSingleLineStatus())
-        .width('100%').maxLines(1).textAlign(TextAlign.Center)
+        .layoutWeight(1).maxLines(1).textAlign(TextAlign.Center)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
         .fontSize(10).fontColor(this.ReaderSecondaryColor())
-    }.width('100%').height(22).padding({ left: 12, right: 12 })
+      if (!this.pdfMode && this.comicImageUris.length === 0 && !this.ReaderUsesContinuousText()) {
+        Button() {
+          SymbolGlyph($r('sys.symbol.chevron_right')).fontSize(14).fontColor([this.ReaderSecondaryColor()])
+        }.width(44).height(34).padding(0).backgroundColor(Color.Transparent)
+          .accessibilityText('下一页').onClick(() => this.ChangeReaderPageFromFooter(1))
+      }
+    }.width('100%').height(34).padding({ left: 4, right: 4 })
       .border({ width: { top: 1 }, color: this.ReaderDividerColor() })
   }
 
@@ -7426,6 +7439,16 @@ struct Index {
    */
   private ContinueReaderScroll(direction: number): void {
     if (this.ReaderUsesWindowedContinuousText()) {
+      if (direction > 0 && this.readerContinuousEndIndex >= this.readerChapters.length - 1) {
+        // 连续窗口已经覆盖末章时，边界回调负责把全书进度正式结算到末尾。
+        const lastIndex = this.readerChapters.length - 1;
+        this.readerChapterIndex = lastIndex;
+        this.readerContent = this.readerChapters[lastIndex]?.content ?? '';
+        this.readerScrollValue = this.EstimatedReaderChapterHeight(lastIndex);
+        if (this.currentBook !== undefined) this.currentBook.progress = 100;
+        this.ScheduleReaderProgressSave();
+        return;
+      }
       this.ExtendReaderContinuousWindow(direction);
       return;
     }
@@ -8133,6 +8156,13 @@ struct Index {
   private CurrentTextChapterFraction(): number {
     if (!this.ReaderUsesContinuousText() && this.readerTextPages.length > 0) {
       return Math.max(0, Math.min(0.999, (this.readerTextPageIndex + 1) / this.readerTextPages.length));
+    }
+    if (this.ReaderUsesWindowedContinuousText() &&
+      this.readerChapterIndex === this.readerChapters.length - 1) {
+      try {
+        if (this.readerScroller.isAtEnd()) return 1;
+      } catch (_) {
+      }
     }
     return Math.max(0, Math.min(0.999, this.readerScrollValue /
       Math.max(1, this.EstimatedReaderTextHeight())));
