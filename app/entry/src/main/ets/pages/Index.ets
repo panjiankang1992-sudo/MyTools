@@ -653,7 +653,6 @@ struct Index {
   private bookSourceSyncing: boolean = false;
   private bookSourcePullPending: boolean = false;
   private pendingBookSources: BookSourceSyncItem[] = [];
-  private runtimeBookSourcesSynchronized: boolean = false;
   private lastMediaProgressPersistedAt: number = 0;
   private pendingMediaSourceId: string = '';
   private pendingMediaPath: string = '/';
@@ -8363,7 +8362,6 @@ struct Index {
   }
 
   private QueueBookSource(source: BookSourceSyncItem): void {
-    this.runtimeBookSourcesSynchronized = false;
     if (!this.authenticated || this.profileUsername.length === 0) return;
     this.PrepareReadingSyncForAccount(this.localAccountScope);
     this.pendingBookSources = this.pendingBookSources
@@ -11971,11 +11969,8 @@ struct Index {
     const cancellation = new DownloadCancellationToken();
     this.activeBookSourceSearchCancellation = cancellation;
     this.sourceSearchLoading = true;
-    this.bookStatus = '正在同步书源到后端…';
+    this.bookStatus = '正在查询后端搜索缓存…';
     try {
-      await this.EnsureRuntimeBookSourcesSynchronized();
-      if (revision !== this.bookSourceOperationRevision || cancellation.isCancelled()) return;
-      this.bookStatus = '正在将全部已启用书源交给后端执行…';
       const results = await this.RunBookSourceRuntimeSearch(keyword, 1, revision, cancellation, false);
       if (revision !== this.bookSourceOperationRevision || cancellation.isCancelled()) return;
       this.sourceSearchPage = 1;
@@ -11993,14 +11988,6 @@ struct Index {
       if (revision === this.bookSourceOperationRevision) this.sourceSearchLoading = false;
       if (revision === this.bookSourceOperationRevision) this.sourceSearchTaskId = '';
     }
-  }
-
-  private async EnsureRuntimeBookSourcesSynchronized(): Promise<void> {
-    if (this.runtimeBookSourcesSynchronized) return;
-    const accepted = await new BookSourceSyncApi(this.ActiveServiceUrl(), this.authManager)
-      .saveBatch(this.AllLocalBookSourceItems());
-    if (accepted === 0) throw new Error('没有可同步到后端的有效书源');
-    this.runtimeBookSourcesSynchronized = true;
   }
 
   private async LoadNextBookSourceSearchPage(): Promise<void> {

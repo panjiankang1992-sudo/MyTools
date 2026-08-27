@@ -31,7 +31,11 @@ if grep -Fq '/api/app/v1/reader/book-searches' "$api"; then
   exit 1
 fi
 grep -Fq '缓存 ${task.cachedSources} · 已查 ${searchedSources}/${task.pendingSources}' "$page"
-grep -Fq 'await this.EnsureRuntimeBookSourcesSynchronized();' "$page"
+if grep -Fq 'EnsureRuntimeBookSourcesSynchronized' "$page"; then
+  echo 'book source search must not block on a full source synchronization' >&2
+  exit 1
+fi
+grep -Fq "this.bookStatus = '正在查询后端搜索缓存…';" "$page"
 grep -Fq 'private static readonly MAX_BATCH_ITEMS: number = 50;' "$sync_api"
 grep -Fq 'private static readonly MAX_BATCH_ESTIMATED_BYTES: number = 256 * 1024;' "$sync_api"
 grep -Fq "putJson('/api/app/v1/reader/sources/batch', request)" "$sync_api"
