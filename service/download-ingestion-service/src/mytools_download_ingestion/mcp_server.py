@@ -7,6 +7,7 @@ import json
 import os
 import re
 import sys
+from pathlib import Path
 from dataclasses import dataclass
 from hashlib import sha256
 from typing import Any, BinaryIO
@@ -174,7 +175,9 @@ def error(request_id: Any, code: int, message: str) -> dict[str, Any]:
 def main() -> None:
     """Start the MCP stdio adapter using environment-only configuration."""
     parser = argparse.ArgumentParser(prog="mytools-download-mcp")
-    parser.parse_args()
+    parser.add_argument("--env-file", default="")
+    arguments = parser.parse_args()
+    load_env_file(arguments.env_file)
     token = os.getenv("DOWNLOAD_INTERNAL_TOKEN", "")
     if not token:
         raise RuntimeError("DOWNLOAD_INTERNAL_TOKEN is required")
@@ -182,6 +185,25 @@ def main() -> None:
     client = IngestionClient(os.getenv("DOWNLOAD_INGESTION_URL", "http://127.0.0.1:23220"),
                              token, owner_id)
     McpServer(client).run(sys.stdin.buffer, sys.stdout.buffer)
+
+
+def load_env_file(path: str) -> None:
+    """Load a systemd-style key/value file without evaluating shell syntax."""
+    if not path:
+        return
+    for raw_line in Path(path).read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            raise RuntimeError("invalid environment file line")
+        key, value = line.split("=", 1)
+        key, value = key.strip(), value.strip()
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", key):
+            raise RuntimeError("invalid environment variable name")
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+            value = value[1:-1]
+        os.environ.setdefault(key, value)
 
 
 if __name__ == "__main__":

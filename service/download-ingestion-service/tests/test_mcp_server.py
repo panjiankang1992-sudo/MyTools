@@ -6,7 +6,7 @@ import io
 
 import pytest
 
-from mytools_download_ingestion.mcp_server import McpServer, classify
+from mytools_download_ingestion.mcp_server import McpServer, classify, load_env_file
 
 
 class Client:
@@ -56,3 +56,16 @@ def test_stdio_returns_parse_error_and_continues() -> None:
     lines = output.getvalue().splitlines()
     assert b'"code":-32700' in lines[0]
     assert b'"id":2' in lines[1]
+
+
+def test_loads_systemd_environment_values_without_shell_evaluation(
+        tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Accept spaces and symbols in values without interpreting them as shell code."""
+    monkeypatch.delenv("MESSAGING_MAIL_FROM", raising=False)
+    path = tmp_path / "services.env"
+    path.write_text("MESSAGING_MAIL_FROM=MsgService <assistant@example.org>\n", encoding="utf-8")
+
+    load_env_file(str(path))
+
+    assert __import__("os").environ["MESSAGING_MAIL_FROM"] == \
+        "MsgService <assistant@example.org>"

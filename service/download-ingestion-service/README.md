@@ -114,10 +114,8 @@ request aggregate, Scheduler tasks, Executor packages, result callbacks, tagging
 as message ingress:
 
 ```bash
-set -a
-. /opt/yuyutian/mytools/config/services.env
-set +a
-/opt/yuyutian/mytools/releases/current/venv/bin/mytools-download-mcp
+/opt/yuyutian/mytools/releases/current/venv/bin/mytools-download-mcp \
+  --env-file /opt/yuyutian/mytools/config/services.env
 ```
 
 `DOWNLOAD_MCP_OWNER_ID` selects the business owner. `DOWNLOAD_MCP_MAGNET_MODE` is either `pikpak`
