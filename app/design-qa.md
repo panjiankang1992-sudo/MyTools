@@ -127,6 +127,41 @@
 
 final result: passed
 
+# Runtime Closure Audit (2026-08-27)
+
+## Scope
+
+- Sources: `app/docs/ui-redesign-mockup.html`, `app/docs/UI_REDESIGN_SPEC.md`, and the user's reader-footer regression screenshot.
+- Runtime: the current signed HAP rebuilt from `master`, overwrite-installed and cold-started on the HarmonyOS emulator.
+- Regression focus: shared controls, profile actions, source-search cache and return position, multimedia counts/filtering/viewer entry/directory hierarchy, and reader end-of-book completion.
+
+## Runtime evidence
+
+- Profile identity and settings rows: `app/build/design-qa-control-system/profile-current.jpeg`.
+- Live gallery with actual total `34022`: `app/build/design-qa-control-system/media-runtime-current.jpeg`.
+- Live `r18-否` filter with `296` matching items and retained thumbnails: `app/build/design-qa-control-system/media-tag-filter-current.jpeg`.
+- Directory root with actual aggregate count: `app/build/design-qa-control-system/media-root-current.jpeg`.
+- Reader end state: `app/build/design-qa-control-system/reader-final-progress.jpeg`.
+- Reader footer before/after comparison: `app/build/design-qa-control-system/reader-final-progress-comparison.png`.
+
+## Findings and fixes
+
+- The profile page renders avatar-left identity details, straight divider rows, no oval selection background, and working service, media, reading, and DSH destinations.
+- A repeated `美母` source search returned from database cache in under two seconds with `缓存 1772 · 已查 0/0`; opening a result and returning restored the same scrolled result position.
+- Multimedia gallery totals are sourced from the backend rather than the current render batch. Tag filtering returns the actual total, keeps more than one thumbnail, and image cards open the immersive viewer outside their explicit tag/action controls.
+- The directory selector traverses `media -> yyyyMM -> yyyyMMdd` and displays live aggregate counts at every level. The physical storage contract remains `/opt/extend/resource/<username>/media/yyyyMM/yyyyMMdd/...`.
+- Reader progress previously reached the final visible page while a height estimate rewrote the whole-book value to `53%`. Continuous reading now uses the native scroll boundary as authoritative; the final chapter/final page writes `100%`, while non-final positions remain capped at `99%`.
+
+## Verification
+
+- All 114 APP policy scripts pass.
+- ArkTS type checking and signed HAP packaging pass.
+- Focused reader/search/media backend tests pass under Java 21: 26 root-service tests and 15 Media Library tests.
+- Emulator overwrite installation, cold start, authenticated session restoration, source search, source-result return restoration, profile actions, media filtering, media viewer entry, directory traversal, and reader `100% · 1/1页` completion pass.
+- The USB physical target is currently reported as `Offline`; no new physical-device claim is made by this audit.
+
+final result: passed
+
 # Shared Control System and Media Hierarchy QA (2026-08-27)
 
 ## Scope

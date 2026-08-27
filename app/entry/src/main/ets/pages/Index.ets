@@ -7891,12 +7891,13 @@ struct Index {
       this.readerScrollValue = Math.max(0, this.readerScrollValue + offset);
     }
     if (this.readerContent.length > 0 && this.readerChapters.length > 0) {
-      const estimatedLineCount = Math.max(1, this.readerContent.length / 22);
-      const estimatedHeight = estimatedLineCount * this.ReaderScaledFontSize(this.readerSettings.fontSize) *
-        this.readerSettings.lineHeight;
-      const chapterFraction = Math.min(0.99, this.readerScrollValue / Math.max(1, estimatedHeight));
+      // 末章到达真实滚动边界时必须结算为100%；不能再用正文高度估算覆盖边界结果。
+      const chapterFraction = this.CurrentTextChapterFraction();
       const estimate = Math.round((this.readerChapterIndex + chapterFraction) * 100 / this.readerChapters.length);
-      if (this.currentBook !== undefined) this.currentBook.progress = Math.max(0, Math.min(99, estimate));
+      const completed = this.readerChapterIndex === this.readerChapters.length - 1 && chapterFraction >= 1;
+      if (this.currentBook !== undefined) {
+        this.currentBook.progress = completed ? 100 : Math.max(0, Math.min(99, estimate));
+      }
     }
     this.ScheduleReaderProgressSave();
   }
@@ -7981,7 +7982,10 @@ struct Index {
     this.readerScrollValue = this.readerTextPageIndex;
     const chapterFraction = (this.readerTextPageIndex + 1) / this.readerTextPages.length;
     const estimate = Math.round((this.readerChapterIndex + chapterFraction) * 100 / this.readerChapters.length);
-    if (this.currentBook !== undefined) this.currentBook.progress = Math.max(0, Math.min(99, estimate));
+    const completed = this.readerChapterIndex === this.readerChapters.length - 1 && chapterFraction >= 1;
+    if (this.currentBook !== undefined) {
+      this.currentBook.progress = completed ? 100 : Math.max(0, Math.min(99, estimate));
+    }
     this.ScheduleReaderProgressSave();
   }
 
