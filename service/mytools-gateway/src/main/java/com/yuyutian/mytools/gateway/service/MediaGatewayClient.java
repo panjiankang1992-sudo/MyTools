@@ -84,10 +84,11 @@ public class MediaGatewayClient {
      */
     public MediaCatalogPage catalog(long ownerId, String mimePrefix, String tag, String keyword, int page,
                                     int pageSize, boolean excludeAdult, String correlationId) {
-        String url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/media/catalog")
+        URI url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/media/catalog")
                 .queryParam("ownerId", ownerId).queryParam("mimePrefix", mimePrefix)
                 .queryParam("tag", tag).queryParam("keyword", keyword).queryParam("page", page)
-                .queryParam("pageSize", pageSize).queryParam("excludeAdult", excludeAdult).toUriString();
+                .queryParam("pageSize", pageSize).queryParam("excludeAdult", excludeAdult)
+                .build().encode().toUri();
         return exchange(url, HttpMethod.GET, null, MediaCatalogPage.class, correlationId);
     }
 
@@ -219,6 +220,11 @@ public class MediaGatewayClient {
     }
 
     private <T> T exchange(String url, HttpMethod method, Object body, Class<T> responseType,
+                           String correlationId) {
+        return exchange(URI.create(url), method, body, responseType, correlationId);
+    }
+
+    private <T> T exchange(URI url, HttpMethod method, Object body, Class<T> responseType,
                            String correlationId) {
         try {
             T value = restTemplate.exchange(url, method, entity(body, correlationId), responseType).getBody();
