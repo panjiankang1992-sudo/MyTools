@@ -11,7 +11,7 @@ import re
 import shutil
 
 USERNAME = re.compile(r"^[A-Za-z0-9_]{1,64}$")
-DIRECTORIES = ("ebook", "media", "big_media")
+DIRECTORIES = ("ebook", "media", "big_media", "other")
 
 
 def inventory(path: Path) -> tuple[int, int]:

@@ -9,7 +9,8 @@
 ├── ebook/
 ├── media/YYYYMM/YYYYMMDD[/<album>]/
 ├── big_media/<package>/
-└── music/<album-or-collection>/
+├── music/<album-or-collection>/
+└── other/
 ```
 
 当前存量统一迁移到 `/opt/extend/resource/yuyutian/`。用户名来自 Identity 服务的稳定、规范化登录名，禁止由客户端直接提交路径片段。合法格式为 `^[A-Za-z0-9._-]{1,128}$`，目录解析必须验证规范化结果仍位于资源根下。
@@ -84,7 +85,7 @@ QQ/Telegram connector 与 Messaging 保存渠道原始信息；Message Automatio
 
 1. 生成只读清单：相对路径、类型、大小、SHA-256（大文件允许复用已有可信摘要并抽样复核）。
 2. 停止所有写入方和扫描任务，记录数据库高水位。
-3. 创建 `/opt/extend/resource/yuyutian/{ebook,media,big_media,music}`。
+3. 创建 `/opt/extend/resource/yuyutian/{ebook,media,big_media,music,other}`。
 4. 将三个现有目录内容移动到对应用户目录；空的原分类目录保留到数据库切换完成。
 5. 事务更新 `local_directory`、`local_file`、媒体包及其他含物理路径的记录。
 6. 更新服务配置并启动；执行文件数、总大小、数据库有效/缺失数、抽样摘要与 API 对账。
