@@ -58,7 +58,7 @@ public class SchedulerNodeClient implements SchedulerClient {
         payload.put("name", properties.nodeName());
         payload.put("instanceId", instanceId.toString());
         payload.put("capabilities", safeMap(properties.capabilities()));
-        payload.put("labels", safeMap(properties.labels()));
+        payload.put("labels", flattenedLabels(properties.labels()));
         payload.put("maxConcurrentTasks", properties.maxConcurrentTasks());
         payload.put("clusterNames", properties.clusterNames() == null ? java.util.Set.of() : properties.clusterNames());
         JsonNode response = sendJson("/api/v1/execution-topology/nodes/register", payload, Map.of());
@@ -67,6 +67,26 @@ public class SchedulerNodeClient implements SchedulerClient {
                 response.path("name").asText(),
                 response.path("instanceId").asText()
         );
+    }
+
+    static Map<String, Object> flattenedLabels(Map<String, Object> labels) {
+        Map<String, Object> flattened = new LinkedHashMap<>();
+        flattenLabels("", labels == null ? Map.of() : labels, flattened);
+        return Map.copyOf(flattened);
+    }
+
+    private static void flattenLabels(String prefix, Map<String, Object> labels,
+                                      Map<String, Object> flattened) {
+        for (Map.Entry<String, Object> entry : labels.entrySet()) {
+            String key = prefix.isEmpty() ? entry.getKey() : prefix + "." + entry.getKey();
+            if (entry.getValue() instanceof Map<?, ?> nested) {
+                Map<String, Object> normalized = new LinkedHashMap<>();
+                nested.forEach((nestedKey, value) -> normalized.put(String.valueOf(nestedKey), value));
+                flattenLabels(key, normalized, flattened);
+            } else {
+                flattened.put(key, entry.getValue());
+            }
+        }
     }
 
     /**

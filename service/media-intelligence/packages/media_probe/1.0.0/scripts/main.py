@@ -37,8 +37,11 @@ def normalize(parameters: dict, probe: dict) -> dict:
     audio = next((item for item in streams if item.get("codec_type") == "audio"), None)
     media_format = probe.get("format") if isinstance(probe.get("format"), dict) else {}
     duration_ms = round(parse_non_negative_float(media_format.get("duration")) * 1000)
-    if video is None or duration_ms <= 0:
-        raise ValueError("ffprobe output is missing video stream or duration")
+    if video is None and audio is None:
+        raise ValueError("ffprobe output is missing media streams")
+    # 静态图片没有时长，仍需生成可注册的最小探测结果。
+    duration_ms = max(1, duration_ms)
+    normalized_video = video or {}
     return {
         "assetId": str(parameters["assetId"]),
         "contentSha256": str(parameters["contentSha256"]).lower(),
@@ -46,10 +49,10 @@ def normalize(parameters: dict, probe: dict) -> dict:
         "durationMs": duration_ms,
         "bitRate": max(0, int(parse_non_negative_float(media_format.get("bit_rate")))),
         "video": {
-            "codec": str(video.get("codec_name") or "unknown")[:64],
-            "width": max(0, int(video.get("width") or 0)),
-            "height": max(0, int(video.get("height") or 0)),
-            "frameRate": parse_frame_rate(video.get("avg_frame_rate")),
+            "codec": str(normalized_video.get("codec_name") or "none")[:64],
+            "width": max(0, int(normalized_video.get("width") or 0)),
+            "height": max(0, int(normalized_video.get("height") or 0)),
+            "frameRate": parse_frame_rate(normalized_video.get("avg_frame_rate")),
         },
         "audio": None if audio is None else {"codec": str(audio.get("codec_name") or "unknown")[:64]},
     }

@@ -20,7 +20,7 @@ class Storage:
 
 
 def context(source: Path, content: bytes) -> dict:
-    return {"parameters": {"sourcePath": str(source), "sourceBusinessId": "scan:one",
+    return {"parameters": {"sourcePath": str(source), "assetSourceBusinessId": "scan:one",
             "contentSha256": hashlib.sha256(content).hexdigest(), "sizeBytes": len(content),
             "ownerId": 7, "storageRoot": "media"}}
 
@@ -32,7 +32,7 @@ def test_reverifies_and_publishes_scanned_file(tmp_path):
     result = MODULE.execute(context(source, b"video"), [str(tmp_path)], storage)
     assert result["storageUri"].startswith("storage://media/")
     assert storage.arguments[1] == "media"
-    assert storage.arguments[2].endswith("/video%20name.mp4")
+    assert storage.arguments[2].endswith(hashlib.sha256(b"video").hexdigest() + ".mp4")
     assert storage.arguments[4] == 5
 
 

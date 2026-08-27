@@ -56,6 +56,15 @@ class SchedulerNodeClientTest {
         assertEquals(1, heartbeatCount.get());
     }
 
+    @Test
+    void shouldFlattenNestedNodeLabelsForSchedulerMatching() {
+        Map<String, Object> labels = SchedulerNodeClient.flattenedLabels(Map.of(
+                "executor", Map.of("node", "executor-test"),
+                "storage", Map.of("mount", Map.of("managed", "present"))));
+        assertEquals("executor-test", labels.get("executor.node"));
+        assertEquals("present", labels.get("storage.mount.managed"));
+    }
+
     private void handleRegister(HttpExchange exchange) throws IOException {
         String response = "{\"id\":\"" + nodeId + "\",\"name\":\"executor-test\",\"instanceId\":\"instance\"}";
         send(exchange, response);

@@ -35,6 +35,22 @@ class MediaProbeTest(unittest.TestCase):
         })
         self.assertEqual(Path("/work/input/video.mp4"), source)
 
+    def test_accepts_static_image_and_audio_only_media(self):
+        """图片和纯音频也必须能进入统一媒体资产流程。"""
+        image = MODULE.normalize({"assetId": "image", "contentSha256": "B" * 64}, {
+            "format": {"format_name": "image2"},
+            "streams": [{"codec_type": "video", "codec_name": "mjpeg", "width": 800,
+                         "height": 600}],
+        })
+        audio = MODULE.normalize({"assetId": "audio", "contentSha256": "C" * 64}, {
+            "format": {"duration": "3.5", "format_name": "mp3"},
+            "streams": [{"codec_type": "audio", "codec_name": "mp3"}],
+        })
+        self.assertEqual(1, image["durationMs"])
+        self.assertEqual(800, image["video"]["width"])
+        self.assertEqual("none", audio["video"]["codec"])
+        self.assertEqual(3500, audio["durationMs"])
+
 
 if __name__ == "__main__":
     unittest.main()

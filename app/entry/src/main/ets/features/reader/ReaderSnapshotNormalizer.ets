@@ -47,7 +47,7 @@ export class ReaderSnapshotNormalizer {
         coverUrl: this.string(record['coverUrl'], 4096, true) ?? '',
         origin, format, resourceUri, sourceId,
         tags: this.tags(record['tags']),
-        progress: this.number(record['progress'], 0, 1),
+        progress: this.number(record['progress'], 0, 100),
         sourceAlternatives: this.alternatives(record['sourceAlternatives'])
       };
       const remoteCover = this.string(record['remoteCoverUrl'], 4096, true);
@@ -105,7 +105,7 @@ export class ReaderSnapshotNormalizer {
       progress.set(bookId, {
         bookId, chapterTitle,
         locator: this.integer(record['locator'], 0, 1000000000),
-        percentage: this.number(record['percentage'], 0, 1),
+        percentage: this.number(record['percentage'], 0, 100),
         updatedAt: this.integer(record['updatedAt'], 0, ReaderSnapshotNormalizer.MAX_SAFE_VALUE),
         revision: this.integer(record['revision'], 0, ReaderSnapshotNormalizer.MAX_SAFE_VALUE),
         deleted: record['deleted'] === true

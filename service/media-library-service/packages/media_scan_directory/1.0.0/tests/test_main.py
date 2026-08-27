@@ -65,6 +65,25 @@ def test_scans_stages_and_waits_for_ingestion_children(tmp_path):
     assert task.created[0][3]["required_node_labels"] == {"executor.node": "media-node-a"}
 
 
+def test_scans_image_audio_and_preserves_directory_hierarchy(tmp_path):
+    source = tmp_path / "202608" / "20260825"
+    source.mkdir(parents=True)
+    (source / "cover.jpg").write_bytes(b"image")
+    (source / "voice.mp3").write_bytes(b"audio")
+    task = Task(source)
+    task.parameters.update({"directoryKey": "day-key", "directoryName": "20260825",
+                            "parentDirectoryKey": "month-key",
+                            "parentDirectoryName": "202608"})
+    client = Client()
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setenv("TASK_EXECUTOR_NODE_AFFINITY", "media-node-a")
+        result = MODULE.execute(task, client, [str(tmp_path)])
+    assert result["discovered"] == 2
+    assert client.begin_payload["directoryName"] == "20260825"
+    assert client.begin_payload["parentDirectoryName"] == "202608"
+    assert {entry["mimeType"] for entry in client.entries} == {"audio/mpeg", "image/jpeg"}
+
+
 def test_rejects_source_outside_allow_list(tmp_path):
     source = tmp_path / "library"
     source.mkdir()

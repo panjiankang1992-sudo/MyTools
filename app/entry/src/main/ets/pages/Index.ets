@@ -7896,7 +7896,14 @@ struct Index {
       const estimate = Math.round((this.readerChapterIndex + chapterFraction) * 100 / this.readerChapters.length);
       const completed = this.readerChapterIndex === this.readerChapters.length - 1 && chapterFraction >= 1;
       if (this.currentBook !== undefined) {
+        const previousProgress = this.currentBook.progress;
         this.currentBook.progress = completed ? 100 : Math.max(0, Math.min(99, estimate));
+        // 全书完成是不可丢失的关键检查点，首次到达时立即落盘，避免进程在防抖窗口内退出而回退。
+        if (completed && previousProgress < 100) {
+          this.ClearScheduledReaderProgressSave();
+          this.SaveCurrentProgress();
+          return;
+        }
       }
     }
     this.ScheduleReaderProgressSave();
@@ -7984,7 +7991,14 @@ struct Index {
     const estimate = Math.round((this.readerChapterIndex + chapterFraction) * 100 / this.readerChapters.length);
     const completed = this.readerChapterIndex === this.readerChapters.length - 1 && chapterFraction >= 1;
     if (this.currentBook !== undefined) {
+      const previousProgress = this.currentBook.progress;
       this.currentBook.progress = completed ? 100 : Math.max(0, Math.min(99, estimate));
+      // 分页模式末页同样立即提交，保证到达末页后直接退出也能恢复完成状态。
+      if (completed && previousProgress < 100) {
+        this.ClearScheduledReaderProgressSave();
+        this.SaveCurrentProgress();
+        return;
+      }
     }
     this.ScheduleReaderProgressSave();
   }

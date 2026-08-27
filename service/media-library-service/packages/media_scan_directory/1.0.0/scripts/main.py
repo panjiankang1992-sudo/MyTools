@@ -16,7 +16,9 @@ from mytools_task_sdk.context import TaskContext
 MAX_FILES = 1000
 READ_SIZE = 1024 * 1024
 MEDIA_EXTENSIONS = {".avi", ".flv", ".m2ts", ".m4v", ".mkv", ".mov", ".mp4", ".mpeg",
-                    ".mpg", ".mts", ".rm", ".rmvb", ".ts", ".webm", ".wmv"}
+                    ".mpg", ".mts", ".rm", ".rmvb", ".ts", ".webm", ".wmv",
+                    ".bmp", ".gif", ".jpeg", ".jpg", ".png", ".webp",
+                    ".aac", ".flac", ".m4a", ".mp3", ".ogg", ".wav"}
 
 
 class MediaLibraryClient:
@@ -68,12 +70,12 @@ def allowed_root(source: Path, configured_roots: list[str]) -> Path:
 
 def file_hash(path: Path) -> tuple[str, int, int]:
     """Hash one stable regular file and reject concurrent mutation."""
-    before = path.stat(follow_symlinks=False)
+    before = os.stat(path, follow_symlinks=False)
     digest = hashlib.sha256()
     with path.open("rb") as stream:
         while chunk := stream.read(READ_SIZE):
             digest.update(chunk)
-    after = path.stat(follow_symlinks=False)
+    after = os.stat(path, follow_symlinks=False)
     signature = (before.st_ino, before.st_size, before.st_mtime_ns)
     if signature != (after.st_ino, after.st_size, after.st_mtime_ns):
         raise RuntimeError("Media file changed while scanning")
@@ -123,10 +125,14 @@ def execute(task: TaskContext, client: MediaLibraryClient, configured_roots: lis
     entries = discover(root, directory_key)
     digest = manifest_digest(entries)
     root_fingerprint = hashlib.sha256(str(root).encode()).hexdigest()
-    scan = client.begin({"ownerId": owner_id, "idempotencyKey": str(parameters.get(
+    begin_payload = {"ownerId": owner_id, "idempotencyKey": str(parameters.get(
         "scanKey") or task.context["taskInstanceId"]), "directoryKey": directory_key,
         "directoryName": directory_name, "rootFingerprint": root_fingerprint,
-        "expectedCount": len(entries)})
+        "expectedCount": len(entries)}
+    if parameters.get("parentDirectoryKey") and parameters.get("parentDirectoryName"):
+        begin_payload["parentDirectoryKey"] = str(parameters["parentDirectoryKey"])
+        begin_payload["parentDirectoryName"] = str(parameters["parentDirectoryName"])
+    scan = client.begin(begin_payload)
     scan_id = str(scan["id"])
     if scan.get("status") == "COMPLETED":
         if scan.get("manifestSha256") != digest or int(scan.get("importedCount", -1)) != len(entries):

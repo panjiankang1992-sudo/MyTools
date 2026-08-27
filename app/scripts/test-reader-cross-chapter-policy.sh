@@ -12,6 +12,10 @@ grep -Fq 'Text(this.ReaderSingleLineStatus())' "$page"
 grep -Fq ".width('100%').height(34).padding({ left: 4, right: 4 })" "$page"
 grep -Fq 'const chapterFraction = this.CurrentTextChapterFraction();' "$page"
 grep -Fq 'this.currentBook.progress = completed ? 100 : Math.max(0, Math.min(99, estimate));' "$page"
+grep -Fq 'if (completed && previousProgress < 100)' "$page"
+grep -Fq 'this.ClearScheduledReaderProgressSave();' "$page"
+grep -Fq 'this.store.flushSync();' \
+  "$root_dir/app/entry/src/main/ets/features/reader/ReaderRepository.ets"
 grep -Fq 'if (this.readerScroller.isAtEnd()) return 1;' "$page"
 grep -Fq 'this.SelectReaderChapter(index).catch' "$page"
 grep -Fq 'private static readonly FALLBACK_CHAPTER_CHARS: number = 24000;' \

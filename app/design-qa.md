@@ -143,6 +143,7 @@ final result: passed
 - Directory root with actual aggregate count: `app/build/design-qa-control-system/media-root-current.jpeg`.
 - Reader end state: `app/build/design-qa-control-system/reader-final-progress.jpeg`.
 - Reader footer before/after comparison: `app/build/design-qa-control-system/reader-final-progress-comparison.png`.
+- Reader completion after an immediate process stop and cold restart: `app/build/design-qa-control-system/reader-progress-persist-after-restart.jpeg`.
 
 ## Findings and fixes
 
@@ -151,6 +152,7 @@ final result: passed
 - Multimedia gallery totals are sourced from the backend rather than the current render batch. Tag filtering returns the actual total, keeps more than one thumbnail, and image cards open the immersive viewer outside their explicit tag/action controls.
 - The directory selector traverses `media -> yyyyMM -> yyyyMMdd` and displays live aggregate counts at every level. The physical storage contract remains `/opt/extend/resource/<username>/media/yyyyMM/yyyyMMdd/...`.
 - Reader progress previously reached the final visible page while a height estimate rewrote the whole-book value to `53%`. Continuous reading now uses the native scroll boundary as authoritative; the final chapter/final page writes `100%`, while non-final positions remain capped at `99%`.
+- Reader snapshots previously normalized percentage fields as ratios and silently clamped every value above `1%` to `1%` after restart. Snapshot restoration now preserves the product-wide `0-100` percentage contract, and first arrival at `100%` is flushed synchronously instead of waiting for the normal debounce window.
 
 ## Verification
 
@@ -158,6 +160,7 @@ final result: passed
 - ArkTS type checking and signed HAP packaging pass.
 - Focused reader/search/media backend tests pass under Java 21: 26 root-service tests and 15 Media Library tests.
 - Emulator overwrite installation, cold start, authenticated session restoration, source search, source-result return restoration, profile actions, media filtering, media viewer entry, directory traversal, and reader `100% · 1/1页` completion pass.
+- The reader was stopped immediately after reaching `100%`; a cold restart restored the same shelf item at `100%`, proving end-of-book persistence rather than only an in-memory footer update.
 - The USB physical target is currently reported as `Offline`; no new physical-device claim is made by this audit.
 
 final result: passed

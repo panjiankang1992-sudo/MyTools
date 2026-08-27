@@ -50,7 +50,7 @@ export class ReaderRepository {
         if (typeof raw === 'string' && raw.length > 0 && raw.length <= 80 * 1024 * 1024) {
           // 旧快照无法证明云账户归属，只允许迁入设备访客区。
           this.store.putSync(this.snapshotKey, raw);
-          this.store.flush();
+          this.store.flushSync();
         }
       }
       if (typeof raw !== 'string' || raw.length === 0) return this.emptySnapshot();
@@ -91,7 +91,8 @@ export class ReaderRepository {
         markerTombstones,
         statistics, settings };
       this.store.putSync(this.snapshotKey, JSON.stringify(snapshot));
-      this.store.flush();
+      // 阅读终点、书架和标记必须在方法返回前持久化，异步flush会在进程立即退出时丢失最后一次更新。
+      this.store.flushSync();
     } catch (error) {
       console.error('Failed to save reader metadata');
     }

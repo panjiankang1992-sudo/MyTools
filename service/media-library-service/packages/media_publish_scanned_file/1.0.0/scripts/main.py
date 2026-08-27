@@ -9,7 +9,6 @@ import os
 from pathlib import Path
 import re
 import tempfile
-from urllib.parse import quote
 
 from mytools_task_sdk.storage import StorageGatewayClient
 
@@ -38,7 +37,7 @@ def execute(context: dict, configured_roots: list[str], storage: StorageGatewayC
     source = resolve_source(str(parameters["sourcePath"]), configured_roots)
     expected_size = int(parameters["sizeBytes"])
     expected_sha256 = str(parameters["contentSha256"]).lower()
-    before = source.stat(follow_symlinks=False)
+    before = os.stat(source, follow_symlinks=False)
     digest = hashlib.sha256()
     size = 0
     with source.open("rb") as handle:
@@ -47,7 +46,7 @@ def execute(context: dict, configured_roots: list[str], storage: StorageGatewayC
             if size > expected_size:
                 raise ValueError("Media source size changed")
             digest.update(chunk)
-    after = source.stat(follow_symlinks=False)
+    after = os.stat(source, follow_symlinks=False)
     if (before.st_ino, before.st_size, before.st_mtime_ns) != (
             after.st_ino, after.st_size, after.st_mtime_ns):
         raise ValueError("Media source changed while publishing")
@@ -57,11 +56,13 @@ def execute(context: dict, configured_roots: list[str], storage: StorageGatewayC
     if ROOT_NAME.fullmatch(root_name) is None:
         raise ValueError("Media storage root is invalid")
     owner_id = int(parameters.get("ownerId") or 0)
-    file_name = quote(source.name, safe="")
-    managed_path = f"scans/{owner_id}/{expected_sha256}/{file_name}"
-    source_id = str(parameters["sourceBusinessId"])
+    extension = source.suffix.lower() if 1 < len(source.suffix) <= 16 else ""
+    managed_path = f"scans/{owner_id}/{expected_sha256}/{expected_sha256}{extension}"
+    source_id = str(parameters.get("assetSourceBusinessId") or parameters.get("sourceBusinessId") or "")
+    if not source_id:
+        raise ValueError("Media source business identity is missing")
     storage_uri = storage.publish(source, root_name, managed_path,
-                                  f"media-scan:{source_id}:{expected_sha256}",
+                                  f"media-scan-v2:{source_id}:{expected_sha256}",
                                   expected_size, expected_sha256)
     return {"storageUri": storage_uri, "contentSha256": expected_sha256,
             "sizeBytes": expected_size}

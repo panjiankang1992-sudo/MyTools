@@ -11,24 +11,26 @@ const baseBook = {
 };
 const books = normalizer.normalizeBooks([
   baseBook,
-  Object.assign({}, baseBook, { name: 'Latest', progress: 0.4,
+  Object.assign({}, baseBook, { name: 'Latest', progress: 100,
     tags: ['history', 'history', '\u0000bad', 'x'.repeat(41), 'finished'] }),
   Object.assign({}, baseBook, { id: 'bad', origin: 'forged' }),
   null,
   { id: 'missing-fields' }
 ]);
 assert(books.length === 1 && books[0].name === 'Latest', 'books should deduplicate and isolate invalid records');
-assert(books[0].progress === 0.4, 'valid progress should restore');
+assert(books[0].progress === 100, 'percentage progress should restore without ratio clamping');
 assert(books[0].tags.length === 2 && books[0].tags[0] === 'history' && books[0].tags[1] === 'finished',
   'book tags should deduplicate and isolate invalid values');
 
 const progress = normalizer.normalizeProgress([
   { bookId: 'book-1', chapterTitle: 'Chapter', locator: Infinity, percentage: -3, updatedAt: NaN, revision: -1 },
-  { bookId: 'book-2', chapterTitle: '\u0000bad', locator: 1, percentage: 0.5, updatedAt: 1 }
+  { bookId: 'book-2', chapterTitle: '\u0000bad', locator: 1, percentage: 0.5, updatedAt: 1 },
+  { bookId: 'book-3', chapterTitle: 'Finished', locator: 1, percentage: 100, updatedAt: 2, revision: 3 }
 ]);
-assert(progress.length === 1, 'invalid progress item should be isolated');
+assert(progress.length === 2, 'invalid progress item should be isolated');
 assert(progress[0].locator === 0 && progress[0].percentage === 0 && progress[0].revision === 0,
   'non-finite and negative progress values should normalize');
+assert(progress[1].percentage === 100, 'completed percentage should survive snapshot restore');
 
 const bookmark = { id: 'marker-1', bookId: 'book-1', chapterTitle: 'Chapter', locator: 3,
   note: 'line 1\nline 2', createdAt: 1, updatedAt: 2, revision: 3 };

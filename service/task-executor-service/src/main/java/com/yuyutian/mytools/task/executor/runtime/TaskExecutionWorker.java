@@ -192,10 +192,8 @@ public class TaskExecutionWorker {
         environment.put("PYTHONPATH", properties.pythonSdkRoot().toAbsolutePath().normalize().toString());
         environment.put("TASK_API_URL", normalizedSchedulerUrl());
         environment.put("TASK_EXECUTION_ID", task.executionId().toString());
-        Object nodeAffinity = properties.labels() == null ? null : properties.labels().get("executor.node");
-        if (nodeAffinity != null) {
-            environment.put("TASK_EXECUTOR_NODE_AFFINITY", String.valueOf(nodeAffinity));
-        }
+        // 子任务必须绑定到当前实际执行节点，避免依赖带点号标签的配置映射结果。
+        environment.put("TASK_EXECUTOR_NODE_AFFINITY", properties.nodeName());
         environment.put("TASK_CONTEXT_FILE", contextFile.toString());
         environment.put("TASK_RESULT_FILE", resultFile.toString());
         environment.put("TASK_LEASE_TOKEN_FILE", leaseTokenFile.toString());
