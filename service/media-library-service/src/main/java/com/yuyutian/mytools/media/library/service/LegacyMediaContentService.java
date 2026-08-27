@@ -4,6 +4,7 @@ import com.yuyutian.mytools.media.library.config.MediaLibraryConfiguration.Legac
 import com.yuyutian.mytools.media.library.repository.MediaRepository;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
@@ -16,9 +17,11 @@ import java.util.UUID;
  */
 @Service
 public class LegacyMediaContentService {
+    private static final Path RESOURCE_ROOT = Path.of("/opt/extend/resource");
     private final MediaRepository repository;
     private final LegacyContentDatabase database;
     private final DerivedThumbnailContentService derivedThumbnailContentService;
+    private final String resourceUsername;
 
     /**
      * 创建旧媒体内容服务。
@@ -26,12 +29,19 @@ public class LegacyMediaContentService {
      * @param repository 新媒体仓储
      * @param database 旧库只读配置
      * @param derivedThumbnailContentService 派生缩略图内容服务
+     * @param resourceUsername 迁移后的资源用户名目录
      */
     public LegacyMediaContentService(MediaRepository repository, LegacyContentDatabase database,
-                                     DerivedThumbnailContentService derivedThumbnailContentService) {
+                                     DerivedThumbnailContentService derivedThumbnailContentService,
+                                     @Value("${media-library.legacy-resource-username:yuyutian}")
+                                     String resourceUsername) {
         this.repository = repository;
         this.database = database;
         this.derivedThumbnailContentService = derivedThumbnailContentService;
+        if (!resourceUsername.matches("^[A-Za-z0-9._-]{1,128}$")) {
+            throw new IllegalArgumentException("legacy resource username is invalid");
+        }
+        this.resourceUsername = resourceUsername;
     }
 
     /**
@@ -69,10 +79,10 @@ public class LegacyMediaContentService {
                     throw new IllegalArgumentException("media content not found");
                 }
                 String thumbnailPath = result.getString("thumbnail_path");
-                Path original = Path.of(result.getString("file_path")).toAbsolutePath().normalize();
+                Path original = resolveMigratedPath(Path.of(result.getString("file_path")));
                 String originalMimeType = result.getString("mime_type");
                 Path path = thumbnail && thumbnailPath != null && !thumbnailPath.isBlank()
-                        ? Path.of(thumbnailPath).toAbsolutePath().normalize() : original;
+                        ? resolveMigratedPath(Path.of(thumbnailPath)) : original;
                 long expectedSize = result.getLong("file_size");
                 // 图片缩略图缺失时可回退原图；视频禁止把超大原文件伪装成缩略图返回。
                 if (thumbnail && !Files.isRegularFile(path)) {
@@ -96,6 +106,19 @@ public class LegacyMediaContentService {
         } catch (Exception exception) {
             throw new IllegalStateException("legacy media content lookup failed", exception);
         }
+    }
+
+    private Path resolveMigratedPath(Path storedPath) {
+        Path normalized = storedPath.toAbsolutePath().normalize();
+        if (Files.exists(normalized) || !normalized.startsWith(RESOURCE_ROOT)) {
+            return normalized;
+        }
+        Path relative = RESOURCE_ROOT.relativize(normalized);
+        Path migrated = RESOURCE_ROOT.resolve(resourceUsername).resolve(relative).normalize();
+        if (!migrated.startsWith(RESOURCE_ROOT.resolve(resourceUsername))) {
+            throw new IllegalArgumentException("media content path is invalid");
+        }
+        return migrated;
     }
 
     /** 已验证的媒体文件内容。 */

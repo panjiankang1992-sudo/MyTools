@@ -4,10 +4,16 @@ set -euo pipefail
 device_uuid="${MYTOOLS_RESOURCE_UUID:-AAFCDF66FCDF2B79}"
 mount_point="${MYTOOLS_RESOURCE_MOUNT_POINT:-/opt/extend}"
 resource_root="${MYTOOLS_RESOURCE_ROOT:-/opt/extend/resource}"
+resource_username="${MYTOOLS_RESOURCE_USERNAME:-yuyutian}"
 device_link="/dev/disk/by-uuid/${device_uuid}"
 
+resource_layout_ready() {
+  [[ -d "${resource_root}/.thumbnails" ]] &&
+    { [[ -d "${resource_root}/media" ]] || [[ -d "${resource_root}/${resource_username}/media" ]]; }
+}
+
 if mountpoint -q "${mount_point}"; then
-  if [[ -d "${resource_root}/media" && -d "${resource_root}/.thumbnails" ]]; then
+  if resource_layout_ready; then
     exit 0
   fi
   if [[ ! -e "${device_link}" ]]; then
@@ -32,7 +38,7 @@ if ! mountpoint -q "${mount_point}"; then
   logger -t mytools-resource-remount "Resource storage mount command completed without a mount"
   exit 1
 fi
-if [[ ! -d "${resource_root}/media" || ! -d "${resource_root}/.thumbnails" ]]; then
+if ! resource_layout_ready; then
   logger -t mytools-resource-remount "Resource storage mounted but required directories are missing"
   exit 1
 fi
