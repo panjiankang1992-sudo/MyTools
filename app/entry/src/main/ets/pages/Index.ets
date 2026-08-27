@@ -664,6 +664,7 @@ struct Index {
   private lastMediaMetricAt: number = 0;
   private mediaMetricsPolling: boolean = false;
   private mediaOpenRevision: number = 0;
+  private mediaOpeningPath: string = '';
   private mediaViewerChromeTimerId: number = -1;
   private copilotRefreshTimerId: number = -1;
   private copilotPollStartedAt: number = 0;
@@ -16148,6 +16149,8 @@ struct Index {
   }
 
   private async OpenRemoteMedia(item: RemoteMediaItem, resumeOverrideMs?: number): Promise<void> {
+    // 同一媒体正在获取播放地址时复用当前请求，避免连续点击反复取消并重新计时。
+    if (this.mediaOpening && this.mediaOpeningPath === item.path) return;
     this.activeMediaOpenCancellation?.cancel();
     this.activeImageUpgradeCancellation?.cancel();
     this.activeThumbnailCancellation?.cancel();
@@ -16167,6 +16170,7 @@ struct Index {
     const cancellation = new DownloadCancellationToken();
     this.activeMediaOpenCancellation = cancellation;
     const revision = ++this.mediaOpenRevision;
+    this.mediaOpeningPath = item.path;
     if (item.kind === 'image') this.queuedImageNavigationDirection = 0;
     if (item.kind === 'audio') this.queuedAudioNavigationDirection = 0;
     this.mediaOpening = true;
@@ -16223,6 +16227,7 @@ struct Index {
       if (this.activeMediaOpenCancellation === cancellation) this.activeMediaOpenCancellation = undefined;
       if (revision === this.mediaOpenRevision) {
         this.mediaOpening = false;
+        this.mediaOpeningPath = '';
         const queuedDirection = this.queuedImageNavigationDirection;
         this.queuedImageNavigationDirection = 0;
         if (queuedDirection !== 0 && this.currentMediaKind === 'image' && this.mediaViewerVisible) {

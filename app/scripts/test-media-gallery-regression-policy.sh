@@ -22,6 +22,9 @@ if sed -n '/private MediaCatalogItemTags(/,/^  }/p' "$page" | grep -Fq "}.width(
   exit 1
 fi
 grep -Fq 'const source = this.IsCatalogMediaPath(item.path) ? this.CatalogLocalMediaSource() : configuredSource;' "$page"
+grep -Fq "if (this.mediaOpening && this.mediaOpeningPath === item.path) return;" "$page"
+grep -Fq "this.mediaOpeningPath = item.path;" "$page"
+grep -Fq "this.mediaOpeningPath = '';" "$page"
 grep -Fq "SymbolGlyph(\$r('sys.symbol.ellipsis_circle')).fontSize(16)" "$page"
 if grep -Fq ".backgroundColor('#B30F172A')" <(sed -n '/private MediaCatalogActionButton(/,/^  }/p' "$page"); then
   echo 'media gallery action button must not render as a black thumbnail overlay' >&2
