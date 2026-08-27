@@ -98,9 +98,9 @@ printf '%s\n' "$books_page" | rg -q -F "!(this.bookModeIndex === 0 && this.sourc
   fail "book source loading must not duplicate the operation status below the spinner"
 
 book_detail="$(sed -n '/private BookDetailPage()/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$book_detail" | rg -q -F "Button(this.DetailBookInShelf() ? '书架中' : '试读')" ||
+printf '%s\n' "$book_detail" | rg -q -F "AppSecondaryPillButton({ label: this.DetailBookInShelf() ? '书架中' : '试读'" ||
   fail "book details need the fixed preview action"
-printf '%s\n' "$book_detail" | rg -q -F "Button(this.DetailBookInShelf() ? '继续阅读' : '加入书架')" ||
+printf '%s\n' "$book_detail" | rg -q -F "AppPrimaryPillButton({ label: this.DetailBookInShelf() ? '继续阅读' : '加入书架'" ||
   fail "book details need the fixed primary shelf action"
 printf '%s\n' "$book_detail" | rg -q -F ".accessibilityText('目录')" ||
   fail "book detail catalog entry must be a semantic button"
@@ -139,10 +139,10 @@ printf '%s\n' "$reader_settings" | rg -q -F 'this.ComicSettingsFields()' ||
   fail "comic reader must use its own settings fields"
 
 reader_annotation="$(sed -n '/private ReaderAnnotationPanel()/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$reader_annotation" | rg -q -F "Button('保存当前位置批注').width('100%')" ||
+printf '%s\n' "$reader_annotation" | rg -q -F "AppPrimaryPillButton({ label: '保存当前位置批注'" ||
   fail "reader annotation needs a full-width save action"
-printf '%s\n' "$reader_annotation" | rg -q -F '.height(48)' ||
-  fail "reader annotation save action must meet the 48 vp touch target"
+rg -q -F '.height(AppTheme.controlHeight)' "$CONTROLS" ||
+  fail "shared action buttons must meet the standard touch target"
 
 reader_catalog="$(sed -n '/private ReaderCatalogPanel()/,/^  }/p' "$SOURCE")"
 printf '%s\n' "$reader_catalog" | rg -q -F "Button('上一页').layoutWeight(1)" ||
@@ -179,8 +179,8 @@ rg -q -F 'READ_MEDIA' "$APP_DIR/entry/src/main/module.json5" &&
   fail "app must not request local media library permissions"
 
 hero_panel="$(sed -n '/private HeroPanel(/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$hero_panel" | rg -q -F 'Button(action)' || fail "hero action must be a focusable button"
-printf '%s\n' "$hero_panel" | rg -q -F '.height(48)' || fail "hero action must meet the 48 vp touch target"
+printf '%s\n' "$hero_panel" | rg -q -F 'AppPrimaryPillButton({ label: action' ||
+  fail "hero action must use the shared primary button"
 
 tool_entry="$(sed -n '/private ToolEntryRow(/,/^  }/p' "$SOURCE")"
 printf '%s\n' "$tool_entry" | rg -q -F 'Button() {' || fail "tool entries must be focusable buttons"
@@ -339,8 +339,10 @@ rg -q -F 'else if (this.currentIndex === 2)' "$SOURCE" ||
   fail "login must resume the Copilot target tab"
 rg -q -F '.onClick(() => this.RequestLogout())' "$SOURCE" ||
   fail "logout must evaluate unsynchronized reader data first"
-rg -q -F "Button('继续同步')" "$SOURCE" || fail "logout risk must offer synchronization"
-rg -q -F "Button('仍要退出')" "$SOURCE" || fail "logout risk must require explicit confirmation"
+rg -q -F "AppSecondaryPillButton({ label: '继续同步'" "$SOURCE" ||
+  fail "logout risk must offer synchronization"
+rg -q -F "AppDangerPillButton({ label: '仍要退出'" "$SOURCE" ||
+  fail "logout risk must require explicit confirmation"
 
 for forbidden in "Text('新建')" "Text('上传')" "Text('测试连接')" "Text('关闭')" "Text('完成')"; do
   if rg -q -F "$forbidden" "$SOURCE"; then

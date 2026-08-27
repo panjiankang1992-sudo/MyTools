@@ -18,10 +18,10 @@ actual_tabs="$(printf '%s\n' "$tabs_block" | sed -n "s/.*{ title: '\([^']*\)'.*/
 for pattern in \
   "ForEach(['书源', '远程', '本地']" \
   'this.BookShelfHeader()' \
-  "Button(this.DetailBookInShelf() ? '书架中' : '试读')" \
-  "Button(this.DetailBookInShelf() ? '继续阅读' : '加入书架')" \
-  "Button('仅移出书架')" \
-  "Button('移出并清除阅读记录').width('100%')" \
+  "AppSecondaryPillButton({ label: this.DetailBookInShelf() ? '书架中' : '试读'" \
+  "AppPrimaryPillButton({ label: this.DetailBookInShelf() ? '继续阅读' : '加入书架'" \
+  "AppDangerPillButton({ label: '仅移出书架'" \
+  "AppDangerPillButton({ label: '移出并清除阅读记录'" \
   "'清除离线缓存'" \
   "'删除远程文件并移出书架'" \
   "'删除本地文件并移出书架'" \
@@ -80,7 +80,7 @@ reader_controls="$(sed -n '/private ReaderControls()/,/^  }/p' "$PAGE")"
 remove_panel="$(sed -n '/private BookShelfRemovePanel()/,/^  }/p' "$PAGE")"
 ! grep -Fq "Button('移出并清除').layoutWeight(1)" <<<"$remove_panel" ||
   fail "destructive shelf action must not share a cramped three-column row"
-grep -Fq "Button('移出并清除阅读记录').width('100%')" <<<"$remove_panel" ||
+grep -Fq "AppDangerPillButton({ label: '移出并清除阅读记录'" <<<"$remove_panel" ||
   fail "destructive shelf action must use a full-width readable button"
 
 ! grep -Fq 'ForEach(this.sourceSearchResults' "$PAGE" ||

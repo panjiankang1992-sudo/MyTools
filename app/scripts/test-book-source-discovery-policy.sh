@@ -6,7 +6,7 @@ page="$app_dir/entry/src/main/ets/pages/Index.ets"
 api="$app_dir/entry/src/main/ets/features/reader/BookSourceDiscoveryApi.ets"
 
 grep -Fq "Text('从网站导入书源')" "$page"
-grep -Fq "Button(this.sourceDiscoveryBusy ? '正在导入…' : '导入并添加')" "$page"
+grep -Fq "AppPrimaryPillButton({ label: this.sourceDiscoveryBusy ? '正在导入…' : '导入并添加'" "$page"
 grep -Fq 'private async DiscoverBookSource()' "$page"
 grep -Fq 'this.ApplyImportedBookSources(task.sourceJson' "$page"
 grep -Fq 'new BookSourceDiscoveryApi(this.ActiveServiceUrl()' "$page"

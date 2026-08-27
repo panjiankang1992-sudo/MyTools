@@ -27,6 +27,7 @@ export struct AppSegmentItem {
 export struct AppPrimaryPillButton {
   @Prop label: string = '';
   @Prop available: boolean = true;
+  @Prop description: string = '';
   action: () => void = () => {};
 
   build() {
@@ -42,6 +43,7 @@ export struct AppPrimaryPillButton {
       .borderRadius(AppTheme.pillRadius)
       .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
       .enabled(this.available)
+      .accessibilityDescription(this.description)
       .onClick(this.action)
   }
 }
@@ -51,6 +53,7 @@ export struct AppPrimaryPillButton {
 export struct AppSecondaryPillButton {
   @Prop label: string = '';
   @Prop available: boolean = true;
+  @Prop description: string = '';
   action: () => void = () => {};
 
   build() {
@@ -65,6 +68,7 @@ export struct AppSecondaryPillButton {
       .border({ width: 1, color: AppTheme.divider, radius: AppTheme.pillRadius })
       .borderRadius(AppTheme.pillRadius)
       .enabled(this.available)
+      .accessibilityDescription(this.description)
       .onClick(this.action)
   }
 }
@@ -74,6 +78,7 @@ export struct AppSecondaryPillButton {
 export struct AppDangerPillButton {
   @Prop label: string = '';
   @Prop available: boolean = true;
+  @Prop description: string = '';
   action: () => void = () => {};
 
   build() {
@@ -88,6 +93,7 @@ export struct AppDangerPillButton {
       .border({ width: 1, color: AppTheme.danger, radius: AppTheme.pillRadius })
       .borderRadius(AppTheme.pillRadius)
       .enabled(this.available)
+      .accessibilityDescription(this.description)
       .onClick(this.action)
   }
 }
@@ -145,5 +151,61 @@ export struct AppGlassTextInput {
       .enabled(this.available)
       .onChange(this.valueChanged)
       .onSubmit(this.submitted)
+  }
+}
+
+/** 带搜索图标和清除操作的统一玻璃搜索框。 */
+@Component
+export struct AppSearchField {
+  @Prop value: string = '';
+  @Prop placeholder: string = '';
+  @Prop limit: number = 100;
+  @Prop available: boolean = true;
+  valueChanged: (value: string) => void = () => {};
+  submitted: () => void = () => {};
+  cleared: () => void = () => {};
+
+  build() {
+    Row({ space: 8 }) {
+      SymbolGlyph($r('sys.symbol.magnifyingglass'))
+        .fontSize(18)
+        .fontColor([this.value.length > 0 ? AppTheme.primary : AppTheme.textSecondary])
+      TextInput({ text: this.value, placeholder: this.placeholder })
+        .layoutWeight(1)
+        .height(46)
+        .padding(0)
+        .maxLength(this.limit)
+        .fontSize(14)
+        .fontFamily('HarmonyOS Sans')
+        .fontColor(AppTheme.textPrimary)
+        .placeholderColor(AppTheme.textTertiary)
+        .backgroundColor(Color.Transparent)
+        .enabled(this.available)
+        .onChange(this.valueChanged)
+        .onSubmit(this.submitted)
+      if (this.value.length > 0) {
+        Button() {
+          SymbolGlyph($r('sys.symbol.xmark')).fontSize(14).fontColor([AppTheme.textSecondary])
+        }
+        .width(40)
+        .height(40)
+        .padding(0)
+        .borderRadius(20)
+        .backgroundColor(Color.Transparent)
+        .accessibilityText('清除搜索内容')
+        .onClick(() => {
+          this.valueChanged('');
+          this.cleared();
+        })
+      }
+    }
+    .width('100%')
+    .height(AppTheme.inputHeight)
+    .padding({ left: 14, right: 6 })
+    .backgroundColor(this.value.length > 0 ? AppTheme.accentSoft : AppTheme.glass)
+    .border({ width: 1, color: this.value.length > 0 ? AppTheme.primary : AppTheme.divider,
+      radius: AppTheme.inputRadius })
+    .borderRadius(AppTheme.inputRadius)
+    .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
   }
 }

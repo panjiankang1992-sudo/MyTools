@@ -10,5 +10,5 @@ node "$TSC_BIN" "$TEST_DIR/LogoutRiskPolicy.ts" --target ES2020 --module commonj
 node "$APP_DIR/tests/logout_risk_policy_test.cjs" "$TEST_DIR/output/LogoutRiskPolicy.js"
 SOURCE="$APP_DIR/entry/src/main/ets/pages/Index.ets"
 grep -Fq '.onClick(() => this.RequestLogout())' "$SOURCE"
-grep -Fq "Button('继续同步')" "$SOURCE"
-grep -Fq "Button('仍要退出')" "$SOURCE"
+grep -Fq "AppSecondaryPillButton({ label: '继续同步'" "$SOURCE"
+grep -Fq "AppDangerPillButton({ label: '仍要退出'" "$SOURCE"

@@ -66,7 +66,7 @@ printf '%s\n' "$login_page" | grep -Fq ".accessibilityDescription('重新检查�
   echo 'fixed service health retry must expose its effect' >&2
   exit 1
 }
-printf '%s\n' "$login_page" | grep -Fq '.enabled(!this.authInProgress && this.account.trim().length > 0 && this.password.length > 0)' || {
+printf '%s\n' "$login_page" | grep -Fq 'available: !this.authInProgress && this.account.trim().length > 0 && this.password.length > 0' || {
   echo 'login button must require complete credentials without blocking on an advisory health probe' >&2
   exit 1
 }

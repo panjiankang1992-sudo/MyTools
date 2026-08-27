@@ -127,6 +127,43 @@
 
 final result: passed
 
+# Shared Control System and Media Hierarchy QA (2026-08-27)
+
+## Scope
+
+- Visual source: `app/docs/ui-redesign-mockup.html`, `app/docs/UI_REDESIGN_SPEC.md`, and the approved reading-page screenshot.
+- Control scope: primary, secondary, danger, search, filter, segment, input, and selected-state treatments across main pages, deep pages, sheets, and confirmation panels.
+- Runtime scope: authenticated reading page and multimedia image page on the HarmonyOS emulator at `1320 x 2856`.
+- Layout constraint: no main-page structure, navigation order, feature behavior, or content hierarchy was changed.
+
+## Evidence
+
+- Reading implementation: `app/build/design-qa-control-system/reading.jpeg`.
+- Reading source/implementation comparison: `app/build/design-qa-control-system/reading-comparison.jpg`.
+- Loaded multimedia gallery: `app/build/design-qa-control-system/media-gallery.jpeg`.
+- Multimedia directory root: `app/build/design-qa-control-system/media-root.jpeg`.
+- Multimedia month level: `app/build/design-qa-control-system/media-months.jpeg`.
+- Multimedia day level: `app/build/design-qa-control-system/media-days.jpeg`.
+
+## Findings and fixes
+
+- Shared action controls now cover primary, secondary, and danger operations instead of repeating local fill, gradient, border, font, and enabled-state definitions.
+- Shared search fields now cover the multimedia toolbar, multimedia selector sheets, remote media selector, drive search, book-source management, and shelf search.
+- Deep flows now use the same control language as the main pages, including DSH permission/recovery, logout risk, cloud-data deletion, source credentials, source deletion, book details, shelf removal, reader prompts, annotations, login, audio, and video detail.
+- Unselected DSH conversations no longer use a filled pill; the selected conversation uses the approved soft emerald state with an outline.
+- The multimedia directory selector now represents the actual logical hierarchy as `media -> yyyyMM -> yyyyMMdd`, with live aggregate counts at each level.
+- The multimedia root, month, and day states were opened in the emulator and verified as interactive, readable, non-overlapping, and correctly counted.
+- The reading-page comparison shows that the approved header, search position, shelf list structure, and bottom navigation remain unchanged while the common control system is applied.
+
+## Verification
+
+- ArkTS type checking and signed HAP packaging pass.
+- The signed HAP installs and cold-starts on the HarmonyOS emulator.
+- All 114 APP policy scripts pass after updating the policies to assert shared semantic controls instead of obsolete raw button markup.
+- The connected target list currently contains only the emulator, so this control batch is not claimed as newly verified on a physical device.
+
+final result: passed
+
 # Profile Pill Selection Removal QA (2026-08-27)
 
 ## Scope
