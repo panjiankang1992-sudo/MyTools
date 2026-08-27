@@ -1882,13 +1882,17 @@ struct Index {
   }
 
   private RecentToolSymbol(id: string): string {
-    if (id === 'remoteBooks') return '▣';
-    if (id === 'remoteMedia') return '▶';
-    if (id === 'qrcode') return '⌗';
-    if (id === 'digest') return '#';
-    if (id === 'archive') return '▤';
-    if (id === 'developer') return '<>';
-    return '▢';
+    if (id === 'remoteBooks') return 'sys.symbol.book_open';
+    if (id === 'remoteMedia') return 'sys.symbol.play_rectangle';
+    if (id === 'qrcode') return 'sys.symbol.qrcode';
+    if (id === 'digest') return 'sys.symbol.number';
+    if (id === 'archive') return 'sys.symbol.archivebox';
+    if (id === 'developer') return 'sys.symbol.chevron_left_forwardslash_chevron_right';
+    if (id === 'files' || id === 'transfer') return 'sys.symbol.folder';
+    if (id === 'feedback') return 'sys.symbol.bubble_left';
+    if (id === 'market') return 'sys.symbol.square_grid_2x2';
+    if (id === 'downloads') return 'sys.symbol.arrow_down_circle';
+    return 'sys.symbol.doc_text';
   }
 
   @Builder
@@ -2066,7 +2070,7 @@ struct Index {
   private RecentToolCard(id: string) {
     Button() {
       Column({ space: 7 }) {
-        Text(this.RecentToolSymbol(id)).fontSize(23).fontColor(AppTheme.primary)
+        SymbolGlyph($r(this.RecentToolSymbol(id))).fontSize(23).fontColor([AppTheme.primary])
         Text(this.RecentToolTitle(id)).width('100%').maxLines(1).textAlign(TextAlign.Center)
           .fontSize(14).fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary)
         Text(this.RecentToolSubtitle(id)).width('100%').maxLines(2).textAlign(TextAlign.Center)
