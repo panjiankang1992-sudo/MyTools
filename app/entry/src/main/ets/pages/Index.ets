@@ -2644,7 +2644,7 @@ struct Index {
         Row() {
           Text(directory.name).layoutWeight(1).maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis })
             .fontSize(18).fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
-          Text(`${this.mediaCatalogTotal} 个`)
+          Text(`${this.MediaCatalogDirectoryCount(directory)} 个`)
             .fontSize(12).fontColor(AppTheme.textSecondary)
         }.width('100%')
         Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.SpaceBetween }) {
@@ -2819,6 +2819,11 @@ struct Index {
     });
     return Array.from(directories.values())
       .sort((left: MediaDirectoryFilter, right: MediaDirectoryFilter) => right.name.localeCompare(left.name));
+  }
+
+  private MediaCatalogDirectoryCount(directory: MediaDirectoryFilter): number {
+    // 已选择目录时分页总数就是该目录的权威数量；未筛选时使用服务端目录聚合数量。
+    return this.mediaCatalogDirectoryId === directory.directoryId ? this.mediaCatalogTotal : directory.fileCount;
   }
 
   /** 列表滚动过半后预取下一页，避免用户到达底部才开始等待网络。 */

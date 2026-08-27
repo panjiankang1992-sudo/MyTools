@@ -16,7 +16,8 @@ grep -Fq 'private mediaCatalogThumbnailRevision: number = 0;' "$page"
 grep -Fq 'this.activeMediaCatalogThumbnailCancellation?.cancel();' "$page"
 grep -Fq '标签筛选后先恢复磁盘缓存' "$page"
 grep -Fq 'revision !== this.mediaCatalogThumbnailRevision' "$page"
-grep -Fq 'Text(`${this.mediaCatalogTotal} 个`)' "$page"
+grep -Fq 'Text(`${this.MediaCatalogDirectoryCount(directory)} 个`)' "$page"
+grep -Fq 'return this.mediaCatalogDirectoryId === directory.directoryId ? this.mediaCatalogTotal : directory.fileCount;' "$page"
 if sed -n '/private MediaCatalogItemTags(/,/^  }/p' "$page" | grep -Fq "}.width('100%').padding(8)"; then
   echo 'media tag overlay must not cover the whole thumbnail click area' >&2
   exit 1

@@ -127,6 +127,37 @@
 
 final result: passed
 
+# Goal Completion Audit Update (2026-08-28)
+
+## Scope
+
+- Rebuilt the current signed HAP from `master` after the media hierarchy deployment.
+- Re-ran all 114 APP policy scripts and installed the resulting HAP on the connected HarmonyOS emulator.
+- Cold-started authenticated Reading, Tools, DSH, Multimedia, Drive, and Profile surfaces.
+
+## Runtime evidence
+
+- Reading and shared navigation: `app/build/goal-audit/goal-audit-current.jpeg`.
+- Multimedia day grouping with authoritative image count: `app/build/goal-audit/goal-audit-media-count.jpeg`.
+- Immersive viewer entry after tapping the first live day thumbnail: `app/build/goal-audit/goal-audit-viewer.jpeg`.
+
+## Finding and fix
+
+- The unfiltered multimedia page grouped the current items under `20260825` but displayed the whole-library total
+  `34198`, so the number beside the day was not the actual group quantity.
+- The group header now uses the backend directory aggregate and only uses the catalog page total when that exact
+  directory is selected. The rebuilt emulator page displays `20260825 · 176 个`, matching the ready image count for
+  `/opt/extend/resource/yuyutian/media/202608/20260825`.
+- The first live thumbnail still opens the immersive viewer after the count correction.
+
+## Verification boundary
+
+- ArkTS type checking and signed HAP packaging pass.
+- The connected emulator installation and cold-start pass.
+- The USB physical target `9CN0224A11031537` remains `Offline`; this update makes no new physical-device claim.
+
+final result: passed
+
 # Runtime Closure Audit (2026-08-27)
 
 ## Scope
