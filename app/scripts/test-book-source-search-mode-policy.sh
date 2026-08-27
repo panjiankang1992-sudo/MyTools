@@ -18,6 +18,13 @@ grep -Fq 'cachedSources: number;' "$api"
 grep -Fq 'pendingSources: number;' "$api"
 grep -Fq 'cachedSources + pendingSources !== totalSources' "$api"
 grep -Fq 'async cancel(taskId: string): Promise<void>' "$api"
+grep -Fq "postJson('/api/app/v1/reader/source-search', request)" "$api"
+grep -Fq 'client.delete(`/api/app/v1/reader/source-search/${encodeURIComponent(taskId)}`)' "$api"
+grep -Fq '`?offset=${offset}&limit=200`' "$api"
+if grep -Fq '/api/app/v1/reader/book-searches' "$api"; then
+  echo 'book source search must use the backend cache-aware source-search API' >&2
+  exit 1
+fi
 grep -Fq '缓存 ${task.cachedSources} · 已查 ${searchedSources}/${task.pendingSources}' "$page"
 
 echo 'book source search mode policy tests passed'

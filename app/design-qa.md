@@ -127,6 +127,170 @@
 
 final result: passed
 
+# Profile Pill Selection Removal QA (2026-08-27)
+
+## Scope
+
+- User annotation: the selected oval background remained on profile list rows.
+- Implementation capture: `app/build/mytools-profile-no-pill.jpeg` at `1320 x 2856` from the HarmonyOS emulator.
+
+## Result
+
+- Replaced the shared profile action `Button` container with a clickable `Row`.
+- Preserved the full-width 68vp target, action handler, accessibility label, divider, title, subtitle, and disclosure indicator.
+- Eliminated the system button node that produced the persistent oval selection/hover background.
+
+final result: passed
+
+# Profile Action Audit QA (2026-08-27)
+
+## Scope
+
+- User request: remove invalid or redundant profile actions and repair retained unavailable actions.
+- Implementation captures: `app/build/mytools-profile-audited.jpeg` and `app/build/mytools-cache-entry.jpeg` from the HarmonyOS emulator.
+
+## Result
+
+- Merged duplicate Service and Connection Status actions into one live connection-test row.
+- Removed Reading History because it only duplicated the Reading Data destination.
+- Removed Media Policy because it duplicated the Remote Data Sources destination.
+- Consolidated Temporary Cache, Full-text Index, and Cache Management into one accurate Cache Management entry.
+- Removed the failing manual Reading Sync row; automatic synchronization and cloud-data management remain available through their existing flows.
+- Verified the consolidated Cache Management entry opens the live cache usage and cleanup page.
+
+final result: passed
+
+# Profile Login Devices Removal QA (2026-08-27)
+
+## Scope
+
+- User request: remove the Login Devices feature from the profile page.
+- Implementation capture: `app/build/mytools-profile-no-devices.jpeg` at `1320 x 2856` from the HarmonyOS emulator.
+- Constraint: retain the current-account logout flow.
+
+## Result
+
+- Removed the Login Devices title, refresh/status UI, device rows, and revoke-other-devices action.
+- Removed the profile-side session list state, request lifecycle, refresh, and revoke handlers.
+- Removed the obsolete Login Devices recommendation from the cloud-data deletion warning.
+- The profile page now ends directly with the existing Logout action without residual spacing or device-session text.
+
+final result: passed
+
+# Profile Identity and Press-State QA (2026-08-27)
+
+## Scope
+
+- User annotation: replace the authenticated profile action card with identity information and remove oval press feedback from setting rows.
+- Implementation capture: `app/build/mytools-profile-identity.jpeg` at `1320 x 2856` from the HarmonyOS emulator.
+- Constraint: preserve existing setting actions and page structure.
+
+## Result
+
+- The authenticated profile card now places the existing avatar source on the left and nickname, username, email state, and role on the right.
+- Removed the redundant profile-card connection-test button; connection testing remains available in the existing Service and Connection Status rows.
+- Disabled the default button state effect and set zero row radius in the shared profile action row, preventing an oval gray press background.
+- Long identity values use single-line ellipsis and the avatar retains the existing image/initial fallback behavior.
+
+final result: passed
+
+# Bottom Navigation Height QA (2026-08-27)
+
+## Scope
+
+- User request: reduce the visible height of the bottom function bar.
+- Implementation capture: `app/build/mytools-nav-height.jpeg` at `1320 x 2856` from the HarmonyOS emulator.
+- Constraint: preserve navigation behavior, labels, icon size, and accessible tab targets.
+
+## Result
+
+- Reduced the visible tab bar height from `68vp` to `60vp`.
+- Reduced the selected icon background from `54×40vp` to `50×36vp` and tightened internal spacing.
+- Kept each tab's `64vp` target height so touch accessibility remains unchanged.
+- Updated the persistent DSH content height offset to match the new bar height.
+
+final result: passed
+
+# Bottom Navigation Icon Replacement QA (2026-08-27)
+
+## Scope
+
+- Visual source: the bottom navigation icons in `app/docs/ui-redesign-mockup.html` and section 4.5 of `app/docs/UI_REDESIGN_SPEC.md`.
+- Implementation capture: `app/build/mytools-nav-icons.jpeg` at `1320 x 2856` from the HarmonyOS emulator.
+- Constraint: replace the Reading, Tools, Media, and Drive symbols only; preserve navigation structure, selection treatment, labels, and behavior.
+
+## Result
+
+- Reading now uses the linear system book symbol.
+- Tools now uses the linear wrench-and-screwdriver symbol.
+- Media now uses the linear play-circle symbol.
+- Drive now uses the linear external-drive symbol.
+- DSH intentionally retains its existing AI-edit symbol.
+- All five icons retain the documented `28vp` size and existing selected/unselected color treatment.
+
+final result: passed
+
+# Reading Search Left Spacing QA (2026-08-27)
+
+## Scope
+
+- User annotation: the blank space at the left side of the book-source search field was too large.
+- Implementation capture: `app/build/mytools-search-spacing.jpeg` at `1320 x 2856` from the HarmonyOS emulator.
+- Constraint: spacing adjustment only; search behavior, page structure, and overall layout remain unchanged.
+
+## Result
+
+- Reduced the search-mode button width from `84vp` to `68vp` and the field's left padding from `8vp` to `4vp`.
+- Preserved the `42vp` control height and the full search field height, so the dropdown remains comfortably interactive.
+- Emulator comparison confirms the mode label now sits closer to the field edge while the placeholder and search action retain clear separation.
+
+final result: passed
+
+# Full App Control Redesign QA (2026-08-27)
+
+## Scope
+
+- Source: `app/docs/ui-redesign-mockup.png`, `app/docs/ui-redesign-mockup.html`, and `app/docs/UI_REDESIGN_SPEC.md`.
+- Runtime: signed HarmonyOS HAP installed on the `1320 x 2856` emulator.
+- Evidence: `app/build/mytools-final-reading.jpeg`, `app/build/mytools-final-tools.jpeg`, `app/build/mytools-final-media.jpeg`, `app/build/mytools-final-drive.jpeg`, and `app/build/mytools-final-profile.jpeg`.
+- Preserved: feature behavior, network/data flow, component order, page structure, and overall layout.
+
+## Results
+
+- The entire app now uses the emerald accent, pale green-gray background, glass/white surfaces, ink text, muted secondary text, soft green selection state, outlined pills, rounded fields, gradient primary actions, and semantic danger surfaces.
+- All legacy blue tokens and historical hard-coded danger colors have been removed from the app UI source.
+- Header selectors, chips, directory/tag filters, data-source selectors, reader settings, book-source controls, tool controls, media controls, drive controls, login fields, profile actions, sheets, and confirmation panels share the same control language.
+- Primary actions use compact gradient pills; selected controls use soft green surfaces rather than large solid color blocks; unselected controls use white or transparent surfaces with subtle borders.
+- The reading, tools, media, drive, and profile screenshots show consistent spacing, radii, type hierarchy, input surfaces, action hierarchy, and bottom-navigation treatment.
+- DSH remote WebView content remains owned by the remote DSH application; the app-owned DSH host surface and bottom navigation use the shared MyTools styling.
+- All `app/scripts/test-*.sh` checks pass. ArkTS type checking, compilation, signed HAP packaging, emulator installation, and cold launch pass.
+- No P0, P1, or P2 visual issue remains in the app-owned interface scope.
+
+final result: passed
+
+# Shared Selection Controls Phase 2 QA (2026-08-27)
+
+- Visual source: `app/docs/ui-redesign-mockup.png` and `app/docs/UI_REDESIGN_SPEC.md`.
+- Emulator evidence: `app/build/mytools-controls-phase2-tools.jpeg` at `1320 x 2856`.
+- Digest algorithms, feedback categories, remote source selectors, media directory/tag filters, book-source filters, comic options, and reader setting selectors now share the outlined pill and soft-green selected treatment.
+- Selected controls use `accentSoft` with primary text and border; unselected controls use a white surface, muted text, and divider border instead of blue or gray filled blocks.
+- Existing actions, state transitions, control order, and surrounding layouts are unchanged.
+- Tool-page hero, search, list hierarchy, and bottom navigation remain visually coherent after the shared-control replacement.
+- No P0, P1, or P2 visual issue remains in this phase.
+
+final result: passed
+
+# Reading Search Controls Annotation QA (2026-08-27)
+
+- Reference: `codex-clipboard-2fbb2ef9-7e23-47a1-9dea-3c8e5f915d21.png`.
+- Implementation: `app/build/mytools-search-controls.jpeg`, captured at `1320 x 2856` from the HarmonyOS emulator.
+- The mode selector at the left of the source search field has no background while closed; its pale green pill appears only while the mode menu is open.
+- The search action at the right has no background while the query is empty; it becomes a filled green circular action only when a query is present.
+- Search, cancellation, mode switching, component positions, and surrounding layout are unchanged.
+- No P0, P1, or P2 issue remains in the annotated control scope.
+
+final result: passed
+
 ---
 
 # Reading Experience Polish Round 2 QA (2026-08-21)
@@ -274,5 +438,28 @@ final result: passed
 - [x] Reveal discovery, credentials, and delete only for the selected source.
 - [x] Preserve the existing source business handlers and empty/filter states.
 - [x] Pass ArkTS type checking, policy tests, signed HAP packaging, emulator installation, and visual comparison.
+
+final result: passed
+# UI Redesign Control Pass QA (2026-08-27)
+
+## Scope
+
+- Visual source: `app/docs/ui-redesign-mockup.png` and `app/docs/UI_REDESIGN_SPEC.md`.
+- Implementation capture: `app/build/mytools-ui-redesign.jpeg` at `1320 x 2856` from the HarmonyOS emulator.
+- State: authenticated reading page with source shelf content, light theme.
+- Constraint: control styling only; existing page structure, content positions, navigation order, and behavior remain unchanged.
+
+## Comparison
+
+- Color tokens match the emerald accent, pale green background, white/glass surface, green soft-selection fill, dark ink text, and muted secondary text in the source.
+- Header mode selector matches the pill container and soft selected state without a solid blue block.
+- Shelf chips use white outlined pills and preserve the existing wrapping and position.
+- Search and action surfaces use large rounded corners, subtle borders, and soft shadow without changing their component tree.
+- Bottom navigation retains its original placement while matching the 28 vp icon scale, green selected icon block, selection dot, and translucent bar treatment.
+- Existing search mode control and live shelf data intentionally remain as-is structurally because the redesign scope excludes feature and layout changes.
+
+## Result
+
+No P0, P1, or P2 visual issues remain within the control-only scope. A future pass may apply the same shared tokens to secondary sheets and deep feature pages.
 
 final result: passed

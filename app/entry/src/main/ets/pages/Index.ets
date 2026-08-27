@@ -1,7 +1,5 @@
 import { AppTheme } from '../theme/AppTheme';
 import { AuthSessionManager } from '../features/auth/AuthSessionManager';
-import { SessionApi } from '../features/auth/SessionApi';
-import { DeviceSession } from '../features/auth/SessionModels';
 import common from '@ohos.app.ability.common';
 import window from '@ohos.window';
 import preferences from '@ohos.data.preferences';
@@ -187,9 +185,6 @@ struct Index {
   @State profileAvatar: string = '';
   @State profileAvatarPixelMap?: image.PixelMap = undefined;
   @State profileAvatarFailed: boolean = false;
-  @State deviceSessions: DeviceSession[] = [];
-  @State sessionStatus: string = '';
-  @State sessionLoading: boolean = false;
   @State profileMode: string = 'home';
   @State profileCacheStatus: string = '';
   @State profileSettingsRevision: number = 0;
@@ -599,9 +594,7 @@ struct Index {
   private activeMediaMetricsCancellation?: DownloadCancellationToken = undefined;
   private activeMarketCancellation?: DownloadCancellationToken = undefined;
   private marketOperationRevision: number = 0;
-  private activeSessionListCancellation?: DownloadCancellationToken = undefined;
   private activeProfileCancellation?: DownloadCancellationToken = undefined;
-  private sessionListRevision: number = 0;
   private activeProgressPullCancellation?: DownloadCancellationToken = undefined;
   private activeMarkerPullCancellation?: DownloadCancellationToken = undefined;
   private activeShelfPullCancellation?: DownloadCancellationToken = undefined;
@@ -825,7 +818,6 @@ struct Index {
     if (this.mediaViewerVisible) this.ApplyMediaViewerSystemBars(false);
     this.activeReaderTicketCancellation?.cancel();
     this.activeMarketCancellation?.cancel();
-    this.activeSessionListCancellation?.cancel();
     this.activeProfileCancellation?.cancel();
     this.CancelReaderPulls();
     this.CancelReaderDataSummary();
@@ -1072,18 +1064,26 @@ struct Index {
   private MediaModeSwitch() {
     Row() {
       Button('图片').height(36).padding({ left: 14, right: 14 }).fontSize(13)
-        .fontColor(this.mediaCatalogMode === 'gallery' ? Color.White : AppTheme.textPrimary)
-        .backgroundColor(this.mediaCatalogMode === 'gallery' ? AppTheme.primary : Color.Transparent)
+        .fontWeight(this.mediaCatalogMode === 'gallery' ? FontWeight.Medium : FontWeight.Normal)
+        .fontColor(this.mediaCatalogMode === 'gallery' ? AppTheme.primary : AppTheme.textSecondary)
+        .backgroundColor(this.mediaCatalogMode === 'gallery' ? AppTheme.accentSoft : Color.Transparent)
+        .borderRadius(AppTheme.pillRadius)
         .onClick(() => this.ChangeMediaCatalogMode('gallery'))
       Button('视频').height(36).padding({ left: 14, right: 14 }).fontSize(13)
-        .fontColor(this.mediaCatalogMode === 'video' ? Color.White : AppTheme.textPrimary)
-        .backgroundColor(this.mediaCatalogMode === 'video' ? AppTheme.primary : Color.Transparent)
+        .fontWeight(this.mediaCatalogMode === 'video' ? FontWeight.Medium : FontWeight.Normal)
+        .fontColor(this.mediaCatalogMode === 'video' ? AppTheme.primary : AppTheme.textSecondary)
+        .backgroundColor(this.mediaCatalogMode === 'video' ? AppTheme.accentSoft : Color.Transparent)
+        .borderRadius(AppTheme.pillRadius)
         .onClick(() => this.ChangeMediaCatalogMode('video'))
       Button('音频').height(36).padding({ left: 14, right: 14 }).fontSize(13)
-        .fontColor(this.mediaCatalogMode === 'audio' ? Color.White : AppTheme.textPrimary)
-        .backgroundColor(this.mediaCatalogMode === 'audio' ? AppTheme.primary : Color.Transparent)
+        .fontWeight(this.mediaCatalogMode === 'audio' ? FontWeight.Medium : FontWeight.Normal)
+        .fontColor(this.mediaCatalogMode === 'audio' ? AppTheme.primary : AppTheme.textSecondary)
+        .backgroundColor(this.mediaCatalogMode === 'audio' ? AppTheme.accentSoft : Color.Transparent)
+        .borderRadius(AppTheme.pillRadius)
         .onClick(() => this.ChangeMediaCatalogMode('audio'))
-    }.height(40).padding(2).borderRadius(20).backgroundColor(AppTheme.surfaceTint).margin({ right: 4 })
+    }.height(40).padding(2).borderRadius(AppTheme.pillRadius).backgroundColor(AppTheme.glass)
+      .border({ width: 1, color: AppTheme.glassBorder, radius: AppTheme.pillRadius })
+      .backdropBlur(14).margin({ right: 4 })
   }
 
   @Builder
@@ -1101,10 +1101,12 @@ struct Index {
   @Builder
   private CompactActionButton(label: string, action: () => void) {
     Button(label)
-      .height(48)
+      .height(AppTheme.controlHeight)
+      .padding({ left: 14, right: 14 })
       .fontSize(14)
       .fontColor(AppTheme.primary)
-      .backgroundColor(Color.Transparent)
+      .backgroundColor(AppTheme.accentSoft)
+      .borderRadius(AppTheme.pillRadius)
       .onClick(action)
   }
 
@@ -1118,9 +1120,11 @@ struct Index {
       }
     } else if (this.bookModeIndex === 1) {
       TextInput({ text: this.remoteBookSearchText, placeholder: '搜索远程书名、作者或标签' })
-        .width('100%').height(56).padding({ left: 18, right: 18 })
-        .backgroundColor(AppTheme.surface)
-        .border({ width: 1, color: AppTheme.divider, radius: 16 })
+        .width('100%').height(AppTheme.inputHeight).padding({ left: 16, right: 16 })
+        .backgroundColor(AppTheme.glass)
+        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
+        .borderRadius(AppTheme.inputRadius)
+        .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
         .onChange((value: string) => this.OnRemoteBookSearchChanged(value))
       this.BookShelfHeader()
       if (!this.authenticated) {
@@ -1185,9 +1189,11 @@ struct Index {
     Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start }) {
       ForEach(this.BookShelfFilterTags(), (tag: string) => {
         Button(tag).height(32).padding({ left: 10, right: 10 }).margin({ right: 6, bottom: 6 })
-          .fontSize(11).fontColor(this.shelfSearchText === tag ? Color.White : AppTheme.primary)
-          .backgroundColor(this.shelfSearchText === tag ? AppTheme.primary : AppTheme.surfaceTint)
-          .borderRadius(12).accessibilityText(`筛选书架标签：${tag}`)
+          .fontSize(11).fontColor(this.shelfSearchText === tag ? AppTheme.primary : AppTheme.textSecondary)
+          .backgroundColor(this.shelfSearchText === tag ? AppTheme.accentSoft : AppTheme.surface)
+          .border({ width: 1, color: this.shelfSearchText === tag ? AppTheme.primary : AppTheme.divider,
+            radius: AppTheme.pillRadius })
+          .borderRadius(AppTheme.pillRadius).accessibilityText(`筛选书架标签：${tag}`)
           .onClick(() => this.shelfSearchText = this.shelfSearchText === tag ? '' : tag)
       }, (tag: string) => tag)
     }.width('100%')
@@ -1213,8 +1219,9 @@ struct Index {
         Button(item)
           .height(36).padding({ left: 12, right: 12 }).fontSize(13).fontFamily('HarmonyOS Sans')
           .fontWeight(this.bookModeIndex === index ? FontWeight.Medium : FontWeight.Normal)
-          .fontColor(this.bookModeIndex === index ? Color.White : AppTheme.textPrimary)
-          .backgroundColor(this.bookModeIndex === index ? AppTheme.primary : Color.Transparent)
+          .fontColor(this.bookModeIndex === index ? AppTheme.primary : AppTheme.textSecondary)
+          .backgroundColor(this.bookModeIndex === index ? AppTheme.accentSoft : Color.Transparent)
+          .borderRadius(AppTheme.pillRadius)
           .accessibilityText(`${item}添加图书方式`)
           .accessibilityDescription(this.bookModeIndex === index ? '已选择' : '未选择')
           .onClick(() => {
@@ -1229,8 +1236,10 @@ struct Index {
     }
     .height(40)
     .padding(2)
-    .borderRadius(20)
-    .backgroundColor(AppTheme.surfaceTint)
+    .borderRadius(AppTheme.pillRadius)
+    .backgroundColor(AppTheme.glass)
+    .border({ width: 1, color: AppTheme.glassBorder, radius: AppTheme.pillRadius })
+    .backdropBlur(14)
     .margin({ right: 4 })
   }
 
@@ -1246,15 +1255,21 @@ struct Index {
       .layoutWeight(1)
       .alignItems(HorizontalAlign.Start)
       Button(action)
-        .height(44).padding({ left: 18, right: 18 }).fontSize(14).fontFamily('HarmonyOS Sans')
+        .height(AppTheme.controlHeight).padding({ left: 18, right: 18 }).fontSize(14)
+        .fontFamily('HarmonyOS Sans')
         .fontColor(Color.White)
         .backgroundColor(AppTheme.primary)
+        .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+        .borderRadius(AppTheme.pillRadius)
+        .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
         .onClick(onAction)
     }
     .width('100%')
     .padding(18)
-    .borderRadius(18)
-    .backgroundColor(AppTheme.surfaceTint)
+    .borderRadius(AppTheme.cardRadius)
+    .backgroundColor(AppTheme.surface)
+    .border({ width: 1, color: AppTheme.divider, radius: AppTheme.cardRadius })
+    .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
   }
 
   @Builder
@@ -1320,9 +1335,11 @@ struct Index {
       this.ToolDownloadsPage()
     } else {
       TextInput({ text: this.toolSearchText, placeholder: '搜索工具' })
-        .width('100%').height(56).padding({ left: 18, right: 18 })
-        .backgroundColor(AppTheme.surface)
-        .border({ width: 1, color: AppTheme.divider, radius: 16 })
+        .width('100%').height(AppTheme.inputHeight).padding({ left: 16, right: 16 })
+        .backgroundColor(AppTheme.glass)
+        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
+        .borderRadius(AppTheme.inputRadius)
+        .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
         .onChange((value: string) => this.toolSearchText = value)
       this.HeroPanel('远程文件管理', '浏览MyTools、NAS与WebDAV文件，不扫描本地目录', '打开文件管理', () => {
         this.RecordRecentTool('files');
@@ -1447,7 +1464,9 @@ struct Index {
       .onChange((value: string) => this.qrInput = value)
     Row({ space: 12 }) {
       Button(this.qrBusy ? '处理中…' : '生成二维码').layoutWeight(1).enabled(!this.qrBusy)
-        .backgroundColor(AppTheme.primary).onClick(() => this.GenerateQrCode())
+        .backgroundColor(AppTheme.primary)
+        .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+        .borderRadius(AppTheme.pillRadius).onClick(() => this.GenerateQrCode())
       Button('系统扫码').layoutWeight(1).enabled(!this.qrBusy)
         .fontColor(AppTheme.primary).backgroundColor(AppTheme.surfaceTint).onClick(() => this.ScanQrCode())
     }.width('100%')
@@ -1497,7 +1516,9 @@ struct Index {
         this.digestStatus = '';
       })
     Button(this.digestBusy ? '计算中…' : '计算摘要').width('100%').height(48)
-      .enabled(!this.digestBusy).backgroundColor(AppTheme.primary).onClick(() => this.CalculateDigest())
+      .enabled(!this.digestBusy).backgroundColor(AppTheme.primary)
+      .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+      .borderRadius(AppTheme.pillRadius).onClick(() => this.CalculateDigest())
     if (this.digestOutput.length > 0) {
       TextArea({ text: this.digestOutput }).width('100%').height(130)
         .backgroundColor(AppTheme.surfaceTint).copyOption(CopyOptions.LocalDevice)
@@ -1510,8 +1531,11 @@ struct Index {
   @Builder
   private DigestAlgorithmButton(label: string, algorithm: string) {
     Button(label).layoutWeight(1).height(48)
-      .fontColor(this.digestAlgorithm === algorithm ? Color.White : AppTheme.textPrimary)
-      .backgroundColor(this.digestAlgorithm === algorithm ? AppTheme.primary : AppTheme.surfaceTint)
+      .fontColor(this.digestAlgorithm === algorithm ? AppTheme.primary : AppTheme.textSecondary)
+      .backgroundColor(this.digestAlgorithm === algorithm ? AppTheme.accentSoft : AppTheme.surface)
+      .border({ width: 1, color: this.digestAlgorithm === algorithm ? AppTheme.primary : AppTheme.divider,
+        radius: AppTheme.pillRadius })
+      .borderRadius(AppTheme.pillRadius)
       .onClick(() => {
         this.digestAlgorithm = algorithm;
         this.digestOutput = '';
@@ -1537,7 +1561,9 @@ struct Index {
       Text('不会扫描设备目录，不会修改或删除原文件。')
         .width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
       Button(this.archiveBusy ? '正在创建ZIP…' : '选择文件并创建ZIP').width('100%').height(48)
-        .enabled(!this.archiveBusy).backgroundColor(AppTheme.primary).onClick(() => this.CreateToolArchive())
+        .enabled(!this.archiveBusy).backgroundColor(AppTheme.primary)
+        .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+        .borderRadius(AppTheme.pillRadius).onClick(() => this.CreateToolArchive())
     }.width('100%').padding(18).borderRadius(18).backgroundColor(AppTheme.surfaceTint)
     Column({ space: 10 }) {
       Text('安全解压').width('100%').fontSize(20).fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
@@ -1556,7 +1582,8 @@ struct Index {
             Text(item.relativePath).width('100%').maxLines(2).fontSize(14).fontColor(AppTheme.textPrimary)
             Text(this.FormatFileSize(item.size)).fontSize(12).fontColor(AppTheme.textSecondary)
           }.layoutWeight(1).alignItems(HorizontalAlign.Start)
-          Button('导出').fontSize(12).onClick(() => this.ExportArchiveItem(item))
+          Button('导出').fontSize(12).fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft)
+            .borderRadius(AppTheme.pillRadius).onClick(() => this.ExportArchiveItem(item))
         }.width('100%').padding({ top: 10, bottom: 10 })
           .border({ width: { bottom: 1 }, color: AppTheme.divider })
       }, (item: ArchiveExtractedItem) => item.relativePath)
@@ -1573,7 +1600,7 @@ struct Index {
       Text('下载管理').layoutWeight(1).textAlign(TextAlign.Center).fontSize(20)
         .fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
       Button(this.CurrentDownloadHistory().length > 0 ? '清空' : '').width(48).height(48).fontSize(13)
-        .fontColor('#D64B4B').backgroundColor(Color.Transparent)
+        .fontColor(AppTheme.danger).backgroundColor(Color.Transparent)
         .enabled(this.CurrentDownloadHistory().length > 0)
         .onClick(() => this.ClearDownloadHistory())
     }.width('100%')
@@ -1588,13 +1615,13 @@ struct Index {
         Row() {
           Text(item.name).layoutWeight(1).maxLines(1).fontSize(15).fontColor(AppTheme.textPrimary)
           Text(this.DownloadStatusLabel(item.status)).fontSize(12)
-            .fontColor(item.status === 'failed' ? '#D64B4B' : AppTheme.primary)
+            .fontColor(item.status === 'failed' ? AppTheme.danger : AppTheme.primary)
         }.width('100%')
         if (item.status === 'running') {
           Progress({ value: item.receivedBytes, total: Math.max(1, item.totalBytes), type: ProgressType.Linear })
             .width('100%').color(AppTheme.primary)
           if (item.owner === this.activeDownloadOwner && item.id === this.activeDownloadTaskId) {
-            Button('取消下载').height(48).fontSize(13).fontColor('#D64B4B').backgroundColor(Color.Transparent)
+            Button('取消下载').height(48).fontSize(13).fontColor(AppTheme.danger).backgroundColor(Color.Transparent)
               .onClick(() => this.CancelActiveDownload())
           }
         }
@@ -1629,9 +1656,14 @@ struct Index {
     } else {
       Row({ space: 10 }) {
         TextInput({ text: this.marketQuery, placeholder: '按名称搜索应用' }).layoutWeight(1)
+          .height(AppTheme.inputHeight).padding({ left: 16, right: 16 })
+          .backgroundColor(AppTheme.glass).borderRadius(AppTheme.inputRadius)
+          .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
           .onChange((value: string) => this.marketQuery = value)
           .onSubmit(() => this.LoadMarketApps(true))
-        Button('搜索').onClick(() => this.LoadMarketApps(true))
+        Button('搜索').height(AppTheme.controlHeight).padding({ left: 18, right: 18 })
+          .fontColor(Color.White).backgroundColor(AppTheme.primary).borderRadius(AppTheme.pillRadius)
+          .onClick(() => this.LoadMarketApps(true))
       }.width('100%')
       Text(`共 ${this.marketTotal} 项 · 第 ${this.marketPage} 页`)
         .width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
@@ -1645,7 +1677,9 @@ struct Index {
         this.ToolMarketItemRow(item)
       }, (item: AppMarketItem) => item.id)
       if (this.marketItems.length < this.marketTotal) {
-        Button(this.marketLoading ? '加载中…' : '加载更多').width('100%').enabled(!this.marketLoading)
+        Button(this.marketLoading ? '加载中…' : '加载更多').height(AppTheme.controlHeight)
+          .fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft).borderRadius(AppTheme.pillRadius)
+          .enabled(!this.marketLoading)
           .onClick(() => this.LoadMarketApps(false))
       }
       if (this.marketStatus.length > 0) {
@@ -1713,25 +1747,35 @@ struct Index {
       }.width('100%').padding(24).borderRadius(18).backgroundColor(AppTheme.surfaceTint)
     } else {
       TextInput({ text: this.feedbackName, placeholder: '称呼（必填）' })
-        .width('100%').maxLength(50).onChange((value: string) => this.feedbackName = value)
+        .width('100%').height(AppTheme.inputHeight).maxLength(50).backgroundColor(AppTheme.glass)
+        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
+        .borderRadius(AppTheme.inputRadius).onChange((value: string) => this.feedbackName = value)
       TextInput({ text: this.feedbackEmail, placeholder: '联系邮箱（必填）' })
-        .width('100%').maxLength(100).type(InputType.Email)
+        .width('100%').height(AppTheme.inputHeight).maxLength(100).type(InputType.Email)
+        .backgroundColor(AppTheme.glass).borderRadius(AppTheme.inputRadius)
+        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
         .onChange((value: string) => this.feedbackEmail = value)
       Text('反馈类型').width('100%').fontSize(14).fontColor(AppTheme.textSecondary)
       Row({ space: 8 }) {
         ForEach(['功能建议', '使用问题', '内容问题', '其他'], (category: string) => {
           Button(category).height(48).fontSize(13)
-            .fontColor(this.feedbackCategory === category ? Color.White : AppTheme.primary)
-            .padding({ left: 12, right: 12 }).borderRadius(16)
-            .backgroundColor(this.feedbackCategory === category ? AppTheme.primary : AppTheme.surfaceTint)
+            .fontColor(this.feedbackCategory === category ? AppTheme.primary : AppTheme.textSecondary)
+            .padding({ left: 12, right: 12 }).borderRadius(AppTheme.pillRadius)
+            .backgroundColor(this.feedbackCategory === category ? AppTheme.accentSoft : AppTheme.surface)
+            .border({ width: 1, color: this.feedbackCategory === category ? AppTheme.primary : AppTheme.divider,
+              radius: AppTheme.pillRadius })
             .accessibilityDescription(this.feedbackCategory === category ? '已选择' : '未选择')
             .onClick(() => this.feedbackCategory = category)
         })
       }.width('100%')
       TextInput({ text: this.feedbackTitle, placeholder: '标题（必填，最多200字）' })
-        .width('100%').maxLength(200).onChange((value: string) => this.feedbackTitle = value)
+        .width('100%').height(AppTheme.inputHeight).maxLength(200).backgroundColor(AppTheme.glass)
+        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
+        .borderRadius(AppTheme.inputRadius).onChange((value: string) => this.feedbackTitle = value)
       TextArea({ text: this.feedbackContent, placeholder: '请描述问题、期望结果和复现步骤（必填，最多5000字）' })
-        .width('100%').height(220).maxLength(5000)
+        .width('100%').height(220).maxLength(5000).backgroundColor(AppTheme.glass)
+        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
+        .borderRadius(AppTheme.inputRadius)
         .onChange((value: string) => this.feedbackContent = value)
       Text(`${this.feedbackContent.length}/5000`).width('100%').textAlign(TextAlign.End)
         .fontSize(12).fontColor(AppTheme.textSecondary)
@@ -1740,7 +1784,9 @@ struct Index {
       }
       Button(this.feedbackSubmitting ? '提交中…' : '提交反馈')
         .width('100%').height(48).enabled(!this.feedbackSubmitting)
-        .backgroundColor(AppTheme.primary).onClick(() => this.SubmitFeedback())
+        .backgroundColor(AppTheme.primary)
+        .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+        .borderRadius(AppTheme.pillRadius).onClick(() => this.SubmitFeedback())
     }
   }
 
@@ -1896,10 +1942,11 @@ struct Index {
 
   @Builder
   private ToolActionButton(label: string, operation: string) {
-    Button(label).height(48).fontSize(13).fontColor(AppTheme.primary)
+    Button(label).height(AppTheme.controlHeight).fontSize(13).fontColor(AppTheme.textPrimary)
       .padding({ left: 12, right: 12 }).margin({ right: 8, bottom: 8 })
-      .backgroundColor(Color.Transparent)
-      .border({ width: 1, color: AppTheme.primary, radius: 16 })
+      .backgroundColor(AppTheme.surface)
+      .border({ width: 1, color: AppTheme.outline, radius: AppTheme.pillRadius })
+      .borderRadius(AppTheme.pillRadius)
       .onClick(() => this.ProcessToolText(operation))
   }
 
@@ -1944,9 +1991,11 @@ struct Index {
     Row({ space: 8 }) {
       ForEach(this.mediaSources, (source: RemoteMediaSource) => {
         Button(source.name.length > 0 ? source.name : source.type).height(48).fontSize(13)
-          .fontColor(this.selectedMediaSourceId === source.id ? Color.White : AppTheme.textPrimary)
-          .padding({ left: 12, right: 12 }).borderRadius(16)
-          .backgroundColor(this.selectedMediaSourceId === source.id ? AppTheme.primary : AppTheme.surfaceTint)
+          .fontColor(this.selectedMediaSourceId === source.id ? AppTheme.primary : AppTheme.textSecondary)
+          .padding({ left: 12, right: 12 }).borderRadius(AppTheme.pillRadius)
+          .backgroundColor(this.selectedMediaSourceId === source.id ? AppTheme.accentSoft : AppTheme.surface)
+          .border({ width: 1, color: this.selectedMediaSourceId === source.id ? AppTheme.primary : AppTheme.divider,
+            radius: AppTheme.pillRadius })
           .accessibilityDescription(this.selectedMediaSourceId === source.id ? '当前远程数据源' : '切换远程数据源')
           .onClick(() => {
             if (this.selectedMediaSourceId !== source.id) {
@@ -2005,8 +2054,8 @@ struct Index {
         .width('100%').maxLines(2).fontSize(12).fontColor(AppTheme.textSecondary)
       if (this.toolOperation === 'select') {
         if (this.toolOperationBusy && this.activeDownloadTaskId.length > 0) {
-          Button('取消当前下载').width('100%').height(48).fontColor('#D64B4B').backgroundColor(Color.Transparent)
-            .border({ width: 1, color: '#D64B4B', radius: 12 }).onClick(() => this.CancelActiveDownload())
+          Button('取消当前下载').width('100%').height(48).fontColor(AppTheme.danger).backgroundColor(Color.Transparent)
+            .border({ width: 1, color: AppTheme.danger, radius: 12 }).onClick(() => this.CancelActiveDownload())
         }
         Row({ space: 8 }) {
           Button('重命名').layoutWeight(1).height(48).onClick(() => {
@@ -2020,9 +2069,10 @@ struct Index {
           if (!this.toolSelectedDirectory) {
             Button(this.toolOperationBusy ? '下载中' : '下载').layoutWeight(1).height(48)
               .enabled(!this.toolOperationBusy)
+              .fontColor(Color.White).backgroundColor(AppTheme.primary).borderRadius(AppTheme.pillRadius)
               .onClick(() => this.DownloadToolFile())
           }
-          Button('删除').layoutWeight(1).height(48).fontColor(Color.Red).backgroundColor('#FFF0F0').onClick(() => {
+          Button('删除').layoutWeight(1).height(48).fontColor(AppTheme.danger).backgroundColor(AppTheme.dangerSoft).onClick(() => {
             this.toolOperation = 'delete';
           })
         }.width('100%')
@@ -2037,19 +2087,20 @@ struct Index {
             .fontColor(AppTheme.textPrimary).onClick(() => this.CloseToolOperation())
           Button(this.toolOperation === 'rename' ? '确认重命名' :
             (this.toolOperation === 'move' ? '确认移动' : '确认新建')).layoutWeight(1)
-            .height(48)
+            .height(48).fontColor(Color.White).backgroundColor(AppTheme.primary)
+            .borderRadius(AppTheme.pillRadius)
             .enabled(!this.toolOperationBusy).onClick(() => this.ConfirmToolOperation())
         }.width('100%')
       } else {
         Text(this.toolSelectedDirectory ?
           '将递归删除此目录及其中全部内容，此操作不可撤销。' : '将永久删除这个远程文件，此操作不可撤销。')
-          .width('100%').fontSize(13).fontColor(Color.Red)
+          .width('100%').fontSize(13).fontColor(AppTheme.danger)
         Row({ space: 10 }) {
           Button('取消').layoutWeight(1).height(48).backgroundColor(AppTheme.surfaceTint)
             .fontColor(AppTheme.textPrimary).onClick(() => this.CloseToolOperation())
           Button(this.toolSelectedDirectory ? '确认删除目录' : '确认删除文件').layoutWeight(1)
             .height(48)
-            .fontColor(Color.White).backgroundColor(Color.Red).enabled(!this.toolOperationBusy)
+            .fontColor(Color.White).backgroundColor(AppTheme.danger).enabled(!this.toolOperationBusy)
             .onClick(() => this.ConfirmToolOperation())
         }.width('100%')
       }
@@ -2113,7 +2164,7 @@ struct Index {
       if (this.copilotSettingsVisible) this.CopilotSettingsPanel()
       Row() {
         Text('会话').layoutWeight(1).fontSize(18).fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
-        Button('删除').width(64).height(48).fontSize(13).fontColor('#C33D3D')
+        Button('删除').width(64).height(48).fontSize(13).fontColor(AppTheme.danger)
           .backgroundColor(Color.Transparent)
           .enabled(this.activeCopilotConversationId.length > 0 && !this.IsCopilotTurnActive() &&
             !this.copilotBusy && this.copilotRecoveryPlan === undefined)
@@ -2132,10 +2183,10 @@ struct Index {
           Row({ space: 10 }) {
             Button('取消').layoutWeight(1).height(48).fontColor(AppTheme.textPrimary)
               .backgroundColor(AppTheme.surface).onClick(() => this.copilotDeleteConfirm = false)
-            Button('确认删除').layoutWeight(1).height(48).fontColor(Color.White).backgroundColor('#C33D3D')
+            Button('确认删除').layoutWeight(1).height(48).fontColor(Color.White).backgroundColor(AppTheme.danger)
               .onClick(() => this.DeleteCurrentCopilotConversation())
           }.width('100%')
-        }.width('100%').padding(16).borderRadius(16).backgroundColor('#FFF0F0')
+        }.width('100%').padding(16).borderRadius(16).backgroundColor(AppTheme.dangerSoft)
       }
       if (this.CurrentCopilotConversations().length > 0) {
         Scroll() {
@@ -2176,8 +2227,8 @@ struct Index {
           ForEach(this.copilotRunSteps, (step: CopilotRunStep) => {
             Row({ space: 10 }) {
               Text(this.CopilotRunStepSymbol(step.status)).width(28).height(28).textAlign(TextAlign.Center)
-                .fontSize(13).fontColor(step.status === 'failed' ? '#C33D3D' : AppTheme.primary)
-                .backgroundColor(step.status === 'failed' ? '#FFF0F0' : AppTheme.surface).borderRadius(14)
+                .fontSize(13).fontColor(step.status === 'failed' ? AppTheme.danger : AppTheme.primary)
+                .backgroundColor(step.status === 'failed' ? AppTheme.dangerSoft : AppTheme.surface).borderRadius(14)
               Text(step.label).layoutWeight(1).fontSize(13).fontColor(AppTheme.textPrimary)
             }.width('100%')
           }, (step: CopilotRunStep) => step.id)
@@ -2192,7 +2243,7 @@ struct Index {
       if (this.IsCopilotTurnActive()) {
         Button(this.copilotCancelling ? '正在提交取消…' : '取消当前轮次').width('100%').height(48)
           .enabled(!this.copilotCancelling)
-          .backgroundColor('#FFF0F0').fontColor('#C33D3D')
+          .backgroundColor(AppTheme.dangerSoft).fontColor(AppTheme.danger)
           .onClick(() => this.CancelCurrentCopilotTurn())
       }
       if (this.copilotAttachment !== undefined) {
@@ -2203,7 +2254,7 @@ struct Index {
             Text(`${this.copilotAttachment?.mimeType ?? ''} · ${this.FormatFileSize(this.copilotAttachment?.size ?? 0)}`)
               .fontSize(12).fontColor(AppTheme.textSecondary)
           }.layoutWeight(1).alignItems(HorizontalAlign.Start)
-          Button('移除').width(56).height(48).fontSize(13).fontColor('#C33D3D')
+          Button('移除').width(56).height(48).fontSize(13).fontColor(AppTheme.danger)
             .backgroundColor(Color.Transparent).enabled(!this.copilotBusy && !this.IsCopilotTurnActive())
             .onClick(() => {
               this.copilotAttachment = undefined;
@@ -2227,6 +2278,8 @@ struct Index {
           .onSubmit(() => this.SendCopilotMessage())
         Button(this.copilotBusy ? '处理中' : (this.IsCopilotTurnActive() ? '等待当前轮次' : '发送'))
           .height(50).enabled(!this.copilotBusy && !this.IsCopilotTurnActive()).backgroundColor(AppTheme.primary)
+          .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+          .borderRadius(AppTheme.pillRadius)
           .onClick(() => this.SendCopilotMessage())
       }.width('100%')
     }
@@ -2442,6 +2495,8 @@ struct Index {
         Button('拒绝操作').layoutWeight(1).fontColor(AppTheme.textPrimary).backgroundColor(AppTheme.surfaceTint)
           .onClick(() => this.ReplyCopilotPermission(false))
         Button('仅本次允许').layoutWeight(1).backgroundColor(AppTheme.primary)
+          .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+          .borderRadius(AppTheme.pillRadius)
           .onClick(() => this.ReplyCopilotPermission(true))
       }.width('100%')
     }.width('100%').padding(18).borderRadius(18).backgroundColor('#FFF3F0')
@@ -2462,6 +2517,8 @@ struct Index {
         Button('稍后处理').layoutWeight(1).fontColor(AppTheme.textPrimary).backgroundColor(AppTheme.surfaceTint)
           .onClick(() => this.copilotRecoveryPlan = undefined)
         Button('恢复执行').layoutWeight(1).backgroundColor(AppTheme.primary)
+          .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+          .borderRadius(AppTheme.pillRadius)
           .enabled(this.copilotRecoveryPlan?.recommendedAction === 'continue' ||
             this.copilotRecoveryPlan?.recommendedAction === 'retry')
           .onClick(() => this.RecoverCopilotTurn())
@@ -2536,9 +2593,11 @@ struct Index {
             })
         }
       }.layoutWeight(1).height(48).padding({ left: 12, right: 5 })
-        .backgroundColor(this.mediaCatalogKeyword.length > 0 ? AppTheme.surfaceTint : AppTheme.surface)
+        .backgroundColor(this.mediaCatalogKeyword.length > 0 ? AppTheme.accentSoft : AppTheme.glass)
         .border({ width: 1, color: this.mediaCatalogKeyword.length > 0 ? AppTheme.primary : AppTheme.divider,
-          radius: 16 })
+          radius: AppTheme.inputRadius })
+        .borderRadius(AppTheme.inputRadius)
+        .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
     }.width('100%')
   }
 
@@ -3570,8 +3629,8 @@ struct Index {
               Button() {
                 Row({ space: 12 }) {
                   SymbolGlyph($r('sys.symbol.cloud_fill')).width(42).height(42).fontSize(21)
-                    .fontColor([drive.driveId === this.selectedDriveId ? Color.White : AppTheme.primary])
-                    .backgroundColor(drive.driveId === this.selectedDriveId ? AppTheme.primary : AppTheme.surfaceTint)
+                    .fontColor([AppTheme.primary])
+                    .backgroundColor(drive.driveId === this.selectedDriveId ? AppTheme.accentSoft : AppTheme.surfaceTint)
                     .borderRadius(13)
                   Column({ space: 3 }) {
                     Text(drive.name).width('100%').maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -3904,13 +3963,17 @@ struct Index {
     Scroll() {
       Row({ space: 8 }) {
         Button('全部目录').height(40).padding({ left: 14, right: 14 }).fontFamily('HarmonyOS Sans')
-          .fontColor(this.mediaDirectoryGroupFilter === 'all' ? Color.White : AppTheme.textPrimary)
-          .backgroundColor(this.mediaDirectoryGroupFilter === 'all' ? AppTheme.primary : AppTheme.surfaceTint)
+          .fontColor(this.mediaDirectoryGroupFilter === 'all' ? AppTheme.primary : AppTheme.textSecondary)
+          .backgroundColor(this.mediaDirectoryGroupFilter === 'all' ? AppTheme.accentSoft : AppTheme.surface)
+          .border({ width: 1, color: this.mediaDirectoryGroupFilter === 'all' ? AppTheme.primary : AppTheme.divider,
+            radius: AppTheme.pillRadius }).borderRadius(AppTheme.pillRadius)
           .onClick(() => this.mediaDirectoryGroupFilter = 'all')
         ForEach(this.MediaDirectoryNames(), (name: string) => {
           Button(name).height(40).padding({ left: 14, right: 14 }).fontFamily('HarmonyOS Sans')
-            .fontColor(this.mediaDirectoryGroupFilter === name ? Color.White : AppTheme.textPrimary)
-            .backgroundColor(this.mediaDirectoryGroupFilter === name ? AppTheme.primary : AppTheme.surfaceTint)
+            .fontColor(this.mediaDirectoryGroupFilter === name ? AppTheme.primary : AppTheme.textSecondary)
+            .backgroundColor(this.mediaDirectoryGroupFilter === name ? AppTheme.accentSoft : AppTheme.surface)
+            .border({ width: 1, color: this.mediaDirectoryGroupFilter === name ? AppTheme.primary : AppTheme.divider,
+              radius: AppTheme.pillRadius }).borderRadius(AppTheme.pillRadius)
             .onClick(() => this.mediaDirectoryGroupFilter = name)
         }, (name: string) => name)
       }
@@ -3924,14 +3987,18 @@ struct Index {
         Row({ space: 8 }) {
           Button('全部').height(40).padding({ left: 14, right: 14 })
             .fontFamily('HarmonyOS Sans')
-            .fontColor(this.mediaSelectedTags.length === 0 ? Color.White : AppTheme.textPrimary)
-            .backgroundColor(this.mediaSelectedTags.length === 0 ? AppTheme.primary : AppTheme.surfaceTint)
+            .fontColor(this.mediaSelectedTags.length === 0 ? AppTheme.primary : AppTheme.textSecondary)
+            .backgroundColor(this.mediaSelectedTags.length === 0 ? AppTheme.accentSoft : AppTheme.surface)
+            .border({ width: 1, color: this.mediaSelectedTags.length === 0 ? AppTheme.primary : AppTheme.divider,
+              radius: AppTheme.pillRadius }).borderRadius(AppTheme.pillRadius)
             .onClick(() => this.mediaSelectedTags = [])
           ForEach(this.MediaTagNames(), (name: string) => {
             Button(name).height(40).padding({ left: 14, right: 14 })
               .fontFamily('HarmonyOS Sans')
-              .fontColor(this.mediaSelectedTags.includes(name) ? Color.White : AppTheme.textPrimary)
-              .backgroundColor(this.mediaSelectedTags.includes(name) ? AppTheme.primary : AppTheme.surfaceTint)
+              .fontColor(this.mediaSelectedTags.includes(name) ? AppTheme.primary : AppTheme.textSecondary)
+              .backgroundColor(this.mediaSelectedTags.includes(name) ? AppTheme.accentSoft : AppTheme.surface)
+              .border({ width: 1, color: this.mediaSelectedTags.includes(name) ? AppTheme.primary : AppTheme.divider,
+                radius: AppTheme.pillRadius }).borderRadius(AppTheme.pillRadius)
               .onClick(() => this.ToggleMediaTag(name))
           }, (name: string) => name)
         }
@@ -3955,8 +4022,9 @@ struct Index {
     Row({ space: 16 }) {
       Column() {
         SymbolGlyph($r(progress.kind === 'audio' ? 'sys.symbol.music_note_circle_fill' :
-          'sys.symbol.play_fill')).fontSize(34).fontColor([Color.White])
-      }.width(92).height(92).justifyContent(FlexAlign.Center).borderRadius(18).backgroundColor('#315DDE')
+          'sys.symbol.play_fill')).fontSize(34).fontColor([AppTheme.primary])
+      }.width(92).height(92).justifyContent(FlexAlign.Center).borderRadius(AppTheme.cardRadius)
+        .backgroundColor(AppTheme.accentSoft)
       Column({ space: 8 }) {
         Text('继续播放').fontSize(12).fontColor(AppTheme.primary)
         Text(progress.name).width('100%').maxLines(2).textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -4008,7 +4076,7 @@ struct Index {
                 .fontSize(34).fontColor([AppTheme.primary])
               Text(this.MediaThumbnailFailed(item.path) ? '预览加载失败' : '正在加载预览')
                 .fontSize(11).fontFamily('HarmonyOS Sans')
-                .fontColor(this.MediaThumbnailFailed(item.path) ? '#D92D20' : AppTheme.textSecondary)
+                .fontColor(this.MediaThumbnailFailed(item.path) ? AppTheme.danger : AppTheme.textSecondary)
             }.width('100%').height(176).justifyContent(FlexAlign.Center).backgroundColor(AppTheme.surfaceTint)
           }
           if ((item.tags?.length ?? 0) > 0) {
@@ -4050,13 +4118,13 @@ struct Index {
     Column({ space: 7 }) {
       SymbolGlyph($r(kind === 'image' ? 'sys.symbol.picture' : (kind === 'audio' ?
         'sys.symbol.music_note_circle_fill' : 'sys.symbol.play_fill')))
-        .fontSize(25).fontColor([this.mediaKindFilter === kind ? Color.White : AppTheme.primary])
+        .fontSize(25).fontColor([AppTheme.primary])
       Text(label).fontSize(14).fontWeight(FontWeight.Medium)
-        .fontColor(this.mediaKindFilter === kind ? Color.White : AppTheme.textPrimary)
+        .fontColor(this.mediaKindFilter === kind ? AppTheme.primary : AppTheme.textPrimary)
       Text(`${count} 个`).fontSize(11)
-        .fontColor(this.mediaKindFilter === kind ? '#E8ECFF' : AppTheme.textSecondary)
+        .fontColor(AppTheme.textSecondary)
     }.layoutWeight(1).height(104).justifyContent(FlexAlign.Center).borderRadius(16)
-      .backgroundColor(this.mediaKindFilter === kind ? AppTheme.primary : AppTheme.surface)
+      .backgroundColor(this.mediaKindFilter === kind ? AppTheme.accentSoft : AppTheme.surface)
       .border({ width: 1, color: this.mediaKindFilter === kind ? AppTheme.primary : AppTheme.divider })
       .onClick(() => this.mediaKindFilter = this.mediaKindFilter === kind ? 'all' : kind)
   }
@@ -4099,69 +4167,27 @@ struct Index {
       // 显式订阅设置修订号，确保通用设置项点击后同页文案立即刷新。
       Text(`${this.profileSettingsRevision}`).width(0).height(0).opacity(0)
       if (this.authenticated) {
-      this.HeroPanel(this.profileName, `${this.profileUsername} · ${this.profileRole}`, '测试连接', () => {
-        this.TestConnection();
-      })
-    } else {
-      this.HeroPanel('登录 MyTools', '同步书架、远程媒体和 DSH 会话', '登录', () => this.OpenLogin())
+        this.ProfileIdentityPanel()
+      } else {
+        this.HeroPanel('登录 MyTools', '同步书架、远程媒体和 DSH 会话', '登录', () => this.OpenLogin())
     }
     this.SectionTitle('连接设置')
-    this.ProfileActionRow('服务', 'MyTools 云服务 · 点击重新测试连接', () => this.TestConnection())
-    this.ProfileActionRow('连接状态', this.connectionStatus.length > 0 ? this.connectionStatus :
-      (this.authenticated ? '登录会话有效 · 点击重新检测' : '未登录 · 点击登录'), () => {
-      if (this.authenticated) this.TestConnection();
-      else this.OpenLogin();
-    })
+    this.ProfileActionRow('服务', this.connectionStatus.length > 0 ? `${this.connectionStatus} · 点击重新检测` :
+      'MyTools 云服务 · 点击检测连接', () => this.TestConnection())
     this.ProfileActionRow('远程数据源', `${this.mediaSources.length} 个可用来源 · 点击查看`,
       () => this.OpenMainTabFromProfile(3))
     this.SectionTitle('应用设置')
     this.ProfileActionRow('阅读数据', `${this.books.length} 本书 · ${this.bookSources.length} 个书源 · 点击查看`,
       () => this.OpenMainTabFromProfile(0))
-    this.ProfileActionRow('阅读记录', `${this.TotalReadingMinutes()} 分钟 · ${this.readerBookmarks.length} 个书签 · ` +
-      `${this.readerAnnotations.length} 条批注`, () => this.OpenMainTabFromProfile(0))
-    this.ProfileActionRow('阅读同步', `${this.readerSyncStatus} · 点击立即同步`, () => {
-      this.DrainAllReaderSyncQueues();
-      this.LoadReaderDataSummary();
-    })
-    this.ProfileActionRow('多媒体策略', '仅浏览远程内容 · 点击查看多媒体',
-      () => this.OpenMainTabFromProfile(3))
     this.ProfileAdultContentRow()
-    this.ProfileActionRow('临时缓存', '关闭阅读器后清理容器文件 · 点击管理', () => this.OpenProfileCachePage())
-    this.ProfileActionRow('全文索引', '仅保存分章检索特征 · 最多16本 · 点击管理',
-      () => this.OpenProfileCachePage())
     this.ProfileActionRow('DSH', 'WebView 直连远程 DSH · 点击打开', () => this.OpenMainTabFromProfile(2))
     this.SectionTitle('偏好与支持')
     this.ProfileActionRow('阅读外观', `默认主题：${this.ReaderThemeLabel(this.readerSettings.theme)}`,
       () => this.profileMode = 'appearance')
-    this.ProfileActionRow('缓存管理', '清理可恢复的远程图片缓存', () => {
-      this.profileCacheStatus = '';
-      this.RefreshRemoteCacheUsage();
-      this.profileMode = 'cache';
-    })
+    this.ProfileActionRow('缓存管理', '查看缓存、阅读容器和全文索引', () => this.OpenProfileCachePage())
     this.ProfileActionRow('隐私与数据', '查看数据边界并管理云端阅读数据', () => this.OpenPrivacyPage())
     this.ProfileActionRow('关于MyTools', '版本、能力与开源边界', () => this.profileMode = 'about')
-      if (this.authenticated) {
-      Row() {
-        this.SectionTitle('登录设备')
-        this.CompactActionButton(this.sessionLoading ? '加载中' : '刷新', () => this.LoadDeviceSessions())
-      }.width('100%')
-      if (this.sessionStatus.length > 0) {
-        Text(this.sessionStatus).width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
-      }
-      if (this.sessionLoading && this.deviceSessions.length === 0) {
-        this.NetworkLoadingRows('正在读取登录设备')
-      }
-      ForEach(this.deviceSessions, (session: DeviceSession) => {
-        this.DeviceSessionRow(session)
-      }, (session: DeviceSession) => session.id)
-      if (this.deviceSessions.filter((session: DeviceSession) => !session.current && session.status === 'ACTIVE').length > 0) {
-        Button('下线其他设备')
-          .width('100%').height(48)
-          .fontSize(14).fontColor('#D64B4B')
-          .backgroundColor(Color.Transparent)
-          .border({ width: 1, color: '#D64B4B', radius: 14 })
-          .onClick(() => this.RevokeOtherSessions())
-      }
+    if (this.authenticated) {
       Button('退出登录')
         .width('100%')
         .height(48)
@@ -4180,12 +4206,12 @@ struct Index {
               this.logoutConfirmVisible = false;
               this.DrainAllReaderSyncQueues();
             })
-            Button('仍要退出').layoutWeight(1).height(48).fontColor(Color.White).backgroundColor('#D64B4B')
+            Button('仍要退出').layoutWeight(1).height(48).fontColor(Color.White).backgroundColor(AppTheme.danger)
               .onClick(() => this.Logout(true))
           }.width('100%')
         }.width('100%').padding(16).alignItems(HorizontalAlign.Start).borderRadius(14)
           .backgroundColor(AppTheme.surfaceTint)
-      }
+    }
       }
     }
   }
@@ -4317,8 +4343,8 @@ struct Index {
       Text(this.profileCacheStatus).width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
     }
     Button('清理全部远程图片缓存').width('100%').height(48)
-      .fontSize(14).fontColor('#D64B4B').backgroundColor(Color.Transparent)
-      .border({ width: 1, color: '#D64B4B', radius: 14 })
+      .fontSize(14).fontColor(AppTheme.danger).backgroundColor(Color.Transparent)
+      .border({ width: 1, color: AppTheme.danger, radius: 14 })
       .onClick(() => this.ClearRemoteImageCaches())
     Text('该操作只删除可恢复的图书封面、书源漫画页和远程媒体缩略图，不会删除书架、书源、阅读记录、本地导入文件或远程原文件。内容会在下次需要时重新安全下载。')
       .width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
@@ -4342,19 +4368,19 @@ struct Index {
       Text(this.readerDataStatus).width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
     }
     if (this.authenticated && this.readerDataDeleteConfirm) {
-      Text('将删除当前MyTools账号中的书架、书源、进度、书签和批注同步记录，并清空本应用中的对应索引。不会删除设备原文件或远程书库文件。其他仍登录的设备可能再次上传其本地记录，建议先在“登录设备”中将其他设备下线。')
-        .width('100%').fontSize(13).fontColor('#D64B4B')
+      Text('将删除当前MyTools账号中的书架、书源、进度、书签和批注同步记录，并清空本应用中的对应索引。不会删除设备原文件或远程书库文件。其他客户端仍可能再次上传其本地记录。')
+        .width('100%').fontSize(13).fontColor(AppTheme.danger)
       Row({ space: 12 }) {
         Button('取消').layoutWeight(1).height(48).enabled(!this.readerDataDeleting)
           .onClick(() => this.readerDataDeleteConfirm = false)
         Button(this.readerDataDeleting ? '正在删除…' : '确认删除').layoutWeight(1).height(48)
-          .fontColor(Color.White).backgroundColor('#D64B4B')
+          .fontColor(Color.White).backgroundColor(AppTheme.danger)
           .enabled(!this.readerDataDeleting && !this.ReaderSyncOperationActive())
           .onClick(() => this.DeleteReaderCloudData())
       }.width('100%')
     } else if (this.authenticated) {
-      Button('删除阅读同步数据').width('100%').height(48).fontColor('#D64B4B')
-        .backgroundColor(Color.Transparent).border({ width: 1, color: '#D64B4B', radius: 14 })
+      Button('删除阅读同步数据').width('100%').height(48).fontColor(AppTheme.danger)
+        .backgroundColor(Color.Transparent).border({ width: 1, color: AppTheme.danger, radius: 14 })
         .onClick(() => this.readerDataDeleteConfirm = true)
     } else {
       Text('登录后可查看或删除当前账号的云端阅读同步数据。').width('100%').fontSize(13)
@@ -4508,17 +4534,50 @@ struct Index {
   }
 
   @Builder
+  private ProfileIdentityPanel() {
+    Row({ space: 16 }) {
+      Stack({ alignContent: Alignment.Center }) {
+        if (this.profileAvatarPixelMap !== undefined && !this.profileAvatarFailed) {
+          Image(this.profileAvatarPixelMap).width(72).height(72).objectFit(ImageFit.Cover)
+            .borderRadius(36)
+        } else if (this.ProfileAvatarSource().length > 0 && !this.profileAvatarFailed) {
+          Image(this.ProfileAvatarSource()).width(72).height(72).objectFit(ImageFit.Cover)
+            .borderRadius(36).onError(() => this.profileAvatarFailed = true)
+        } else {
+          Text(this.ProfileAvatarLabel()).width(72).height(72).fontSize(24).fontWeight(FontWeight.Bold)
+            .textAlign(TextAlign.Center).fontColor(Color.White).backgroundColor(AppTheme.primary).borderRadius(36)
+        }
+      }.width(72).height(72)
+      Column({ space: 5 }) {
+        Text(this.profileName).width('100%').fontSize(21).fontWeight(FontWeight.Bold)
+          .fontColor(AppTheme.textPrimary).maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis })
+        Text(`用户名：${this.profileUsername}`).width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
+          .maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis })
+        Text(`邮箱：${this.ProfileEmailLabel()}`).width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
+          .maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis })
+        Text(`角色：${this.profileRole}`).width('100%').fontSize(12).fontColor(AppTheme.textTertiary)
+      }.layoutWeight(1).alignItems(HorizontalAlign.Start)
+    }.width('100%').padding(20).borderRadius(AppTheme.cardRadius).backgroundColor(AppTheme.surface)
+      .border({ width: 1, color: AppTheme.divider, radius: AppTheme.cardRadius })
+      .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
+  }
+
+  private ProfileEmailLabel(): string {
+    // 登录账号为邮箱时直接展示，否则明确提示当前资料未提供邮箱字段。
+    return this.account.includes('@') ? this.account : '未绑定邮箱';
+  }
+
+  @Builder
   private ProfileActionRow(title: string, subtitle: string, action: () => void) {
-    Button() {
-      Row({ space: 12 }) {
-        Column({ space: 5 }) {
-          Text(title).width('100%').fontSize(15).fontColor(AppTheme.textPrimary)
-          Text(subtitle).width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
-        }.layoutWeight(1).alignItems(HorizontalAlign.Start)
-        Text('›').fontSize(24).fontColor(AppTheme.textSecondary)
-      }.width('100%')
+    Row({ space: 12 }) {
+      Column({ space: 5 }) {
+        Text(title).width('100%').fontSize(15).fontColor(AppTheme.textPrimary)
+        Text(subtitle).width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
+      }.layoutWeight(1).alignItems(HorizontalAlign.Start)
+      Text('›').fontSize(24).fontColor(AppTheme.textSecondary)
     }.width('100%').height(68).padding({ left: 0, right: 0, top: 10, bottom: 10 })
-      .backgroundColor(Color.Transparent).border({ width: { bottom: 1 }, color: AppTheme.divider })
+      .backgroundColor(Color.Transparent)
+      .border({ width: { bottom: 1 }, color: AppTheme.divider })
       .accessibilityText(title).accessibilityDescription(subtitle).onClick(action)
   }
 
@@ -4605,45 +4664,19 @@ struct Index {
   }
 
   @Builder
-  private DeviceSessionRow(session: DeviceSession) {
-    Row({ space: 12 }) {
-      Column({ space: 5 }) {
-        Row({ space: 8 }) {
-          Text(session.name.length > 0 ? session.name : 'MyTools设备')
-            .fontSize(15).fontColor(AppTheme.textPrimary)
-          if (session.current) {
-            Text('当前设备').fontSize(11).fontColor(AppTheme.primary)
-              .padding({ left: 8, right: 8, top: 3, bottom: 3 })
-              .borderRadius(10).backgroundColor(AppTheme.surfaceTint)
-          }
-        }.width('100%')
-        Text(`${session.tokenPrefix}… · ${this.SessionStatusText(session.status)}`)
-          .fontSize(12).fontColor(AppTheme.textSecondary)
-        if (session.createdTime.length > 0) {
-          Text(`登录于 ${session.createdTime.replace('T', ' ')}`)
-            .fontSize(11).fontColor(AppTheme.textSecondary)
-        }
-      }.layoutWeight(1).alignItems(HorizontalAlign.Start)
-      if (!session.current && session.status === 'ACTIVE') {
-        Button('下线').height(48).fontSize(13).fontColor('#D64B4B')
-          .padding({ left: 12, right: 12 }).backgroundColor(Color.Transparent)
-          .onClick(() => this.RevokeDeviceSession(session.id))
-      }
-    }.width('100%').padding({ top: 13, bottom: 13 })
-      .border({ width: { bottom: 1 }, color: AppTheme.divider })
-  }
-
-  @Builder
   private BookSourceSearchField() {
     Column({ space: 8 }) {
       Row({ space: 4 }) {
         Button() {
-          Row({ space: 5 }) {
-            Text(this.BookSourceSearchModeLabel()).fontSize(13).fontWeight(FontWeight.Medium)
-              .fontColor(AppTheme.primary)
-            SymbolGlyph($r('sys.symbol.chevron_down')).fontSize(11).fontColor([AppTheme.primary])
+          Row({ space: 6 }) {
+            Text(this.BookSourceSearchModeLabel()).fontSize(13)
+              .fontWeight(this.sourceSearchModeVisible ? FontWeight.Medium : FontWeight.Normal)
+              .fontColor(this.sourceSearchModeVisible ? AppTheme.primary : AppTheme.textSecondary)
+            SymbolGlyph($r('sys.symbol.chevron_down')).fontSize(10)
+              .fontColor([this.sourceSearchModeVisible ? AppTheme.primary : AppTheme.textTertiary])
           }
-        }.width(76).height(42).padding(0).borderRadius(13).backgroundColor(AppTheme.surfaceTint)
+        }.width(68).height(42).padding(0).borderRadius(AppTheme.pillRadius)
+          .backgroundColor(this.sourceSearchModeVisible ? AppTheme.accentSoft : Color.Transparent)
           .accessibilityText(`搜索模式：${this.BookSourceSearchModeLabel()}`)
           .accessibilityDescription('点击切换精确、模糊或探测搜索')
           .onClick(() => this.sourceSearchModeVisible = !this.sourceSearchModeVisible)
@@ -4655,19 +4688,25 @@ struct Index {
           .onSubmit(() => this.SearchBookSources())
         if (this.sourceSearchLoading) {
           Button() {
-            SymbolGlyph($r('sys.symbol.xmark')).fontSize(16).fontColor(['#D64B4B'])
-          }.width(42).height(42).padding(0).borderRadius(13).backgroundColor('#FFF0F0')
+            SymbolGlyph($r('sys.symbol.xmark')).fontSize(16).fontColor([AppTheme.danger])
+          }.width(42).height(42).padding(0).borderRadius(AppTheme.pillRadius)
+            .backgroundColor(AppTheme.dangerSoft)
             .accessibilityText('停止搜索')
             .onClick(() => this.CancelBookSourceSearch())
         } else {
           Button() {
-            SymbolGlyph($r('sys.symbol.magnifyingglass')).fontSize(19).fontColor([Color.White])
-          }.width(42).height(42).padding(0).borderRadius(13).backgroundColor(AppTheme.primary)
+            SymbolGlyph($r('sys.symbol.magnifyingglass')).fontSize(20)
+              .fontColor([this.sourceSearchText.trim().length > 0 ? Color.White : AppTheme.primary])
+          }.width(42).height(42).padding(0).borderRadius(AppTheme.pillRadius)
+            .backgroundColor(this.sourceSearchText.trim().length > 0 ? AppTheme.primary : Color.Transparent)
             .accessibilityText('搜索书源')
             .onClick(() => this.SearchBookSources())
         }
-      }.width('100%').height(54).padding({ left: 6, right: 6 }).backgroundColor(AppTheme.surface)
-        .border({ width: 1, color: this.sourceSearchModeVisible ? AppTheme.primary : AppTheme.divider, radius: 17 })
+      }.width('100%').height(54).padding({ left: 4, right: 6 }).backgroundColor(AppTheme.glass)
+        .border({ width: 1, color: this.sourceSearchModeVisible ? AppTheme.primary : AppTheme.divider,
+          radius: AppTheme.inputRadius })
+        .borderRadius(AppTheme.inputRadius)
+        .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
       if (this.sourceSearchModeVisible) {
         Row() {
           Column({ space: 2 }) {
@@ -4826,8 +4865,10 @@ struct Index {
         .fontSize(15)
         .fontColor(Color.White)
         .padding({ left: 22, right: 22 })
-        .borderRadius(22)
+        .borderRadius(AppTheme.pillRadius)
         .backgroundColor(AppTheme.primary)
+        .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+        .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
         .accessibilityText(action)
         .accessibilityDescription(`${title}：${subtitle}`)
         .onClick(onAction)
@@ -4835,8 +4876,10 @@ struct Index {
     .width('100%')
     .padding(22)
     .alignItems(HorizontalAlign.Start)
-    .borderRadius(22)
-    .backgroundColor(AppTheme.surfaceTint)
+    .borderRadius(AppTheme.cardRadius)
+    .backgroundColor(AppTheme.surface)
+    .border({ width: 1, color: AppTheme.divider, radius: AppTheme.cardRadius })
+    .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
   }
 
   @Builder
@@ -4917,7 +4960,7 @@ struct Index {
             .onClick(() => this.OpenBookSourceCredential(source))
           Divider().vertical(true).height(24).color(AppTheme.divider)
           Button('删除').layoutWeight(1).height(44).fontSize(13)
-            .fontColor(Color.Red).backgroundColor(Color.Transparent)
+            .fontColor(AppTheme.danger).backgroundColor(Color.Transparent)
             .onClick(() => this.PrepareDeleteBookSource(source))
         }.width('100%').height(48).padding({ left: 4, right: 4 })
           .borderRadius(12).backgroundColor(AppTheme.surfaceTint)
@@ -4957,7 +5000,9 @@ struct Index {
       }.width('100%')
       TextInput({ text: this.sourceCredentialValue,
         placeholder: this.sourceCredentialHeader === 'Authorization' ? '例如：Bearer token' : '输入敏感凭据值' })
-        .type(InputType.Password).width('100%').enabled(!this.sourceCredentialBusy)
+        .type(InputType.Password).width('100%').height(AppTheme.inputHeight).enabled(!this.sourceCredentialBusy)
+        .backgroundColor(AppTheme.glass).borderRadius(AppTheme.inputRadius)
+        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
         .onChange((value: string) => {
           this.sourceCredentialValue = value;
           this.sourceCredentialStatus = '';
@@ -4965,7 +5010,7 @@ struct Index {
       Row({ space: 10 }) {
         Button('取消').layoutWeight(1).backgroundColor(AppTheme.surfaceTint).fontColor(AppTheme.textPrimary)
           .onClick(() => this.CloseBookSourceCredential())
-        Button('清除').layoutWeight(1).backgroundColor(AppTheme.surfaceTint).fontColor(Color.Red)
+        Button('清除').layoutWeight(1).backgroundColor(AppTheme.surfaceTint).fontColor(AppTheme.danger)
           .enabled(!this.sourceCredentialBusy)
           .onClick(() => this.ClearBookSourceCredential(source.bookSourceUrl))
         Button(this.sourceCredentialBusy ? '处理中…' : '安全保存').layoutWeight(1)
@@ -4982,8 +5027,10 @@ struct Index {
   private BookSourceCredentialTypeButton(name: string) {
     Button(name).layoutWeight(1).fontSize(11)
       .enabled(!this.sourceCredentialBusy)
-      .fontColor(this.sourceCredentialHeader === name ? Color.White : AppTheme.textPrimary)
-      .backgroundColor(this.sourceCredentialHeader === name ? AppTheme.primary : AppTheme.surface)
+      .fontColor(this.sourceCredentialHeader === name ? AppTheme.primary : AppTheme.textSecondary)
+      .backgroundColor(this.sourceCredentialHeader === name ? AppTheme.accentSoft : AppTheme.surface)
+      .border({ width: 1, color: this.sourceCredentialHeader === name ? AppTheme.primary : AppTheme.divider,
+        radius: AppTheme.pillRadius }).borderRadius(AppTheme.pillRadius)
       .onClick(() => this.sourceCredentialHeader = name)
   }
 
@@ -5047,13 +5094,13 @@ struct Index {
     Button() {
       Row({ space: 8 }) {
         Text(label).layoutWeight(1).textAlign(TextAlign.Start).fontSize(13)
-          .fontColor(this.sourceManageFilter === filter ? Color.White : AppTheme.textPrimary)
+          .fontColor(this.sourceManageFilter === filter ? AppTheme.primary : AppTheme.textPrimary)
         if (this.sourceManageFilter === filter) {
-          SymbolGlyph($r('sys.symbol.checkmark')).fontSize(14).fontColor([Color.White])
+          SymbolGlyph($r('sys.symbol.checkmark')).fontSize(14).fontColor([AppTheme.primary])
         }
       }.width('100%')
     }.width('100%').height(42).padding({ left: 13, right: 13 }).borderRadius(12)
-      .backgroundColor(this.sourceManageFilter === filter ? AppTheme.primary : Color.Transparent)
+      .backgroundColor(this.sourceManageFilter === filter ? AppTheme.accentSoft : Color.Transparent)
       .accessibilityText(`筛选${label}`)
       .onClick(() => {
         this.sourceManageFilter = filter;
@@ -5066,8 +5113,10 @@ struct Index {
   @Builder
   private BookSourceFilterButton(label: string, filter: string) {
     Button(label).layoutWeight(1).height(40).fontSize(13)
-      .fontColor(this.sourceManageFilter === filter ? Color.White : AppTheme.textPrimary)
-      .backgroundColor(this.sourceManageFilter === filter ? AppTheme.primary : AppTheme.surfaceTint)
+      .fontColor(this.sourceManageFilter === filter ? AppTheme.primary : AppTheme.textSecondary)
+      .backgroundColor(this.sourceManageFilter === filter ? AppTheme.accentSoft : AppTheme.surface)
+      .border({ width: 1, color: this.sourceManageFilter === filter ? AppTheme.primary : AppTheme.divider,
+        radius: AppTheme.pillRadius }).borderRadius(AppTheme.pillRadius)
       .onClick(() => {
         this.sourceManageFilter = filter;
         this.sourceManageVisibleCount = this.sourceManageRenderBatchSize;
@@ -5138,12 +5187,16 @@ struct Index {
               .accessibilityText('清除网站地址').onClick(() => this.sourceDiscoveryUrl = '')
           }
         }.width('100%').height(52).padding({ left: 14, right: 10 })
-          .border({ width: 1, color: AppTheme.divider, radius: 14 })
+          .backgroundColor(AppTheme.glass).borderRadius(AppTheme.inputRadius)
+          .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
+          .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
         if (this.sourceDiscoveryStatus.length > 0) {
           Text(this.sourceDiscoveryStatus).width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
         }
         Button(this.sourceDiscoveryBusy ? '正在导入…' : '导入并添加').width('100%').height(52)
-          .fontSize(16).fontColor(Color.White).backgroundColor(AppTheme.primary).borderRadius(14)
+          .fontSize(16).fontColor(Color.White).backgroundColor(AppTheme.primary)
+          .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+          .borderRadius(AppTheme.pillRadius)
           .enabled(!this.sourceDiscoveryBusy).onClick(() => this.DiscoverBookSource())
       }.width('100%').padding({ left: 18, right: 18, top: 16, bottom: 24 })
     }.width('100%').borderRadius({ topLeft: 28, topRight: 28 })
@@ -5155,14 +5208,14 @@ struct Index {
     Column({ space: 12 }) {
       Text(`确认删除“${this.sourceDeleteName}”？`).width('100%').fontSize(16)
         .fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
-      Text(this.BookSourceDeleteImpact(source.bookSourceUrl)).width('100%').fontSize(13).fontColor(Color.Red)
+      Text(this.BookSourceDeleteImpact(source.bookSourceUrl)).width('100%').fontSize(13).fontColor(AppTheme.danger)
       Row({ space: 10 }) {
         Button('取消').layoutWeight(1).backgroundColor(AppTheme.surfaceTint).fontColor(AppTheme.textPrimary)
           .onClick(() => this.CancelDeleteBookSource())
-        Button('确认删除书源').layoutWeight(1).fontColor(Color.White).backgroundColor(Color.Red)
+        Button('确认删除书源').layoutWeight(1).fontColor(Color.White).backgroundColor(AppTheme.danger)
           .onClick(() => this.DeleteBookSource(source.bookSourceUrl))
       }.width('100%')
-    }.width('100%').padding(16).borderRadius(16).backgroundColor('#FFF7F7')
+    }.width('100%').padding(16).borderRadius(16).backgroundColor(AppTheme.dangerSoft)
   }
 
   @Builder
@@ -5181,10 +5234,10 @@ struct Index {
   @Builder
   private RetryAction(label: string, action: () => void) {
     Button(label)
-      .width('100%').height(48)
+      .height(AppTheme.controlHeight).padding({ left: 18, right: 18 })
       .fontSize(14).fontFamily('HarmonyOS Sans').fontColor(AppTheme.primary)
-      .backgroundColor(Color.Transparent)
-      .border({ width: 1, color: AppTheme.primary, radius: 14 })
+      .backgroundColor(AppTheme.accentSoft)
+      .borderRadius(AppTheme.pillRadius)
       .onClick(action)
   }
 
@@ -5303,7 +5356,9 @@ struct Index {
           .accessibilityText('清除书架搜索').onClick(() => this.shelfSearchText = '')
       }
     }.width('100%').height(48).padding({ left: 14, right: 5 })
-      .border({ width: 1, color: AppTheme.divider, radius: 14 }).backgroundColor(AppTheme.surface)
+      .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
+      .borderRadius(AppTheme.inputRadius).backgroundColor(AppTheme.glass)
+      .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
   }
 
   @Builder
@@ -5421,7 +5476,7 @@ struct Index {
                     .fontSize(12).fontColor(AppTheme.textSecondary)
                 }.layoutWeight(1).alignItems(HorizontalAlign.Start)
                 Text(this.detailSourceStatus).fontSize(13)
-                  .fontColor(this.detailSourceStatus === '可用' ? '#279B55' : '#D88916')
+                  .fontColor(this.detailSourceStatus === '可用' ? AppTheme.success : '#D88916')
               }.width('100%')
               if (this.detailShowAllSources) {
                 ForEach(this.detailSourceCandidates, (candidate: BookSourceSearchResult) => {
@@ -5522,6 +5577,8 @@ struct Index {
           Button(this.DetailBookInShelf() ? '继续阅读' : '加入书架')
             .layoutWeight(2).height(52).fontSize(17).fontFamily('HarmonyOS Sans').fontColor(Color.White)
             .backgroundColor(AppTheme.primary)
+            .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+            .borderRadius(AppTheme.pillRadius)
             .accessibilityDescription(this.DetailBookInShelf() ? '从上次位置继续阅读' : '加入书架并开始阅读')
             .onClick(() => {
               if (this.DetailBookInShelf()) this.ReadDetailBook();
@@ -5544,7 +5601,7 @@ struct Index {
         .width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
       if (this.detailOperationStatus.length > 0) {
         Text(this.detailOperationStatus).width('100%').fontSize(12)
-          .fontColor(this.detailOperationStatus.startsWith('已') ? '#279B55' : Color.Red)
+          .fontColor(this.detailOperationStatus.startsWith('已') ? AppTheme.success : AppTheme.danger)
       }
       Row({ space: 8 }) {
         Button('取消').layoutWeight(1).height(44).fontSize(13).fontFamily('HarmonyOS Sans')
@@ -5553,7 +5610,7 @@ struct Index {
           .onClick(() => this.detailRemoveConfirmVisible = false)
         if (this.DetailBookInShelf()) {
           Button('仅移出书架').layoutWeight(1).height(44).fontSize(13).fontFamily('HarmonyOS Sans')
-            .fontColor(Color.Red).backgroundColor('#FFF0F0').enabled(!this.detailOperationBusy)
+            .fontColor(AppTheme.danger).backgroundColor(AppTheme.dangerSoft).enabled(!this.detailOperationBusy)
             .onClick(() => this.RemoveDetailBookFromShelf(false))
         }
       }.width('100%')
@@ -5566,17 +5623,17 @@ struct Index {
       } else {
         Button(this.detailBook?.origin === 'remote' ? '删除远程文件并移出书架' : '删除本地文件并移出书架')
           .width('100%').height(44).fontSize(13).fontFamily('HarmonyOS Sans')
-          .fontColor(Color.White).backgroundColor(Color.Red).enabled(!this.detailOperationBusy)
+          .fontColor(Color.White).backgroundColor(AppTheme.danger).enabled(!this.detailOperationBusy)
           .accessibilityDescription('永久删除图书文件并从当前书架移除')
           .onClick(() => this.DeleteDetailBookFile())
       }
       if (this.DetailBookInShelf()) {
         Button('移出并清除阅读记录').width('100%').height(44).fontSize(13).fontFamily('HarmonyOS Sans')
-          .fontColor(Color.Red).backgroundColor('#FFF0F0').enabled(!this.detailOperationBusy)
+          .fontColor(AppTheme.danger).backgroundColor(AppTheme.dangerSoft).enabled(!this.detailOperationBusy)
           .accessibilityDescription('移出书架并清除本书阅读进度、书签、批注和统计')
           .onClick(() => this.RemoveDetailBookFromShelf(true))
       }
-    }.width('100%').padding(14).borderRadius(16).backgroundColor('#FFF7F7')
+    }.width('100%').padding(14).borderRadius(16).backgroundColor(AppTheme.dangerSoft)
   }
 
   @Builder
@@ -5588,7 +5645,8 @@ struct Index {
             Text(this.readerStatus).width('100%').fontSize(15).fontColor(this.ReaderSecondaryColor())
               .textAlign(TextAlign.Start)
             if (this.readerContent.length === 0) {
-              Button('返回书架').onClick(() => this.CloseReader())
+              Button('返回书架').fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft)
+                .borderRadius(AppTheme.pillRadius).onClick(() => this.CloseReader())
             }
           }
           .width('100%').layoutWeight(1).justifyContent(FlexAlign.Start)
@@ -5902,6 +5960,8 @@ struct Index {
             .onClick(() => this.CloseReader(true))
           Button('加入书架').layoutWeight(1).height(46).fontSize(14)
             .fontColor(Color.White).backgroundColor(AppTheme.primary)
+            .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+            .borderRadius(AppTheme.pillRadius)
             .onClick(() => {
               this.AddCurrentReaderBookToShelf();
               this.CloseReader(true);
@@ -6020,7 +6080,8 @@ struct Index {
       Column({ space: 10 }) {
         if (this.IsSourceComicPageFailed(position)) {
           Text('漫画页缓存失败').fontSize(13).fontColor(this.ReaderSecondaryColor())
-          Button('重试').height(48).onClick(() => this.RetrySourceComicPage(position))
+          Button('重试').height(48).fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft)
+            .borderRadius(AppTheme.pillRadius).onClick(() => this.RetrySourceComicPage(position))
         } else {
           LoadingProgress().width(34).height(34).color(AppTheme.primary)
           Text('正在缓存漫画页').fontSize(13).fontColor(this.ReaderSecondaryColor())
@@ -6038,7 +6099,8 @@ struct Index {
       Column({ space: 10 }) {
         if (this.IsSourceComicPageFailed(position)) {
           Text('漫画页缓存失败').fontSize(13).fontColor(this.ReaderSecondaryColor())
-          Button('重试').height(48).onClick(() => this.RetrySourceComicPage(position))
+          Button('重试').height(48).fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft)
+            .borderRadius(AppTheme.pillRadius).onClick(() => this.RetrySourceComicPage(position))
         } else {
           LoadingProgress().width(34).height(34).color(AppTheme.primary)
           Text('正在缓存漫画页').fontSize(13).fontColor(this.ReaderSecondaryColor())
@@ -6324,7 +6386,8 @@ struct Index {
       TextArea({ text: this.readerAnnotationInput, placeholder: '记录当前章节或页面的想法（最多1000字）' })
         .width('100%').height(100).onChange((value: string) => this.readerAnnotationInput = value)
       Button('保存当前位置批注').width('100%').enabled(this.readerAnnotationInput.trim().length > 0)
-        .height(48).accessibilityDescription('保存批注并关联当前阅读位置')
+        .height(48).fontColor(Color.White).backgroundColor(AppTheme.primary)
+        .borderRadius(AppTheme.pillRadius).accessibilityDescription('保存批注并关联当前阅读位置')
         .onClick(() => this.AddCurrentReaderAnnotation())
       Text(`本书批注 · ${this.CurrentReaderAnnotations().length}`).width('100%').fontSize(16)
         .fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
@@ -6340,7 +6403,7 @@ struct Index {
                   Text(annotation.chapterTitle).width('100%').fontSize(13).fontColor(AppTheme.primary)
                   Text(annotation.note).width('100%').maxLines(3).fontSize(14).fontColor(AppTheme.textPrimary)
                 }.layoutWeight(1).alignItems(HorizontalAlign.Start).onClick(() => this.OpenReaderAnnotation(annotation))
-                Button('删除').width(48).height(48).fontSize(13).fontColor(Color.Red)
+                Button('删除').width(48).height(48).fontSize(13).fontColor(AppTheme.danger)
                   .backgroundColor(Color.Transparent).accessibilityDescription('删除这条批注')
                   .onClick(() => this.DeleteReaderAnnotation(annotation.id))
               }.width('100%').padding({ top: 10, bottom: 10 })
@@ -6479,8 +6542,10 @@ struct Index {
   @Builder
   private ComicOptionButton(label: string, value: string, selected: string, action: () => void) {
     Button(label).layoutWeight(1).height(48).fontSize(13)
-      .fontColor(selected === value ? Color.White : AppTheme.textPrimary)
-      .backgroundColor(selected === value ? AppTheme.primary : AppTheme.surfaceTint).borderRadius(12)
+      .fontColor(selected === value ? AppTheme.primary : AppTheme.textSecondary)
+      .backgroundColor(selected === value ? AppTheme.accentSoft : AppTheme.surface)
+      .border({ width: 1, color: selected === value ? AppTheme.primary : AppTheme.divider,
+        radius: AppTheme.pillRadius }).borderRadius(AppTheme.pillRadius)
       .accessibilityDescription(selected === value ? '已选择' : '未选择')
       .onClick(action)
   }
@@ -6536,9 +6601,13 @@ struct Index {
               Row({ space: 12 }) {
                 Button('上一页').layoutWeight(1).enabled(this.pdfPageIndex > 0)
                   .height(48).accessibilityDescription('跳转到上一页PDF')
+                  .fontColor(AppTheme.textPrimary).backgroundColor(AppTheme.surfaceTint)
+                  .borderRadius(AppTheme.pillRadius)
                   .onClick(() => this.ChangeReaderSection(-1))
                 Button('下一页').layoutWeight(1).enabled(this.pdfPageIndex + 1 < this.pdfPageCount)
                   .height(48).accessibilityDescription('跳转到下一页PDF')
+                  .fontColor(AppTheme.textPrimary).backgroundColor(AppTheme.surfaceTint)
+                  .borderRadius(AppTheme.pillRadius)
                   .onClick(() => this.ChangeReaderSection(1))
               }.width('100%')
             }.width('100%').padding({ top: 24 })
@@ -6578,10 +6647,12 @@ struct Index {
   @Builder
   private ReaderCatalogModeButton(label: string, mode: string) {
     Button(label).layoutWeight(1).height(48).fontSize(14)
-      .fontColor(this.readerCatalogMode === mode ? Color.White : AppTheme.textPrimary)
-      .backgroundColor(this.readerCatalogMode === mode ? AppTheme.primary : AppTheme.surfaceTint)
+      .fontColor(this.readerCatalogMode === mode ? AppTheme.primary : AppTheme.textSecondary)
+      .backgroundColor(this.readerCatalogMode === mode ? AppTheme.accentSoft : AppTheme.surface)
+      .border({ width: 1, color: this.readerCatalogMode === mode ? AppTheme.primary : AppTheme.divider,
+        radius: AppTheme.pillRadius })
       .accessibilityDescription(this.readerCatalogMode === mode ? '已选择' : '未选择')
-      .borderRadius(12).onClick(() => this.readerCatalogMode = mode)
+      .borderRadius(AppTheme.pillRadius).onClick(() => this.readerCatalogMode = mode)
   }
 
   @Builder
@@ -6617,9 +6688,11 @@ struct Index {
   @Builder
   private ReaderTurnButton(label: string, mode: string) {
     Button(label).layoutWeight(1).height(48).fontSize(13)
-      .fontColor(this.readerSettings.pageTurnMode === mode ? Color.White : AppTheme.textPrimary)
-      .borderRadius(12)
-      .backgroundColor(this.readerSettings.pageTurnMode === mode ? AppTheme.primary : AppTheme.surfaceTint)
+      .fontColor(this.readerSettings.pageTurnMode === mode ? AppTheme.primary : AppTheme.textSecondary)
+      .borderRadius(AppTheme.pillRadius)
+      .backgroundColor(this.readerSettings.pageTurnMode === mode ? AppTheme.accentSoft : AppTheme.surface)
+      .border({ width: 1, color: this.readerSettings.pageTurnMode === mode ? AppTheme.primary : AppTheme.divider,
+        radius: AppTheme.pillRadius })
       .accessibilityDescription(this.readerSettings.pageTurnMode === mode ? '已选择' : '未选择')
       .onClick(() => this.SetReaderTurnMode(mode as PageTurnMode))
   }
@@ -6627,10 +6700,12 @@ struct Index {
   @Builder
   private ReaderFontButton(label: string, family: ReaderFontFamily) {
     Button(label).layoutWeight(1).height(48).fontSize(13)
-      .fontColor(this.readerSettings.fontFamily === family ? Color.White : AppTheme.textPrimary)
-      .backgroundColor(this.readerSettings.fontFamily === family ? AppTheme.primary : AppTheme.surfaceTint)
+      .fontColor(this.readerSettings.fontFamily === family ? AppTheme.primary : AppTheme.textSecondary)
+      .backgroundColor(this.readerSettings.fontFamily === family ? AppTheme.accentSoft : AppTheme.surface)
+      .border({ width: 1, color: this.readerSettings.fontFamily === family ? AppTheme.primary : AppTheme.divider,
+        radius: AppTheme.pillRadius })
       .accessibilityDescription(this.readerSettings.fontFamily === family ? '已选择' : '未选择')
-      .borderRadius(12).onClick(() => this.SetReaderFontFamily(family))
+      .borderRadius(AppTheme.pillRadius).onClick(() => this.SetReaderFontFamily(family))
   }
 
   @Builder
@@ -6638,10 +6713,12 @@ struct Index {
     paragraphSpacing: number, horizontalPadding: number) {
     Button(label).layoutWeight(1).height(44).fontSize(13)
       .fontColor(this.ReaderTypographyPresetSelected(fontSize, lineHeight, paragraphSpacing, horizontalPadding) ?
-        Color.White : AppTheme.textPrimary)
+        AppTheme.primary : AppTheme.textSecondary)
       .backgroundColor(this.ReaderTypographyPresetSelected(fontSize, lineHeight, paragraphSpacing,
-        horizontalPadding) ? AppTheme.primary : AppTheme.surfaceTint)
-      .borderRadius(12)
+        horizontalPadding) ? AppTheme.accentSoft : AppTheme.surface)
+      .border({ width: 1, color: this.ReaderTypographyPresetSelected(fontSize, lineHeight, paragraphSpacing,
+        horizontalPadding) ? AppTheme.primary : AppTheme.divider, radius: AppTheme.pillRadius })
+      .borderRadius(AppTheme.pillRadius)
       .accessibilityDescription(this.ReaderTypographyPresetSelected(fontSize, lineHeight, paragraphSpacing,
         horizontalPadding) ? '已选择' : '应用该排版')
       .onClick(() => this.ApplyReaderTypographyPreset(fontSize, lineHeight, paragraphSpacing, horizontalPadding))
@@ -6711,10 +6788,12 @@ struct Index {
   @Builder
   private ReaderOrientationButton(label: string, orientation: ReaderOrientation) {
     Button(label).layoutWeight(1).height(48).fontSize(13)
-      .fontColor(this.readerSettings.orientation === orientation ? Color.White : AppTheme.textPrimary)
-      .backgroundColor(this.readerSettings.orientation === orientation ? AppTheme.primary : AppTheme.surfaceTint)
+      .fontColor(this.readerSettings.orientation === orientation ? AppTheme.primary : AppTheme.textSecondary)
+      .backgroundColor(this.readerSettings.orientation === orientation ? AppTheme.accentSoft : AppTheme.surface)
+      .border({ width: 1, color: this.readerSettings.orientation === orientation ? AppTheme.primary : AppTheme.divider,
+        radius: AppTheme.pillRadius })
       .accessibilityDescription(this.readerSettings.orientation === orientation ? '已选择' : '未选择')
-      .borderRadius(12).onClick(() => this.SetReaderOrientation(orientation))
+      .borderRadius(AppTheme.pillRadius).onClick(() => this.SetReaderOrientation(orientation))
   }
 
   private SetReaderOrientation(orientation: ReaderOrientation): void {
@@ -10043,7 +10122,7 @@ struct Index {
         }.width('100%')
         if (this.mediaActionError.length > 0) {
           Text(this.mediaActionError).width('100%').fontSize(12).fontFamily('HarmonyOS Sans')
-            .fontColor('#D92D20').padding(10).borderRadius(10).backgroundColor('#FFF0F0')
+            .fontColor(AppTheme.danger).padding(10).borderRadius(10).backgroundColor(AppTheme.dangerSoft)
         }
         if (this.mediaActionMode === 'menu') {
           Row({ space: 8 }) {
@@ -10056,7 +10135,7 @@ struct Index {
             this.MediaActionButton('查看详情', () => this.BeginMediaAction('details', ''))
           }.width('100%')
           Button('删除').width('100%').height(48).fontFamily('HarmonyOS Sans')
-            .fontColor('#D92D20').backgroundColor('#FFF0F0')
+            .fontColor(AppTheme.danger).backgroundColor(AppTheme.dangerSoft)
             .onClick(() => this.mediaActionMode = 'delete-confirm')
         } else if (this.mediaActionMode === 'details') {
           Text(`类型：${this.MediaKindLabel(item)}\n大小：${this.FormatMediaSize(item.size)}\n目录：${item.directoryName ?? '根目录'}\n更新时间：${item.lastModified}\n标签：${(item.tags ?? []).map((tag: RemoteMediaTag) => tag.name).join('、') || '无'}\n路径：${item.path}`)
@@ -10069,11 +10148,11 @@ struct Index {
           }
           if (this.mediaActionMode === 'delete-confirm') {
             Text('删除后无法恢复，确认删除这个远程媒体？').width('100%').fontSize(13)
-              .fontFamily('HarmonyOS Sans').fontColor('#D92D20')
+              .fontFamily('HarmonyOS Sans').fontColor(AppTheme.danger)
           }
           Button(this.mediaActionBusy ? '处理中…' : '确认').width('100%').height(48)
             .enabled(!this.mediaActionBusy).fontFamily('HarmonyOS Sans').fontColor(Color.White)
-            .backgroundColor(this.mediaActionMode === 'delete-confirm' ? '#D92D20' : AppTheme.primary)
+            .backgroundColor(this.mediaActionMode === 'delete-confirm' ? AppTheme.danger : AppTheme.primary)
             .onClick(() => this.ExecuteMediaAction(item))
         }
         Button('取消').width('100%').height(48).fontFamily('HarmonyOS Sans')
@@ -10124,9 +10203,10 @@ struct Index {
             .tabBar(this.TabBarItem(tab, index))
           })
         }
-        .barHeight(68)
-        .barBackgroundColor(AppTheme.surface)
-        .divider({ strokeWidth: 1, color: AppTheme.divider })
+        .barHeight(60)
+        .barBackgroundColor(AppTheme.glass)
+        .barBackgroundBlurStyle(BlurStyle.COMPONENT_ULTRA_THICK)
+        .divider({ strokeWidth: 1, color: AppTheme.glassBorder })
         .onChange((index: number) => {
           this.ChangeMainTab(index);
           if (index === 3 && this.authenticated && this.mediaCatalogItems.length === 0 &&
@@ -10139,7 +10219,7 @@ struct Index {
         // DSH WebView常驻主栈，仅切换可见性，避免切换标签时重新初始化插件。
         Column() {
           this.DshTabPage()
-        }.width('100%').height('calc(100% - 68vp)').position({ x: 0, y: 0 })
+        }.width('100%').height('calc(100% - 60vp)').position({ x: 0, y: 0 })
           .opacity(this.currentIndex === 2 ? 1 : 0)
           // 原生Web组件即使透明且禁用仍可能占用触摸命中层；隐藏渲染节点后才可操作其他页面。
           .visibility(this.currentIndex === 2 ? Visibility.Visible : Visibility.Hidden)
@@ -10186,7 +10266,6 @@ struct Index {
     this.profileVisible = true;
     this.profileMode = 'home';
     if (this.authenticated) {
-      this.LoadDeviceSessions();
       this.LoadReaderDataSummary();
     }
   }
@@ -10310,26 +10389,19 @@ struct Index {
     this.marketLoading = false;
   }
 
-  /** 使当前设备会话列表事务失效，不影响已发出的下线写操作。 */
-  private CancelSessionListOperation(): void {
-    if (this.activeSessionListCancellation === undefined) return;
-    this.activeSessionListCancellation.cancel();
-    this.activeSessionListCancellation = undefined;
-    this.sessionListRevision++;
-    this.sessionLoading = false;
-  }
-
   @Builder
   private TabBarItem(tab: TabItem, index: number) {
-    Column({ space: 4 }) {
+    Column({ space: 2 }) {
       if (this.currentIndex === index) {
+        Column().width(4).height(4).borderRadius(2).backgroundColor(AppTheme.primary)
         Stack({ alignContent: Alignment.Center }) {
-          Column().width(34).height(28).borderRadius(14).backgroundColor(AppTheme.surfaceTint)
+          Column().width(50).height(36).borderRadius(AppTheme.iconRadius).backgroundColor(AppTheme.accentSoft)
           this.TabBarSymbol(index, AppTheme.primary)
-        }.width(38).height(30)
+        }.width(50).height(36)
         Text(tab.title).fontSize(11).fontFamily('HarmonyOS Sans').fontWeight(FontWeight.Medium)
           .fontColor(AppTheme.primary)
       } else {
+        Column().width(4).height(4).borderRadius(2).backgroundColor(Color.Transparent)
         this.TabBarSymbol(index, AppTheme.textSecondary)
         Text(tab.title).fontSize(11).fontFamily('HarmonyOS Sans').fontColor(AppTheme.textSecondary)
       }
@@ -10344,15 +10416,15 @@ struct Index {
   @Builder
   private TabBarSymbol(index: number, color: ResourceColor) {
     if (index === 0) {
-      SymbolGlyph($r('sys.symbol.book_open_fill')).fontSize(22).fontColor([color])
+      SymbolGlyph($r('sys.symbol.book')).fontSize(28).fontColor([color])
     } else if (index === 1) {
-      SymbolGlyph($r('sys.symbol.trunk')).fontSize(22).fontColor([color])
+      SymbolGlyph($r('sys.symbol.wrench_and_screwdriver')).fontSize(28).fontColor([color])
     } else if (index === 2) {
-      SymbolGlyph($r('sys.symbol.ai_edit')).fontSize(22).fontColor([color])
+      SymbolGlyph($r('sys.symbol.ai_edit')).fontSize(28).fontColor([color])
     } else if (index === 3) {
-      SymbolGlyph($r('sys.symbol.play_fill')).fontSize(22).fontColor([color])
+      SymbolGlyph($r('sys.symbol.play_circle')).fontSize(28).fontColor([color])
     } else {
-      SymbolGlyph($r('sys.symbol.cloud')).fontSize(22).fontColor([color])
+      SymbolGlyph($r('sys.symbol.externaldrive')).fontSize(28).fontColor([color])
     }
   }
 
@@ -10396,7 +10468,7 @@ struct Index {
           Column({ space: 4 }) {
             Text('MyTools 云服务').fontSize(15).fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary)
             Text(this.connectionStatus.length > 0 ? this.connectionStatus : '正在检查服务连接…')
-              .fontSize(13).fontColor(this.connectionHealthy ? '#19A35B' : AppTheme.textSecondary)
+              .fontSize(13).fontColor(this.connectionHealthy ? AppTheme.success : AppTheme.textSecondary)
           }.layoutWeight(1).alignItems(HorizontalAlign.Start)
           Button('重试').height(48).fontSize(13).fontColor(AppTheme.primary).backgroundColor(Color.Transparent)
             .enabled(!this.authInProgress && !this.connectionHealthy)
@@ -10414,7 +10486,7 @@ struct Index {
           Text(this.authStatus)
             .width('100%')
             .fontSize(14)
-            .fontColor(this.authenticated ? '#19A35B' : '#D64B4B')
+            .fontColor(this.authenticated ? AppTheme.success : AppTheme.danger)
         }
 
         Button(this.authInProgress ? '正在登录…' : '登录')
@@ -10423,6 +10495,9 @@ struct Index {
           .fontSize(17)
           .fontColor(Color.White)
           .backgroundColor(AppTheme.primary)
+          .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+          .borderRadius(AppTheme.pillRadius)
+          .shadow({ radius: 4, color: AppTheme.shadowSmall, offsetY: 2 })
           .enabled(!this.authInProgress && this.account.trim().length > 0 && this.password.length > 0)
           .accessibilityDescription('使用当前账号和密码登录MyTools')
           .onClick(() => {
@@ -10462,9 +10537,11 @@ struct Index {
         .type(password ? InputType.Password : InputType.Normal)
         .fontSize(15)
         .fontColor(AppTheme.textPrimary)
-        .placeholderColor('#A5ABB8')
-        .backgroundColor(AppTheme.surface)
-        .border({ width: 1, color: AppTheme.divider, radius: 14 })
+        .placeholderColor(AppTheme.textTertiary)
+        .backgroundColor(AppTheme.glass)
+        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
+        .borderRadius(AppTheme.inputRadius)
+        .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
         .onChange(onChange)
     }
     .width('100%')
@@ -11153,7 +11230,6 @@ struct Index {
       this.showLogin = false;
       this.RefreshProfileIdentity();
       await this.DiscoverLanEndpoint(false);
-      this.LoadDeviceSessions();
       this.PullBookSources();
       if (this.currentIndex === 3) {
         this.LoadMediaCatalog();
@@ -11295,15 +11371,12 @@ struct Index {
     this.readerOpeningLoader?.cancel();
     this.activeMarketCancellation?.cancel();
     this.marketOperationRevision++;
-    this.activeSessionListCancellation?.cancel();
     this.activeProfileCancellation?.cancel();
-    this.sessionListRevision++;
     this.CancelReaderPulls();
     this.CancelReaderDataSummary();
     this.readerDataDeleteRevision++;
     this.readerDataDeleting = false;
     this.marketLoading = false;
-    this.sessionLoading = false;
     this.mediaLoading = false;
     this.toolLoading = false;
     this.mediaDirectoryRevision++;
@@ -11321,7 +11394,7 @@ struct Index {
     try {
       await this.authManager.logout();
     } catch (error) {
-      this.sessionStatus = error instanceof Error ? error.message : '本地安全凭证清除失败，请重试退出登录';
+      this.connectionStatus = error instanceof Error ? error.message : '本地安全凭证清除失败，请重试退出登录';
       return;
     }
     this.logoutConfirmVisible = false;
@@ -11403,14 +11476,11 @@ struct Index {
     this.selectedMediaSourceId = '';
     this.mediaPath = '/';
     this.mediaStatus = '';
-    this.deviceSessions = [];
-    this.sessionStatus = '';
     this.marketItems = [];
     this.marketTotal = 0;
     this.marketDetail = undefined;
     this.marketStatus = '';
     this.marketLoading = false;
-    this.sessionLoading = false;
     this.mediaLoading = false;
     this.toolLoading = false;
     this.mediaDirectoryRevision++;
@@ -11448,9 +11518,7 @@ struct Index {
     this.readerOpeningLoader?.cancel();
     this.activeMarketCancellation?.cancel();
     this.marketOperationRevision++;
-    this.activeSessionListCancellation?.cancel();
     this.activeProfileCancellation?.cancel();
-    this.sessionListRevision++;
     this.CancelReaderPulls();
     this.CancelReaderDataSummary();
     this.readerDataDeleteRevision++;
@@ -11480,8 +11548,6 @@ struct Index {
     this.profileAvatar = '';
     this.ReleaseProfileAvatarPixelMap();
     this.profileAvatarFailed = false;
-    this.deviceSessions = [];
-    this.sessionStatus = '登录会话已失效，请重新登录';
     this.mediaSources = [];
     this.remoteBookSources = [];
     this.mediaItems = [];
@@ -11528,7 +11594,6 @@ struct Index {
     this.marketDetail = undefined;
     this.marketStatus = '登录会话已失效，请重新登录';
     this.marketLoading = false;
-    this.sessionLoading = false;
     this.mediaLoading = false;
     this.toolLoading = false;
     this.authStatus = '登录会话已失效，请重新登录';
@@ -11546,80 +11611,6 @@ struct Index {
       this.AccountOperationCurrent(accountRevision, owner);
   }
 
-  private async LoadDeviceSessions(): Promise<void> {
-    if (!this.authenticated || this.serviceUrl.length === 0) return;
-    // 写操作期间不允许刷新；旧的只读刷新则可被新刷新替代。
-    if (this.sessionLoading && this.activeSessionListCancellation === undefined) return;
-    this.activeSessionListCancellation?.cancel();
-    const cancellation = new DownloadCancellationToken();
-    this.activeSessionListCancellation = cancellation;
-    const listRevision = ++this.sessionListRevision;
-    this.sessionLoading = true;
-    const revision = this.accountOperationRevision;
-    const owner = this.localAccountScope;
-    this.sessionStatus = '';
-    try {
-      const sessions = await new SessionApi(this.ActiveServiceUrl(), this.authManager).list(cancellation);
-      if (!this.AccountOperationCurrent(revision, owner) || listRevision !== this.sessionListRevision) return;
-      this.deviceSessions = sessions;
-      const activeCount = this.deviceSessions.filter((session: DeviceSession) => session.status === 'ACTIVE').length;
-      this.sessionStatus = `${activeCount} 个有效会话`;
-    } catch (error) {
-      if (!this.AccountOperationCurrent(revision, owner) || listRevision !== this.sessionListRevision) return;
-      if (cancellation.isCancelled()) return;
-      this.sessionStatus = error instanceof Error ? error.message : '会话列表加载失败';
-    } finally {
-      if (this.activeSessionListCancellation === cancellation) {
-        this.activeSessionListCancellation = undefined;
-      }
-      if (this.AccountOperationCurrent(revision, owner) && listRevision === this.sessionListRevision) {
-        this.sessionLoading = false;
-      }
-    }
-  }
-
-  private async RevokeDeviceSession(sessionId: string): Promise<void> {
-    if (this.sessionLoading) return;
-    this.sessionLoading = true;
-    const revision = this.accountOperationRevision;
-    const owner = this.localAccountScope;
-    try {
-      await new SessionApi(this.ActiveServiceUrl(), this.authManager).revoke(sessionId);
-      if (!this.AccountOperationCurrent(revision, owner)) return;
-      this.sessionStatus = '设备已下线';
-      this.sessionLoading = false;
-      await this.LoadDeviceSessions();
-    } catch (error) {
-      if (!this.AccountOperationCurrent(revision, owner)) return;
-      this.sessionStatus = error instanceof Error ? error.message : '设备下线失败';
-      this.sessionLoading = false;
-    }
-  }
-
-  private async RevokeOtherSessions(): Promise<void> {
-    if (this.sessionLoading) return;
-    this.sessionLoading = true;
-    const revision = this.accountOperationRevision;
-    const owner = this.localAccountScope;
-    try {
-      await new SessionApi(this.ActiveServiceUrl(), this.authManager).revokeOthers();
-      if (!this.AccountOperationCurrent(revision, owner)) return;
-      this.sessionStatus = '其他设备已全部下线';
-      this.sessionLoading = false;
-      await this.LoadDeviceSessions();
-    } catch (error) {
-      if (!this.AccountOperationCurrent(revision, owner)) return;
-      this.sessionStatus = error instanceof Error ? error.message : '其他设备下线失败';
-      this.sessionLoading = false;
-    }
-  }
-
-  private SessionStatusText(status: string): string {
-    if (status === 'ACTIVE') return '有效';
-    if (status === 'EXPIRED') return '已过期';
-    return '已下线';
-  }
-
   @Builder
   private MediaSourceSelector() {
     Scroll() {
@@ -11627,9 +11618,11 @@ struct Index {
         ForEach(this.mediaSources, (source: RemoteMediaSource) => {
           Button(source.name.length > 0 ? source.name : source.type)
             .height(42).fontSize(13).fontFamily('HarmonyOS Sans')
-            .fontColor(this.selectedMediaSourceId === source.id ? Color.White : AppTheme.textPrimary)
-            .padding({ left: 14, right: 14 }).borderRadius(18)
-            .backgroundColor(this.selectedMediaSourceId === source.id ? AppTheme.primary : AppTheme.surfaceTint)
+            .fontColor(this.selectedMediaSourceId === source.id ? AppTheme.primary : AppTheme.textSecondary)
+            .padding({ left: 14, right: 14 }).borderRadius(AppTheme.pillRadius)
+            .backgroundColor(this.selectedMediaSourceId === source.id ? AppTheme.accentSoft : AppTheme.surface)
+            .border({ width: 1, color: this.selectedMediaSourceId === source.id ? AppTheme.primary : AppTheme.divider,
+              radius: AppTheme.pillRadius })
             .accessibilityText(`远程数据源：${source.name.length > 0 ? source.name : source.type}`)
             .accessibilityDescription(this.selectedMediaSourceId === source.id ? '已选择' : '未选择')
             .onClick(() => this.SelectMediaSource(source))
@@ -12015,8 +12008,7 @@ struct Index {
   private async RunBookSourceRuntimeSearch(keyword: string, page: number, revision: number,
     cancellation: DownloadCancellationToken, append: boolean): Promise<BookSourceSearchResult[]> {
     const api = new BookSourceRuntimeSearchApi(this.ActiveServiceUrl(), this.authManager);
-    let task: BookSourceRuntimeSearchTask = await api.start(keyword, page, this.sourceSearchMode,
-      this.bookSources);
+    let task: BookSourceRuntimeSearchTask = await api.start(keyword, page, this.sourceSearchMode);
     this.sourceSearchTaskId = task.taskId;
     let offset = 0;
     const pageResults = new Map<string, BookSourceSearchResult>();
@@ -12035,9 +12027,10 @@ struct Index {
       }
       offset = task.nextOffset;
       const searchedSources = Math.max(0, task.processedSources - task.cachedSources);
-      this.bookStatus = task.status === 'RUNNING' ?
-        `缓存 ${task.cachedSources} · 已查 ${searchedSources}/${task.pendingSources} · ` +
-        `失败 ${task.failedSources} · 结果 ${task.resultCount}` : task.message;
+      const progress = `缓存 ${task.cachedSources} · 已查 ${searchedSources}/${task.pendingSources} · ` +
+        `失败 ${task.failedSources} · 结果 ${task.resultCount}`;
+      this.bookStatus = task.status === 'RUNNING' ? progress :
+        (task.status === 'COMPLETED' ? `完成 · ${progress}` : task.message);
       if (task.hasMore) {
         task = await api.find(task.taskId, offset);
         continue;
@@ -15377,7 +15370,7 @@ struct Index {
             if (this.currentMediaKind === 'image') {
               Button() {
                 SymbolGlyph($r(this.CurrentMediaIsFavorite() ? 'sys.symbol.star_fill' : 'sys.symbol.star'))
-                  .fontSize(22).fontColor([this.CurrentMediaIsFavorite() ? '#8FA2FF' : Color.White])
+                  .fontSize(22).fontColor([this.CurrentMediaIsFavorite() ? AppTheme.primaryEnd : Color.White])
               }.width(46).height(48).padding(0).backgroundColor(Color.Transparent)
                 .accessibilityText(this.CurrentMediaIsFavorite() ? '取消收藏当前图片' : '收藏当前图片')
                 .enabled(!this.mediaImageDeleting && !this.mediaImageSharing)
@@ -15422,7 +15415,7 @@ struct Index {
           } else {
             Column({ space: 8 }) {
               Slider({ value: this.playerTimeMs, min: 0, max: Math.max(1, this.playerDurationMs) })
-                .width('100%').selectedColor('#8FA2FF')
+                .width('100%').selectedColor(AppTheme.primaryEnd)
                 .onChange((value: number, mode: SliderChangeMode) => {
                   if (mode === SliderChangeMode.End) this.SeekVideoTo(value);
                 })
@@ -15458,6 +15451,7 @@ struct Index {
           Row({ space: 12 }) {
             Button('返回').height(48).onClick(() => this.CloseRemoteMedia())
             Button(this.mediaOpening ? '正在重试…' : '重试').height(48).enabled(!this.mediaOpening)
+              .fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft).borderRadius(AppTheme.pillRadius)
               .onClick(() => this.RetryCurrentRemoteMedia())
           }
         }.width('86%').padding(18).backgroundColor('#CC1A1D25').borderRadius(16)
@@ -15470,9 +15464,10 @@ struct Index {
           Text('操作不可撤销，不会影响其他媒体。').width('100%').fontSize(13).fontColor('#D7DEEA')
           Row({ space: 10 }) {
             Button('取消').layoutWeight(1).height(48).enabled(!this.mediaImageDeleting)
+              .fontColor(AppTheme.textPrimary).backgroundColor(AppTheme.surfaceTint).borderRadius(AppTheme.pillRadius)
               .onClick(() => this.mediaImageDeleteConfirm = false)
             Button(this.mediaImageDeleting ? '正在删除…' : '确认永久删除').layoutWeight(1).height(48)
-              .enabled(!this.mediaImageDeleting).fontColor(Color.White).backgroundColor('#C33D3D')
+              .enabled(!this.mediaImageDeleting).fontColor(Color.White).backgroundColor(AppTheme.danger)
               .onClick(() => this.DeleteCurrentRemoteImage())
           }.width('100%')
         }.width('88%').padding(18).backgroundColor('#E61A1D25').borderRadius(16)
@@ -15521,7 +15516,7 @@ struct Index {
             .enabled(!this.mediaImageDeleting && !this.mediaImageSharing)
             .onClick(() => this.ShareCurrentRemoteImage())
           if (!this.CurrentMediaUsesLocalSource()) {
-            Button('删').width(48).height(48).fontSize(13).fontColor('#C33D3D')
+            Button('删').width(48).height(48).fontSize(13).fontColor(AppTheme.danger)
               .backgroundColor(Color.Transparent).accessibilityText('删除当前远程图片')
               .enabled(!this.mediaImageDeleting && !this.mediaImageSharing)
               .onClick(() => this.mediaImageDeleteConfirm = true)
@@ -15551,10 +15546,10 @@ struct Index {
               .fontColor(AppTheme.textPrimary).backgroundColor(AppTheme.surfaceTint)
               .onClick(() => this.mediaImageDeleteConfirm = false)
             Button(this.mediaImageDeleting ? '正在删除…' : '确认永久删除').layoutWeight(1).height(48)
-              .enabled(!this.mediaImageDeleting).fontColor(Color.White).backgroundColor('#C33D3D')
+              .enabled(!this.mediaImageDeleting).fontColor(Color.White).backgroundColor(AppTheme.danger)
               .onClick(() => this.DeleteCurrentRemoteImage())
           }.width('100%')
-        }.width('100%').padding(14).backgroundColor('#FFF0F0').borderRadius(14)
+        }.width('100%').padding(14).backgroundColor(AppTheme.dangerSoft).borderRadius(14)
           .margin({ left: 18, right: 18, bottom: 10 })
       }
 
@@ -15577,12 +15572,14 @@ struct Index {
       if (this.mediaPlaybackError.length > 0) {
         Column({ space: 10 }) {
           Text(this.mediaPlaybackError).width('100%').textAlign(TextAlign.Center).fontSize(14)
-            .fontColor(this.currentMediaKind === 'video' ? '#FFD7D7' : '#C33D3D')
+            .fontColor(this.currentMediaKind === 'video' ? '#FFD7D7' : AppTheme.danger)
           Row({ space: 12 }) {
-            Button('返回').height(48).accessibilityDescription('关闭当前远程媒体')
+            Button('返回').height(48).fontColor(AppTheme.textPrimary).backgroundColor(AppTheme.surfaceTint)
+              .borderRadius(AppTheme.pillRadius).accessibilityDescription('关闭当前远程媒体')
               .onClick(() => this.CloseRemoteMedia())
             Button(this.mediaOpening ? '正在重试…' : '重试')
-              .height(48).accessibilityDescription('重新申请播放票据并打开当前远程媒体')
+              .height(48).fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft)
+              .borderRadius(AppTheme.pillRadius).accessibilityDescription('重新申请播放票据并打开当前远程媒体')
               .enabled(!this.mediaOpening)
               .onClick(() => this.RetryCurrentRemoteMedia())
           }
@@ -15611,15 +15608,20 @@ struct Index {
             )
           Row() {
             Button('上一个').layoutWeight(1).height(48).accessibilityDescription('查看上一个远程媒体')
+              .fontColor(Color.White).backgroundColor('#4D2F3545').borderRadius(AppTheme.pillRadius)
               .onClick(() => this.ChangeRemoteMedia(-1))
             Button('−').width(52).height(48).accessibilityText('缩小图片')
+              .fontColor(Color.White).backgroundColor('#4D2F3545').borderRadius(AppTheme.pillRadius)
               .onClick(() => this.AdjustRemoteImageScale(-0.25))
             Button(`${this.imageScale.toFixed(2)}×`).width(70).height(48).fontSize(12)
+              .fontColor(Color.White).backgroundColor('#4D2F3545').borderRadius(AppTheme.pillRadius)
               .accessibilityDescription('恢复图片原始比例和位置')
               .onClick(() => this.ResetRemoteImageTransform())
             Button('+').width(52).height(48).accessibilityText('放大图片')
+              .fontColor(Color.White).backgroundColor('#4D2F3545').borderRadius(AppTheme.pillRadius)
               .onClick(() => this.AdjustRemoteImageScale(0.25))
             Button('下一个').layoutWeight(1).height(48).accessibilityDescription('查看下一个远程媒体')
+              .fontColor(Color.White).backgroundColor('#4D2F3545').borderRadius(AppTheme.pillRadius)
               .onClick(() => this.ChangeRemoteMedia(1))
           }.width('100%').padding({ left: 14, right: 14, bottom: 14 })
           if (this.mediaThumbnailItems.length > 1) {
@@ -15718,15 +15720,19 @@ struct Index {
           }.width('100%').aspectRatio(16 / 9)
           Row({ space: 10 }) {
             Button('−10秒').height(48).accessibilityDescription('视频快退10秒')
+              .fontColor(Color.White).backgroundColor('#4D2F3545').borderRadius(AppTheme.pillRadius)
               .onClick(() => this.SeekVideoBy(-10000))
             Button(`${this.mediaPlaybackRate.toFixed(2)}×`).height(48).accessibilityDescription('切换视频播放倍速')
+              .fontColor(Color.White).backgroundColor('#4D2F3545').borderRadius(AppTheme.pillRadius)
               .onClick(() => this.CycleMediaPlaybackRate(false))
             Button('+10秒').height(48).accessibilityDescription('视频快进10秒')
+              .fontColor(Color.White).backgroundColor('#4D2F3545').borderRadius(AppTheme.pillRadius)
               .onClick(() => this.SeekVideoBy(10000))
           }.margin({ top: 16 })
           if (this.mediaSubtitleCues.length > 0) {
             Row({ space: 10 }) {
               Button(this.mediaSubtitleEnabled ? '字幕开' : '字幕关').height(48)
+                .fontColor(Color.White).backgroundColor('#4D2F3545').borderRadius(AppTheme.pillRadius)
                 .accessibilityDescription(this.mediaSubtitleEnabled ? '关闭远程外挂字幕' : '开启远程外挂字幕').onClick(() => {
                 this.mediaSubtitleEnabled = !this.mediaSubtitleEnabled;
                 this.mediaSubtitleText = this.mediaSubtitleEnabled ?
@@ -15736,6 +15742,7 @@ struct Index {
                 Button(`切换字幕 ${this.mediaSubtitleTracks.findIndex((item: RemoteMediaItem) =>
                   item.path === this.mediaSubtitlePath) + 1}/${this.mediaSubtitleTracks.length}`)
                   .height(48).accessibilityDescription('切换到下一条远程外挂字幕')
+                  .fontColor(Color.White).backgroundColor('#4D2F3545').borderRadius(AppTheme.pillRadius)
                   .onClick(() => this.CycleRemoteSubtitle())
               }
             }.margin({ top: 10 })
@@ -15788,35 +15795,51 @@ struct Index {
             .height(50)
             .fontColor(Color.White)
             .backgroundColor(AppTheme.primary)
+            .linearGradient({ angle: 135, colors: [[AppTheme.primary, 0], [AppTheme.primaryEnd, 1]] })
+            .borderRadius(AppTheme.pillRadius)
             .onClick(() => {
               this.audioPlayer.toggle();
             })
           Row({ space: 10 }) {
             Button('上一首').height(48).accessibilityDescription('播放队列中的上一首远程音频')
+              .fontColor(AppTheme.textPrimary).backgroundColor(AppTheme.surfaceTint).borderRadius(AppTheme.pillRadius)
               .onClick(() => this.ChangeRemoteAudio(-1))
             Button('−10秒').height(48).accessibilityDescription('音频快退10秒')
+              .fontColor(AppTheme.textPrimary).backgroundColor(AppTheme.surfaceTint).borderRadius(AppTheme.pillRadius)
               .onClick(() => this.SeekAudioBy(-10000))
             Button('+10秒').height(48).accessibilityDescription('音频快进10秒')
+              .fontColor(AppTheme.textPrimary).backgroundColor(AppTheme.surfaceTint).borderRadius(AppTheme.pillRadius)
               .onClick(() => this.SeekAudioBy(10000))
             Button('下一首').height(48).accessibilityDescription('播放队列中的下一首远程音频')
+              .fontColor(AppTheme.textPrimary).backgroundColor(AppTheme.surfaceTint).borderRadius(AppTheme.pillRadius)
               .onClick(() => this.ChangeRemoteAudio(1))
           }
           Row({ space: 12 }) {
             Button(`${this.mediaPlaybackRate.toFixed(2)}×`).height(48).accessibilityDescription('切换音频播放倍速')
+              .fontColor(AppTheme.textPrimary).backgroundColor(AppTheme.surfaceTint).borderRadius(AppTheme.pillRadius)
               .onClick(() => this.CycleMediaPlaybackRate(true))
             Button(this.audioLoopEnabled ? '单曲循环：开' : '单曲循环：关').height(48)
+              .fontColor(this.audioLoopEnabled ? AppTheme.primary : AppTheme.textPrimary)
+              .backgroundColor(this.audioLoopEnabled ? AppTheme.accentSoft : AppTheme.surfaceTint)
+              .borderRadius(AppTheme.pillRadius)
               .accessibilityDescription(this.audioLoopEnabled ? '关闭单曲循环' : '开启单曲循环').onClick(() => {
               this.audioLoopEnabled = !this.audioLoopEnabled;
               this.audioPlayer.setLoop(this.audioLoopEnabled);
             })
             Button(this.audioSleepMinutes === 0 ? '定时：关' : `定时：${this.audioSleepMinutes}分`)
               .height(48).accessibilityDescription('切换音频定时关闭时长')
+              .fontColor(this.audioSleepMinutes > 0 ? AppTheme.primary : AppTheme.textPrimary)
+              .backgroundColor(this.audioSleepMinutes > 0 ? AppTheme.accentSoft : AppTheme.surfaceTint)
+              .borderRadius(AppTheme.pillRadius)
               .onClick(() => this.CycleAudioSleepTimer())
           }
           Text(`输出设备：${this.audioOutputDevice}`).fontSize(12).fontColor(AppTheme.textSecondary)
           Button(this.audioQueueExpanded ? `收起播放队列 · ${this.CurrentAudioQueuePosition()}` :
             `播放队列 · ${this.CurrentAudioQueuePosition()}`)
             .height(48).accessibilityDescription(this.audioQueueExpanded ? '收起远程音频播放队列' : '展开远程音频播放队列')
+            .fontColor(this.audioQueueExpanded ? AppTheme.primary : AppTheme.textPrimary)
+            .backgroundColor(this.audioQueueExpanded ? AppTheme.accentSoft : AppTheme.surfaceTint)
+            .borderRadius(AppTheme.pillRadius)
             .onClick(() => this.audioQueueExpanded = !this.audioQueueExpanded)
           if (this.audioQueueExpanded) {
             List({ space: 0 }) {
