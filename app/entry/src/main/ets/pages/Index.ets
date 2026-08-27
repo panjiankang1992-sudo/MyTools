@@ -581,6 +581,8 @@ struct Index {
   private activeMediaSourceCancellation?: DownloadCancellationToken = undefined;
   private activeDriveCancellation?: DownloadCancellationToken = undefined;
   private activeMediaCatalogCancellation?: DownloadCancellationToken = undefined;
+  private activeMediaCatalogThumbnailCancellation?: DownloadCancellationToken = undefined;
+  private mediaCatalogThumbnailRevision: number = 0;
   private activeRemoteBookSourceCancellation?: DownloadCancellationToken = undefined;
   private activeMediaDirectoryCancellation?: DownloadCancellationToken = undefined;
   private activeMediaLoadMoreCancellation?: DownloadCancellationToken = undefined;
@@ -806,6 +808,7 @@ struct Index {
     this.activeMediaSourceCancellation?.cancel();
     this.activeDriveCancellation?.cancel();
     this.activeMediaCatalogCancellation?.cancel();
+    this.activeMediaCatalogThumbnailCancellation?.cancel();
     this.activeRemoteBookSourceCancellation?.cancel();
     this.activeMediaDirectoryCancellation?.cancel();
     this.activeMediaLoadMoreCancellation?.cancel();
@@ -3102,7 +3105,7 @@ struct Index {
     const remoteItems = items.map((item: MediaCatalogItem): RemoteMediaItem => this.CatalogRemoteItem(item));
     this.mediaItems = remoteItems;
     this.mediaDirectoryItems = remoteItems;
-    const revision = ++this.mediaDirectoryRevision;
+    const revision = ++this.mediaCatalogThumbnailRevision;
     this.CacheMediaCatalogThumbnails(items, revision);
   }
 
@@ -3110,6 +3113,9 @@ struct Index {
   private async CacheMediaCatalogThumbnails(items: MediaCatalogItem[], revision: number): Promise<void> {
     const context = this.ApplicationContext();
     if (context === undefined) return;
+    this.activeMediaCatalogThumbnailCancellation?.cancel();
+    const cancellation = new DownloadCancellationToken();
+    this.activeMediaCatalogThumbnailCancellation = cancellation;
     const directory = `${context.cacheDir}/media-catalog-thumbnails`;
     try {
       if (!fs.accessSync(directory)) fs.mkdirSync(directory, true);
@@ -3117,13 +3123,28 @@ struct Index {
       return;
     }
     const api = new MediaCatalogApi(this.ActiveServiceUrl(), this.authManager);
-    const cancellation = new DownloadCancellationToken();
     // 首屏和视频目录预览优先，限制并发下载规模，避免大目录阻塞页面交互。
     const candidates = items.filter((item: MediaCatalogItem) => item.thumbnailUrl.length > 0).slice(0, 90);
-    const cached: MediaThumbnailEntry[] = [];
+    const candidatePaths = new Set<string>(candidates.map((item: MediaCatalogItem) => `/media/${item.itemId}`));
+    const cached: MediaThumbnailEntry[] = candidates.filter((item: MediaCatalogItem): boolean => {
+      const target = `${directory}/${item.itemId}.jpg`;
+      try {
+        return fs.accessSync(target) && fs.statSync(target).size >= 3;
+      } catch (_) {
+        return false;
+      }
+    }).map((item: MediaCatalogItem): MediaThumbnailEntry => ({
+      path: `/media/${item.itemId}`, uri: `file://${directory}/${item.itemId}.jpg`
+    }));
+    // 标签筛选后先恢复磁盘缓存，不能等待整个下载队列跑完才显示已有缩略图。
+    this.SetMediaBrowseThumbnailEntries(this.mediaBrowseThumbnailEntries.filter(
+      (entry: MediaThumbnailEntry) => !candidatePaths.has(entry.path)).concat(cached));
+    const cachedPaths = new Set<string>(cached.map((entry: MediaThumbnailEntry) => entry.path));
+    const missingCandidates = candidates.filter((item: MediaCatalogItem) =>
+      !cachedPaths.has(`/media/${item.itemId}`));
     // HarmonyOS 虚拟机的网络连接数较小，缩略图必须分批下载，避免大量并发请求长期阻塞。
-    for (let offset = 0; offset < candidates.length; offset++) {
-      const batch = candidates.slice(offset, offset + 1);
+    for (let offset = 0; offset < missingCandidates.length; offset++) {
+      const batch = missingCandidates.slice(offset, offset + 1);
       const tasks: Promise<MediaThumbnailEntry | undefined>[] = batch.map(
         async (item: MediaCatalogItem): Promise<MediaThumbnailEntry | undefined> => {
         const target = `${directory}/${item.itemId}.jpg`;
@@ -3132,7 +3153,7 @@ struct Index {
             const temporary = `${target}.${util.generateRandomUUID(true)}.part`;
             try {
               await api.downloadImage(item.thumbnailUrl, temporary, cancellation);
-              if (revision !== this.mediaDirectoryRevision) return undefined;
+              if (revision !== this.mediaCatalogThumbnailRevision || cancellation.isCancelled()) return undefined;
               if (fs.accessSync(target)) fs.unlinkSync(target);
               fs.renameSync(temporary, target);
             } finally {
@@ -3145,7 +3166,8 @@ struct Index {
           return { path: `/media/${item.itemId}`, uri: `file://${target}` };
         } catch (error) {
           // 视频尚未生成派生缩略图时保留类型占位卡，不把预期缺失显示成整个目录故障。
-          if (item.kind !== 'VIDEO' && revision === this.mediaDirectoryRevision && this.mediaCatalogStatus.length === 0) {
+          if (item.kind !== 'VIDEO' && revision === this.mediaCatalogThumbnailRevision &&
+            !cancellation.isCancelled() && this.mediaCatalogStatus.length === 0) {
             const message = error instanceof Error ? error.message : '未知错误';
             this.mediaCatalogStatus = `缩略图加载失败：${message}`;
           }
@@ -3155,7 +3177,7 @@ struct Index {
       const resolved = (await Promise.all(tasks)).filter(
         (entry: MediaThumbnailEntry | undefined): boolean => entry !== undefined) as MediaThumbnailEntry[];
       cached.push(...resolved);
-      if (revision !== this.mediaDirectoryRevision) return;
+      if (revision !== this.mediaCatalogThumbnailRevision || cancellation.isCancelled()) return;
       // 每批完成后立即更新首屏，后续缩略图无需全部完成才可见。
       if (resolved.length > 0) {
         const resolvedPaths = new Set<string>(resolved.map((entry: MediaThumbnailEntry) => entry.path));
@@ -3163,11 +3185,14 @@ struct Index {
           (entry: MediaThumbnailEntry) => !resolvedPaths.has(entry.path)).concat(resolved));
       }
     }
-    if (revision !== this.mediaDirectoryRevision) return;
+    if (revision !== this.mediaCatalogThumbnailRevision || cancellation.isCancelled()) return;
     const paths = new Set<string>();
     candidates.forEach((item: MediaCatalogItem) => paths.add(`/media/${item.itemId}`));
     this.SetMediaBrowseThumbnailEntries(this.mediaBrowseThumbnailEntries.filter(
       (entry: MediaThumbnailEntry) => !paths.has(entry.path)).concat(cached));
+    if (this.activeMediaCatalogThumbnailCancellation === cancellation) {
+      this.activeMediaCatalogThumbnailCancellation = undefined;
+    }
   }
 
   private CatalogRemoteItem(item: MediaCatalogItem): RemoteMediaItem {
