@@ -13527,7 +13527,8 @@ struct Index {
         item.kind === 'directory' || resolveBookFormat(item.name) !== 'unknown');
       this.remoteBookTotal = directory.total ?? this.remoteBookItems.length;
       this.remoteBookLoadedCount = directory.items.length;
-      this.remoteBookHasMore = sourceId.startsWith('local:') && directory.total !== undefined &&
+      this.remoteBookHasMore = (sourceId.startsWith('local:') || sourceId === 'ebook-library') &&
+        directory.total !== undefined &&
         this.remoteBookLoadedCount < directory.total;
       this.bookStatus = this.remoteBookItems.length === 0 ? '当前目录没有支持的电子书' : '';
       this.LoadRemoteBookCovers(this.remoteBookItems, sourceId, directoryRevision);
@@ -13549,7 +13550,8 @@ struct Index {
 
   private async LoadMoreRemoteBookDirectory(): Promise<void> {
     if (!this.remoteBookHasMore || this.remoteBookLoading || this.remoteBookLoadingMore ||
-      this.selectedRemoteBookSourceId.length === 0 || !this.selectedRemoteBookSourceId.startsWith('local:')) {
+      this.selectedRemoteBookSourceId.length === 0 ||
+      !this.selectedRemoteBookSourceId.startsWith('local:') && this.selectedRemoteBookSourceId !== 'ebook-library') {
       return;
     }
     const source = this.remoteBookSources.find((value: RemoteMediaSource) =>

@@ -115,7 +115,8 @@ export class RemoteMediaApi {
     if (accountId === 'ebook-library') {
       const textItems = await this.libraryItems('text/', 1000, cancellation);
       const applicationItems = await this.libraryItems('application/', 1000, cancellation);
-      return this.normalizer.normalizeLibraryBooks(textItems.concat(applicationItems), keyword, excludeAdult);
+      return this.normalizer.normalizeLibraryBooks(textItems.concat(applicationItems), keyword, excludeAdult,
+        page, pageSize);
     }
     if (!accountId.startsWith('local:')) {
       return this.listDirectory(accountId, path, cancellation, localRootPath, page, pageSize);

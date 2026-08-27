@@ -59,7 +59,8 @@ export class RemoteMediaResponseNormalizer {
     return { path: '/', items, total: items.length, page: 1, pageSize: 100 };
   }
   /** 将媒体库中已迁移的电子书文件投影为远程书库。 */
-  normalizeLibraryBooks(values: Object[], keyword: string, excludeAdult: boolean): RemoteDirectory {
+  normalizeLibraryBooks(values: Object[], keyword: string, excludeAdult: boolean,
+    page: number = 1, pageSize: number = 40): RemoteDirectory {
     const query = keyword.trim().toLocaleLowerCase().substring(0, 100);
     const items: RemoteMediaItem[] = [];
     values.slice(0, 1000).forEach((item: Object) => {
@@ -79,7 +80,12 @@ export class RemoteMediaResponseNormalizer {
         lastModified: '', tags, bookTitle: name.substring(0, name.length - extension.length - 1),
         bookAuthor: '', bookMetadataStatus: 'READY' });
     });
-    return { path: '/', items, total: items.length, page: 1, pageSize: items.length };
+    // 媒体库电子书必须分页返回，避免真机一次渲染大量卡片触发前台线程阻塞保护。
+    const safePage = Math.max(1, Math.floor(page));
+    const safePageSize = Math.max(1, Math.min(100, Math.floor(pageSize)));
+    const offset = (safePage - 1) * safePageSize;
+    return { path: '/', items: items.slice(offset, offset + safePageSize), total: items.length,
+      page: safePage, pageSize: safePageSize };
   }
   /** 将MyTools本地远程文件目录转换为App数据源。 */
   normalizeLocalSources(value: Object | undefined): RemoteMediaSource[] {
