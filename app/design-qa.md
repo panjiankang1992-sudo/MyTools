@@ -2,12 +2,12 @@
 
 ## Current iteration gate
 
-- Current signed HAP SHA-256: `9b08c947dfe076924fb48a77721742ebafa4d39b313f5c906c68c1e7052d2a21`.
+- Current signed HAP SHA-256: `02db003137a6989afcd446142600250ab8d05282a676c5c48d7e58b0d88dc94c`.
 - Emulator acceptance evidence: `/Users/pankang/mycode/MyTools/app/build/acceptance/device-acceptance-20260815T091018Z.json`.
 - The complete `app/scripts/test-*.sh` suite passes.
 - ArkTS type checking and signed HAP packaging pass without warnings.
 - Emulator overwrite installation, cold start, authentication restoration, gallery browsing, source selection, `big_media` loading, image switching, video loading, video autoplay, control visibility, and vertical switching pass.
-- The signed HAP is installed on the connected physical device. Physical cold-start observation is not counted as passed because the device was locked when the final launch command ran.
+- The current signed HAP is installed on the HarmonyOS emulator. No physical device is currently enumerated, so this iteration does not claim physical-device acceptance.
 
 ## Comparison target
 
@@ -124,6 +124,23 @@
 - Earlier P2 polish finding: opaque hash filenames, full-width sequence layout, and text star glyphs made the immersive controls feel technical and visually uneven.
 - Fix: introduce media-type fallback names, a compact fixed-width sequence counter, native star symbols, and a restrained metadata panel with up to three tags.
 - Post-fix evidence: `mytools-media-polish-viewer-chrome2.jpeg`.
+
+final result: passed
+
+# Media Date Directory Selection QA (2026-08-28)
+
+## Scope
+
+- Physical resource hierarchy: `/opt/extend/resource/yuyutian/media/202608/20260825`.
+- User-facing hierarchy: `media/202608/20260825`.
+- The verified date directory contains `176` gallery items.
+
+## Result
+
+- Directory and tag metadata is reused while media type, search text, and adult-content filtering remain unchanged.
+- Selecting a date directory immediately clears cards from the previous scope and switches to the selected directory count; the directory response then confirms the authoritative total.
+- Emulator UI dumps confirm that selection never presents the previous `34198` whole-library total and settles on `media/202608/20260825` with `176 个`.
+- All `114` app shell regression tests, ArkTS type checking, signed HAP packaging, overwrite installation, and cold start pass.
 
 final result: passed
 

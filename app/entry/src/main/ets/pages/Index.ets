@@ -586,6 +586,7 @@ struct Index {
   private activeMediaCatalogCancellation?: DownloadCancellationToken = undefined;
   private activeMediaCatalogThumbnailCancellation?: DownloadCancellationToken = undefined;
   private mediaCatalogThumbnailRevision: number = 0;
+  private mediaCatalogFilterContext: string = '';
   private activeRemoteBookSourceCancellation?: DownloadCancellationToken = undefined;
   private activeMediaDirectoryCancellation?: DownloadCancellationToken = undefined;
   private activeMediaLoadMoreCancellation?: DownloadCancellationToken = undefined;
@@ -2863,6 +2864,7 @@ struct Index {
     this.mediaCatalogDirectoryParentId = '__media_root__';
     this.mediaCatalogTag = '';
     this.mediaCatalogFilters = { directories: [], tags: [] };
+    this.mediaCatalogFilterContext = '';
     this.selectedVideoDirectoryId = '';
     this.selectedVideoDirectoryName = '';
     this.mediaVideoDirectoryItems = [];
@@ -2962,6 +2964,11 @@ struct Index {
       return;
     }
     this.mediaCatalogDirectoryId = directoryId;
+    const selectedDirectory = this.mediaCatalogFilters.directories.find((value: MediaDirectoryFilter) =>
+      value.directoryId === directoryId);
+    // 选择日期目录时立即切换数量并移除上一目录卡片，避免网络返回前短暂展示全库统计和旧缩略图。
+    if (selectedDirectory !== undefined) this.mediaCatalogTotal = selectedDirectory.fileCount;
+    if (this.mediaCatalogMode === 'gallery') this.mediaCatalogItems = [];
     this.CloseMediaCatalogSelector();
     this.selectedVideoDirectoryId = '';
     this.LoadMediaCatalog();
@@ -2980,7 +2987,7 @@ struct Index {
     this.SelectMediaCatalogTag(tag);
   }
 
-  private async LoadMediaCatalog(): Promise<void> {
+  private async LoadMediaCatalog(refreshFilters: boolean = false): Promise<void> {
     if (!this.authenticated) return;
     this.activeMediaCatalogCancellation?.cancel();
     const cancellation = new DownloadCancellationToken();
@@ -2990,10 +2997,16 @@ struct Index {
     try {
       // 新版媒体目录由服务端直接聚合，不再依赖旧远程媒体数据源配置。
       const api = new MediaCatalogApi(this.ActiveServiceUrl(), this.authManager);
-      const filters = await api.filters(this.mediaCatalogMode, this.mediaCatalogKeyword,
-        this.hideAdultContent, cancellation);
-      if (cancellation.isCancelled()) return;
-      this.mediaCatalogFilters = filters;
+      const filterContext = `${this.mediaCatalogMode}|${this.mediaCatalogKeyword.trim()}|${this.hideAdultContent}`;
+      // 目录或标签切换只重新读取对应媒体列表，避免整库筛选统计阻塞当前目录的实际数量与内容。
+      if (refreshFilters || this.mediaCatalogFilterContext !== filterContext ||
+        this.mediaCatalogFilters.directories.length === 0) {
+        const filters = await api.filters(this.mediaCatalogMode, this.mediaCatalogKeyword,
+          this.hideAdultContent, cancellation);
+        if (cancellation.isCancelled()) return;
+        this.mediaCatalogFilters = filters;
+        this.mediaCatalogFilterContext = filterContext;
+      }
       if (this.mediaCatalogMode === 'gallery') {
         this.mediaVideoDirectories = [];
         this.mediaVideoDirectoryItems = [];
@@ -3034,7 +3047,7 @@ struct Index {
   private async RefreshMediaCatalog(): Promise<void> {
     this.mediaCatalogRefreshing = true;
     try {
-      await this.LoadMediaCatalog();
+      await this.LoadMediaCatalog(true);
     } finally {
       this.mediaCatalogRefreshing = false;
     }
@@ -11417,6 +11430,8 @@ struct Index {
     this.password = '';
     this.authStatus = '';
     this.mediaSources = [];
+    this.mediaCatalogFilters = { directories: [], tags: [] };
+    this.mediaCatalogFilterContext = '';
     this.remoteBookSources = [];
     this.selectedRemoteBookSourceId = '';
     this.remoteBookSourceSelectorVisible = false;

@@ -13,6 +13,12 @@ if sed -n '/async gallery(/,/^  }/p' "$api" | grep -Fq 'allLibraryItems'; then
   exit 1
 fi
 grep -Fq 'private mediaCatalogThumbnailRevision: number = 0;' "$page"
+grep -Fq "private mediaCatalogFilterContext: string = '';" "$page"
+grep -Fq 'private async LoadMediaCatalog(refreshFilters: boolean = false): Promise<void>' "$page"
+grep -Fq 'this.mediaCatalogFilterContext !== filterContext' "$page"
+grep -Fq 'await this.LoadMediaCatalog(true);' "$page"
+grep -Fq 'if (selectedDirectory !== undefined) this.mediaCatalogTotal = selectedDirectory.fileCount;' "$page"
+grep -Fq "if (this.mediaCatalogMode === 'gallery') this.mediaCatalogItems = [];" "$page"
 grep -Fq 'this.activeMediaCatalogThumbnailCancellation?.cancel();' "$page"
 grep -Fq '标签筛选后先恢复磁盘缓存' "$page"
 grep -Fq 'revision !== this.mediaCatalogThumbnailRevision' "$page"
