@@ -222,6 +222,24 @@ for shared_control in AppPrimaryPillButton AppSecondaryPillButton AppDangerPillB
   rg -q -F "export struct $shared_control" "$CONTROLS" ||
     fail "shared control $shared_control is missing"
 done
+rg -q -F 'export struct AppGlassTextArea' "$CONTROLS" ||
+  fail "shared multiline input control is missing"
+rg -q -F 'export struct AppGlassTextOutput' "$CONTROLS" ||
+  fail "shared multiline output control is missing"
+for multiline_value in qrInput digestInput feedbackContent toolTextInput readerAnnotationInput; do
+  rg -q "AppGlassTextArea\\(\\{ value: this\\.$multiline_value" "$SOURCE" ||
+    fail "$multiline_value must use the shared multiline input control"
+done
+for multiline_output in digestOutput toolTextOutput; do
+  rg -q "AppGlassTextOutput\\(\\{ value: this\\.$multiline_output" "$SOURCE" ||
+    fail "$multiline_output must use the shared multiline output control"
+done
+for shared_full_width_label in '取消当前下载' '刷新当前轮次状态' '清理全部远程图片缓存' \
+  '删除阅读同步数据' '收起'; do
+  if rg -q "Button\\('$shared_full_width_label'\\).*width\\('100%'\\)" "$SOURCE"; then
+    fail "$shared_full_width_label must use a shared pill button"
+  fi
+done
 
 media_selector="$(sed -n '/private MediaSourceSelector()/,/^  }/p' "$SOURCE")"
 printf '%s\n' "$media_selector" | rg -q -F 'Button(source.name.length > 0 ?' ||

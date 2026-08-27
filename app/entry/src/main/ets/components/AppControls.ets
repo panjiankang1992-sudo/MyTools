@@ -154,6 +154,60 @@ export struct AppGlassTextInput {
   }
 }
 
+/** 统一玻璃质感的多行文本输入框。 */
+@Component
+export struct AppGlassTextArea {
+  @Prop value: string = '';
+  @Prop placeholder: string = '';
+  @Prop limit: number = 1000;
+  @Prop areaHeight: number = 140;
+  @Prop available: boolean = true;
+  valueChanged: (value: string) => void = () => {};
+
+  build() {
+    TextArea({ text: this.value, placeholder: this.placeholder })
+      .width('100%')
+      .height(this.areaHeight)
+      .padding(16)
+      .maxLength(this.limit)
+      .fontSize(14)
+      .fontFamily('HarmonyOS Sans')
+      .fontColor(AppTheme.textPrimary)
+      .placeholderColor(AppTheme.textTertiary)
+      .backgroundColor(AppTheme.glass)
+      .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
+      .borderRadius(AppTheme.inputRadius)
+      .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
+      .enabled(this.available)
+      .onChange(this.valueChanged)
+  }
+}
+
+/** 统一玻璃质感的只读多行结果面板。 */
+@Component
+export struct AppGlassTextOutput {
+  @Prop value: string = '';
+  @Prop placeholder: string = '';
+  @Prop areaHeight: number = 140;
+
+  build() {
+    Scroll() {
+      Text(this.value.length > 0 ? this.value : this.placeholder)
+        .width('100%')
+        .fontSize(14)
+        .fontFamily('HarmonyOS Sans')
+        .fontColor(this.value.length > 0 ? AppTheme.textPrimary : AppTheme.textTertiary)
+        .copyOption(CopyOptions.LocalDevice)
+    }
+    .width('100%')
+    .height(this.areaHeight)
+    .padding(16)
+    .backgroundColor(AppTheme.surfaceTint)
+    .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
+    .borderRadius(AppTheme.inputRadius)
+  }
+}
+
 /** 带搜索图标和清除操作的统一玻璃搜索框。 */
 @Component
 export struct AppSearchField {

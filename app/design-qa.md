@@ -2,7 +2,7 @@
 
 ## Current iteration gate
 
-- Current signed HAP SHA-256: `02db003137a6989afcd446142600250ab8d05282a676c5c48d7e58b0d88dc94c`.
+- Current signed HAP SHA-256: `88ebefea756c366403165e6cb396909769cf43c96fa0242b2a5135d8d395dcea`.
 - Emulator acceptance evidence: `/Users/pankang/mycode/MyTools/app/build/acceptance/device-acceptance-20260815T091018Z.json`.
 - The complete `app/scripts/test-*.sh` suite passes.
 - ArkTS type checking and signed HAP packaging pass without warnings.
@@ -124,6 +124,22 @@
 - Earlier P2 polish finding: opaque hash filenames, full-width sequence layout, and text star glyphs made the immersive controls feel technical and visually uneven.
 - Fix: introduce media-type fallback names, a compact fixed-width sequence counter, native star symbols, and a restrained metadata panel with up to three tags.
 - Post-fix evidence: `mytools-media-polish-viewer-chrome2.jpeg`.
+
+final result: passed
+
+# Shared Deep-Page Controls QA (2026-08-28)
+
+## Scope
+
+- Shared components now include glass single-line input, multiline input, read-only multiline output, search, filter chip, primary, secondary, danger, segmented, and settings-row controls.
+- QR, digest, feedback, text processing, reader annotation, source discovery, reader search, media mutation, cache management, reader-data deletion, and long-running-operation actions use the shared control layer.
+- Page-local multiline input and output controls have been removed from `Index.ets`; the two remaining page-local single-line inputs are integrated composite controls for DSH composition and book-source search mode.
+
+## Result
+
+- The full `114` app shell regression suite passes.
+- ArkTS type checking, signed HAP packaging, emulator overwrite installation, cold start, and deep tool-page rendering pass.
+- The text-processing capture at `app/build/goal-audit/shared-control-final.jpeg` confirms the shared multiline input and read-only output preserve the established page structure while applying the glass control language.
 
 final result: passed
 

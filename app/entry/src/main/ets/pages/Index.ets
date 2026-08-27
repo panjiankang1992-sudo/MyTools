@@ -1,6 +1,7 @@
 import { AppTheme } from '../theme/AppTheme';
-import { AppDangerPillButton, AppFilterChip, AppGlassTextInput, AppPrimaryPillButton, AppSearchField,
-  AppSecondaryPillButton, AppSegmentItem, AppSettingsRow } from '../components/AppControls';
+import { AppDangerPillButton, AppFilterChip, AppGlassTextArea, AppGlassTextInput, AppGlassTextOutput,
+  AppPrimaryPillButton, AppSearchField, AppSecondaryPillButton, AppSegmentItem, AppSettingsRow } from
+  '../components/AppControls';
 import { AuthSessionManager } from '../features/auth/AuthSessionManager';
 import common from '@ohos.app.ability.common';
 import window from '@ohos.window';
@@ -1432,14 +1433,13 @@ struct Index {
         .fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
       Blank().width(48)
     }.width('100%')
-    TextArea({ text: this.qrInput, placeholder: '输入需要生成二维码的文本（最多2950字节）' })
-      .width('100%').height(140).maxLength(2048)
-      .onChange((value: string) => this.qrInput = value)
+    AppGlassTextArea({ value: this.qrInput, placeholder: '输入需要生成二维码的文本（最多2950字节）',
+      limit: 2048, areaHeight: 140, valueChanged: (value: string) => this.qrInput = value })
     Row({ space: 12 }) {
       AppPrimaryPillButton({ label: this.qrBusy ? '处理中…' : '生成二维码', available: !this.qrBusy,
         action: () => this.GenerateQrCode() }).layoutWeight(1)
-      Button('系统扫码').layoutWeight(1).enabled(!this.qrBusy)
-        .fontColor(AppTheme.primary).backgroundColor(AppTheme.surfaceTint).onClick(() => this.ScanQrCode())
+      AppSecondaryPillButton({ label: '系统扫码', available: !this.qrBusy,
+        action: () => this.ScanQrCode() }).layoutWeight(1)
     }.width('100%')
     if (this.qrPixelMap !== undefined) {
       Column({ space: 10 }) {
@@ -1478,19 +1478,16 @@ struct Index {
       this.DigestAlgorithmButton('SHA-256', 'SHA256')
       this.DigestAlgorithmButton('SHA-512', 'SHA512')
     }.width('100%')
-    TextArea({ text: this.digestInput, placeholder: '输入需要计算摘要的文本（最多20万字符）' })
-      .width('100%').height(180).maxLength(200000).backgroundColor(AppTheme.surface)
-      .border({ width: 1, color: AppTheme.divider, radius: 14 })
-      .onChange((value: string) => {
+    AppGlassTextArea({ value: this.digestInput, placeholder: '输入需要计算摘要的文本（最多20万字符）',
+      limit: 200000, areaHeight: 180, valueChanged: (value: string) => {
         this.digestInput = value;
         this.digestOutput = '';
         this.digestStatus = '';
-      })
+      } })
     AppPrimaryPillButton({ label: this.digestBusy ? '计算中…' : '计算摘要', available: !this.digestBusy,
       action: () => this.CalculateDigest() })
     if (this.digestOutput.length > 0) {
-      TextArea({ text: this.digestOutput }).width('100%').height(130)
-        .backgroundColor(AppTheme.surfaceTint).copyOption(CopyOptions.LocalDevice)
+      AppGlassTextOutput({ value: this.digestOutput, areaHeight: 130 })
     }
     if (this.digestStatus.length > 0) {
       Text(this.digestStatus).width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
@@ -1715,23 +1712,15 @@ struct Index {
       Text('反馈类型').width('100%').fontSize(14).fontColor(AppTheme.textSecondary)
       Row({ space: 8 }) {
         ForEach(['功能建议', '使用问题', '内容问题', '其他'], (category: string) => {
-          Button(category).height(48).fontSize(13)
-            .fontColor(this.feedbackCategory === category ? AppTheme.primary : AppTheme.textSecondary)
-            .padding({ left: 12, right: 12 }).borderRadius(AppTheme.pillRadius)
-            .backgroundColor(this.feedbackCategory === category ? AppTheme.accentSoft : AppTheme.surface)
-            .border({ width: 1, color: this.feedbackCategory === category ? AppTheme.primary : AppTheme.divider,
-              radius: AppTheme.pillRadius })
-            .accessibilityDescription(this.feedbackCategory === category ? '已选择' : '未选择')
-            .onClick(() => this.feedbackCategory = category)
+          AppFilterChip({ label: category, selected: this.feedbackCategory === category,
+            action: () => this.feedbackCategory = category })
         })
       }.width('100%')
       AppGlassTextInput({ value: this.feedbackTitle, placeholder: '标题（必填，最多200字）', limit: 200,
         valueChanged: (value: string) => this.feedbackTitle = value })
-      TextArea({ text: this.feedbackContent, placeholder: '请描述问题、期望结果和复现步骤（必填，最多5000字）' })
-        .width('100%').height(220).maxLength(5000).backgroundColor(AppTheme.glass)
-        .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
-        .borderRadius(AppTheme.inputRadius)
-        .onChange((value: string) => this.feedbackContent = value)
+      AppGlassTextArea({ value: this.feedbackContent,
+        placeholder: '请描述问题、期望结果和复现步骤（必填，最多5000字）', limit: 5000, areaHeight: 220,
+        valueChanged: (value: string) => this.feedbackContent = value })
       Text(`${this.feedbackContent.length}/5000`).width('100%').textAlign(TextAlign.End)
         .fontSize(12).fontColor(AppTheme.textSecondary)
       if (this.feedbackStatus.length > 0) {
@@ -1750,10 +1739,8 @@ struct Index {
         .fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
       Blank().width(48)
     }.width('100%')
-    TextArea({ text: this.toolTextInput, placeholder: '输入需要处理的文本或JSON' })
-      .width('100%').height(180).maxLength(200000).backgroundColor(AppTheme.surface)
-      .border({ width: 1, color: AppTheme.divider, radius: 14 })
-      .onChange((value: string) => this.toolTextInput = value)
+    AppGlassTextArea({ value: this.toolTextInput, placeholder: '输入需要处理的文本或JSON',
+      limit: 200000, areaHeight: 180, valueChanged: (value: string) => this.toolTextInput = value })
     Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start }) {
       this.ToolActionButton('JSON格式化', 'json')
       this.ToolActionButton('去重', 'unique')
@@ -1767,10 +1754,7 @@ struct Index {
       this.ToolActionButton('时间戳转时间', 'timestampToDate')
       this.ToolActionButton('时间转时间戳', 'dateToTimestamp')
     }.width('100%')
-    TextArea({ text: this.toolTextOutput, placeholder: '处理结果' })
-      .width('100%').height(200).backgroundColor(AppTheme.surfaceTint)
-      .border({ width: 1, color: AppTheme.divider, radius: 14 })
-      .copyOption(CopyOptions.LocalDevice)
+    AppGlassTextOutput({ value: this.toolTextOutput, placeholder: '处理结果', areaHeight: 200 })
   }
 
   private ToolMatches(searchableText: string): boolean {
@@ -2013,8 +1997,7 @@ struct Index {
         .width('100%').maxLines(2).fontSize(12).fontColor(AppTheme.textSecondary)
       if (this.toolOperation === 'select') {
         if (this.toolOperationBusy && this.activeDownloadTaskId.length > 0) {
-          Button('取消当前下载').width('100%').height(48).fontColor(AppTheme.danger).backgroundColor(Color.Transparent)
-            .border({ width: 1, color: AppTheme.danger, radius: 12 }).onClick(() => this.CancelActiveDownload())
+          AppDangerPillButton({ label: '取消当前下载', action: () => this.CancelActiveDownload() }).width('100%')
         }
         Row({ space: 8 }) {
           Button('重命名').layoutWeight(1).height(48).onClick(() => {
@@ -2179,10 +2162,8 @@ struct Index {
         }.width('100%').padding(14).borderRadius(14).backgroundColor(AppTheme.surfaceTint)
       }
       if (this.copilotPollingTimedOut && this.IsCopilotTurnActive()) {
-        Button('刷新当前轮次状态').width('100%').height(48)
-          .enabled(!this.copilotBusy)
-          .backgroundColor(AppTheme.surfaceTint).fontColor(AppTheme.primary)
-          .onClick(() => this.RefreshCurrentCopilotTurn())
+        AppSecondaryPillButton({ label: '刷新当前轮次状态', available: !this.copilotBusy,
+          action: () => this.RefreshCurrentCopilotTurn() }).width('100%')
       }
       if (this.IsCopilotTurnActive()) {
         Button(this.copilotCancelling ? '正在提交取消…' : '取消当前轮次').width('100%').height(48)
@@ -4325,10 +4306,8 @@ struct Index {
     if (this.profileCacheStatus.length > 0) {
       Text(this.profileCacheStatus).width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
     }
-    Button('清理全部远程图片缓存').width('100%').height(48)
-      .fontSize(14).fontColor(AppTheme.danger).backgroundColor(Color.Transparent)
-      .border({ width: 1, color: AppTheme.danger, radius: 14 })
-      .onClick(() => this.ClearRemoteImageCaches())
+    AppDangerPillButton({ label: '清理全部远程图片缓存',
+      action: () => this.ClearRemoteImageCaches() }).width('100%')
     Text('该操作只删除可恢复的图书封面、书源漫画页和远程媒体缩略图，不会删除书架、书源、阅读记录、本地导入文件或远程原文件。内容会在下次需要时重新安全下载。')
       .width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
   }
@@ -4361,9 +4340,8 @@ struct Index {
           action: () => this.DeleteReaderCloudData() }).layoutWeight(1)
       }.width('100%')
     } else if (this.authenticated) {
-      Button('删除阅读同步数据').width('100%').height(48).fontColor(AppTheme.danger)
-        .backgroundColor(Color.Transparent).border({ width: 1, color: AppTheme.danger, radius: 14 })
-        .onClick(() => this.readerDataDeleteConfirm = true)
+      AppDangerPillButton({ label: '删除阅读同步数据',
+        action: () => this.readerDataDeleteConfirm = true }).width('100%')
     } else {
       Text('登录后可查看或删除当前账号的云端阅读同步数据。').width('100%').fontSize(13)
         .fontColor(AppTheme.textSecondary)
@@ -4952,8 +4930,7 @@ struct Index {
             .fontColor(AppTheme.primary).onClick(() => this.ExploreBookSource(source, category))
         }, (category: BookSourceExploreCategory) => category.title + '|' + category.url)
       }.width('100%')
-      Button('收起').width('100%').backgroundColor(AppTheme.surface).fontColor(AppTheme.textSecondary)
-        .onClick(() => this.CloseBookSourceExplore())
+      AppSecondaryPillButton({ label: '收起', action: () => this.CloseBookSourceExplore() }).width('100%')
     }.width('100%').padding(16).borderRadius(16).backgroundColor(AppTheme.surfaceTint)
   }
 
@@ -5120,19 +5097,9 @@ struct Index {
       Divider().width('100%').height(1).color(AppTheme.divider)
       Column({ space: 10 }) {
         Text('网站地址').width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
-        Row({ space: 8 }) {
-          SymbolGlyph($r('sys.symbol.square_stack_3d_fill')).fontSize(18).fontColor([AppTheme.textSecondary])
-          TextInput({ placeholder: 'https://example.com', text: this.sourceDiscoveryUrl })
-            .layoutWeight(1).height(48).padding(0).fontSize(14).backgroundColor(Color.Transparent)
-            .onChange((value: string) => this.sourceDiscoveryUrl = value)
-          if (this.sourceDiscoveryUrl.length > 0) {
-            Button() {
-              SymbolGlyph($r('sys.symbol.xmark')).fontSize(13).fontColor([Color.White])
-            }.width(28).height(28).padding(0).borderRadius(14).backgroundColor(AppTheme.textSecondary)
-              .accessibilityText('清除网站地址').onClick(() => this.sourceDiscoveryUrl = '')
-          }
-        }.width('100%').height(52).padding({ left: 14, right: 10 })
-          .backgroundColor(AppTheme.glass).borderRadius(AppTheme.inputRadius)
+        AppSearchField({ value: this.sourceDiscoveryUrl, placeholder: 'https://example.com',
+          valueChanged: (value: string) => this.sourceDiscoveryUrl = value,
+          cleared: () => this.sourceDiscoveryUrl = '' })
           .border({ width: 1, color: AppTheme.divider, radius: AppTheme.inputRadius })
           .shadow({ radius: 3, color: AppTheme.shadowSmall, offsetY: 1 })
         if (this.sourceDiscoveryStatus.length > 0) {
@@ -6130,10 +6097,10 @@ struct Index {
       .border({ width: { bottom: 1 }, color: this.ReaderDividerColor() })
 
       if (this.readerSearchVisible) {
-        TextInput({ text: this.readerSearchText, placeholder: '搜索本书正文' })
-          .width('92%').height(46).margin({ top: 10 }).backgroundColor(this.ReaderControlSurfaceTintColor())
-          .onChange((value: string) => this.readerSearchText = value)
-          .onSubmit(() => this.SearchReaderContent())
+        AppSearchField({ value: this.readerSearchText, placeholder: '搜索本书正文',
+          valueChanged: (value: string) => this.readerSearchText = value,
+          submitted: () => this.SearchReaderContent(), cleared: () => this.readerSearchResults = [] })
+          .width('92%').margin({ top: 10 })
         if (this.readerSearchBusy) {
           Text(this.readerSearchStatus).width('92%').fontSize(12).fontColor(this.ReaderSecondaryColor())
         } else if (this.readerSearchResults.length > 0) {
@@ -6303,8 +6270,9 @@ struct Index {
         this.CompactActionButton('关闭', () => this.readerAnnotationVisible = false)
       }.width('100%')
       Text(this.CurrentReadingStatisticLabel()).width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
-      TextArea({ text: this.readerAnnotationInput, placeholder: '记录当前章节或页面的想法（最多1000字）' })
-        .width('100%').height(100).onChange((value: string) => this.readerAnnotationInput = value)
+      AppGlassTextArea({ value: this.readerAnnotationInput,
+        placeholder: '记录当前章节或页面的想法（最多1000字）', limit: 1000, areaHeight: 100,
+        valueChanged: (value: string) => this.readerAnnotationInput = value })
       AppPrimaryPillButton({ label: '保存当前位置批注',
         available: this.readerAnnotationInput.trim().length > 0, description: '保存批注并关联当前阅读位置',
         action: () => this.AddCurrentReaderAnnotation() }).width('100%')
@@ -10119,30 +10087,29 @@ struct Index {
               (item.tags ?? []).map((tag: RemoteMediaTag) => tag.name).join(',')))
             this.MediaActionButton('查看详情', () => this.BeginMediaAction('details', ''))
           }.width('100%')
-          Button('删除').width('100%').height(48).fontFamily('HarmonyOS Sans')
-            .fontColor(AppTheme.danger).backgroundColor(AppTheme.dangerSoft)
-            .onClick(() => this.mediaActionMode = 'delete-confirm')
+          AppDangerPillButton({ label: '删除',
+            action: () => this.mediaActionMode = 'delete-confirm' }).width('100%')
         } else if (this.mediaActionMode === 'details') {
           Text(`类型：${this.MediaKindLabel(item)}\n大小：${this.FormatMediaSize(item.size)}\n目录：${item.directoryName ?? '根目录'}\n更新时间：${item.lastModified}\n标签：${(item.tags ?? []).map((tag: RemoteMediaTag) => tag.name).join('、') || '无'}\n路径：${item.path}`)
             .width('100%').fontSize(14).fontFamily('HarmonyOS Sans').fontColor(AppTheme.textPrimary)
         } else {
           if (this.mediaActionMode !== 'delete-confirm') {
-            TextInput({ text: this.mediaActionInput, placeholder: this.MediaActionPlaceholder() })
-              .width('100%').height(50).fontFamily('HarmonyOS Sans')
-              .onChange((value: string) => this.mediaActionInput = value)
+            AppGlassTextInput({ value: this.mediaActionInput, placeholder: this.MediaActionPlaceholder(),
+              valueChanged: (value: string) => this.mediaActionInput = value })
           }
           if (this.mediaActionMode === 'delete-confirm') {
             Text('删除后无法恢复，确认删除这个远程媒体？').width('100%').fontSize(13)
               .fontFamily('HarmonyOS Sans').fontColor(AppTheme.danger)
           }
-          Button(this.mediaActionBusy ? '处理中…' : '确认').width('100%').height(48)
-            .enabled(!this.mediaActionBusy).fontFamily('HarmonyOS Sans').fontColor(Color.White)
-            .backgroundColor(this.mediaActionMode === 'delete-confirm' ? AppTheme.danger : AppTheme.primary)
-            .onClick(() => this.ExecuteMediaAction(item))
+          if (this.mediaActionMode === 'delete-confirm') {
+            AppDangerPillButton({ label: this.mediaActionBusy ? '处理中…' : '确认删除',
+              available: !this.mediaActionBusy, action: () => this.ExecuteMediaAction(item) }).width('100%')
+          } else {
+            AppPrimaryPillButton({ label: this.mediaActionBusy ? '处理中…' : '确认',
+              available: !this.mediaActionBusy, action: () => this.ExecuteMediaAction(item) }).width('100%')
+          }
         }
-        Button('取消').width('100%').height(48).fontFamily('HarmonyOS Sans')
-          .fontColor(AppTheme.primary).backgroundColor(Color.Transparent)
-          .onClick(() => this.CloseMediaActionSheet())
+        AppSecondaryPillButton({ label: '取消', action: () => this.CloseMediaActionSheet() }).width('100%')
       }.width('100%').padding({ left: 20, right: 20, top: 20, bottom: 16 })
         .borderRadius({ topLeft: 24, topRight: 24 }).backgroundColor(AppTheme.surface)
     }.width('100%').height('100%').backgroundColor('#55000000')
