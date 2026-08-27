@@ -3,6 +3,7 @@ package com.yuyutian.mytools.gateway.controller;
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaPage;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaCatalogPage;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.EbookPage;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaView;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressRequest;
@@ -75,6 +76,31 @@ public class MediaGatewayController {
                           HttpServletRequest request) {
         GatewayPrincipal principal = requireEnabled(request);
         return client.list(principal.userId(), afterId, includeMissing, mimePrefix, limit, correlation(request));
+    }
+
+    /**
+     * 由媒体库服务直接执行同步筛选与分页，不创建任务实例。
+     *
+     * @param mimePrefix MIME 前缀
+     * @param tag 标签
+     * @param keyword 关键字
+     * @param page 页码
+     * @param pageSize 页大小
+     * @param excludeAdult 是否排除成人内容
+     * @param request HTTP 请求
+     * @return 媒体目录分页
+     */
+    @GetMapping("/catalog")
+    public MediaCatalogPage catalog(@RequestParam String mimePrefix,
+                                    @RequestParam(defaultValue = "") String tag,
+                                    @RequestParam(defaultValue = "") String keyword,
+                                    @RequestParam(defaultValue = "1") @Min(1) int page,
+                                    @RequestParam(defaultValue = "100") @Min(1) @Max(100) int pageSize,
+                                    @RequestParam(defaultValue = "false") boolean excludeAdult,
+                                    HttpServletRequest request) {
+        GatewayPrincipal principal = requireEnabled(request);
+        return client.catalog(principal.userId(), mimePrefix, tag, keyword, page, pageSize, excludeAdult,
+                correlation(request));
     }
 
     /** 查询当前主体 EBOOK 目录电子书。 @param page 页码 @param pageSize 页大小 @param keyword 关键字 @param request HTTP 请求 @return 页面 */

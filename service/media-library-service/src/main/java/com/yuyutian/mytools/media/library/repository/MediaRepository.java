@@ -19,6 +19,36 @@ import java.sql.Timestamp;import java.time.Instant;import java.util.*;
  /** 读取指定迁移键的稳定目标证据。 @param migrationKey 迁移键 @return 迁移记录 */ public List<LegacyMigrationRecord> legacyMigrationRecords(String migrationKey){return jdbc.query("SELECT migration_key,source_snapshot_id,source_system,legacy_asset_id,payload_sha256,media_item_id,tag_count FROM legacy_media_migration WHERE migration_key=? ORDER BY source_system,legacy_asset_id",(rs,row)->new LegacyMigrationRecord(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),UUID.fromString(rs.getString(6)),rs.getInt(7)),migrationKey);}
  /** 查询媒体。 @param id 标识 @return 媒体 */ public Optional<MediaView> view(UUID id){return jdbc.query("SELECT * FROM media_item WHERE id=?",(rs,row)->new MediaView(UUID.fromString(rs.getString("id")),rs.getLong("owner_id"),UUID.fromString(rs.getString("asset_id")),rs.getString("display_name"),rs.getString("mime_type"),rs.getLong("size_bytes"),rs.getString("content_sha256"),rs.getString("status"),rs.getLong("version"),tags(UUID.fromString(rs.getString("id")))),id.toString()).stream().findFirst();}
  /** 分页查询所有者媒体。 @param ownerId 所有者 @param afterId 起始标识 @param includeMissing 是否包含缺失项 @param mimePrefix MIME 前缀 @param limit 数量 @return 媒体 */ public List<MediaView> list(long ownerId,UUID afterId,boolean includeMissing,String mimePrefix,int limit){StringBuilder sql=new StringBuilder("SELECT id FROM media_item WHERE owner_id=?");List<Object> arguments=new ArrayList<>();arguments.add(ownerId);if(afterId!=null){sql.append(" AND id>?");arguments.add(afterId.toString());}if(!includeMissing)sql.append(" AND status<>'MISSING'");if(mimePrefix!=null&&!mimePrefix.isBlank()){sql.append(" AND mime_type LIKE ?");arguments.add(mimePrefix+"%");}sql.append(" ORDER BY id LIMIT ?");arguments.add(limit);return jdbc.query(sql.toString(),(rs,row)->UUID.fromString(rs.getString(1)),arguments.toArray()).stream().map(id->view(id).orElseThrow()).toList();}
+ /** 同步查询媒体目录，不经过任务调度。 @param ownerId 所有者 @param mimePrefix MIME前缀 @param tag 标签 @param keyword 关键字 @param excludeAdult 是否排除成人内容 @param offset 偏移 @param limit 数量 @return 媒体 */
+ public List<MediaView> catalog(long ownerId,String mimePrefix,String tag,String keyword,boolean excludeAdult,int offset,int limit){
+  QueryParts query=catalogQuery(ownerId,mimePrefix,tag,keyword,excludeAdult);
+  String sql="SELECT i.id "+query.from()+query.where()+" ORDER BY i.updated_at DESC,i.id LIMIT ? OFFSET ?";
+  List<Object> arguments=new ArrayList<>(query.arguments());arguments.add(limit);arguments.add(offset);
+  return jdbc.query(sql,(rs,row)->UUID.fromString(rs.getString(1)),arguments.toArray()).stream()
+   .map(id->view(id).orElseThrow()).toList();
+ }
+ /** 统计同步媒体目录数量。 @param ownerId 所有者 @param mimePrefix MIME前缀 @param tag 标签 @param keyword 关键字 @param excludeAdult 是否排除成人内容 @return 数量 */
+ public long catalogCount(long ownerId,String mimePrefix,String tag,String keyword,boolean excludeAdult){
+  QueryParts query=catalogQuery(ownerId,mimePrefix,tag,keyword,excludeAdult);
+  Long count=jdbc.queryForObject("SELECT COUNT(*) "+query.from()+query.where(),Long.class,query.arguments().toArray());
+  return count==null?0L:count;
+ }
+ /** 聚合可用标签。 @param ownerId 所有者 @param mimePrefix MIME前缀 @param keyword 关键字 @param excludeAdult 是否排除成人内容 @return 标签计数 */
+ public List<MediaTagCount> catalogTags(long ownerId,String mimePrefix,String keyword,boolean excludeAdult){
+  QueryParts query=catalogQuery(ownerId,mimePrefix,"",keyword,excludeAdult);
+  String sql="SELECT t.name,COUNT(DISTINCT i.id) "+query.from()+
+   " JOIN media_tag_relation ctr ON ctr.media_item_id=i.id JOIN media_tag t ON t.id=ctr.tag_id"+
+   query.where()+" GROUP BY t.name ORDER BY COUNT(DISTINCT i.id) DESC,t.name LIMIT 500";
+  return jdbc.query(sql,(rs,row)->new MediaTagCount(rs.getString(1),rs.getLong(2)),query.arguments().toArray());
+ }
+ private QueryParts catalogQuery(long ownerId,String mimePrefix,String tag,String keyword,boolean excludeAdult){
+  StringBuilder where=new StringBuilder(" WHERE i.owner_id=? AND i.status<>'MISSING' AND i.mime_type LIKE ?");
+  List<Object> arguments=new ArrayList<>();arguments.add(ownerId);arguments.add(mimePrefix+"%");
+  if(tag!=null&&!tag.isBlank()){where.append(" AND EXISTS (SELECT 1 FROM media_tag_relation sr JOIN media_tag st ON st.id=sr.tag_id WHERE sr.media_item_id=i.id AND st.name=?)");arguments.add(tag.trim().toLowerCase(Locale.ROOT));}
+  if(keyword!=null&&!keyword.isBlank()){where.append(" AND (LOWER(i.display_name) LIKE ? OR EXISTS (SELECT 1 FROM media_tag_relation kr JOIN media_tag kt ON kt.id=kr.tag_id WHERE kr.media_item_id=i.id AND LOWER(kt.name) LIKE ?))");String pattern="%"+keyword.trim().toLowerCase(Locale.ROOT)+"%";arguments.add(pattern);arguments.add(pattern);}
+  if(excludeAdult)where.append(" AND NOT EXISTS (SELECT 1 FROM media_tag_relation ar JOIN media_tag at ON at.id=ar.tag_id WHERE ar.media_item_id=i.id AND at.name='r18')");
+  return new QueryParts("FROM media_item i",where.toString(),arguments);
+ }
  /** 解析旧文件标识。 @param ownerId 所有者 @param itemId 媒体标识 @return 旧文件标识 */ public Optional<Long> legacyFileId(long ownerId,UUID itemId){return jdbc.query("SELECT s.source_business_id FROM media_item_source s JOIN media_item i ON i.id=s.media_item_id WHERE i.id=? AND i.owner_id=? AND s.source_type='LEGACY_ASSET'",(rs,row)->rs.getString(1),itemId.toString(),ownerId).stream().filter(value->value.startsWith("local_file:")).map(value->Long.parseLong(value.substring(11))).findFirst();}
  /** 按旧文件标识查询媒体。 @param ownerId 所有者 @param legacyId 旧文件标识 @return 媒体 */ public Optional<MediaView> viewByLegacyFile(long ownerId,long legacyId){return jdbc.query("SELECT i.id FROM media_item_source s JOIN media_item i ON i.id=s.media_item_id WHERE s.owner_id=? AND s.source_type='LEGACY_ASSET' AND s.source_business_id=? AND i.status<>'MISSING'",(rs,row)->UUID.fromString(rs.getString(1)),ownerId,"local_file:"+legacyId).stream().findFirst().flatMap(this::view);}
  /** 查询最新缩略图资产。 @param ownerId 所有者 @param itemId 媒体标识 @return 缩略图资产 */ public Optional<UUID> latestThumbnailAsset(long ownerId,UUID itemId){return jdbc.query("SELECT a.asset_id FROM media_artifact a JOIN media_item i ON i.id=a.media_item_id WHERE a.media_item_id=? AND i.owner_id=? AND a.artifact_kind='THUMBNAIL' ORDER BY a.created_at DESC LIMIT 1",(rs,row)->UUID.fromString(rs.getString(1)),itemId.toString(),ownerId).stream().findFirst();}
@@ -61,6 +91,7 @@ import java.sql.Timestamp;import java.time.Instant;import java.util.*;
  private void bumpRevision(Instant now){jdbc.update("UPDATE media_library_revision SET revision=revision+1,updated_at=? WHERE singleton_id=1",Timestamp.from(now));}
  private record AnalysisRecord(UUID id,String version,String status,String resultHash){}
  private record TerminalRecord(String status,String errorCode){}
+ private record QueryParts(String from,String where,List<Object>arguments){}
  /** 对账媒体主记录。 */ public record ItemRecord(UUID id,long ownerId,UUID assetId,String sourceType,String sourceBusinessId,String contentSha256,long sizeBytes,String mimeType,String status,long version){}
  /** 对账媒体关系快照。 */ public record ReconciliationSnapshot(ItemRecord item,List<String> analyses,List<String> tags,List<String> artifacts,List<String> directories,List<String> sources,List<String> sourceTags){}
  /** 旧媒体迁移审计记录。 */ public record LegacyMigrationRecord(String migrationKey,String sourceSnapshotId,String sourceSystem,String legacyAssetId,String payloadSha256,UUID mediaItemId,int tagCount){}

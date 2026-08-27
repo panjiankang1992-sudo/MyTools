@@ -6,9 +6,12 @@ page="$root_dir/app/entry/src/main/ets/pages/Index.ets"
 api="$root_dir/app/entry/src/main/ets/features/media/MediaCatalogApi.ets"
 
 grep -Fq 'private static readonly MAX_LIBRARY_ITEMS: number = 10000;' "$api"
-grep -Fq "const raw = await this.cachedLibraryItems('image/', cancellation);" "$api"
-grep -Fq 'total: items.length' "$api"
-grep -Fq 'counts.set(tag, (counts.get(tag) ?? 0) + 1)' "$api"
+grep -Fq "this.client.get('/api/app/v1/media/catalog'" "$api"
+grep -Fq 'private async allCatalogItems' "$api"
+if sed -n '/async gallery(/,/^  }/p' "$api" | grep -Fq 'allLibraryItems'; then
+  echo 'gallery filtering must run in media-library-service' >&2
+  exit 1
+fi
 grep -Fq 'private mediaCatalogThumbnailRevision: number = 0;' "$page"
 grep -Fq 'this.activeMediaCatalogThumbnailCancellation?.cancel();' "$page"
 grep -Fq '标签筛选后先恢复磁盘缓存' "$page"

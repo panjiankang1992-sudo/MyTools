@@ -4,6 +4,8 @@ import jakarta.validation.Valid;import jakarta.validation.constraints.*;import j
  public record AssetEvent(@NotBlank @Size(max=255)String eventId,@NotNull UUID assetId,@NotNull Long ownerId,@NotBlank @Pattern(regexp="^[A-Z][A-Z0-9_]{0,63}$")String sourceType,@NotBlank @Size(max=255)String sourceBusinessId,@NotBlank @Size(max=512)String displayName,@NotBlank @Size(max=255)String mimeType,@Positive long sizeBytes,@NotBlank @Pattern(regexp="^[a-fA-F0-9]{64}$")String contentSha256,@Size(max=255)String directoryKey,@Size(max=512)String directoryName,UUID scanId){}
  public record MediaView(UUID id,long ownerId,UUID assetId,String displayName,String mimeType,long sizeBytes,String contentSha256,String status,long version,List<String>tags){}
  public record MediaPage(List<MediaView>items,UUID nextAfterId){}
+ public record MediaTagCount(String name,long fileCount){}
+ public record MediaCatalogPage(List<MediaView>items,long total,int page,int pageSize,List<MediaTagCount>tags){}
  public record EbookPage(List<MediaView>items,long total,int page,int pageSize){}
  public record BeginAnalysis(@NotBlank @Pattern(regexp="^[A-Za-z0-9._-]{1,64}$")String analysisVersion,@NotNull UUID taskInstanceId,@NotNull UUID assetId){}
  public record AnalysisView(UUID id,UUID mediaItemId,String analysisVersion,UUID taskInstanceId,String status){}

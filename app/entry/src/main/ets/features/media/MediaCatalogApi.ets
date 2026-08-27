@@ -8,6 +8,12 @@ import {
 import { RemotePlaybackDescriptor } from './RemoteMediaModels';
 import { RemoteMediaResponseNormalizer } from './RemoteMediaResponseNormalizer';
 
+interface CatalogQueryData {
+  items: MediaCatalogItem[];
+  total: number;
+  tags: MediaTagFilter[];
+}
+
 /**
  * 新版图库与视频目录 API，响应中不接收真实文件路径。
  */
@@ -29,23 +35,10 @@ export class MediaCatalogApi {
     cancellation?: DownloadCancellationToken): Promise<MediaCatalogFilters> {
     if (mode !== 'gallery' && mode !== 'video' && mode !== 'audio') throw new Error('多媒体页面模式无效');
     const prefix = mode === 'gallery' ? 'image/' : (mode === 'video' ? 'video/' : 'audio/');
-    const query = keyword.trim().toLocaleLowerCase();
-    const items = (await this.cachedLibraryItems(prefix, cancellation))
-      .map((entry: Object): MediaCatalogItem => this.item(entry))
-      .filter((item: MediaCatalogItem): boolean =>
-        (query.length === 0 || item.name.toLocaleLowerCase().includes(query) ||
-          item.tags.some((tag: string): boolean => tag.toLocaleLowerCase().includes(query))) &&
-        (!excludeAdult || !item.tags.some((name: string): boolean => name.toLocaleLowerCase() === 'r18')));
-    const counts = new Map<string, number>();
-    items.forEach((item: MediaCatalogItem): void => item.tags.forEach((tag: string): void => {
-      counts.set(tag, (counts.get(tag) ?? 0) + 1);
-    }));
-    const tags: MediaTagFilter[] = Array.from(counts.entries())
-      .map((entry: [string, number]): MediaTagFilter => ({ name: entry[0], fileCount: entry[1] }))
-      .sort((left: MediaTagFilter, right: MediaTagFilter): number =>
-        right.fileCount - left.fileCount || left.name.localeCompare(right.name));
-    const directories: MediaDirectoryFilter[] = items.length === 0 ? [] : [{
-      directoryId: '000000000000000000000001', name: '媒体库', fileCount: items.length, latestModifiedAt: ''
+    const data = await this.catalog(prefix, '', keyword, 1, excludeAdult, cancellation);
+    const tags: MediaTagFilter[] = data.tags;
+    const directories: MediaDirectoryFilter[] = data.total === 0 ? [] : [{
+      directoryId: '000000000000000000000001', name: '媒体库', fileCount: data.total, latestModifiedAt: ''
     }];
     return { directories, tags };
   }
@@ -54,29 +47,14 @@ export class MediaCatalogApi {
   async gallery(directoryId: string, tag: string, keyword: string, page: number, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaGalleryPage> {
     const safePage = Math.max(1, page);
-    const raw = await this.cachedLibraryItems('image/', cancellation);
-    const query = keyword.trim().toLocaleLowerCase();
-    const items = raw.map((entry: Object): MediaCatalogItem => this.item(entry))
-      .filter((item: MediaCatalogItem): boolean => item.kind === 'IMAGE' &&
-        (query.length === 0 || item.name.toLocaleLowerCase().includes(query) ||
-          item.tags.some((name: string): boolean => name.toLocaleLowerCase().includes(query))) &&
-        (tag.length === 0 || item.tags.includes(tag)) &&
-        (!excludeAdult || !item.tags.some((name: string): boolean => name.toLocaleLowerCase() === 'r18')));
-    const start = (safePage - 1) * MediaCatalogApi.GALLERY_PAGE_SIZE;
-    return { items: items.slice(start, start + MediaCatalogApi.GALLERY_PAGE_SIZE), total: items.length,
-      page: safePage, pageSize: MediaCatalogApi.GALLERY_PAGE_SIZE };
+    const data = await this.catalog('image/', tag, keyword, safePage, excludeAdult, cancellation);
+    return { items: data.items, total: data.total, page: safePage, pageSize: MediaCatalogApi.GALLERY_PAGE_SIZE };
   }
 
   /** 查询视频目录聚合。 */
   async videoDirectories(directoryId: string, tag: string, keyword: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaVideoDirectory[]> {
-    const raw = await this.allLibraryItems('video/', 2000, cancellation);
-    const query = keyword.trim().toLocaleLowerCase();
-    const items = raw.map((entry: Object): MediaCatalogItem => this.item(entry))
-      .filter((item: MediaCatalogItem): boolean => item.kind === 'VIDEO' &&
-        (query.length === 0 || item.name.toLocaleLowerCase().includes(query)) &&
-        (tag.length === 0 || item.tags.includes(tag)) &&
-        (!excludeAdult || !item.tags.some((name: string): boolean => name.toLocaleLowerCase() === 'r18')));
+    const items = await this.allCatalogItems('video/', tag, keyword, excludeAdult, cancellation);
     if (items.length === 0) return [];
     return [{ directoryId: '000000000000000000000001', name: '媒体库', fileCount: items.length,
       totalSizeBytes: items.reduce((total: number, item: MediaCatalogItem): number => total + item.sizeBytes, 0),
@@ -87,22 +65,13 @@ export class MediaCatalogApi {
   async videoDirectoryItems(directoryId: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaCatalogItem[]> {
     if (!/^[0-9a-f]{24}$/.test(directoryId)) throw new Error('视频目录标识无效');
-    const raw = await this.allLibraryItems('video/', 2000, cancellation);
-    return raw.map((entry: Object): MediaCatalogItem => this.item(entry))
-      .filter((item: MediaCatalogItem): boolean => !excludeAdult ||
-        !item.tags.some((name: string): boolean => name.toLocaleLowerCase() === 'r18'));
+    return this.allCatalogItems('video/', '', '', excludeAdult, cancellation);
   }
 
   /** 查询音频专辑聚合。 */
   async audioDirectories(directoryId: string, tag: string, keyword: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaVideoDirectory[]> {
-    const raw = await this.allLibraryItems('audio/', 2000, cancellation);
-    const query = keyword.trim().toLocaleLowerCase();
-    const items = raw.map((entry: Object): MediaCatalogItem => this.item(entry))
-      .filter((item: MediaCatalogItem): boolean => item.kind === 'AUDIO' &&
-        (query.length === 0 || item.name.toLocaleLowerCase().includes(query)) &&
-        (tag.length === 0 || item.tags.includes(tag)) &&
-        (!excludeAdult || !item.tags.some((name: string): boolean => name.toLocaleLowerCase() === 'r18')));
+    const items = await this.allCatalogItems('audio/', tag, keyword, excludeAdult, cancellation);
     const grouped = new Map<string, MediaCatalogItem[]>();
     items.forEach((item: MediaCatalogItem): void => {
       const name = item.directoryName.length > 0 ? item.directoryName : 'Unknown';
@@ -123,10 +92,8 @@ export class MediaCatalogApi {
   /** 查询一个音频专辑中的文件。 */
   async audioDirectoryItems(directoryName: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaCatalogItem[]> {
-    const raw = await this.allLibraryItems('audio/', 2000, cancellation);
-    return raw.map((entry: Object): MediaCatalogItem => this.item(entry))
-      .filter((item: MediaCatalogItem): boolean => item.directoryName === directoryName &&
-        (!excludeAdult || !item.tags.some((name: string): boolean => name.toLocaleLowerCase() === 'r18')));
+    return (await this.allCatalogItems('audio/', '', '', excludeAdult, cancellation))
+      .filter((item: MediaCatalogItem): boolean => item.directoryName === directoryName);
   }
 
   /** 查询视频详情。 */
@@ -276,6 +243,34 @@ export class MediaCatalogApi {
 
   private isUuid(value: string): boolean {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  }
+
+  /** 调用媒体库同步目录接口，查询过程不创建任务。 */
+  private async catalog(mimePrefix: string, tag: string, keyword: string, page: number, excludeAdult: boolean,
+    cancellation?: DownloadCancellationToken): Promise<CatalogQueryData> {
+    const envelope = await this.client.get('/api/app/v1/media/catalog' +
+      `?mimePrefix=${encodeURIComponent(mimePrefix)}&tag=${encodeURIComponent(tag)}` +
+      `&keyword=${encodeURIComponent(keyword.trim())}&page=${page}` +
+      `&pageSize=${MediaCatalogApi.GALLERY_PAGE_SIZE}&excludeAdult=${excludeAdult}`, cancellation);
+    const data = this.record(envelope.data);
+    const rawItems = data['items'];
+    const rawTags = data['tags'];
+    if (!Array.isArray(rawItems) || rawItems.length > MediaCatalogApi.GALLERY_PAGE_SIZE ||
+      !Array.isArray(rawTags) || rawTags.length > 500) throw new Error('媒体目录响应无效');
+    return { items: rawItems.map((entry: Object): MediaCatalogItem => this.item(entry)),
+      total: this.number(data, 'total'), tags: rawTags.map((entry: Object): MediaTagFilter => this.tagFilter(entry)) };
+  }
+
+  /** 分页读取聚合视图所需媒体，仍由媒体库服务逐页直接查询。 */
+  private async allCatalogItems(mimePrefix: string, tag: string, keyword: string, excludeAdult: boolean,
+    cancellation?: DownloadCancellationToken): Promise<MediaCatalogItem[]> {
+    const items: MediaCatalogItem[] = [];
+    for (let page = 1; items.length < 2000; page++) {
+      const data = await this.catalog(mimePrefix, tag, keyword, page, excludeAdult, cancellation);
+      items.push(...data.items);
+      if (items.length >= data.total || data.items.length < MediaCatalogApi.GALLERY_PAGE_SIZE) break;
+    }
+    return items.slice(0, 2000);
   }
 
   private async allLibraryItems(mimePrefix: string, maximum: number,

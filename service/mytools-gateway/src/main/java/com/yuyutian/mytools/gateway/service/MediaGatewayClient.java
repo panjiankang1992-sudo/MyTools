@@ -2,6 +2,7 @@ package com.yuyutian.mytools.gateway.service;
 
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaPage;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaCatalogPage;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.EbookPage;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaView;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.ProgressRequest;
@@ -66,6 +67,28 @@ public class MediaGatewayClient {
             builder.queryParam("mimePrefix", mimePrefix);
         }
         return exchange(builder.toUriString(), HttpMethod.GET, null, MediaPage.class, correlationId);
+    }
+
+    /**
+     * 直接调用媒体库服务执行同步目录查询。
+     *
+     * @param ownerId 所有者
+     * @param mimePrefix MIME 前缀
+     * @param tag 标签
+     * @param keyword 关键字
+     * @param page 页码
+     * @param pageSize 页大小
+     * @param excludeAdult 是否排除成人内容
+     * @param correlationId 关联标识
+     * @return 媒体目录分页
+     */
+    public MediaCatalogPage catalog(long ownerId, String mimePrefix, String tag, String keyword, int page,
+                                    int pageSize, boolean excludeAdult, String correlationId) {
+        String url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/media/catalog")
+                .queryParam("ownerId", ownerId).queryParam("mimePrefix", mimePrefix)
+                .queryParam("tag", tag).queryParam("keyword", keyword).queryParam("page", page)
+                .queryParam("pageSize", pageSize).queryParam("excludeAdult", excludeAdult).toUriString();
+        return exchange(url, HttpMethod.GET, null, MediaCatalogPage.class, correlationId);
     }
 
     /** 查询 EBOOK 目录电子书。 @param ownerId 所有者 @param username 用户名 @param page 页码 @param pageSize 页大小 @param keyword 关键字 @param correlationId 关联标识 @return 页面 */

@@ -3,6 +3,7 @@ package com.yuyutian.mytools.gateway.controller;
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaPage;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaCatalogPage;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartDirectoryScan;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.OperationView;
 import com.yuyutian.mytools.gateway.model.MediaGatewayModels.StartAnalysis;
@@ -47,6 +48,19 @@ class MediaGatewayControllerTest {
         assertThatThrownBy(() -> controller.list(null, false, null, 50, request(55L)))
                 .isInstanceOf(GatewayRouteDisabledException.class);
         verify(client, never()).list(55L, null, false, null, 50, "correlation");
+    }
+
+    @Test
+    void shouldBindOwnerForDirectCatalogQuery() {
+        MediaGatewayClient client = mock(MediaGatewayClient.class);
+        MediaGatewayController controller = controller(true, client);
+        MediaCatalogPage page = new MediaCatalogPage(List.of(), 0, 1, 100, List.of());
+        when(client.catalog(55L, "image/", "nature", "mountain", 1, 100, false, "correlation"))
+                .thenReturn(page);
+
+        assertThat(controller.catalog("image/", "nature", "mountain", 1, 100, false, request(55L)))
+                .isEqualTo(page);
+        verify(client).catalog(55L, "image/", "nature", "mountain", 1, 100, false, "correlation");
     }
 
     @Test

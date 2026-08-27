@@ -31,6 +31,15 @@ public final class MediaGatewayModels {
     public record MediaPage(List<MediaView> items, UUID nextAfterId) {
     }
 
+    /** 同步媒体目录查询结果。 */
+    public record MediaTagCount(String name, long fileCount) {
+    }
+
+    /** 由媒体库服务直接返回的筛选分页，不创建调度任务。 */
+    public record MediaCatalogPage(List<MediaView> items, long total, int page, int pageSize,
+                                   List<MediaTagCount> tags) {
+    }
+
     public record EbookPage(List<MediaView> items, long total, int page, int pageSize) {
     }
 
