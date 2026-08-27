@@ -59,3 +59,8 @@ Download Gateway 的创建、查询和取消响应同样只返回业务请求标
 
 旧 MyTools 新增 `POST /internal/v1/gateway/tokens/validate`，使用 `GATEWAY_INTERNAL_TOKEN` 自校验并以 JSON body 接收访问令牌，避免旧公开校验接口把 token 放入 URL。`DUAL` 仅在旧服务明确返回 inactive 时尝试 Identity；旧服务网络或协议异常时直接关闭授权。
 Media 路由启用后，`POST /api/app/v1/media/items/{id}/analysis-operations` 可由当前可信主体创建分析任务。Gateway 注入 owner，不转发客户端身份字段或物理路径；返回的操作可通过现有 `/operations/{id}` 查询和取消。Media 总开关默认关闭，因此不会改变旧 MyTools 分析入口。
+
+局域网发现属于 Gateway 边缘能力，不再复制为带数据库的业务微服务。已认证的
+`GET /api/app/v1/connectivity/bootstrap` 签发十分钟短期探测材料，匿名
+`POST /api/public/connectivity/challenge` 只接受该材料的随机挑战，不接收 JWT。临时状态有
+4096 条硬上限且不持久化；Gateway 重启后 App 自动回退公网地址并重新获取材料。

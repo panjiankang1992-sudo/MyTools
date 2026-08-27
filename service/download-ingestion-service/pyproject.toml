@@ -14,6 +14,7 @@ dependencies = [
 
 [project.scripts]
 mytools-download-ingestion = "mytools_download_ingestion.main:main"
+mytools-download-mcp = "mytools_download_ingestion.mcp_server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

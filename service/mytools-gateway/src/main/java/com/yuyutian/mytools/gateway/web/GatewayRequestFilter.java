@@ -94,6 +94,9 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
         if (uri.matches("^/api/app/v1/drive-tickets/[a-f0-9]{32}$")) {
             return new Route(false, ignored -> true);
         }
+        if (uri.equals("/api/app/v1/connectivity/bootstrap")) {
+            return new Route(true, ignored -> true);
+        }
         if (uri.startsWith("/api/app/v1/reader/")) {
             return new Route(properties.readerRouteEnabled(), properties::readerTenantAllowed);
         }

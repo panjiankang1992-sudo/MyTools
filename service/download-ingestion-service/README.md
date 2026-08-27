@@ -105,3 +105,21 @@ Connector 归档批次，因此扫描、下载、归档任一步骤重试都不�
 - 首先实现稳定契约和最小健康检查。
 - 迁移已有能力时保留旧实现和功能开关。
 - 在对账与回归通过前不得切换权威数据或生产流量。
+
+## MCP stdio compatibility
+
+The legacy `analyze_download` tool is available without opening another network port. It is a
+thin stdio adapter over this service, so HTTP(S), X, and magnet requests use the same durable
+request aggregate, Scheduler tasks, Executor packages, result callbacks, tagging, and notifications
+as message ingress:
+
+```bash
+set -a
+. /opt/yuyutian/mytools/config/services.env
+set +a
+/opt/yuyutian/mytools/releases/current/venv/bin/mytools-download-mcp
+```
+
+`DOWNLOAD_MCP_OWNER_ID` selects the business owner. `DOWNLOAD_MCP_MAGNET_MODE` is either `pikpak`
+or `local`; PikPak mode also requires `DOWNLOAD_MCP_PIKPAK_ACCOUNT_ID`. The adapter never writes
+credentials or links to stdout because stdout is reserved for JSON-RPC.
