@@ -79,6 +79,24 @@ class ReaderGatewayControllerTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void shouldInjectOwnerIntoBatchSourceSync() {
+        ReaderGatewayClient client = mock(ReaderGatewayClient.class);
+        ReaderGatewayController controller = new ReaderGatewayController(properties(true), client);
+        var source = new ReaderGatewayController.SourceRequest(
+                "sha256:key", "https://source.example", "{\"bookSourceUrl\":\"https://source.example\"}", false);
+        when(client.saveSources(org.mockito.ArgumentMatchers.anyList(), eq("correlation")))
+                .thenReturn(Map.of("accepted", 1));
+
+        assertThat(controller.saveSources(new ReaderGatewayController.SourceBatchRequest(List.of(source)),
+                request(55L))).containsEntry("accepted", 1);
+
+        ArgumentCaptor<List<Map<String, Object>>> payloads = ArgumentCaptor.forClass(List.class);
+        verify(client).saveSources(payloads.capture(), eq("correlation"));
+        assertThat(payloads.getValue().getFirst()).containsEntry("ownerId", 55L);
+    }
+
+    @Test
     void shouldInjectOwnerIntoEbookImportLifecycle() {
         ReaderGatewayClient client = mock(ReaderGatewayClient.class);
         ReaderGatewayController controller = new ReaderGatewayController(properties(true), client);

@@ -99,6 +99,23 @@ public class ReaderGatewayClient {
     }
 
     /**
+     * 批量保存当前主体的书源快照。
+     *
+     * @param payloads 已注入所有者的书源列表
+     * @param correlationId 关联标识
+     * @return 批量同步回执
+     */
+    public Map<String, Object> saveSources(List<Map<String, Object>> payloads, String correlationId) {
+        var response = restTemplate.exchange(root() + "/api/v1/reader-state/sources/batch", HttpMethod.PUT,
+                entity(Map.of("sources", payloads), correlationId),
+                new ParameterizedTypeReference<Map<String, Object>>() { });
+        if (response.getBody() == null) {
+            throw new IllegalStateException("Reader Service returned an empty response");
+        }
+        return response.getBody();
+    }
+
+    /**
      * 创建书源搜索任务。
      *
      * @param ownerId 所有者

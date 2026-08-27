@@ -3,6 +3,7 @@ package com.yuyutian.mytools.reader.controller;
 import com.yuyutian.mytools.reader.repository.DiscoveryRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import org.springframework.validation.annotation.Validated;
@@ -58,11 +59,28 @@ public class BookSourceSyncController {
         return Map.of("accepted", true, "source", source);
     }
 
+    /**
+     * 批量保存当前所有者的书源快照。
+     *
+     * @param request 批量保存请求
+     * @return 批量同步回执
+     */
+    @PutMapping("/batch")
+    public Map<String, Object> saveBatch(@Valid @RequestBody BatchSaveRequest request) {
+        request.sources().forEach(source -> repository.saveSyncSnapshot(source.ownerId(), source.syncKey(),
+                source.sourceUrl(), source.snapshotJson(), source.deleted()));
+        return Map.of("accepted", request.sources().size());
+    }
+
     /** 书源保存请求。 */
     public record SaveRequest(@Positive long ownerId,
                               @NotBlank @Size(max = 255) String syncKey,
                               @NotBlank @Size(max = 2000) String sourceUrl,
                               @NotBlank @Size(max = 524288) String snapshotJson,
                               boolean deleted) {
+    }
+
+    /** 书源批量保存请求。 */
+    public record BatchSaveRequest(@NotEmpty @Size(max = 200) List<@Valid SaveRequest> sources) {
     }
 }

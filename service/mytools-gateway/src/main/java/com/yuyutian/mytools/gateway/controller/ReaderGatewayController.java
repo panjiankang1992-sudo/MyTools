@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -84,6 +85,30 @@ public class ReaderGatewayController {
         payload.put("snapshotJson", body.snapshotJson());
         payload.put("deleted", body.deleted());
         return client.saveSource(payload, correlation(request));
+    }
+
+    /**
+     * 批量保存当前主体书源快照。
+     *
+     * @param body 批量书源请求
+     * @param request HTTP请求
+     * @return 批量同步回执
+     */
+    @PutMapping("/sources/batch")
+    public Map<String, Object> saveSources(@Valid @RequestBody SourceBatchRequest body,
+                                           HttpServletRequest request) {
+        requireAllowed(request);
+        long ownerId = principal(request).userId();
+        List<Map<String, Object>> payloads = body.sources().stream().map(source -> {
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("ownerId", ownerId);
+            payload.put("syncKey", source.syncKey());
+            payload.put("sourceUrl", source.sourceUrl());
+            payload.put("snapshotJson", source.snapshotJson());
+            payload.put("deleted", source.deleted());
+            return payload;
+        }).toList();
+        return client.saveSources(payloads, correlation(request));
     }
 
     /** 查询当前主体已发布的电子书索引。 @param request HTTP 请求 @return 索引 */
@@ -463,6 +488,10 @@ public class ReaderGatewayController {
                                 @NotBlank @Size(max = 2000) String sourceUrl,
                                 @NotBlank @Size(max = 524288) String snapshotJson,
                                 boolean deleted) {
+    }
+
+    /** Gateway 书源批量写入请求。 */
+    public record SourceBatchRequest(@NotEmpty @Size(max = 200) List<@Valid SourceRequest> sources) {
     }
 
     /**

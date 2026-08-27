@@ -4,6 +4,7 @@ set -euo pipefail
 root_dir="$(cd "$(dirname "$0")/../.." && pwd)"
 page="$root_dir/app/entry/src/main/ets/pages/Index.ets"
 api="$root_dir/app/entry/src/main/ets/features/reader/BookSourceRuntimeSearchApi.ets"
+sync_api="$root_dir/app/entry/src/main/ets/features/reader/BookSourceSyncApi.ets"
 
 grep -Fq "@State sourceSearchMode: string = 'FUZZY';" "$page"
 grep -Fq "ForEach(['FUZZY', 'EXACT', 'PROBE']" "$page"
@@ -26,5 +27,8 @@ if grep -Fq '/api/app/v1/reader/book-searches' "$api"; then
   exit 1
 fi
 grep -Fq '缓存 ${task.cachedSources} · 已查 ${searchedSources}/${task.pendingSources}' "$page"
+grep -Fq 'await this.EnsureRuntimeBookSourcesSynchronized();' "$page"
+grep -Fq 'private static readonly MAX_BATCH_ITEMS: number = 200;' "$sync_api"
+grep -Fq "putJson('/api/app/v1/reader/sources/batch', request)" "$sync_api"
 
 echo 'book source search mode policy tests passed'
