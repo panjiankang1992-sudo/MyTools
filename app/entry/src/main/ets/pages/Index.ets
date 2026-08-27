@@ -2794,11 +2794,13 @@ struct Index {
         }.width('100%').height(82)
           .onClick(() => this.TapMediaCatalogItem(item, true))
         if (item.tags.length > 0) this.MediaCatalogItemTags(item)
-        this.MediaCatalogActionButton(item)
       }.width('100%').height(82).borderRadius(12).clip(true)
-      Text(item.name).width('100%').maxLines(2).textOverflow({ overflow: TextOverflow.Ellipsis })
-        .fontSize(11).fontColor(AppTheme.textPrimary)
-        .onClick(() => this.TapMediaCatalogItem(item, true))
+      Row({ space: 2 }) {
+        Text(item.name).layoutWeight(1).maxLines(2).textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(11).fontColor(AppTheme.textPrimary)
+          .onClick(() => this.TapMediaCatalogItem(item, true))
+        this.MediaCatalogActionButton(item)
+      }.width('100%')
     }.width('30.5%').margin({ right: 8, bottom: 10 })
   }
 
@@ -2821,12 +2823,14 @@ struct Index {
           // 预览区只处理查看动作，避免长按手势与普通点击竞争。
           .onClick(() => this.TapMediaCatalogItem(item, false))
         if (item.tags.length > 0) this.MediaCatalogItemTags(item)
-        this.MediaCatalogActionButton(item)
       }.width('100%').height(154).borderRadius(14).clip(true)
         .border({ width: 1, color: AppTheme.divider, radius: 14 })
-      Text(item.name).width('100%').maxLines(2).textOverflow({ overflow: TextOverflow.Ellipsis })
-        .fontSize(11).fontColor(AppTheme.textPrimary)
-        .onClick(() => this.TapMediaCatalogItem(item, false))
+      Row({ space: 4 }) {
+        Text(item.name).layoutWeight(1).maxLines(2).textOverflow({ overflow: TextOverflow.Ellipsis })
+          .fontSize(11).fontColor(AppTheme.textPrimary)
+          .onClick(() => this.TapMediaCatalogItem(item, false))
+        this.MediaCatalogActionButton(item)
+      }.width('100%').alignItems(VerticalAlign.Top)
     }.width('48.5%').margin({ bottom: 12 }).alignItems(HorizontalAlign.Start)
       .accessibilityText(`${item.kind}：${item.name}`)
   }
@@ -2853,9 +2857,8 @@ struct Index {
   @Builder
   private MediaCatalogActionButton(item: MediaCatalogItem) {
     Button() {
-      SymbolGlyph($r('sys.symbol.ellipsis_circle')).fontSize(17).fontColor([Color.White])
-    }.width(34).height(34).padding(0).borderRadius(17).backgroundColor('#B30F172A')
-      .align(Alignment.TopEnd).margin({ top: 7, right: 7 })
+      SymbolGlyph($r('sys.symbol.ellipsis_circle')).fontSize(16).fontColor([AppTheme.textSecondary])
+    }.width(30).height(30).padding(0).borderRadius(10).backgroundColor(Color.Transparent)
       .accessibilityText(`管理媒体：${item.name}`)
       .onClick(() => this.OpenMediaCatalogActionSheet(item))
   }
@@ -16093,7 +16096,8 @@ struct Index {
     this.activeThumbnailCancellation?.cancel();
     const configuredSource = this.mediaSources.find((value: RemoteMediaSource) =>
       value.id === this.selectedMediaSourceId);
-    const source = configuredSource ?? (this.IsCatalogMediaPath(item.path) ? this.CatalogLocalMediaSource() : undefined);
+    // 新媒体库的/media路径必须使用媒体库票据，不能被历史选中的远程源覆盖。
+    const source = this.IsCatalogMediaPath(item.path) ? this.CatalogLocalMediaSource() : configuredSource;
     if (source === undefined) {
       this.mediaStatus = '远程数据源不可用';
       return;

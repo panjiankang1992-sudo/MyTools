@@ -8,18 +8,16 @@ import {
 import { RemotePlaybackDescriptor } from './RemoteMediaModels';
 import { RemoteMediaResponseNormalizer } from './RemoteMediaResponseNormalizer';
 
-interface MediaLibraryPageResult {
-  items: Object[];
-  hasMore: boolean;
-}
-
 /**
  * 新版图库与视频目录 API，响应中不接收真实文件路径。
  */
 export class MediaCatalogApi {
+  private static readonly MAX_LIBRARY_ITEMS: number = 10000;
+  private static readonly GALLERY_PAGE_SIZE: number = 100;
   private readonly client: AuthorizedApiClient;
   private readonly baseUrl: string;
   private readonly playbackNormalizer: RemoteMediaResponseNormalizer = new RemoteMediaResponseNormalizer();
+  private readonly libraryItemCache: Map<string, Object[]> = new Map<string, Object[]>();
 
   constructor(baseUrl: string, authManager: AuthSessionManager) {
     this.baseUrl = authManager.normalizeBusinessBaseUrl(baseUrl);
@@ -30,23 +28,43 @@ export class MediaCatalogApi {
   async filters(mode: string, keyword: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaCatalogFilters> {
     if (mode !== 'gallery' && mode !== 'video' && mode !== 'audio') throw new Error('多媒体页面模式无效');
-    // 新媒体服务尚未提供聚合筛选接口，页面先使用完整媒体列表的客户端筛选。
-    return { directories: [], tags: [] };
+    const prefix = mode === 'gallery' ? 'image/' : (mode === 'video' ? 'video/' : 'audio/');
+    const query = keyword.trim().toLocaleLowerCase();
+    const items = (await this.cachedLibraryItems(prefix, cancellation))
+      .map((entry: Object): MediaCatalogItem => this.item(entry))
+      .filter((item: MediaCatalogItem): boolean =>
+        (query.length === 0 || item.name.toLocaleLowerCase().includes(query) ||
+          item.tags.some((tag: string): boolean => tag.toLocaleLowerCase().includes(query))) &&
+        (!excludeAdult || !item.tags.some((name: string): boolean => name.toLocaleLowerCase() === 'r18')));
+    const counts = new Map<string, number>();
+    items.forEach((item: MediaCatalogItem): void => item.tags.forEach((tag: string): void => {
+      counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }));
+    const tags: MediaTagFilter[] = Array.from(counts.entries())
+      .map((entry: [string, number]): MediaTagFilter => ({ name: entry[0], fileCount: entry[1] }))
+      .sort((left: MediaTagFilter, right: MediaTagFilter): number =>
+        right.fileCount - left.fileCount || left.name.localeCompare(right.name));
+    const directories: MediaDirectoryFilter[] = items.length === 0 ? [] : [{
+      directoryId: '000000000000000000000001', name: '媒体库', fileCount: items.length, latestModifiedAt: ''
+    }];
+    return { directories, tags };
   }
 
   /** 查询图库分页。 */
   async gallery(directoryId: string, tag: string, keyword: string, page: number, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaGalleryPage> {
-    const value = await this.libraryPage('image/', Math.max(1, page), cancellation);
-    const raw = value.items;
+    const safePage = Math.max(1, page);
+    const raw = await this.cachedLibraryItems('image/', cancellation);
     const query = keyword.trim().toLocaleLowerCase();
     const items = raw.map((entry: Object): MediaCatalogItem => this.item(entry))
       .filter((item: MediaCatalogItem): boolean => item.kind === 'IMAGE' &&
-        (query.length === 0 || item.name.toLocaleLowerCase().includes(query)) &&
+        (query.length === 0 || item.name.toLocaleLowerCase().includes(query) ||
+          item.tags.some((name: string): boolean => name.toLocaleLowerCase().includes(query))) &&
         (tag.length === 0 || item.tags.includes(tag)) &&
         (!excludeAdult || !item.tags.some((name: string): boolean => name.toLocaleLowerCase() === 'r18')));
-    const total = (Math.max(1, page) - 1) * 100 + items.length + (value.hasMore ? 1 : 0);
-    return { items, total, page: Math.max(1, page), pageSize: 100 };
+    const start = (safePage - 1) * MediaCatalogApi.GALLERY_PAGE_SIZE;
+    return { items: items.slice(start, start + MediaCatalogApi.GALLERY_PAGE_SIZE), total: items.length,
+      page: safePage, pageSize: MediaCatalogApi.GALLERY_PAGE_SIZE };
   }
 
   /** 查询视频目录聚合。 */
@@ -260,27 +278,6 @@ export class MediaCatalogApi {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   }
 
-  private async libraryPage(mimePrefix: string, page: number,
-    cancellation?: DownloadCancellationToken): Promise<MediaLibraryPageResult> {
-    let afterId = '';
-    let items: Object[] = [];
-    let hasMore = false;
-    for (let current = 1; current <= page; current++) {
-      const cursor = afterId.length > 0 ? `&afterId=${encodeURIComponent(afterId)}` : '';
-      const envelope = await this.client.get('/api/app/v1/media/items?includeMissing=false' +
-        `&mimePrefix=${encodeURIComponent(mimePrefix)}&limit=100${cursor}`, cancellation);
-      const value = this.record(envelope.data);
-      const raw = value['items'];
-      if (!Array.isArray(raw) || raw.length > 100) throw new Error('媒体库分页响应无效');
-      items = raw;
-      const next = value['nextAfterId'];
-      hasMore = typeof next === 'string' && this.isUuid(next);
-      afterId = hasMore ? `${next}` : '';
-      if (current < page && !hasMore) return { items: [], hasMore: false };
-    }
-    return { items, hasMore };
-  }
-
   private async allLibraryItems(mimePrefix: string, maximum: number,
     cancellation?: DownloadCancellationToken): Promise<Object[]> {
     const result: Object[] = [];
@@ -298,5 +295,15 @@ export class MediaCatalogApi {
       afterId = next;
     }
     return result.slice(0, maximum);
+  }
+
+  /** 在单次目录请求内复用完整媒体索引，避免筛选项与列表重复拉取。 */
+  private async cachedLibraryItems(mimePrefix: string,
+    cancellation?: DownloadCancellationToken): Promise<Object[]> {
+    const cached = this.libraryItemCache.get(mimePrefix);
+    if (cached !== undefined) return cached;
+    const items = await this.allLibraryItems(mimePrefix, MediaCatalogApi.MAX_LIBRARY_ITEMS, cancellation);
+    this.libraryItemCache.set(mimePrefix, items);
+    return items;
   }
 }
