@@ -11,8 +11,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.Instant;
-import java.util.UUID;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -183,6 +184,32 @@ class MessageAutomationServiceTest {
         assertThat(cancelled.status()).isEqualTo("CANCELLED");
         verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(), anyString(), any());
         verify(messagingClient).cancelAttachment(jobId, 15L);
+    }
+
+    @Test
+    void shouldProcessEveryAttachmentWithinTwentyActionLimit() {
+        service.createRule(new CreateAutomationRuleRequest(19L, "telegram_album_download", ChannelType.TELEGRAM,
+                "chat-19", "user-19", "", "MESSAGE_ATTACHMENT", 20, 100, true));
+        UUID messageId = UUID.randomUUID();
+        List<InboundMessage.MessagePart> parts = IntStream.range(0, 8)
+                .mapToObj(index -> new InboundMessage.MessagePart(UUID.randomUUID(), index, "ATTACHMENT",
+                        index < 6 ? "IMAGE" : "VIDEO", "media-" + index, null, null))
+                .toList();
+        InboundMessage message = new InboundMessage(messageId, 19L, ChannelType.TELEGRAM,
+                "telegram-album-19", "chat-19", "user-19", null, "", Instant.now(), Instant.now(), parts);
+        when(messagingClient.get(messageId)).thenReturn(message);
+        when(messagingClient.createAttachment(eq(messageId), any(), eq(19L)))
+                .thenAnswer(invocation -> new MessagingClient.AttachmentSnapshot(UUID.randomUUID(), "QUEUED"));
+        when(messagingClient.attachment(any(), eq(19L)))
+                .thenAnswer(invocation -> new MessagingClient.AttachmentSnapshot(
+                        invocation.getArgument(0), "SUCCEEDED"));
+
+        var completed = service.process(messageId);
+
+        assertThat(completed.status()).isEqualTo("SUCCEEDED");
+        assertThat(completed.actionCount()).isEqualTo(8);
+        assertThat(completed.actions()).extracting("actionType").containsOnly("ATTACHMENT_DOWNLOAD");
+        verify(messagingClient, times(8)).createAttachment(eq(messageId), any(), eq(19L));
     }
 
     @Test
