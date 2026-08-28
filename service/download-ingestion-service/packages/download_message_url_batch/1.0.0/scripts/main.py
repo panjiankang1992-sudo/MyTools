@@ -17,6 +17,8 @@ from mytools_task_sdk.context import TaskContext
 from mytools_task_sdk.orchestration import wait_all_or_cancel
 
 X_PATH = re.compile(r"^/(?:[^/]+/status|i/(?:web/)?status)/\d{1,24}(?:/.*)?$", re.IGNORECASE)
+X_USER_PATH = re.compile(r"^/([A-Za-z0-9_]{1,15})(?:/media)?/?$", re.IGNORECASE)
+X_RESERVED_PATHS = {"home", "explore", "search", "notifications", "messages", "settings", "compose", "i"}
 SAFE_PART = re.compile(r"[^A-Za-z0-9_-]+")
 SAFE_TITLE = re.compile(r"[^\w.-]+", re.UNICODE)
 URL_TEXT = re.compile(r"https?://\S+", re.IGNORECASE)
@@ -30,6 +32,15 @@ def is_x_post(value: str) -> bool:
     host = (parsed.hostname or "").lower().removeprefix("www.").removeprefix("mobile.")
     return parsed.scheme in {"http", "https"} and host in {"x.com", "twitter.com"} \
         and X_PATH.fullmatch(parsed.path) is not None
+
+
+def is_x_user(value: str) -> bool:
+    """判断地址是否为受支持的 X 用户主页。"""
+    parsed = urlparse(value)
+    host = (parsed.hostname or "").lower().removeprefix("www.").removeprefix("mobile.")
+    match = X_USER_PATH.fullmatch(parsed.path)
+    return parsed.scheme in {"http", "https"} and host in {"x.com", "twitter.com"} \
+        and match is not None and match.group(1).lower() not in X_RESERVED_PATHS
 
 
 def album_title(parameters: dict) -> str:
@@ -131,8 +142,21 @@ def execute(context: TaskContext) -> dict:
 
     resolver_children = []
     resolver_items = []
+    profile_children = []
     resources = []
     for item in items:
+        if is_x_user(item["url"]):
+            fingerprint = hashlib.sha256(item["url"].encode()).hexdigest()
+            child = context.create_child(
+                "download_x_user",
+                {"downloadRequestId": request_id, "url": item["url"], "ownerId": owner_id,
+                 "resourceUsername": str(parameters.get("resourceUsername") or ""),
+                 "receivedAt": str(parameters.get("receivedAt") or ""),
+                 "messageBatchId": str(parameters.get("messageBatchId") or request_id)},
+                f"message-x-user:{request_id}:{item['index']}:{fingerprint}",
+                business_type="DOWNLOAD_REQUEST", business_id=request_id)
+            profile_children.append(child)
+            continue
         if not is_x_post(item["url"]):
             resources.append(direct_resource(item))
             continue
@@ -145,10 +169,11 @@ def execute(context: TaskContext) -> dict:
         resolver_children.append(child)
         resolver_items.append(item)
     wait_all_or_cancel(context, resolver_children, 300)
+    wait_all_or_cancel(context, profile_children, 86400)
     for item, child in zip(resolver_items, resolver_children, strict=True):
         result = successful_result(context.get_task_results(child.id), "resolve_x_url")
         resources.extend(resolved_resources(item, result))
-    if not 1 <= len(resources) <= MAX_MEDIA:
+    if (not resources and not profile_children) or len(resources) > MAX_MEDIA:
         raise ValueError("message resolved media count is invalid")
     resources.sort(key=lambda value: (value["sourceAction"], value["resourceIndex"]))
 
@@ -179,6 +204,7 @@ def execute(context: TaskContext) -> dict:
     return {"requestId": request_id, "inputCount": len(items), "mediaCount": len(resources),
             "albumFolder": album_folder,
             "resolverTaskIds": [child.id for child in resolver_children],
+            "profileTaskIds": [child.id for child in profile_children],
             "downloadTaskIds": [child.id for child in download_children]}
 
 

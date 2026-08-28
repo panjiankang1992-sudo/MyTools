@@ -54,6 +54,10 @@ V4 为 `download_request` 增加权威 `owner_id`。迁移会从旧 `parameters_
 终态。父任务运行在独立 `download-orchestration` 集群，避免占用实际下载集群造成子任务
 饥饿；Cookie 文件和代理只允许由执行节点环境注入，不进入任务参数或下载 schema。
 
+`X_USER` 使用 `download_x_user` 父任务：把用户主页规范化为媒体时间线，分页读取全部
+含媒体帖子并去重，每 20 条创建一批现有 `download_x_post` 子任务。所有子任务继续复用
+统一的下载、资产登记、标签和消息完成通知链路；用户 Cookie 与代理仍只由执行节点注入。
+
 `WEB_ARCHIVE` 使用 `download_web_archive` 父任务逐跳验证公网 HTTP(S) 地址并抓取有界
 HTML。正文交给 `download_publish_text` 子任务，嵌入媒体交给 `download_http_asset`
 子任务；两类产物复用相同的 Asset Registry 登记与 Download Ingestion 结果回写。

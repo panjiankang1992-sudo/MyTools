@@ -27,6 +27,7 @@ def test_classifies_supported_link_types(monkeypatch: pytest.MonkeyPatch) -> Non
     monkeypatch.setenv("DOWNLOAD_MCP_MAGNET_MODE", "local")
     assert classify("https://example.org/post", "auto")[0] == "WEB_ARCHIVE"
     assert classify("https://x.com/user/status/123", "auto")[0] == "X_POST"
+    assert classify("https://x.com/user/media", "auto")[0] == "X_USER"
     magnet = "magnet:?xt=urn:btih:" + "a" * 40
     assert classify(magnet, "auto") == ("MAGNET", {"magnetUri": magnet}, "LOCAL")
 

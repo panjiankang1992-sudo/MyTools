@@ -20,6 +20,8 @@ PROTOCOL_VERSION = "2025-06-18"
 TOOL_NAME = "analyze_download"
 BTIH = re.compile(r"(?:^|[?&])xt=urn:btih:(?:[0-9a-fA-F]{40}|[A-Z2-7]{32})(?:&|$)")
 X_PATH = re.compile(r"^/(?:[^/]+/status|i/(?:web/)?status)/[0-9]{1,24}(?:/.*)?$", re.I)
+X_USER_PATH = re.compile(r"^/([A-Za-z0-9_]{1,15})(?:/media)?/?$", re.I)
+X_RESERVED_PATHS = {"home", "explore", "search", "notifications", "messages", "settings", "compose", "i"}
 
 
 @dataclass(frozen=True, slots=True)
@@ -95,6 +97,10 @@ def classify(link: str, mode: str) -> tuple[str, dict[str, Any], str]:
     host = parsed.hostname.lower().removeprefix("www.").removeprefix("mobile.")
     if host in {"x.com", "twitter.com"} and X_PATH.fullmatch(parsed.path):
         return "X_POST", {"url": value}, "LOCAL"
+    user_match = X_USER_PATH.fullmatch(parsed.path)
+    if host in {"x.com", "twitter.com"} and user_match \
+            and user_match.group(1).lower() not in X_RESERVED_PATHS:
+        return "X_USER", {"url": value}, "LOCAL"
     return "WEB_ARCHIVE", {"url": value}, "LOCAL"
 
 

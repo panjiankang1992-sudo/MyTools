@@ -86,6 +86,27 @@ class DownloadIngestionClientTest {
     }
 
     @Test
+    void shouldRouteXUserPageToXUserTask() {
+        UUID messageId = UUID.randomUUID();
+        UUID ruleId = UUID.randomUUID();
+        UUID downloadId = UUID.randomUUID();
+        RestClient.Builder builder = RestClient.builder().baseUrl("http://download.test");
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(requestTo("http://download.test/api/v1/download-requests"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(jsonPath("$.requestKind").value("X_USER"))
+                .andExpect(jsonPath("$.parameters.url").value("https://x.com/example/media"))
+                .andRespond(withAccepted().contentType(MediaType.APPLICATION_JSON)
+                        .body("{\"id\":\"" + downloadId + "\"}"));
+        DownloadIngestionClient client = new DownloadIngestionClient(builder.build(), "download-token");
+
+        assertThat(client.create(messageId, 17L, ruleId, 0, "HTTP_ASSET",
+                "https://x.com/example/media", "media", Instant.parse("2026-08-26T07:53:08Z")))
+                .isEqualTo(downloadId.toString());
+        server.verify();
+    }
+
+    @Test
     void shouldCreateOneMessageBatchWithOrderedUrlItems() {
         UUID messageId = UUID.randomUUID();
         UUID ruleId = UUID.randomUUID();

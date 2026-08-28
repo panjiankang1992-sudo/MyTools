@@ -9,6 +9,7 @@ import com.yuyutian.mytools.automation.model.AutomationRunView;
 import com.yuyutian.mytools.automation.model.ChannelType;
 import com.yuyutian.mytools.automation.model.CreateAutomationRuleRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
@@ -111,6 +112,63 @@ public class AutomationRepository {
                 """, id.toString(), messageId.toString(), rule == null ? null : rule.id().toString(),
                 rule == null ? null : rule.version(), Timestamp.from(now), Timestamp.from(now));
         return findRun(messageId).orElseThrow();
+    }
+
+    /**
+     * 原子登记一个规范化消息链接。
+     */
+    public LinkClaim claimLink(long ownerId, UUID messageId, String normalizedUrl, String digest,
+                               Instant processedAt) {
+        Instant now = Instant.now();
+        try {
+            jdbcTemplate.update("""
+                    INSERT INTO processed_message_link
+                        (id, owner_id, url_sha256, normalized_url, inbound_message_id, status,
+                         processed_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, 'PROCESSING', ?, ?)
+                    """, UUID.randomUUID().toString(), ownerId, digest, normalizedUrl,
+                    messageId.toString(), Timestamp.from(processedAt), Timestamp.from(now));
+            return new LinkClaim(true, normalizedUrl, processedAt, "PROCESSING");
+        } catch (DuplicateKeyException exception) {
+            LinkClaim existing = findLink(ownerId, digest).orElseThrow();
+            if ("FAILED".equals(existing.status())) {
+                int updated = jdbcTemplate.update("""
+                        UPDATE processed_message_link
+                        SET normalized_url = ?, inbound_message_id = ?, status = 'PROCESSING',
+                            processed_at = ?, updated_at = ?
+                        WHERE owner_id = ? AND url_sha256 = ? AND status = 'FAILED'
+                        """, normalizedUrl, messageId.toString(), Timestamp.from(processedAt), Timestamp.from(now),
+                        ownerId, digest);
+                if (updated == 1) {
+                    return new LinkClaim(true, normalizedUrl, processedAt, "PROCESSING");
+                }
+                existing = findLink(ownerId, digest).orElseThrow();
+            }
+            return existing;
+        }
+    }
+
+    /**
+     * 按运行终态更新本消息认领的链接。
+     */
+    public void completeLinks(UUID messageId, String runStatus) {
+        String status = "SUCCEEDED".equals(runStatus) ? "SUCCEEDED"
+                : List.of("FAILED", "PARTIAL_FAILED", "CANCELLED").contains(runStatus) ? "FAILED" : null;
+        if (status != null) {
+            jdbcTemplate.update("""
+                    UPDATE processed_message_link SET status = ?, updated_at = ?
+                    WHERE inbound_message_id = ? AND status = 'PROCESSING'
+                    """, status, Timestamp.from(Instant.now()), messageId.toString());
+        }
+    }
+
+    private Optional<LinkClaim> findLink(long ownerId, String digest) {
+        return jdbcTemplate.query("""
+                SELECT normalized_url, processed_at, status FROM processed_message_link
+                WHERE owner_id = ? AND url_sha256 = ?
+                """, (resultSet, rowNumber) -> new LinkClaim(false, resultSet.getString("normalized_url"),
+                resultSet.getTimestamp("processed_at").toInstant(), resultSet.getString("status")),
+                ownerId, digest).stream().findFirst();
     }
 
     /**
@@ -384,6 +442,10 @@ public class AutomationRepository {
      */
     public record ActionExecution(UUID id, int sequence, String actionType, String sourceUrl, String fileName,
                                   UUID externalRequestId, String status, int lastProgressPercent) {
+    }
+
+    /** 消息链接认领结果。 */
+    public record LinkClaim(boolean claimed, String normalizedUrl, Instant processedAt, String status) {
     }
 
     /**

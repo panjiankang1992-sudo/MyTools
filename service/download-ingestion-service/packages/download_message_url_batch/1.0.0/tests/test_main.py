@@ -78,3 +78,19 @@ def test_keeps_small_direct_url_batch_in_day_directory():
     assert result["mediaCount"] == 2
     assert result["albumFolder"] == ""
     assert {item["albumFolder"] for item in downloads} == {""}
+
+
+def test_routes_x_user_page_to_profile_task(monkeypatch):
+    """消息批次中的 X 用户主页必须进入用户帖子编排任务。"""
+    items = [{"url": "https://x.com/example/media", "fileName": "media"},
+             {"url": "https://cdn.example/a.jpg", "fileName": "a.jpg"}]
+    context = Context(items, [])
+    monkeypatch.setattr(MODULE, "wait_all_or_cancel", lambda *_args: None)
+
+    result = MODULE.execute(context)
+
+    profiles = [(child, parameters) for child, parameters in context.children
+                if child.task_name == "download_x_user"]
+    assert len(profiles) == 1
+    assert profiles[0][1]["url"] == "https://x.com/example/media"
+    assert len(result["profileTaskIds"]) == 1

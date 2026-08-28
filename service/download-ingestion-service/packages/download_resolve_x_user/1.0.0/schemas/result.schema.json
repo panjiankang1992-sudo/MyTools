@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "required": ["requestId", "username", "postCount", "batchCount"],
+  "properties": {
+    "requestId": {"type": "string", "format": "uuid"},
+    "username": {"type": "string", "pattern": "^[A-Za-z0-9_]{1,15}$"},
+    "postCount": {"type": "integer", "minimum": 0, "maximum": 10000},
+    "batchCount": {"type": "integer", "minimum": 0, "maximum": 500}
+  },
+  "additionalProperties": false
+}

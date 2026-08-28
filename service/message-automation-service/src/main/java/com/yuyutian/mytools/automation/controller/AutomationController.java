@@ -2,6 +2,8 @@ package com.yuyutian.mytools.automation.controller;
 
 import com.yuyutian.mytools.automation.model.AutomationRuleRecord;
 import com.yuyutian.mytools.automation.model.AutomationRunView;
+import com.yuyutian.mytools.automation.model.ClaimMessageLinksRequest;
+import com.yuyutian.mytools.automation.model.ClaimMessageLinksResponse;
 import com.yuyutian.mytools.automation.model.CreateAutomationRuleRequest;
 import com.yuyutian.mytools.automation.model.ProcessMessageRequest;
 import com.yuyutian.mytools.automation.repository.AutomationRepository;
@@ -60,6 +62,17 @@ public class AutomationController {
             @Valid @RequestBody ProcessMessageRequest request) {
         authorizer.requireAuthorized(authorization);
         return ResponseEntity.accepted().body(service.process(request.messageId()));
+    }
+
+    /**
+     * 为消息派生任务批量登记最小来源链接。
+     */
+    @PostMapping("/processed-links/claims")
+    public ClaimMessageLinksResponse claimLinks(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @Valid @RequestBody ClaimMessageLinksRequest request) {
+        authorizer.requireAuthorized(authorization);
+        return new ClaimMessageLinksResponse(service.claimLinks(request));
     }
 
     /**

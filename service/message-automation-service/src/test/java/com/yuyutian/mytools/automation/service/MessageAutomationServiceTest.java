@@ -245,6 +245,38 @@ class MessageAutomationServiceTest {
     }
 
     @Test
+    void shouldReplyWithProcessedDateWithoutDownloadingDuplicateLink() {
+        service.createRule(new CreateAutomationRuleRequest(20L, "deduplicate_links", ChannelType.EMAIL,
+                "thread-20", "owner@example.test", "", "HTTP_ASSET", 1, 100, true));
+        UUID firstMessageId = UUID.randomUUID();
+        UUID duplicateMessageId = UUID.randomUUID();
+        Instant receivedAt = Instant.parse("2026-08-28T01:00:00Z");
+        when(messagingClient.get(firstMessageId)).thenReturn(new InboundMessage(firstMessageId, 20L,
+                ChannelType.EMAIL, "external-first", "thread-20", "owner@example.test", null,
+                "https://mobile.x.com/example/status/123/photo/1", receivedAt, receivedAt));
+        when(messagingClient.get(duplicateMessageId)).thenReturn(new InboundMessage(duplicateMessageId, 20L,
+                ChannelType.EMAIL, "external-duplicate", "thread-20", "owner@example.test", null,
+                "https://x.com/i/web/status/123", receivedAt.plusSeconds(3600), receivedAt.plusSeconds(3600)));
+        UUID requestId = UUID.randomUUID();
+        when(downloadClient.create(eq(firstMessageId), eq(20L), any(), eq(0), eq("HTTP_ASSET"),
+                eq("https://x.com/i/web/status/123"), anyString(), eq(receivedAt)))
+                .thenReturn(requestId.toString());
+        when(downloadClient.get(requestId, 20L))
+                .thenReturn(new DownloadIngestionClient.DownloadSnapshot(requestId, "SUCCEEDED"));
+
+        var first = service.process(firstMessageId);
+        var duplicate = service.process(duplicateMessageId);
+
+        assertThat(first.status()).isEqualTo("SUCCEEDED");
+        assertThat(duplicate.status()).isEqualTo("SUCCEEDED");
+        assertThat(duplicate.actionCount()).isZero();
+        verify(downloadClient, times(1)).create(any(), anyLong(), any(), anyInt(), anyString(),
+                anyString(), anyString(), any());
+        verify(messagingClient).reply(eq(duplicateMessageId), anyString(),
+                eq("该链接已经处理了，处理日期：2026-08-28。\nhttps://x.com/i/web/status/123"));
+    }
+
+    @Test
     void shouldRecoverUnknownDownloadCreationByStableActionSequence() {
         service.createRule(new CreateAutomationRuleRequest(14L, "recover_download", ChannelType.EMAIL,
                 "thread-4", "allowed@example.com", "download: ", "HTTP_ASSET", 1, 100, true));

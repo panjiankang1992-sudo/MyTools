@@ -23,6 +23,10 @@ public class DownloadIngestionClient {
     private static final Pattern X_STATUS_PATH = Pattern.compile(
             "^/(?:[^/]+/status|i/(?:web/)?status)/[0-9]{1,24}(?:/.*)?$",
             Pattern.CASE_INSENSITIVE);
+    private static final Pattern X_USER_PATH = Pattern.compile(
+            "^/([A-Za-z0-9_]{1,15})(?:/media)?/?$", Pattern.CASE_INSENSITIVE);
+    private static final Set<String> X_RESERVED_PATHS = Set.of(
+            "home", "explore", "search", "notifications", "messages", "settings", "compose", "i");
     private final RestClient restClient;
     private final String internalToken;
 
@@ -114,6 +118,11 @@ public class DownloadIngestionClient {
             host = host.replaceFirst("^(?:www\\.|mobile\\.)", "");
             if (X_HOSTS.contains(host) && X_STATUS_PATH.matcher(uri.getPath()).matches()) {
                 return "X_POST";
+            }
+            var userMatch = X_USER_PATH.matcher(uri.getPath());
+            if (X_HOSTS.contains(host) && userMatch.matches()
+                    && !X_RESERVED_PATHS.contains(userMatch.group(1).toLowerCase())) {
+                return "X_USER";
             }
         } catch (IllegalArgumentException ignored) {
             // URL 有效性由下载服务统一校验，此处仅做业务类型识别。

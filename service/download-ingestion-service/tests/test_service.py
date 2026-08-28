@@ -140,6 +140,15 @@ class DownloadRequestServiceTest(unittest.TestCase):
         self.assertEqual("download_x_post", scheduler.calls[0]["task_name"])
         self.assertEqual(str(created.id), scheduler.calls[0]["parameters"]["downloadRequestId"])
 
+    def test_routes_x_user_to_profile_orchestrator(self):
+        """An X user page binds to the profile enumerator parent task."""
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(InMemoryDownloadRequestRepository(), scheduler)
+        created = service.create(CreateDownloadRequest(
+            "x-user:example", "X", "example", "X_USER", {"url": "https://x.com/example/media"}))
+        self.assertEqual("download_x_user", scheduler.calls[0]["task_name"])
+        self.assertEqual(str(created.id), scheduler.calls[0]["parameters"]["downloadRequestId"])
+
     def test_routes_message_url_batch_to_message_orchestrator(self):
         """同一消息的多个链接必须先进入整批解析父任务。"""
         scheduler = FakeScheduler()

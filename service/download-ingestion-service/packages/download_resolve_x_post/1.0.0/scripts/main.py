@@ -212,8 +212,9 @@ def execute(context: TaskContext, parameters: dict, resources: list[dict], tweet
     UUID(request_id)
     maximum_bytes = int(parameters.get("maxBytesPerItem", 2 * 1024 * 1024 * 1024))
     album_threshold = int(parameters.get("albumMediaThreshold", 10))
-    album_folder = ""
-    if len(resources) > album_threshold:
+    explicit_folder = SAFE_PART.sub("_", str(parameters.get("albumFolder") or "")).strip("_")[:64]
+    album_folder = explicit_folder
+    if not album_folder and len(resources) > album_threshold:
         batch_id = SAFE_PART.sub("_", str(parameters.get("messageBatchId") or request_id)).strip("_")
         album_folder = f"message-{batch_id[:48]}"
     children = []

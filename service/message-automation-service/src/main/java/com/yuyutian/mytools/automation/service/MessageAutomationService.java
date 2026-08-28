@@ -7,6 +7,7 @@ import com.yuyutian.mytools.automation.config.AutomationProperties;
 import com.yuyutian.mytools.automation.model.AutomationActionView;
 import com.yuyutian.mytools.automation.model.AutomationRuleRecord;
 import com.yuyutian.mytools.automation.model.AutomationRunView;
+import com.yuyutian.mytools.automation.model.ClaimMessageLinksRequest;
 import com.yuyutian.mytools.automation.model.CreateAutomationRuleRequest;
 import com.yuyutian.mytools.automation.model.ErrorCode;
 import com.yuyutian.mytools.automation.model.InboundMessage;
@@ -19,6 +20,13 @@ import org.springframework.web.client.RestClientResponseException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.UUID;
@@ -62,6 +70,25 @@ public class MessageAutomationService {
     }
 
     /**
+     * 为一个已存在的消息运行批量登记派生链接。
+     */
+    public List<String> claimLinks(ClaimMessageLinksRequest request) {
+        if (repository.findRun(request.messageId()).isEmpty()) {
+            throw new IllegalArgumentException("Message automation run does not exist");
+        }
+        List<String> claimed = new ArrayList<>();
+        for (String value : request.urls()) {
+            String normalized = normalizeUrl(value);
+            AutomationRepository.LinkClaim result = transactionTemplate.execute(status -> repository.claimLink(
+                    request.ownerId(), request.messageId(), normalized, sha256(normalized), request.processedAt()));
+            if (result != null && result.claimed()) {
+                claimed.add(normalized);
+            }
+        }
+        return List.copyOf(claimed);
+    }
+
+    /**
      * 幂等处理一个标准入站消息。
      */
     public AutomationRunView process(UUID messageId) {
@@ -91,7 +118,23 @@ public class MessageAutomationService {
             if (action == null) throw new IllegalStateException("Automation action transaction returned no action");
             submitAttachment(message, action.id(), part.id());
         }
-        List<String> urls = extractUrls(message.body(), Math.max(0, maxActionsPerMessage - sequence));
+        List<String> extractedUrls = extractUrls(message.body(), Math.max(0, maxActionsPerMessage - sequence));
+        List<String> urls = new ArrayList<>();
+        int duplicateCount = 0;
+        for (String candidate : extractedUrls) {
+            String normalized = normalizeUrl(candidate);
+            AutomationRepository.LinkClaim claim = transactionTemplate.execute(status -> repository.claimLink(
+                    message.ownerId(), message.id(), normalized, sha256(normalized), message.receivedAt()));
+            if (claim == null) {
+                throw new IllegalStateException("Link claim transaction returned no result");
+            }
+            if (claim.claimed()) {
+                urls.add(normalized);
+            } else {
+                duplicateCount++;
+                replyDuplicateLink(message, claim);
+            }
+        }
         if (!urls.isEmpty()) {
             if (urls.size() > 1) {
                 int currentSequence = sequence;
@@ -109,7 +152,13 @@ public class MessageAutomationService {
                         fileName(url, currentSequence));
             }
         }
-        if (attachments.isEmpty() && urls.isEmpty()) return noInput(messageId);
+        if (attachments.isEmpty() && urls.isEmpty()) {
+            if (duplicateCount > 0) {
+                return transactionTemplate.execute(status -> repository.completeRun(
+                        messageId, "SUCCEEDED", List.of(), null));
+            }
+            return noInput(messageId);
+        }
         return reconcile(repository.findRun(messageId).orElseThrow(), false);
     }
 
@@ -272,8 +321,11 @@ public class MessageAutomationService {
             status = "SUCCEEDED";
         }
         String finalError = error;
-        return transactionTemplate.execute(transactionStatus ->
-                repository.updateRunAggregate(messageId, status, finalError));
+        return transactionTemplate.execute(transactionStatus -> {
+            AutomationRunView updated = repository.updateRunAggregate(messageId, status, finalError);
+            repository.completeLinks(messageId, status);
+            return updated;
+        });
     }
 
     private String mapActionStatus(String status) {
@@ -326,6 +378,57 @@ public class MessageAutomationService {
             }
         }
         return List.copyOf(urls);
+    }
+
+    private void replyDuplicateLink(InboundMessage message, AutomationRepository.LinkClaim claim) {
+        String date = DateTimeFormatter.ISO_LOCAL_DATE.format(
+                claim.processedAt().atZone(ZoneId.of("Asia/Shanghai")));
+        String key = "automation-duplicate-link-" + sha256(claim.normalizedUrl()).substring(0, 24);
+        try {
+            messagingClient.reply(message.id(), key,
+                    "该链接已经处理了，处理日期：" + date + "。\n" + claim.normalizedUrl());
+        } catch (RuntimeException exception) {
+            // 渠道回复失败不能破坏已获得的全局去重结论。
+            LOGGER.warn("Duplicate link reply failed: messageId={}, errorType={}",
+                    message.id(), exception.getClass().getSimpleName());
+        }
+    }
+
+    private String normalizeUrl(String value) {
+        try {
+            URI uri = new URI(value).normalize();
+            String scheme = uri.getScheme().toLowerCase();
+            String host = uri.getHost().toLowerCase();
+            int port = uri.getPort();
+            if (("http".equals(scheme) && port == 80) || ("https".equals(scheme) && port == 443)) {
+                port = -1;
+            }
+            String path = uri.getRawPath() == null || uri.getRawPath().isBlank() ? "/" : uri.getRawPath();
+            if (("x.com".equals(host) || "twitter.com".equals(host)
+                    || "www.x.com".equals(host) || "mobile.x.com".equals(host))) {
+                host = "x.com";
+                Matcher status = Pattern.compile(
+                        "^/(?:[^/]+/status|i/(?:web/)?status)/([0-9]{1,24})(?:/.*)?$",
+                        Pattern.CASE_INSENSITIVE).matcher(path);
+                if (status.matches()) {
+                    path = "/i/web/status/" + status.group(1);
+                } else {
+                    path = path.replaceFirst("/+$", "").replaceFirst("/media$", "");
+                }
+            }
+            return new URI(scheme, null, host, port, path, uri.getRawQuery(), null).toASCIIString();
+        } catch (URISyntaxException | NullPointerException exception) {
+            throw new IllegalArgumentException("Message URL is invalid", exception);
+        }
+    }
+
+    private String sha256(String value) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 is unavailable", exception);
+        }
     }
 
     private String batchInput(List<String> urls) {

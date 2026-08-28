@@ -1,0 +1,19 @@
+name: download_resolve_x_user
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - network_http
+  - subprocess_gallery_dl
+  - task_child_create
+  - task_status_query
+  - task_child_cancel
+parameters:
+  required:
+    - downloadRequestId
+    - url
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 86400
+  maxOutputBytes: 65536
