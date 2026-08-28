@@ -84,6 +84,7 @@ import { DownloadHistoryItem, DownloadHistoryPolicy } from '../features/media/Do
 import { RemoteMediaThumbnailCache } from '../features/media/RemoteMediaThumbnailCache';
 import { RemoteMediaThumbnailRestorePolicy } from '../features/media/RemoteMediaThumbnailRestorePolicy';
 import { ReaderPaginationPolicy } from '../features/reader/ReaderPaginationPolicy';
+import { ReaderContentProgressPolicy } from '../features/reader/ReaderContentProgressPolicy';
 import { ReaderTextLocatorPolicy } from '../features/reader/ReaderTextLocatorPolicy';
 import { ReaderSpeechPolicy } from '../features/reader/ReaderSpeechPolicy';
 import { ReaderSpeechController } from '../features/reader/ReaderSpeechController';
@@ -544,6 +545,7 @@ struct Index {
   private readonly mediaThumbnailRestorePolicy: RemoteMediaThumbnailRestorePolicy =
     new RemoteMediaThumbnailRestorePolicy();
   private readonly readerPaginationPolicy: ReaderPaginationPolicy = new ReaderPaginationPolicy();
+  private readonly readerContentProgressPolicy: ReaderContentProgressPolicy = new ReaderContentProgressPolicy();
   private mediaDirectoryItems: RemoteMediaItem[] = [];
   private mediaSubtitleCues: RemoteSubtitleCue[] = [];
   @State mediaSubtitleTracks: RemoteMediaItem[] = [];
@@ -575,6 +577,7 @@ struct Index {
   private readonly bookSourceLocalCache: BookSourceLocalCache = new BookSourceLocalCache();
   private readerContentLoader: ReaderContentLoader = new ReaderContentLoader();
   private readerOpeningLoader?: ReaderContentLoader = undefined;
+  private readerProgressReady: boolean = false;
   private activeComicPageCancellation?: DownloadCancellationToken = undefined;
   private activeSourceChapterCancellation?: DownloadCancellationToken = undefined;
   private activeReaderChapterPrefetchCancellation?: DownloadCancellationToken = undefined;
@@ -6792,6 +6795,8 @@ struct Index {
     this.pdfPageIndex = 0;
     this.pdfPageCount = 0;
     this.readerStatus = '正在打开图书…';
+    // 屏幕方向切换会触发onPageHide；恢复完成前禁止以初始零位置覆盖已有检查点。
+    this.readerProgressReady = false;
     this.readerInfo = '';
     this.readerScrollValue = 0;
     this.readerScroller = new Scroller();
@@ -7041,6 +7046,7 @@ struct Index {
         this.currentBook.progress = restoredProgress;
         if (progressChanged) this.ScheduleReaderProgressSave();
       }
+      this.readerProgressReady = true;
       this.readerStatus = '';
     } catch (error) {
       if (error instanceof Error) throw error;
@@ -7096,6 +7102,8 @@ struct Index {
         if (progressChanged) this.ScheduleReaderProgressSave();
       }
     }
+    // 章节标题和持久化locator均已恢复，此后的生命周期检查点才具有权威性。
+    this.readerProgressReady = true;
   }
 
   /** 在书源章节标题发生变化时，按章节序号和全书进度恢复最接近的位置。 */
@@ -7109,8 +7117,7 @@ struct Index {
       if (ordinalIndex >= 0) return ordinalIndex;
     }
     if (saved.percentage > 0) {
-      return Math.max(0, Math.min(chapters.length - 1,
-        Math.floor(saved.percentage * chapters.length / 100)));
+      return this.readerContentProgressPolicy.location(chapters, saved.percentage).chapterIndex;
     }
     return -1;
   }
@@ -7232,8 +7239,9 @@ struct Index {
     this.readerContent = this.readerChapters[index]?.content ?? '';
     this.readerScrollValue = this.readerScrollDirection < 0 ? this.EstimatedReaderChapterHeight(index) * 0.99 : 0;
     if (this.currentBook !== undefined) {
-      this.currentBook.progress = Math.max(0, Math.min(99,
-        Math.round((index + this.CurrentTextChapterFraction()) * 100 / this.readerChapters.length)));
+      this.currentBook.progress = Math.max(0, Math.min(99, Math.round(
+        this.readerContentProgressPolicy.percentage(this.readerChapters, index,
+          this.CurrentTextChapterFraction()))));
     }
     this.ScheduleReaderProgressSave();
     this.ScheduleReaderChapterPrefetch();
@@ -7368,7 +7376,8 @@ struct Index {
       this.LoadIndexedTextChapter();
     }
     if (this.currentBook !== undefined) {
-      this.currentBook.progress = Math.round((this.readerChapterIndex + 1) * 100 / this.readerChapters.length);
+      this.currentBook.progress = Math.max(0, Math.min(99, Math.round(
+        this.readerContentProgressPolicy.percentage(this.readerChapters, this.readerChapterIndex, 0))));
     }
     this.ScheduleReaderProgressSave();
     this.ScheduleReaderChapterPrefetch();
@@ -7708,8 +7717,8 @@ struct Index {
     this.readerScroller = new Scroller();
     this.readerScrollEpoch++;
     if (this.currentBook !== undefined) {
-      this.currentBook.progress = Math.max(0, Math.min(99,
-        Math.round(index * 100 / Math.max(1, this.readerChapters.length))));
+      this.currentBook.progress = Math.max(0, Math.min(99, Math.round(
+        this.readerContentProgressPolicy.percentage(this.readerChapters, index, 0))));
     }
     // 目录跳转后必须按目标章节重新分页，否则分页模式仍会显示旧章节缓存。
     this.RebuildReaderPages();
@@ -7841,6 +7850,7 @@ struct Index {
     this.readerCatalogVisible = false;
     this.readerAnnotationVisible = false;
     this.currentBook = undefined;
+    this.readerProgressReady = false;
     this.readerContent = '';
     this.readerChapters = [];
     this.readerTextPages = [];
@@ -7879,7 +7889,8 @@ struct Index {
     if (this.readerContent.length > 0 && this.readerChapters.length > 0) {
       // 末章到达真实滚动边界时必须结算为100%；不能再用正文高度估算覆盖边界结果。
       const chapterFraction = this.CurrentTextChapterFraction();
-      const estimate = Math.round((this.readerChapterIndex + chapterFraction) * 100 / this.readerChapters.length);
+      const estimate = Math.round(this.readerContentProgressPolicy.percentage(
+        this.readerChapters, this.readerChapterIndex, chapterFraction));
       const completed = this.readerChapterIndex === this.readerChapters.length - 1 && chapterFraction >= 1;
       if (this.currentBook !== undefined) {
         const previousProgress = this.currentBook.progress;
@@ -7925,8 +7936,8 @@ struct Index {
       this.readerTextPages = [];
       this.readerTextPageIndex = 0;
       const fraction = restoredChapterFraction !== undefined ? restoredChapterFraction :
-        bookPercentage !== undefined ?
-          bookPercentage * this.readerChapters.length / 100 - this.readerChapterIndex : undefined;
+        bookPercentage !== undefined ? this.readerContentProgressPolicy
+          .location(this.readerChapters, bookPercentage).chapterFraction : undefined;
       if (fraction !== undefined) {
         this.readerScrollValue = Math.max(0, Math.min(0.999, fraction)) * this.EstimatedReaderTextHeight();
         setTimeout(() => {
@@ -7945,7 +7956,7 @@ struct Index {
     const previousFraction = restoredChapterFraction !== undefined ?
       Math.max(0, Math.min(0.999, restoredChapterFraction)) : bookPercentage === undefined ?
       this.CurrentTextChapterFraction() :
-      Math.max(0, Math.min(0.999, bookPercentage * this.readerChapters.length / 100 - this.readerChapterIndex));
+      this.readerContentProgressPolicy.location(this.readerChapters, bookPercentage).chapterFraction;
     const chapter = this.readerChapters[this.readerChapterIndex];
     const sourceBlocks = (chapter.blocks ?? []).filter((block: ReaderBlock, index: number) =>
       !(index === 0 && block.kind === 'heading' && block.text.trim() === chapter.title.trim()));
@@ -7974,7 +7985,8 @@ struct Index {
     this.readerTextPageIndex = Math.max(0, Math.min(this.readerTextPages.length - 1, index));
     this.readerScrollValue = this.readerTextPageIndex;
     const chapterFraction = (this.readerTextPageIndex + 1) / this.readerTextPages.length;
-    const estimate = Math.round((this.readerChapterIndex + chapterFraction) * 100 / this.readerChapters.length);
+    const estimate = Math.round(this.readerContentProgressPolicy.percentage(
+      this.readerChapters, this.readerChapterIndex, chapterFraction));
     const completed = this.readerChapterIndex === this.readerChapters.length - 1 && chapterFraction >= 1;
     if (this.currentBook !== undefined) {
       const previousProgress = this.currentBook.progress;
@@ -8059,7 +8071,7 @@ struct Index {
   }
 
   private SaveCurrentProgress(): void {
-    if (this.currentBook === undefined) return;
+    if (this.currentBook === undefined || !this.readerProgressReady) return;
     const current = this.currentBook;
     const previous = this.readingProgress.find((value: ReadingProgress) => value.bookId === current.id);
     const tombstone = this.readingProgressTombstones
@@ -8964,19 +8976,13 @@ struct Index {
       return { current: this.comicPageIndex + 1, total: Math.max(1, this.comicImageUris.length) };
     }
     if (this.readerChapters.length === 0) return { current: 1, total: 1 };
-    const loaded = this.readerChapters.filter((chapter: ReaderChapter) => chapter.content.length > 0);
     const pageCapacity = this.ReaderEstimatedCharactersPerPage();
-    const loadedPages = loaded.reduce((total: number, chapter: ReaderChapter): number => {
-      if (chapter === this.readerChapters[this.readerChapterIndex] && this.readerTextPages.length > 0) {
-        return total + this.readerTextPages.length;
-      }
-      return total + Math.max(1, Math.ceil(chapter.content.length / pageCapacity));
-    }, 0);
-    const averagePages = Math.max(1, Math.round(loadedPages / Math.max(1, loaded.length)));
-    const total = Math.max(1, averagePages * this.readerChapters.length);
-    const chapterFraction = this.CurrentTextChapterFraction();
-    const current = Math.max(1, Math.min(total,
-      Math.floor((this.readerChapterIndex + chapterFraction) * averagePages) + 1));
+    const totalCharacters = this.readerContentProgressPolicy.totalCharacters(this.readerChapters);
+    const total = Math.max(1, Math.ceil(totalCharacters / pageCapacity));
+    const percentage = this.readerContentProgressPolicy.percentage(this.readerChapters,
+      this.readerChapterIndex, this.CurrentTextChapterFraction());
+    const current = percentage >= 100 ? total : Math.max(1, Math.min(total,
+      Math.floor(percentage * total / 100) + 1));
     return { current: current, total: total };
   }
 
@@ -9151,14 +9157,14 @@ struct Index {
       return;
     }
     if (this.readerChapters.length === 0) return;
-    const scaled = progress * this.readerChapters.length / 100;
-    this.readerChapterIndex = Math.max(0, Math.min(this.readerChapters.length - 1, Math.floor(scaled)));
+    const location = this.readerContentProgressPolicy.location(this.readerChapters, progress);
+    this.readerChapterIndex = location.chapterIndex;
     if (this.currentBook.origin === 'source') {
       await this.LoadSourceChapter();
     } else {
       this.readerContent = this.readerChapters[this.readerChapterIndex].content;
     }
-    this.RebuildReaderPages(progress);
+    this.RebuildReaderPages(undefined, location.chapterFraction);
     this.ScheduleReaderProgressSave();
   }
 
