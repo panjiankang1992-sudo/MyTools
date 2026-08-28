@@ -27,3 +27,4 @@ automation:
   completion-relay-enabled: ${MESSAGE_AUTOMATION_COMPLETION_RELAY_ENABLED:false}
   completion-relay-batch-size: ${MESSAGE_AUTOMATION_COMPLETION_RELAY_BATCH_SIZE:50}
   reconciliation-batch-size: ${MESSAGE_AUTOMATION_RECONCILIATION_BATCH_SIZE:100}
+  max-actions-per-message: ${MESSAGE_AUTOMATION_MAX_ACTIONS_PER_MESSAGE:10000}

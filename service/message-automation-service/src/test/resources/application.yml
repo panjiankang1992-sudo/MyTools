@@ -11,3 +11,4 @@ automation:
   messaging-url: http://messaging.test
   messaging-token: test-messaging-token
   download-url: http://download.test
+  max-actions-per-message: 10000

@@ -3,17 +3,18 @@ package com.yuyutian.mytools.automation.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yuyutian.mytools.automation.config.AutomationProperties;
+import com.yuyutian.mytools.automation.model.AutomationActionView;
 import com.yuyutian.mytools.automation.model.AutomationRuleRecord;
 import com.yuyutian.mytools.automation.model.AutomationRunView;
 import com.yuyutian.mytools.automation.model.CreateAutomationRuleRequest;
-import com.yuyutian.mytools.automation.model.InboundMessage;
 import com.yuyutian.mytools.automation.model.ErrorCode;
-import com.yuyutian.mytools.automation.model.AutomationActionView;
+import com.yuyutian.mytools.automation.model.InboundMessage;
 import com.yuyutian.mytools.automation.repository.AutomationRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.RestClientResponseException;
 
 import java.net.URI;
@@ -38,17 +39,19 @@ public class MessageAutomationService {
     private final MessagingClient messagingClient;
     private final DownloadIngestionClient downloadClient;
     private final TransactionTemplate transactionTemplate;
+    private final int maxActionsPerMessage;
 
     /**
      * 创建消息自动化服务。
      */
     public MessageAutomationService(AutomationRepository repository, MessagingClient messagingClient,
                                     DownloadIngestionClient downloadClient,
-                                    TransactionTemplate transactionTemplate) {
+                                    TransactionTemplate transactionTemplate, AutomationProperties properties) {
         this.repository = repository;
         this.messagingClient = messagingClient;
         this.downloadClient = downloadClient;
         this.transactionTemplate = transactionTemplate;
+        this.maxActionsPerMessage = properties.maxActionsPerMessage();
     }
 
     /**
@@ -77,8 +80,9 @@ public class MessageAutomationService {
             return transactionTemplate.execute(status -> repository.completeRun(messageId, "NO_MATCH", List.of(), null));
         }
         acknowledge(messageId, started.id());
+        // 所有消息入口统一使用服务级动作上限，规则只负责鉴权和匹配。
         List<InboundMessage.MessagePart> attachments = message.parts().stream()
-                .filter(part -> "ATTACHMENT".equals(part.type())).limit(rule.maxActions()).toList();
+                .filter(part -> "ATTACHMENT".equals(part.type())).limit(maxActionsPerMessage).toList();
         int sequence = 0;
         for (InboundMessage.MessagePart part : attachments) {
             int currentSequence = sequence++;
@@ -87,7 +91,7 @@ public class MessageAutomationService {
             if (action == null) throw new IllegalStateException("Automation action transaction returned no action");
             submitAttachment(message, action.id(), part.id());
         }
-        List<String> urls = extractUrls(message.body(), Math.max(0, rule.maxActions() - sequence));
+        List<String> urls = extractUrls(message.body(), Math.max(0, maxActionsPerMessage - sequence));
         if (!urls.isEmpty()) {
             if (urls.size() > 1) {
                 int currentSequence = sequence;

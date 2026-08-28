@@ -189,7 +189,7 @@ class MessageAutomationServiceTest {
     @Test
     void shouldProcessEveryAttachmentWithinConfiguredActionLimit() {
         service.createRule(new CreateAutomationRuleRequest(19L, "telegram_album_download", ChannelType.TELEGRAM,
-                "chat-19", "user-19", "", "MESSAGE_ATTACHMENT", 10000, 100, true));
+                "chat-19", "user-19", "", "MESSAGE_ATTACHMENT", 1, 100, true));
         UUID messageId = UUID.randomUUID();
         List<InboundMessage.MessagePart> parts = IntStream.range(0, 8)
                 .mapToObj(index -> new InboundMessage.MessagePart(UUID.randomUUID(), index, "ATTACHMENT",

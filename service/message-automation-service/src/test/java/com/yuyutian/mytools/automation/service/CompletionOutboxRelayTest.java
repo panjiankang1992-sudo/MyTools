@@ -124,7 +124,7 @@ class CompletionOutboxRelayTest {
     private AutomationProperties properties(boolean enabled) {
         return new AutomationProperties("internal", "http://messaging.test", "messaging-token",
                 "http://download.test", "download-token",
-                enabled, 10, 100);
+                enabled, 10, 100, 10000);
     }
 
     private InboundMessage message(UUID messageId) {
