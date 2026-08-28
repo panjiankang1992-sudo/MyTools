@@ -7,8 +7,11 @@ from datetime import datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler
 import json
+import logging
 from urllib.parse import parse_qs, urlparse
 from uuid import UUID
+
+LOGGER = logging.getLogger(__name__)
 import hmac
 
 from .models import CreateDownloadRequest, DownloadRequest
@@ -204,6 +207,7 @@ def create_handler(service: DownloadRequestService,
                 self._json(HTTPStatus.BAD_REQUEST, {"error": str(exception)})
                 return
             except Exception:
+                LOGGER.exception("Download request orchestration failed")
                 self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "download orchestration unavailable"})
                 return
             self._json(HTTPStatus.ACCEPTED, request_document(result))

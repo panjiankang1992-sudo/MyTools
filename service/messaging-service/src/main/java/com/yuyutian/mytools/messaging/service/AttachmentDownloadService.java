@@ -131,11 +131,11 @@ public class AttachmentDownloadService {
         UUID downloadId;
         if ("STREAM".equals(source.resolutionMode())) {
             downloadId = downloadClient.createStreamedAttachment(job.id(), source.ownerId(), source.partId(),
-                    safeFileName(source), source.declaredSize());
+                    safeFileName(source), source.mimeType(), source.declaredSize(), source.receivedAt());
         } else {
             String sourceUrl = effectiveSourceUrl(source);
             downloadId = downloadClient.createHttpAttachment(job.id(), source.ownerId(), source.partId(),
-                    sourceUrl, safeFileName(source), source.declaredSize());
+                    sourceUrl, safeFileName(source), source.mimeType(), source.declaredSize(), source.receivedAt());
         }
         transactionTemplate.executeWithoutResult(status -> repository.bindDownloadRequest(job.id(), downloadId));
         AttachmentDownloadRecord updated = required(job.id());

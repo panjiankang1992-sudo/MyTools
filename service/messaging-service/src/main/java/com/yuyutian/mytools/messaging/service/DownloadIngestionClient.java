@@ -7,6 +7,7 @@ import org.springframework.web.client.RestClient;
 
 import java.util.Map;
 import java.util.UUID;
+import java.time.Instant;
 
 /**
  * 下载接入服务内部客户端。
@@ -30,7 +31,7 @@ public class DownloadIngestionClient {
      * 幂等创建一个 HTTP 附件下载请求。
      */
     public UUID createHttpAttachment(UUID jobId, long ownerId, UUID partId, String url, String fileName,
-                                     Long declaredSize) {
+                                     String mimeType, Long declaredSize, Instant receivedAt) {
         if (token == null || token.isBlank()) {
             throw new IllegalStateException("Download Ingestion internal token is missing");
         }
@@ -41,12 +42,15 @@ public class DownloadIngestionClient {
                 "itemId", partId.toString(),
                 "url", url,
                 "fileName", fileName,
+                "resourceUsername", messageResourceUsername(),
+                "assetMimeType", safeMimeType(mimeType),
+                "receivedAt", receivedAt.toString(),
                 "maxBytes", maximum);
         Map<String, Object> request = Map.of(
                 "ownerId", ownerId,
-                "idempotencyKey", "message_attachment:" + jobId + ":v1",
+                "idempotencyKey", "message_attachment:" + jobId + ":v2",
                 "sourceType", "MESSAGE_ATTACHMENT",
-                "sourceKey", partId.toString(),
+                "sourceKey", partId + ":" + jobId,
                 "requestKind", "HTTP_ASSET",
                 "parameters", parameters);
         JsonNode response = restClient.post().uri("/api/v1/download-requests")
@@ -63,7 +67,7 @@ public class DownloadIngestionClient {
      * 幂等创建一个通过 Messaging 受控流读取的附件下载请求。
      */
     public UUID createStreamedAttachment(UUID jobId, long ownerId, UUID partId, String fileName,
-                                         Long declaredSize) {
+                                         String mimeType, Long declaredSize, Instant receivedAt) {
         long maximum = declaredSize == null ? 2L * 1024 * 1024 * 1024
                 : Math.min(20L * 1024 * 1024 * 1024, Math.max(declaredSize, 1024 * 1024));
         Map<String, Object> parameters = Map.of(
@@ -71,8 +75,11 @@ public class DownloadIngestionClient {
                 "itemId", partId.toString(),
                 "attachmentJobId", jobId.toString(),
                 "fileName", fileName,
+                "resourceUsername", messageResourceUsername(),
+                "assetMimeType", safeMimeType(mimeType),
+                "receivedAt", receivedAt.toString(),
                 "maxBytes", maximum);
-        return create(jobId, partId, "MESSAGE_ATTACHMENT", parameters, "v2");
+        return create(jobId, partId, "MESSAGE_ATTACHMENT", parameters, "v4");
     }
 
     private UUID create(UUID jobId, UUID partId, String requestKind, Map<String, Object> parameters,
@@ -84,7 +91,8 @@ public class DownloadIngestionClient {
                 "ownerId", parameters.get("ownerId"),
                 "idempotencyKey", "message_attachment:" + jobId + ":" + version,
                 "sourceType", "MESSAGE_ATTACHMENT",
-                "sourceKey", partId.toString(),
+                // 来源唯一键必须包含作业标识，显式重试不能被历史失败请求永久阻断。
+                "sourceKey", partId + ":" + jobId,
                 "requestKind", requestKind,
                 "parameters", parameters);
         JsonNode response = restClient.post().uri("/api/v1/download-requests")
@@ -128,5 +136,17 @@ public class DownloadIngestionClient {
         } catch (com.fasterxml.jackson.core.JsonProcessingException exception) {
             throw new IllegalStateException("Download Ingestion request serialization failed", exception);
         }
+    }
+
+    private String messageResourceUsername() {
+        String value = System.getenv().getOrDefault("MESSAGE_RESOURCE_USERNAME", "yuyutian");
+        if (!value.matches("^[A-Za-z0-9._-]{1,128}$") || value.equals(".") || value.equals("..")) {
+            throw new IllegalStateException("Message resource username is invalid");
+        }
+        return value;
+    }
+
+    private String safeMimeType(String value) {
+        return value == null || value.isBlank() ? "application/octet-stream" : value;
     }
 }

@@ -30,18 +30,23 @@ class DownloadIngestionClientTest {
         server.expect(requestTo("http://download.test/api/v1/download-requests"))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(header("Authorization", "Bearer download-token"))
-                .andExpect(jsonPath("$.idempotencyKey").value("message_attachment:" + jobId + ":v1"))
+                .andExpect(jsonPath("$.idempotencyKey").value("message_attachment:" + jobId + ":v2"))
                 .andExpect(jsonPath("$.ownerId").value(19))
                 .andExpect(jsonPath("$.requestKind").value("HTTP_ASSET"))
+                .andExpect(jsonPath("$.sourceKey").value(partId + ":" + jobId))
                 .andExpect(jsonPath("$.parameters.ownerId").value(19))
                 .andExpect(jsonPath("$.parameters.itemId").value(partId.toString()))
+                .andExpect(jsonPath("$.parameters.resourceUsername").value("yuyutian"))
+                .andExpect(jsonPath("$.parameters.assetMimeType").value("image/jpeg"))
+                .andExpect(jsonPath("$.parameters.receivedAt").value("2026-08-28T07:05:17Z"))
                 .andExpect(jsonPath("$.parameters.url").value("https://cdn.example.test/a.jpg"))
                 .andRespond(withAccepted().contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .body("{\"id\":\"" + downloadId + "\"}"));
         DownloadIngestionClient client = new DownloadIngestionClient(builder.build(), "download-token");
 
         UUID created = client.createHttpAttachment(jobId, 19L, partId,
-                "https://cdn.example.test/a.jpg", "a.jpg", 1024L);
+                "https://cdn.example.test/a.jpg", "a.jpg", "image/jpeg", 1024L,
+                java.time.Instant.parse("2026-08-28T07:05:17Z"));
 
         assertThat(created).isEqualTo(downloadId);
         server.verify();
@@ -75,14 +80,18 @@ class DownloadIngestionClientTest {
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
         server.expect(requestTo("http://download.test/api/v1/download-requests"))
                 .andExpect(jsonPath("$.requestKind").value("MESSAGE_ATTACHMENT"))
+                .andExpect(jsonPath("$.idempotencyKey").value("message_attachment:" + jobId + ":v4"))
+                .andExpect(jsonPath("$.sourceKey").value(partId + ":" + jobId))
                 .andExpect(jsonPath("$.parameters.attachmentJobId").value(jobId.toString()))
+                .andExpect(jsonPath("$.parameters.resourceUsername").value("yuyutian"))
                 .andExpect(jsonPath("$.parameters.url").doesNotExist())
                 .andExpect(jsonPath("$.parameters.providerFileId").doesNotExist())
                 .andRespond(withAccepted().contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .body("{\"id\":\"" + downloadId + "\"}"));
         DownloadIngestionClient client = new DownloadIngestionClient(builder.build(), "download-token");
 
-        UUID created = client.createStreamedAttachment(jobId, 19L, partId, "private.bin", 1024L);
+        UUID created = client.createStreamedAttachment(jobId, 19L, partId, "private.bin",
+                "application/octet-stream", 1024L, java.time.Instant.parse("2026-08-28T07:05:17Z"));
 
         assertThat(created).isEqualTo(downloadId);
         server.verify();

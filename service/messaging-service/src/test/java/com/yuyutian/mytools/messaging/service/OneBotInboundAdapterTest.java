@@ -116,7 +116,8 @@ class OneBotInboundAdapterTest {
         UUID schedulerTaskId = UUID.randomUUID();
         UUID downloadRequestId = UUID.randomUUID();
         when(schedulerClient.createAttachmentDownloadTask(any())).thenReturn(schedulerTaskId);
-        when(downloadIngestionClient.createHttpAttachment(any(), anyLong(), any(), anyString(), anyString(), any()))
+        when(downloadIngestionClient.createHttpAttachment(any(), anyLong(), any(), anyString(), anyString(),
+                any(), any(), any()))
                 .thenReturn(downloadRequestId);
         when(downloadIngestionClient.get(downloadRequestId, 11L))
                 .thenReturn(new DownloadIngestionClient.DownloadSnapshot(downloadRequestId, "SUCCEEDED"));
@@ -134,7 +135,7 @@ class OneBotInboundAdapterTest {
         assertThat(reconciled.status()).isEqualTo("SUCCEEDED");
         verify(schedulerClient, times(1)).createAttachmentDownloadTask(job.id());
         verify(downloadIngestionClient, times(1)).createHttpAttachment(
-                any(), anyLong(), any(), anyString(), anyString(), any());
+                any(), anyLong(), any(), anyString(), anyString(), any(), any(), any());
     }
 
     @Test
@@ -163,7 +164,8 @@ class OneBotInboundAdapterTest {
         when(providerFileResolverClient.resolve("ONEBOT", "napcat-main", "FILE", "opaque-book"))
                 .thenReturn(new ProviderFileResolverClient.Resolution(
                         "PUBLIC_URL", "https://cdn.example.test/book.txt"));
-        when(downloadIngestionClient.createHttpAttachment(any(), anyLong(), any(), anyString(), anyString(), any()))
+        when(downloadIngestionClient.createHttpAttachment(any(), anyLong(), any(), anyString(), anyString(),
+                any(), any(), any()))
                 .thenReturn(downloadRequestId);
 
         var job = attachmentDownloadService.create(message.id(), part.id());
@@ -177,7 +179,8 @@ class OneBotInboundAdapterTest {
         assertThat(submitted.downloadRequestId()).isEqualTo(downloadRequestId);
         verify(providerFileResolverClient, times(1)).resolve("ONEBOT", "napcat-main", "FILE", "opaque-book");
         verify(downloadIngestionClient).createHttpAttachment(any(), anyLong(), any(),
-                org.mockito.ArgumentMatchers.eq("https://cdn.example.test/book.txt"), anyString(), any());
+                org.mockito.ArgumentMatchers.eq("https://cdn.example.test/book.txt"), anyString(),
+                any(), any(), any());
     }
 
     @Test
@@ -195,7 +198,8 @@ class OneBotInboundAdapterTest {
         when(schedulerClient.createAttachmentDownloadTask(any())).thenReturn(UUID.randomUUID());
         when(providerFileResolverClient.resolve("ONEBOT", "napcat-private", "FILE", "private-book"))
                 .thenReturn(new ProviderFileResolverClient.Resolution("STREAM", null));
-        when(downloadIngestionClient.createStreamedAttachment(any(), anyLong(), any(), anyString(), any()))
+        when(downloadIngestionClient.createStreamedAttachment(any(), anyLong(), any(), anyString(), any(),
+                any(), any()))
                 .thenReturn(downloadRequestId);
         doAnswer(invocation -> {
             ((java.io.OutputStream) invocation.getArgument(4)).write("private".getBytes());
@@ -210,8 +214,10 @@ class OneBotInboundAdapterTest {
 
         assertThat(submitted.downloadRequestId()).isEqualTo(downloadRequestId);
         assertThat(output.toString()).isEqualTo("private");
-        verify(downloadIngestionClient).createStreamedAttachment(any(), anyLong(), any(), anyString(), any());
+        verify(downloadIngestionClient).createStreamedAttachment(any(), anyLong(), any(), anyString(), any(),
+                any(), any());
         verify(downloadIngestionClient, times(0)).createHttpAttachment(
-                org.mockito.ArgumentMatchers.eq(job.id()), anyLong(), any(), anyString(), anyString(), any());
+                org.mockito.ArgumentMatchers.eq(job.id()), anyLong(), any(), anyString(), anyString(),
+                any(), any(), any());
     }
 }

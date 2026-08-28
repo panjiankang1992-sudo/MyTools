@@ -101,3 +101,6 @@ def test_groups_media_album_into_one_inbound_message() -> None:
     assert len(connector.payloads) == 1
     assert connector.payload["externalMessageId"] == "telegram_main:42:31:album:album-7"
     assert [part["providerFileId"] for part in connector.payload["parts"]] == ["photo-a", "photo-b"]
+    assert [part["fileName"] for part in connector.payload["parts"]] == [
+        "telegram-image-31-1", "telegram-image-32-1"]
+    assert [part["mimeType"] for part in connector.payload["parts"]] == ["image/jpeg", "image/jpeg"]

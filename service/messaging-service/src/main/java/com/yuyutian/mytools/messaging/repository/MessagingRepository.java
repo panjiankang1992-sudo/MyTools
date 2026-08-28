@@ -302,7 +302,8 @@ public class MessagingRepository {
     public Optional<AttachmentSource> findAttachmentSource(UUID messageId, UUID partId) {
         return jdbcTemplate.query("""
                 SELECT m.owner_id, m.channel_type, p.id, p.part_type, p.attachment_type, p.provider_file_id,
-                       p.provider_account_key, p.source_url, p.file_name, p.declared_size,
+                       p.provider_account_key, p.source_url, p.file_name, p.mime_type, p.declared_size,
+                       m.received_at,
                        j.resolved_source_url, j.resolution_mode
                 FROM inbound_message_part p JOIN inbound_message m ON m.id = p.inbound_message_id
                 LEFT JOIN attachment_download_job j ON j.message_part_id = p.id
@@ -315,8 +316,8 @@ public class MessagingRepository {
                     resultSet.getString("attachment_type"), resultSet.getString("provider_file_id"),
                     resultSet.getString("provider_account_key"), resultSet.getString("source_url"),
                     resultSet.getString("resolved_source_url"), resultSet.getString("resolution_mode"),
-                    resultSet.getString("file_name"),
-                    sizeMissing ? null : size);
+                    resultSet.getString("file_name"), resultSet.getString("mime_type"),
+                    sizeMissing ? null : size, resultSet.getTimestamp("received_at").toInstant());
         }, messageId.toString(), partId.toString()).stream().findFirst();
     }
 
@@ -411,7 +412,7 @@ public class MessagingRepository {
     public record AttachmentSource(long ownerId, String channelType, UUID partId, String partType, String attachmentType,
                                    String providerFileId, String providerAccountKey, String sourceUrl,
                                    String resolvedSourceUrl, String resolutionMode, String fileName,
-                                   Long declaredSize) {
+                                   String mimeType, Long declaredSize, Instant receivedAt) {
     }
 
     /**

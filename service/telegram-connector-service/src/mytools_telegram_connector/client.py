@@ -184,6 +184,7 @@ class TelegramConnector:
                     attachment_type = "VIDEO"
                 candidates.append((attachment_type, item))
         result = []
+        message_id = str(message.get("message_id") or "unknown")
         for index, (attachment_type, item) in enumerate(candidates[:20]):
             file_id = str(item.get("file_id") or "")
             if not file_id:
@@ -191,10 +192,18 @@ class TelegramConnector:
             result.append({"type": "ATTACHMENT", "text": None,
                 "attachmentType": attachment_type, "providerFileId": file_id[:512],
                 "providerAccountKey": self.config.account_key, "sourceUrl": None,
-                "fileName": str(item.get("file_name") or f"telegram-{attachment_type.lower()}-{index + 1}")[:1024],
-                "mimeType": str(item.get("mime_type") or "application/octet-stream")[:255],
+                # 相册内每条消息都会从index=0开始，默认文件名必须包含message_id避免同目录冲突。
+                "fileName": str(item.get("file_name") or
+                                f"telegram-{attachment_type.lower()}-{message_id}-{index + 1}")[:1024],
+                "mimeType": str(item.get("mime_type") or self._default_mime_type(attachment_type))[:255],
                 "declaredSize": int(item["file_size"]) if int(item.get("file_size") or 0) > 0 else None})
         return result
+
+    @staticmethod
+    def _default_mime_type(attachment_type: str) -> str:
+        """为Telegram未返回MIME的原生媒体提供稳定类型。"""
+        return {"IMAGE": "image/jpeg", "VIDEO": "video/mp4", "RECORD": "audio/ogg"}.get(
+            attachment_type, "application/octet-stream")
 
     async def send_text(self, chat_id: str, message_id: int, text: str) -> None:
         """回复原 Telegram 会话。"""
