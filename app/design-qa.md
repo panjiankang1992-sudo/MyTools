@@ -7,7 +7,8 @@
 - The complete `app/scripts/test-*.sh` suite passes.
 - ArkTS type checking and signed HAP packaging pass without warnings.
 - Emulator overwrite installation, cold start, authentication restoration, gallery browsing, source selection, `big_media` loading, image switching, video loading, video autoplay, control visibility, and vertical switching pass.
-- The current signed HAP is installed on the HarmonyOS emulator. No physical device is currently enumerated, so this iteration does not claim physical-device acceptance.
+- The current signed HAP is installed on both the HarmonyOS emulator and physical device `9CN0224A11031537`.
+- Physical-device cold start, authenticated state restoration, all five primary pages, profile, gallery browsing, repeated viewer entry, drive listing, DSH WebView, and completed-book reopening pass.
 
 ## Comparison target
 
@@ -127,6 +128,39 @@
 
 final result: passed
 
+# Physical Device Final Acceptance (2026-08-28)
+
+## Device and artifact
+
+- Device: `9CN0224A11031537`, physical HarmonyOS handset at `1216 x 2688`.
+- Signed HAP SHA-256: `88ebefea756c366403165e6cb396909769cf43c96fa0242b2a5135d8d395dcea`.
+- Installation, force stop, cold start, and authenticated-session restoration pass.
+
+## Direct runtime evidence
+
+- Reading: header selector, search field, shelf rows, progress labels, and bottom navigation render correctly after cold start.
+- Tools: shared search, hero action, settings rows, and compact bottom navigation render without layout regression.
+- DSH: the persistent WebView loads the authenticated conversation and composer.
+- Multimedia: `20260825` displays the authoritative `176 个`; thumbnails load and three independent thumbnail taps open three different images in the immersive viewer.
+- Drive: PikPak account, search field, root summary, and directory rows load and remain operable.
+- Profile: avatar is left of username, username/email/role metadata is on the right, login-device functionality is absent, and unselected rows have no oval fill.
+- Reader completion: completed books reopen at `全书100% · 1/1页` and `全书100% · 25/25页`; the 100% shelf state survives reinstall and cold start.
+
+## Evidence files
+
+- `app/build/goal-audit/mytools-physical-start.jpeg`
+- `app/build/goal-audit/mytools-physical-tools.jpeg`
+- `app/build/goal-audit/mytools-physical-dsh-actual.jpeg`
+- `app/build/goal-audit/mytools-physical-media.jpeg`
+- `app/build/goal-audit/mytools-physical-drive.jpeg`
+- `app/build/goal-audit/mytools-physical-profile.jpeg`
+- `app/build/goal-audit/mytools-physical-viewer-reopen-2.jpeg`
+- `app/build/goal-audit/mytools-physical-viewer-reopen-3.jpeg`
+- `app/build/goal-audit/mytools-physical-reader-complete.jpeg`
+- `app/build/goal-audit/mytools-physical-source-reader.jpeg`
+
+final result: passed
+
 # Shared Deep-Page Controls QA (2026-08-28)
 
 ## Scope
@@ -137,7 +171,7 @@ final result: passed
 
 ## Result
 
-- The full `114` app shell regression suite passes.
+- The full `115` app shell regression suite passes.
 - ArkTS type checking, signed HAP packaging, emulator overwrite installation, cold start, and deep tool-page rendering pass.
 - The text-processing capture at `app/build/goal-audit/shared-control-final.jpeg` confirms the shared multiline input and read-only output preserve the established page structure while applying the glass control language.
 
@@ -156,7 +190,7 @@ final result: passed
 - Directory and tag metadata is reused while media type, search text, and adult-content filtering remain unchanged.
 - Selecting a date directory immediately clears cards from the previous scope and switches to the selected directory count; the directory response then confirms the authoritative total.
 - Emulator UI dumps confirm that selection never presents the previous `34198` whole-library total and settles on `media/202608/20260825` with `176 个`.
-- All `114` app shell regression tests, ArkTS type checking, signed HAP packaging, overwrite installation, and cold start pass.
+- All `115` app shell regression tests, ArkTS type checking, signed HAP packaging, overwrite installation, and cold start pass.
 
 final result: passed
 
@@ -165,7 +199,7 @@ final result: passed
 ## Scope
 
 - Rebuilt the current signed HAP from `master` after the media hierarchy deployment.
-- Re-ran all 114 APP policy scripts and installed the resulting HAP on the connected HarmonyOS emulator.
+- Re-ran all 115 APP policy scripts and installed the resulting HAP on the connected HarmonyOS emulator.
 - Cold-started authenticated Reading, Tools, DSH, Multimedia, Drive, and Profile surfaces.
 
 ## Runtime evidence
@@ -187,7 +221,7 @@ final result: passed
 
 - ArkTS type checking and signed HAP packaging pass.
 - The connected emulator installation and cold-start pass.
-- The USB physical target `9CN0224A11031537` remains `Offline`; this update makes no new physical-device claim.
+- The earlier offline boundary is superseded by the physical-device final acceptance above.
 
 final result: passed
 
@@ -220,12 +254,12 @@ final result: passed
 
 ## Verification
 
-- All 114 APP policy scripts pass.
+- All 115 APP policy scripts pass.
 - ArkTS type checking and signed HAP packaging pass.
 - Focused reader/search/media backend tests pass under Java 21: 26 root-service tests and 15 Media Library tests.
 - Emulator overwrite installation, cold start, authenticated session restoration, source search, source-result return restoration, profile actions, media filtering, media viewer entry, directory traversal, and reader `100% · 1/1页` completion pass.
 - The reader was stopped immediately after reaching `100%`; a cold restart restored the same shelf item at `100%`, proving end-of-book persistence rather than only an in-memory footer update.
-- The USB physical target is currently reported as `Offline`; no new physical-device claim is made by this audit.
+- The earlier offline boundary is superseded by the physical-device final acceptance above.
 
 final result: passed
 
@@ -261,7 +295,7 @@ final result: passed
 
 - ArkTS type checking and signed HAP packaging pass.
 - The signed HAP installs and cold-starts on the HarmonyOS emulator.
-- All 114 APP policy scripts pass after updating the policies to assert shared semantic controls instead of obsolete raw button markup.
+- All 115 APP policy scripts pass after updating the policies to assert shared semantic controls instead of obsolete raw button markup.
 - The connected target list currently contains only the emulator, so this control batch is not claimed as newly verified on a physical device.
 
 final result: passed
