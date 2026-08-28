@@ -99,5 +99,5 @@ def test_groups_media_album_into_one_inbound_message() -> None:
 
     connector = asyncio.run(scenario())
     assert len(connector.payloads) == 1
-    assert connector.payload["externalMessageId"] == "telegram_main:42:album:album-7"
+    assert connector.payload["externalMessageId"] == "telegram_main:42:31:album:album-7"
     assert [part["providerFileId"] for part in connector.payload["parts"]] == ["photo-a", "photo-b"]

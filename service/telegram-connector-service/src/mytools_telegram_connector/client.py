@@ -113,7 +113,8 @@ class TelegramConnector:
         body = "\n".join(value for value in body_values if value) or "[attachment]"
         dates = [int(value.get("date") or 0) for value in messages if value.get("date")]
         received_at = datetime.fromtimestamp(min(dates), UTC) if dates else datetime.now(UTC)
-        external = f"album:{album_id}" if album_id else message_id
+        # 相册仍以album_id保证聚合幂等，但必须保留首条真实message_id供原会话回复。
+        external = f"{message_id}:album:{album_id}" if album_id else message_id
         payload = {
             "ownerId": self.config.owner_id, "channelType": "TELEGRAM",
             "externalMessageId": f"{self.config.account_key}:{chat_id}:{external}",

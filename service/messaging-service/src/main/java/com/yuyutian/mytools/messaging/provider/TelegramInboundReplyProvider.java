@@ -38,8 +38,8 @@ public class TelegramInboundReplyProvider implements InboundReplyProvider {
     /** {@inheritDoc} */
     @Override
     public void reply(InboundMessageView message, String idempotencyKey, String body) {
-        String[] identity = message.externalMessageId().split(":", 3);
-        if (identity.length != 3 || identity[1].isBlank() || identity[2].isBlank()) {
+        String[] identity = message.externalMessageId().split(":");
+        if (identity.length < 3 || identity[1].isBlank() || identity[2].isBlank()) {
             throw new IllegalStateException("Telegram message identity is invalid");
         }
         if (properties.telegramConnectorToken() == null || properties.telegramConnectorToken().isBlank()) {
@@ -48,8 +48,20 @@ public class TelegramInboundReplyProvider implements InboundReplyProvider {
         restClient.post().uri("/internal/v1/messages/text")
                 .header("Authorization", "Bearer " + properties.telegramConnectorToken())
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("chatId", identity[1], "messageId", Long.parseLong(identity[2]),
+                .body(Map.of("chatId", identity[1], "messageId", replyMessageId(message.externalMessageId()),
                         "text", body, "idempotencyKey", idempotencyKey))
                 .retrieve().toBodilessEntity();
+    }
+
+    static long replyMessageId(String externalMessageId) {
+        String[] identity = externalMessageId.split(":");
+        if (identity.length < 3 || identity[1].isBlank() || identity[2].isBlank()) {
+            throw new IllegalStateException("Telegram message identity is invalid");
+        }
+        try {
+            return Long.parseLong(identity[2]);
+        } catch (NumberFormatException exception) {
+            throw new IllegalStateException("Telegram message identity is invalid", exception);
+        }
     }
 }
