@@ -156,16 +156,18 @@ def execute(context: TaskContext, username: str, post_ids: list[str]) -> dict:
     batches = 0
     for offset in range(0, len(post_ids), CHILD_BATCH_SIZE):
         children = []
-        for identifier in post_ids[offset:offset + CHILD_BATCH_SIZE]:
+        for batch_index, identifier in enumerate(post_ids[offset:offset + CHILD_BATCH_SIZE]):
             url = f"https://x.com/i/web/status/{identifier}"
             fingerprint = hashlib.sha256(url.encode()).hexdigest()
+            # 每个帖子预留一百个结果索引，覆盖单帖最多四十个媒体的契约上限。
+            source_index_offset = (offset + batch_index) * 100
             child = context.create_child(
                 "download_x_post",
                 {"downloadRequestId": request_id, "url": url, "ownerId": int(parameters.get("ownerId") or 0),
                  "resourceUsername": str(parameters.get("resourceUsername") or ""),
                  "receivedAt": str(parameters.get("receivedAt") or ""),
                  "messageBatchId": str(parameters.get("messageBatchId") or request_id),
-                 "albumFolder": username},
+                 "albumFolder": username, "sourceIndexOffset": source_index_offset},
                 f"x-user-post:{request_id}:{identifier}:{fingerprint}",
                 business_type="DOWNLOAD_REQUEST", business_id=request_id)
             children.append(child)

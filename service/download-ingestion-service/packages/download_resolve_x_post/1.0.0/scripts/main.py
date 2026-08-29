@@ -218,18 +218,23 @@ def execute(context: TaskContext, parameters: dict, resources: list[dict], tweet
         batch_id = SAFE_PART.sub("_", str(parameters.get("messageBatchId") or request_id)).strip("_")
         album_folder = f"message-{batch_id[:48]}"
     children = []
+    source_index_offset = int(parameters.get("sourceIndexOffset", 0))
+    if source_index_offset < 0 or source_index_offset > 999900:
+        raise ValueError("sourceIndexOffset is outside the supported range")
     for source_index, resource in enumerate(resources, start=1):
         item_id = f"x:{resource['tweetId']}:{resource['index']}"
         fingerprint = hashlib.sha256(resource["url"].encode()).hexdigest()
         child = context.create_child(
             "download_http_asset",
             {"downloadRequestId": request_id, "itemId": item_id, "url": resource["url"],
-             "fileName": resource["fileName"], "sourceIndex": source_index,
+             "fileName": resource["fileName"],
+             "sourceIndex": source_index_offset + source_index,
              "maxBytes": maximum_bytes,
              "ownerId": int(parameters.get("ownerId") or 0),
              "resourceUsername": str(parameters.get("resourceUsername") or ""),
              "receivedAt": str(parameters.get("receivedAt") or ""),
              "albumFolder": album_folder,
+             "trustedHostSuffix": ".twimg.com",
              "assetMimeType": resource["mimeType"],
              "assetSourceBusinessId": f"{request_id}:{item_id}"},
             f"x-media:{request_id}:{resource['tweetId']}:{resource['index']}:{fingerprint}",

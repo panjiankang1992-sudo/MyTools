@@ -100,7 +100,8 @@ def test_parent_assigns_request_global_source_indexes():
          "fileName": "b.jpg", "mimeType": "image/jpeg"},
     ]
 
-    MODULE.execute(context, {"downloadRequestId": request_id, "ownerId": 8},
+    MODULE.execute(context, {"downloadRequestId": request_id, "ownerId": 8,
+                             "sourceIndexOffset": 200},
                    resources, "123")
 
-    assert [created[1]["sourceIndex"] for created in context.created] == [1, 2]
+    assert [created[1]["sourceIndex"] for created in context.created] == [201, 202]

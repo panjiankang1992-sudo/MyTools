@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["healthy", "checkedAt", "probeUrl"],
+  "properties": {
+    "healthy": {"type": "boolean"},
+    "checkedAt": {"type": "string", "format": "date-time"},
+    "probeUrl": {"type": "string", "format": "uri"}
+  },
+  "additionalProperties": false
+}

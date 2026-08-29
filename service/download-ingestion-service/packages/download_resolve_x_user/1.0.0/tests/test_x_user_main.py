@@ -70,6 +70,8 @@ def test_creates_post_tasks_in_twenty_item_batches(monkeypatch):
     assert waited == [20, 20, 5]
     assert {task_name for _, task_name, _ in context.children} == {"download_x_post"}
     assert {parameters["albumFolder"] for _, _, parameters in context.children} == {"example"}
+    assert [context.children[index][2]["sourceIndexOffset"] for index in (0, 1, 44)] \
+        == [0, 100, 4400]
 
 
 def test_claims_derived_post_links_before_creating_tasks(monkeypatch):

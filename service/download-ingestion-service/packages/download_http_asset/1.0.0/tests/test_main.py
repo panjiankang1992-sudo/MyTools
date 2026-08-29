@@ -78,6 +78,20 @@ class DownloadHttpAssetTest(unittest.TestCase):
             MODULE.validated_url("http://internal.example/secret", resolver=lambda *_args, **_kwargs: [
                 (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("127.0.0.1", 80))])
 
+    def test_accepts_trusted_twimg_without_local_dns_resolution(self):
+        """X 解析器生成的 HTTPS 媒体允许绕过受代理污染的本机 DNS。"""
+        resolver = lambda *_args, **_kwargs: self.fail("trusted host must not use local DNS")
+        self.assertEqual("https://pbs.twimg.com/media/test.jpg",
+                         MODULE.validated_url("https://pbs.twimg.com/media/test.jpg", resolver,
+                                              MODULE.trusted_host_suffix(".twimg.com")))
+
+    def test_rejects_untrusted_suffix_and_cross_domain_redirect(self):
+        """信任后缀仅限 twimg 且重定向不得离开该媒体域。"""
+        with self.assertRaisesRegex(ValueError, "not allowed"):
+            MODULE.trusted_host_suffix(".example.com")
+        with self.assertRaisesRegex(ValueError, "does not match"):
+            MODULE.validated_url("https://example.com/file", public_resolver, ".twimg.com")
+
     def test_accepts_only_loopback_http_proxy(self):
         """Restricted downloads may use the local managed proxy only."""
         self.assertEqual("http://127.0.0.1:17890",

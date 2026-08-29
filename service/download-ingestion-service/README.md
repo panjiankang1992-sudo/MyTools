@@ -125,3 +125,7 @@ as message ingress:
 `DOWNLOAD_MCP_OWNER_ID` selects the business owner. `DOWNLOAD_MCP_MAGNET_MODE` is either `pikpak`
 or `local`; PikPak mode also requires `DOWNLOAD_MCP_PIKPAK_ACCOUNT_ID`. The adapter never writes
 credentials or links to stdout because stdout is reserved for JSON-RPC.
+
+`download_x_auth_health` 每六小时使用最小时间线请求验证 X 登录会话。任务显式允许
+gallery-dl 将服务端返回的新会话 Cookie 回写到受限 Cookie 文件；检测到登录失效时，
+通过 Messaging Service 向所有者最近使用的 Telegram、QQ 或 OneBot 会话发送每日一次的告警。

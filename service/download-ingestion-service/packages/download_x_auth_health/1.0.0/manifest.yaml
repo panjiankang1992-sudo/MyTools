@@ -1,0 +1,14 @@
+name: download_x_auth_health
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - network_http
+  - subprocess_gallery_dl
+parameters:
+  required: []
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 180
+  maxOutputBytes: 65536

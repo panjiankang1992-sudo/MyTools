@@ -18,6 +18,7 @@ CHUNK_BYTES = 1024 * 1024
 DEFAULT_MAX_BYTES = 2 * 1024 * 1024 * 1024
 MAX_CONFIGURED_BYTES = 20 * 1024 * 1024 * 1024
 SAFE_NAME = re.compile(r"^[^/\\\x00]{1,255}$")
+TRUSTED_HOST_SUFFIXES = {".twimg.com"}
 
 
 def validated_proxy(value: object) -> str | None:
@@ -41,14 +42,30 @@ def validated_name(value: object) -> str:
     return name
 
 
-def validated_url(value: object, resolver=socket.getaddrinfo) -> str:
+def trusted_host_suffix(value: object) -> str | None:
+    """只允许任务声明由可信解析器生成的固定媒体域后缀。"""
+    suffix = str(value or "").strip().lower()
+    if not suffix:
+        return None
+    if suffix not in TRUSTED_HOST_SUFFIXES:
+        raise ValueError("trustedHostSuffix is not allowed")
+    return suffix
+
+
+def validated_url(value: object, resolver=socket.getaddrinfo,
+                  trusted_suffix: str | None = None) -> str:
     """Allow only absolute HTTP URLs resolving exclusively to public addresses."""
     url = str(value or "").strip()
     parsed = urlparse(url)
     if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username or parsed.password:
         raise ValueError("url must be absolute HTTP or HTTPS")
+    hostname = parsed.hostname.lower()
+    if trusted_suffix is not None:
+        if parsed.scheme != "https" or not hostname.endswith(trusted_suffix):
+            raise ValueError("url host does not match trustedHostSuffix")
+        return url
     try:
-        addresses = resolver(parsed.hostname, parsed.port or (443 if parsed.scheme == "https" else 80),
+        addresses = resolver(hostname, parsed.port or (443 if parsed.scheme == "https" else 80),
                              type=socket.SOCK_STREAM)
     except OSError as exception:
         raise ValueError("url host cannot be resolved") from exception
@@ -64,13 +81,14 @@ def validated_url(value: object, resolver=socket.getaddrinfo) -> str:
 class SafeRedirectHandler(HTTPRedirectHandler):
     """Revalidate every redirect target before urllib follows it."""
 
-    def __init__(self, resolver):
+    def __init__(self, resolver, trusted_suffix=None):
         self._resolver = resolver
+        self._trusted_suffix = trusted_suffix
         super().__init__()
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         """Reject redirects that leave the public HTTP boundary."""
-        validated_url(newurl, self._resolver)
+        validated_url(newurl, self._resolver, self._trusted_suffix)
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
@@ -88,7 +106,8 @@ def stream_download(parameters: dict, destination_root: Path, opener=None,
     request_id = str(parameters["downloadRequestId"])
     item_id = str(parameters["itemId"])
     file_name = validated_name(parameters["fileName"])
-    url = validated_url(parameters["url"], resolver)
+    suffix = trusted_host_suffix(parameters.get("trustedHostSuffix"))
+    url = validated_url(parameters["url"], resolver, suffix)
     limit = byte_limit(parameters)
     target_dir = destination_root / request_id
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -98,7 +117,7 @@ def stream_download(parameters: dict, destination_root: Path, opener=None,
     temporary_path: Path | None = None
     request = Request(url, headers={"User-Agent": "MyTools-Download-Executor/1.0"})
     proxy = validated_proxy(os.environ.get("DOWNLOAD_HTTP_PROXY"))
-    handlers = [SafeRedirectHandler(resolver)]
+    handlers = [SafeRedirectHandler(resolver, suffix)]
     if proxy is not None:
         handlers.insert(0, ProxyHandler({"http": proxy, "https": proxy}))
     request_opener = opener or build_opener(*handlers).open
