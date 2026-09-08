@@ -7,3 +7,14 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+task:
+  scheduler:
+    cancellation-scan-delay-ms: 60000
+  security:
+    required: false
+  node-registration:
+    enforce: false
+  node-health:
+    offline-after-seconds: 60
+    scan-delay-ms: 60000
+    no-available-alert-seconds: 60

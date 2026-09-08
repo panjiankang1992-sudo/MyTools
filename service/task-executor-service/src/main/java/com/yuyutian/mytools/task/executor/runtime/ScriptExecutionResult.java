@@ -11,6 +11,7 @@ import java.time.Duration;
  * @param duration 执行时长
  * @param timedOut 是否超时
  * @param cancelled 是否取消
+ * @param logIndex 日志分段索引
  */
 public record ScriptExecutionResult(
         int exitCode,
@@ -18,6 +19,14 @@ public record ScriptExecutionResult(
         String standardError,
         Duration duration,
         boolean timedOut,
-        boolean cancelled
+        boolean cancelled,
+        ProcessLogIndex logIndex
 ) {
+    /**
+     * 创建不带日志索引的兼容结果。
+     */
+    public ScriptExecutionResult(int exitCode, String standardOutput, String standardError, Duration duration,
+                                 boolean timedOut, boolean cancelled) {
+        this(exitCode, standardOutput, standardError, duration, timedOut, cancelled, ProcessLogIndex.empty());
+    }
 }

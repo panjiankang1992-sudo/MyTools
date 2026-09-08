@@ -1,0 +1,21 @@
+name: reader_export_audiobook
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - storage_gateway_read
+  - storage_gateway_upload
+  - reader_internal_read
+  - reader_internal_write
+parameters:
+  required:
+    - exportId
+    - ownerId
+    - storageRoot
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 21600
+  maxChapterBytes: 268435456
+  maxTotalAudioBytes: 4294967296
+  maxChapters: 20000

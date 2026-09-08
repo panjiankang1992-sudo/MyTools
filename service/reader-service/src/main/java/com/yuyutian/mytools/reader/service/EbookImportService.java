@@ -2,6 +2,7 @@ package com.yuyutian.mytools.reader.service;
 
 import com.yuyutian.mytools.reader.config.ReaderProperties;
 import com.yuyutian.mytools.reader.model.CreateEbookImportRequest;
+import com.yuyutian.mytools.reader.model.CreateManagedEbookImportRequest;
 import com.yuyutian.mytools.reader.model.EbookImportRecord;
 import com.yuyutian.mytools.reader.model.EbookImportView;
 import com.yuyutian.mytools.reader.model.EbookCatalogView;
@@ -15,6 +16,7 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -22,6 +24,10 @@ import java.util.UUID;
  */
 @Service
 public class EbookImportService {
+
+    /** 受管有声书导入允许的、可安全投影为章节正文的 MIME 类型。 */
+    private static final Set<String> SUPPORTED_MANAGED_EBOOK_MIME_TYPES = Set.of(
+            "text/plain", "application/epub+zip");
 
     private final EbookImportRepository repository;
     private final DiscoveryRepository sourceRepository;
@@ -62,6 +68,38 @@ public class EbookImportService {
             UUID taskId = schedulerClient.createTask("reader_import_ebook",
                     "reader_import_ebook:" + record.id() + ":v1", "READER_EBOOK_IMPORT",
                     record.id(), 50, record.parameters());
+            repository.bindTask(record.id(), taskId);
+            record = required(record.id());
+        }
+        return view(record);
+    }
+
+    /**
+     * 幂等创建一条由已校验 Media Library 条目驱动的受管 TXT 或 EPUB 导入任务。
+     *
+     * @param request Gateway 已注入并冻结媒体元数据的请求
+     * @return 导入视图
+     */
+    @Transactional
+    public EbookImportView createManaged(CreateManagedEbookImportRequest request) {
+        if (!request.rightsConfirmed()) {
+            throw new IllegalArgumentException("managed ebook import rights were not confirmed");
+        }
+        if (!SUPPORTED_MANAGED_EBOOK_MIME_TYPES.contains(request.mimeType().toLowerCase(java.util.Locale.ROOT))) {
+            throw new IllegalArgumentException("managed ebook import MIME type is unsupported");
+        }
+        String bookUrl = "media://" + request.mediaItemId();
+        EbookImportRecord record = repository.findByIdempotencyKey(request.ownerId(), request.idempotencyKey())
+                .orElseGet(() -> createManagedRecord(request, bookUrl));
+        if (!bookUrl.equals(record.bookUrl()) || !request.title().equals(record.title())
+                || !request.mediaAssetId().toString().equals(record.parameters().get("mediaAssetId"))
+                || !request.contentSha256().equalsIgnoreCase(String.valueOf(record.parameters().get("contentSha256")))) {
+            throw new IllegalArgumentException("managed ebook import idempotency conflict");
+        }
+        if (record.taskId() == null) {
+            UUID taskId = schedulerClient.createTask("reader_import_managed_ebook",
+                    "reader_import_managed_ebook:" + record.id() + ":v1", "READER_MANAGED_EBOOK_IMPORT",
+                    record.id(), 45, record.parameters());
             repository.bindTask(record.id(), taskId);
             record = required(record.id());
         }
@@ -188,6 +226,28 @@ public class EbookImportService {
         return record;
     }
 
+    private EbookImportRecord createManagedRecord(CreateManagedEbookImportRequest request, String bookUrl) {
+        var source = sourceRepository.ensureManagedMediaSource(request.ownerId());
+        Instant now = Instant.now();
+        UUID id = UUID.randomUUID();
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        parameters.put("requestId", id.toString());
+        parameters.put("ownerId", request.ownerId());
+        parameters.put("sourceId", source.id().toString());
+        parameters.put("mediaItemId", request.mediaItemId().toString());
+        parameters.put("mediaAssetId", request.mediaAssetId().toString());
+        parameters.put("title", request.title());
+        parameters.put("mimeType", request.mimeType().toLowerCase(java.util.Locale.ROOT));
+        parameters.put("sizeBytes", request.sizeBytes());
+        parameters.put("contentSha256", request.contentSha256().toLowerCase(java.util.Locale.ROOT));
+        parameters.put("storageRoot", properties.ebookStorageRoot());
+        EbookImportRecord record = new EbookImportRecord(id, request.ownerId(), request.idempotencyKey(),
+                source.id(), source.version(), bookUrl, request.title(), null, properties.ebookStorageRoot(),
+                "ACCEPTED", null, parameters, null, null, null, null, now, now);
+        repository.insert(record);
+        return record;
+    }
+
     private EbookImportRecord required(UUID requestId) {
         return repository.findById(requestId).orElseThrow(() -> new EbookImportNotFoundException(requestId));
     }
@@ -201,7 +261,7 @@ public class EbookImportService {
     }
 
     private EbookImportView view(EbookImportRecord record) {
-        return new EbookImportView(record.id(), record.taskId(), record.status(), record.sourceId(),
+        return new EbookImportView(record.id(), repository.findAssetId(record.id()).orElse(null), record.taskId(), record.status(), record.sourceId(),
                 record.sourceVersion(), record.title(), record.author(), record.chapterCount(), record.outputSize(),
                 record.outputSha256(), record.storageUri(), record.createdAt(), record.updatedAt());
     }

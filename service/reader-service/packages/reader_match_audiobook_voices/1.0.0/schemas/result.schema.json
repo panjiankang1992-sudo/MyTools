@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "required": ["generationId", "bindingCount"],
+  "properties": {
+    "generationId": {"type": "string", "format": "uuid"},
+    "bindingCount": {"type": "integer", "minimum": 1}
+  },
+  "additionalProperties": false
+}

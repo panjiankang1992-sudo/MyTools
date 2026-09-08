@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import time
 import urllib.error
 import urllib.request
@@ -16,12 +17,16 @@ EXPECTATIONS={"success":("SUCCEEDED",None),"failure":("FAILED","on_failure"),"ti
 
 class HttpClient:
     """Minimal Scheduler JSON client."""
-    def __init__(self,base_url:str,timeout:float=3):
-        self.base_url=base_url;self.timeout=timeout
+    def __init__(self,base_url:str,timeout:float=3,service_id:str="mytools-service",token:str=""):
+        self.base_url=base_url;self.timeout=timeout;self.service_id=service_id;self.token=token
     def request(self,path:str,method:str="GET",payload:dict[str,Any]|None=None)->Any:
         """Send one JSON request and require a successful response."""
         data=None if payload is None else json.dumps(payload,separators=(",",":")).encode()
-        request=urllib.request.Request(self.base_url.rstrip("/")+path,data=data,method=method,headers={"Accept":"application/json","Content-Type":"application/json"})
+        headers={"Accept":"application/json","Content-Type":"application/json"}
+        if self.token:
+            headers["X-Task-Service-Id"]=self.service_id
+            headers["X-Task-Business-Token"]=self.token
+        request=urllib.request.Request(self.base_url.rstrip("/")+path,data=data,method=method,headers=headers)
         try:response=urllib.request.urlopen(request,timeout=self.timeout)
         except urllib.error.HTTPError as error:raise RuntimeError(f"Scheduler returned HTTP {error.code}")from error
         with response:
@@ -68,8 +73,8 @@ def run(client:Any,run_key:str,deadline_seconds:float)->dict[str,Any]:
 
 def main(argv:Sequence[str]|None=None)->int:
     """Run deployed task execution acceptance."""
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument("--scheduler-url",default="http://127.0.0.1:23410");parser.add_argument("--run-key",default=f"run-{uuid.uuid4()}");parser.add_argument("--deadline-seconds",type=float,default=90);parser.add_argument("--request-timeout",type=float,default=3);arguments=parser.parse_args(argv)
-    try:report=run(HttpClient(arguments.scheduler_url,arguments.request_timeout),arguments.run_key,arguments.deadline_seconds)
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument("--scheduler-url",default="http://127.0.0.1:23410");parser.add_argument("--service-id",default=os.getenv("TASK_ACCEPTANCE_SERVICE_ID","mytools-service"));parser.add_argument("--token",default=os.getenv("TASK_BUSINESS_MYTOOLS_TOKEN",""));parser.add_argument("--run-key",default=f"run-{uuid.uuid4()}");parser.add_argument("--deadline-seconds",type=float,default=90);parser.add_argument("--request-timeout",type=float,default=3);arguments=parser.parse_args(argv)
+    try:report=run(HttpClient(arguments.scheduler_url,arguments.request_timeout,arguments.service_id,arguments.token),arguments.run_key,arguments.deadline_seconds)
     except (OSError,RuntimeError,ValueError,json.JSONDecodeError)as error:print(json.dumps({"ready":False,"error":str(error)},separators=(",",":")));return 2
     print(json.dumps(report,separators=(",",":")));return 0
 

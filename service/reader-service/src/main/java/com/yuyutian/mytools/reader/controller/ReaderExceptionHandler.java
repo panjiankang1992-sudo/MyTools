@@ -18,6 +18,14 @@ import com.yuyutian.mytools.reader.service.LibraryRebuildNotFoundException;
 import com.yuyutian.mytools.reader.service.ReaderStateConflictException;
 import com.yuyutian.mytools.reader.service.ReaderStateNotFoundException;
 import com.yuyutian.mytools.reader.service.ReaderRuntimeUnavailableException;
+import com.yuyutian.mytools.reader.service.AudiobookGenerationNotFoundException;
+import com.yuyutian.mytools.reader.service.AudiobookAssetNotFoundException;
+import com.yuyutian.mytools.reader.service.AudiobookAudioUnavailableException;
+import com.yuyutian.mytools.reader.service.AudiobookExportNotFoundException;
+import com.yuyutian.mytools.reader.service.AudiobookExportUnavailableException;
+import com.yuyutian.mytools.reader.service.AudiobookCharacterLimitExceededException;
+import com.yuyutian.mytools.reader.service.AudiobookDailyCharacterQuotaExceededException;
+import com.yuyutian.mytools.reader.service.AudiobookGenerationUnavailableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -218,5 +226,71 @@ public class ReaderExceptionHandler {
     public Map<String, String> handleRuntimeUnavailable(ReaderRuntimeUnavailableException exception) {
         return Map.of("code", ErrorCode.RUNTIME_UNAVAILABLE.code(),
                 "message", ErrorCode.RUNTIME_UNAVAILABLE.message());
+    }
+
+    /** 转换有声书生成运行不存在异常。 */
+    @ExceptionHandler(AudiobookGenerationNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleAudiobookGenerationNotFound(AudiobookGenerationNotFoundException exception) {
+        return Map.of("code", ErrorCode.AUDIOBOOK_GENERATION_NOT_FOUND.code(),
+                "message", ErrorCode.AUDIOBOOK_GENERATION_NOT_FOUND.message());
+    }
+
+    /** 转换有声书源资产不存在异常。 */
+    @ExceptionHandler(AudiobookAssetNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleAudiobookAssetNotFound(AudiobookAssetNotFoundException exception) {
+        return Map.of("code", ErrorCode.AUDIOBOOK_ASSET_NOT_FOUND.code(),
+                "message", ErrorCode.AUDIOBOOK_ASSET_NOT_FOUND.message());
+    }
+
+    /** 转换有声书章节音频不可用异常。 */
+    @ExceptionHandler(AudiobookAudioUnavailableException.class)
+    @ResponseStatus(HttpStatus.BAD_GATEWAY)
+    public Map<String, String> handleAudiobookAudioUnavailable(AudiobookAudioUnavailableException exception) {
+        return Map.of("code", ErrorCode.AUDIOBOOK_AUDIO_UNAVAILABLE.code(),
+                "message", ErrorCode.AUDIOBOOK_AUDIO_UNAVAILABLE.message());
+    }
+
+    /** 转换有声书导出不存在异常。 */
+    @ExceptionHandler(AudiobookExportNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleAudiobookExportNotFound(AudiobookExportNotFoundException exception) {
+        return Map.of("code", ErrorCode.AUDIOBOOK_EXPORT_NOT_FOUND.code(),
+                "message", ErrorCode.AUDIOBOOK_EXPORT_NOT_FOUND.message());
+    }
+
+    /** 转换有声书导出归档不可用异常。 */
+    @ExceptionHandler(AudiobookExportUnavailableException.class)
+    @ResponseStatus(HttpStatus.BAD_GATEWAY)
+    public Map<String, String> handleAudiobookExportUnavailable(AudiobookExportUnavailableException exception) {
+        return Map.of("code", ErrorCode.AUDIOBOOK_EXPORT_UNAVAILABLE.code(),
+                "message", ErrorCode.AUDIOBOOK_EXPORT_UNAVAILABLE.message());
+    }
+
+    /** 转换有声书冻结正文超限异常。 */
+    @ExceptionHandler(AudiobookCharacterLimitExceededException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public Map<String, String> handleAudiobookCharacterLimitExceeded(
+            AudiobookCharacterLimitExceededException exception) {
+        return Map.of("code", ErrorCode.AUDIOBOOK_CHARACTER_LIMIT_EXCEEDED.code(),
+                "message", ErrorCode.AUDIOBOOK_CHARACTER_LIMIT_EXCEEDED.message());
+    }
+
+    /** 转换有声书每日正文预算超限异常。 */
+    @ExceptionHandler(AudiobookDailyCharacterQuotaExceededException.class)
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    public Map<String, String> handleAudiobookDailyCharacterQuotaExceeded(
+            AudiobookDailyCharacterQuotaExceededException exception) {
+        return Map.of("code", ErrorCode.AUDIOBOOK_DAILY_CHARACTER_QUOTA_EXCEEDED.code(),
+                "message", ErrorCode.AUDIOBOOK_DAILY_CHARACTER_QUOTA_EXCEEDED.message());
+    }
+
+    /** 转换有声书灰度未开放异常。 */
+    @ExceptionHandler(AudiobookGenerationUnavailableException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, String> handleAudiobookGenerationUnavailable(AudiobookGenerationUnavailableException exception) {
+        return Map.of("code", ErrorCode.AUDIOBOOK_GENERATION_UNAVAILABLE.code(),
+                "message", ErrorCode.AUDIOBOOK_GENERATION_UNAVAILABLE.message());
     }
 }

@@ -10,3 +10,7 @@ reader:
   scheduler-url: http://127.0.0.1:23210
   internal-token: test-reader-token
   ebook-storage-root: managed
+  audiobook-maximum-characters-per-generation: 1500000
+  audiobook-daily-characters-per-owner: 3000000
+  audiobook-generation-enabled: true
+  audiobook-allowed-owner-ids: []

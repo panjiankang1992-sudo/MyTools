@@ -4,9 +4,11 @@ import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayBadRequestException;
 import com.yuyutian.mytools.gateway.service.GatewayDownstreamException;
 import com.yuyutian.mytools.gateway.service.GatewayNotFoundException;
+import com.yuyutian.mytools.gateway.service.GatewayReaderRejectedException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -71,5 +73,17 @@ public class GatewayExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> notFound(GatewayNotFoundException exception) {
         return Map.of("code", "GATEWAY_005", "message", "Gateway resource was not found");
+    }
+
+    /**
+     * 透传受格式约束的 Reader 业务拒绝，避免 App 将可恢复业务状态误判为 Gateway 故障。
+     *
+     * @param exception Reader 稳定拒绝异常
+     * @return 受限 Reader 错误码和客户端状态
+     */
+    @ExceptionHandler(GatewayReaderRejectedException.class)
+    public ResponseEntity<Map<String, String>> readerRejected(GatewayReaderRejectedException exception) {
+        return ResponseEntity.status(exception.statusCode()).body(Map.of("code", exception.errorCode(),
+                "message", "Reader request was rejected (" + exception.errorCode() + ")"));
     }
 }

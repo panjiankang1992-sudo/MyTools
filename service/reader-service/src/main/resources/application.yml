@@ -13,14 +13,24 @@ spring:
     locations: classpath:db/migration
 
 management:
+  metrics:
+    tags:
+      application: ${spring.application.name}
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
 
 reader:
   scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
+  scheduler-token: ${TASK_BUSINESS_READER_TOKEN:${TASK_BUSINESS_INTERNAL_TOKEN:${TASK_INTERNAL_TOKEN:}}}
   internal-token: ${READER_INTERNAL_TOKEN:}
   ebook-storage-root: ${READER_EBOOK_STORAGE_ROOT:managed}
   runtime-base-url: ${READER_RUNTIME_BASE_URL:http://127.0.0.1:23120}
   runtime-secure-key: ${READER_RUNTIME_SECURE_KEY:}
+  storage-gateway-url: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
+  storage-internal-token: ${STORAGE_INTERNAL_TOKEN:}
+  audiobook-maximum-characters-per-generation: ${AUDIOBOOK_MAXIMUM_CHARACTERS_PER_GENERATION:1500000}
+  audiobook-daily-characters-per-owner: ${AUDIOBOOK_DAILY_CHARACTERS_PER_OWNER:3000000}
+  audiobook-generation-enabled: ${AUDIOBOOK_GENERATION_ENABLED:true}
+  audiobook-allowed-owner-ids: ${AUDIOBOOK_ALLOWED_OWNER_IDS:}

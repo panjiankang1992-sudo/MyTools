@@ -4,9 +4,22 @@ import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.CacheView;
 import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.CreatePrefetch;
 import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.PrefetchView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookGenerationView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookExportView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookPlaybackManifest;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookBookAnalysisView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookVoicePlanView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookVoiceCatalogView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookPronunciationDictionaryView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.CreateAudiobookGeneration;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.CreateAudiobookExport;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.CreateAudiobookVoiceRevision;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.CreateAudiobookSpeakerRevision;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.CreateAudiobookPronunciationRevision;
 import com.yuyutian.mytools.gateway.model.GatewayPrincipal;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CatalogView;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CreateImport;
+import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CreateManagedImport;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.ImportView;
 import com.yuyutian.mytools.gateway.model.ReaderSearchGatewayModels.CreateSearch;
 import com.yuyutian.mytools.gateway.model.ReaderSearchGatewayModels.SearchView;
@@ -16,8 +29,13 @@ import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.DiscoveryView;
 import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.HealthCheckView;
 import com.yuyutian.mytools.gateway.service.GatewayRouteDisabledException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
+import com.yuyutian.mytools.gateway.service.GatewayNotFoundException;
 import com.yuyutian.mytools.gateway.service.ReaderGatewayClient;
 import com.yuyutian.mytools.gateway.service.BookSourceRuntimeSearchGatewayClient;
+import com.yuyutian.mytools.gateway.service.AudiobookPlaybackTicketService;
+import com.yuyutian.mytools.gateway.service.AudiobookVoicePreviewTicketService;
+import com.yuyutian.mytools.gateway.service.AudiobookExportTicketService;
+import com.yuyutian.mytools.gateway.service.MediaGatewayClient;
 import com.yuyutian.mytools.gateway.web.GatewayRequestFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -40,6 +58,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -49,15 +68,24 @@ import java.util.UUID;
 @RequestMapping("/api/app/v1/reader")
 public class ReaderGatewayController {
 
+    /** 可安全交给受管有声书导入链路的媒体 MIME 类型。 */
+    private static final Set<String> SUPPORTED_MANAGED_AUDIOBOOK_MIME_TYPES = Set.of(
+            "text/plain", "application/epub+zip");
+
     private final GatewayProperties properties;
     private final ReaderGatewayClient client;
     private final BookSourceRuntimeSearchGatewayClient runtimeSearchClient;
+    private final AudiobookPlaybackTicketService audiobookTickets;
+    private final AudiobookVoicePreviewTicketService audiobookVoicePreviewTickets;
+    private final AudiobookExportTicketService audiobookExportTickets;
+    private final MediaGatewayClient mediaClient;
 
     /**
      * 创建 Reader Gateway 控制器。
      */
     public ReaderGatewayController(GatewayProperties properties, ReaderGatewayClient client) {
-        this(properties, client, null);
+        this(properties, client, null, new AudiobookPlaybackTicketService(), new AudiobookVoicePreviewTicketService(),
+                new AudiobookExportTicketService(), null);
     }
 
     /**
@@ -67,12 +95,74 @@ public class ReaderGatewayController {
      * @param client Reader服务客户端
      * @param runtimeSearchClient 书源运行时搜索客户端
      */
+    public ReaderGatewayController(GatewayProperties properties, ReaderGatewayClient client,
+                                   BookSourceRuntimeSearchGatewayClient runtimeSearchClient,
+                                   AudiobookPlaybackTicketService audiobookTickets) {
+        this(properties, client, runtimeSearchClient, audiobookTickets, new AudiobookVoicePreviewTicketService(),
+                new AudiobookExportTicketService(), null);
+    }
+
+    /**
+     * 创建包含书源、播放和受管媒体桥接依赖的 Gateway 控制器。
+     *
+     * @param properties Gateway 配置
+     * @param client Reader 服务客户端
+     * @param runtimeSearchClient 书源运行时搜索客户端
+     * @param audiobookTickets 有声书播放票据服务
+     * @param mediaClient Media Library 客户端
+     */
+    public ReaderGatewayController(GatewayProperties properties, ReaderGatewayClient client,
+                                   BookSourceRuntimeSearchGatewayClient runtimeSearchClient,
+                                   AudiobookPlaybackTicketService audiobookTickets,
+                                   MediaGatewayClient mediaClient) {
+        this(properties, client, runtimeSearchClient, audiobookTickets, new AudiobookVoicePreviewTicketService(),
+                new AudiobookExportTicketService(), mediaClient);
+    }
+
+    /**
+     * 创建包含导出下载票据服务的 Reader Gateway 控制器。
+     *
+     * @param properties Gateway 配置
+     * @param client Reader 服务客户端
+     * @param runtimeSearchClient 书源运行时搜索客户端
+     * @param audiobookTickets 有声书播放票据服务
+     * @param audiobookExportTickets 有声书导出票据服务
+     * @param mediaClient Media Library 客户端
+     */
+    public ReaderGatewayController(GatewayProperties properties, ReaderGatewayClient client,
+                                   BookSourceRuntimeSearchGatewayClient runtimeSearchClient,
+                                   AudiobookPlaybackTicketService audiobookTickets,
+                                   AudiobookExportTicketService audiobookExportTickets,
+                                   MediaGatewayClient mediaClient) {
+        this(properties, client, runtimeSearchClient, audiobookTickets, new AudiobookVoicePreviewTicketService(),
+                audiobookExportTickets, mediaClient);
+    }
+
+    /**
+     * 创建包含音色样音票据服务的 Gateway 控制器。
+     *
+     * @param properties Gateway 配置
+     * @param client Reader 服务客户端
+     * @param runtimeSearchClient 书源运行时搜索客户端
+     * @param audiobookTickets 章节播放票据服务
+     * @param audiobookVoicePreviewTickets 音色样音播放票据服务
+     * @param audiobookExportTickets 有声书导出票据服务
+     * @param mediaClient Media Library 客户端
+     */
     @Autowired
     public ReaderGatewayController(GatewayProperties properties, ReaderGatewayClient client,
-                                   BookSourceRuntimeSearchGatewayClient runtimeSearchClient) {
+                                   BookSourceRuntimeSearchGatewayClient runtimeSearchClient,
+                                   AudiobookPlaybackTicketService audiobookTickets,
+                                   AudiobookVoicePreviewTicketService audiobookVoicePreviewTickets,
+                                   AudiobookExportTicketService audiobookExportTickets,
+                                   MediaGatewayClient mediaClient) {
         this.properties = properties;
         this.client = client;
         this.runtimeSearchClient = runtimeSearchClient;
+        this.audiobookTickets = audiobookTickets;
+        this.audiobookVoicePreviewTickets = audiobookVoicePreviewTickets;
+        this.audiobookExportTickets = audiobookExportTickets;
+        this.mediaClient = mediaClient;
     }
 
     /**
@@ -308,6 +398,29 @@ public class ReaderGatewayController {
     }
 
     /**
+     * 从当前主体拥有的 Media Library TXT 或 EPUB 文件创建受管电子书导入。
+     *
+     * @param body App 请求
+     * @param request HTTP 请求
+     * @return 导入视图
+     */
+    @PostMapping("/managed-ebook-imports")
+    public ImportView createManagedImport(@Valid @RequestBody CreateManagedImport body,
+                                          HttpServletRequest request) {
+        requireAllowed(request);
+        if (mediaClient == null || !properties.mediaRouteEnabled()) {
+            throw new GatewayRouteDisabledException();
+        }
+        GatewayPrincipal principal = principal(request);
+        var media = mediaClient.view(principal.userId(), body.mediaItemId(), correlation(request));
+        if (!"READY".equals(media.status()) || !SUPPORTED_MANAGED_AUDIOBOOK_MIME_TYPES.contains(
+                media.mimeType().toLowerCase(java.util.Locale.ROOT))) {
+            throw new GatewayNotFoundException();
+        }
+        return client.createManagedImport(principal.userId(), body, media, correlation(request));
+    }
+
+    /**
      * 查询电子书导入任务。
      *
      * @param id 导入标识
@@ -344,6 +457,286 @@ public class ReaderGatewayController {
     public CatalogView importCatalog(@PathVariable UUID id, HttpServletRequest request) {
         requireAllowed(request);
         return client.importCatalog(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 创建当前主体的有声书生成运行。
+     *
+     * @param body App 请求，不含所有者标识
+     * @param request HTTP 请求
+     * @return 有声书生成运行
+     */
+    @PostMapping("/audiobook-generations")
+    public AudiobookGenerationView createAudiobookGeneration(@Valid @RequestBody CreateAudiobookGeneration body,
+                                                             HttpServletRequest request) {
+        requireAllowed(request);
+        return client.createAudiobookGeneration(principal(request).userId(), body, correlation(request));
+    }
+
+    /**
+     * 为当前主体以人工选择的已启用音色创建不可变修订版。
+     *
+     * @param id 已完成源版本标识
+     * @param body App 修订请求
+     * @param request HTTP 请求
+     * @return 新建或复用的修订版本
+     */
+    @PostMapping("/audiobook-generations/{id}/voice-revisions")
+    public AudiobookGenerationView createAudiobookVoiceRevision(@PathVariable UUID id,
+                                                                 @Valid @RequestBody CreateAudiobookVoiceRevision body,
+                                                                 HttpServletRequest request) {
+        requireAllowed(request);
+        return client.createAudiobookVoiceRevision(principal(request).userId(), id, body, correlation(request));
+    }
+
+    /**
+     * 用当前版本已有角色、旁白或未知类别修订一条低置信度归因，并仅重新合成所在章节。
+     *
+     * @param id 已完成源版本标识
+     * @param body 人工归因修订请求
+     * @param request HTTP 请求
+     * @return 已受理或复用的不可变修订版本
+     */
+    @PostMapping("/audiobook-generations/{id}/speaker-revisions")
+    public AudiobookGenerationView createAudiobookSpeakerRevision(@PathVariable UUID id,
+                                                                    @Valid @RequestBody CreateAudiobookSpeakerRevision body,
+                                                                    HttpServletRequest request) {
+        requireAllowed(request);
+        return client.createAudiobookSpeakerRevision(principal(request).userId(), id, body, correlation(request));
+    }
+
+    /**
+     * 为当前主体完成版本中的中文词条创建读音修订，并只重新合成精确命中的冻结章节。
+     *
+     * @param id 已完成源版本标识
+     * @param body 读音词典修订请求
+     * @param request HTTP 请求
+     * @return 已受理或复用的不可变修订版本
+     */
+    @PostMapping("/audiobook-generations/{id}/pronunciation-revisions")
+    public AudiobookGenerationView createAudiobookPronunciationRevision(@PathVariable UUID id,
+                                                                         @Valid @RequestBody CreateAudiobookPronunciationRevision body,
+                                                                         HttpServletRequest request) {
+        requireAllowed(request);
+        return client.createAudiobookPronunciationRevision(principal(request).userId(), id, body,
+                correlation(request));
+    }
+
+    /**
+     * 为当前主体已完成的有声书版本创建或复用异步 ZIP 导出任务。
+     *
+     * @param id 已完成 generation 标识
+     * @param body App 请求
+     * @param request HTTP 请求
+     * @return 导出任务摘要
+     */
+    @PostMapping("/audiobook-generations/{id}/exports")
+    public AudiobookExportView createAudiobookExport(@PathVariable UUID id,
+                                                     @Valid @RequestBody CreateAudiobookExport body,
+                                                     HttpServletRequest request) {
+        requireAllowed(request);
+        return client.createAudiobookExport(principal(request).userId(), id, body, correlation(request));
+    }
+
+    /**
+     * 查询当前主体的异步 ZIP 导出任务。
+     *
+     * @param id generation 标识
+     * @param exportId 导出标识
+     * @param request HTTP 请求
+     * @return 导出任务摘要
+     */
+    @GetMapping("/audiobook-generations/{id}/exports/{exportId}")
+    public AudiobookExportView audiobookExport(@PathVariable UUID id, @PathVariable UUID exportId,
+                                               HttpServletRequest request) {
+        requireAllowed(request);
+        return client.audiobookExport(principal(request).userId(), id, exportId, correlation(request));
+    }
+
+    /**
+     * 为当前主体一个已完成 ZIP 归档签发无授权头下载票据。
+     *
+     * @param id generation 标识
+     * @param exportId 导出标识
+     * @param request HTTP 请求
+     * @return 下载票据和下载路径
+     */
+    @PostMapping("/audiobook-generations/{id}/exports/{exportId}/download-ticket")
+    public Map<String, Object> audiobookExportDownloadTicket(@PathVariable UUID id, @PathVariable UUID exportId,
+                                                              HttpServletRequest request) {
+        requireAllowed(request);
+        GatewayPrincipal principal = principal(request);
+        AudiobookExportView export = client.audiobookExport(principal.userId(), id, exportId, correlation(request));
+        if (!"COMPLETED".equals(export.status())) {
+            throw new GatewayNotFoundException();
+        }
+        var ticket = audiobookExportTickets.issue(principal.userId(), id, exportId);
+        return Map.of("ticket", ticket.token(),
+                "downloadPath", "/api/app/v1/audiobook-export/tickets/" + ticket.token(),
+                "expiresAt", ticket.expiresAt().toString());
+    }
+
+    /**
+     * 查询当前主体的一条有声书生成运行。
+     *
+     * @param id 生成运行标识
+     * @param request HTTP 请求
+     * @return 有声书生成运行
+     */
+    @GetMapping("/audiobook-generations/{id}")
+    public AudiobookGenerationView audiobookGeneration(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.audiobookGeneration(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 查询当前主体一个版本冻结的读音词典，用于审核与再次修订。
+     *
+     * @param id 有声书版本标识
+     * @param request HTTP 请求
+     * @return 词典摘要
+     */
+    @GetMapping("/audiobook-generations/{id}/pronunciations")
+    public AudiobookPronunciationDictionaryView audiobookPronunciationDictionary(@PathVariable UUID id,
+                                                                                   HttpServletRequest request) {
+        requireAllowed(request);
+        return client.audiobookPronunciationDictionary(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 请求取消当前主体正在处理的有声书生成任务。
+     *
+     * @param id 生成运行标识
+     * @param request HTTP 请求
+     * @return 取消已受理后的运行摘要
+     */
+    @PostMapping("/audiobook-generations/{id}/cancel")
+    public AudiobookGenerationView cancelAudiobookGeneration(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.cancelAudiobookGeneration(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 从当前主体有声书生成的最后一个终态阶段重新提交任务。
+     *
+     * @param id 生成运行标识
+     * @param request HTTP 请求
+     * @return 重试已受理后的运行摘要
+     */
+    @PostMapping("/audiobook-generations/{id}/retry")
+    public AudiobookGenerationView retryAudiobookGeneration(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.retryAudiobookGeneration(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 查询当前主体的版本化章节播放清单。
+     *
+     * @param id 生成运行标识
+     * @param request HTTP 请求
+     * @return 章节播放清单
+     */
+    @GetMapping("/audiobook-generations/{id}/playback-manifest")
+    public AudiobookPlaybackManifest audiobookPlaybackManifest(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.audiobookPlaybackManifest(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 查询当前主体可审核的全书人物、关系和说话人归因结果。
+     *
+     * @param id 生成运行标识
+     * @param request HTTP 请求
+     * @return 全书结构化分析视图
+     */
+    @GetMapping("/audiobook-generations/{id}/book-analysis")
+    public AudiobookBookAnalysisView audiobookBookAnalysis(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.audiobookBookAnalysis(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 查询当前主体可审核的冻结旁白与角色音色计划。
+     *
+     * @param id 生成运行标识
+     * @param request HTTP 请求
+     * @return 冻结音色计划
+     */
+    @GetMapping("/audiobook-generations/{id}/voice-plan")
+    public AudiobookVoicePlanView audiobookVoicePlan(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.audiobookVoicePlan(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 查询当前主体可用于人工替换的已启用音色目录。
+     *
+     * @param id 有声书版本标识
+     * @param request HTTP 请求
+     * @return 不含供应商密钥的音色目录
+     */
+    @GetMapping("/audiobook-generations/{id}/voice-catalog")
+    public AudiobookVoiceCatalogView audiobookVoiceCatalog(@PathVariable UUID id, HttpServletRequest request) {
+        requireAllowed(request);
+        return client.audiobookVoiceCatalog(principal(request).userId(), id, correlation(request));
+    }
+
+    /**
+     * 为当前所有者一条已审核音色样音签发系统播放器可用的短期播放票据。
+     *
+     * @param id 生成运行标识
+     * @param provider 音色供应商标识
+     * @param voiceType 音色标识
+     * @param request HTTP 请求
+     * @return 样音播放票据和无授权头流地址
+     */
+    @PostMapping("/audiobook-generations/{id}/voice-previews/play-ticket")
+    public Map<String, Object> audiobookVoicePreviewTicket(@PathVariable UUID id,
+                                                            @RequestParam @NotBlank @Size(max = 64) String provider,
+                                                            @RequestParam @NotBlank @Size(max = 256) String voiceType,
+                                                            HttpServletRequest request) {
+        requireAllowed(request);
+        GatewayPrincipal principal = principal(request);
+        AudiobookGenerationView generation = client.audiobookGeneration(principal.userId(), id, correlation(request));
+        if (!"COMPLETED".equals(generation.status())) {
+            throw new GatewayNotFoundException();
+        }
+        boolean previewAvailable = client.audiobookVoiceCatalog(principal.userId(), id, correlation(request)).voices()
+                .stream().anyMatch(voice -> voice.provider().equals(provider) && voice.voiceType().equals(voiceType)
+                        && voice.previewAvailable());
+        if (!previewAvailable) {
+            throw new GatewayNotFoundException();
+        }
+        var ticket = audiobookVoicePreviewTickets.issue(principal.userId(), id, provider, voiceType);
+        return Map.of("ticket", ticket.token(),
+                "streamPath", "/api/app/v1/audiobook-voice-preview/tickets/" + ticket.token(),
+                "expiresAt", ticket.expiresAt().toString());
+    }
+
+    /**
+     * 为当前所有者的一节已就绪章节签发系统播放器可用的短期播放票据。
+     *
+     * @param id 生成运行标识
+     * @param chapterIndex 章节序号
+     * @param request HTTP 请求
+     * @return 播放票据和无授权头流地址
+     */
+    @PostMapping("/audiobook-generations/{id}/chapters/{chapterIndex}/play-ticket")
+    public Map<String, Object> audiobookPlayTicket(@PathVariable UUID id, @PathVariable int chapterIndex,
+                                                    HttpServletRequest request) {
+        requireAllowed(request);
+        GatewayPrincipal principal = principal(request);
+        AudiobookPlaybackManifest manifest = client.audiobookPlaybackManifest(principal.userId(), id,
+                correlation(request));
+        boolean ready = manifest.chapters().stream().anyMatch(chapter -> chapter.index() == chapterIndex
+                && "READY".equals(chapter.availability()) && chapter.audioAssetId() != null);
+        if (!ready) {
+            throw new GatewayNotFoundException();
+        }
+        var ticket = audiobookTickets.issue(principal.userId(), id, chapterIndex);
+        return Map.of("ticket", ticket.token(),
+                "streamPath", "/api/app/v1/audiobook-playback/tickets/" + ticket.token(),
+                "expiresAt", ticket.expiresAt().toString());
     }
 
     /**

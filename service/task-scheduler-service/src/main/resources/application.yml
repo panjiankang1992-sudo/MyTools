@@ -1,6 +1,11 @@
 spring:
   application:
     name: task-scheduler-service
+  task:
+    scheduling:
+      pool:
+        size: ${TASK_SCHEDULER_SCHEDULING_POOL_SIZE:4}
+      thread-name-prefix: task-scheduler-maintenance-
   datasource:
     url: ${TASK_DB_URL:jdbc:mysql://127.0.0.1:3306/mytools_task?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
     username: ${TASK_DB_USERNAME:mytools_task}
@@ -13,13 +18,52 @@ server:
   address: ${TASK_SCHEDULER_HTTP_HOST:127.0.0.1}
   port: ${TASK_SCHEDULER_HTTP_PORT:23410}
 management:
+  metrics:
+    tags:
+      application: ${spring.application.name}
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,prometheus
 task:
+  outbox:
+    webhook-url: ${TASK_OUTBOX_WEBHOOK_URL:}
+    auth-token: ${TASK_OUTBOX_AUTH_TOKEN:}
+    batch-size: ${TASK_OUTBOX_BATCH_SIZE:50}
+    max-attempts: ${TASK_OUTBOX_MAX_ATTEMPTS:10}
+    relay-delay-ms: ${TASK_OUTBOX_RELAY_DELAY_MS:2000}
+    backlog-alert-seconds: ${TASK_OUTBOX_BACKLOG_ALERT_SECONDS:300}
+  security:
+    required: ${TASK_INTERNAL_AUTH_REQUIRED:true}
+    internal-token: ${TASK_INTERNAL_TOKEN:}
+    business-token: ${TASK_BUSINESS_INTERNAL_TOKEN:${TASK_INTERNAL_TOKEN:}}
+    internal-clients:
+      task-executor-service: ${TASK_EXECUTOR_INTERNAL_TOKEN:}
+      task-operator-service: ${TASK_OPERATOR_INTERNAL_TOKEN:}
+    business-clients:
+      mytools-service: ${TASK_BUSINESS_MYTOOLS_TOKEN:}
+      messaging-service: ${TASK_BUSINESS_MESSAGING_TOKEN:${MESSAGING_INTERNAL_TOKEN:}}
+      download-ingestion-service: ${TASK_BUSINESS_DOWNLOAD_TOKEN:${DOWNLOAD_INTERNAL_TOKEN:}}
+      qq-connector-service: ${TASK_BUSINESS_QQ_TOKEN:${MESSAGING_INTERNAL_TOKEN:}}
+      drive-service: ${TASK_BUSINESS_DRIVE_TOKEN:}
+      media-library-service: ${TASK_BUSINESS_MEDIA_LIBRARY_TOKEN:}
+      reader-service: ${TASK_BUSINESS_READER_TOKEN:}
+      storage-gateway-service: ${TASK_BUSINESS_STORAGE_GATEWAY_TOKEN:}
+  node-registration:
+    enforce: ${TASK_NODE_REGISTRATION_POLICY_ENFORCE:true}
+    allowed-cluster-names: ${TASK_ALLOWED_EXECUTOR_CLUSTERS:media,reader,reader-probe-orchestration,download,download-orchestration,messaging,asset,drive,identity,storage}
+    allowed-capability-keys: ${TASK_ALLOWED_EXECUTOR_CAPABILITIES:runtimes,scriptReleases}
+    trusted-labels:
+      "[storage.mount.managed]": ${STORAGE_DEFAULT_ROOT_NODE_VALUE:present}
+      "[dsh.connector]": ${DSH_CONNECTOR_NODE_VALUE:absent}
+  node-health:
+    offline-after-seconds: ${TASK_EXECUTOR_OFFLINE_AFTER_SECONDS:60}
+    scan-delay-ms: ${TASK_EXECUTOR_HEALTH_SCAN_DELAY_MS:10000}
+    no-available-alert-seconds: ${TASK_NO_AVAILABLE_NODE_ALERT_SECONDS:60}
   scheduler:
     cron-scan-delay-ms: ${TASK_CRON_SCAN_DELAY_MS:1000}
     cron-lease-seconds: ${TASK_CRON_LEASE_SECONDS:30}
     cron-max-catch-up: ${TASK_CRON_MAX_CATCH_UP:100}
+    cron-scan-batch-size: ${TASK_CRON_SCAN_BATCH_SIZE:64}
+    cron-bootstrap-batch-size: ${TASK_CRON_BOOTSTRAP_BATCH_SIZE:128}
     deadline-scan-delay-ms: ${TASK_DEADLINE_SCAN_DELAY_MS:1000}

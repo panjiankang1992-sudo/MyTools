@@ -14,14 +14,21 @@ import java.util.UUID;
 public class MultiNodeTaskAggregationService {
 
     private final JdbcTemplate jdbcTemplate;
+    private final TaskEventService taskEventService;
+    private final ChildTaskAggregationService childTaskAggregationService;
 
     /**
      * 创建多节点任务聚合服务。
      *
      * @param jdbcTemplate JDBC 模板
+     * @param taskEventService 任务事件服务
+     * @param childTaskAggregationService 父子任务聚合服务
      */
-    public MultiNodeTaskAggregationService(JdbcTemplate jdbcTemplate) {
+    public MultiNodeTaskAggregationService(JdbcTemplate jdbcTemplate, TaskEventService taskEventService,
+                                           ChildTaskAggregationService childTaskAggregationService) {
         this.jdbcTemplate = jdbcTemplate;
+        this.taskEventService = taskEventService;
+        this.childTaskAggregationService = childTaskAggregationService;
     }
 
     /**
@@ -45,21 +52,26 @@ public class MultiNodeTaskAggregationService {
         if (aggregate == null || aggregate.total() == 0) {
             return;
         }
+        String currentStatus = jdbcTemplate.queryForObject(
+                "SELECT status FROM task_instance WHERE id = ?", String.class, taskInstanceId.toString());
         int completed = aggregate.total() - aggregate.pending();
         if (aggregate.pending() > 0) {
-            jdbcTemplate.update("""
+            int progress = completed * 100 / aggregate.total();
+            int updated = jdbcTemplate.update("""
                     UPDATE task_instance SET progress = ?, updated_at = ?
-                    WHERE id = ? AND status IN ('RUNNING', 'CANCELLING')
-                    """, completed * 100 / aggregate.total(), Timestamp.from(now), taskInstanceId.toString());
+                    WHERE id = ? AND status IN ('RUNNING', 'CANCELLING') AND progress <> ?
+                    """, progress, Timestamp.from(now), taskInstanceId.toString(), progress);
+            if (updated == 1) {
+                taskEventService.appendProgress(taskInstanceId, currentStatus, progress,
+                        "aggregate:" + completed + ":" + aggregate.total(), now);
+            }
             return;
         }
         String status = aggregate.failed() > 0 ? "FAILED"
                 : aggregate.timedOut() > 0 ? "TIMED_OUT"
                 : aggregate.cancelled() > 0 ? "CANCELLED" : "SUCCEEDED";
-        jdbcTemplate.update("""
-                UPDATE task_instance SET status = ?, progress = ?, updated_at = ?
-                WHERE id = ? AND status IN ('RUNNING', 'CANCELLING')
-                """, status, "SUCCEEDED".equals(status) ? 100 : 0, Timestamp.from(now), taskInstanceId.toString());
+        childTaskAggregationService.completeOrWait(taskInstanceId, currentStatus,
+                com.yuyutian.mytools.task.scheduler.model.TaskStatus.valueOf(status), "aggregate", now);
     }
 
     private record TargetAggregate(int total, int pending, int failed, int timedOut, int cancelled) {

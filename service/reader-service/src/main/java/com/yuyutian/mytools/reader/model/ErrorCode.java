@@ -22,7 +22,17 @@ public enum ErrorCode {
     LIBRARY_REBUILD_CONFLICT("READER_016", "Library rebuild conflicts with existing state"),
     READER_STATE_NOT_FOUND("READER_017", "Reader state was not found"),
     READER_STATE_CONFLICT("READER_018", "Reader state version conflicts with existing state"),
-    RUNTIME_UNAVAILABLE("READER_019", "Reader runtime is unavailable");
+    RUNTIME_UNAVAILABLE("READER_019", "Reader runtime is unavailable"),
+    AUDIOBOOK_GENERATION_NOT_FOUND("READER_020", "Audiobook generation was not found"),
+    AUDIOBOOK_ASSET_NOT_FOUND("READER_021", "Audiobook source asset was not found"),
+    AUDIOBOOK_TASK_FAILED("READER_022", "Audiobook generation task did not complete"),
+    AUDIOBOOK_AUDIO_UNAVAILABLE("READER_023", "Audiobook chapter audio is unavailable"),
+    AUDIOBOOK_EXPORT_NOT_FOUND("READER_024", "Audiobook export was not found"),
+    AUDIOBOOK_EXPORT_TASK_FAILED("READER_025", "Audiobook export task did not complete"),
+    AUDIOBOOK_EXPORT_UNAVAILABLE("READER_026", "Audiobook export archive is unavailable"),
+    AUDIOBOOK_CHARACTER_LIMIT_EXCEEDED("READER_027", "Audiobook text exceeds the configured character limit"),
+    AUDIOBOOK_DAILY_CHARACTER_QUOTA_EXCEEDED("READER_028", "Audiobook daily character quota is exceeded"),
+    AUDIOBOOK_GENERATION_UNAVAILABLE("READER_029", "Audiobook generation is not available for this user");
 
     private final String code;
     private final String message;

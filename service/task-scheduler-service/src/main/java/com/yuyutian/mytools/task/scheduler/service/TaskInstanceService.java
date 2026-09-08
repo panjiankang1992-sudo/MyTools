@@ -1,12 +1,15 @@
 package com.yuyutian.mytools.task.scheduler.service;
 
 import com.yuyutian.mytools.task.scheduler.model.CreateTaskRequest;
+import com.yuyutian.mytools.task.scheduler.common.ErrorCode;
+import com.yuyutian.mytools.task.scheduler.common.SchedulerException;
 import com.yuyutian.mytools.task.scheduler.model.TaskInstanceView;
 import com.yuyutian.mytools.task.scheduler.model.TaskStatus;
 import com.yuyutian.mytools.task.scheduler.repository.TaskDefinitionRepository;
 import com.yuyutian.mytools.task.scheduler.repository.TaskInstanceRepository;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -22,6 +25,9 @@ public class TaskInstanceService {
     private final TaskInstanceRepository instanceRepository;
     private final TaskDefinitionRepository definitionRepository;
     private final MultiNodeTaskAggregationService multiNodeTaskAggregationService;
+    private final TaskCancellationPropagationService cancellationPropagationService;
+    private final TaskSchemaValidationService schemaValidationService;
+    private final TaskEventService taskEventService;
 
     /**
      * 创建任务实例服务。
@@ -29,13 +35,22 @@ public class TaskInstanceService {
      * @param instanceRepository 实例仓储
      * @param definitionRepository 定义仓储
      * @param multiNodeTaskAggregationService 多节点聚合服务
+     * @param cancellationPropagationService 取消传播服务
+     * @param schemaValidationService 模式校验服务
+     * @param taskEventService 任务事件服务
      */
     public TaskInstanceService(TaskInstanceRepository instanceRepository,
                                TaskDefinitionRepository definitionRepository,
-                               MultiNodeTaskAggregationService multiNodeTaskAggregationService) {
+                               MultiNodeTaskAggregationService multiNodeTaskAggregationService,
+                               TaskCancellationPropagationService cancellationPropagationService,
+                               TaskSchemaValidationService schemaValidationService,
+                               TaskEventService taskEventService) {
         this.instanceRepository = instanceRepository;
         this.definitionRepository = definitionRepository;
         this.multiNodeTaskAggregationService = multiNodeTaskAggregationService;
+        this.cancellationPropagationService = cancellationPropagationService;
+        this.schemaValidationService = schemaValidationService;
+        this.taskEventService = taskEventService;
     }
 
     /**
@@ -47,21 +62,31 @@ public class TaskInstanceService {
     @Transactional
     public TaskInstanceView create(CreateTaskRequest request) {
         Map<String, Object> requestedLabels = normalizedRequiredLabels(request.requiredNodeLabels());
+        var definition = definitionRepository.findLatestEnabled(request.taskName())
+                .orElseThrow(() -> new IllegalArgumentException("Enabled task definition does not exist"));
+        schemaValidationService.validateParameters(definition.parameterSchema(), contractParameters(request));
         TaskInstanceView existing = instanceRepository.findByIdempotencyKey(request.idempotencyKey()).orElse(null);
         if (existing != null) {
             if (!existing.taskName().equals(request.taskName())
-                    || !existing.requiredNodeLabels().equals(requestedLabels)) {
-                throw new IllegalStateException("Task idempotency key conflicts with placement constraints");
+                    || !existing.requiredNodeLabels().equals(requestedLabels)
+                    || !existing.parameters().equals(request.parameters())
+                    || !java.util.Objects.equals(existing.businessType(), request.businessType())
+                    || !java.util.Objects.equals(existing.businessId(), request.businessId())
+                    || !java.util.Objects.equals(existing.parentTaskInstanceId(), request.parentTaskInstanceId())
+                    || existing.priority() != request.priority()) {
+                throw new SchedulerException(ErrorCode.IDEMPOTENCY_CONFLICT, HttpStatus.CONFLICT,
+                        "Task idempotency key conflicts with the stored request");
             }
             return existing;
         }
-        if (request.parentTaskInstanceId() != null && instanceRepository.findById(request.parentTaskInstanceId()).isEmpty()) {
-            throw new IllegalArgumentException("Parent task instance does not exist");
+        if (request.parentTaskInstanceId() != null) {
+            cancellationPropagationService.validateChildCreation(request.parentTaskInstanceId());
         }
-        var definition = definitionRepository.findLatestEnabled(request.taskName())
-                .orElseThrow(() -> new IllegalArgumentException("Enabled task definition does not exist"));
         try {
-            return instanceRepository.insert(request, definition);
+            TaskInstanceView created = instanceRepository.insert(request, definition);
+            taskEventService.appendTransition(created.id(), null, TaskStatus.QUEUED.name(), "create",
+                    "TASK_CREATED", 0, created.createdAt());
+            return created;
         } catch (DuplicateKeyException exception) {
             return instanceRepository.findByIdempotencyKey(request.idempotencyKey()).orElseThrow(() -> exception);
         }
@@ -86,29 +111,13 @@ public class TaskInstanceService {
      */
     @Transactional
     public TaskInstanceView cancel(UUID id) {
-        // 先递归请求取消全部活跃子任务，避免父执行器终止后留下孤儿下载。
-        instanceRepository.findActiveChildren(id).forEach(child -> cancel(child.id()));
-        for (int attempt = 0; attempt < 3; attempt++) {
-            TaskInstanceView current = get(id);
-            if (isTerminal(current.status()) || current.status() == TaskStatus.CANCELLING) {
-                return current;
-            }
-            if (instanceRepository.updateStatus(id, current.status(), TaskStatus.CANCELLING, Instant.now())) {
-                instanceRepository.cancelQueuedTargets(id);
-                multiNodeTaskAggregationService.aggregate(id, Instant.now());
-                if (get(id).status() == TaskStatus.CANCELLING
-                        && instanceRepository.countRunningExecutions(id) == 0) {
-                    instanceRepository.updateStatus(id, TaskStatus.CANCELLING, TaskStatus.CANCELLED, Instant.now());
-                }
-                return get(id);
-            }
-        }
-        throw new IllegalStateException("Task instance state changed concurrently");
-    }
-
-    private boolean isTerminal(TaskStatus status) {
-        return status == TaskStatus.CANCELLED || status == TaskStatus.SUCCEEDED
-                || status == TaskStatus.FAILED || status == TaskStatus.TIMED_OUT;
+        cancellationPropagationService.requestCancellation(id, "cancel");
+        cancellationPropagationService.enqueueActiveChildren(id, id, 2);
+        // 同步推进一个有界批次，让小任务树无需等待后台扫描，大任务树仍不会形成无界事务递归。
+        cancellationPropagationService.processPendingBatch();
+        multiNodeTaskAggregationService.aggregate(id, Instant.now());
+        cancellationPropagationService.finalizeCancellationChain(id);
+        return get(id);
     }
 
     private Map<String, Object> normalizedRequiredLabels(Map<String, Object> labels) {
@@ -128,5 +137,16 @@ public class TaskInstanceService {
             }
         });
         return Map.copyOf(labels);
+    }
+
+    private Map<String, Object> contractParameters(CreateTaskRequest request) {
+        if (!"SCHEDULED_TASK".equals(request.businessType())) {
+            return request.parameters();
+        }
+        // Cron 调度元数据属于平台保留上下文，不参与任务定义的业务参数 Schema 校验。
+        java.util.LinkedHashMap<String, Object> parameters = new java.util.LinkedHashMap<>(request.parameters());
+        parameters.remove("scheduledAt");
+        parameters.remove("definitionVersion");
+        return Map.copyOf(parameters);
     }
 }

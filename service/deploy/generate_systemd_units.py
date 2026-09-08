@@ -190,7 +190,7 @@ def onebot_relogin_service(deployment_root: str) -> str:
         "[Unit]", "Description=MyTools fixed OneBot relogin action",
         "After=docker.service", "Requires=docker.service", "", "[Service]",
         "Type=oneshot", "ExecStartPre=/usr/bin/rm -f /opt/napcat/cache/qrcode.png",
-        "ExecStart=/usr/bin/docker restart --time 30 downloadbot-napcat",
+        "ExecStart=/usr/bin/docker restart --time 3 downloadbot-napcat",
         f"ExecStartPost=/usr/bin/rm -f {request_path}", "TimeoutStartSec=90",
         "UMask=0077", "NoNewPrivileges=true", "PrivateTmp=true", "ProtectHome=true", ""))
 

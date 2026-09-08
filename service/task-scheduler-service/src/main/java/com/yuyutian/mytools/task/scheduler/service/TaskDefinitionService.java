@@ -1,12 +1,16 @@
 package com.yuyutian.mytools.task.scheduler.service;
 
+import com.yuyutian.mytools.task.scheduler.model.ChildAggregationPolicy;
+import com.yuyutian.mytools.task.scheduler.model.ChildAggregationStrategy;
 import com.yuyutian.mytools.task.scheduler.model.CreateTaskDefinitionRequest;
 import com.yuyutian.mytools.task.scheduler.model.TaskDefinitionView;
+import com.yuyutian.mytools.task.scheduler.model.TaskType;
 import com.yuyutian.mytools.task.scheduler.repository.TaskDefinitionRepository;
+import com.yuyutian.mytools.task.scheduler.repository.TaskScheduleCursorRepository;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.scheduling.support.CronExpression;
 
 import java.time.DateTimeException;
 import java.time.ZoneId;
@@ -22,16 +26,21 @@ public class TaskDefinitionService {
 
     private static final Set<String> OVERLAP_POLICIES = Set.of("ALLOW", "SKIP", "QUEUE", "REPLACE");
     private static final Set<String> MISFIRE_POLICIES = Set.of("IGNORE", "RUN_ONCE", "CATCH_UP");
+    private static final int MAX_DIRECT_CHILDREN = 1000;
 
     private final TaskDefinitionRepository repository;
+    private final TaskScheduleCursorRepository cursorRepository;
 
     /**
      * 创建任务定义服务。
      *
      * @param repository 定义仓储
+     * @param cursorRepository 定时调度游标仓储
      */
-    public TaskDefinitionService(TaskDefinitionRepository repository) {
+    public TaskDefinitionService(TaskDefinitionRepository repository,
+                                 TaskScheduleCursorRepository cursorRepository) {
         this.repository = repository;
+        this.cursorRepository = cursorRepository;
     }
 
     /**
@@ -43,10 +52,33 @@ public class TaskDefinitionService {
     @Transactional
     public TaskDefinitionView create(CreateTaskDefinitionRequest request) {
         validateSchedule(request);
+        validateChildAggregationPolicy(request.normalizedChildAggregationPolicy());
         try {
-            return repository.insert(request);
+            TaskDefinitionView definition = repository.insert(request);
+            if (definition.taskType() == TaskType.SCHEDULED && definition.enabled()) {
+                // 与定义创建处于同一事务，避免运行期依赖全表扫描发现新定义。
+                cursorRepository.initialize(definition.id(),
+                        CronTriggerPlanner.nextFire(definition, definition.createdAt().minusSeconds(1)));
+            }
+            return definition;
         } catch (DuplicateKeyException exception) {
             throw new IllegalStateException("Task definition already exists", exception);
+        }
+    }
+
+    private void validateChildAggregationPolicy(
+            ChildAggregationPolicy policy) {
+        if (policy.strategy() == null) {
+            throw new IllegalArgumentException("Child aggregation strategy is required");
+        }
+        if (policy.strategy()
+                == ChildAggregationStrategy.MIN_SUCCESS_COUNT) {
+            if (policy.minSuccessCount() == null || policy.minSuccessCount() < 1
+                    || policy.minSuccessCount() > MAX_DIRECT_CHILDREN) {
+                throw new IllegalArgumentException("Minimum successful child count is invalid");
+            }
+        } else if (policy.minSuccessCount() != null) {
+            throw new IllegalArgumentException("Minimum successful child count is only valid for threshold strategy");
         }
     }
 
@@ -70,11 +102,11 @@ public class TaskDefinitionService {
     }
 
     private void validateSchedule(CreateTaskDefinitionRequest request) {
-        if (request.taskType() == com.yuyutian.mytools.task.scheduler.model.TaskType.SCHEDULED
+        if (request.taskType() == TaskType.SCHEDULED
                 && (request.cronExpression() == null || request.cronExpression().isBlank())) {
             throw new IllegalArgumentException("Scheduled task requires a cron expression");
         }
-        if (request.taskType() == com.yuyutian.mytools.task.scheduler.model.TaskType.IMMEDIATE
+        if (request.taskType() == TaskType.IMMEDIATE
                 && request.cronExpression() != null && !request.cronExpression().isBlank()) {
             throw new IllegalArgumentException("Immediate task cannot define a cron expression");
         }
@@ -84,7 +116,7 @@ public class TaskDefinitionService {
         if (!MISFIRE_POLICIES.contains(request.misfirePolicy())) {
             throw new IllegalArgumentException("Unsupported misfire policy");
         }
-        if (request.taskType() == com.yuyutian.mytools.task.scheduler.model.TaskType.SCHEDULED) {
+        if (request.taskType() == TaskType.SCHEDULED) {
             try {
                 CronExpression.parse(request.cronExpression());
                 ZoneId.of(request.cronTimezone() == null || request.cronTimezone().isBlank()

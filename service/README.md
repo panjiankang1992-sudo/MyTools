@@ -25,4 +25,4 @@
 
 最小部署与新 Schema 初始化说明见 [deploy/README.md](deploy/README.md)。
 
-灰度前可运行只读预检：`python3 service/scripts/cutover_preflight.py --env-file <file>`。详细门禁、演练顺序和回退要求见 [灰度与切换设计](design/20-grey-release-and-cutover.md)。
+灰度前可运行只读预检：`python3 service/scripts/cutover_preflight.py --env-file <file>`。准备开启有声书时追加 `--require-audiobook`，它只报告配置项是否齐全、HTTPS 端点形态、已选 V1/V3 协议路由和多角色质量门禁状态，绝不输出令牌、密钥或目录内容。供应商试读必须在已完成费用审批和外部调用授权后，通过正式受限任务链路进行；仓库不再保留会产生供应商费用的 POC 工具。详细门禁、演练顺序和回退要求见 [灰度与切换设计](design/20-grey-release-and-cutover.md)。

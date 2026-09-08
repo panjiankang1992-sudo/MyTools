@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "required": ["generationId", "affectedChapterCount"],
+  "properties": {
+    "generationId": {"type": "string", "format": "uuid"},
+    "affectedChapterCount": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false
+}

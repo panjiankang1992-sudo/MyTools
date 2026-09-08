@@ -1,6 +1,7 @@
 package com.yuyutian.mytools.reader.service;
 
 import com.yuyutian.mytools.reader.model.CreateEbookImportRequest;
+import com.yuyutian.mytools.reader.model.CreateManagedEbookImportRequest;
 import com.yuyutian.mytools.reader.model.CatalogBatchRequest;
 import com.yuyutian.mytools.reader.model.DiscoveryRecord;
 import com.yuyutian.mytools.reader.model.SchedulerResult;
@@ -22,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -100,5 +102,83 @@ class EbookImportServiceTest {
                 "SELECT COUNT(*) FROM ebook_catalog_entry WHERE import_request_id = ?",
                 Integer.class, created.id().toString())).isEqualTo(2);
         verify(schedulerClient).createTask(anyString(), anyString(), anyString(), any(), anyInt(), anyMap());
+    }
+
+    @Test
+    void shouldCreateOwnerBoundManagedMediaImportWithFrozenIdentity() {
+        long ownerId = 71L;
+        UUID mediaItemId = UUID.randomUUID();
+        UUID mediaAssetId = UUID.randomUUID();
+        UUID taskId = UUID.randomUUID();
+        when(schedulerClient.createTask(anyString(), anyString(), anyString(), any(), anyInt(), anyMap()))
+                .thenReturn(taskId);
+        var request = new CreateManagedEbookImportRequest(ownerId, "managed-import-1", mediaItemId,
+                mediaAssetId, "Managed Book", "text/plain", 42,
+                "a".repeat(64), true);
+
+        var created = importService.createManaged(request);
+        var duplicate = importService.createManaged(request);
+
+        assertThat(created.id()).isEqualTo(duplicate.id());
+        assertThat(created.sourceId()).isNotNull();
+        assertThat(created.ebookAssetId()).isNull();
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM book_source WHERE owner_id = ? AND sync_key = ?",
+                Integer.class, ownerId, "managed-media-library-v1")).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject("SELECT book_url FROM ebook_import_request WHERE id = ?", String.class,
+                created.id().toString())).isEqualTo("media://" + mediaItemId);
+        verify(schedulerClient).createTask(eq("reader_import_managed_ebook"),
+                eq("reader_import_managed_ebook:" + created.id() + ":v1"), eq("READER_MANAGED_EBOOK_IMPORT"),
+                eq(created.id()), eq(45), anyMap());
+        when(schedulerClient.getResults(taskId)).thenReturn(new SchedulerResult(taskId, "SUCCEEDED", List.of(
+                new SchedulerResult.StepResult(UUID.randomUUID(), null, null, "import_ebook", 1, "SUCCEEDED",
+                        Map.of("title", "Managed Book", "author", "", "chapterCount", 2,
+                                "size", 42L, "sha256", "a".repeat(64),
+                                "storageUri", "storage://managed/ebooks/managed-book.txt")),
+                new SchedulerResult.StepResult(UUID.randomUUID(), null, null, "extract_metadata", 1,
+                        "SUCCEEDED", Map.of("status", "READY", "parserName", "txt-utf8-v1")))));
+        var completed = importService.get(created.id(), ownerId);
+        assertThat(completed.status()).isEqualTo("SUCCEEDED");
+        assertThat(completed.ebookAssetId()).isNotNull();
+        catalogWriteService.save(created.id(), new CatalogBatchRequest(true, List.of(
+                new CatalogBatchRequest.CatalogEntry(0, "Chapter One", "text:0", 0L, 100L),
+                new CatalogBatchRequest.CatalogEntry(1, "Chapter Two", "text:100", 100L, 200L))));
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT chapter_count FROM ebook_import_request WHERE id = ?", Integer.class,
+                created.id().toString())).isEqualTo(2);
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT chapter_count FROM ebook_asset WHERE import_request_id = ?", Integer.class,
+                created.id().toString())).isEqualTo(2);
+        assertThat(jdbcTemplate.queryForObject("SELECT metadata_json FROM ebook_asset WHERE import_request_id = ?",
+                String.class, created.id().toString())).contains(mediaItemId.toString(), mediaAssetId.toString());
+        var epub = importService.createManaged(new CreateManagedEbookImportRequest(ownerId,
+                "managed-import-2", UUID.randomUUID(), UUID.randomUUID(), "Managed Epub", "application/epub+zip", 42,
+                "b".repeat(64), true));
+        assertThat(epub.status()).isEqualTo("QUEUED");
+    }
+
+    @Test
+    void shouldRegisterManagedEpubAssetWithItsFrozenFormat() {
+        long ownerId = 72L;
+        UUID mediaItemId = UUID.randomUUID();
+        UUID mediaAssetId = UUID.randomUUID();
+        UUID taskId = UUID.randomUUID();
+        when(schedulerClient.createTask(anyString(), anyString(), anyString(), any(), anyInt(), anyMap()))
+                .thenReturn(taskId);
+        var created = importService.createManaged(new CreateManagedEbookImportRequest(ownerId, "managed-epub-1",
+                mediaItemId, mediaAssetId, "Managed Epub", "application/epub+zip", 42,
+                "b".repeat(64), true));
+        when(schedulerClient.getResults(taskId)).thenReturn(new SchedulerResult(taskId, "SUCCEEDED", List.of(
+                new SchedulerResult.StepResult(UUID.randomUUID(), null, null, "import_ebook", 1, "SUCCEEDED",
+                        Map.of("title", "Managed Epub", "author", "", "format", "EPUB", "chapterCount", 2,
+                                "size", 42L, "sha256", "b".repeat(64),
+                                "storageUri", "storage://managed/ebooks/managed-book.epub")),
+                new SchedulerResult.StepResult(UUID.randomUUID(), null, null, "extract_metadata", 1,
+                        "SUCCEEDED", Map.of("status", "READY", "parserName", "epub-opf-v1")))));
+
+        var completed = importService.get(created.id(), ownerId);
+
+        assertThat(completed.status()).isEqualTo("SUCCEEDED");
+        assertThat(jdbcTemplate.queryForObject("SELECT format FROM ebook_asset WHERE import_request_id = ?", String.class,
+                created.id().toString())).isEqualTo("EPUB");
     }
 }

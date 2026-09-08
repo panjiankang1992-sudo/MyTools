@@ -88,6 +88,16 @@ import { ReaderContentProgressPolicy } from '../features/reader/ReaderContentPro
 import { ReaderTextLocatorPolicy } from '../features/reader/ReaderTextLocatorPolicy';
 import { ReaderSpeechPolicy } from '../features/reader/ReaderSpeechPolicy';
 import { ReaderSpeechController } from '../features/reader/ReaderSpeechController';
+import { AudiobookApi } from '../features/reader/AudiobookApi';
+import { AudiobookBookAnalysis, AudiobookChapter, AudiobookCharacterProfile, AudiobookCharacterRelationship,
+  AudiobookExport, AudiobookGeneration, AudiobookPlaybackManifest, AudiobookVoiceBinding, AudiobookVoiceCandidate,
+  AudiobookVoiceCatalog, AudiobookVoicePlan, AudiobookSpeechSegment, CreateAudiobookSpeakerRevision,
+  AudiobookPronunciationDictionary, AudiobookPronunciationEntry, CreateAudiobookPronunciationRevision,
+  ManagedEbookImport } from
+  '../features/reader/AudiobookModels';
+import { AudiobookPlaybackPolicy } from '../features/reader/AudiobookPlaybackPolicy';
+import { AudiobookPlaybackProgress, AudiobookPlaybackProgressPolicy } from
+  '../features/reader/AudiobookPlaybackProgressPolicy';
 import { ReaderViewport, ReaderViewportPolicy } from '../features/reader/ReaderViewportPolicy';
 import { ReaderTextScalePolicy } from '../features/reader/ReaderTextScalePolicy';
 import { EbookImportApi, EbookImportTask } from '../features/reader/EbookImportApi';
@@ -112,6 +122,26 @@ import {
 
 interface TabItem {
   title: string;
+}
+
+class AudiobookVoiceOption {
+  value: string = '';
+
+  constructor(value: string) {
+    this.value = value;
+  }
+}
+
+class AudiobookSpeakerOption {
+  value: string = '';
+  speakerKind: string = '';
+  speakerCanonicalName: string = '';
+
+  constructor(value: string, speakerKind: string, speakerCanonicalName: string = '') {
+    this.value = value;
+    this.speakerKind = speakerKind;
+    this.speakerCanonicalName = speakerCanonicalName;
+  }
 }
 
 interface ReaderPagePosition {
@@ -301,6 +331,37 @@ struct Index {
   @State mediaActionInput: string = '';
   @State mediaActionError: string = '';
   @State mediaActionBusy: boolean = false;
+  @State audiobookDialogVisible: boolean = false;
+  @State audiobookSourceItemId: string = '';
+  @State audiobookSourceVersion: number = 0;
+  @State audiobookSourceTitle: string = '';
+  @State audiobookGeneration?: AudiobookGeneration = undefined;
+  @State audiobookManifest?: AudiobookPlaybackManifest = undefined;
+  @State audiobookStatus: string = '';
+  @State audiobookBusy: boolean = false;
+  @State audiobookExport?: AudiobookExport = undefined;
+  @State audiobookExportBusy: boolean = false;
+  @State audiobookReviewVisible: boolean = false;
+  @State audiobookReviewBusy: boolean = false;
+  @State audiobookReviewStatus: string = '';
+  @State audiobookBookAnalysis?: AudiobookBookAnalysis = undefined;
+  @State audiobookVoicePlan?: AudiobookVoicePlan = undefined;
+  @State audiobookVoiceCatalog?: AudiobookVoiceCatalog = undefined;
+  @State audiobookPronunciationDictionary?: AudiobookPronunciationDictionary = undefined;
+  @State audiobookReviewPronunciationTerm: string = '';
+  @State audiobookReviewPronunciationPinyin: string = '';
+  @State audiobookReviewSelectedRoleKey: string = '';
+  @State audiobookReviewSelectedVoiceKey: string = '';
+  @State audiobookReviewSelectedSpeechChapterIndex: number = -1;
+  @State audiobookReviewSelectedSpeechSequenceNumber: number = -1;
+  @State audiobookReviewSelectedSpeakerKind: string = '';
+  @State audiobookReviewSelectedSpeakerCanonicalName: string = '';
+  @State audiobookVoicePreviewBusy: boolean = false;
+  @State audiobookVoicePreviewState: media.AVPlayerState = 'idle';
+  @State audiobookCurrentChapterIndex: number = -1;
+  @State audiobookPlayerState: media.AVPlayerState = 'idle';
+  @State audiobookPlayerTimeMs: number = 0;
+  @State audiobookPlayerDurationMs: number = 0;
   @State mediaLoading: boolean = false;
   @State mediaDirectoryLoading: boolean = false;
   @State mediaLoadingMore: boolean = false;
@@ -349,6 +410,8 @@ struct Index {
   @State mediaBrowseThumbnailEntries: MediaThumbnailEntry[] = [];
   @State mediaBrowseThumbnailFailedPaths: string[] = [];
   private mediaPlaybackProgress: MediaPlaybackProgress[] = [];
+  private audiobookPlaybackProgress?: AudiobookPlaybackProgress = undefined;
+  private lastAudiobookProgressPersistedAt: number = 0;
   @State bookModeIndex: number = 0;
   @State books: Book[] = [];
   private shelfBookTombstones: ShelfBookTombstone[] = [];
@@ -518,6 +581,9 @@ struct Index {
   @State copilotRecoveryPlan?: CopilotRecoveryPlan = undefined;
   private readonly authManager: AuthSessionManager = new AuthSessionManager();
   private readonly audioPlayer: RemoteMediaPlayer = new RemoteMediaPlayer();
+  private readonly audiobookPlayer: RemoteMediaPlayer = new RemoteMediaPlayer();
+  private readonly audiobookVoicePreviewPlayer: RemoteMediaPlayer = new RemoteMediaPlayer();
+  private readonly audiobookPlaybackPolicy: AudiobookPlaybackPolicy = new AudiobookPlaybackPolicy();
   private readonly readerSpeechPolicy: ReaderSpeechPolicy = new ReaderSpeechPolicy();
   private readonly readerSpeechController: ReaderSpeechController = new ReaderSpeechController();
   private readonly readerViewportPolicy: ReaderViewportPolicy = new ReaderViewportPolicy();
@@ -532,6 +598,7 @@ struct Index {
   private readonly imageGesturePolicy: RemoteImageGesturePolicy = new RemoteImageGesturePolicy();
   private readonly audioQueuePolicy: RemoteAudioQueuePolicy = new RemoteAudioQueuePolicy();
   private readonly mediaHistoryPolicy: MediaPlaybackHistoryPolicy = new MediaPlaybackHistoryPolicy();
+  private readonly audiobookProgressPolicy: AudiobookPlaybackProgressPolicy = new AudiobookPlaybackProgressPolicy();
   private readonly mediaRecoveryPolicy: MediaPlaybackRecoveryPolicy = new MediaPlaybackRecoveryPolicy();
   private readonly mediaSeekPolicy: MediaSeekPolicy = new MediaSeekPolicy();
   private readonly mediaPreloadPolicy: RemoteMediaPreloadPolicy = new RemoteMediaPreloadPolicy();
@@ -672,6 +739,12 @@ struct Index {
   private lastMediaMetricAt: number = 0;
   private mediaMetricsPolling: boolean = false;
   private mediaOpenRevision: number = 0;
+  private audiobookOperationRevision: number = 0;
+  private audiobookPlaybackRevision: number = 0;
+  private audiobookReviewOperationRevision: number = 0;
+  private audiobookVoicePreviewOperationRevision: number = 0;
+  private audiobookExportOperationRevision: number = 0;
+  private audiobookExportAttempt: number = 0;
   private mediaOpeningPath: string = '';
   private mediaViewerChromeTimerId: number = -1;
   private copilotRefreshTimerId: number = -1;
@@ -754,6 +827,37 @@ struct Index {
     };
     this.audioPlayer.onPlayNext = () => this.ChangeRemoteAudio(1);
     this.audioPlayer.onPlayPrevious = () => this.ChangeRemoteAudio(-1);
+    this.audiobookPlayer.onStateChange = (state: media.AVPlayerState) => {
+      this.audiobookPlayerState = state;
+      if (state === 'completed') {
+        this.AdvanceAudiobookChapter().catch((error: Error) => {
+          this.audiobookStatus = error.message;
+        });
+      }
+    };
+    this.audiobookPlayer.onTimeUpdate = (timeMs: number) => {
+      this.audiobookPlayerTimeMs = timeMs;
+      this.UpdateAudiobookPlaybackProgress(timeMs);
+    };
+    this.audiobookPlayer.onDurationUpdate = (durationMs: number) => this.audiobookPlayerDurationMs = durationMs;
+    this.audiobookPlayer.onError = (message: string) => {
+      this.UpdateAudiobookPlaybackProgress(this.audiobookPlayerTimeMs);
+      this.PersistAudiobookPlaybackProgress();
+      this.audiobookStatus = message;
+    };
+    this.audiobookPlayer.onPlayNext = () => this.PlayNextAudiobookChapter().catch((error: Error) => {
+      this.audiobookStatus = error.message;
+    });
+    this.audiobookPlayer.onPlayPrevious = () => this.PlayPreviousAudiobookChapter().catch((error: Error) => {
+      this.audiobookStatus = error.message;
+    });
+    this.audiobookVoicePreviewPlayer.onStateChange = (state: media.AVPlayerState) => {
+      this.audiobookVoicePreviewState = state;
+      if (state === 'completed' && this.audiobookReviewVisible) this.audiobookReviewStatus = '音色试听结束。';
+    };
+    this.audiobookVoicePreviewPlayer.onError = (message: string) => {
+      if (this.audiobookReviewVisible) this.audiobookReviewStatus = message;
+    };
     try {
       const hostContext = this.getUIContext().getHostContext();
       if (hostContext === undefined) {
@@ -771,6 +875,10 @@ struct Index {
       const storedMediaProgress = this.settingsPreferences.getSync('media_playback_progress', '');
       if (typeof storedMediaProgress === 'string' && storedMediaProgress.length > 0) {
         this.RestoreMediaPlaybackProgress(storedMediaProgress);
+      }
+      const storedAudiobookProgress = this.settingsPreferences.getSync('audiobook_playback_progress', '');
+      if (typeof storedAudiobookProgress === 'string' && storedAudiobookProgress.length > 0) {
+        this.RestoreAudiobookPlaybackProgress(storedAudiobookProgress);
       }
       const storedMediaFavorites = this.settingsPreferences.getSync('media_favorites', '');
       if (typeof storedMediaFavorites === 'string' && storedMediaFavorites.length > 0) {
@@ -847,7 +955,15 @@ struct Index {
     this.ApplyReaderOrientation('system');
     this.FinishReadingSession();
     this.PersistMediaPlaybackProgress();
+    this.UpdateAudiobookPlaybackProgress(this.audiobookPlayerTimeMs);
+    this.PersistAudiobookPlaybackProgress();
     this.audioPlayer.release();
+    this.audiobookOperationRevision++;
+    this.audiobookPlaybackRevision++;
+    this.audiobookPlayer.release();
+    this.audiobookVoicePreviewPlayer.release();
+    this.ResetAudiobookReview();
+    this.ResetAudiobookExport();
     this.copilotOperationRevision++;
     this.CancelCopilotRefresh();
     this.dshApi = undefined;
@@ -1087,6 +1203,8 @@ struct Index {
         action: () => this.ChangeMediaCatalogMode('video') })
       AppSegmentItem({ label: '音频', selected: this.mediaCatalogMode === 'audio',
         action: () => this.ChangeMediaCatalogMode('audio') })
+      AppSegmentItem({ label: '文本', selected: this.mediaCatalogMode === 'text',
+        action: () => this.ChangeMediaCatalogMode('text') })
     }.height(40).padding(2).borderRadius(AppTheme.pillRadius).backgroundColor(AppTheme.glass)
       .border({ width: 1, color: AppTheme.glassBorder, radius: AppTheme.pillRadius })
       .backdropBlur(14).margin({ right: 4 })
@@ -2470,8 +2588,9 @@ struct Index {
             if (this.mediaCatalogLoading && this.mediaCatalogItems.length === 0 &&
               this.mediaVideoDirectories.length === 0) {
               this.NetworkLoadingRows(this.mediaCatalogMode === 'gallery' ? '正在读取图库' :
-                (this.mediaCatalogMode === 'audio' ? '正在读取音频专辑' : '正在读取视频目录'))
-            } else if (this.mediaCatalogMode === 'gallery') {
+                (this.mediaCatalogMode === 'text' ? '正在读取文本' :
+                  (this.mediaCatalogMode === 'audio' ? '正在读取音频专辑' : '正在读取视频目录')))
+            } else if (this.MediaCatalogUsesGrid()) {
               this.MediaCatalogGallery()
             } else {
               this.MediaCatalogVideos()
@@ -2726,8 +2845,10 @@ struct Index {
           } else {
             Column({ space: 8 }) {
               SymbolGlyph($r(this.MediaCatalogSymbol(item))).fontSize(32).fontColor([AppTheme.primary])
-              Text(item.kind === 'IMAGE' || item.kind === 'VIDEO' ? '正在加载预览' : item.kind)
-                .fontSize(11).fontColor(AppTheme.textSecondary)
+              Text(item.kind === 'IMAGE' || item.kind === 'VIDEO' ?
+                (this.MediaThumbnailFailed(`/media/${item.itemId}`) ? '预览加载失败' : '正在加载预览') : item.kind)
+                .fontSize(11).fontColor(this.MediaThumbnailFailed(`/media/${item.itemId}`) ?
+                  AppTheme.danger : AppTheme.textSecondary)
             }.width('100%').height(154).justifyContent(FlexAlign.Center).backgroundColor(AppTheme.surfaceTint)
           }
         }.width('100%').height(154)
@@ -2785,18 +2906,19 @@ struct Index {
       if (current === undefined) {
         directories.set(item.directoryId, {
           directoryId: item.directoryId,
-          name: filter?.name ?? item.directoryName,
+          name: filter?.name ?? (item.directoryName.length > 0 ? item.directoryName : '未分类文本'),
           fileCount: filter?.fileCount ?? 1,
           latestModifiedAt: filter?.latestModifiedAt ?? item.modifiedAt,
           parentDirectoryId: filter?.parentDirectoryId ?? '',
           parentDirectoryName: filter?.parentDirectoryName ?? ''
         });
-      } else if (item.modifiedAt.localeCompare(current.latestModifiedAt) > 0) {
+      } else {
+        const newer = item.modifiedAt.localeCompare(current.latestModifiedAt) > 0;
         directories.set(item.directoryId, {
           directoryId: current.directoryId,
           name: current.name,
-          fileCount: current.fileCount,
-          latestModifiedAt: item.modifiedAt,
+          fileCount: filter === undefined ? current.fileCount + 1 : current.fileCount,
+          latestModifiedAt: newer ? item.modifiedAt : current.latestModifiedAt,
           parentDirectoryId: current.parentDirectoryId,
           parentDirectoryName: current.parentDirectoryName
         });
@@ -2813,7 +2935,7 @@ struct Index {
 
   /** 列表滚动过半后预取下一页，避免用户到达底部才开始等待网络。 */
   private PrefetchMediaCatalogAfter(directoryId: string): void {
-    if (this.mediaCatalogMode !== 'gallery' || this.mediaCatalogLoading ||
+    if (!this.MediaCatalogUsesGrid() || this.mediaCatalogLoading ||
       this.mediaCatalogItems.length >= this.mediaCatalogTotal) return;
     const directories = this.MediaCatalogGalleryDirectories();
     const index = directories.findIndex((directory: MediaDirectoryFilter) => directory.directoryId === directoryId);
@@ -2841,7 +2963,8 @@ struct Index {
   }
 
   private ChangeMediaCatalogMode(mode: string): void {
-    if (mode !== 'gallery' && mode !== 'video' && mode !== 'audio' || mode === this.mediaCatalogMode) return;
+    if ((mode !== 'gallery' && mode !== 'video' && mode !== 'audio' && mode !== 'text') ||
+      mode === this.mediaCatalogMode) return;
     this.mediaCatalogMode = mode;
     // 图片和视频拥有独立目录集合，切换页面时不能沿用另一页面的目录或标签标识。
     this.mediaCatalogDirectoryId = '';
@@ -2853,6 +2976,11 @@ struct Index {
     this.selectedVideoDirectoryName = '';
     this.mediaVideoDirectoryItems = [];
     this.LoadMediaCatalog();
+  }
+
+  /** 图片和文本使用同一个分页网格，视频与音频仍按目录聚合。 */
+  private MediaCatalogUsesGrid(): boolean {
+    return this.mediaCatalogMode === 'gallery' || this.mediaCatalogMode === 'text';
   }
 
   private SelectedMediaCatalogDirectoryName(): string {
@@ -2952,7 +3080,7 @@ struct Index {
       value.directoryId === directoryId);
     // 选择日期目录时立即切换数量并移除上一目录卡片，避免网络返回前短暂展示全库统计和旧缩略图。
     if (selectedDirectory !== undefined) this.mediaCatalogTotal = selectedDirectory.fileCount;
-    if (this.mediaCatalogMode === 'gallery') this.mediaCatalogItems = [];
+    if (this.MediaCatalogUsesGrid()) this.mediaCatalogItems = [];
     this.CloseMediaCatalogSelector();
     this.selectedVideoDirectoryId = '';
     this.LoadMediaCatalog();
@@ -2991,11 +3119,14 @@ struct Index {
         this.mediaCatalogFilters = filters;
         this.mediaCatalogFilterContext = filterContext;
       }
-      if (this.mediaCatalogMode === 'gallery') {
+      if (this.MediaCatalogUsesGrid()) {
         this.mediaVideoDirectories = [];
         this.mediaVideoDirectoryItems = [];
-        const page = await api.gallery(this.mediaCatalogDirectoryId, this.mediaCatalogTag,
-          this.mediaCatalogKeyword, 1, this.hideAdultContent, cancellation);
+        const page = this.mediaCatalogMode === 'text' ?
+          await api.textPage(this.mediaCatalogDirectoryId, this.mediaCatalogTag,
+            this.mediaCatalogKeyword, 1, this.hideAdultContent, cancellation) :
+          await api.gallery(this.mediaCatalogDirectoryId, this.mediaCatalogTag,
+            this.mediaCatalogKeyword, 1, this.hideAdultContent, cancellation);
         if (cancellation.isCancelled()) return;
         this.mediaCatalogItems = page.items;
         this.mediaCatalogTotal = page.total;
@@ -3038,7 +3169,7 @@ struct Index {
   }
 
   private async LoadMoreMediaCatalog(): Promise<void> {
-    if (!this.authenticated || this.mediaCatalogMode !== 'gallery' || this.mediaCatalogLoading ||
+    if (!this.authenticated || !this.MediaCatalogUsesGrid() || this.mediaCatalogLoading ||
       this.mediaCatalogItems.length >= this.mediaCatalogTotal) return;
     const cancellation = new DownloadCancellationToken();
     this.activeMediaCatalogCancellation?.cancel();
@@ -3046,9 +3177,12 @@ struct Index {
     this.mediaCatalogLoading = true;
     const nextPage = this.mediaCatalogPage + 1;
     try {
-      const page = await new MediaCatalogApi(this.ActiveServiceUrl(), this.authManager).gallery(
-        this.mediaCatalogDirectoryId, this.mediaCatalogTag, this.mediaCatalogKeyword, nextPage,
-        this.hideAdultContent, cancellation);
+      const api = new MediaCatalogApi(this.ActiveServiceUrl(), this.authManager);
+      const page = this.mediaCatalogMode === 'text' ?
+        await api.textPage(this.mediaCatalogDirectoryId, this.mediaCatalogTag, this.mediaCatalogKeyword, nextPage,
+          this.hideAdultContent, cancellation) :
+        await api.gallery(this.mediaCatalogDirectoryId, this.mediaCatalogTag, this.mediaCatalogKeyword, nextPage,
+          this.hideAdultContent, cancellation);
       if (cancellation.isCancelled()) return;
       const merged = new Map<string, MediaCatalogItem>();
       this.mediaCatalogItems.forEach((item: MediaCatalogItem) => merged.set(item.itemId, item));
@@ -3106,6 +3240,9 @@ struct Index {
     this.SetMediaBrowseThumbnailEntries(this.mediaBrowseThumbnailEntries.filter(
       (entry: MediaThumbnailEntry) => !candidatePaths.has(entry.path)).concat(cached));
     const cachedPaths = new Set<string>(cached.map((entry: MediaThumbnailEntry) => entry.path));
+    // 已命中磁盘缓存的条目不应继续保留失败状态。
+    this.mediaBrowseThumbnailFailedPaths = this.mediaBrowseThumbnailFailedPaths.filter(
+      (path: string) => !cachedPaths.has(path));
     const missingCandidates = candidates.filter((item: MediaCatalogItem) =>
       !cachedPaths.has(`/media/${item.itemId}`));
     // HarmonyOS 虚拟机的网络连接数较小，缩略图必须分批下载，避免大量并发请求长期阻塞。
@@ -3137,11 +3274,21 @@ struct Index {
         });
       const resolved = (await Promise.all(tasks)).filter(
         (entry: MediaThumbnailEntry | undefined): boolean => entry !== undefined) as MediaThumbnailEntry[];
+      const resolvedPaths = new Set<string>(resolved.map((entry: MediaThumbnailEntry) => entry.path));
+      const failedPaths = batch.map((item: MediaCatalogItem) => `/media/${item.itemId}`)
+        .filter((path: string) => !resolvedPaths.has(path));
+      if (failedPaths.length > 0) {
+        this.mediaBrowseThumbnailFailedPaths = Array.from(new Set<string>(
+          this.mediaBrowseThumbnailFailedPaths.concat(failedPaths)));
+      }
+      if (resolvedPaths.size > 0) {
+        this.mediaBrowseThumbnailFailedPaths = this.mediaBrowseThumbnailFailedPaths.filter(
+          (path: string) => !resolvedPaths.has(path));
+      }
       cached.push(...resolved);
       if (revision !== this.mediaCatalogThumbnailRevision || cancellation.isCancelled()) return;
       // 每批完成后立即更新首屏，后续缩略图无需全部完成才可见。
       if (resolved.length > 0) {
-        const resolvedPaths = new Set<string>(resolved.map((entry: MediaThumbnailEntry) => entry.path));
         this.SetMediaBrowseThumbnailEntries(this.mediaBrowseThumbnailEntries.filter(
           (entry: MediaThumbnailEntry) => !resolvedPaths.has(entry.path)).concat(resolved));
       }
@@ -3737,6 +3884,8 @@ struct Index {
       if (item.kind === 'AUDIO') {
         const hostContext = this.getUIContext().getHostContext();
         if (hostContext === undefined) throw new Error('无法获取后台音频上下文');
+        this.audiobookPlaybackRevision++;
+        await this.audiobookPlayer.release();
         await this.audioPlayer.open(descriptor.url, 0, hostContext as common.UIAbilityContext, item.name);
       }
       this.driveStatus = '';
@@ -10084,17 +10233,20 @@ struct Index {
             .fontColor(AppTheme.danger).padding(10).borderRadius(10).backgroundColor(AppTheme.dangerSoft)
         }
         if (this.mediaActionMode === 'menu') {
-          Row({ space: 8 }) {
+          Flex({ justifyContent: FlexAlign.SpaceBetween }) {
             this.MediaActionButton('重命名', () => this.BeginMediaAction('rename', item.name))
             this.MediaActionButton('移动到', () => this.BeginMediaAction('move', '/'))
           }.width('100%')
-          Row({ space: 8 }) {
+          Flex({ justifyContent: FlexAlign.SpaceBetween }) {
             this.MediaActionButton('管理标签', () => this.BeginMediaAction('tags',
               (item.tags ?? []).map((tag: RemoteMediaTag) => tag.name).join(',')))
             this.MediaActionButton('查看详情', () => this.BeginMediaAction('details', ''))
           }.width('100%')
-          AppDangerPillButton({ label: '删除',
-            action: () => this.mediaActionMode = 'delete-confirm' }).width('100%')
+          if (this.CanGenerateAudiobook(item)) {
+            AppPrimaryPillButton({ label: '生成有声书', available: !this.mediaActionBusy,
+              action: () => this.OpenAudiobookGeneration(item) }).width('100%')
+          }
+          this.MediaActionDangerButton('删除', true, () => this.mediaActionMode = 'delete-confirm')
         } else if (this.mediaActionMode === 'details') {
           Text(`类型：${this.MediaKindLabel(item)}\n大小：${this.FormatMediaSize(item.size)}\n目录：${item.directoryName ?? '根目录'}\n更新时间：${item.lastModified}\n标签：${(item.tags ?? []).map((tag: RemoteMediaTag) => tag.name).join('、') || '无'}\n路径：${item.path}`)
             .width('100%').fontSize(14).fontFamily('HarmonyOS Sans').fontColor(AppTheme.textPrimary)
@@ -10108,24 +10260,356 @@ struct Index {
               .fontFamily('HarmonyOS Sans').fontColor(AppTheme.danger)
           }
           if (this.mediaActionMode === 'delete-confirm') {
-            AppDangerPillButton({ label: this.mediaActionBusy ? '处理中…' : '确认删除',
-              available: !this.mediaActionBusy, action: () => this.ExecuteMediaAction(item) }).width('100%')
+            this.MediaActionDangerButton(this.mediaActionBusy ? '处理中…' : '确认删除',
+              !this.mediaActionBusy, () => this.ExecuteMediaAction(item))
           } else {
             AppPrimaryPillButton({ label: this.mediaActionBusy ? '处理中…' : '确认',
               available: !this.mediaActionBusy, action: () => this.ExecuteMediaAction(item) }).width('100%')
           }
         }
-        AppSecondaryPillButton({ label: '取消', action: () => this.CloseMediaActionSheet() }).width('100%')
+        this.MediaActionSecondaryButton('取消', () => this.CloseMediaActionSheet())
       }.width('100%').padding({ left: 20, right: 20, top: 20, bottom: 16 })
         .borderRadius({ topLeft: 24, topRight: 24 }).backgroundColor(AppTheme.surface)
     }.width('100%').height('100%').backgroundColor('#55000000')
   }
 
   @Builder
+  private AudiobookGenerationSheet() {
+    Column() {
+      Blank().layoutWeight(1).width('100%').onClick(() => this.CloseAudiobookGeneration())
+      Column({ space: 14 }) {
+        Row({ space: 12 }) {
+          SymbolGlyph($r('sys.symbol.headphones')).width(52).height(52).fontSize(28)
+            .fontColor([AppTheme.primary]).backgroundColor(AppTheme.surfaceTint).borderRadius(14)
+          Column({ space: 4 }) {
+            Text('整书有声化').width('100%').fontSize(18).fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
+            Text(this.audiobookSourceTitle).width('100%').maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis })
+              .fontSize(12).fontColor(AppTheme.textSecondary)
+          }.layoutWeight(1).alignItems(HorizontalAlign.Start)
+        }.width('100%')
+        if (this.audiobookGeneration === undefined) {
+          Text('将分析全文人物、关系和说话人，冻结音色后按章节生成。仅可用于您拥有或已获授权朗读的 TXT 或 EPUB 电子书。')
+            .width('100%').fontSize(13).lineHeight(20).fontColor(AppTheme.textSecondary)
+          AppPrimaryPillButton({ label: this.audiobookBusy ? '正在提交…' : '确认拥有朗读权并生成',
+            available: !this.audiobookBusy, action: () => this.StartAudiobookGeneration() }).width('100%')
+        } else {
+          Text(this.AudiobookGenerationSummary()).width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
+          if (this.AudiobookCanCancel()) {
+            AppSecondaryPillButton({ label: '取消生成', available: !this.audiobookReviewBusy,
+              action: () => this.CancelAudiobookGeneration() }).width('100%')
+          }
+          if (this.AudiobookCanRetry()) {
+            AppPrimaryPillButton({ label: '从失败阶段重试', available: !this.audiobookBusy && !this.audiobookReviewBusy,
+              action: () => this.RetryAudiobookGeneration() }).width('100%')
+          }
+          if (this.audiobookGeneration.status === 'COMPLETED') {
+            AppSecondaryPillButton({ label: '听书介绍',
+              available: !this.audiobookBusy && !this.audiobookReviewBusy,
+              action: () => this.OpenAudiobookReview() }).width('100%')
+            AppSecondaryPillButton({ label: this.AudiobookExportActionLabel(),
+              available: !this.audiobookExportBusy,
+              action: () => this.HandleAudiobookExportAction() }).width('100%')
+            if (this.audiobookExport !== undefined) {
+              Text(this.AudiobookExportSummary()).width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
+            }
+          }
+          if (this.audiobookManifest !== undefined) {
+            Text(this.AudiobookManifestSummary()).width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
+            Text(this.AudiobookCurrentChapterLabel()).width('100%').maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis }).fontSize(14).fontColor(AppTheme.textPrimary)
+            Slider({ value: this.audiobookPlayerTimeMs, min: 0, max: Math.max(1, this.audiobookPlayerDurationMs),
+              style: SliderStyle.OutSet })
+              .width('100%').selectedColor(AppTheme.primary)
+              .onChange((value: number, mode: SliderChangeMode) => {
+                if (mode === SliderChangeMode.End) this.audiobookPlayer.seek(value);
+              })
+            Row() {
+              Text(this.FormatDuration(this.audiobookPlayerTimeMs)).fontSize(12).fontColor(AppTheme.textSecondary)
+              Blank()
+              Text(this.FormatDuration(this.audiobookPlayerDurationMs)).fontSize(12).fontColor(AppTheme.textSecondary)
+            }.width('100%')
+            Row({ space: 10 }) {
+              AppSecondaryPillButton({ label: '上一章', available: !this.audiobookBusy && !this.audiobookReviewBusy,
+                action: () => this.PlayPreviousAudiobookChapter() }).layoutWeight(1)
+              AppPrimaryPillButton({ label: this.audiobookCurrentChapterIndex < 0 ? '开始播放' :
+                (this.audiobookPlayerState === 'playing' ? '暂停' : '播放'),
+                available: !this.audiobookBusy && !this.audiobookReviewBusy,
+                action: () => this.ToggleAudiobookPlayback() }).layoutWeight(1)
+              AppSecondaryPillButton({ label: '下一章', available: !this.audiobookBusy && !this.audiobookReviewBusy,
+                action: () => this.PlayNextAudiobookChapter() }).layoutWeight(1)
+            }.width('100%')
+            AppSecondaryPillButton({ label: '刷新章节状态', available: !this.audiobookBusy && !this.audiobookReviewBusy,
+              action: () => this.RefreshAudiobookManifest() }).width('100%')
+          }
+        }
+        if (this.audiobookStatus.length > 0) {
+          Text(this.audiobookStatus).width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
+            .padding(10).borderRadius(10).backgroundColor(AppTheme.surfaceTint)
+        }
+        AppSecondaryPillButton({ label: this.audiobookBusy || this.audiobookReviewBusy || this.audiobookExportBusy ?
+          '后台处理中…' : '关闭',
+          available: !this.audiobookBusy && !this.audiobookReviewBusy,
+          action: () => this.CloseAudiobookGeneration() }).width('100%')
+      }.width('100%').padding({ left: 20, right: 20, top: 20, bottom: 16 })
+        .borderRadius({ topLeft: 24, topRight: 24 }).backgroundColor(AppTheme.surface)
+    }.width('100%').height('100%').backgroundColor('#55000000')
+  }
+
+  @Builder
+  private AudiobookReviewSheet() {
+    Column() {
+      Blank().layoutWeight(1).width('100%').onClick(() => this.CloseAudiobookReview())
+      Column({ space: 12 }) {
+        Row({ space: 12 }) {
+          SymbolGlyph($r('sys.symbol.person_2')).width(46).height(46).fontSize(23)
+            .fontColor([AppTheme.primary]).backgroundColor(AppTheme.surfaceTint).borderRadius(14)
+          Column({ space: 3 }) {
+            Text('听书介绍').width('100%').fontSize(18).fontWeight(FontWeight.Bold)
+              .fontColor(AppTheme.textPrimary)
+            Text('人物、关系和音色来自冻结的全书分析；替音只重生成受影响章节。').width('100%').fontSize(12)
+              .fontColor(AppTheme.textSecondary)
+          }.layoutWeight(1).alignItems(HorizontalAlign.Start)
+        }.width('100%')
+        Scroll() {
+          Column({ space: 12 }) {
+            if (this.audiobookReviewBusy && this.audiobookBookAnalysis === undefined) {
+              Text('正在读取本书的人物介绍、人物关系与音色方案…').width('100%').fontSize(13)
+                .fontColor(AppTheme.textSecondary).padding(14).backgroundColor(AppTheme.surfaceTint).borderRadius(12)
+            }
+            if (this.audiobookBookAnalysis !== undefined) {
+              Text(`全书分析 · ${this.audiobookBookAnalysis.characters.length} 名人物 · ` +
+                `${this.audiobookBookAnalysis.relationships.length} 条关系 · ` +
+                `${this.audiobookBookAnalysis.speechSegmentCount} 个说话片段`)
+                .width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
+              Text(`分析追溯：模型 ${this.audiobookBookAnalysis.analysisModelVersion} · 规则 ` +
+                this.audiobookBookAnalysis.analysisRuleVersion)
+                .width('100%').fontSize(11).fontColor(AppTheme.textSecondary)
+              if (this.audiobookBookAnalysis.characters.length > 0) {
+                Text('人物画像').width('100%').fontSize(15).fontWeight(FontWeight.Medium)
+                  .fontColor(AppTheme.textPrimary)
+                ForEach(this.audiobookBookAnalysis.characters.slice(0, 100),
+                  (character: AudiobookCharacterProfile) => {
+                    Column({ space: 4 }) {
+                      Text(`${character.displayName} · ${this.AudiobookPresentationLabel(character.presentation)} · ` +
+                        character.characterType)
+                        .width('100%').fontSize(14).fontColor(AppTheme.textPrimary)
+                      Text(character.traits.length > 0 ? character.traits.join('、') : '未提取显著特点')
+                        .width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
+                      Text(`首次出现：第 ${character.firstChapterIndex + 1} 章 · 出现约 ${character.occurrenceCount} 次 · ` +
+                        `分析置信度 ${(character.confidence * 100).toFixed(0)}%`)
+                        .width('100%').fontSize(11).fontColor(AppTheme.textSecondary)
+                      if (character.aliases.length > 0) {
+                        Text(`别名：${character.aliases.slice(0, 6).map((alias) =>
+                          `${alias.alias}（${this.AudiobookEvidenceLocation(alias.evidenceChapterIndex,
+                            alias.evidenceStartCodepoint, alias.evidenceEndCodepoint)}）`).join('、')}`)
+                          .width('100%').maxLines(3).textOverflow({ overflow: TextOverflow.Ellipsis })
+                          .fontSize(11).fontColor(AppTheme.textSecondary)
+                      }
+                    }.width('100%').padding(10).borderRadius(10).backgroundColor(AppTheme.surfaceTint)
+                  }, (character: AudiobookCharacterProfile) => character.canonicalName)
+                if (this.audiobookBookAnalysis.characters.length > 100) {
+                  Text(`为保持页面流畅，当前展示前 100 名人物（共 ${this.audiobookBookAnalysis.characters.length} 名）。`)
+                    .width('100%').fontSize(11).fontColor(AppTheme.textSecondary)
+                }
+              }
+              if (this.audiobookBookAnalysis.relationships.length > 0) {
+                Text('人物关系').width('100%').fontSize(15).fontWeight(FontWeight.Medium)
+                  .fontColor(AppTheme.textPrimary)
+                ForEach(this.audiobookBookAnalysis.relationships.slice(0, 100),
+                  (relationship: AudiobookCharacterRelationship) => {
+                    Column({ space: 2 }) {
+                      Text(`${relationship.sourceCanonicalName}  →  ${relationship.relationshipType}  →  ` +
+                        `${relationship.targetCanonicalName} · 置信度 ${(relationship.confidence * 100).toFixed(0)}%`)
+                        .width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
+                      Text(`原文证据：${this.AudiobookEvidenceLocation(relationship.evidenceChapterIndex,
+                        relationship.evidenceStartCodepoint, relationship.evidenceEndCodepoint)}`)
+                        .width('100%').fontSize(11).fontColor(AppTheme.textSecondary)
+                    }.width('100%').padding(8).borderRadius(8).backgroundColor(AppTheme.surfaceTint)
+                  }, (relationship: AudiobookCharacterRelationship, index: number) =>
+                    `${relationship.sourceCanonicalName}:${relationship.targetCanonicalName}:${index}`)
+                if (this.audiobookBookAnalysis.relationships.length > 100) {
+                  Text(`为保持页面流畅，当前展示前 100 条关系（共 ${this.audiobookBookAnalysis.relationships.length} 条）。`)
+                    .width('100%').fontSize(11).fontColor(AppTheme.textSecondary)
+                }
+              }
+              if (this.AudiobookReviewLowConfidenceSegments().length > 0) {
+                Text('低置信度引语归因').width('100%').fontSize(15).fontWeight(FontWeight.Medium)
+                  .fontColor(AppTheme.textPrimary)
+                Text('仅显示未人工确认且置信度低于 80% 的片段。确认后仅重新合成所属章节。')
+                  .width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
+                ForEach(this.AudiobookReviewLowConfidenceSegments().slice(0, 50),
+                  (segment: AudiobookSpeechSegment) => {
+                    Button() {
+                      Column({ space: 3 }) {
+                        Text(`第 ${segment.chapterIndex + 1} 章 · 片段 ${segment.sequenceNumber + 1} · ` +
+                          this.AudiobookSpeakerDisplay(segment.speakerKind, segment.speakerCanonicalName))
+                          .width('100%').fontSize(13).fontColor(AppTheme.textPrimary)
+                        if (segment.evidenceExcerpt !== undefined) {
+                          Text(`原文：${segment.evidenceExcerpt}`)
+                            .width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
+                            .maxLines(4).textOverflow({ overflow: TextOverflow.Ellipsis })
+                        }
+                        Text(`原文码点：${segment.textStartCodepoint}–${segment.textEndCodepoint} · ` +
+                          `分析置信度 ${(segment.confidence * 100).toFixed(0)}%`)
+                          .width('100%').fontSize(11).fontColor(AppTheme.textSecondary)
+                      }.width('100%').alignItems(HorizontalAlign.Start)
+                    }.width('100%').padding(10).backgroundColor(
+                      this.AudiobookReviewSelectedSpeechSegment() === segment ? AppTheme.accentSoft : AppTheme.surfaceTint)
+                      .border({ width: 1, color: this.AudiobookReviewSelectedSpeechSegment() === segment ?
+                        AppTheme.primary : AppTheme.divider, radius: 10 }).borderRadius(10)
+                      .onClick(() => this.SelectAudiobookReviewSpeechSegment(segment))
+                  }, (segment: AudiobookSpeechSegment) => `${segment.chapterIndex}:${segment.sequenceNumber}`)
+                if (this.AudiobookReviewLowConfidenceSegments().length > 50) {
+                  Text(`为保持页面流畅，当前展示前 50 个待复核片段（共 ${this.AudiobookReviewLowConfidenceSegments().length} 个）。`)
+                    .width('100%').fontSize(11).fontColor(AppTheme.textSecondary)
+                }
+                if (this.AudiobookReviewSelectedSpeechSegment() !== undefined) {
+                  Text('确认说话人').width('100%').fontSize(14).fontWeight(FontWeight.Medium)
+                    .fontColor(AppTheme.textPrimary)
+                  Select(this.AudiobookReviewSpeakerOptions()).selected(this.AudiobookReviewSelectedSpeakerIndex())
+                    .width('100%').height(42).font({ size: 14, weight: FontWeight.Medium })
+                    .onSelect((index: number, _value: string) => this.SelectAudiobookReviewSpeaker(index))
+                  Text(this.AudiobookReviewSelectedSpeakerDescription()).width('100%').fontSize(12)
+                    .fontColor(AppTheme.textSecondary)
+                  AppPrimaryPillButton({ label: '确认归因并生成', available: !this.audiobookReviewBusy &&
+                    !this.audiobookVoicePreviewBusy && this.AudiobookReviewSelectedSpeakerDiffers(),
+                    action: () => this.ApplyAudiobookReviewSpeaker() }).width('100%')
+                }
+              }
+            }
+            if (this.audiobookPronunciationDictionary !== undefined) {
+              Text('读音词典').width('100%').fontSize(15).fontWeight(FontWeight.Medium)
+                .fontColor(AppTheme.textPrimary)
+              Text('为多音字、专名等指定带声调数字的拼音。系统仅在冻结正文精确命中的章节重新合成。')
+                .width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
+              if (this.audiobookPronunciationDictionary.entries.length === 0) {
+                Text('当前版本尚未添加人工读音。').width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
+                  .padding(10).borderRadius(10).backgroundColor(AppTheme.surfaceTint)
+              }
+              if (this.audiobookPronunciationDictionary.entries.length > 0) {
+                ForEach(this.audiobookPronunciationDictionary.entries.slice(0, 50),
+                  (entry: AudiobookPronunciationEntry) => {
+                    Text(`${entry.term}  ·  ${entry.pinyin}`).width('100%').fontSize(13)
+                      .fontColor(AppTheme.textSecondary).padding(8).borderRadius(8)
+                      .backgroundColor(AppTheme.surfaceTint)
+                  }, (entry: AudiobookPronunciationEntry) => entry.term)
+                if (this.audiobookPronunciationDictionary.entries.length > 50) {
+                  Text(`为保持页面流畅，当前展示前 50 条读音（共 ` +
+                    `${this.audiobookPronunciationDictionary.entries.length} 条）。`)
+                    .width('100%').fontSize(11).fontColor(AppTheme.textSecondary)
+                }
+              }
+              Text('修订读音').width('100%').fontSize(14).fontWeight(FontWeight.Medium)
+                .fontColor(AppTheme.textPrimary)
+              AppGlassTextInput({ value: this.audiobookReviewPronunciationTerm, placeholder: '中文词条，例如：银行',
+                limit: 128, available: !this.audiobookReviewBusy && !this.audiobookVoicePreviewBusy,
+                valueChanged: (value: string) => this.audiobookReviewPronunciationTerm = value })
+              AppGlassTextInput({ value: this.audiobookReviewPronunciationPinyin,
+                placeholder: '拼音，例如：yin2 hang2', limit: 512,
+                available: !this.audiobookReviewBusy && !this.audiobookVoicePreviewBusy,
+                valueChanged: (value: string) => this.audiobookReviewPronunciationPinyin = value,
+                submitted: () => this.ApplyAudiobookReviewPronunciation() })
+              AppPrimaryPillButton({ label: '应用读音并生成', available: !this.audiobookReviewBusy &&
+                !this.audiobookVoicePreviewBusy && this.AudiobookReviewPronunciationIsValid(),
+                action: () => this.ApplyAudiobookReviewPronunciation() }).width('100%')
+            }
+            if (this.audiobookVoicePlan !== undefined) {
+              Text('人物音色').width('100%').fontSize(15).fontWeight(FontWeight.Medium)
+                .fontColor(AppTheme.textPrimary)
+              if (this.audiobookVoicePlan.qualityGateAttestationSha256 !== undefined) {
+                Text('多角色音色已通过黄金集、NER 与跨章节复核质量门禁。')
+                  .width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
+              }
+              ForEach(this.audiobookVoicePlan.bindings, (binding: AudiobookVoiceBinding) => {
+                Button() {
+                  Column({ space: 3 }) {
+                    Text(binding.roleKey === 'NARRATOR' ? '旁白' : binding.characterCanonicalName ?? binding.roleKey)
+                      .width('100%').fontSize(14).fontColor(AppTheme.textPrimary)
+                    Text(`${binding.provider} · ${binding.voiceType} · 匹配 ${(binding.matchScore * 100).toFixed(0)}%`)
+                      .width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
+                    if (binding.rationaleTags.includes('multi_character_voice_disabled')) {
+                      Text('当前版本统一使用旁白；角色音色将在质量验收通过后开放。')
+                        .width('100%').fontSize(11).fontColor(AppTheme.textSecondary)
+                    } else if (binding.rationaleTags.includes('character_confidence_below_threshold')) {
+                      Text('该角色分析置信度不足，当前安全回退到旁白。')
+                        .width('100%').fontSize(11).fontColor(AppTheme.textSecondary)
+                    }
+                  }.width('100%').alignItems(HorizontalAlign.Start)
+                }.width('100%').padding(12).backgroundColor(this.audiobookReviewSelectedRoleKey === binding.roleKey ?
+                  AppTheme.accentSoft : AppTheme.surfaceTint).border({ width: 1,
+                  color: this.audiobookReviewSelectedRoleKey === binding.roleKey ? AppTheme.primary : AppTheme.divider,
+                  radius: 12 }).borderRadius(12).onClick(() => this.SelectAudiobookReviewRole(binding.roleKey))
+              }, (binding: AudiobookVoiceBinding) => binding.roleKey)
+            }
+            if (this.AudiobookReviewSelectedBinding() !== undefined) {
+              Text(`为“${this.AudiobookReviewSelectedBinding()!.roleKey === 'NARRATOR' ? '旁白' :
+                this.AudiobookReviewSelectedBinding()!.characterCanonicalName ?? this.AudiobookReviewSelectedBinding()!.roleKey}”选择音色`)
+                .width('100%').fontSize(15)
+                .fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary)
+              if (this.AudiobookReviewSelectableVoices().length === 0) {
+                Text('当前受控目录没有符合该角色条件的可用音色。').width('100%').fontSize(13).fontColor(AppTheme.textSecondary)
+              }
+              if (this.AudiobookReviewSelectableVoices().length > 0) {
+                Select(this.AudiobookReviewVoiceOptions())
+                  .selected(this.AudiobookReviewSelectedVoiceIndex())
+                  .width('100%').height(42).font({ size: 14, weight: FontWeight.Medium })
+                  .onSelect((index: number, _value: string) => this.SelectAudiobookReviewVoice(index))
+                Text(this.AudiobookReviewSelectedVoiceDescription()).width('100%').fontSize(12)
+                  .fontColor(AppTheme.textSecondary)
+                Row({ space: 10 }) {
+                  AppSecondaryPillButton({ label: this.audiobookVoicePreviewBusy ? '正在准备试听…' :
+                    (this.audiobookVoicePreviewState === 'playing' ? '正在试听' : '试听音色'),
+                    available: !this.audiobookReviewBusy && !this.audiobookVoicePreviewBusy &&
+                      this.AudiobookReviewSelectedVoice()?.previewAvailable === true,
+                    action: () => this.PreviewAudiobookReviewVoice() }).layoutWeight(1)
+                  AppPrimaryPillButton({ label: '应用音色并生成',
+                    available: !this.audiobookReviewBusy && !this.audiobookVoicePreviewBusy &&
+                      this.AudiobookReviewSelectedVoiceDiffers(),
+                    action: () => this.ApplyAudiobookReviewVoice() }).layoutWeight(1)
+                }.width('100%')
+                if (this.AudiobookReviewSelectedVoice()?.previewAvailable !== true) {
+                  Text('该音色尚未配置已审核样音，仍可应用后按受影响章节生成。').width('100%').fontSize(11)
+                    .fontColor(AppTheme.textSecondary)
+                }
+              }
+            }
+            if (this.audiobookReviewStatus.length > 0) {
+              Text(this.audiobookReviewStatus).width('100%').fontSize(12).fontColor(AppTheme.textSecondary)
+                .padding(10).borderRadius(10).backgroundColor(AppTheme.surfaceTint)
+            }
+          }.width('100%').alignItems(HorizontalAlign.Start)
+        }.layoutWeight(1).width('100%').scrollBar(BarState.Off)
+        AppSecondaryPillButton({ label: this.audiobookReviewBusy ? '处理中…' : '返回播放',
+          available: !this.audiobookReviewBusy && !this.audiobookVoicePreviewBusy,
+          action: () => this.CloseAudiobookReview() }).width('100%')
+      }.width('100%').height('84%').padding({ left: 20, right: 20, top: 20, bottom: 16 })
+        .borderRadius({ topLeft: 24, topRight: 24 }).backgroundColor(AppTheme.surface)
+    }.width('100%').height('100%').backgroundColor('#66000000')
+  }
+
+  @Builder
   private MediaActionButton(label: string, action: () => void) {
-    Button(label).layoutWeight(1).height(50).fontSize(14).fontFamily('HarmonyOS Sans')
+    Button(label).width('48.5%').height(50).fontSize(14).fontFamily('HarmonyOS Sans')
       .fontColor(AppTheme.textPrimary)
       .backgroundColor(AppTheme.surfaceTint).onClick(action)
+  }
+
+  @Builder
+  private MediaActionDangerButton(label: string, available: boolean, action: () => void) {
+    Button(label).width('100%').height(AppTheme.controlHeight).padding({ left: 18, right: 18 })
+      .fontSize(14).fontFamily('HarmonyOS Sans').fontWeight(FontWeight.Medium).fontColor(AppTheme.danger)
+      .backgroundColor(AppTheme.dangerSoft)
+      .border({ width: 1, color: AppTheme.danger, radius: AppTheme.pillRadius })
+      .borderRadius(AppTheme.pillRadius).enabled(available).onClick(action)
+  }
+
+  @Builder
+  private MediaActionSecondaryButton(label: string, action: () => void) {
+    Button(label).width('100%').height(AppTheme.controlHeight).padding({ left: 18, right: 18 })
+      .fontSize(14).fontFamily('HarmonyOS Sans').fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary)
+      .backgroundColor(AppTheme.surfaceTint)
+      .border({ width: 1, color: AppTheme.divider, radius: AppTheme.pillRadius })
+      .borderRadius(AppTheme.pillRadius).onClick(action)
   }
 
   build() {
@@ -10193,6 +10677,12 @@ struct Index {
         }
         if (this.mediaActionMode.length > 0 && this.MediaActionItem() !== undefined) {
           this.MediaActionSheet(this.MediaActionItem()!)
+        }
+        if (this.audiobookDialogVisible) {
+          this.AudiobookGenerationSheet()
+        }
+        if (this.audiobookReviewVisible) {
+          this.AudiobookReviewSheet()
         }
         if (this.mediaSelectorMode.length > 0) {
           this.MediaSelectorSheet()
@@ -11358,6 +11848,13 @@ struct Index {
     this.videoController.stop();
     this.StopMediaMetrics();
     await this.audioPlayer.release();
+    this.audiobookOperationRevision++;
+    this.audiobookPlaybackRevision++;
+    await this.audiobookPlayer.release();
+    this.ResetAudiobookReview();
+    this.ResetAudiobookExport();
+    this.audiobookDialogVisible = false;
+    this.audiobookBusy = false;
     this.copilotOperationRevision++;
     this.CancelCopilotRefresh();
     this.dshApi = undefined;
@@ -11479,6 +11976,8 @@ struct Index {
       this.UpdateMediaPlaybackProgress(this.playerTimeMs, this.playerDurationMs);
       this.PersistMediaPlaybackProgress();
     }
+    this.UpdateAudiobookPlaybackProgress(this.audiobookPlayerTimeMs);
+    this.PersistAudiobookPlaybackProgress();
     this.pendingMediaSourceId = this.selectedMediaSourceId;
     this.pendingMediaPath = this.mediaPath;
     this.mediaOpenRevision++;
@@ -11526,6 +12025,13 @@ struct Index {
     this.videoController.stop();
     this.StopMediaMetrics();
     this.audioPlayer.release();
+    this.audiobookOperationRevision++;
+    this.audiobookPlaybackRevision++;
+    this.audiobookPlayer.release();
+    this.ResetAudiobookReview();
+    this.ResetAudiobookExport();
+    this.audiobookDialogVisible = false;
+    this.audiobookBusy = false;
     this.CancelCopilotRefresh();
     this.dshApi = undefined;
     this.copilotInitialized = false;
@@ -14718,6 +15224,1140 @@ struct Index {
     this.OpenMediaActionSheet(this.CatalogRemoteItem(item));
   }
 
+  /** 判断当前媒体是否为可由受管导入链路安全处理的 TXT 或 EPUB 电子书。 */
+  private CanGenerateAudiobook(item: RemoteMediaItem): boolean {
+    const mediaId = this.CatalogMediaItemId(item.path, '');
+    return this.IsCatalogMediaPath(item.path) &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(mediaId) &&
+      ['text/plain', 'application/epub+zip'].includes(item.contentType.toLowerCase());
+  }
+
+  /** 打开当前电子书的整书有声化面板，并重置上一份临时播放状态。 */
+  private OpenAudiobookGeneration(item: RemoteMediaItem): void {
+    if (!this.CanGenerateAudiobook(item) || this.audiobookBusy) return;
+    this.CloseMediaActionSheet();
+    this.audiobookOperationRevision++;
+    this.audiobookPlaybackRevision++;
+    this.audiobookPlayer.release();
+    this.audiobookSourceItemId = this.CatalogMediaItemId(item.path, '');
+    this.audiobookSourceVersion = this.mediaCatalogItems.find((value: MediaCatalogItem) =>
+      value.itemId === this.audiobookSourceItemId)?.version ?? 0;
+    this.audiobookSourceTitle = item.name;
+    this.audiobookGeneration = undefined;
+    this.audiobookManifest = undefined;
+    this.audiobookStatus = '';
+    this.ResetAudiobookReview();
+    this.ResetAudiobookExport();
+    this.audiobookCurrentChapterIndex = -1;
+    this.audiobookPlayerState = 'idle';
+    this.audiobookPlayerTimeMs = 0;
+    this.audiobookPlayerDurationMs = 0;
+    this.audiobookDialogVisible = true;
+    this.RestoreAudiobookPlaybackForCurrentSource().catch((error: Error) => {
+      if (this.audiobookDialogVisible) this.audiobookStatus = error.message;
+    });
+  }
+
+  /** 在没有运行中请求时关闭面板；后台音频会话继续交给系统控制。 */
+  private CloseAudiobookGeneration(): void {
+    if (this.audiobookBusy || this.audiobookReviewBusy) return;
+    this.ResetAudiobookReview();
+    this.ResetAudiobookExport();
+    this.audiobookDialogVisible = false;
+  }
+
+  /** 打开已完成版本的审核面板，并读取冻结的人物、关系与音色数据。 */
+  private async OpenAudiobookReview(): Promise<void> {
+    const generation = this.audiobookGeneration;
+    if (generation === undefined || generation.status !== 'COMPLETED' || this.audiobookBusy ||
+      this.audiobookReviewBusy) return;
+    const revision = ++this.audiobookReviewOperationRevision;
+    this.audiobookReviewVisible = true;
+    this.audiobookReviewBusy = true;
+    this.audiobookReviewStatus = '正在读取审核数据…';
+    try {
+      const api = new AudiobookApi(this.ActiveServiceUrl(), this.authManager);
+      const analysis = await api.bookAnalysis(generation.id);
+      if (!this.AudiobookReviewCurrent(revision)) return;
+      const plan = await api.voicePlan(generation.id);
+      if (!this.AudiobookReviewCurrent(revision)) return;
+      const catalog = await api.voiceCatalog(generation.id);
+      if (!this.AudiobookReviewCurrent(revision)) return;
+      const pronunciationDictionary = await api.pronunciationDictionary(generation.id);
+      if (!this.AudiobookReviewCurrent(revision)) return;
+      if (analysis.generationId !== generation.id || plan.generationId !== generation.id ||
+        catalog.generationId !== generation.id || pronunciationDictionary.generationId !== generation.id) {
+        throw new Error('审核数据与当前有声书版本不一致');
+      }
+      this.audiobookBookAnalysis = analysis;
+      this.audiobookVoicePlan = plan;
+      this.audiobookVoiceCatalog = catalog;
+      this.audiobookPronunciationDictionary = pronunciationDictionary;
+      this.audiobookReviewSelectedRoleKey = plan.bindings[0]?.roleKey ?? '';
+      const binding = this.AudiobookReviewSelectedBinding();
+      this.audiobookReviewSelectedVoiceKey = binding === undefined ? '' : this.AudiobookVoiceKey(binding.provider,
+        binding.voiceType);
+      const initialSegment = this.AudiobookReviewLowConfidenceSegments()[0];
+      if (initialSegment !== undefined) this.SetAudiobookReviewSpeakerFromSegment(initialSegment);
+      this.audiobookReviewStatus = '可核对人物、音色和读音；确认应用才会创建不可变修订版本。';
+    } catch (error) {
+      if (this.AudiobookReviewCurrent(revision)) {
+        this.audiobookReviewStatus = error instanceof Error ? error.message : '读取有声书审核数据失败';
+      }
+    } finally {
+      if (this.AudiobookReviewCurrent(revision)) this.audiobookReviewBusy = false;
+    }
+  }
+
+  /** 关闭审核面板，保留当前不可变有声书版本与播放状态。 */
+  private CloseAudiobookReview(): void {
+    if (this.audiobookReviewBusy || this.audiobookVoicePreviewBusy) return;
+    this.audiobookReviewOperationRevision++;
+    this.audiobookVoicePreviewOperationRevision++;
+    this.audiobookVoicePreviewPlayer.release();
+    this.audiobookReviewVisible = false;
+  }
+
+  /** 切换当前待替换音色的旁白或角色绑定。 */
+  private SelectAudiobookReviewRole(roleKey: string): void {
+    if (this.audiobookReviewBusy || this.audiobookVoicePlan?.bindings.some((binding: AudiobookVoiceBinding) =>
+      binding.roleKey === roleKey) !== true) return;
+    this.audiobookReviewSelectedRoleKey = roleKey;
+    const binding = this.AudiobookReviewSelectedBinding();
+    this.audiobookReviewSelectedVoiceKey = binding === undefined ? '' : this.AudiobookVoiceKey(binding.provider,
+      binding.voiceType);
+  }
+
+  /** 返回当前审核面板选择的冻结音色绑定。 */
+  private AudiobookReviewSelectedBinding(): AudiobookVoiceBinding | undefined {
+    return this.audiobookVoicePlan?.bindings.find((binding: AudiobookVoiceBinding) =>
+      binding.roleKey === this.audiobookReviewSelectedRoleKey);
+  }
+
+  /** 返回符合旁白约束且不同于当前绑定的受控音色候选。 */
+  private AudiobookReviewCandidates(): AudiobookVoiceCandidate[] {
+    const binding = this.AudiobookReviewSelectedBinding();
+    if (binding === undefined || this.audiobookVoiceCatalog === undefined) return [];
+    return this.audiobookVoiceCatalog.voices.filter((voice: AudiobookVoiceCandidate) =>
+      (binding.roleKey !== 'NARRATOR' || voice.narratorEligible) &&
+      (voice.provider !== binding.provider || voice.voiceType !== binding.voiceType));
+  }
+
+  /** 返回当前旁白或角色能够选择的全部受控音色，包含当前已冻结的音色。 */
+  private AudiobookReviewSelectableVoices(): AudiobookVoiceCandidate[] {
+    const binding = this.AudiobookReviewSelectedBinding();
+    if (binding === undefined || this.audiobookVoiceCatalog === undefined) return [];
+    return this.audiobookVoiceCatalog.voices.filter((voice: AudiobookVoiceCandidate) =>
+      binding.roleKey !== 'NARRATOR' || voice.narratorEligible);
+  }
+
+  /** 生成系统下拉组件所需的稳定音色选项。 */
+  private AudiobookReviewVoiceOptions(): AudiobookVoiceOption[] {
+    return this.AudiobookReviewSelectableVoices().map((voice: AudiobookVoiceCandidate) =>
+      new AudiobookVoiceOption(`${voice.provider} · ${voice.voiceType}`));
+  }
+
+  /** 返回当前下拉框选择的受控音色。 */
+  private AudiobookReviewSelectedVoice(): AudiobookVoiceCandidate | undefined {
+    return this.AudiobookReviewSelectableVoices().find((voice: AudiobookVoiceCandidate) =>
+      this.AudiobookVoiceKey(voice.provider, voice.voiceType) === this.audiobookReviewSelectedVoiceKey);
+  }
+
+  /** 返回当前选中音色在下拉选项中的位置。 */
+  private AudiobookReviewSelectedVoiceIndex(): number {
+    const index = this.AudiobookReviewSelectableVoices().findIndex((voice: AudiobookVoiceCandidate) =>
+      this.AudiobookVoiceKey(voice.provider, voice.voiceType) === this.audiobookReviewSelectedVoiceKey);
+    return index < 0 ? 0 : index;
+  }
+
+  /** 根据下拉框索引切换待试听或待应用的音色。 */
+  private SelectAudiobookReviewVoice(index: number): void {
+    if (this.audiobookReviewBusy || this.audiobookVoicePreviewBusy) return;
+    const voice = this.AudiobookReviewSelectableVoices()[index];
+    if (voice === undefined) return;
+    this.audiobookReviewSelectedVoiceKey = this.AudiobookVoiceKey(voice.provider, voice.voiceType);
+  }
+
+  /** 返回当前选中音色的展示说明。 */
+  private AudiobookReviewSelectedVoiceDescription(): string {
+    const voice = this.AudiobookReviewSelectedVoice();
+    if (voice === undefined) return '请选择一个受控音色。';
+    const styles = voice.styleTags.length > 0 ? voice.styleTags.join('、') : '无额外风格标签';
+    return `${this.AudiobookPresentationLabel(voice.presentation)} · ${voice.ageGroup} · ${styles} · ` +
+      `${voice.ssmlSupported ? '支持读音词典' : '不支持读音词典'}`;
+  }
+
+  /** 判断当前下拉选择是否与已冻结音色不同。 */
+  private AudiobookReviewSelectedVoiceDiffers(): boolean {
+    const binding = this.AudiobookReviewSelectedBinding();
+    const voice = this.AudiobookReviewSelectedVoice();
+    return binding !== undefined && voice !== undefined && (binding.provider !== voice.provider ||
+      binding.voiceType !== voice.voiceType);
+  }
+
+  /** 返回尚未人工确认的低置信度归因片段，供审核者明确选择。 */
+  private AudiobookReviewLowConfidenceSegments(): AudiobookSpeechSegment[] {
+    return this.audiobookBookAnalysis?.speechSegments.filter((segment: AudiobookSpeechSegment) =>
+      segment.confidence < 0.80 && segment.reviewStatus !== 'MANUAL') ?? [];
+  }
+
+  /** 选中一条低置信度归因，并将下拉选择还原为该片段当前的冻结结果。 */
+  private SelectAudiobookReviewSpeechSegment(segment: AudiobookSpeechSegment): void {
+    if (this.audiobookReviewBusy || this.audiobookVoicePreviewBusy ||
+      !this.AudiobookReviewLowConfidenceSegments().some((value: AudiobookSpeechSegment) =>
+        value.chapterIndex === segment.chapterIndex && value.sequenceNumber === segment.sequenceNumber)) return;
+    this.SetAudiobookReviewSpeakerFromSegment(segment);
+  }
+
+  /** 将当前待审核的说话人状态设置为一个冻结片段的已有归因。 */
+  private SetAudiobookReviewSpeakerFromSegment(segment: AudiobookSpeechSegment): void {
+    this.audiobookReviewSelectedSpeechChapterIndex = segment.chapterIndex;
+    this.audiobookReviewSelectedSpeechSequenceNumber = segment.sequenceNumber;
+    this.audiobookReviewSelectedSpeakerKind = segment.speakerKind;
+    this.audiobookReviewSelectedSpeakerCanonicalName = segment.speakerCanonicalName ?? '';
+  }
+
+  /** 返回当前选中的待审核说话人归因片段。 */
+  private AudiobookReviewSelectedSpeechSegment(): AudiobookSpeechSegment | undefined {
+    return this.AudiobookReviewLowConfidenceSegments().find((segment: AudiobookSpeechSegment) =>
+      segment.chapterIndex === this.audiobookReviewSelectedSpeechChapterIndex &&
+      segment.sequenceNumber === this.audiobookReviewSelectedSpeechSequenceNumber);
+  }
+
+  /** 返回可人工确认的旁白、未知和本版本已有角色下拉选项。 */
+  private AudiobookReviewSpeakerOptions(): AudiobookSpeakerOption[] {
+    const options: AudiobookSpeakerOption[] = [
+      new AudiobookSpeakerOption('旁白', 'NARRATOR'),
+      new AudiobookSpeakerOption('未知说话人', 'UNKNOWN')
+    ];
+    this.audiobookBookAnalysis?.characters.forEach((character: AudiobookCharacterProfile) => {
+      options.push(new AudiobookSpeakerOption(`人物 · ${character.displayName}`, 'CHARACTER',
+        character.canonicalName));
+    });
+    return options;
+  }
+
+  /** 返回当前人工归因选择在下拉选项中的位置。 */
+  private AudiobookReviewSelectedSpeakerIndex(): number {
+    const index = this.AudiobookReviewSpeakerOptions().findIndex((option: AudiobookSpeakerOption) =>
+      option.speakerKind === this.audiobookReviewSelectedSpeakerKind &&
+      option.speakerCanonicalName === this.audiobookReviewSelectedSpeakerCanonicalName);
+    return index < 0 ? 0 : index;
+  }
+
+  /** 更新当前片段待确认的说话人，不会在用户点击确认前创建版本或触发 TTS。 */
+  private SelectAudiobookReviewSpeaker(index: number): void {
+    if (this.audiobookReviewBusy || this.audiobookVoicePreviewBusy) return;
+    const option = this.AudiobookReviewSpeakerOptions()[index];
+    if (option === undefined) return;
+    this.audiobookReviewSelectedSpeakerKind = option.speakerKind;
+    this.audiobookReviewSelectedSpeakerCanonicalName = option.speakerCanonicalName;
+  }
+
+  /** 返回当前待确认说话人选择的可读说明。 */
+  private AudiobookReviewSelectedSpeakerDescription(): string {
+    const segment = this.AudiobookReviewSelectedSpeechSegment();
+    if (segment === undefined) return '请选择一条待复核片段。';
+    return `当前冻结结果：${this.AudiobookSpeakerDisplay(segment.speakerKind, segment.speakerCanonicalName)}；` +
+      `新选择：${this.AudiobookSpeakerDisplay(this.audiobookReviewSelectedSpeakerKind,
+        this.audiobookReviewSelectedSpeakerCanonicalName)}`;
+  }
+
+  /** 判断当前待确认说话人与冻结归因是否不同。 */
+  private AudiobookReviewSelectedSpeakerDiffers(): boolean {
+    const segment = this.AudiobookReviewSelectedSpeechSegment();
+    return segment !== undefined && (segment.speakerKind !== this.audiobookReviewSelectedSpeakerKind ||
+      (segment.speakerCanonicalName ?? '') !== this.audiobookReviewSelectedSpeakerCanonicalName);
+  }
+
+  /** 将审核字段转换为稳定、可读的说话人展示名称。 */
+  private AudiobookSpeakerDisplay(kind: string, canonicalName: string | undefined): string {
+    if (kind === 'NARRATOR') return '旁白';
+    if (kind === 'UNKNOWN') return '未知说话人';
+    const character = this.audiobookBookAnalysis?.characters.find((value: AudiobookCharacterProfile) =>
+      value.canonicalName === canonicalName);
+    return character === undefined ? (canonicalName ?? '人物') : character.displayName;
+  }
+
+  /** 显式确认一条归因变化，并创建仅重合成其所属章节的新版本。 */
+  private async ApplyAudiobookReviewSpeaker(): Promise<void> {
+    const segment = this.AudiobookReviewSelectedSpeechSegment();
+    if (segment === undefined || !this.AudiobookReviewSelectedSpeakerDiffers()) return;
+    await this.CreateAudiobookSpeakerRevision(segment);
+  }
+
+  /** 创建说话人归因修订、等待后台最小重跑并切换到新不可变版本。 */
+  private async CreateAudiobookSpeakerRevision(segment: AudiobookSpeechSegment): Promise<void> {
+    const source = this.audiobookGeneration;
+    const speakerKind = this.audiobookReviewSelectedSpeakerKind;
+    if (source === undefined || source.status !== 'COMPLETED' || this.audiobookReviewBusy ||
+      this.audiobookVoicePreviewBusy || this.audiobookBusy || this.audiobookExportBusy ||
+      (speakerKind !== 'CHARACTER' && speakerKind !== 'NARRATOR' && speakerKind !== 'UNKNOWN')) return;
+    const revision = ++this.audiobookOperationRevision;
+    this.audiobookBusy = true;
+    this.audiobookReviewBusy = true;
+    this.audiobookReviewStatus = '正在创建说话人归因修订版本…';
+    this.audiobookStatus = `正在为第 ${segment.chapterIndex + 1} 章重新合成确认后的说话人归因…`;
+    this.ResetAudiobookExport();
+    this.audiobookPlaybackRevision++;
+    await this.audiobookPlayer.release();
+    await this.audiobookVoicePreviewPlayer.release();
+    this.audiobookCurrentChapterIndex = -1;
+    this.audiobookPlayerTimeMs = 0;
+    this.audiobookPlayerDurationMs = 0;
+    this.ClearAudiobookPlaybackProgress();
+    try {
+      const request: CreateAudiobookSpeakerRevision = {
+        idempotencyKey: this.AudiobookSpeakerRevisionKey(source.id, segment, speakerKind,
+          this.audiobookReviewSelectedSpeakerCanonicalName),
+        chapterIndex: segment.chapterIndex, sequenceNumber: segment.sequenceNumber,
+        speakerKind: speakerKind as 'CHARACTER' | 'NARRATOR' | 'UNKNOWN'
+      };
+      if (speakerKind === 'CHARACTER') request.speakerCanonicalName = this.audiobookReviewSelectedSpeakerCanonicalName;
+      const api = new AudiobookApi(this.ActiveServiceUrl(), this.authManager);
+      let generation = await api.reviseSpeaker(source.id, request);
+      this.RequireAudiobookOperationCurrent(revision);
+      this.audiobookGeneration = generation;
+      this.audiobookReviewOperationRevision++;
+      this.audiobookReviewVisible = false;
+      generation = await this.WaitForAudiobookGeneration(api, generation, revision);
+      this.RequireAudiobookOperationCurrent(revision);
+      this.audiobookGeneration = generation;
+      this.audiobookManifest = await api.manifest(generation.id);
+      this.audiobookStatus = '说话人归因修订已完成，可播放新版本。';
+      this.ResetAudiobookReview();
+    } catch (error) {
+      if (this.AudiobookOperationCurrent(revision)) {
+        this.audiobookStatus = error instanceof Error ? error.message : '说话人归因修订生成失败';
+      }
+    } finally {
+      if (this.AudiobookOperationCurrent(revision)) this.audiobookBusy = false;
+      this.audiobookReviewBusy = false;
+    }
+  }
+
+  /** 计算说话人归因修订的受限长度稳定幂等键。 */
+  private AudiobookSpeakerRevisionKey(generationId: string, segment: AudiobookSpeechSegment, speakerKind: string,
+    speakerCanonicalName: string): string {
+    const value = `${generationId}\n${segment.chapterIndex}\n${segment.sequenceNumber}\n${speakerKind}\n` +
+      speakerCanonicalName;
+    return `audiobook-speaker:${this.AudiobookRevisionHash(value)}:${this.AudiobookRevisionHash(`v2\n${value}`)}`;
+  }
+
+  /** 判断当前读音输入是否可形成一条与当前冻结词典不同的受控修订。 */
+  private AudiobookReviewPronunciationIsValid(): boolean {
+    const term = this.audiobookReviewPronunciationTerm.trim();
+    const pinyin = this.audiobookReviewPronunciationPinyin.trim().toLowerCase();
+    if (!/^[\u3400-\u9FFF\uF900-\uFAFF]{1,128}$/.test(term) ||
+      !/^(?:[a-zvü]+[1-5])(?:\s+[a-zvü]+[1-5]){0,127}$/.test(pinyin)) return false;
+    return this.audiobookPronunciationDictionary?.entries.some((entry: AudiobookPronunciationEntry) =>
+      entry.term === term && entry.pinyin === pinyin) !== true;
+  }
+
+  /** 提交当前中文词条读法，确认后由服务端以冻结正文计算最小重生成范围。 */
+  private async ApplyAudiobookReviewPronunciation(): Promise<void> {
+    if (!this.AudiobookReviewPronunciationIsValid()) {
+      this.audiobookReviewStatus = '请输入中文词条和带声调数字的拼音，例如“银行 / yin2 hang2”。';
+      return;
+    }
+    await this.CreateAudiobookPronunciationRevision();
+  }
+
+  /** 创建读音修订版本，等待受限执行器确认命中章节后再更新播放版本。 */
+  private async CreateAudiobookPronunciationRevision(): Promise<void> {
+    const source = this.audiobookGeneration;
+    const term = this.audiobookReviewPronunciationTerm.trim();
+    const pinyin = this.audiobookReviewPronunciationPinyin.trim().toLowerCase();
+    if (source === undefined || source.status !== 'COMPLETED' || this.audiobookReviewBusy ||
+      this.audiobookVoicePreviewBusy || this.audiobookBusy || this.audiobookExportBusy ||
+      !this.AudiobookReviewPronunciationIsValid()) return;
+    const revision = ++this.audiobookOperationRevision;
+    this.audiobookBusy = true;
+    this.audiobookReviewBusy = true;
+    this.audiobookReviewStatus = '正在扫描冻结章节并创建读音修订版本…';
+    this.audiobookStatus = '正在按精确命中范围重新合成读音修订章节…';
+    this.ResetAudiobookExport();
+    this.audiobookPlaybackRevision++;
+    await this.audiobookPlayer.release();
+    await this.audiobookVoicePreviewPlayer.release();
+    this.audiobookCurrentChapterIndex = -1;
+    this.audiobookPlayerTimeMs = 0;
+    this.audiobookPlayerDurationMs = 0;
+    this.ClearAudiobookPlaybackProgress();
+    try {
+      const request: CreateAudiobookPronunciationRevision = {
+        idempotencyKey: this.AudiobookPronunciationRevisionKey(source.id, term, pinyin), term: term, pinyin: pinyin
+      };
+      const api = new AudiobookApi(this.ActiveServiceUrl(), this.authManager);
+      let generation = await api.revisePronunciation(source.id, request);
+      this.RequireAudiobookOperationCurrent(revision);
+      this.audiobookGeneration = generation;
+      this.audiobookReviewOperationRevision++;
+      this.audiobookReviewVisible = false;
+      generation = await this.WaitForAudiobookGeneration(api, generation, revision);
+      this.RequireAudiobookOperationCurrent(revision);
+      this.audiobookGeneration = generation;
+      this.audiobookManifest = await api.manifest(generation.id);
+      this.audiobookStatus = '读音修订已完成，可播放新版本。';
+      this.ResetAudiobookReview();
+    } catch (error) {
+      if (this.AudiobookOperationCurrent(revision)) {
+        this.audiobookStatus = error instanceof Error ? error.message : '读音修订生成失败';
+      }
+    } finally {
+      if (this.AudiobookOperationCurrent(revision)) this.audiobookBusy = false;
+      this.audiobookReviewBusy = false;
+    }
+  }
+
+  /** 生成受限长度的读音修订幂等键，不将词条或读法直接写入请求路径。 */
+  private AudiobookPronunciationRevisionKey(generationId: string, term: string, pinyin: string): string {
+    const value = `${generationId}\n${term}\n${pinyin}`;
+    return `audiobook-pronunciation:${this.AudiobookRevisionHash(value)}:` +
+      this.AudiobookRevisionHash(`v2\n${value}`);
+  }
+
+  /** 暂停正文播放并试听当前已审核样音，样音通过短期票据读取。 */
+  private async PreviewAudiobookReviewVoice(): Promise<void> {
+    const generation = this.audiobookGeneration;
+    const voice = this.AudiobookReviewSelectedVoice();
+    if (generation === undefined || generation.status !== 'COMPLETED' || voice === undefined || !voice.previewAvailable ||
+      this.audiobookBusy || this.audiobookReviewBusy || this.audiobookVoicePreviewBusy) return;
+    const revision = ++this.audiobookVoicePreviewOperationRevision;
+    this.audiobookVoicePreviewBusy = true;
+    this.audiobookReviewStatus = '正在准备音色试听…';
+    try {
+      this.UpdateAudiobookPlaybackProgress(this.audiobookPlayerTimeMs);
+      this.PersistAudiobookPlaybackProgress();
+      await this.audiobookPlayer.release();
+      const descriptor = await new AudiobookApi(this.ActiveServiceUrl(), this.authManager).voicePreview(generation.id,
+        voice);
+      if (!this.AudiobookVoicePreviewCurrent(revision)) return;
+      const context = this.ApplicationContext();
+      if (context === undefined) throw new Error('无法获取系统音频能力');
+      await this.audiobookVoicePreviewPlayer.open(descriptor.url, 0, context,
+        `音色试听 · ${voice.voiceType}`);
+      if (!this.AudiobookVoicePreviewCurrent(revision)) await this.audiobookVoicePreviewPlayer.release();
+      else this.audiobookReviewStatus = `正在试听 ${voice.provider} · ${voice.voiceType}。`;
+    } catch (error) {
+      if (this.AudiobookVoicePreviewCurrent(revision)) {
+        this.audiobookReviewStatus = error instanceof Error ? error.message : '音色试听失败';
+      }
+    } finally {
+      if (this.AudiobookVoicePreviewCurrent(revision)) this.audiobookVoicePreviewBusy = false;
+    }
+  }
+
+  /** 显式确认当前下拉音色并创建仅重合成受影响章节的新版本。 */
+  private async ApplyAudiobookReviewVoice(): Promise<void> {
+    const voice = this.AudiobookReviewSelectedVoice();
+    if (voice === undefined || !this.AudiobookReviewSelectedVoiceDiffers()) return;
+    this.audiobookVoicePreviewOperationRevision++;
+    await this.audiobookVoicePreviewPlayer.release();
+    await this.CreateAudiobookVoiceRevision(voice);
+  }
+
+  /** 将供应商和音色标识组合为仅在本地状态使用的稳定键。 */
+  private AudiobookVoiceKey(provider: string, voiceType: string): string {
+    return `${provider}:${voiceType}`;
+  }
+
+  /** 将可审计的原文证据范围转成不含正文的审核定位文案。 */
+  private AudiobookEvidenceLocation(chapterIndex: number | undefined, startCodepoint: number | undefined,
+    endCodepoint: number | undefined): string {
+    if (chapterIndex !== undefined && Number.isSafeInteger(chapterIndex) && chapterIndex >= 0 &&
+      startCodepoint !== undefined && Number.isSafeInteger(startCodepoint) && startCodepoint >= 0 &&
+      endCodepoint !== undefined && Number.isSafeInteger(endCodepoint) && endCodepoint > startCodepoint) {
+      return `第 ${chapterIndex + 1} 章 · 码点 ${startCodepoint}–${endCodepoint}`;
+    }
+    return '未提供可定位证据';
+  }
+
+  /** 将可审计的声音呈现类型转换为书籍详情可读文案。 */
+  private AudiobookPresentationLabel(value: string): string {
+    if (value === 'FEMININE') return '偏女性声线';
+    if (value === 'MASCULINE') return '偏男性声线';
+    if (value === 'NON_BINARY') return '中性多元声线';
+    if (value === 'NEUTRAL') return '中性声线';
+    return '未确定声线';
+  }
+
+  /** 将一个受控候选音色应用为不可变修订，并等待受影响章节重新合成。 */
+  private async CreateAudiobookVoiceRevision(voice: AudiobookVoiceCandidate): Promise<void> {
+    const source = this.audiobookGeneration;
+    const binding = this.AudiobookReviewSelectedBinding();
+    if (source === undefined || source.status !== 'COMPLETED' || binding === undefined ||
+      this.audiobookReviewBusy || this.audiobookVoicePreviewBusy || this.audiobookBusy || this.audiobookExportBusy ||
+      !this.AudiobookReviewCandidates().some((candidate: AudiobookVoiceCandidate) =>
+        candidate.provider === voice.provider && candidate.voiceType === voice.voiceType)) return;
+    const revision = ++this.audiobookOperationRevision;
+    this.audiobookBusy = true;
+    this.audiobookReviewBusy = true;
+    this.audiobookReviewStatus = '正在创建音色修订版本…';
+    this.audiobookStatus = `正在为“${binding.roleKey}”重新合成受影响章节…`;
+    this.ResetAudiobookExport();
+    this.audiobookPlaybackRevision++;
+    await this.audiobookPlayer.release();
+    await this.audiobookVoicePreviewPlayer.release();
+    this.audiobookCurrentChapterIndex = -1;
+    this.audiobookPlayerTimeMs = 0;
+    this.audiobookPlayerDurationMs = 0;
+    this.ClearAudiobookPlaybackProgress();
+    try {
+      const api = new AudiobookApi(this.ActiveServiceUrl(), this.authManager);
+      let generation = await api.reviseVoice(source.id, {
+        idempotencyKey: this.AudiobookVoiceRevisionKey(source.id, binding, voice), roleKey: binding.roleKey,
+        provider: voice.provider, voiceType: voice.voiceType });
+      this.RequireAudiobookOperationCurrent(revision);
+      this.audiobookGeneration = generation;
+      this.audiobookReviewOperationRevision++;
+      this.audiobookReviewVisible = false;
+      generation = await this.WaitForAudiobookGeneration(api, generation, revision);
+      this.RequireAudiobookOperationCurrent(revision);
+      this.audiobookGeneration = generation;
+      this.audiobookManifest = await api.manifest(generation.id);
+      this.audiobookStatus = '音色修订已完成，可播放新版本。';
+      this.ResetAudiobookReview();
+    } catch (error) {
+      if (this.AudiobookOperationCurrent(revision)) {
+        this.audiobookStatus = error instanceof Error ? error.message : '音色修订生成失败';
+      }
+    } finally {
+      if (this.AudiobookOperationCurrent(revision)) this.audiobookBusy = false;
+      this.audiobookReviewBusy = false;
+    }
+  }
+
+  /** 计算受限长度的稳定修订幂等键，避免角色与音色标识过长泄漏到 URL。 */
+  private AudiobookVoiceRevisionKey(generationId: string, binding: AudiobookVoiceBinding,
+    voice: AudiobookVoiceCandidate): string {
+    const value = `${generationId}\n${binding.roleKey}\n${voice.provider}\n${voice.voiceType}`;
+    return `audiobook-voice:${this.AudiobookRevisionHash(value)}:${this.AudiobookRevisionHash(`v2\n${value}`)}`;
+  }
+
+  /** 返回纯本地计算的 FNV-1a 摘要片段，仅作为服务端幂等键的长度约束适配。 */
+  private AudiobookRevisionHash(value: string): string {
+    let hash = 0x811c9dc5;
+    for (let index = 0; index < value.length; index++) {
+      hash ^= value.charCodeAt(index);
+      hash = Math.imul(hash, 0x01000193);
+    }
+    return (hash >>> 0).toString(16).padStart(8, '0');
+  }
+
+  /** 判断一次审核读取是否仍属于当前登录的有声书面板。 */
+  private AudiobookReviewCurrent(revision: number): boolean {
+    return revision === this.audiobookReviewOperationRevision && this.audiobookReviewVisible &&
+      this.audiobookDialogVisible && this.authenticated;
+  }
+
+  /** 判断一次音色试听请求是否仍属于当前书籍详情面板。 */
+  private AudiobookVoicePreviewCurrent(revision: number): boolean {
+    return revision === this.audiobookVoicePreviewOperationRevision && this.audiobookReviewVisible &&
+      this.audiobookDialogVisible && this.authenticated;
+  }
+
+  /** 清理已加载的审核临时数据，避免跨书籍或跨登录会话复用。 */
+  private ResetAudiobookReview(): void {
+    this.audiobookReviewOperationRevision++;
+    this.audiobookVoicePreviewOperationRevision++;
+    this.audiobookVoicePreviewPlayer.release();
+    this.audiobookReviewVisible = false;
+    this.audiobookReviewBusy = false;
+    this.audiobookVoicePreviewBusy = false;
+    this.audiobookVoicePreviewState = 'idle';
+    this.audiobookReviewStatus = '';
+    this.audiobookBookAnalysis = undefined;
+    this.audiobookVoicePlan = undefined;
+    this.audiobookVoiceCatalog = undefined;
+    this.audiobookPronunciationDictionary = undefined;
+    this.audiobookReviewPronunciationTerm = '';
+    this.audiobookReviewPronunciationPinyin = '';
+    this.audiobookReviewSelectedRoleKey = '';
+    this.audiobookReviewSelectedVoiceKey = '';
+    this.audiobookReviewSelectedSpeechChapterIndex = -1;
+    this.audiobookReviewSelectedSpeechSequenceNumber = -1;
+    this.audiobookReviewSelectedSpeakerKind = '';
+    this.audiobookReviewSelectedSpeakerCanonicalName = '';
+  }
+
+  /** 清理不应跨书籍、登录会话或面板关闭保留的 ZIP 导出临时状态。 */
+  private ResetAudiobookExport(): void {
+    this.audiobookExportOperationRevision++;
+    this.audiobookExportBusy = false;
+    this.audiobookExport = undefined;
+    this.audiobookExportAttempt = 0;
+  }
+
+  /** 已完成 ZIP 可直接交给系统下载器；其余状态创建或继续轮询归档任务。 */
+  private async HandleAudiobookExportAction(): Promise<void> {
+    if (this.audiobookExport?.status === 'COMPLETED') {
+      await this.DownloadAudiobookExport();
+      return;
+    }
+    await this.StartAudiobookExport();
+  }
+
+  /** 创建或恢复当前冻结版本的 ZIP 打包任务，服务端会在页面关闭后继续执行。 */
+  private async StartAudiobookExport(): Promise<void> {
+    const generation = this.audiobookGeneration;
+    if (generation === undefined || generation.status !== 'COMPLETED' || this.audiobookExportBusy) return;
+    const revision = ++this.audiobookExportOperationRevision;
+    this.audiobookExportBusy = true;
+    this.audiobookStatus = '正在创建整书 ZIP 打包任务…';
+    try {
+      const api = new AudiobookApi(this.ActiveServiceUrl(), this.authManager);
+      let exportRecord = await api.createExport(generation.id, {
+        idempotencyKey: this.AudiobookExportKey(generation.id), format: 'ZIP' });
+      this.RequireAudiobookExportCurrent(revision, generation.id);
+      if (exportRecord.generationId !== generation.id) throw new Error('ZIP 导出任务与当前有声书版本不一致');
+      // 同一稳定幂等键曾经失败时，使用受限序号新建一次重试，而不会重复运行中的归档任务。
+      if (this.AudiobookExportFailed(exportRecord.status)) {
+        this.audiobookExportAttempt++;
+        exportRecord = await api.createExport(generation.id, {
+          idempotencyKey: this.AudiobookExportKey(generation.id), format: 'ZIP' });
+        this.RequireAudiobookExportCurrent(revision, generation.id);
+      }
+      this.audiobookExport = exportRecord;
+      exportRecord = await this.WaitForAudiobookExport(api, generation.id, exportRecord, revision);
+      this.RequireAudiobookExportCurrent(revision, generation.id);
+      this.audiobookExport = exportRecord;
+      this.audiobookStatus = '整书 ZIP 已打包完成，点击“下载 ZIP”可交给系统保存。';
+    } catch (error) {
+      if (this.AudiobookExportOperationCurrent(revision, generation.id)) {
+        this.audiobookStatus = error instanceof Error ? error.message : '有声书 ZIP 导出失败';
+      }
+    } finally {
+      if (this.AudiobookExportOperationCurrent(revision, generation.id)) this.audiobookExportBusy = false;
+    }
+  }
+
+  /** 申请当前完成归档的短期下载票据，并立即交给系统下载或打开能力。 */
+  private async DownloadAudiobookExport(): Promise<void> {
+    const generation = this.audiobookGeneration;
+    const exportRecord = this.audiobookExport;
+    if (generation === undefined || generation.status !== 'COMPLETED' || exportRecord === undefined ||
+      exportRecord.generationId !== generation.id || exportRecord.status !== 'COMPLETED' || this.audiobookExportBusy) {
+      this.audiobookStatus = 'ZIP 归档暂不可下载，请先完成整书导出。';
+      return;
+    }
+    const revision = ++this.audiobookExportOperationRevision;
+    this.audiobookExportBusy = true;
+    this.audiobookStatus = '正在准备 ZIP 系统下载…';
+    try {
+      const descriptor = await new AudiobookApi(this.ActiveServiceUrl(), this.authManager)
+        .exportDownload(generation.id, exportRecord.id);
+      this.RequireAudiobookExportCurrent(revision, generation.id);
+      const context = this.ApplicationContext();
+      if (context === undefined) throw new Error('无法获取系统下载能力');
+      try {
+        await context.startAbility({ action: 'ohos.want.action.viewData', uri: descriptor.url,
+          type: 'application/zip' });
+      } catch (_) {
+        throw new Error('系统内没有可下载 ZIP 文件的应用');
+      }
+      if (this.AudiobookExportOperationCurrent(revision, generation.id)) {
+        this.audiobookStatus = 'ZIP 已交给系统下载器。下载票据不会保存在应用中。';
+      }
+    } catch (error) {
+      if (this.AudiobookExportOperationCurrent(revision, generation.id)) {
+        this.audiobookStatus = error instanceof Error ? error.message : '有声书 ZIP 下载准备失败';
+      }
+    } finally {
+      if (this.AudiobookExportOperationCurrent(revision, generation.id)) this.audiobookExportBusy = false;
+    }
+  }
+
+  /** 轮询 ZIP 打包任务；超时后不取消服务端的持久任务。 */
+  private async WaitForAudiobookExport(api: AudiobookApi, generationId: string, initial: AudiobookExport,
+    revision: number): Promise<AudiobookExport> {
+    let exportRecord = initial;
+    const deadline = Date.now() + 3600000;
+    while (Date.now() < deadline) {
+      this.RequireAudiobookExportCurrent(revision, generationId);
+      if (exportRecord.generationId !== generationId) throw new Error('ZIP 导出任务与当前有声书版本不一致');
+      this.audiobookExport = exportRecord;
+      if (exportRecord.status === 'COMPLETED') return exportRecord;
+      if (this.AudiobookExportFailed(exportRecord.status)) {
+        throw new Error(exportRecord.errorCode === undefined ? '有声书 ZIP 打包未能完成' :
+          `有声书 ZIP 打包未能完成：${exportRecord.errorCode}`);
+      }
+      this.audiobookStatus = `正在打包 ${exportRecord.chapterCount} 章 ZIP…`;
+      await this.WaitForAudiobookPoll();
+      this.RequireAudiobookExportCurrent(revision, generationId);
+      exportRecord = await api.export(generationId, exportRecord.id);
+    }
+    throw new Error('ZIP 仍在后台打包，请稍后重新打开有声书面板继续查看。');
+  }
+
+  /** 判断 ZIP 导出是否已经进入不可继续轮询的失败终态。 */
+  private AudiobookExportFailed(status: string): boolean {
+    return status === 'FAILED' || status === 'TIMED_OUT' || status === 'CANCELLED';
+  }
+
+  /** 返回当前版本与重试序号绑定的受限幂等键。 */
+  private AudiobookExportKey(generationId: string): string {
+    return `audiobook-export:${generationId}:zip:a${Math.min(9999, this.audiobookExportAttempt)}`;
+  }
+
+  /** 判断导出调用仍属于当前书籍、登录状态和打开的有声书面板。 */
+  private AudiobookExportOperationCurrent(revision: number, generationId: string): boolean {
+    return revision === this.audiobookExportOperationRevision && this.authenticated && this.audiobookDialogVisible &&
+      this.audiobookGeneration?.id === generationId;
+  }
+
+  /** 阻止过期导出调用写回当前页面。 */
+  private RequireAudiobookExportCurrent(revision: number, generationId: string): void {
+    if (!this.AudiobookExportOperationCurrent(revision, generationId)) throw new Error('有声书面板已关闭');
+  }
+
+  /** 若本地存在同一账户和同一受管文本版本的断点，则恢复其固定有声书版本。 */
+  private async RestoreAudiobookPlaybackForCurrentSource(): Promise<void> {
+    const progress = this.audiobookPlaybackProgress;
+    if (progress === undefined || !this.audiobookProgressPolicy.matches(progress, this.localAccountScope,
+      this.audiobookSourceItemId,
+      this.audiobookSourceVersion) || this.audiobookBusy) return;
+    const revision = ++this.audiobookOperationRevision;
+    this.audiobookBusy = true;
+    this.audiobookStatus = '正在恢复上次的有声书播放位置…';
+    try {
+      const api = new AudiobookApi(this.ActiveServiceUrl(), this.authManager);
+      const generation = await api.generation(progress.generationId);
+      this.RequireAudiobookOperationCurrent(revision);
+      if (generation.status !== 'COMPLETED' || generation.generationVersion !== progress.generationVersion) {
+        this.ClearAudiobookPlaybackProgress();
+        throw new Error('上次有声书版本已不可恢复，请重新生成或选择新版本');
+      }
+      const manifest = await api.manifest(generation.id);
+      this.RequireAudiobookOperationCurrent(revision);
+      const chapter = manifest.chapters.find((value: AudiobookChapter) => value.index === progress.chapterIndex);
+      if (manifest.generationId !== generation.id || manifest.generationVersion !== generation.generationVersion ||
+        chapter === undefined || chapter.availability !== 'READY') {
+        this.ClearAudiobookPlaybackProgress();
+        throw new Error('上次续播章节已不可用，请重新选择章节');
+      }
+      this.audiobookGeneration = generation;
+      this.audiobookManifest = manifest;
+      this.audiobookCurrentChapterIndex = chapter.index;
+      this.audiobookPlayerDurationMs = chapter.durationMs ?? 0;
+      this.audiobookPlayerTimeMs = this.audiobookProgressPolicy.position(progress, chapter.durationMs);
+      this.audiobookStatus = `已恢复第 ${chapter.index + 1} 章位置，点击播放即可继续。`;
+    } finally {
+      if (this.AudiobookOperationCurrent(revision)) this.audiobookBusy = false;
+    }
+  }
+
+  /** 将当前章节与时间点更新为不含播放票据的本地续播断点。 */
+  private UpdateAudiobookPlaybackProgress(positionMs: number): void {
+    const generation = this.audiobookGeneration;
+    const chapterIndex = this.audiobookCurrentChapterIndex;
+    if (!this.authenticated || this.localAccountScope.length === 0 || this.audiobookSourceItemId.length === 0 ||
+      this.audiobookSourceVersion < 1 || generation === undefined || chapterIndex < 0 ||
+      !Number.isSafeInteger(positionMs) || positionMs < 0) return;
+    const progress: AudiobookPlaybackProgress = { owner: this.localAccountScope,
+      mediaItemId: this.audiobookSourceItemId, mediaVersion: this.audiobookSourceVersion,
+      title: this.audiobookSourceTitle, generationId: generation.id, generationVersion: generation.generationVersion,
+      chapterIndex: chapterIndex, positionMs: Math.floor(positionMs), updatedAt: Date.now() };
+    this.audiobookPlaybackProgress = this.audiobookProgressPolicy.normalize(progress);
+    if (Date.now() - this.lastAudiobookProgressPersistedAt >= 15000) this.PersistAudiobookPlaybackProgress();
+  }
+
+  /** 将受校验的续播断点写入应用私有偏好设置。 */
+  private PersistAudiobookPlaybackProgress(): void {
+    try {
+      const progress = this.audiobookProgressPolicy.normalize(this.audiobookPlaybackProgress);
+      this.settingsPreferences?.putSync('audiobook_playback_progress', progress === undefined ? '' : JSON.stringify(progress));
+      this.settingsPreferences?.flush();
+      this.lastAudiobookProgressPersistedAt = Date.now();
+    } catch (_) {
+    }
+  }
+
+  /** 从应用私有偏好设置恢复一条经过账户与版本约束校验的断点。 */
+  private RestoreAudiobookPlaybackProgress(value: string): void {
+    try {
+      if (value.length > 16384) return;
+      this.audiobookPlaybackProgress = this.audiobookProgressPolicy.normalize(JSON.parse(value) as Object);
+    } catch (_) {
+      this.audiobookPlaybackProgress = undefined;
+    }
+  }
+
+  /** 在整书播放结束或版本不再匹配时删除当前账户的续播断点。 */
+  private ClearAudiobookPlaybackProgress(): void {
+    this.audiobookPlaybackProgress = undefined;
+    this.PersistAudiobookPlaybackProgress();
+  }
+
+  /** 用户确认拥有朗读权后，依次创建受管导入和整书有声书生成。 */
+  private async StartAudiobookGeneration(): Promise<void> {
+    if (this.audiobookBusy || this.audiobookSourceItemId.length === 0) return;
+    const revision = ++this.audiobookOperationRevision;
+    this.audiobookBusy = true;
+    this.audiobookStatus = '正在校验并导入电子书…';
+    try {
+      const api = new AudiobookApi(this.ActiveServiceUrl(), this.authManager);
+      let imported = await api.createManagedImport({ mediaItemId: this.audiobookSourceItemId,
+        idempotencyKey: `managed-audiobook:${this.audiobookSourceItemId}:v${this.audiobookSourceVersion}`,
+        rightsConfirmed: true });
+      imported = await this.WaitForManagedAudiobookImport(api, imported, revision);
+      if (imported.ebookAssetId === undefined || imported.ebookAssetId.length === 0) {
+        throw new Error('电子书导入完成但未返回可生成的资产');
+      }
+      this.RequireAudiobookOperationCurrent(revision);
+      this.audiobookStatus = '正在创建整书人物分析与音色匹配任务…';
+      let generation = await api.create({ ebookAssetId: imported.ebookAssetId,
+        idempotencyKey: `audiobook:${imported.ebookAssetId}:v${this.audiobookSourceVersion}`,
+        mode: this.audiobookSourceVersion > 1 ? 'INCREMENTAL' : 'FULL', rightsConfirmed: true });
+      this.RequireAudiobookOperationCurrent(revision);
+      this.audiobookGeneration = generation;
+      if (this.AudiobookGenerationTerminal(generation.status)) {
+        this.audiobookStatus = this.AudiobookCanRetry() ? '检测到上次未完成的生成，可从失败阶段重试。' :
+          '检测到上次已结束的生成，请根据提示处理。';
+        return;
+      }
+      generation = await this.WaitForAudiobookGeneration(api, generation, revision);
+      this.RequireAudiobookOperationCurrent(revision);
+      this.audiobookGeneration = generation;
+      this.audiobookManifest = await api.manifest(generation.id);
+      this.audiobookStatus = '有声书已生成完成，可开始播放。';
+    } catch (error) {
+      if (!this.AudiobookOperationCurrent(revision)) return;
+      this.audiobookStatus = error instanceof Error ? error.message : '有声书生成失败';
+    } finally {
+      if (this.AudiobookOperationCurrent(revision)) this.audiobookBusy = false;
+    }
+  }
+
+  /** 轮询受管电子书导入，直到产生 Reader 电子书资产或进入终态。 */
+  private async WaitForManagedAudiobookImport(api: AudiobookApi, initial: ManagedEbookImport,
+    revision: number): Promise<ManagedEbookImport> {
+    let value = initial;
+    const deadline = Date.now() + 3600000;
+    while (Date.now() < deadline) {
+      this.RequireAudiobookOperationCurrent(revision);
+      if (value.status === 'SUCCEEDED') return value;
+      if (value.status === 'FAILED' || value.status === 'TIMED_OUT' || value.status === 'CANCELLED') {
+        throw new Error('电子书导入未能完成，请稍后重试');
+      }
+      this.audiobookStatus = '正在导入电子书…';
+      await this.WaitForAudiobookPoll();
+      this.RequireAudiobookOperationCurrent(revision);
+      value = await api.managedImport(value.id);
+    }
+    throw new Error('电子书导入仍在后台处理，请稍后从该电子书重新打开有声书面板');
+  }
+
+  /** 轮询整书任务，任务在服务端持久化，页面不会重发合成请求。 */
+  private async WaitForAudiobookGeneration(api: AudiobookApi, initial: AudiobookGeneration,
+    revision: number): Promise<AudiobookGeneration> {
+    let value = initial;
+    const deadline = Date.now() + 3600000;
+    while (Date.now() < deadline) {
+      this.RequireAudiobookOperationCurrent(revision);
+      this.audiobookGeneration = value;
+      if (value.status === 'COMPLETED') return value;
+      if (value.status === 'FAILED' || value.status === 'TIMED_OUT' || value.status === 'CANCELLED') {
+        throw new Error(value.errorCode === undefined ? '有声书生成未能完成' :
+          `有声书生成未能完成：${value.errorCode}`);
+      }
+      this.audiobookStatus = `正在${this.AudiobookStageLabel(value.currentStage)} · ` +
+        `${value.completedChapterCount}/${value.requestedChapterCount} 章已完成`;
+      await this.WaitForAudiobookPoll();
+      this.RequireAudiobookOperationCurrent(revision);
+      value = await api.generation(value.id);
+    }
+    throw new Error('有声书仍在后台处理，请稍后从该电子书重新打开有声书面板');
+  }
+
+  /** 保持轮询间隔有界，避免占用页面主线程。 */
+  private WaitForAudiobookPoll(): Promise<void> {
+    return new Promise<void>((resolve: () => void): void => {
+      setTimeout(resolve, 2000);
+    });
+  }
+
+  /** 校验轮询仍属于当前已登录页面会话。 */
+  private AudiobookOperationCurrent(revision: number): boolean {
+    return revision === this.audiobookOperationRevision && this.authenticated && this.audiobookDialogVisible;
+  }
+
+  /** 过期页面或登录会话不能继续写入有声书状态。 */
+  private RequireAudiobookOperationCurrent(revision: number): void {
+    if (!this.AudiobookOperationCurrent(revision)) throw new Error('有声书面板已关闭');
+  }
+
+  /** 将后端阶段转换为简短、可读的客户端进度文案。 */
+  private AudiobookStageLabel(stage: string): string {
+    if (stage === 'TEXT_EXTRACTING' || stage === 'TEXT_EXTRACTION') return '提取章节文本';
+    if (stage === 'ANALYZING' || stage === 'BOOK_ANALYSIS') return '分析人物与关系';
+    if (stage === 'MATCHING_VOICES' || stage === 'VOICE_MATCHING') return '匹配并冻结音色';
+    if (stage === 'SYNTHESIZING' || stage === 'SYNTHESIS') return '合成章节音频';
+    return '处理整书';
+  }
+
+  /** 当前服务端运行仍可向调度器发送取消请求。 */
+  private AudiobookCanCancel(): boolean {
+    const status = this.audiobookGeneration?.status;
+    return status !== undefined && status !== 'COMPLETED' && status !== 'FAILED' && status !== 'TIMED_OUT' &&
+      status !== 'CANCELLED';
+  }
+
+  /** 当前服务端运行处于允许从失败阶段恢复的终态。 */
+  private AudiobookCanRetry(): boolean {
+    const generation = this.audiobookGeneration;
+    return generation !== undefined && (generation.status === 'FAILED' || generation.status === 'TIMED_OUT' ||
+      generation.status === 'CANCELLED') && generation.errorCode !== 'READER_027';
+  }
+
+  /** 中止当前轮询并请求服务端取消最后一个正在处理的有声书阶段。 */
+  private async CancelAudiobookGeneration(): Promise<void> {
+    const generation = this.audiobookGeneration;
+    if (generation === undefined || !this.AudiobookCanCancel()) return;
+    const revision = ++this.audiobookOperationRevision;
+    this.audiobookBusy = true;
+    this.audiobookStatus = '正在请求停止后台处理…';
+    try {
+      const api = new AudiobookApi(this.ActiveServiceUrl(), this.authManager);
+      let value = await api.cancel(generation.id);
+      this.RequireAudiobookOperationCurrent(revision);
+      const deadline = Date.now() + 60000;
+      while (!this.AudiobookGenerationTerminal(value.status) && Date.now() < deadline) {
+        this.audiobookGeneration = value;
+        this.audiobookStatus = '取消请求已提交，正在等待后台确认…';
+        await this.WaitForAudiobookPoll();
+        this.RequireAudiobookOperationCurrent(revision);
+        value = await api.generation(generation.id);
+      }
+      this.audiobookGeneration = value;
+      this.audiobookStatus = value.status === 'CANCELLED' ? '已停止后台处理，可从当前阶段重新尝试。' :
+        (this.AudiobookGenerationTerminal(value.status) ? '后台任务已结束。' : '取消请求已提交，可稍后重新打开查看状态。');
+    } catch (error) {
+      if (!this.AudiobookOperationCurrent(revision)) return;
+      this.audiobookStatus = error instanceof Error ? error.message : '取消有声书生成失败';
+    } finally {
+      if (this.AudiobookOperationCurrent(revision)) this.audiobookBusy = false;
+    }
+  }
+
+  /** 从服务端记录的最后一个失败、超时或取消阶段恢复整书处理。 */
+  private async RetryAudiobookGeneration(): Promise<void> {
+    const generation = this.audiobookGeneration;
+    if (generation === undefined || this.audiobookBusy || !this.AudiobookCanRetry()) return;
+    const revision = ++this.audiobookOperationRevision;
+    this.audiobookBusy = true;
+    this.audiobookStatus = '正在从最后一个未完成阶段重新提交…';
+    try {
+      const api = new AudiobookApi(this.ActiveServiceUrl(), this.authManager);
+      let value = await api.retry(generation.id);
+      this.RequireAudiobookOperationCurrent(revision);
+      this.audiobookGeneration = value;
+      value = await this.WaitForAudiobookGeneration(api, value, revision);
+      this.RequireAudiobookOperationCurrent(revision);
+      this.audiobookGeneration = value;
+      this.audiobookManifest = await api.manifest(value.id);
+      this.audiobookStatus = '有声书已生成完成，可开始播放。';
+    } catch (error) {
+      if (!this.AudiobookOperationCurrent(revision)) return;
+      this.audiobookStatus = error instanceof Error ? error.message : '重新尝试有声书生成失败';
+    } finally {
+      if (this.AudiobookOperationCurrent(revision)) this.audiobookBusy = false;
+    }
+  }
+
+  /** 判断生成运行是否已处于不会继续推进的终态。 */
+  private AudiobookGenerationTerminal(status: string): boolean {
+    return status === 'COMPLETED' || status === 'FAILED' || status === 'TIMED_OUT' || status === 'CANCELLED';
+  }
+
+  /** 根据当前 ZIP 归档状态返回可执行的按钮文案。 */
+  private AudiobookExportActionLabel(): string {
+    const exportRecord = this.audiobookExport;
+    if (exportRecord?.status === 'COMPLETED') return '下载 ZIP';
+    if (exportRecord !== undefined && this.AudiobookExportFailed(exportRecord.status)) return '重新导出 ZIP';
+    if (exportRecord !== undefined) return '继续打包 ZIP';
+    return '导出整书 ZIP';
+  }
+
+  /** 返回 ZIP 归档的无敏感信息摘要。 */
+  private AudiobookExportSummary(): string {
+    const exportRecord = this.audiobookExport;
+    if (exportRecord === undefined) return '';
+    const size = exportRecord.sizeBytes === undefined ? '' : ` · ${this.FormatFileSize(exportRecord.sizeBytes)}`;
+    return `ZIP：${exportRecord.chapterCount} 章 · ${exportRecord.status}${size}`;
+  }
+
+  /** 返回当前生成版本的摘要。 */
+  private AudiobookGenerationSummary(): string {
+    const generation = this.audiobookGeneration;
+    if (generation === undefined) return '';
+    return `版本 ${generation.generationVersion} · ${generation.completedChapterCount}/` +
+      `${generation.requestedChapterCount} 章完成`;
+  }
+
+  /** 返回当前清单中可播放章节的统计。 */
+  private AudiobookManifestSummary(): string {
+    const manifest = this.audiobookManifest;
+    if (manifest === undefined) return '';
+    const ready = manifest.chapters.filter((chapter: AudiobookChapter) => chapter.availability === 'READY').length;
+    const failed = manifest.chapters.filter((chapter: AudiobookChapter) => chapter.availability === 'FAILED').length;
+    return `播放清单：${ready}/${manifest.chapters.length} 章可播放` +
+      (failed > 0 ? `，${failed} 章失败` : '');
+  }
+
+  /** 返回系统播放器当前对应的章节标题。 */
+  private AudiobookCurrentChapterLabel(): string {
+    const chapter = this.audiobookManifest?.chapters.find((value: AudiobookChapter) =>
+      value.index === this.audiobookCurrentChapterIndex);
+    return chapter === undefined ? '尚未开始播放' : `第 ${chapter.index + 1} 章 · ${chapter.title}`;
+  }
+
+  /** 刷新不可变播放清单，不改变已在系统播放器中运行的章节。 */
+  private async RefreshAudiobookManifest(): Promise<void> {
+    const generation = this.audiobookGeneration;
+    if (generation === undefined || this.audiobookBusy) return;
+    this.audiobookBusy = true;
+    try {
+      this.audiobookManifest = await new AudiobookApi(this.ActiveServiceUrl(), this.authManager).manifest(generation.id);
+      this.audiobookStatus = '章节状态已刷新。';
+    } catch (error) {
+      this.audiobookStatus = error instanceof Error ? error.message : '刷新有声书章节失败';
+    } finally {
+      this.audiobookBusy = false;
+    }
+  }
+
+  /** 首次播放或恢复当前已选章节。 */
+  private async ToggleAudiobookPlayback(): Promise<void> {
+    if (this.audiobookCurrentChapterIndex < 0) {
+      await this.PlayFirstAudiobookChapter();
+      return;
+    }
+    if (this.audiobookPlayerState === 'idle') {
+      await this.PlayAudiobookChapter(this.audiobookCurrentChapterIndex, this.audiobookPlayerTimeMs);
+      return;
+    }
+    try {
+      await this.audiobookPlayer.toggle();
+    } catch (error) {
+      this.audiobookStatus = error instanceof Error ? error.message : '有声书播放状态切换失败';
+    }
+  }
+
+  /** 从播放清单的首个 READY 章节开始。 */
+  private async PlayFirstAudiobookChapter(): Promise<void> {
+    const chapter = this.audiobookManifest?.chapters.find((value: AudiobookChapter) => value.availability === 'READY');
+    if (chapter === undefined) {
+      this.audiobookStatus = '暂时没有可播放章节，请刷新章节状态。';
+      return;
+    }
+    await this.PlayAudiobookChapter(chapter.index);
+  }
+
+  /** 获取短期播放票据并将一个 READY 章节交给独立后台播放器。 */
+  private async PlayAudiobookChapter(chapterIndex: number, requestedPositionMs: number = 0): Promise<void> {
+    const generation = this.audiobookGeneration;
+    const manifest = this.audiobookManifest;
+    const chapter = manifest?.chapters.find((value: AudiobookChapter) => value.index === chapterIndex);
+    if (generation === undefined || chapter === undefined || chapter.availability !== 'READY') {
+      this.audiobookStatus = '目标章节暂不可播放，请刷新章节状态。';
+      return;
+    }
+    const revision = ++this.audiobookPlaybackRevision;
+    this.audiobookStatus = `正在准备第 ${chapter.index + 1} 章播放…`;
+    try {
+      const descriptor = await new AudiobookApi(this.ActiveServiceUrl(), this.authManager)
+        .playback(generation.id, chapter.index);
+      if (revision !== this.audiobookPlaybackRevision) return;
+      const context = this.ApplicationContext();
+      if (context === undefined) throw new Error('无法获取后台音频上下文');
+      // 一个应用只保留一个后台音频会话，开始有声书前关闭普通媒体队列。
+      await this.audioPlayer.release();
+      if (revision !== this.audiobookPlaybackRevision) return;
+      const duration = chapter.durationMs ?? 0;
+      const position = Number.isSafeInteger(requestedPositionMs) && requestedPositionMs > 0 &&
+        (duration <= 0 || requestedPositionMs < duration - 10000) ? requestedPositionMs : 0;
+      this.audiobookCurrentChapterIndex = chapter.index;
+      this.audiobookPlayerTimeMs = position;
+      this.audiobookPlayerDurationMs = chapter.durationMs ?? 0;
+      this.UpdateAudiobookPlaybackProgress(position);
+      await this.audiobookPlayer.open(descriptor.url, position, context, `${this.audiobookSourceTitle} · ${chapter.title}`);
+      if (revision !== this.audiobookPlaybackRevision) await this.audiobookPlayer.release();
+      else this.audiobookStatus = `正在播放第 ${chapter.index + 1} 章。`;
+    } catch (error) {
+      if (revision !== this.audiobookPlaybackRevision) return;
+      this.audiobookStatus = error instanceof Error ? error.message : '有声书章节播放失败';
+    }
+  }
+
+  /** 章节完成后刷新清单，并且只播放紧邻的 READY 章节。 */
+  private async AdvanceAudiobookChapter(): Promise<void> {
+    const generation = this.audiobookGeneration;
+    const completedIndex = this.audiobookCurrentChapterIndex;
+    if (generation === undefined || completedIndex < 0) return;
+    const revision = this.audiobookPlaybackRevision;
+    try {
+      const manifest = await new AudiobookApi(this.ActiveServiceUrl(), this.authManager).manifest(generation.id);
+      if (revision !== this.audiobookPlaybackRevision) return;
+      this.audiobookManifest = manifest;
+      const decision = this.audiobookPlaybackPolicy.next(manifest, completedIndex);
+      if (decision.kind === 'PLAY' && decision.chapter !== undefined) {
+        await this.PlayAudiobookChapter(decision.chapter.index);
+      } else if (decision.kind === 'WAIT' && decision.chapter !== undefined) {
+        this.audiobookCurrentChapterIndex = decision.chapter.index;
+        this.audiobookPlayerTimeMs = 0;
+        this.audiobookPlayerDurationMs = 0;
+        this.UpdateAudiobookPlaybackProgress(0);
+        this.PersistAudiobookPlaybackProgress();
+        this.audiobookStatus = `下一章“${decision.chapter.title}”仍在生成，等待完成后可继续播放。`;
+      } else if (decision.kind === 'FAILED' && decision.chapter !== undefined) {
+        this.audiobookCurrentChapterIndex = decision.chapter.index;
+        this.audiobookPlayerTimeMs = 0;
+        this.audiobookPlayerDurationMs = 0;
+        this.UpdateAudiobookPlaybackProgress(0);
+        this.PersistAudiobookPlaybackProgress();
+        this.audiobookStatus = `下一章“${decision.chapter.title}”生成失败，未跳过该章节。`;
+      } else {
+        this.ClearAudiobookPlaybackProgress();
+        this.audiobookStatus = '全书播放完成。';
+      }
+    } catch (error) {
+      if (revision === this.audiobookPlaybackRevision) {
+        this.audiobookStatus = error instanceof Error ? error.message : '读取下一章状态失败';
+      }
+    }
+  }
+
+  /** 手动播放上一章；不可用章节不会被跳过。 */
+  private async PlayPreviousAudiobookChapter(): Promise<void> {
+    const manifest = this.audiobookManifest;
+    if (manifest === undefined || this.audiobookCurrentChapterIndex < 0) {
+      this.audiobookStatus = '尚未开始播放。';
+      return;
+    }
+    const position = manifest.chapters.findIndex((chapter: AudiobookChapter) =>
+      chapter.index === this.audiobookCurrentChapterIndex);
+    if (position <= 0) {
+      this.audiobookStatus = '已经是第一章。';
+      return;
+    }
+    const previous = manifest.chapters[position - 1];
+    if (previous.availability !== 'READY') {
+      this.audiobookStatus = '上一章暂不可播放，未跳过该章节。';
+      return;
+    }
+    await this.PlayAudiobookChapter(previous.index);
+  }
+
+  /** 手动播放紧邻下一章；等待或失败时保留章节顺序。 */
+  private async PlayNextAudiobookChapter(): Promise<void> {
+    if (this.audiobookCurrentChapterIndex < 0) {
+      await this.PlayFirstAudiobookChapter();
+      return;
+    }
+    await this.AdvanceAudiobookChapter();
+  }
+
   private TapMediaCatalogItem(item: MediaCatalogItem, videoDetail: boolean): void {
     this.OpenMediaCatalogItem(item, videoDetail);
   }
@@ -14792,7 +16432,7 @@ struct Index {
     const directoryId = this.selectedVideoDirectoryId;
     const directoryName = this.selectedVideoDirectoryName;
     await this.LoadMediaCatalog();
-    if (this.mediaCatalogMode === 'gallery' || directoryId.length === 0) return;
+    if (this.MediaCatalogUsesGrid() || directoryId.length === 0) return;
     const directory = this.mediaVideoDirectories.find((value: MediaVideoDirectory) =>
       value.directoryId === directoryId);
     if (directory === undefined) {
@@ -16085,6 +17725,8 @@ struct Index {
       if (item.kind === 'audio') {
         const hostContext = this.getUIContext().getHostContext();
         if (hostContext === undefined) throw new Error('无法获取后台音频上下文');
+        this.audiobookPlaybackRevision++;
+        await this.audiobookPlayer.release();
         await this.audioPlayer.open(descriptor.url, this.currentMediaResumeMs,
           hostContext as common.UIAbilityContext, item.name);
         if (revision !== this.mediaOpenRevision) await this.audioPlayer.release();

@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "required": ["exportId", "chapterCount", "archiveContentSha256", "archiveSizeBytes"],
+  "properties": {
+    "exportId": {"type": "string", "format": "uuid"},
+    "chapterCount": {"type": "integer", "minimum": 1},
+    "archiveContentSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "archiveSizeBytes": {"type": "integer", "minimum": 1}
+  },
+  "additionalProperties": false
+}

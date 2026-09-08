@@ -1,22 +1,29 @@
 package com.yuyutian.mytools.task.scheduler.service;
 
+import com.yuyutian.mytools.task.scheduler.common.ErrorCode;
+import com.yuyutian.mytools.task.scheduler.common.SchedulerException;
+import com.yuyutian.mytools.task.scheduler.config.NodeRegistrationPolicyProperties;
 import com.yuyutian.mytools.task.scheduler.model.AssignClusterNodeRequest;
 import com.yuyutian.mytools.task.scheduler.model.CreateExecutionClusterRequest;
 import com.yuyutian.mytools.task.scheduler.model.ExecutionClusterView;
 import com.yuyutian.mytools.task.scheduler.model.ExecutorNodeView;
 import com.yuyutian.mytools.task.scheduler.model.NodeStatus;
 import com.yuyutian.mytools.task.scheduler.model.RegisterExecutorNodeRequest;
+import com.yuyutian.mytools.task.scheduler.model.UpdateExecutorNodeStatusRequest;
 import com.yuyutian.mytools.task.scheduler.repository.JsonColumnMapper;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,16 +35,20 @@ public class ExecutionTopologyService {
 
     private final JdbcTemplate jdbcTemplate;
     private final JsonColumnMapper jsonColumnMapper;
+    private final NodeRegistrationPolicyProperties registrationPolicy;
 
     /**
      * 创建执行拓扑服务。
      *
      * @param jdbcTemplate JDBC 模板
      * @param jsonColumnMapper JSON 转换器
+     * @param registrationPolicy 节点注册授权策略
      */
-    public ExecutionTopologyService(JdbcTemplate jdbcTemplate, JsonColumnMapper jsonColumnMapper) {
+    public ExecutionTopologyService(JdbcTemplate jdbcTemplate, JsonColumnMapper jsonColumnMapper,
+                                    NodeRegistrationPolicyProperties registrationPolicy) {
         this.jdbcTemplate = jdbcTemplate;
         this.jsonColumnMapper = jsonColumnMapper;
+        this.registrationPolicy = registrationPolicy;
     }
 
     /**
@@ -77,6 +88,9 @@ public class ExecutionTopologyService {
      */
     @Transactional
     public ExecutorNodeView registerNode(RegisterExecutorNodeRequest request) {
+        Map<String, Object> capabilities = authorizedCapabilities(request.capabilities());
+        Map<String, Object> labels = authorizedLabels(request.name(), request.labels());
+        Set<String> clusterNames = authorizedClusters(request.clusterNames());
         Instant now = Instant.now();
         List<ExecutorNodeView> existing = jdbcTemplate.query(
                 "SELECT * FROM executor_node WHERE name = ?", this::mapNode, request.name());
@@ -84,23 +98,26 @@ public class ExecutionTopologyService {
             UUID id = existing.getFirst().id();
             jdbcTemplate.update("""
                     UPDATE executor_node SET instance_id = ?, status = ?, capabilities_json = ?, labels_json = ?,
-                    max_concurrent_tasks = ?, enabled = TRUE, last_heartbeat_at = ?, updated_at = ? WHERE id = ?
+                    max_concurrent_tasks = ?, enabled = TRUE, last_heartbeat_at = ?, status_changed_at = ?,
+                    status_reason = 'NODE_REGISTERED', updated_at = ? WHERE id = ?
                     """, request.instanceId(), NodeStatus.ONLINE.name(),
-                    jsonColumnMapper.write(request.capabilities()), jsonColumnMapper.write(request.labels()),
-                    request.maxConcurrentTasks(), Timestamp.from(now), Timestamp.from(now), id.toString());
-            assignConfiguredClusters(id, request.clusterNames());
+                    jsonColumnMapper.write(capabilities), jsonColumnMapper.write(labels),
+                    request.maxConcurrentTasks(), Timestamp.from(now), Timestamp.from(now), Timestamp.from(now),
+                    id.toString());
+            assignConfiguredClusters(id, clusterNames);
             return getNode(id);
         }
         UUID id = UUID.randomUUID();
         jdbcTemplate.update("""
                 INSERT INTO executor_node
                 (id, name, instance_id, status, capabilities_json, labels_json, max_concurrent_tasks,
-                 running_tasks, enabled, last_heartbeat_at, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 running_tasks, enabled, last_heartbeat_at, status_changed_at, status_reason, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, id.toString(), request.name(), request.instanceId(), NodeStatus.ONLINE.name(),
-                jsonColumnMapper.write(request.capabilities()), jsonColumnMapper.write(request.labels()),
-                request.maxConcurrentTasks(), 0, true, Timestamp.from(now), Timestamp.from(now), Timestamp.from(now));
-        assignConfiguredClusters(id, request.clusterNames());
+                jsonColumnMapper.write(capabilities), jsonColumnMapper.write(labels),
+                request.maxConcurrentTasks(), 0, true, Timestamp.from(now), Timestamp.from(now), "NODE_REGISTERED",
+                Timestamp.from(now), Timestamp.from(now));
+        assignConfiguredClusters(id, clusterNames);
         return getNode(id);
     }
 
@@ -115,13 +132,44 @@ public class ExecutionTopologyService {
     @Transactional
     public ExecutorNodeView heartbeat(UUID nodeId, String instanceId, int runningTasks) {
         int updated = jdbcTemplate.update("""
-                UPDATE executor_node SET last_heartbeat_at = ?, running_tasks = ?, status = ?, updated_at = ?
+                UPDATE executor_node SET last_heartbeat_at = ?, running_tasks = ?,
+                    status_changed_at = CASE WHEN status IN ('OFFLINE', 'UNHEALTHY') THEN ? ELSE status_changed_at END,
+                    status_reason = CASE WHEN status IN ('OFFLINE', 'UNHEALTHY') THEN 'HEARTBEAT_RECOVERED' ELSE status_reason END,
+                    status = CASE WHEN status = 'DRAINING' THEN 'DRAINING' ELSE 'ONLINE' END,
+                    updated_at = ?
                 WHERE id = ? AND instance_id = ? AND enabled = TRUE
-                """, Timestamp.from(Instant.now()), runningTasks, NodeStatus.ONLINE.name(),
+                """, Timestamp.from(Instant.now()), runningTasks, Timestamp.from(Instant.now()),
                 Timestamp.from(Instant.now()), nodeId.toString(), instanceId);
         if (updated != 1) {
             throw new IllegalArgumentException("Executor node instance does not exist");
         }
+        return getNode(nodeId);
+    }
+
+    /**
+     * 更新节点调度状态。
+     *
+     * @param nodeId 节点标识
+     * @param request 状态请求
+     * @return 节点视图
+     */
+    @Transactional
+    public ExecutorNodeView updateNodeStatus(UUID nodeId, UpdateExecutorNodeStatusRequest request) {
+        if (request.status() != NodeStatus.ONLINE && request.status() != NodeStatus.DRAINING
+                && request.status() != NodeStatus.DISABLED) {
+            throw new IllegalArgumentException("Executor node status cannot be set manually");
+        }
+        getNode(nodeId);
+        Instant now = Instant.now();
+        boolean enabled = request.status() != NodeStatus.DISABLED;
+        String reason = request.reason() == null || request.reason().isBlank()
+                ? "MANUAL_STATUS_CHANGE" : request.reason().trim();
+        jdbcTemplate.update("""
+                UPDATE executor_node
+                SET status = ?, enabled = ?, status_changed_at = ?, status_reason = ?, updated_at = ?
+                WHERE id = ?
+                """, request.status().name(), enabled, Timestamp.from(now), reason, Timestamp.from(now),
+                nodeId.toString());
         return getNode(nodeId);
     }
 
@@ -192,6 +240,72 @@ public class ExecutionTopologyService {
                         """, clusterIds.getFirst(), nodeId.toString());
             }
         }
+    }
+
+    Map<String, Object> authorizedCapabilities(Map<String, Object> requested) {
+        if (!registrationPolicy.enforce()) {
+            return requested;
+        }
+        Map<String, Object> result = new LinkedHashMap<>();
+        requested.forEach((key, value) -> {
+            if (!registrationPolicy.allowedCapabilityKeys().contains(key)) {
+                throw registrationForbidden("Executor capability is not authorized: " + key);
+            }
+            if ("scriptReleases".equals(key)) {
+                validateScriptReleases(value);
+            }
+            result.put(key, value);
+        });
+        return Map.copyOf(result);
+    }
+
+    private void validateScriptReleases(Object value) {
+        if (!(value instanceof Map<?, ?> releases) || releases.size() > 10_000) {
+            throw registrationForbidden("Executor script release inventory is invalid");
+        }
+        releases.forEach((identity, digest) -> {
+            if (!(identity instanceof String key)
+                    || !key.matches("^[A-Za-z][A-Za-z0-9_]{0,127}:[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
+                    || !(digest instanceof String hash) || !hash.matches("^[a-f0-9]{64}$")) {
+                throw registrationForbidden("Executor script release inventory entry is invalid");
+            }
+        });
+    }
+
+    Map<String, Object> authorizedLabels(String nodeName, Map<String, Object> requested) {
+        if (!registrationPolicy.enforce()) {
+            return requested;
+        }
+        Map<String, Object> result = new LinkedHashMap<>();
+        requested.forEach((key, ignored) -> {
+            if ("executor.node".equals(key)) {
+                result.put(key, nodeName);
+                return;
+            }
+            if (!registrationPolicy.trustedLabels().containsKey(key)) {
+                throw registrationForbidden("Executor label is not authorized: " + key);
+            }
+            // 节点只能声明标签存在，实际值始终取 Scheduler 服务端配置。
+            result.put(key, registrationPolicy.trustedLabels().get(key));
+        });
+        return Map.copyOf(result);
+    }
+
+    Set<String> authorizedClusters(Set<String> requested) {
+        Set<String> clusters = requested == null ? Set.of() : Set.copyOf(requested);
+        if (!registrationPolicy.enforce()) {
+            return clusters;
+        }
+        for (String cluster : clusters) {
+            if (!registrationPolicy.allowedClusterNames().contains(cluster)) {
+                throw registrationForbidden("Executor cluster membership is not authorized: " + cluster);
+            }
+        }
+        return clusters;
+    }
+
+    private SchedulerException registrationForbidden(String message) {
+        return new SchedulerException(ErrorCode.NODE_REGISTRATION_FORBIDDEN, HttpStatus.FORBIDDEN, message);
     }
 
     private ExecutionClusterView mapCluster(ResultSet resultSet, int rowNumber) throws SQLException {

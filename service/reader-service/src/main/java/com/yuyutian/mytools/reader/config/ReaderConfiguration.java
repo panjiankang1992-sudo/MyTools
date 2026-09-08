@@ -3,6 +3,7 @@ package com.yuyutian.mytools.reader.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.reader.service.TaskSchedulerClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
@@ -24,7 +25,10 @@ public class ReaderConfiguration {
      */
     @Bean
     public TaskSchedulerClient taskSchedulerClient(RestClient.Builder builder, ReaderProperties properties,
-                                                   ObjectMapper objectMapper) {
-        return new TaskSchedulerClient(builder.baseUrl(properties.schedulerUrl()).build(), objectMapper);
+                                                   ObjectMapper objectMapper,
+                                                   @Value("${reader.scheduler-token:}") String schedulerToken) {
+        return new TaskSchedulerClient(new com.yuyutian.mytools.task.client.TaskSchedulerClient(
+                builder.baseUrl(properties.schedulerUrl()).build(), objectMapper, schedulerToken,
+                "reader-service"), objectMapper);
     }
 }

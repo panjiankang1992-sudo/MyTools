@@ -1,9 +1,8 @@
 package com.yuyutian.mytools.reader.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.reader.model.SchedulerResult;
-import org.springframework.http.MediaType;
+import com.yuyutian.mytools.task.client.CreateTaskRequest;
 import org.springframework.web.client.RestClient;
 
 import java.util.Map;
@@ -14,7 +13,7 @@ import java.util.UUID;
  */
 public class TaskSchedulerClient {
 
-    private final RestClient restClient;
+    private final com.yuyutian.mytools.task.client.TaskSchedulerClient client;
     private final ObjectMapper objectMapper;
 
     /**
@@ -24,7 +23,30 @@ public class TaskSchedulerClient {
      * @param objectMapper JSON 转换器
      */
     public TaskSchedulerClient(RestClient restClient, ObjectMapper objectMapper) {
-        this.restClient = restClient;
+        this(restClient, objectMapper, "");
+    }
+
+    /**
+     * 创建携带业务服务令牌的任务调度客户端。
+     *
+     * @param restClient HTTP 客户端
+     * @param objectMapper JSON 转换器
+     * @param businessToken 业务服务令牌
+     */
+    public TaskSchedulerClient(RestClient restClient, ObjectMapper objectMapper, String businessToken) {
+        this(new com.yuyutian.mytools.task.client.TaskSchedulerClient(restClient, objectMapper, businessToken),
+                objectMapper);
+    }
+
+    /**
+     * 创建领域适配器。
+     *
+     * @param client 公共 Scheduler 客户端
+     * @param objectMapper JSON 转换器
+     */
+    public TaskSchedulerClient(com.yuyutian.mytools.task.client.TaskSchedulerClient client,
+                               ObjectMapper objectMapper) {
+        this.client = client;
         this.objectMapper = objectMapper;
     }
 
@@ -62,20 +84,8 @@ public class TaskSchedulerClient {
     private UUID createTask(String taskName, String idempotencyKey, String businessType, UUID businessId,
                             int priority, Map<String, Object> parameters,
                             Map<String, Object> requiredNodeLabels) {
-        Map<String, Object> request = Map.of(
-                "taskName", taskName,
-                "idempotencyKey", idempotencyKey,
-                "businessType", businessType,
-                "businessId", businessId.toString(),
-                "priority", priority,
-                "parameters", parameters,
-                "requiredNodeLabels", requiredNodeLabels);
-        JsonNode response = restClient.post().uri("/api/v1/task-instances")
-                .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
-        if (response == null || response.path("id").isMissingNode()) {
-            throw new IllegalStateException("Scheduler returned an invalid task response");
-        }
-        return UUID.fromString(response.path("id").asText());
+        return client.create(new CreateTaskRequest(taskName, idempotencyKey, businessType, businessId.toString(),
+                priority, Map.copyOf(parameters), Map.copyOf(requiredNodeLabels))).id();
     }
 
     /**
@@ -85,9 +95,7 @@ public class TaskSchedulerClient {
      * @return 调度结果
      */
     public SchedulerResult getResults(UUID taskId) {
-        JsonNode response = restClient.get().uri("/api/v1/task-instances/{id}/results", taskId)
-                .retrieve().body(JsonNode.class);
-        return objectMapper.convertValue(response, SchedulerResult.class);
+        return objectMapper.convertValue(client.getResults(taskId), SchedulerResult.class);
     }
 
     /**
@@ -96,7 +104,6 @@ public class TaskSchedulerClient {
      * @param taskId 任务标识
      */
     public void cancel(UUID taskId) {
-        restClient.post().uri("/api/v1/task-instances/{id}/cancel", taskId)
-                .contentType(MediaType.APPLICATION_JSON).body(Map.of()).retrieve().toBodilessEntity();
+        client.cancel(taskId);
     }
 }

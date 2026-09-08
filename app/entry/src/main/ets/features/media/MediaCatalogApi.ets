@@ -32,11 +32,14 @@ export class MediaCatalogApi {
     this.client = new AuthorizedApiClient(baseUrl, authManager);
   }
 
-  /** 查询图片、视频或音频页面独立的目录与标签筛选项。 */
+  /** 查询图片、视频、音频或文本页面独立的目录与标签筛选项。 */
   async filters(mode: string, keyword: string, excludeAdult: boolean,
     cancellation?: DownloadCancellationToken): Promise<MediaCatalogFilters> {
-    if (mode !== 'gallery' && mode !== 'video' && mode !== 'audio') throw new Error('多媒体页面模式无效');
-    const prefix = mode === 'gallery' ? 'image/' : (mode === 'video' ? 'video/' : 'audio/');
+    if (mode !== 'gallery' && mode !== 'video' && mode !== 'audio' && mode !== 'text') {
+      throw new Error('多媒体页面模式无效');
+    }
+    const prefix = mode === 'gallery' ? 'image/' : (mode === 'video' ? 'video/' :
+      (mode === 'audio' ? 'audio/' : 'text/'));
     const data = await this.catalog(prefix, '', '', keyword, 1, excludeAdult, cancellation);
     return { directories: data.directories, tags: data.tags };
   }
@@ -46,6 +49,14 @@ export class MediaCatalogApi {
     cancellation?: DownloadCancellationToken): Promise<MediaGalleryPage> {
     const safePage = Math.max(1, page);
     const data = await this.catalog('image/', directoryId, tag, keyword, safePage, excludeAdult, cancellation);
+    return { items: data.items, total: data.total, page: safePage, pageSize: MediaCatalogApi.GALLERY_PAGE_SIZE };
+  }
+
+  /** 查询可用于生成有声书的受管文本分页。 */
+  async textPage(directoryId: string, tag: string, keyword: string, page: number, excludeAdult: boolean,
+    cancellation?: DownloadCancellationToken): Promise<MediaGalleryPage> {
+    const safePage = Math.max(1, page);
+    const data = await this.catalog('text/', directoryId, tag, keyword, safePage, excludeAdult, cancellation);
     return { items: data.items, total: data.total, page: safePage, pageSize: MediaCatalogApi.GALLERY_PAGE_SIZE };
   }
 
@@ -141,7 +152,8 @@ export class MediaCatalogApi {
     if (!['VIDEO', 'IMAGE', 'AUDIO', 'WEB', 'TEXT', 'OTHER'].includes(kind)) throw new Error('媒体类型无效');
     const rawTags = data['tags'];
     if (!Array.isArray(rawTags) || rawTags.length > 64) throw new Error('媒体标签无效');
-    return { itemId: this.id(data, 'itemId'), name: this.text(data, 'name', 512), kind,
+    return { itemId: this.id(data, 'itemId'), version: data['version'] === undefined ? 0 : this.number(data, 'version'),
+      name: this.text(data, 'name', 512), kind,
       mimeType: this.optionalText(data, 'mimeType', 255), sizeBytes: this.number(data, 'sizeBytes'),
       modifiedAt: this.optionalText(data, 'modifiedAt', 64), thumbnailUrl: this.optionalPath(data, 'thumbnailUrl'),
       tags: rawTags.map((tag: Object): string => `${tag}`.substring(0, 64)),
@@ -156,7 +168,9 @@ export class MediaCatalogApi {
     if (!Array.isArray(rawTags) || rawTags.length > 64) throw new Error('媒体标签无效');
     const kind = mimeType.startsWith('image/') ? 'IMAGE' : mimeType.startsWith('video/') ? 'VIDEO' :
       mimeType.startsWith('audio/') ? 'AUDIO' : mimeType.startsWith('text/') ? 'TEXT' : 'OTHER';
-    return { itemId, name, kind: kind as MediaCatalogKind, mimeType,
+    const version = this.number(data, 'version');
+    if (version < 1) throw new Error('多媒体字段version无效');
+    return { itemId, version, name, kind: kind as MediaCatalogKind, mimeType,
       sizeBytes: this.number(data, 'sizeBytes'), modifiedAt: '',
       thumbnailUrl: kind === 'IMAGE' || kind === 'VIDEO' ? `/api/app/v1/media/items/${itemId}/thumbnail` : '',
       tags: rawTags.map((value: Object): string => `${value}`.substring(0, 64)),

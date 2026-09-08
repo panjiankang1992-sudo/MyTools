@@ -1,0 +1,24 @@
+name: reader_import_managed_ebook
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - media_library_internal_read
+  - storage_gateway_upload
+parameters:
+  required:
+    - requestId
+    - ownerId
+    - sourceId
+    - mediaItemId
+    - mediaAssetId
+    - title
+    - mimeType
+    - sizeBytes
+    - contentSha256
+    - storageRoot
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 3600
+  maxInputBytes: 536870912

@@ -58,4 +58,14 @@ export class AuthorizedApiPolicy {
         traceId : undefined
     };
   }
+
+  /**
+   * 解析认证接口响应，并兼容成功删除返回的标准204空响应。
+   */
+  responseEnvelope(status: number, text: string, bytes: number): ApiEnvelope {
+    if (status === 204 && text.length === 0 && bytes === 0) {
+      return { code: '0000', message: '', data: undefined, traceId: undefined };
+    }
+    return this.envelope(text, bytes);
+  }
 }

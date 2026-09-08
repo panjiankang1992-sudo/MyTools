@@ -94,6 +94,33 @@ def copy_deploy_tools(repository: Path, target: Path) -> None:
             continue
         if path.is_file() and (path.suffix in {".py", ".json", ".md"}):
             shutil.copy2(path, target / path.name)
+    monitoring = source / "monitoring"
+    if monitoring.is_dir():
+        shutil.copytree(monitoring, target / "monitoring")
+        for name in ("task-reliability-alerts.md", "audiobook-generation-alerts.md"):
+            runbook = repository / "docs" / "runbooks" / name
+            if not runbook.is_file():
+                raise ValueError(f"Monitoring alert runbook is missing: {name}")
+            shutil.copy2(runbook, target / "monitoring" / runbook.name)
+
+
+def copy_operator_tools(repository: Path, target: Path) -> None:
+    """复制不含凭证和样书的有声书运维工具，使发布包可独立完成验收。"""
+    scripts = repository / "service" / "scripts"
+    target.mkdir(parents=True)
+    for name in ("cutover_preflight.py",):
+        source = scripts / name
+        if not source.is_file():
+            raise ValueError(f"Audiobook operator tool is missing: {name}")
+        shutil.copy2(source, target / name)
+    analysis_source = repository / "service" / "reader-service" / "evaluation" / "audiobook_analysis"
+    analysis_target = target / "audiobook-analysis"
+    analysis_target.mkdir()
+    for name in ("evaluate.py", "issue_quality_gate_attestation.py", "README.md"):
+        source = analysis_source / name
+        if not source.is_file():
+            raise ValueError(f"Audiobook analysis operator tool is missing: {name}")
+        shutil.copy2(source, analysis_target / name)
 
 
 def assemble_task_packages(repository: Path, target: Path) -> None:
@@ -102,6 +129,14 @@ def assemble_task_packages(repository: Path, target: Path) -> None:
                                         / "assemble_executor_packages.py"),
                     "--service-root", str(repository / "service"), "--output", str(target)],
                    check=True)
+
+
+def remove_transient_python_artifacts(root: Path) -> None:
+    """Remove interpreter caches created while assembling a release inventory."""
+    for directory in sorted(path for path in root.rglob("__pycache__") if path.is_dir()):
+        shutil.rmtree(directory)
+    for file in sorted(path for path in root.rglob("*.pyc") if path.is_file()):
+        file.unlink()
 
 
 def inventory(root: Path) -> list[dict[str, Any]]:
@@ -141,11 +176,13 @@ def assemble(repository: Path, output: Path, release_id: str,
         for name in python:
             copy_python_project(repository / "service", name, python_root)
         copy_deploy_tools(repository, temporary / "deploy")
+        copy_operator_tools(repository, temporary / "operator-tools")
         shutil.copy2(manifest_path, temporary / "services.json")
         shutil.copytree(repository / "service" / "task-executor-service" / "sdk" / "python",
                         temporary / "task-executor-sdk",
                         ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "target"))
         assemble_task_packages(repository, temporary / "task-packages")
+        remove_transient_python_artifacts(temporary)
         files = inventory(temporary)
         report = {"releaseId": release_id, "javaServiceCount": len(java),
                   "pythonServiceCount": len(python), "fileCount": len(files), "files": files}

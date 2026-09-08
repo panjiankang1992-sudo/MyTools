@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.HexFormat;
 import java.util.Map;
 
@@ -59,14 +60,45 @@ public class ScriptReleaseVerifier {
      * @param path 已解析入口路径
      */
     public void verifyEntrypoint(String packageName, String version, String entrypoint, Path path) {
+        verifyEntrypoint(packageName, version, entrypoint, path, null);
+    }
+
+    /**
+     * 在执行步骤前校验入口内容及 Scheduler 下发的发布摘要。
+     *
+     * @param packageName 脚本包名称
+     * @param version 脚本包版本
+     * @param entrypoint 入口相对路径
+     * @param path 已解析入口路径
+     * @param expectedReleaseDigest Scheduler 下发的发布摘要
+     */
+    public void verifyEntrypoint(String packageName, String version, String entrypoint, Path path,
+                                 String expectedReleaseDigest) {
         if (!indexed) {
+            if (expectedReleaseDigest != null && !expectedReleaseDigest.isBlank()) {
+                throw new IllegalArgumentException("Script release digest cannot be verified without package index");
+            }
             return;
         }
         IndexedEntrypoint expected = entrypoints.get(packageName + "\0" + version);
         if (expected == null || !expected.path().equals(entrypoint)) {
             throw new IllegalArgumentException("Script entrypoint is not present in package release index");
         }
+        if (expectedReleaseDigest != null && !expectedReleaseDigest.equals(expected.releaseDigest())) {
+            throw new IllegalArgumentException("Script release digest does not match local package index");
+        }
         verifyFile(path, expected.sizeBytes(), expected.sha256());
+    }
+
+    /**
+     * 返回可安全上报给 Scheduler 的脚本发布摘要清单。
+     *
+     * @return 以包名和版本为键的不可变摘要
+     */
+    public Map<String, String> releaseDigests() {
+        Map<String, String> result = new LinkedHashMap<>();
+        entrypoints.forEach((key, value) -> result.put(key.replace('\0', ':'), value.releaseDigest()));
+        return Map.copyOf(result);
     }
 
     private Map<String, IndexedEntrypoint> loadAndVerify(Path indexPath, ObjectMapper objectMapper)
@@ -90,6 +122,7 @@ public class ScriptReleaseVerifier {
                 throw new IllegalArgumentException("Script package index contains duplicate versions");
             }
             IndexedEntrypoint indexedEntrypoint = null;
+            MessageDigest releaseDigest = sha256Digest();
             JsonNode files = packageNode.path("files");
             if (!files.isArray() || files.isEmpty()) {
                 throw new IllegalArgumentException("Script package index contains no files");
@@ -102,6 +135,12 @@ public class ScriptReleaseVerifier {
                 }
                 long sizeBytes = file.path("sizeBytes").asLong(-1);
                 String sha256 = requiredText(file, "sha256");
+                releaseDigest.update(relativeValue.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                releaseDigest.update((byte) 0);
+                releaseDigest.update(Long.toString(sizeBytes).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                releaseDigest.update((byte) 0);
+                releaseDigest.update(sha256.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                releaseDigest.update((byte) 0);
                 Path actual = scriptRoot.resolve(packageName).resolve(version).resolve(relative).normalize();
                 Path packageRoot = scriptRoot.resolve(packageName).resolve(version).normalize();
                 if (!actual.startsWith(packageRoot)) {
@@ -109,13 +148,14 @@ public class ScriptReleaseVerifier {
                 }
                 verifyFile(actual, sizeBytes, sha256);
                 if (relativeValue.equals(entrypoint)) {
-                    indexedEntrypoint = new IndexedEntrypoint(entrypoint, sizeBytes, sha256);
+                    indexedEntrypoint = new IndexedEntrypoint(entrypoint, sizeBytes, sha256, null);
                 }
             }
             if (indexedEntrypoint == null) {
                 throw new IllegalArgumentException("Script package entrypoint is not indexed");
             }
-            loaded.put(key, indexedEntrypoint);
+            loaded.put(key, new IndexedEntrypoint(indexedEntrypoint.path(), indexedEntrypoint.sizeBytes(),
+                    indexedEntrypoint.sha256(), HexFormat.of().formatHex(releaseDigest.digest())));
         }
         return Map.copyOf(loaded);
     }
@@ -146,23 +186,27 @@ public class ScriptReleaseVerifier {
     }
 
     private String digest(Path path) throws IOException {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            try (InputStream input = Files.newInputStream(path)) {
-                byte[] buffer = new byte[1024 * 1024];
-                int count;
-                while ((count = input.read(buffer)) != -1) {
-                    if (count > 0) {
-                        digest.update(buffer, 0, count);
-                    }
+        MessageDigest digest = sha256Digest();
+        try (InputStream input = Files.newInputStream(path)) {
+            byte[] buffer = new byte[1024 * 1024];
+            int count;
+            while ((count = input.read(buffer)) != -1) {
+                if (count > 0) {
+                    digest.update(buffer, 0, count);
                 }
             }
-            return HexFormat.of().formatHex(digest.digest());
+        }
+        return HexFormat.of().formatHex(digest.digest());
+    }
+
+    private MessageDigest sha256Digest() {
+        try {
+            return MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException exception) {
             throw new IllegalStateException("SHA-256 is unavailable", exception);
         }
     }
 
-    private record IndexedEntrypoint(String path, long sizeBytes, String sha256) {
+    private record IndexedEntrypoint(String path, long sizeBytes, String sha256, String releaseDigest) {
     }
 }

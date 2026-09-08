@@ -21,6 +21,7 @@ export interface MediaCatalogFilters {
 
 export interface MediaCatalogItem {
   itemId: string;
+  version: number;
   name: string;
   kind: MediaCatalogKind;
   mimeType: string;

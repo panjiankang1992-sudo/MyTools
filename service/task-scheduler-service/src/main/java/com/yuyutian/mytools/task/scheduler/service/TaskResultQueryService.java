@@ -3,6 +3,7 @@ package com.yuyutian.mytools.task.scheduler.service;
 import com.yuyutian.mytools.task.scheduler.model.StepExecutionResultView;
 import com.yuyutian.mytools.task.scheduler.model.TaskExecutionResultView;
 import com.yuyutian.mytools.task.scheduler.model.TaskStatus;
+import com.yuyutian.mytools.task.scheduler.model.CompensationStatus;
 import com.yuyutian.mytools.task.scheduler.repository.JsonColumnMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -69,6 +70,21 @@ public class TaskResultQueryService {
                     resultSet.getString("error_code"), resultSet.getString("error_message"),
                     resultSet.getTimestamp("finished_at").toInstant());
         }, taskInstanceId.toString());
-        return new TaskExecutionResultView(taskInstanceId, instance.status(), steps);
+        CompensationSummary compensation = jdbcTemplate.query("""
+                SELECT compensation_status, compensation_required, compensation_error_code
+                FROM task_execution
+                WHERE task_instance_id = ?
+                ORDER BY created_at DESC
+                LIMIT 1
+                """, (resultSet, rowNumber) -> new CompensationSummary(
+                CompensationStatus.valueOf(resultSet.getString("compensation_status")),
+                resultSet.getBoolean("compensation_required"),
+                resultSet.getString("compensation_error_code")), taskInstanceId.toString())
+                .stream().findFirst().orElse(new CompensationSummary(CompensationStatus.NOT_REQUIRED, false, null));
+        return new TaskExecutionResultView(taskInstanceId, instance.status(), compensation.status(),
+                compensation.required(), compensation.errorCode(), steps);
+    }
+
+    private record CompensationSummary(CompensationStatus status, boolean required, String errorCode) {
     }
 }

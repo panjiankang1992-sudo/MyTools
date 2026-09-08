@@ -25,6 +25,32 @@ class CreateServiceEnvTest(unittest.TestCase):
         self.assertNotEqual(first["IDENTITY_JWT_SECRET"], second["IDENTITY_JWT_SECRET"])
         self.assertEqual("false", first["GATEWAY_READER_ROUTE_ENABLED"])
         self.assertEqual("http://127.0.0.1:23410", first["TASK_SCHEDULER_URL"])
+        self.assertEqual("true", first["TASK_EXECUTOR_REQUIRE_NON_ROOT"])
+        self.assertEqual("12", first["TASK_EXECUTOR_MAX_CONCURRENT_TASKS"])
+        self.assertEqual("1073741824", first["TASK_EXECUTOR_DISK_MINIMUM_USABLE_BYTES"])
+        self.assertEqual("5", first["TASK_EXECUTOR_DISK_MINIMUM_USABLE_PERCENT"])
+        self.assertEqual("21600", first["TASK_EXECUTOR_MAXIMUM_CPU_SECONDS"])
+        self.assertEqual("17179869184", first["TASK_EXECUTOR_MAXIMUM_VIRTUAL_MEMORY_BYTES"])
+        self.assertEqual("107374182400", first["TASK_EXECUTOR_MAXIMUM_FILE_BYTES"])
+        service_tokens = [
+            first["TASK_EXECUTOR_INTERNAL_TOKEN"],
+            first["TASK_OPERATOR_INTERNAL_TOKEN"],
+            first["TASK_BUSINESS_MYTOOLS_TOKEN"],
+            first["TASK_BUSINESS_MESSAGING_TOKEN"],
+            first["TASK_BUSINESS_DRIVE_TOKEN"],
+            first["TASK_BUSINESS_MEDIA_LIBRARY_TOKEN"],
+            first["TASK_BUSINESS_READER_TOKEN"],
+            first["TASK_BUSINESS_STORAGE_GATEWAY_TOKEN"],
+        ]
+        self.assertEqual(len(service_tokens), len(set(service_tokens)))
+        self.assertTrue(all(len(token) >= 32 for token in service_tokens))
+        self.assertEqual("LEGACY", first["MESSAGING_REGISTRATION_MAIL_MODE"])
+        self.assertEqual("0", first["MESSAGING_REGISTRATION_MAIL_CANARY_PERCENT"])
+        self.assertEqual("false", first["MESSAGING_REGISTRATION_MAIL_SIDECAR_ENABLED"])
+        self.assertEqual(32, len(__import__("base64").b64decode(
+            first["MESSAGING_REGISTRATION_MAIL_DELIVERY_ENCRYPTION_KEY"])))
+        self.assertGreaterEqual(len(first["MESSAGING_REGISTRATION_MAIL_ROUTING_KEY"]), 32)
+        self.assertGreaterEqual(len(first["MESSAGING_REGISTRATION_MAIL_SHADOW_HASH_KEY"]), 32)
         self.assertEqual('["/media/library"]', first["MEDIA_SCAN_ALLOWED_ROOTS"])
         self.assertEqual(first["RCLONE_RC_USER"], first["STORAGE_RCLONE_RC_USER"])
         self.assertEqual(first["RCLONE_RC_PASSWORD"], first["STORAGE_RCLONE_RC_PASSWORD"])
@@ -32,11 +58,14 @@ class CreateServiceEnvTest(unittest.TestCase):
                          first["LEGACY_ASSET_ADAPTER_INTERNAL_TOKEN"])
         self.assertEqual(first["MSGSERVICE_MIGRATION_TOKEN"],
                          first["MSGSERVICE_ADAPTER_INTERNAL_TOKEN"])
+        self.assertEqual(first["ONEBOT_CONNECTOR_INTERNAL_TOKEN"],
+                         first["MESSAGE_PROVIDER_RESOLVER_TOKEN"])
         self.assertEqual("http://127.0.0.1:23321", first["MSGSERVICE_MIGRATION_URL"])
         self.assertEqual("3", first["SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE"])
         self.assertEqual("0", first["SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE"])
         self.assertEqual("false", first["DOWNLOADBOT_SNAPSHOT_EXPORT_ENABLED"])
         self.assertEqual("false", first["DOWNLOADBOT_RECONCILIATION_ENABLED"])
+        self.assertEqual("true", first["MESSAGE_AUTOMATION_COMPLETION_RELAY_ENABLED"])
         self.assertFalse(first["DOWNLOAD_DESTINATION_ROOT"].startswith("/opt/yuyutian/mytools"))
 
     def test_rejects_business_paths_under_deployment_or_logs(self):

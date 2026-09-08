@@ -18,17 +18,21 @@ public class TaskDeadlineService {
 
     private final JdbcTemplate jdbcTemplate;
     private final MultiNodeTaskAggregationService multiNodeTaskAggregationService;
+    private final TaskEventService taskEventService;
 
     /**
      * 创建任务总超时服务。
      *
      * @param jdbcTemplate JDBC 模板
      * @param multiNodeTaskAggregationService 多节点聚合服务
+     * @param taskEventService 任务事件服务
      */
     public TaskDeadlineService(JdbcTemplate jdbcTemplate,
-                               MultiNodeTaskAggregationService multiNodeTaskAggregationService) {
+                               MultiNodeTaskAggregationService multiNodeTaskAggregationService,
+                               TaskEventService taskEventService) {
         this.jdbcTemplate = jdbcTemplate;
         this.multiNodeTaskAggregationService = multiNodeTaskAggregationService;
+        this.taskEventService = taskEventService;
     }
 
     /**
@@ -65,10 +69,15 @@ public class TaskDeadlineService {
                 continue;
             }
             if ("SINGLE_NODE".equals(candidate.executionMode()) && "QUEUED".equals(candidate.status())) {
-                expired += jdbcTemplate.update("""
+                int updated = jdbcTemplate.update("""
                         UPDATE task_instance SET status = 'TIMED_OUT', progress = 0, updated_at = ?
                         WHERE id = ? AND status = 'QUEUED'
                         """, Timestamp.from(now), candidate.id().toString());
+                if (updated == 1) {
+                    taskEventService.appendTransition(candidate.id(), candidate.status(), "TIMED_OUT", "deadline",
+                            "TASK_DEADLINE_EXCEEDED", 0, now);
+                }
+                expired += updated;
                 continue;
             }
             if (!"SINGLE_NODE".equals(candidate.executionMode())) {

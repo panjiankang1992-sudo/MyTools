@@ -10,6 +10,7 @@ import java.util.function.BooleanSupplier;
  * 脚本执行请求。
  *
  * @param command 命令及参数列表
+ * @param scriptPackage 脚本包名称
  * @param workingDirectory 工作目录
  * @param environment 允许注入的环境变量
  * @param timeout 超时时间
@@ -17,6 +18,7 @@ import java.util.function.BooleanSupplier;
  */
 public record ScriptExecutionRequest(
         List<String> command,
+        String scriptPackage,
         Path workingDirectory,
         Map<String, String> environment,
         Duration timeout,
@@ -33,6 +35,15 @@ public record ScriptExecutionRequest(
      */
     public ScriptExecutionRequest(List<String> command, Path workingDirectory,
                                   Map<String, String> environment, Duration timeout) {
-        this(command, workingDirectory, environment, timeout, () -> false);
+        this(command, "", workingDirectory, environment, timeout, () -> false);
+    }
+
+    /**
+     * 创建不携带脚本包名称的兼容请求。
+     */
+    public ScriptExecutionRequest(List<String> command, Path workingDirectory,
+                                  Map<String, String> environment, Duration timeout,
+                                  BooleanSupplier cancellationRequested) {
+        this(command, "", workingDirectory, environment, timeout, cancellationRequested);
     }
 }

@@ -1,6 +1,7 @@
 package com.yuyutian.mytools.reader.controller;
 
 import com.yuyutian.mytools.reader.model.CreateEbookImportRequest;
+import com.yuyutian.mytools.reader.model.CreateManagedEbookImportRequest;
 import com.yuyutian.mytools.reader.model.EbookCatalogView;
 import com.yuyutian.mytools.reader.model.EbookImportView;
 import com.yuyutian.mytools.reader.service.EbookImportService;
@@ -51,6 +52,20 @@ public class EbookImportController {
                                                    @Valid @RequestBody CreateEbookImportRequest request) {
         authorizer.requireAuthorized(authorization);
         return ResponseEntity.accepted().body(importService.create(request));
+    }
+
+    /**
+     * 创建由 Gateway 已校验媒体条目驱动的受管电子书导入。
+     *
+     * @param authorization 授权头
+     * @param request 冻结媒体导入请求
+     * @return 已受理导入
+     */
+    @PostMapping("/managed-media")
+    public ResponseEntity<EbookImportView> createManaged(@RequestHeader("Authorization") String authorization,
+                                                          @Valid @RequestBody CreateManagedEbookImportRequest request) {
+        authorizer.requireAuthorized(authorization);
+        return ResponseEntity.accepted().body(importService.createManaged(request));
     }
 
     /**

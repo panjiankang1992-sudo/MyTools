@@ -13,7 +13,7 @@ import xml.etree.ElementTree as element_tree
 import zipfile
 
 from mytools_task_sdk.ebook import (
-    decode_text, first_local_text, local_name, read_zip_entry, safe_zip_name, validate_archive,
+    decode_text, epub_spine_resources, first_local_text, read_zip_entry, validate_archive,
 )
 from mytools_task_sdk.storage import StorageGatewayClient, parse_storage_uri
 
@@ -78,19 +78,7 @@ def epub_catalog(path: Path) -> list[dict]:
     """Build EPUB spine entries with safe archive resource references."""
     with zipfile.ZipFile(path) as archive:
         validate_archive(archive, MAX_EPUB_ENTRIES, MAX_EPUB_EXPANDED_BYTES)
-        container = element_tree.fromstring(read_zip_entry(archive, "META-INF/container.xml", 1024 * 1024))
-        package_path = next((safe_zip_name("", item.attrib.get("full-path", ""))
-                             for item in container.iter() if local_name(item) == "rootfile"), "")
-        if not package_path or package_path not in archive.namelist():
-            raise ValueError("EPUB package document is missing")
-        package = element_tree.fromstring(read_zip_entry(archive, package_path, 4 * 1024 * 1024))
-        manifest = {}
-        for item in package.iter():
-            if local_name(item) == "item" and item.attrib.get("id"):
-                manifest[item.attrib["id"]] = safe_zip_name(package_path, item.attrib.get("href", ""))
-        resources = [manifest.get(item.attrib.get("idref", ""), "") for item in package.iter()
-                     if local_name(item) == "itemref"]
-        resources = [resource for resource in resources if resource]
+        resources = epub_spine_resources(archive)
         if not resources or len(resources) > MAX_ENTRIES:
             raise ValueError("EPUB spine is empty or exceeds limit")
         entries = []
@@ -131,7 +119,6 @@ def input_from_context(context: dict) -> tuple[str, str]:
     if not storage_uri:
         previous = context.get("stepOutputs", {}).get("import_ebook", {})
         storage_uri = str(previous.get("storageUri") or "")
-        file_name = file_name or str(previous.get("title") or "Imported book") + ".txt"
     if not storage_uri:
         raise ValueError("Catalog input storage URI is missing")
     if not file_name:
@@ -159,6 +146,20 @@ def execute(context: dict, storage: StorageGatewayClient, writer: CatalogWriter,
         entries = generic_catalog(file_name)
     for offset in range(0, len(entries), 200):
         writer.save(request_id, entries[offset:offset + 200], replace=offset == 0)
+    imported = context.get("stepOutputs", {}).get("import_ebook", {})
+    if all(imported.get(key) is not None for key in
+           ("sourceId", "title", "size", "sha256", "storageUri")):
+        # 托管导入任务要求最后一步返回完整任务结果，避免仅返回目录摘要导致 Schema 拒绝。
+        return {
+            "requestId": request_id,
+            "sourceId": str(imported["sourceId"]),
+            "title": str(imported["title"]),
+            "format": extension.upper(),
+            "chapterCount": len(entries),
+            "size": int(imported["size"]),
+            "sha256": str(imported["sha256"]),
+            "storageUri": str(imported["storageUri"]),
+        }
     return {"requestId": request_id, "format": extension.upper(), "entryCount": len(entries)}
 
 

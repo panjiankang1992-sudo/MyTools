@@ -171,6 +171,34 @@ class GatewayRequestFilterTest {
     }
 
     @Test
+    void shouldNotRequireAuthorizationForAudiobookPlaybackTicket() throws Exception {
+        PrincipalValidator validator = mock(PrincipalValidator.class);
+        GatewayRequestFilter filter = new GatewayRequestFilter(validator, properties(true));
+        MockHttpServletRequest request = new MockHttpServletRequest("GET",
+                "/api/app/v1/audiobook-playback/tickets/0123456789abcdef0123456789abcdef");
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, new MockHttpServletResponse(), chain);
+
+        assertThat(chain.getRequest()).isNotNull();
+        verify(validator, never()).validate(org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
+    void shouldNotRequireAuthorizationForAudiobookExportTicket() throws Exception {
+        PrincipalValidator validator = mock(PrincipalValidator.class);
+        GatewayRequestFilter filter = new GatewayRequestFilter(validator, properties(true));
+        MockHttpServletRequest request = new MockHttpServletRequest("GET",
+                "/api/app/v1/audiobook-export/tickets/0123456789abcdef0123456789abcdef");
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, new MockHttpServletResponse(), chain);
+
+        assertThat(chain.getRequest()).isNotNull();
+        verify(validator, never()).validate(org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
     void shouldAuthenticateEnabledMessagingRoute() throws Exception {
         PrincipalValidator validator=mock(PrincipalValidator.class);when(validator.validate("token")).thenReturn(new GatewayPrincipal(88L,"user",List.of("USER"),null));GatewayProperties properties=new GatewayProperties(GatewayProperties.IdentityMode.LEGACY,false,false,Set.of(),false,Set.of(),false,Set.of(),"http://mytools","http://identity","http://reader","http://drive","http://download","gateway-token","identity-token","reader-token","drive-token","download-token",1000,3000,false,"","",true,"http://messaging","messaging-token");GatewayRequestFilter filter=new GatewayRequestFilter(validator,properties);MockHttpServletRequest request=new MockHttpServletRequest("GET","/api/app/v1/messages");request.addHeader("Authorization","Bearer token");MockFilterChain chain=new MockFilterChain();filter.doFilter(request,new MockHttpServletResponse(),chain);assertThat(chain.getRequest()).isNotNull();assertThat(request.getAttribute(GatewayRequestFilter.PRINCIPAL_ATTRIBUTE)).isEqualTo(new GatewayPrincipal(88L,"user",List.of("USER"),null));
     }

@@ -1,0 +1,83 @@
+groups:
+  - name: mytools-task-reliability
+    rules:
+      - alert: TaskOutboxDeliveryStalled
+        expr: task_outbox_oldest_age_seconds{application="task-scheduler-service"} > 300
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Task outbox delivery is stalled
+          runbook_url: monitoring/task-reliability-alerts.md#taskoutboxdeliverystalled
+
+      - alert: TaskOutboxDeadLettersPresent
+        expr: task_outbox_dead{application="task-scheduler-service"} > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Task outbox contains dead letters
+          runbook_url: monitoring/task-reliability-alerts.md#taskoutboxdeadletterspresent
+
+      - alert: TaskExecutionClusterUnavailable
+        expr: task_executor_clusters_unavailable{application="task-scheduler-service"} > 0 and task_executor_tasks_blocked{application="task-scheduler-service"} > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Queued tasks are blocked by unavailable execution clusters
+          runbook_url: monitoring/task-reliability-alerts.md#taskexecutionclusterunavailable
+
+      - alert: TaskQueueWaitSustained
+        expr: task_queue_wait_seconds{application="task-scheduler-service"} > 300
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Oldest queued task has exceeded the waiting threshold
+          runbook_url: monitoring/task-reliability-alerts.md#taskqueuewaitsustained
+
+      - alert: TaskLeaseLossesDetected
+        expr: increase(task_lease_lost_total{application="task-scheduler-service"}[10m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: One or more task execution leases were lost
+          runbook_url: monitoring/task-reliability-alerts.md#taskleaselossesdetected
+
+      - alert: TaskExecutorJournalUnreadable
+        expr: task_executor_journal_readable{application="task-executor-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Executor report journal is unreadable
+          runbook_url: monitoring/task-reliability-alerts.md#taskexecutorjournalunreadable
+
+      - alert: TaskExecutorJournalReplayStalled
+        expr: task_executor_journal_pending{application="task-executor-service"} > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Executor report journal replay has not converged
+          runbook_url: monitoring/task-reliability-alerts.md#taskexecutorjournalreplaystalled
+
+      - alert: TaskExecutorJournalNeedsDiagnosis
+        expr: task_executor_journal_diagnostic{application="task-executor-service"} > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Executor report journal requires manual diagnosis
+          runbook_url: monitoring/task-reliability-alerts.md#taskexecutorjournalneedsdiagnosis
+
+      - alert: TaskReportRetriesSustained
+        expr: sum by (application, type) (rate(task_report_retry_total{application="task-executor-service"}[5m])) > 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Executor report retries remain elevated
+          runbook_url: monitoring/task-reliability-alerts.md#taskreportretriessustained

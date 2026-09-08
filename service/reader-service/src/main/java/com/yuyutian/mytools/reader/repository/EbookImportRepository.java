@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -77,6 +78,18 @@ public class EbookImportRepository {
     }
 
     /**
+     * 查询一条导入请求创建的 Reader 电子书资产标识。
+     *
+     * @param requestId 导入请求标识
+     * @return 已登记资产标识
+     */
+    public Optional<UUID> findAssetId(UUID requestId) {
+        return jdbcTemplate.query("SELECT id FROM ebook_asset WHERE import_request_id = ?",
+                (resultSet, rowNumber) -> UUID.fromString(resultSet.getString("id")), requestId.toString())
+                .stream().findFirst();
+    }
+
+    /**
      * 绑定调度任务。
      *
      * @param requestId 请求标识
@@ -128,10 +141,10 @@ public class EbookImportRepository {
                 INSERT INTO ebook_asset
                     (id, import_request_id, owner_id, source_id, title, author, format, storage_uri,
                      size_bytes, content_sha256, chapter_count, metadata_json, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, 'TXT', ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, UUID.randomUUID().toString(), record.id().toString(), record.ownerId(),
-                record.sourceId().toString(), title, author, storageUri, size, sha256, chapters,
-                writeJson(Map.of("sourceVersion", record.sourceVersion(), "bookUrl", record.bookUrl())),
+                record.sourceId().toString(), title, author, assetFormat(record, result), storageUri, size, sha256, chapters,
+                writeJson(assetMetadata(record)),
                 Timestamp.from(now), Timestamp.from(now));
     }
 
@@ -142,9 +155,14 @@ public class EbookImportRepository {
      * @param metadata 元数据结果
      */
     public void updateMetadata(UUID requestId, Map<String, Object> metadata) {
+        String current = jdbcTemplate.queryForObject(
+                "SELECT metadata_json FROM ebook_asset WHERE import_request_id = ?", String.class,
+                requestId.toString());
+        Map<String, Object> merged = new LinkedHashMap<>(readJson(current));
+        merged.putAll(metadata);
         jdbcTemplate.update("""
                 UPDATE ebook_asset SET metadata_json = ?, updated_at = ? WHERE import_request_id = ?
-                """, writeJson(metadata), Timestamp.from(Instant.now()), requestId.toString());
+                """, writeJson(merged), Timestamp.from(Instant.now()), requestId.toString());
     }
 
     /**
@@ -182,6 +200,17 @@ public class EbookImportRepository {
             }
             saved++;
         }
+        Integer total = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM ebook_catalog_entry WHERE import_request_id = ?
+                """, Integer.class, requestId.toString());
+        int chapterCount = total == null ? 0 : total;
+        // 将目录事实回写到导入记录和资产，供有声书生成配额和进度使用。
+        jdbcTemplate.update("""
+                UPDATE ebook_import_request SET chapter_count = ?, updated_at = ? WHERE id = ?
+                """, chapterCount, Timestamp.from(now), requestId.toString());
+        jdbcTemplate.update("""
+                UPDATE ebook_asset SET chapter_count = ?, updated_at = ? WHERE import_request_id = ?
+                """, chapterCount, Timestamp.from(now), requestId.toString());
         return saved;
     }
 
@@ -226,6 +255,28 @@ public class EbookImportRepository {
         } catch (JsonProcessingException exception) {
             throw new IllegalArgumentException("Ebook import data cannot be serialized", exception);
         }
+    }
+
+    private Map<String, Object> assetMetadata(EbookImportRecord record) {
+        Map<String, Object> metadata = new LinkedHashMap<>();
+        metadata.put("sourceVersion", record.sourceVersion());
+        metadata.put("bookUrl", record.bookUrl());
+        Object mediaItemId = record.parameters().get("mediaItemId");
+        if (mediaItemId != null) {
+            metadata.put("managedMediaItemId", mediaItemId);
+            metadata.put("managedMediaAssetId", record.parameters().get("mediaAssetId"));
+            metadata.put("managedMediaContentSha256", record.parameters().get("contentSha256"));
+        }
+        return metadata;
+    }
+
+    private String assetFormat(EbookImportRecord record, Map<String, Object> result) {
+        Object resultFormat = result.get("format");
+        if (resultFormat != null && "EPUB".equalsIgnoreCase(String.valueOf(resultFormat))) {
+            return "EPUB";
+        }
+        return "application/epub+zip".equalsIgnoreCase(String.valueOf(record.parameters().get("mimeType")))
+                ? "EPUB" : "TXT";
     }
 
     @SuppressWarnings("unchecked")

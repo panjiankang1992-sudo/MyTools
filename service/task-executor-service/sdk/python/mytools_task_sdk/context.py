@@ -7,6 +7,7 @@ import os
 import time
 import urllib.error
 import urllib.request
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -29,6 +30,28 @@ class TaskInstance:
             task_name=str(payload["taskName"]),
             status=str(payload["status"]),
             parent_task_instance_id=payload.get("parentTaskInstanceId"),
+        )
+
+
+@dataclass(frozen=True)
+class TaskCheckpoint:
+    """任务检查点视图。"""
+
+    key: str
+    version: int
+    value: dict[str, Any]
+    updated_at: str
+    replayed: bool
+
+    @classmethod
+    def from_payload(cls, payload: dict[str, Any]) -> "TaskCheckpoint":
+        """从 Scheduler 响应创建检查点。"""
+        return cls(
+            key=str(payload["key"]),
+            version=int(payload["version"]),
+            value=dict(payload.get("value", {})),
+            updated_at=str(payload["updatedAt"]),
+            replayed=bool(payload.get("replayed", False)),
         )
 
 
@@ -115,6 +138,45 @@ class TaskContext:
         )
         return TaskInstance.from_payload(payload)
 
+    def put_checkpoint(
+        self,
+        key: str,
+        value: dict[str, Any],
+        expected_version: int,
+        *,
+        request_id: str | None = None,
+    ) -> TaskCheckpoint:
+        """按预期版本幂等写入当前任务检查点。"""
+        stable_request_id = request_id or self._checkpoint_request_id(key, expected_version, value)
+        payload = self._request(
+            "PUT",
+            f"/internal/v1/executions/{self.execution_id}/tasks/checkpoints/{key}",
+            {
+                "requestId": stable_request_id,
+                "expectedVersion": expected_version,
+                "value": value,
+            },
+        )
+        return TaskCheckpoint.from_payload(payload)
+
+    def get_checkpoint(self, key: str) -> TaskCheckpoint:
+        """读取当前任务的指定检查点。"""
+        payload = self._request(
+            "GET",
+            f"/internal/v1/executions/{self.execution_id}/tasks/checkpoints/{key}",
+            None,
+        )
+        return TaskCheckpoint.from_payload(payload)
+
+    def list_checkpoints(self) -> list[TaskCheckpoint]:
+        """按键名列举当前任务的全部检查点。"""
+        payload = self._request(
+            "GET",
+            f"/internal/v1/executions/{self.execution_id}/tasks/checkpoints",
+            None,
+        )
+        return [TaskCheckpoint.from_payload(item) for item in payload]
+
     def wait_child(self, task_id: str, timeout_seconds: float, poll_seconds: float = 1.0) -> TaskInstance:
         """等待直接子任务进入终态。"""
         deadline = time.monotonic() + timeout_seconds
@@ -126,7 +188,7 @@ class TaskContext:
                 raise TimeoutError(f"child task {task_id} did not finish before timeout")
             time.sleep(max(poll_seconds, 0.1))
 
-    def _request(self, method: str, path: str, payload: dict[str, Any] | None) -> dict[str, Any]:
+    def _request(self, method: str, path: str, payload: dict[str, Any] | None) -> Any:
         data = None if payload is None else json.dumps(payload).encode("utf-8")
         request = urllib.request.Request(
             self.api_url + path,
@@ -143,3 +205,9 @@ class TaskContext:
         except urllib.error.HTTPError as exception:
             body = exception.read().decode("utf-8", errors="replace")
             raise RuntimeError(f"task API failed with HTTP {exception.code}: {body[:512]}") from exception
+
+    def _checkpoint_request_id(self, key: str, expected_version: int, value: dict[str, Any]) -> str:
+        task_id = str(self.context["taskInstanceId"])
+        canonical_value = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        identity = f"{task_id}:checkpoint:{key}:{expected_version}:{canonical_value}"
+        return str(uuid.uuid5(uuid.NAMESPACE_URL, identity))

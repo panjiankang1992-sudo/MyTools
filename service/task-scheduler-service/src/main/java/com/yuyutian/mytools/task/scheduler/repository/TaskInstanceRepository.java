@@ -147,6 +147,62 @@ public class TaskInstanceRepository {
     }
 
     /**
+     * 查询一个父任务尚未结束的直接子任务标识。
+     *
+     * @param parentTaskInstanceId 父任务标识
+     * @return 活跃直接子任务标识
+     */
+    public List<UUID> findActiveChildIds(UUID parentTaskInstanceId) {
+        return jdbcTemplate.query("""
+                SELECT id FROM task_instance
+                WHERE parent_task_instance_id = ?
+                  AND status IN ('CREATED', 'QUEUED', 'RUNNING', 'WAITING_CHILDREN', 'CANCELLING')
+                ORDER BY created_at, id
+                """, (resultSet, rowNumber) -> UUID.fromString(resultSet.getString(1)),
+                parentTaskInstanceId.toString());
+    }
+
+    /**
+     * 统计一个父任务尚未结束的直接子任务。
+     *
+     * @param parentTaskInstanceId 父任务标识
+     * @return 活跃直接子任务数量
+     */
+    public int countActiveChildren(UUID parentTaskInstanceId) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM task_instance
+                WHERE parent_task_instance_id = ?
+                  AND status IN ('CREATED', 'QUEUED', 'RUNNING', 'WAITING_CHILDREN', 'CANCELLING')
+                """, Integer.class, parentTaskInstanceId.toString());
+        return count == null ? 0 : count;
+    }
+
+    /**
+     * 查询子任务已全部终止但仍在等待的父任务。
+     *
+     * @param limit 最大返回数量
+     * @return 可聚合的父任务标识
+     */
+    public List<UUID> findReadyWaitingParentIds(int limit) {
+        return jdbcTemplate.query("""
+                SELECT parent.id
+                FROM task_instance parent
+                WHERE parent.status = 'WAITING_CHILDREN'
+                  AND EXISTS (
+                    SELECT 1 FROM task_instance child
+                    WHERE child.parent_task_instance_id = parent.id
+                  )
+                  AND NOT EXISTS (
+                    SELECT 1 FROM task_instance child
+                    WHERE child.parent_task_instance_id = parent.id
+                      AND child.status IN ('CREATED', 'QUEUED', 'RUNNING', 'WAITING_CHILDREN', 'CANCELLING')
+                  )
+                ORDER BY parent.updated_at, parent.id
+                LIMIT ?
+                """, (resultSet, rowNumber) -> UUID.fromString(resultSet.getString(1)), limit);
+    }
+
+    /**
      * 将尚未领取的多节点执行目标标记为取消。
      *
      * @param taskInstanceId 任务实例标识

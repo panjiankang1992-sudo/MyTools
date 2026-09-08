@@ -1,0 +1,29 @@
+groups:
+  - name: mytools-audiobook-generation
+    rules:
+      - alert: AudiobookGenerationFailuresSustained
+        expr: sum by (application, mode, stage) (increase(reader_audiobook_generation_failed_total{application="reader-service"}[10m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Audiobook generations are failing repeatedly
+          runbook_url: monitoring/audiobook-generation-alerts.md#audiobookgenerationfailuressustained
+
+      - alert: AudiobookQuotaRejectionsSustained
+        expr: sum by (application, reason) (increase(reader_audiobook_generation_rejected_total{application="reader-service"}[15m])) >= 3
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Audiobook generation quota rejections are sustained
+          runbook_url: monitoring/audiobook-generation-alerts.md#audiobookquotarejectionssustained
+
+      - alert: AudiobookTextProjectionLatencySustained
+        expr: histogram_quantile(0.95, sum by (le, application, mode) (rate(reader_audiobook_stage_duration_seconds_bucket{application="reader-service",stage="TEXT_PROJECTION"}[15m]))) > 120
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Audiobook text projection latency exceeds the service objective
+          runbook_url: monitoring/audiobook-generation-alerts.md#audiobooktextprojectionlatencysustained

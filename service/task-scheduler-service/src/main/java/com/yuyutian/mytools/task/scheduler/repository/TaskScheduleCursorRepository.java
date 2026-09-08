@@ -3,10 +3,12 @@ package com.yuyutian.mytools.task.scheduler.repository;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -78,6 +80,46 @@ public class TaskScheduleCursorRepository {
                   AND (lease_until IS NULL OR lease_until < ?)
                 """, owner, Timestamp.from(leaseUntil), Timestamp.from(now), definitionId.toString(),
                 Timestamp.from(now), Timestamp.from(now)) == 1;
+    }
+
+    /**
+     * 事务内跳过已锁定游标并抢占有限数量的到期定义。
+     *
+     * @param owner 调度实例标识
+     * @param now 当前时间
+     * @param leaseUntil 租约结束时间
+     * @param limit 最大领取数量
+     * @return 已领取定义标识
+     */
+    @Transactional
+    public List<UUID> claimDue(String owner, Instant now, Instant leaseUntil, int limit) {
+        List<UUID> definitionIds = jdbcTemplate.query("""
+                SELECT sc.task_definition_id
+                FROM task_schedule_cursor sc
+                JOIN task_definition td ON td.id = sc.task_definition_id
+                WHERE sc.next_fire_at <= ?
+                  AND (sc.lease_until IS NULL OR sc.lease_until < ?)
+                  AND td.task_type = 'SCHEDULED' AND td.enabled = TRUE
+                  AND td.version = (
+                      SELECT MAX(latest.version) FROM task_definition latest
+                      WHERE latest.name = td.name AND latest.enabled = TRUE
+                  )
+                ORDER BY sc.next_fire_at, sc.task_definition_id
+                LIMIT ?
+                FOR UPDATE SKIP LOCKED
+                """, (resultSet, rowNumber) -> UUID.fromString(resultSet.getString("task_definition_id")),
+                Timestamp.from(now), Timestamp.from(now), limit);
+        for (UUID definitionId : definitionIds) {
+            int updated = jdbcTemplate.update("""
+                    UPDATE task_schedule_cursor
+                    SET lease_owner = ?, lease_until = ?, updated_at = ?
+                    WHERE task_definition_id = ?
+                    """, owner, Timestamp.from(leaseUntil), Timestamp.from(now), definitionId.toString());
+            if (updated != 1) {
+                throw new IllegalStateException("Claimed schedule cursor no longer exists");
+            }
+        }
+        return definitionIds;
     }
 
     /**

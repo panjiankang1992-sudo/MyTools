@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "required": ["generationId", "characterCount", "relationshipCount", "speechSegmentCount"],
+  "properties": {
+    "generationId": {"type": "string", "format": "uuid"},
+    "characterCount": {"type": "integer", "minimum": 0},
+    "relationshipCount": {"type": "integer", "minimum": 0},
+    "speechSegmentCount": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false
+}

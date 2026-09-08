@@ -188,6 +188,34 @@ public class DiscoveryRepository {
     }
 
     /**
+     * 为受管媒体导入返回当前用户专属的稳定虚拟书源。
+     *
+     * @param ownerId 所有者标识
+     * @return 虚拟书源的不可变执行快照
+     */
+    public SourceExecutionSnapshot ensureManagedMediaSource(long ownerId) {
+        String syncKey = "managed-media-library-v1";
+        List<Map<String, Object>> existing = jdbcTemplate.queryForList(
+                "SELECT id FROM book_source WHERE owner_id = ? AND sync_key = ?", ownerId, syncKey);
+        if (!existing.isEmpty()) {
+            UUID sourceId = UUID.fromString(String.valueOf(existing.getFirst().get("id")));
+            return findExecutionSnapshot(ownerId, sourceId).orElseThrow();
+        }
+        Instant now = Instant.now();
+        UUID sourceId = UUID.randomUUID();
+        Map<String, Object> snapshot = Map.of("origin", "MANAGED_MEDIA_LIBRARY", "version", 1);
+        String serialized = writeJson(snapshot);
+        jdbcTemplate.update("""
+                INSERT INTO book_source
+                    (id, owner_id, sync_key, name, source_url, enabled, current_version, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, TRUE, 1, ?, ?)
+                """, sourceId.toString(), ownerId, syncKey, "Managed Media Library", "media-library://managed",
+                Timestamp.from(now), Timestamp.from(now));
+        insertVersion(sourceId, 1, serialized, sha256(serialized), now);
+        return new SourceExecutionSnapshot(sourceId, "media-library://managed", 1, snapshot);
+    }
+
+    /**
      * 按所有者和书源地址查询当前执行快照。
      *
      * @param ownerId 所有者标识
@@ -217,7 +245,8 @@ public class DiscoveryRepository {
                 SELECT bs.source_url, bs.enabled, bs.current_version, bs.updated_at, bsv.snapshot_json
                 FROM book_source bs JOIN book_source_version bsv
                   ON bsv.book_source_id = bs.id AND bsv.version = bs.current_version
-                WHERE bs.owner_id = ? ORDER BY bs.updated_at DESC, bs.id
+                WHERE bs.owner_id = ? AND bs.sync_key <> 'managed-media-library-v1'
+                ORDER BY bs.updated_at DESC, bs.id
                 """, (resultSet, rowNumber) -> Map.of(
                 "sourceUrl", resultSet.getString("source_url"),
                 "snapshotJson", resultSet.getString("snapshot_json"),

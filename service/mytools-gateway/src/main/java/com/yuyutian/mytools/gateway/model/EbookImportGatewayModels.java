@@ -27,9 +27,17 @@ public final class EbookImportGatewayModels {
     }
 
     /**
+     * 从当前用户拥有的受管媒体创建 TXT 电子书导入。
+     */
+    public record CreateManagedImport(@NotBlank @Size(max = 255) String idempotencyKey,
+                                      @NotNull UUID mediaItemId,
+                                      boolean rightsConfirmed) {
+    }
+
+    /**
      * 电子书导入业务视图，不暴露内部调度任务标识。
      */
-    public record ImportView(UUID id, String status, UUID sourceId, int sourceVersion,
+    public record ImportView(UUID id, UUID ebookAssetId, String status, UUID sourceId, int sourceVersion,
                              String title, String author, Integer chapterCount, Long outputSize,
                              String sha256, String storageUri, Instant createdAt, Instant updatedAt) {
     }

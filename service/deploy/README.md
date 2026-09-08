@@ -35,6 +35,8 @@ rclone 的远端出站连接，Storage/Drive 仍通过受认证的回环 RC 调�
 - `install_release.py`：在远程主机精确验签发布清单，创建版本内 Python venv，全部安装成功后原子切换 `releases/current`。
 - `create_service_env.py`：在远程生成只写一次的私有数据库密码、内部令牌和默认关闭配置，不回显秘密。
 - `prepare_runtime_directories.py`：精确创建清单声明的运行和微服务日志目录，不修改现有父目录及业务数据目录。
+- `monitoring/task-reliability-alerts.yml`：Scheduler/Executor Prometheus 可靠性告警规则；发布包同时携带对应运行手册。
+- `monitoring/task-reliability-dashboard.json`：可导入 Grafana 的任务运行与可靠性仪表盘，导入时选择采集 MyTools 管理端点的 Prometheus 数据源。
 
 ## 初始化
 
@@ -113,6 +115,10 @@ sudo -u mytools python3 /opt/yuyutian/mytools/releases/current/deploy/create_ser
 
 环境文件固定写入远程 `/opt/yuyutian/mytools/config/services.env`，权限为 `0600`，存在时拒绝覆盖。所有 Gateway 路由、迁移适配器和外部连接默认关闭；管理员数据库凭据和旧库凭据不写入该文件。
 
+新环境文件会为 Executor、运维入口、根工程和五个领域服务分别生成 Scheduler 独立令牌。Scheduler 只要发现对应凭据映射中存在非空值，就要求请求同时携带匹配的 `X-Task-Service-Id` 和专属令牌；不同服务的令牌不可复用。既有部署滚动迁移时可暂时保留 `TASK_INTERNAL_TOKEN` 和 `TASK_BUSINESS_INTERNAL_TOKEN` 作为空映射场景的回退，但不得在已经启用独立映射后继续依赖共享令牌；回滚时应恢复整份旧环境文件，不能只回滚单个服务令牌。
+
+注册邮件迁移默认生成 `MESSAGING_REGISTRATION_MAIL_MODE=LEGACY` 和 0% 灰度，同时生成独立的稳定路由密钥及 AES-256-GCM Outbox 密钥。真实灰度必须先执行根服务数据库迁移并验证 Messaging 邮件链路，再逐步调整 `CANARY` 百分比；路由密钥在灰度期间不得轮换，否则同一邮箱可能改变路径。加密密钥轮换前必须排空注册邮件真实投递 Outbox，回滚时也不得删除已提交记录。
+
 输出包含每个服务的 `.service`、`mytools-services.target`、目录参考配置、日志轮转配置及其 timer。默认 target 不包含迁移适配器、OneBot、PikPak、DSH RPC 和消息自动化；这些能力只能单独显式启用。部署时将服务单元、target 和 timer 安装到 `/etc/systemd/system/`，将 `mytools-services.logrotate` 安装为 `/etc/logrotate.d/mytools-services`。远程现有 `/opt/yuyutian` 父目录不是 root 所有，不能使用 `systemd-tmpfiles` 跨所有者创建子目录；应执行以下精确目录准备命令，再启用 `mytools-logrotate.timer` 和服务 target：
 
 ```bash
@@ -125,7 +131,7 @@ Java 发布包统一命名为 `releases/current/apps/<service>.jar`，Python 服
 
 所有微服务的标准输出和错误输出合并写入 `/opt/yuyutian/logs/mytools/<service-name>/service.log`，服务之间不共享目录或文件。轮转规则同时满足两个上限：按天轮转并只保留当前文件加 9 份历史，`maxage 10` 删除超过 10 天的日志；单文件达到 10 MiB 时提前轮转，因此单个微服务未压缩日志总量上限约为 100 MiB。历史日志启用压缩，每分钟 timer 会检查一次大小，缩短在日轮转间隔内超过容量上限的窗口。高日志量时优先满足容量限制，可能保留不足 10 天；低日志量时最多保留最近 10 天。
 
-部署后先保持全部 Gateway 新路由关闭，并运行以下验收。默认检查清单中的 19 个服务、Scheduler 中至少一个在线 Executor，以及 App Catalog 新路由返回 `GATEWAY_002`。若远程主机没有启动默认关闭的适配器，可增加 `--skip-default-disabled`；正式启用任一新 Gateway 路由后，应增加 `--skip-gateway-default-off`，并改为执行对应业务路由的专项验收。
+部署后先保持全部 Gateway 新路由关闭，并运行以下验收。默认检查清单中的 19 个服务、Scheduler 中至少一个在线 Executor、Scheduler/Executor Prometheus 端点中的 15 个运行与可靠性指标及正确 `application` 标签，以及 App Catalog 新路由返回 `GATEWAY_002`。若远程主机没有启动默认关闭的适配器，可增加 `--skip-default-disabled`；正式启用任一新 Gateway 路由后，应增加 `--skip-gateway-default-off`，并改为执行对应业务路由的专项验收。
 
 ```bash
 python3 /opt/yuyutian/mytools/releases/current/deploy/verify_deployment.py \
@@ -136,8 +142,19 @@ python3 /opt/yuyutian/mytools/releases/current/deploy/verify_deployment.py \
 
 ```bash
 python3 /opt/yuyutian/mytools/releases/current/deploy/verify_task_execution.py \
-  --scheduler-url http://127.0.0.1:23410
+  --scheduler-url http://127.0.0.1:23410 \
+  --service-id mytools-service
 ```
+
+验收器默认从当前环境的 `TASK_BUSINESS_MYTOOLS_TOKEN` 读取业务令牌并发送服务身份；不要通过命令行参数暴露生产令牌。启动服务前还应以 `mytools` 账号验证环境文件权限、独立令牌、非 root 门禁、工作目录和脚本索引：
+
+```bash
+python3 /opt/yuyutian/mytools/releases/current/deploy/verify_task_runtime_config.py \
+  --env-file /opt/yuyutian/mytools/config/services.env \
+  --require-runtime-paths
+```
+
+Linux、双 Scheduler、真实 MySQL、告警和注册邮件灰度的完整步骤见 `docs/runbooks/task-scheduling-release-acceptance.md`。
 
 命令输出包含四个任务实例 ID，可作为部署验收证据保留。该验收只证明控制面和执行面的终态链路；Storage、Drive、Media 和 Reader 的可再生数据仍需执行各自的重建任务并保存领域对账结果。
 
@@ -172,6 +189,18 @@ python3 /opt/yuyutian/mytools/releases/current/deploy/run_migration_plan.py \
 同一个 `runId` 会生成稳定的 Scheduler 幂等键；重跑时复用原任务实例，不产生重复业务记录。正式导入应先用单独的 `runId` 执行 `dryRun=true` 计划，确认拒绝数为零，再执行 `dryRun=false` 计划。上述路径均为远程主机路径。
 
 `copytruncate` 允许 Java 和 Python 进程保持打开的 stdout 文件描述符而无需逐个重启。日志目录和文件分别使用 `0750`、`0640`，仅 `mytools` 账号和同组进程可读。
+
+## 可靠性指标与告警
+
+Task Scheduler 与 Task Executor 均在回环管理端点暴露 `/actuator/prometheus`，并通过 `application` 标签区分服务。Prometheus 应从同机或受控管理网络采集，禁止将管理端点直接暴露到公网。
+
+发布包还包含 `operator-tools/`：其中的 `cutover_preflight.py` 和 `audiobook-analysis/` 仅用于受限部署主机上的有声书验收。它们不包含凭证、样书、生成音频或生产配置；质量门禁证据文件必须由部署操作者在受控目录另行创建，不能放入发布包。会产生供应商费用的 POC 工具不随发布包分发。
+
+将发布包中的 `deploy/monitoring/task-reliability-alerts.yml` 加载到 Prometheus 规则目录。规则覆盖 Outbox 超龄与死信、集群不可用导致任务阻塞、队列持续等待、执行租约丢失、Executor Journal 不可读、待上报长期未收敛、人工诊断记录以及持续上报重试。默认 Outbox 超龄阈值与 `TASK_OUTBOX_BACKLOG_ALERT_SECONDS=300` 一致，无可用节点等待时间与 `TASK_NO_AVAILABLE_NODE_ALERT_SECONDS=60` 一致；修改运行参数时应同步审阅告警规则。
+
+将 `deploy/monitoring/task-reliability-dashboard.json` 导入 Grafana，并在导入提示中选择对应 Prometheus 数据源。仪表盘默认展示最近 6 小时并每 30 秒刷新，覆盖队列深度与等待、执行吞吐与平均耗时、失租、Outbox、集群阻塞和 Executor Journal；查询只使用固定服务与终态标签，不引入任务、执行、节点或业务标识等无界标签。
+
+处置步骤见发布包中的 `deploy/monitoring/task-reliability-alerts.md`。告警恢复不得通过删除 Journal、工作目录或 Outbox 记录实现。
 
 ## 启动顺序
 

@@ -22,6 +22,7 @@ import java.util.UUID;
  * @param misfirePolicy 错过调度策略
  * @param parameterSchema 参数 Schema
  * @param resultSchema 结果 Schema
+ * @param childAggregationPolicy 父任务直接子任务聚合策略
  * @param version 版本
  * @param createdAt 创建时间
  * @param updatedAt 更新时间
@@ -42,8 +43,22 @@ public record TaskDefinitionView(
         String misfirePolicy,
         Map<String, Object> parameterSchema,
         Map<String, Object> resultSchema,
+        ChildAggregationPolicy childAggregationPolicy,
         int version,
         Instant createdAt,
         Instant updatedAt
 ) {
+
+    /**
+     * 创建使用全部子任务成功策略的兼容视图。
+     */
+    public TaskDefinitionView(UUID id, String name, String description, TaskType taskType, long timeoutSeconds,
+                              UUID clusterId, String cronExpression, String cronTimezone,
+                              ExecutionMode executionMode, boolean enabled, int maxConcurrency,
+                              String overlapPolicy, String misfirePolicy, Map<String, Object> parameterSchema,
+                              Map<String, Object> resultSchema, int version, Instant createdAt, Instant updatedAt) {
+        this(id, name, description, taskType, timeoutSeconds, clusterId, cronExpression, cronTimezone, executionMode,
+                enabled, maxConcurrency, overlapPolicy, misfirePolicy, parameterSchema, resultSchema,
+                ChildAggregationPolicy.allSuccess(), version, createdAt, updatedAt);
+    }
 }

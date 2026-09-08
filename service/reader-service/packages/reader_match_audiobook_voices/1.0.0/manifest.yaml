@@ -1,0 +1,19 @@
+name: reader_match_audiobook_voices
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - reader_internal_read
+  - reader_internal_write
+  - audiobook_voice_catalog
+parameters:
+  required:
+    - generationId
+    - ownerId
+    - storageRoot
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 900
+  maxVoices: 500
+  maxCharacters: 5000

@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "required": ["generationId", "synthesizedChapterCount"],
+  "properties": {
+    "generationId": {"type": "string"},
+    "synthesizedChapterCount": {"type": "integer", "minimum": 1}
+  },
+  "additionalProperties": false
+}

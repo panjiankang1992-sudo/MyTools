@@ -1,0 +1,129 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "Prometheus data source that scrapes MyTools management endpoints",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "annotations": {
+    "list": []
+  },
+  "description": "Operational and reliability signals for MyTools Task Scheduler and Executor.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "targets": [{"editorMode": "code", "expr": "task_queue_depth{application=\"task-scheduler-service\"}", "legendFormat": "queued", "range": true, "refId": "A"}],
+      "title": "Queue depth",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0},
+      "id": 2,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "single", "sort": "none"}},
+      "targets": [{"editorMode": "code", "expr": "task_queue_wait_seconds{application=\"task-scheduler-service\"}", "legendFormat": "oldest queued task", "range": true, "refId": "A"}],
+      "title": "Oldest queue wait",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0},
+      "id": 3,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "task_execution_running{application=\"task-scheduler-service\"}", "legendFormat": "running", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "sum by (status) (rate(task_execution_seconds_count{application=\"task-scheduler-service\"}[$__rate_interval]))", "legendFormat": "completed {{status}}/s", "range": true, "refId": "B"}
+      ],
+      "title": "Execution throughput",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0},
+      "id": 4,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"editorMode": "code", "expr": "sum by (status) (rate(task_execution_seconds_sum{application=\"task-scheduler-service\"}[$__rate_interval])) / clamp_min(sum by (status) (rate(task_execution_seconds_count{application=\"task-scheduler-service\"}[$__rate_interval])), 0.000001)", "legendFormat": "{{status}}", "range": true, "refId": "A"}],
+      "title": "Average execution duration",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 6, "x": 0, "y": 8},
+      "id": 5,
+      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "targets": [{"editorMode": "code", "expr": "increase(task_lease_lost_total{application=\"task-scheduler-service\"}[10m])", "legendFormat": "lease losses", "range": true, "refId": "A"}],
+      "title": "Lease losses in 10 minutes",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 6, "x": 6, "y": 8},
+      "id": 6,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "task_outbox_backlog{application=\"task-scheduler-service\"}", "legendFormat": "pending", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "task_outbox_dead{application=\"task-scheduler-service\"}", "legendFormat": "dead", "range": true, "refId": "B"}
+      ],
+      "title": "Outbox delivery",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 6, "x": 12, "y": 8},
+      "id": 7,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "task_executor_clusters_unavailable{application=\"task-scheduler-service\"}", "legendFormat": "unavailable clusters", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "task_executor_tasks_blocked{application=\"task-scheduler-service\"}", "legendFormat": "blocked tasks", "range": true, "refId": "B"}
+      ],
+      "title": "Scheduling availability",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 8},
+      "id": 8,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [
+        {"editorMode": "code", "expr": "task_executor_journal_pending{application=\"task-executor-service\"}", "legendFormat": "pending", "range": true, "refId": "A"},
+        {"editorMode": "code", "expr": "task_executor_journal_diagnostic{application=\"task-executor-service\"}", "legendFormat": "diagnostic", "range": true, "refId": "B"},
+        {"editorMode": "code", "expr": "task_executor_journal_retry_delay_seconds{application=\"task-executor-service\"}", "legendFormat": "retry delay seconds", "range": true, "refId": "C"},
+        {"editorMode": "code", "expr": "task_executor_journal_readable{application=\"task-executor-service\"}", "legendFormat": "readable", "range": true, "refId": "D"}
+      ],
+      "title": "Executor journal",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["mytools", "task-scheduler", "reliability"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "MyTools Task Reliability",
+  "uid": "mytools-task-reliability",
+  "version": 1,
+  "weekStart": ""
+}

@@ -5,11 +5,13 @@ import com.yuyutian.mytools.task.scheduler.model.CreateExecutionClusterRequest;
 import com.yuyutian.mytools.task.scheduler.model.ExecutionClusterView;
 import com.yuyutian.mytools.task.scheduler.model.ExecutorNodeView;
 import com.yuyutian.mytools.task.scheduler.model.RegisterExecutorNodeRequest;
+import com.yuyutian.mytools.task.scheduler.model.UpdateExecutorNodeStatusRequest;
 import com.yuyutian.mytools.task.scheduler.service.ExecutionTopologyService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -94,6 +96,19 @@ public class ExecutionTopologyController {
     @GetMapping("/nodes")
     public List<ExecutorNodeView> listNodes() {
         return service.listNodes();
+    }
+
+    /**
+     * 更新执行节点调度状态。
+     *
+     * @param nodeId 节点标识
+     * @param request 状态请求
+     * @return 节点视图
+     */
+    @PatchMapping("/nodes/{nodeId}/status")
+    public ExecutorNodeView updateNodeStatus(@PathVariable UUID nodeId,
+                                             @Valid @RequestBody UpdateExecutorNodeStatusRequest request) {
+        return service.updateNodeStatus(nodeId, request);
     }
 
     /**

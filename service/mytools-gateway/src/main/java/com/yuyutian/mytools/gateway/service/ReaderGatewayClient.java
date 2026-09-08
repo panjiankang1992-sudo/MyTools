@@ -4,9 +4,23 @@ import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.CacheView;
 import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.CreatePrefetch;
 import com.yuyutian.mytools.gateway.model.ChapterGatewayModels.PrefetchView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookGenerationView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookExportView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookPlaybackManifest;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookBookAnalysisView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookVoicePlanView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookVoiceCatalogView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.AudiobookPronunciationDictionaryView;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.CreateAudiobookGeneration;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.CreateAudiobookExport;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.CreateAudiobookVoiceRevision;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.CreateAudiobookSpeakerRevision;
+import com.yuyutian.mytools.gateway.model.AudiobookGatewayModels.CreateAudiobookPronunciationRevision;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CatalogView;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CreateImport;
+import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.CreateManagedImport;
 import com.yuyutian.mytools.gateway.model.EbookImportGatewayModels.ImportView;
+import com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaView;
 import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.CreateDiscovery;
 import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.CreateHealthCheck;
 import com.yuyutian.mytools.gateway.model.SourceTaskGatewayModels.DiscoveryView;
@@ -18,12 +32,18 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import jakarta.servlet.http.HttpServletResponse;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.yuyutian.mytools.gateway.model.ReaderSearchGatewayModels.*;
 
@@ -32,6 +52,8 @@ import com.yuyutian.mytools.gateway.model.ReaderSearchGatewayModels.*;
  */
 @Component
 public class ReaderGatewayClient {
+
+    private static final Pattern READER_ERROR_CODE = Pattern.compile("\\\"code\\\"\\s*:\\s*\\\"(READER_[0-9]{3})\\\"");
 
     private final RestTemplate restTemplate;
     private final GatewayProperties properties;
@@ -196,6 +218,31 @@ public class ReaderGatewayClient {
     }
 
     /**
+     * 创建已经由 Gateway 按当前主体核验过的受管媒体电子书导入。
+     *
+     * @param ownerId 所有者标识
+     * @param request App 请求
+     * @param media 已核验媒体快照
+     * @param correlationId 关联标识
+     * @return 导入视图
+     */
+    public ImportView createManagedImport(long ownerId, CreateManagedImport request, MediaView media,
+                                          String correlationId) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("ownerId", ownerId);
+        payload.put("idempotencyKey", request.idempotencyKey());
+        payload.put("mediaItemId", media.id());
+        payload.put("mediaAssetId", media.assetId());
+        payload.put("title", media.displayName());
+        payload.put("mimeType", media.mimeType());
+        payload.put("sizeBytes", media.sizeBytes());
+        payload.put("contentSha256", media.contentSha256());
+        payload.put("rightsConfirmed", request.rightsConfirmed());
+        return exchangeImport(root() + "/api/v1/ebook-imports/managed-media", HttpMethod.POST,
+                payload, correlationId);
+    }
+
+    /**
      * 查询电子书导入任务。
      *
      * @param ownerId 所有者标识
@@ -236,6 +283,386 @@ public class ReaderGatewayClient {
             throw new IllegalStateException("Reader Service returned an empty response");
         }
         return response.getBody();
+    }
+
+    /**
+     * 创建有声书生成运行，并由 Gateway 注入可信所有者标识。
+     *
+     * @param ownerId 所有者标识
+     * @param request App 请求
+     * @param correlationId 关联标识
+     * @return 有声书生成运行
+     */
+    public AudiobookGenerationView createAudiobookGeneration(long ownerId, CreateAudiobookGeneration request,
+                                                              String correlationId) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("ownerId", ownerId);
+        payload.put("ebookAssetId", request.ebookAssetId());
+        payload.put("idempotencyKey", request.idempotencyKey());
+        payload.put("mode", request.mode());
+        payload.put("rightsConfirmed", request.rightsConfirmed());
+        return exchange(root() + "/api/v1/audiobook-generations", HttpMethod.POST, payload,
+                correlationId, AudiobookGenerationView.class);
+    }
+
+    /**
+     * 为已完成有声书版本创建或复用一个异步 ZIP 导出任务。
+     *
+     * @param ownerId 所有者标识
+     * @param generationId 已完成 generation 标识
+     * @param request App 请求
+     * @param correlationId 关联标识
+     * @return 导出任务摘要
+     */
+    public AudiobookExportView createAudiobookExport(long ownerId, UUID generationId,
+                                                      CreateAudiobookExport request, String correlationId) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("idempotencyKey", request.idempotencyKey());
+        payload.put("format", request.format());
+        return exchange(ownerUrl(root() + "/api/v1/audiobook-generations/" + generationId + "/exports", ownerId),
+                HttpMethod.POST, payload, correlationId, AudiobookExportView.class);
+    }
+
+    /**
+     * 为当前所有者创建一个仅替换单条音色绑定的有声书修订版本。
+     *
+     * @param ownerId 当前所有者标识
+     * @param sourceGenerationId 已完成源版本标识
+     * @param request App 修订请求
+     * @param correlationId 关联标识
+     * @return 修订版本摘要
+     */
+    public AudiobookGenerationView createAudiobookVoiceRevision(long ownerId, UUID sourceGenerationId,
+                                                                 CreateAudiobookVoiceRevision request,
+                                                                 String correlationId) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("idempotencyKey", request.idempotencyKey());
+        payload.put("roleKey", request.roleKey());
+        payload.put("provider", request.provider());
+        payload.put("voiceType", request.voiceType());
+        return exchange(ownerUrl(root() + "/api/v1/audiobook-generations/" + sourceGenerationId
+                        + "/voice-revisions", ownerId), HttpMethod.POST, payload, correlationId,
+                AudiobookGenerationView.class);
+    }
+
+    /**
+     * 转发当前主体一条低置信度说话人归因的不可变修订请求。
+     *
+     * @param ownerId 当前所有者标识
+     * @param sourceGenerationId 已完成源版本标识
+     * @param request 已经 Gateway 契约校验的修订请求
+     * @param correlationId 关联标识
+     * @return 已受理或复用的修订版本
+     */
+    public AudiobookGenerationView createAudiobookSpeakerRevision(long ownerId, UUID sourceGenerationId,
+                                                                   CreateAudiobookSpeakerRevision request,
+                                                                   String correlationId) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("idempotencyKey", request.idempotencyKey());
+        payload.put("chapterIndex", request.chapterIndex());
+        payload.put("sequenceNumber", request.sequenceNumber());
+        payload.put("speakerKind", request.speakerKind());
+        if (request.speakerCanonicalName() != null) {
+            payload.put("speakerCanonicalName", request.speakerCanonicalName());
+        }
+        return exchange(ownerUrl(root() + "/api/v1/audiobook-generations/" + sourceGenerationId
+                        + "/speaker-revisions", ownerId), HttpMethod.POST, payload, correlationId,
+                AudiobookGenerationView.class);
+    }
+
+    /**
+     * 为当前所有者创建读音词典修订，并由 Reader 受限执行器确定最小重生成范围。
+     *
+     * @param ownerId 当前所有者标识
+     * @param sourceGenerationId 已完成源版本标识
+     * @param request 已校验的读音修订请求
+     * @param correlationId 关联标识
+     * @return 已受理或复用的修订版本
+     */
+    public AudiobookGenerationView createAudiobookPronunciationRevision(long ownerId, UUID sourceGenerationId,
+                                                                         CreateAudiobookPronunciationRevision request,
+                                                                         String correlationId) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("idempotencyKey", request.idempotencyKey());
+        payload.put("term", request.term());
+        payload.put("pinyin", request.pinyin());
+        return exchange(ownerUrl(root() + "/api/v1/audiobook-generations/" + sourceGenerationId
+                        + "/pronunciation-revisions", ownerId), HttpMethod.POST, payload, correlationId,
+                AudiobookGenerationView.class);
+    }
+
+    /**
+     * 查询当前所有者的一条有声书生成运行。
+     *
+     * @param ownerId 所有者标识
+     * @param id 生成运行标识
+     * @param correlationId 关联标识
+     * @return 有声书生成运行
+     */
+    public AudiobookGenerationView audiobookGeneration(long ownerId, UUID id, String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/audiobook-generations/" + id, ownerId), HttpMethod.GET,
+                null, correlationId, AudiobookGenerationView.class);
+    }
+
+    /**
+     * 查询当前所有者一个版本已冻结的读音词典。
+     *
+     * @param ownerId 当前所有者标识
+     * @param generationId 有声书版本标识
+     * @param correlationId 关联标识
+     * @return 不含正文和密钥的词典视图
+     */
+    public AudiobookPronunciationDictionaryView audiobookPronunciationDictionary(long ownerId, UUID generationId,
+                                                                                   String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/audiobook-generations/" + generationId + "/pronunciations",
+                        ownerId), HttpMethod.GET, null, correlationId, AudiobookPronunciationDictionaryView.class);
+    }
+
+    /**
+     * 请求取消当前所有者一条仍在处理的有声书生成运行。
+     *
+     * @param ownerId 所有者标识
+     * @param id 生成运行标识
+     * @param correlationId 关联标识
+     * @return 取消已受理后的运行摘要
+     */
+    public AudiobookGenerationView cancelAudiobookGeneration(long ownerId, UUID id, String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/audiobook-generations/" + id + "/cancel", ownerId),
+                HttpMethod.POST, null, correlationId, AudiobookGenerationView.class);
+    }
+
+    /**
+     * 从当前所有者生成运行最后一个终态阶段重新提交任务。
+     *
+     * @param ownerId 所有者标识
+     * @param id 生成运行标识
+     * @param correlationId 关联标识
+     * @return 重试已受理后的运行摘要
+     */
+    public AudiobookGenerationView retryAudiobookGeneration(long ownerId, UUID id, String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/audiobook-generations/" + id + "/retry", ownerId),
+                HttpMethod.POST, null, correlationId, AudiobookGenerationView.class);
+    }
+
+    /**
+     * 查询当前所有者一个 generation 下的异步 ZIP 导出任务。
+     *
+     * @param ownerId 所有者标识
+     * @param generationId generation 标识
+     * @param exportId 导出标识
+     * @param correlationId 关联标识
+     * @return 导出任务摘要
+     */
+    public AudiobookExportView audiobookExport(long ownerId, UUID generationId, UUID exportId,
+                                               String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/audiobook-generations/" + generationId + "/exports/"
+                + exportId, ownerId), HttpMethod.GET, null, correlationId, AudiobookExportView.class);
+    }
+
+    /**
+     * 查询当前所有者的一份版本化章节播放清单。
+     *
+     * @param ownerId 所有者标识
+     * @param id 生成运行标识
+     * @param correlationId 关联标识
+     * @return 不含存储位置的播放清单
+     */
+    public AudiobookPlaybackManifest audiobookPlaybackManifest(long ownerId, UUID id, String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/audiobook-generations/" + id + "/playback-manifest", ownerId),
+                HttpMethod.GET, null, correlationId, AudiobookPlaybackManifest.class);
+    }
+
+    /**
+     * 查询当前所有者可审核的全书人物、关系和说话人归因。
+     *
+     * @param ownerId 所有者标识
+     * @param id 生成运行标识
+     * @param correlationId 关联标识
+     * @return 全书结构化分析视图
+     */
+    public AudiobookBookAnalysisView audiobookBookAnalysis(long ownerId, UUID id, String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/audiobook-generations/" + id + "/book-analysis", ownerId),
+                HttpMethod.GET, null, correlationId, AudiobookBookAnalysisView.class);
+    }
+
+    /**
+     * 查询当前所有者可审核的冻结音色计划。
+     *
+     * @param ownerId 所有者标识
+     * @param id 生成运行标识
+     * @param correlationId 关联标识
+     * @return 冻结音色计划
+     */
+    public AudiobookVoicePlanView audiobookVoicePlan(long ownerId, UUID id, String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/audiobook-generations/" + id + "/voice-plan", ownerId),
+                HttpMethod.GET, null, correlationId, AudiobookVoicePlanView.class);
+    }
+
+    /**
+     * 查询当前所有者审核某个有声书版本时可选择的已启用音色目录。
+     *
+     * @param ownerId 当前所有者标识
+     * @param id 有声书版本标识
+     * @param correlationId 关联标识
+     * @return 不含供应商密钥的音色目录
+     */
+    public AudiobookVoiceCatalogView audiobookVoiceCatalog(long ownerId, UUID id, String correlationId) {
+        return exchange(ownerUrl(root() + "/api/v1/audiobook-generations/" + id + "/voice-catalog", ownerId),
+                HttpMethod.GET, null, correlationId, AudiobookVoiceCatalogView.class);
+    }
+
+    /**
+     * 将当前所有者一个已就绪的章节音频流式转发给 Gateway 响应。
+     *
+     * @param ownerId 所有者标识
+     * @param generationId 生成运行标识
+     * @param chapterIndex 章节序号
+     * @param range 可选的客户端字节范围
+     * @param response Gateway HTTP 响应
+     * @param correlationId 关联标识
+     */
+    public void streamAudiobookChapter(long ownerId, UUID generationId, int chapterIndex, String range,
+                                       HttpServletResponse response, String correlationId) {
+        HttpURLConnection connection = null;
+        try {
+            URI url = UriComponentsBuilder.fromHttpUrl(root() + "/api/v1/audiobook-generations/" + generationId
+                            + "/chapters/" + chapterIndex + "/audio")
+                    .queryParam("ownerId", ownerId).build().encode().toUri();
+            connection = (HttpURLConnection) url.toURL().openConnection();
+            if (properties.readerToken() == null || properties.readerToken().isBlank()) {
+                throw new GatewayUnauthorizedException();
+            }
+            connection.setRequestProperty(HttpHeaders.AUTHORIZATION, "Bearer " + properties.readerToken());
+            connection.setRequestProperty("X-Correlation-Id", correlationId);
+            connection.setRequestProperty(HttpHeaders.ACCEPT_ENCODING, "identity");
+            if (range != null && !range.isBlank()) {
+                connection.setRequestProperty(HttpHeaders.RANGE, range);
+            }
+            connection.setConnectTimeout(properties.connectTimeoutMillis());
+            connection.setReadTimeout(Math.max(properties.readTimeoutMillis(), 120_000));
+            int status = connection.getResponseCode();
+            response.setStatus(status);
+            copyHeader(connection, response, HttpHeaders.CONTENT_TYPE);
+            copyHeader(connection, response, HttpHeaders.CONTENT_LENGTH);
+            copyHeader(connection, response, HttpHeaders.CONTENT_RANGE);
+            copyHeader(connection, response, HttpHeaders.ACCEPT_RANGES);
+            if (status < 200 || status >= 300) {
+                return;
+            }
+            try (var input = connection.getInputStream(); var output = response.getOutputStream()) {
+                input.transferTo(output);
+            }
+        } catch (GatewayUnauthorizedException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new GatewayDownstreamException();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    /**
+     * 将当前所有者一条已审核音色样音流式转发给 Gateway 响应。
+     *
+     * @param ownerId 所有者标识
+     * @param generationId 生成运行标识
+     * @param provider 音色供应商标识
+     * @param voiceType 音色标识
+     * @param range 可选的客户端字节范围
+     * @param response Gateway HTTP 响应
+     * @param correlationId 关联标识
+     */
+    public void streamAudiobookVoicePreview(long ownerId, UUID generationId, String provider, String voiceType,
+                                            String range, HttpServletResponse response, String correlationId) {
+        HttpURLConnection connection = null;
+        try {
+            URI url = UriComponentsBuilder.fromHttpUrl(root() + "/api/v1/audiobook-generations/" + generationId
+                            + "/voice-preview/audio")
+                    .queryParam("ownerId", ownerId).queryParam("provider", provider)
+                    .queryParam("voiceType", voiceType).build().encode().toUri();
+            connection = (HttpURLConnection) url.toURL().openConnection();
+            if (properties.readerToken() == null || properties.readerToken().isBlank()) {
+                throw new GatewayUnauthorizedException();
+            }
+            connection.setRequestProperty(HttpHeaders.AUTHORIZATION, "Bearer " + properties.readerToken());
+            connection.setRequestProperty("X-Correlation-Id", correlationId);
+            connection.setRequestProperty(HttpHeaders.ACCEPT_ENCODING, "identity");
+            if (range != null && !range.isBlank()) {
+                connection.setRequestProperty(HttpHeaders.RANGE, range);
+            }
+            connection.setConnectTimeout(properties.connectTimeoutMillis());
+            connection.setReadTimeout(Math.max(properties.readTimeoutMillis(), 120_000));
+            int status = connection.getResponseCode();
+            response.setStatus(status);
+            copyHeader(connection, response, HttpHeaders.CONTENT_TYPE);
+            copyHeader(connection, response, HttpHeaders.CONTENT_LENGTH);
+            copyHeader(connection, response, HttpHeaders.CONTENT_RANGE);
+            copyHeader(connection, response, HttpHeaders.ACCEPT_RANGES);
+            if (status < 200 || status >= 300) {
+                return;
+            }
+            try (var input = connection.getInputStream(); var output = response.getOutputStream()) {
+                input.transferTo(output);
+            }
+        } catch (GatewayUnauthorizedException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new GatewayDownstreamException();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    /**
+     * 将当前所有者一个已完成的整书 ZIP 导出归档流式转发给 Gateway 响应。
+     *
+     * @param ownerId 所有者标识
+     * @param generationId generation 标识
+     * @param exportId 导出标识
+     * @param response Gateway HTTP 响应
+     * @param correlationId 关联标识
+     */
+    public void streamAudiobookExport(long ownerId, UUID generationId, UUID exportId,
+                                      HttpServletResponse response, String correlationId) {
+        HttpURLConnection connection = null;
+        try {
+            URI url = UriComponentsBuilder.fromHttpUrl(root() + "/api/v1/audiobook-generations/" + generationId
+                            + "/exports/" + exportId + "/archive")
+                    .queryParam("ownerId", ownerId).build().encode().toUri();
+            connection = (HttpURLConnection) url.toURL().openConnection();
+            if (properties.readerToken() == null || properties.readerToken().isBlank()) {
+                throw new GatewayUnauthorizedException();
+            }
+            connection.setRequestProperty(HttpHeaders.AUTHORIZATION, "Bearer " + properties.readerToken());
+            connection.setRequestProperty("X-Correlation-Id", correlationId);
+            connection.setRequestProperty(HttpHeaders.ACCEPT_ENCODING, "identity");
+            connection.setConnectTimeout(properties.connectTimeoutMillis());
+            connection.setReadTimeout(Math.max(properties.readTimeoutMillis(), 120_000));
+            int status = connection.getResponseCode();
+            response.setStatus(status);
+            copyHeader(connection, response, HttpHeaders.CONTENT_TYPE);
+            copyHeader(connection, response, HttpHeaders.CONTENT_LENGTH);
+            copyHeader(connection, response, HttpHeaders.CONTENT_DISPOSITION);
+            copyHeader(connection, response, HttpHeaders.CACHE_CONTROL);
+            if (status < 200 || status >= 300) {
+                return;
+            }
+            try (var input = connection.getInputStream(); var output = response.getOutputStream()) {
+                input.transferTo(output);
+            }
+        } catch (GatewayUnauthorizedException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new GatewayDownstreamException();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
     }
 
     /**
@@ -425,11 +852,24 @@ public class ReaderGatewayClient {
     }
 
     private <T> T exchange(String url, HttpMethod method, Object body, String correlationId, Class<T> type) {
-        var response = restTemplate.exchange(url, method, entity(body, correlationId), type);
-        if (response.getBody() == null) {
-            throw new IllegalStateException("Reader Service returned an empty response");
+        try {
+            var response = restTemplate.exchange(url, method, entity(body, correlationId), type);
+            if (response.getBody() == null) {
+                throw new IllegalStateException("Reader Service returned an empty response");
+            }
+            return response.getBody();
+        } catch (HttpClientErrorException exception) {
+            throw readerRejection(exception);
         }
-        return response.getBody();
+    }
+
+    private RuntimeException readerRejection(HttpClientErrorException exception) {
+        Matcher matcher = READER_ERROR_CODE.matcher(exception.getResponseBodyAsString());
+        if (!matcher.find()) {
+            return new GatewayDownstreamException();
+        }
+        // 只把格式受限的 Reader 业务错误码透传给 App，避免下游错误正文进入公共接口。
+        return new GatewayReaderRejectedException(exception.getStatusCode(), matcher.group(1));
     }
 
     private HttpEntity<?> entity(Object body, String correlationId) {
@@ -441,6 +881,13 @@ public class ReaderGatewayClient {
         headers.set("X-Correlation-Id", correlationId);
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(body, headers);
+    }
+
+    private void copyHeader(HttpURLConnection connection, HttpServletResponse response, String name) {
+        String value = connection.getHeaderField(name);
+        if (value != null && !value.isBlank()) {
+            response.setHeader(name, value);
+        }
     }
 
     private String root() {

@@ -330,7 +330,7 @@ export class AuthorizedApiClient {
       const bytes = new util.TextEncoder().encodeInto(text).length;
       return {
         status: response.responseCode,
-        envelope: this.policy.envelope(text, bytes)
+        envelope: this.policy.responseEnvelope(response.responseCode, text, bytes)
       };
     } catch (error) {
       this.throwIfCancelled(cancellation);

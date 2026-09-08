@@ -187,7 +187,6 @@ def input_from_context(context: dict) -> tuple[str, str]:
     if not storage_uri:
         previous = context.get("stepOutputs", {}).get("import_ebook", {})
         storage_uri = str(previous.get("storageUri") or "")
-        file_name = file_name or str(previous.get("title") or "Imported book") + ".txt"
     if not storage_uri:
         raise ValueError("Metadata input storage URI is missing")
     if not file_name:

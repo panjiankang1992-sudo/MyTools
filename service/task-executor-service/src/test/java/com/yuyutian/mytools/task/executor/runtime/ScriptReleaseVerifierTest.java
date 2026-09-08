@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ScriptReleaseVerifierTest {
@@ -28,6 +29,12 @@ class ScriptReleaseVerifierTest {
         ScriptReleaseVerifier verifier = new ScriptReleaseVerifier(properties, new ObjectMapper());
 
         assertDoesNotThrow(() -> verifier.verifyEntrypoint("sample", "1.0.0", "scripts/main.py", script));
+        String releaseDigest = verifier.releaseDigests().get("sample:1.0.0");
+        assertEquals(64, releaseDigest.length());
+        assertDoesNotThrow(() -> verifier.verifyEntrypoint(
+                "sample", "1.0.0", "scripts/main.py", script, releaseDigest));
+        assertThrows(IllegalArgumentException.class, () -> verifier.verifyEntrypoint(
+                "sample", "1.0.0", "scripts/main.py", script, "0".repeat(64)));
         Files.writeString(script, "print('changed')\n", StandardCharsets.UTF_8);
         assertThrows(IllegalArgumentException.class,
                 () -> verifier.verifyEntrypoint("sample", "1.0.0", "scripts/main.py", script));

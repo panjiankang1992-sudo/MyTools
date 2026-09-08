@@ -11,6 +11,7 @@ import java.util.UUID;
  * @param stepKind 步骤种类
  * @param scriptPackage 脚本包
  * @param scriptVersion 脚本版本
+ * @param scriptReleaseDigest 脚本发布内容摘要
  * @param entrypoint 入口文件
  * @param argumentsTemplate 参数模板
  * @param timeoutSeconds 超时时间
@@ -24,6 +25,7 @@ public record ClaimedStep(
         String stepKind,
         String scriptPackage,
         String scriptVersion,
+        String scriptReleaseDigest,
         String entrypoint,
         List<String> argumentsTemplate,
         long timeoutSeconds,
@@ -31,4 +33,13 @@ public record ClaimedStep(
         int sequenceNumber,
         int maxAttempts
 ) {
+    /**
+     * 创建兼容旧领取协议的步骤。
+     */
+    public ClaimedStep(UUID stepDefinitionId, String name, String stepKind, String scriptPackage,
+                       String scriptVersion, String entrypoint, List<String> argumentsTemplate,
+                       long timeoutSeconds, String failurePolicy, int sequenceNumber, int maxAttempts) {
+        this(stepDefinitionId, name, stepKind, scriptPackage, scriptVersion, null, entrypoint,
+                argumentsTemplate, timeoutSeconds, failurePolicy, sequenceNumber, maxAttempts);
+    }
 }

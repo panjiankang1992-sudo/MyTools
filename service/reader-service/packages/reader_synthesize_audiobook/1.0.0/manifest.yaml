@@ -1,0 +1,23 @@
+name: reader_synthesize_audiobook
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - storage_gateway_read
+  - storage_gateway_upload
+  - reader_internal_read
+  - reader_internal_write
+  - asset_registry_register
+  - volcengine_tts
+parameters:
+  required:
+    - generationId
+    - ownerId
+    - storageRoot
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 21600
+  maxChapterBytes: 10485760
+  maxSegmentUtf8Bytes: 900
+  maxChapters: 20000

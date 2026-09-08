@@ -28,9 +28,10 @@ class JsonHandler(BaseHTTPRequestHandler):
         """Return the configured response for the request path."""
 
         status, payload = self.routes.get(self.path, (404, {"code": "missing"}))
-        body = json.dumps(payload).encode("utf-8")
+        body = payload.encode("utf-8") if isinstance(payload, str) else json.dumps(payload).encode("utf-8")
         self.send_response(status)
-        self.send_header("Content-Type", "application/json")
+        content_type = "text/plain" if isinstance(payload, str) else "application/json"
+        self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -86,6 +87,58 @@ class VerifyDeploymentTest(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "default-off"):
             verifier.verify_gateway_default_off("127.0.0.1", self.server.server_port, 0.2)
+
+    def test_accepts_reliability_metrics_with_service_labels(self) -> None:
+        scheduler = self.prometheus_payload("task-scheduler-service")
+        executor = self.prometheus_payload("task-executor-service")
+        JsonHandler.routes = {
+            "/actuator/prometheus": (200, scheduler + executor),
+        }
+        ports = {
+            "task-scheduler-service": self.server.server_port,
+            "task-executor-service": self.server.server_port,
+        }
+
+        count = verifier.verify_reliability_metrics("127.0.0.1", ports, 0.2)
+
+        self.assertEqual(15, count)
+
+    def test_rejects_missing_reliability_metric(self) -> None:
+        scheduler = self.prometheus_payload("task-scheduler-service")
+        executor = self.prometheus_payload("task-executor-service").replace(
+            'task_executor_journal_pending{application="task-executor-service"} 0\n', ""
+        )
+        JsonHandler.routes = {"/actuator/prometheus": (200, scheduler + executor)}
+        ports = {name: self.server.server_port for name in verifier.RELIABILITY_METRICS}
+
+        with self.assertRaisesRegex(ValueError, "task_executor_journal_pending"):
+            verifier.verify_reliability_metrics("127.0.0.1", ports, 0.2)
+
+    def test_rejects_reliability_metric_with_wrong_application_label(self) -> None:
+        payload = self.prometheus_payload("task-scheduler-service").replace(
+            'application="task-scheduler-service"', 'application="wrong-service"'
+        ) + self.prometheus_payload("task-executor-service")
+        JsonHandler.routes = {"/actuator/prometheus": (200, payload)}
+        ports = {name: self.server.server_port for name in verifier.RELIABILITY_METRICS}
+
+        with self.assertRaisesRegex(ValueError, "task_outbox_backlog"):
+            verifier.verify_reliability_metrics("127.0.0.1", ports, 0.2)
+
+    def test_rejects_failed_prometheus_endpoint_without_leaking_body(self) -> None:
+        JsonHandler.routes = {"/actuator/prometheus": (503, "secret-response-body")}
+        ports = {name: self.server.server_port for name in verifier.RELIABILITY_METRICS}
+
+        with self.assertRaisesRegex(ValueError, "Prometheus endpoint failed: task-scheduler-service") as error:
+            verifier.verify_reliability_metrics("127.0.0.1", ports, 0.2)
+        self.assertNotIn("secret-response-body", str(error.exception))
+
+    def prometheus_payload(self, service_name: str) -> str:
+        """Build the required metric exposition for one service."""
+
+        return "".join(
+            f'{metric}{{application="{service_name}"}} 0\n'
+            for metric in verifier.RELIABILITY_METRICS[service_name]
+        )
 
 
 if __name__ == "__main__":

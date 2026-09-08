@@ -7,6 +7,7 @@ import java.util.UUID;
  * 电子书导入视图。
  *
  * @param id 请求标识
+ * @param ebookAssetId 已完成导入的 Reader 电子书资产标识
  * @param taskId 调度任务标识
  * @param status 状态
  * @param sourceId 书源标识
@@ -20,7 +21,7 @@ import java.util.UUID;
  * @param createdAt 创建时间
  * @param updatedAt 更新时间
  */
-public record EbookImportView(UUID id, UUID taskId, String status, UUID sourceId, int sourceVersion,
+public record EbookImportView(UUID id, UUID ebookAssetId, UUID taskId, String status, UUID sourceId, int sourceVersion,
                               String title, String author, Integer chapterCount, Long outputSize,
                               String sha256, String storageUri, Instant createdAt, Instant updatedAt) {
 }

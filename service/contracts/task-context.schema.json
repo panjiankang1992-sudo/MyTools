@@ -4,10 +4,11 @@
   "title": "TaskStepContext",
   "type": "object",
   "additionalProperties": false,
-  "required": ["taskInstanceId", "executionId", "taskName", "taskDeadlineAt", "stepDefinitionId", "stepName", "attempt", "parameters", "stepOutputs"],
+  "required": ["taskInstanceId", "executionId", "fencingToken", "taskName", "taskDeadlineAt", "stepDefinitionId", "stepName", "attempt", "parameters", "stepOutputs"],
   "properties": {
     "taskInstanceId": { "type": "string", "format": "uuid" },
     "executionId": { "type": "string", "format": "uuid" },
+    "fencingToken": { "type": "integer", "minimum": 1 },
     "parentTaskInstanceId": { "type": ["string", "null"], "format": "uuid" },
     "taskName": { "type": "string" },
     "taskDeadlineAt": { "type": "string", "format": "date-time" },

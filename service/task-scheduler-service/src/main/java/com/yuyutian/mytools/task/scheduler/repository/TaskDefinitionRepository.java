@@ -4,6 +4,8 @@ import com.yuyutian.mytools.task.scheduler.model.CreateTaskDefinitionRequest;
 import com.yuyutian.mytools.task.scheduler.model.ExecutionMode;
 import com.yuyutian.mytools.task.scheduler.model.TaskDefinitionView;
 import com.yuyutian.mytools.task.scheduler.model.TaskType;
+import com.yuyutian.mytools.task.scheduler.model.ChildAggregationPolicy;
+import com.yuyutian.mytools.task.scheduler.model.ChildAggregationStrategy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,14 +51,16 @@ public class TaskDefinitionRepository {
                 INSERT INTO task_definition (
                     id, name, description, task_type, timeout_seconds, cluster_id, cron_expression,
                     cron_timezone, execution_mode, enabled, max_concurrency, overlap_policy,
-                    misfire_policy, parameter_schema, result_schema, version, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    misfire_policy, parameter_schema, result_schema, child_aggregation_policy_json,
+                    version, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 id.toString(), request.name(), request.description(), request.taskType().name(),
                 request.timeoutSeconds(), uuidText(request.clusterId()), request.cronExpression(),
                 request.cronTimezone(), request.executionMode().name(), request.enabled(),
                 request.maxConcurrency(), request.overlapPolicy(), request.misfirePolicy(),
                 jsonColumnMapper.write(request.parameterSchema()), jsonColumnMapper.write(request.resultSchema()),
+                jsonColumnMapper.write(policyMap(request.normalizedChildAggregationPolicy())),
                 1, Timestamp.from(now), Timestamp.from(now));
         return findById(id).orElseThrow();
     }
@@ -95,20 +100,24 @@ public class TaskDefinitionRepository {
     }
 
     /**
-     * 查询每个名称的最新启用定时任务定义。
+     * 查询尚未初始化游标的有限数量最新定时定义。
      *
-     * @return 定时任务定义列表
+     * @param limit 最大返回数量
+     * @return 待初始化定义
      */
-    public List<TaskDefinitionView> findLatestEnabledScheduled() {
+    public List<TaskDefinitionView> findScheduledWithoutCursor(int limit) {
         return jdbcTemplate.query("""
                 SELECT td.* FROM task_definition td
-                WHERE td.task_type = 'SCHEDULED' AND td.enabled = TRUE
+                LEFT JOIN task_schedule_cursor sc ON sc.task_definition_id = td.id
+                WHERE sc.task_definition_id IS NULL
+                  AND td.task_type = 'SCHEDULED' AND td.enabled = TRUE
                   AND td.version = (
                       SELECT MAX(latest.version) FROM task_definition latest
                       WHERE latest.name = td.name AND latest.enabled = TRUE
                   )
-                ORDER BY td.name
-                """, this::mapRow);
+                ORDER BY td.id
+                LIMIT ?
+                """, this::mapRow, limit);
     }
 
     private TaskDefinitionView mapRow(ResultSet resultSet, int rowNumber) throws SQLException {
@@ -121,9 +130,29 @@ public class TaskDefinitionRepository {
                 ExecutionMode.valueOf(resultSet.getString("execution_mode")), resultSet.getBoolean("enabled"),
                 resultSet.getInt("max_concurrency"), resultSet.getString("overlap_policy"),
                 resultSet.getString("misfire_policy"), jsonColumnMapper.read(resultSet.getString("parameter_schema")),
-                jsonColumnMapper.read(resultSet.getString("result_schema")), resultSet.getInt("version"),
+                jsonColumnMapper.read(resultSet.getString("result_schema")), childAggregationPolicy(resultSet),
+                resultSet.getInt("version"),
                 resultSet.getTimestamp("created_at").toInstant(), resultSet.getTimestamp("updated_at").toInstant()
         );
+    }
+
+    private Map<String, Object> policyMap(ChildAggregationPolicy policy) {
+        Map<String, Object> value = new java.util.LinkedHashMap<>();
+        value.put("strategy", policy.strategy().name());
+        value.put("minSuccessCount", policy.minSuccessCount());
+        return value;
+    }
+
+    private ChildAggregationPolicy childAggregationPolicy(ResultSet resultSet) throws SQLException {
+        String value = resultSet.getString("child_aggregation_policy_json");
+        if (value == null || value.isBlank()) {
+            return ChildAggregationPolicy.allSuccess();
+        }
+        Map<String, Object> policy = jsonColumnMapper.read(value);
+        Object strategy = policy.get("strategy");
+        Object minimum = policy.get("minSuccessCount");
+        return new ChildAggregationPolicy(ChildAggregationStrategy.valueOf(String.valueOf(strategy)),
+                minimum instanceof Number number ? number.intValue() : null);
     }
 
     private String uuidText(UUID id) {

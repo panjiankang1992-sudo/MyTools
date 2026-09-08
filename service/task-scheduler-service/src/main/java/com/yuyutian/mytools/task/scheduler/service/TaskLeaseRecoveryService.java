@@ -18,17 +18,21 @@ public class TaskLeaseRecoveryService {
 
     private final JdbcTemplate jdbcTemplate;
     private final MultiNodeTaskAggregationService multiNodeTaskAggregationService;
+    private final TaskEventService taskEventService;
 
     /**
      * 创建过期执行租约回收服务。
      *
      * @param jdbcTemplate JDBC 模板
      * @param multiNodeTaskAggregationService 多节点聚合服务
+     * @param taskEventService 任务事件服务
      */
     public TaskLeaseRecoveryService(JdbcTemplate jdbcTemplate,
-                                    MultiNodeTaskAggregationService multiNodeTaskAggregationService) {
+                                    MultiNodeTaskAggregationService multiNodeTaskAggregationService,
+                                    TaskEventService taskEventService) {
         this.jdbcTemplate = jdbcTemplate;
         this.multiNodeTaskAggregationService = multiNodeTaskAggregationService;
+        this.taskEventService = taskEventService;
     }
 
     /**
@@ -58,9 +62,10 @@ public class TaskLeaseRecoveryService {
             // 条件更新避免与恰好到达的续租请求争用同一个执行。
             int updated = jdbcTemplate.update("""
                     UPDATE task_execution
-                    SET status = 'TIMED_OUT', finished_at = ?, updated_at = ?
+                    SET status = 'TIMED_OUT', finished_at = ?, lease_lost_at = ?, updated_at = ?
                     WHERE id = ? AND status = 'RUNNING' AND lease_until < ?
-                    """, Timestamp.from(now), Timestamp.from(now), executionId.toString(), Timestamp.from(now));
+                    """, Timestamp.from(now), Timestamp.from(now), Timestamp.from(now), executionId.toString(),
+                    Timestamp.from(now));
             if (updated == 1) {
                 recoverTaskInstance(executionId, now);
                 recovered++;
@@ -95,33 +100,55 @@ public class TaskLeaseRecoveryService {
             return;
         }
         String targetStatus;
+        Instant availableAt = null;
         if ("CANCELLING".equals(candidate.status())) {
             targetStatus = "CANCELLED";
         } else if (candidate.dispatchAttempts() < candidate.maxDispatchAttempts()) {
             targetStatus = "QUEUED";
+            availableAt = retryAt(candidate.taskInstanceId(), candidate.dispatchAttempts(), now);
         } else {
             targetStatus = "TIMED_OUT";
         }
-        jdbcTemplate.update("""
-                UPDATE task_instance SET status = ?, progress = 0, updated_at = ?
+        int updated = jdbcTemplate.update("""
+                UPDATE task_instance SET status = ?, progress = 0, available_at = ?, updated_at = ?
                 WHERE id = ? AND status IN ('RUNNING', 'CANCELLING')
-                """, targetStatus, Timestamp.from(now), candidate.taskInstanceId().toString());
+                """, targetStatus, timestamp(availableAt), Timestamp.from(now), candidate.taskInstanceId().toString());
+        if (updated == 1 && !"QUEUED".equals(targetStatus)) {
+            taskEventService.appendTransition(candidate.taskInstanceId(), candidate.status(), targetStatus,
+                    executionId.toString(), "EXECUTION_LEASE_EXPIRED", 0, now);
+        } else if (updated == 1) {
+            taskEventService.appendTransition(candidate.taskInstanceId(), candidate.status(), targetStatus,
+                    executionId.toString(), "EXECUTION_RETRY_SCHEDULED", 0, now);
+        }
     }
 
     private void recoverExecutionTarget(RecoveryCandidate candidate, Instant now) {
         String targetStatus;
+        Instant availableAt = null;
         if ("CANCELLING".equals(candidate.status())) {
             targetStatus = "CANCELLED";
         } else if (candidate.targetDispatchAttempts() < candidate.targetMaxDispatchAttempts()) {
             targetStatus = "QUEUED";
+            availableAt = retryAt(candidate.targetId(), candidate.targetDispatchAttempts(), now);
         } else {
             targetStatus = "TIMED_OUT";
         }
         jdbcTemplate.update("""
-                UPDATE task_execution_target SET status = ?, updated_at = ?
+                UPDATE task_execution_target SET status = ?, available_at = ?, updated_at = ?
                 WHERE id = ? AND status = 'RUNNING'
-                """, targetStatus, Timestamp.from(now), candidate.targetId().toString());
+                """, targetStatus, timestamp(availableAt), Timestamp.from(now), candidate.targetId().toString());
         multiNodeTaskAggregationService.aggregate(candidate.taskInstanceId(), now);
+    }
+
+    private Instant retryAt(UUID id, int attempt, Instant now) {
+        int boundedAttempt = Math.max(1, Math.min(attempt, 8));
+        long baseSeconds = Math.min(300L, 1L << boundedAttempt);
+        long jitterMillis = Math.floorMod(id.getLeastSignificantBits(), Math.max(1L, baseSeconds * 250L));
+        return now.plusSeconds(baseSeconds).plusMillis(jitterMillis);
+    }
+
+    private Timestamp timestamp(Instant value) {
+        return value == null ? null : Timestamp.from(value);
     }
 
     private record RecoveryCandidate(UUID taskInstanceId, String status, int dispatchAttempts,

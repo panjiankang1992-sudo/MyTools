@@ -1,0 +1,19 @@
+name: reader_prepare_audiobook_pronunciation_revision
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - storage_gateway_read
+  - reader_internal_read
+  - reader_internal_write
+parameters:
+  required:
+    - generationId
+    - ownerId
+    - storageRoot
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 21600
+  maxChapterBytes: 10485760
+  maxChapters: 20000

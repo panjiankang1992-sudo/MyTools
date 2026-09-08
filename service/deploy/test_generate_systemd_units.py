@@ -113,7 +113,7 @@ class GenerateSystemdUnitsTest(unittest.TestCase):
         service = generator.onebot_relogin_service("/opt/yuyutian/mytools")
         path = generator.onebot_relogin_path("/opt/yuyutian/mytools")
 
-        self.assertIn("docker restart --time 30 downloadbot-napcat", service)
+        self.assertIn("docker restart --time 3 downloadbot-napcat", service)
         self.assertIn("rm -f /opt/napcat/cache/qrcode.png", service)
         self.assertIn("PathExists=/opt/yuyutian/mytools/runtime/onebot/relogin.request", path)
         self.assertNotIn("%", service + path)

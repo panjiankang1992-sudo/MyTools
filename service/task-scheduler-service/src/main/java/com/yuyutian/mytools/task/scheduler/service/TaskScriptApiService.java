@@ -46,12 +46,6 @@ public class TaskScriptApiService {
     @Transactional
     public TaskInstanceView createChild(UUID executionId, CreateChildTaskRequest request) {
         UUID currentTaskId = requireActiveLease(executionId, request.leaseToken());
-        int childCount = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM task_instance WHERE parent_task_instance_id = ?",
-                Integer.class, currentTaskId.toString());
-        if (childCount >= 1000) {
-            throw new IllegalStateException("Direct child task limit was reached");
-        }
         return taskInstanceService.create(new CreateTaskRequest(
                 request.taskName(), request.idempotencyKey(), request.businessType(), request.businessId(),
                 currentTaskId, request.priority(), request.parameters(), request.requiredNodeLabels()));

@@ -13,6 +13,29 @@ from pathlib import Path
 from typing import Any, Sequence
 
 
+RELIABILITY_METRICS = {
+    "task-scheduler-service": (
+        "task_outbox_backlog",
+        "task_outbox_oldest_age_seconds",
+        "task_outbox_dead",
+        "task_executor_clusters_unavailable",
+        "task_executor_tasks_blocked",
+        "task_queue_depth",
+        "task_queue_wait_seconds",
+        "task_execution_running",
+        "task_lease_lost_total",
+        "task_execution_seconds_count",
+        "task_execution_seconds_sum",
+    ),
+    "task-executor-service": (
+        "task_executor_journal_readable",
+        "task_executor_journal_pending",
+        "task_executor_journal_diagnostic",
+        "task_executor_journal_retry_delay_seconds",
+    ),
+}
+
+
 def request_json(url: str, timeout: float) -> tuple[int, Any]:
     """Request JSON while preserving expected HTTP error responses."""
 
@@ -24,6 +47,18 @@ def request_json(url: str, timeout: float) -> tuple[int, Any]:
     with response:
         payload = response.read().decode("utf-8")
         return response.status, json.loads(payload) if payload else None
+
+
+def request_text(url: str, timeout: float) -> tuple[int, str]:
+    """Request plain text while preserving expected HTTP error responses."""
+
+    request = urllib.request.Request(url, headers={"Accept": "text/plain"})
+    try:
+        response = urllib.request.urlopen(request, timeout=timeout)
+    except urllib.error.HTTPError as error:
+        response = error
+    with response:
+        return response.status, response.read().decode("utf-8")
 
 
 def service_health_url(host: str, service: dict[str, Any]) -> str:
@@ -90,6 +125,40 @@ def verify_gateway_default_off(host: str, gateway_port: int, request_timeout: fl
         raise ValueError("Gateway default-off check failed")
 
 
+def verify_reliability_metrics(
+    host: str,
+    service_ports: dict[str, int],
+    request_timeout: float,
+) -> int:
+    """Require Scheduler and Executor operational metrics with stable service labels."""
+
+    verified = 0
+    for service_name, required_metrics in RELIABILITY_METRICS.items():
+        port = service_ports.get(service_name)
+        if port is None:
+            raise ValueError(f"reliability metric service is missing: {service_name}")
+        status, payload = request_text(
+            f"http://{host}:{port}/actuator/prometheus", request_timeout
+        )
+        if status != 200:
+            raise ValueError(f"Prometheus endpoint failed: {service_name}")
+        lines = tuple(line for line in payload.splitlines() if line and not line.startswith("#"))
+        missing = [
+            metric for metric in required_metrics
+            if not any(
+                line.startswith(metric + "{")
+                and f'application="{service_name}"' in line.split("}", 1)[0]
+                for line in lines
+            )
+        ]
+        if missing:
+            raise ValueError(
+                f"reliability metrics missing for {service_name}: " + ", ".join(missing)
+            )
+        verified += len(required_metrics)
+    return verified
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Run deployment acceptance checks against one host."""
 
@@ -114,13 +183,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             raise ValueError("services not healthy: " + ", ".join(pending))
         scheduler = next(service for service in services if service["name"] == "task-scheduler-service")
         online = verify_executor(arguments.host, scheduler["port"], arguments.request_timeout)
+        service_ports = {service["name"]: service["port"] for service in services}
+        verified_metrics = verify_reliability_metrics(
+            arguments.host, service_ports, arguments.request_timeout
+        )
         if not arguments.skip_gateway_default_off:
             gateway = next(service for service in services if service["name"] == "mytools-gateway")
             verify_gateway_default_off(arguments.host, gateway["port"], arguments.request_timeout)
     except (KeyError, OSError, StopIteration, ValueError, json.JSONDecodeError) as error:
         print(str(error), file=sys.stderr)
         return 2
-    print(f"Deployment verified: {len(services)} services healthy, {len(online)} Executor node(s) online")
+    print(
+        f"Deployment verified: {len(services)} services healthy, "
+        f"{len(online)} Executor node(s) online, {verified_metrics} reliability metrics exported"
+    )
     return 0
 
 

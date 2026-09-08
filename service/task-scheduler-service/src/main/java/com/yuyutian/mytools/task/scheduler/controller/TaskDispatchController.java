@@ -3,6 +3,7 @@ package com.yuyutian.mytools.task.scheduler.controller;
 import com.yuyutian.mytools.task.scheduler.model.ClaimTaskRequest;
 import com.yuyutian.mytools.task.scheduler.model.ClaimedTaskView;
 import com.yuyutian.mytools.task.scheduler.model.CompleteExecutionRequest;
+import com.yuyutian.mytools.task.scheduler.model.ExecutionReportView;
 import com.yuyutian.mytools.task.scheduler.model.LeaseHeartbeatRequest;
 import com.yuyutian.mytools.task.scheduler.model.LeaseHeartbeatView;
 import com.yuyutian.mytools.task.scheduler.model.ReportStepExecutionRequest;
@@ -66,9 +67,9 @@ public class TaskDispatchController {
      * @param request 步骤结果
      */
     @PostMapping("/{executionId}/steps/report")
-    public void reportStep(@PathVariable UUID executionId,
-                           @Valid @RequestBody ReportStepExecutionRequest request) {
-        service.reportStep(executionId, request);
+    public ExecutionReportView reportStep(@PathVariable UUID executionId,
+                                          @Valid @RequestBody ReportStepExecutionRequest request) {
+        return service.reportStep(executionId, request);
     }
 
     /**
@@ -78,8 +79,8 @@ public class TaskDispatchController {
      * @param request 完成请求
      */
     @PostMapping("/{executionId}/complete")
-    public void complete(@PathVariable UUID executionId,
-                         @Valid @RequestBody CompleteExecutionRequest request) {
-        service.complete(executionId, request);
+    public ExecutionReportView complete(@PathVariable UUID executionId,
+                                        @Valid @RequestBody CompleteExecutionRequest request) {
+        return service.complete(executionId, request);
     }
 }
