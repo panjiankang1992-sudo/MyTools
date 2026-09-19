@@ -44,6 +44,9 @@ sys.path.insert(0, '/opt/yuyutian/mytools/runtime/video-generation/ops-python')
 ROOT = Path('/opt/yuyutian/mytools')
 NAME = 'video-production-20260914-v1'
 RELEASE = ROOT / 'releases' / NAME
+# 历史里程碑的脚本包根：基线若缺少其中的同名新版本，发布会把它们一并带上。
+BASELINE_PACKAGE_ROOTS = [ROOT / 'releases' / name / 'task-packages' for name in (
+    'image-extension-20260914-v3', 'image-extension-20260914-v2', 'image-production-20260913-v1')]
 STATE = ROOT / 'runtime' / NAME
 SOURCE = Path('/tmp') / NAME
 COMFY = ROOT / 'runtime/video-generation/runtime-v1'
@@ -282,6 +285,52 @@ def current_executor_jar():
     return path
 
 
+def current_script_root():
+    """取线上执行器实际在用的脚本包根。
+
+    不能读 config/image-generation.env 里的旧值：那是 image-production 的包根，
+    只带 image_generate 1.0.0；而任务定义可能已经钉到 1.1.x，节点声明不出来就会导致
+    图片任务排到派发超时。以运行中进程的环境变量为准，其次才回退到配置文件。
+    """
+    output = run(['systemctl', 'show', 'mytools-task-executor-service', '-p', 'MainPID']).decode()
+    match = re.search(r'MainPID=(\d+)', output)
+    if match and match.group(1) != '0':
+        try:
+            raw = Path(f'/proc/{match.group(1)}/environ').read_bytes()
+            for item in raw.split(b'\0'):
+                if item.startswith(b'TASK_EXECUTOR_SCRIPT_ROOT='):
+                    path = Path(item.split(b'=', 1)[1].decode())
+                    if path.is_dir():
+                        return path
+        except OSError:
+            pass
+    fallback = values(ROOT / 'config/image-generation.env').get('TASK_EXECUTOR_SCRIPT_ROOT')
+    assert fallback and Path(fallback).is_dir(), 'executor_package_root_missing'
+    return Path(fallback)
+
+
+def pinned_packages():
+    """读已启用任务定义钉住的脚本包版本，用于发布前预检。"""
+    query = ("SELECT ts.script_package, ts.script_version FROM task_step_definition ts "
+             "JOIN task_definition td ON td.id=ts.task_definition_id "
+             "WHERE td.enabled=1 AND ts.enabled=1")
+    output = run(['mysql', '--defaults-file=/etc/mysql/debian.cnf', '-N', '-B', 'mytools_task', '-e', query]).decode()
+    pinned = set()
+    for line in output.splitlines():
+        name, _, version = line.partition('\t')
+        if name.strip() and version.strip():
+            pinned.add((name.strip(), version.strip()))
+    return pinned
+
+
+def assert_pinned_packages_indexed():
+    """发布前预检：索引里必须能看到所有被钉住的包版本，否则执行器无法派发。"""
+    index = json.loads((RELEASE / 'task-packages/package-index.json').read_text())
+    available = {(item['name'], item['version']) for item in index['packages']}
+    missing = sorted(f'{name}:{version}' for name, version in pinned_packages() if (name, version) not in available)
+    assert not missing, 'pinned_package_missing:' + ','.join(missing)
+
+
 def stage():
     assert not RELEASE.exists() and not ENV.exists(), 'stage_already_exists'
     required = ['manifest.json', 'packages/video_generate/1.0.0/manifest.yaml',
@@ -312,8 +361,8 @@ def stage():
             'source': str(source_jar),
             'sha256': hashlib.sha256((RELEASE / 'apps/task-executor-service.jar').read_bytes()).hexdigest()}
     # 延续普通节点的完整历史脚本目录，只增加视频包；图片与标签包必须原样保留。
-    base = values(ROOT / 'config/image-generation.env').get('TASK_EXECUTOR_SCRIPT_ROOT')
-    assert base and Path(base).is_dir(), 'executor_package_root_missing'
+    base = current_script_root()
+    assert base.is_dir(), 'executor_package_root_missing'
     shutil.copytree(base, RELEASE / 'task-packages')
     shutil.copytree(SOURCE / 'packages/video_generate/1.0.0', RELEASE / 'task-packages/video_generate/1.0.0')
     index_path = RELEASE / 'task-packages/package-index.json'
@@ -330,9 +379,38 @@ def stage():
     index['packageCount'] = len(index['packages'])
     index['contentSha256'] = hashlib.sha256(json.dumps(index['packages'], sort_keys=True,
                                                       separators=(',', ':')).encode()).hexdigest()
+    # 基线可能比某些包旧：把基线上没有、而里程碑历史里存在的同名新版本一并带上。
+    for extra in sorted(BASELINE_PACKAGE_ROOTS):
+        if not extra.is_dir():
+            continue
+        for manifest in sorted(extra.glob('*/[0-9]*/manifest.yaml')):
+            name, version = manifest.parent.parent.name, manifest.parent.name
+            target = RELEASE / 'task-packages' / name / version
+            if target.exists():
+                continue
+            shutil.copytree(manifest.parent, target)
+            package_files = []
+            for file in sorted(target.rglob('*')):
+                if file.is_file() and '__pycache__' not in file.parts and 'tests' not in file.relative_to(target).parts:
+                    package_files.append({'path': str(file.relative_to(target)), 'sizeBytes': file.stat().st_size,
+                                          'sha256': hashlib.sha256(file.read_bytes()).hexdigest()})
+            entrypoint = 'scripts/main.py'
+            for line in manifest.read_text(encoding='utf-8').splitlines():
+                match = re.fullmatch(r'entrypoint:\s*(.*?)\s*', line)
+                if match:
+                    entrypoint = match.group(1).strip('\'"')
+                    break
+            index['packages'].append({'name': name, 'version': version, 'entrypoint': entrypoint,
+                                      'files': package_files})
+            index['packages'].sort(key=lambda item: (item['name'], item['version']))
+            index['packageCount'] = len(index['packages'])
+            index['contentSha256'] = hashlib.sha256(json.dumps(index['packages'], sort_keys=True,
+                                                              separators=(',', ':')).encode()).hexdigest()
     index_path.write_text(json.dumps(index, indent=2, sort_keys=True) + '\n')
     spec_path, spec_digest = spec_index()
     shutil.copy2(SOURCE / 'tools/prepare_control.py', RELEASE / 'prepare_control.py')
+    # 预检必须在权限收敛前做（执行器用户要能读到包），这里紧跟索引写完立即校验。
+    assert_pinned_packages_indexed()
     for path in [RELEASE, *RELEASE.rglob('*')]:
         if 'workflow-specs' in path.parts:
             continue

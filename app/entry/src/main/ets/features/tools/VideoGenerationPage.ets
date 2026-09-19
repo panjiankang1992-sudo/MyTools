@@ -5,6 +5,7 @@ import picker from '@ohos.file.picker';
 import fs from '@ohos.file.fs';
 import util from '@ohos.util';
 import { AuthSessionManager } from '../auth/AuthSessionManager';
+import { ImageGenerationApi, ImageJob } from './ImageGenerationApi';
 import { VideoGenerationApi, VideoInput, VideoJob, VideoModeSpec, VideoModel, VideoOutput,
   VideoRequest } from './VideoGenerationApi';
 
@@ -33,6 +34,13 @@ export struct VideoGenerationPage {
   @State modelId: string = '';
   @State mode: string = '';
   @State entry: string = 'image';
+  /** 生图作品选择面板：把 MyTools 生成好的图片直接拿来当首帧，不必先存到设备相册。 */
+  @State imageWorksVisible: boolean = false;
+  /** 当前正在填素材的槽位序号（生图面板选中后回填到这里）。 */
+  @State slotIndex: number = 0;
+  @State imageWorks: ImageJob[] = [];
+  @State imageWorksBusy: boolean = false;
+  @State imageWorksMessage: string = '';
   @State prompt: string = '';
   @State uploadIds: string[] = [];
   @State jobs: VideoJob[] = [];
@@ -445,6 +453,64 @@ export struct VideoGenerationPage {
     values[index] = uploadId;
     this.uploadIds = values;
   }
+  /** 打开生图作品面板：列当前账号的图片作品，选中即当作本槽位的素材。 */
+  private async openImageWorks(slot: VideoInputSlot): Promise<void> {
+    if (this.busy) return;
+    this.slotIndex = slot.index;
+    this.imageWorksVisible = true;
+    this.imageWorksMessage = '';
+    if (this.imageWorks.length > 0) return;
+    await this.loadImageWorks();
+  }
+  /** 拉取图片作品；失败时给出可读提示而不是空白面板。 */
+  private async loadImageWorks(): Promise<void> {
+    const revision = this.revision;
+    this.imageWorksBusy = true;
+    try {
+      const works = await this.imageApi().works(0);
+      if (revision !== this.revision) return;
+      // 只有已成功且带图片的作品才能当素材。
+      this.imageWorks = works.filter((job: ImageJob) => job.status === 'SUCCEEDED' &&
+        job.result !== undefined && job.result.images !== undefined && job.result.images.length > 0);
+      if (this.imageWorks.length === 0) this.imageWorksMessage = '还没有可用的图片作品，先在「图片生成」里生成一张。';
+    } catch (error) {
+      if (revision === this.revision) this.imageWorksMessage = this.failureText(error);
+    } finally {
+      if (revision === this.revision) this.imageWorksBusy = false;
+    }
+  }
+  /** 用某张生图作品作为素材：先下到缓存，再按视频服务的原始字节上传。 */
+  private async useImageWork(job: ImageJob): Promise<void> {
+    const images = job.result?.images ?? [];
+    if (this.busy || this.imageWorksBusy || images.length === 0) return;
+    const revision = this.revision;
+    const index = this.slotIndex;
+    this.imageWorksBusy = true;
+    this.imageWorksMessage = '';
+    const path = this.cachePath('picked', '.png');
+    if (path.length === 0) { this.imageWorksBusy = false; this.imageWorksMessage = '无法获取应用缓存目录'; return; }
+    try {
+      this.imageWorksMessage = '正在准备图片…';
+      await this.imageApi().download(job.id, images[0].index, path);
+      if (revision !== this.revision) { this.removeFile(path); return; }
+      this.imageWorksMessage = '正在上传素材…';
+      const uploadId = await this.api().uploadImage(path);
+      if (revision !== this.revision) { this.removeFile(path); return; }
+      this.setUpload(index, uploadId);
+      this.pending = undefined;
+      this.imageWorksVisible = false;
+      this.message = '已用图片作品作为素材';
+    } catch (error) {
+      if (revision === this.revision) this.imageWorksMessage = this.failureText(error);
+    } finally {
+      this.removeFile(path);
+      if (revision === this.revision) this.imageWorksBusy = false;
+    }
+  }
+  /** 生图接口与视频接口同网关，只用不同的路径前缀。 */
+  private imageApi(): ImageGenerationApi {
+    return new ImageGenerationApi(this.baseUrl, this.authManager);
+  }
   private clearSlot(index: number): void {
     if (this.busy) return;
     this.setUpload(index, '');
@@ -717,6 +783,11 @@ export struct VideoGenerationPage {
               `${slot.optional ? '可选' : '必填'} · PNG/JPEG，服务端实测不超过 20 MB`)
               .fontSize(11).fontColor(AppTheme.textTertiary)
           }.layoutWeight(1).alignItems(HorizontalAlign.Start)
+          if (slot.kind === 'IMAGE') {
+            Button('用我的图片作品').type(ButtonType.Normal).height(34).fontSize(12)
+              .fontColor(AppTheme.textSecondary).backgroundColor(AppTheme.surfaceTint).borderRadius(10)
+              .enabled(!this.busy).onClick(() => this.openImageWorks(slot))
+          }
           Button(this.slotActionLabel(slot)).type(ButtonType.Normal).height(34).fontSize(12)
             .fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft).borderRadius(10)
             .enabled(!this.busy).onClick(() => this.pick(slot))
@@ -788,6 +859,8 @@ export struct VideoGenerationPage {
         Column({ space: 10 }) {
           Text('素材').fontSize(14).fontWeight(FontWeight.Medium).width('100%')
           this.InputSlots()
+          // 选图面板就在素材行下面，点完入口即可见。
+          this.ImageWorksSheet()
         }.padding(14).width('100%').backgroundColor(AppTheme.surface).borderRadius(20)
           .alignItems(HorizontalAlign.Start)
       }
@@ -798,6 +871,49 @@ export struct VideoGenerationPage {
       Text(this.hintText()).fontSize(11).fontColor(AppTheme.textTertiary)
         .accessibilityText(`提交提示：${this.hintText()}`)
     }.width('100%').alignItems(HorizontalAlign.Start)
+  }
+  /** 生图作品面板：避免用户必须先存到设备相册才能给视频用。 */
+  @Builder
+  private ImageWorksSheet() {
+    if (this.imageWorksVisible) {
+      Column({ space: 10 }) {
+        Row() {
+          Text('用我的图片作品').fontSize(15).fontWeight(FontWeight.Medium).layoutWeight(1)
+          this.QuietButton('关闭', () => this.imageWorksVisible = false)
+        }.width('100%')
+        if (this.imageWorksBusy) {
+          Text(this.imageWorksMessage.length > 0 ? this.imageWorksMessage : '正在加载…')
+            .fontSize(12).fontColor(AppTheme.textTertiary).width('100%')
+        } else if (this.imageWorks.length === 0) {
+          Text(this.imageWorksMessage.length > 0 ? this.imageWorksMessage : '还没有可用的图片作品。')
+            .fontSize(12).fontColor(AppTheme.textTertiary).width('100%')
+        } else {
+          List({ space: 8 }) {
+            ForEach(this.imageWorks, (job: ImageJob) => {
+              ListItem() {
+                Row({ space: 10 }) {
+                  Column({ space: 3 }) {
+                    Text(job.request === undefined || job.request.prompt === undefined ||
+                      job.request.prompt.length === 0 ? '（无描述）' : job.request.prompt)
+                      .fontSize(13).fontColor(AppTheme.ink).maxLines(1)
+                      .textOverflow({ overflow: TextOverflow.Ellipsis }).width('100%')
+                    Text(`${this.imageJobLabel(job)}`).fontSize(10).fontColor(AppTheme.textTertiary).width('100%')
+                  }.layoutWeight(1).alignItems(HorizontalAlign.Start)
+                  Button('用作素材').type(ButtonType.Normal).height(32).fontSize(12)
+                    .fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft).borderRadius(10)
+                    .onClick(() => this.useImageWork(job))
+                }.width('100%').padding(10).backgroundColor(AppTheme.background).borderRadius(12)
+              }
+            }, (job: ImageJob) => job.id)
+          }.width('100%').height(240)
+        }
+      }.width('100%').padding(14).backgroundColor(AppTheme.surface).borderRadius(20)
+    }
+  }
+  private imageJobLabel(job: ImageJob): string {
+    const created = job.createdAt === undefined ? '' : job.createdAt;
+    const count = job.result?.images?.length ?? 0;
+    return `${count} 张 · ${created}`;
   }
   @Builder
   private Player() {
