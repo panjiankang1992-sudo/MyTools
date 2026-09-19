@@ -1,0 +1,6 @@
+-- 首帧模式的补边还原修复让结果里多了一个字段 padRects（本次补边几何，供验收复核）。
+-- 调度器按 task_definition.result_schema 校验执行器上报的结果，因此必须同步注册，
+-- 否则任务会在推理 8 分钟后以 TASK_RESULT_SCHEMA_INVALID 失败（实测踩过一次）。
+UPDATE task_definition
+SET result_schema = '{"additionalProperties":false,"properties":{"controlSha256":{"type":"string"},"coverSha256":{"type":"string"},"durationMs":{"minimum":1,"type":"integer"},"fillBlend":{"type":"number"},"fps":{"maximum":16,"minimum":16,"type":"integer"},"frames":{"maximum":49,"minimum":1,"type":"integer"},"height":{"maximum":480,"minimum":480,"type":"integer"},"inferenceMillis":{"minimum":0,"type":"integer"},"outputSha256":{"type":"string"},"padRects":{"additionalProperties":false,"properties":{"bottom":{"minimum":0,"type":"integer"},"left":{"minimum":0,"type":"integer"},"right":{"minimum":0,"type":"integer"},"top":{"minimum":0,"type":"integer"}},"required":["left","right","top","bottom"],"type":"object"},"promptId":{"type":"string"},"referenceFill":{"type":"string"},"resourcePeak":{"type":"object"},"sourceQuality":{"type":"object"},"width":{"maximum":832,"minimum":832,"type":"integer"},"workflowRevision":{"type":"string"}},"required":["frames","fps","width","height","durationMs","workflowRevision","controlSha256"],"type":"object"}'
+WHERE name = 'video_generate';

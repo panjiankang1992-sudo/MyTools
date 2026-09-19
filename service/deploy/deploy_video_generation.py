@@ -83,6 +83,10 @@ MODE_FLAGS = {
 GPU_PACKAGES = ('image_generate', 'media_generate_tags')
 EDGE_COLUMNS = 40
 WHITE_EDGE_LIMIT = 0.80
+# 补边必须是中性灰：亮度落在 0.502 附近，且三通道互不相差太多。
+# 只测亮度会漏掉"被模型改色"的边——实测蓝边亮度 0.36、黄边约 0.6，都能骗过白边判据。
+EDGE_BRIGHTNESS_BAND = 0.06
+EDGE_CHANNEL_SPREAD_LIMIT = 12
 # 复验必须用 P0 十四个窗口用的同一张原图（1024×1024，952822 字节）。
 VERIFY_INPUT_SHA256 = '712c98518e3c9d40c142428fc6b7ca263e59723d9992e0d9519f7cbe71a6a8a3'
 VERIFY_INPUT_CANDIDATES = (
@@ -284,8 +288,14 @@ def current_executor_jar():
     match = re.search(r'-jar (\S*task-executor-service\.jar)', output)
     assert match, 'executor_jar_unresolved'
     path = Path(match.group(1))
-    assert path.is_file(), 'executor_jar_missing'
-    return path
+    if path.is_file():
+        return path
+    # drop-in 可能指向一个尚未完成（或已回滚）的发布：退回到其它发布里现存的执行器 jar，
+    # 否则复用步骤会把整个 stage 卡死（实测踩过一次：activate 失败后 drop-in 指向半成品发布）。
+    candidates = sorted((ROOT / 'releases').glob('*/apps/task-executor-service.jar'),
+                        key=lambda item: item.stat().st_mtime, reverse=True)
+    assert candidates, 'executor_jar_missing'
+    return candidates[0]
 
 
 def current_script_root():
@@ -334,8 +344,69 @@ def assert_pinned_packages_indexed():
     assert not missing, 'pinned_package_missing:' + ','.join(missing)
 
 
+def assert_result_schemas_registered():
+    """发布前预检：包里每个任务包的结果 schema 必须与调度器注册的一致。
+
+    执行器上报结果时，调度器按 task_definition.result_schema 校验。包改了结果字段却没同步注册迁移，
+    任务会在推理跑完（8 分钟以上）之后才以 TASK_RESULT_SCHEMA_INVALID 失败——实测踩过一次，
+    因此这里把它变成发布前的硬门禁。
+    """
+    index = json.loads((RELEASE / 'task-packages/package-index.json').read_text())
+    # 只核对本发布负责的包：别的服务线的历史包由它们自己的发布把关。实测 media_submit_analysis:1.0.0
+    # 的 result.schema.json 不是合法 JSON，那是媒体服务的问题，不该让视频发布为它背锅。
+    pinned = pinned_packages()
+    mismatched = []
+    for item in index['packages']:
+        if item['name'] != 'video_generate' or (item['name'], item['version']) not in pinned:
+            continue
+        version_root = RELEASE / 'task-packages' / item['name'] / item['version']
+        manifest = (version_root / 'manifest.yaml').read_text(encoding='utf-8')
+        match = re.search(r'^\s*schema:\s*(\S+)\s*$', manifest, re.MULTILINE)
+        if not match:
+            continue
+        schema_path = version_root / match.group(1)
+        if not schema_path.is_file():
+            mismatched.append(f"{item['name']}:{item['version']}:schema_missing")
+            continue
+        # 库里可能有多条定义钉同一版本，逐条比对。
+        query = ('SELECT td.name, td.result_schema FROM task_definition td '
+                 'JOIN task_step_definition ts ON ts.task_definition_id=td.id '
+                 'WHERE ts.script_package=%s AND ts.script_version=%s')
+        output = run(['mysql', '--defaults-file=/etc/mysql/debian.cnf', '-N', '-B', 'mytools_task',
+                      '-e', f"SELECT td.name, td.result_schema FROM task_definition td "
+                            f"JOIN task_step_definition ts ON ts.task_definition_id=td.id "
+                            f"WHERE ts.script_package='{item['name']}' "
+                            f"AND ts.script_version='{item['version']}'"]).decode()
+        local = json.dumps(json.loads(schema_path.read_text()), sort_keys=True, separators=(',', ':'))
+        for line in output.splitlines():
+            name, _, registered = line.partition('\t')
+            if not name.strip():
+                continue
+            try:
+                remote = json.dumps(json.loads(registered), sort_keys=True, separators=(',', ':'))
+            except ValueError:
+                mismatched.append(name + ':schema_unparsable')
+                continue
+            if remote != local:
+                mismatched.append(name + ':schema_out_of_sync')
+    assert not mismatched, 'result_schema_preflight_failed:' + ','.join(sorted(mismatched))
+
+
+def package_files(root):
+    """列出任务包里参与索引的文件（排除测试与缓存），与索引算法保持一致。"""
+    files = []
+    for file in sorted(root.rglob('*')):
+        if file.is_file() and '__pycache__' not in file.parts and 'tests' not in file.relative_to(root).parts:
+            files.append({'path': str(file.relative_to(root)), 'sizeBytes': file.stat().st_size,
+                          'sha256': hashlib.sha256(file.read_bytes()).hexdigest()})
+    return files
+
+
 def stage():
-    assert not RELEASE.exists() and not ENV.exists(), 'stage_already_exists'
+    # 发布目录不可复用（发布不可变）；env 允许已存在——那是同一服务线的上一版，
+    # 重发必须沿用既有令牌与库口令，否则调度器/网关/服务三方对不上。
+    assert not RELEASE.exists(), 'stage_already_exists'
+    previous = values(ENV) if ENV.exists() else {}
     required = ['manifest.json', f'packages/video_generate/{PACKAGE_VERSION}/manifest.yaml',
                 'tools/emit_workflow_specs.py', 'tools/workflow.py', 'tools/prepare_control.py']
     for name in required:
@@ -367,20 +438,24 @@ def stage():
     base = current_script_root()
     assert base.is_dir(), 'executor_package_root_missing'
     shutil.copytree(base, RELEASE / 'task-packages')
-    shutil.copytree(SOURCE / f'packages/video_generate/{PACKAGE_VERSION}',
-                    RELEASE / 'task-packages/video_generate' / PACKAGE_VERSION)
+    # 基线与本发布可能带同一个包版本（同一服务线的后续发布）：此时必须逐文件核对内容一致，
+    # 既避免 copytree 撞车，也守住"同版本即同内容"的不可变语义。
+    source_package = SOURCE / f'packages/video_generate/{PACKAGE_VERSION}'
+    package_root = RELEASE / 'task-packages/video_generate' / PACKAGE_VERSION
+    source_files = package_files(source_package)
+    if package_root.exists():
+        assert package_files(package_root) == source_files, 'package_content_drift'
+    else:
+        shutil.copytree(source_package, package_root)
     index_path = RELEASE / 'task-packages/package-index.json'
     index = json.loads(index_path.read_text())
-    assert not any(item['name'] == 'video_generate' and item['version'] == PACKAGE_VERSION
-                   for item in index['packages']), 'package_already_indexed'
-    package_root = RELEASE / 'task-packages/video_generate' / PACKAGE_VERSION
-    files = []
-    for file in sorted(package_root.rglob('*')):
-        if file.is_file() and '__pycache__' not in file.parts and 'tests' not in file.relative_to(package_root).parts:
-            files.append({'path': str(file.relative_to(package_root)), 'sizeBytes': file.stat().st_size,
-                          'sha256': hashlib.sha256(file.read_bytes()).hexdigest()})
-    index['packages'].append({'name': 'video_generate', 'version': PACKAGE_VERSION, 'entrypoint': 'scripts/main.py',
-                              'files': files})
+    existing = next((item for item in index['packages']
+                     if item['name'] == 'video_generate' and item['version'] == PACKAGE_VERSION), None)
+    if existing is not None:
+        assert existing['files'] == source_files, 'package_index_drift'
+    else:
+        index['packages'].append({'name': 'video_generate', 'version': PACKAGE_VERSION,
+                                  'entrypoint': 'scripts/main.py', 'files': source_files})
     index['packageCount'] = len(index['packages'])
     index['contentSha256'] = hashlib.sha256(json.dumps(index['packages'], sort_keys=True,
                                                       separators=(',', ':')).encode()).hexdigest()
@@ -394,11 +469,7 @@ def stage():
             if target.exists():
                 continue
             shutil.copytree(manifest.parent, target)
-            package_files = []
-            for file in sorted(target.rglob('*')):
-                if file.is_file() and '__pycache__' not in file.parts and 'tests' not in file.relative_to(target).parts:
-                    package_files.append({'path': str(file.relative_to(target)), 'sizeBytes': file.stat().st_size,
-                                          'sha256': hashlib.sha256(file.read_bytes()).hexdigest()})
+            extra_files = package_files(target)
             entrypoint = 'scripts/main.py'
             for line in manifest.read_text(encoding='utf-8').splitlines():
                 match = re.fullmatch(r'entrypoint:\s*(.*?)\s*', line)
@@ -406,7 +477,7 @@ def stage():
                     entrypoint = match.group(1).strip('\'"')
                     break
             index['packages'].append({'name': name, 'version': version, 'entrypoint': entrypoint,
-                                      'files': package_files})
+                                      'files': extra_files})
             index['packages'].sort(key=lambda item: (item['name'], item['version']))
             index['packageCount'] = len(index['packages'])
             index['contentSha256'] = hashlib.sha256(json.dumps(index['packages'], sort_keys=True,
@@ -416,15 +487,18 @@ def stage():
     shutil.copy2(SOURCE / 'tools/prepare_control.py', RELEASE / 'prepare_control.py')
     # 预检必须在权限收敛前做（执行器用户要能读到包），这里紧跟索引写完立即校验。
     assert_pinned_packages_indexed()
+    # 结果 schema 的一致性放在 activate 里校验：修复它的迁移可能就在本次发布里，
+    # 在 stage 阶段校验会变成"先有鸡还是先有蛋"。
     for path in [RELEASE, *RELEASE.rglob('*')]:
         if 'workflow-specs' in path.parts:
             continue
         os.chown(path, 0, pwd.getpwnam('mytools').pw_gid)
         path.chmod(0o750 if path.is_dir() else 0o640)
     data = {
-        'VIDEO_GENERATION_INTERNAL_TOKEN': secrets.token_urlsafe(32),
-        'TASK_BUSINESS_VIDEO_GENERATION_TOKEN': secrets.token_urlsafe(32),
-        'VIDEO_GENERATION_DB_PASSWORD': secrets.token_urlsafe(32),
+        # 首次发布生成新令牌；后续发布沿用上一版，避免换令牌造成三方不一致。
+        'VIDEO_GENERATION_INTERNAL_TOKEN': previous.get('VIDEO_GENERATION_INTERNAL_TOKEN') or secrets.token_urlsafe(32),
+        'TASK_BUSINESS_VIDEO_GENERATION_TOKEN': previous.get('TASK_BUSINESS_VIDEO_GENERATION_TOKEN') or secrets.token_urlsafe(32),
+        'VIDEO_GENERATION_DB_PASSWORD': previous.get('VIDEO_GENERATION_DB_PASSWORD') or secrets.token_urlsafe(32),
         'VIDEO_GENERATION_DB_USER': 'mytools_video_generation',
         'VIDEO_GENERATION_ROOT': str(RUNTIME),
         'VIDEO_GENERATION_ROUTE_ENABLED': 'false',
@@ -551,8 +625,9 @@ def activate():
     write(STATE / 'node.json', json.dumps({'id': node['id']}))
     install_units()
     run(['systemctl', 'stop', 'mytools-task-executor-service'])
-    # 重启调度器会执行 V155/V156 迁移，从而登记 video_generate 任务与发布审计表。
+    # 重启调度器会执行本发布携带的迁移，从而登记 video_generate 任务、发布审计表与结果 schema。
     run(['systemctl', 'restart', 'mytools-task-scheduler-service'])
+
     ensure_task_runtime()
     run(['systemctl', 'start', 'mytools-task-executor-service', 'mytools-video-generation-service'])
     # 视频运行时常驻上限 12GiB，与图片 Comfy（MemoryMax=18G）并存时必须有足够可回收余量，
@@ -580,6 +655,9 @@ def activate():
                          {'status': 'ONLINE', 'reason': NAME, 'expectedInstanceId': node['instanceId']})
     assert code == 200
     health(23410)
+    # 调度器健康（迁移已跑完）之后再校验契约：执行器上报结果时按注册的 result_schema 校验，
+    # 包改了结果字段却没同步注册，任务会在推理 8 分钟之后才失败。
+    assert_result_schemas_registered()
     # 视频运行时首次加载模型较慢，只确认端口可应答；它不参与任务派发前的可用性判定。
     deadline = time.monotonic() + 300
     while time.monotonic() < deadline:
@@ -645,32 +723,52 @@ def set_mode_flags(enabled_modes):
 
 
 def edge_profile(path, frames):
-    """量测成片左右边缘：平均亮度 + 接近补边灰的连续列数。
+    """量测成片左右补边：亮度、三通道均值与离散度、接近补边灰的连续列数。
 
-    白边回归会让边缘亮度升到 0.9 以上；中性灰补边的亮度约 0.502，
-    因此同一份数据也能回答"成片两侧到底留了多宽的灰边"这个产品问题。
+    白边回归会让边缘亮度升到 0.9 以上；中性灰补边的亮度约 0.502。但只测亮度会漏掉
+    "模型把补边改色"的缺陷（蓝边亮度 0.36、黄边约 0.6 都能过白边判据），因此这里同时
+    解 RGB，报告每个通道的均值与最大通道差（spread），由调用方断言它确实是中性灰。
     """
+    gray_filter = 'select=eq(n\\,{index}),format=gray'
+    rgb_filter = 'select=eq(n\\,{index})'
     reports = []
     for index in frames:
-        raw = run(['ffmpeg', '-v', 'error', '-i', str(path), '-vf', f'select=eq(n\\,{index}),format=gray',
-                   '-frames:v', '1', '-f', 'rawvideo', '-'], timeout=120)
-        if len(raw) != 832 * 480:
-            raise RuntimeError('frame_decode_failed ' + str(len(raw)))
-        columns = [sum(raw[row * 832 + column] for row in range(480)) / 480 / 255.0
+        gray = run(['ffmpeg', '-v', 'error', '-i', str(path), '-vf', gray_filter.format(index=index),
+                    '-frames:v', '1', '-f', 'rawvideo', '-'], timeout=120)
+        if len(gray) != 832 * 480:
+            raise RuntimeError('frame_decode_failed ' + str(len(gray)))
+        rgb = run(['ffmpeg', '-v', 'error', '-i', str(path), '-vf', rgb_filter.format(index=index),
+                   '-frames:v', '1', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], timeout=120)
+        if len(rgb) != 832 * 480 * 3:
+            raise RuntimeError('frame_decode_failed_rgb ' + str(len(rgb)))
+        columns = [sum(gray[row * 832 + column] for row in range(480)) / 480 / 255.0
                    for column in range(832)]
-        left_columns, right_columns = columns[0], columns[-1]
+
+        def edge_channels(column_index):
+            totals = [0, 0, 0]
+            for row in range(480):
+                offset = (row * 832 + column_index) * 3
+                for channel in range(3):
+                    totals[channel] += rgb[offset + channel]
+            means = [total / 480 / 255.0 for total in totals]
+            return [round(value, 4) for value in means], round(max(means) - min(means), 4)
+
+        left_means, left_spread = edge_channels(0)
+        right_means, right_spread = edge_channels(831)
         bars_left = 0
         for value in columns:
-            if abs(value - 0.502) > 0.06:
+            if abs(value - 0.502) > EDGE_BRIGHTNESS_BAND:
                 break
             bars_left += 1
         bars_right = 0
         for value in reversed(columns):
-            if abs(value - 0.502) > 0.06:
+            if abs(value - 0.502) > EDGE_BRIGHTNESS_BAND:
                 break
             bars_right += 1
-        reports.append({'frame': index, 'leftMean': round(left_columns, 4),
-                        'rightMean': round(right_columns, 4),
+        reports.append({'frame': index,
+                        'leftMean': round(columns[0], 4), 'rightMean': round(columns[-1], 4),
+                        'leftChannels': left_means, 'rightChannels': right_means,
+                        'leftSpread': left_spread, 'rightSpread': right_spread,
                         'greyBarsLeft': bars_left, 'greyBarsRight': bars_right})
     return reports
 
@@ -746,6 +844,12 @@ def verify():
         edges = edge_profile(target, (0, 24, 48))
         assert all(max(item['leftMean'], item['rightMean']) < WHITE_EDGE_LIMIT for item in edges), \
             'white_edge_regression'
+        # 补边还必须是中性灰：模型会把这两条边改成任意颜色，只判"不白"会漏。
+        for item in edges:
+            for side in ('left', 'right'):
+                assert item[side + 'Spread'] <= EDGE_CHANNEL_SPREAD_LIMIT / 255.0, 'edge_not_neutral_' + side
+                assert all(abs(value - 0.502) <= EDGE_BRIGHTNESS_BAND for value in item[side + 'Channels']), \
+                    'edge_brightness_off_' + side
         emit({'verified': True, 'jobId': created['id'], 'edges': edges, 'enabledModes': ['FIRST_FRAME']})
     except BaseException:
         set_mode_flags([])
