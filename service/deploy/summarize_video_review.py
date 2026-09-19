@@ -103,17 +103,24 @@ def main() -> int:
     parser.add_argument('--sheet', required=True, type=Path)
     parser.add_argument('--write', action='store_true', help='同时合并进 reviews.json')
     parser.add_argument('--reviewer', default='owner', help='人工评分者标识')
+    parser.add_argument('--machine-prescore', action='store_true',
+                        help='标记本次汇总来自机器预评（供人工校准），不是人工验收结论')
     parsed = parser.parse_args()
     with parsed.sheet.open(encoding='utf-8', newline='') as handle:
         rows = list(csv.DictReader(handle))
     summary = summarize(rows)
     summary['sheet'] = parsed.sheet.name
+    if parsed.machine_prescore:
+        # 明确标注来源：机器预评只能当校准起点，不能当人工验收。
+        summary['machinePrescore'] = True
+        summary['reviewer'] = 'machine-prescore'
     output = parsed.sheet.with_name('review-summary.json')
     output.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n')
     if parsed.write:
         summary['mergedInto'] = merge_into_reviews(summary, parsed.sheet, parsed.reviewer)
         output.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n')
-    print(json.dumps({'verdict': summary['verdict'], 'complete': summary['complete'],
+    print(json.dumps({'machinePrescore': summary.get('machinePrescore', False),
+                      'verdict': summary['verdict'], 'complete': summary['complete'],
                       'unscoredSamples': summary['unscoredSamples'], 'counts': summary['counts'],
                       'passRatio': summary['passRatio'], 'sheet': summary['sheet'],
                       'mergedInto': summary.get('mergedInto')}, ensure_ascii=False))

@@ -1,9 +1,9 @@
 role,sample_id,video,mode,source,seed,elapsed_s,motion,edge_note,instructionFollowing,subjectPreservation,temporalCoherence,editLocality,artifacts,severeFlag,overall_mos,notes
-acceptance,A-cold-white-seed42,p0-reaccept-20260919/A-cold-white-seed42.mp4,FIRST_FRAME,P0 白底产品图（冷）,42,496,27.6707,补边 0.502/0.502 离散 0.0/0.0,,,,N/A,,FALSE,,
-acceptance,A-cold-white-seed932,p0-reaccept-20260919/A-cold-white-seed932.mp4,FIRST_FRAME,P0 白底产品图（冷）,932,496,29.4855,补边 0.502/0.502 离散 0.0/0.0,,,,N/A,,FALSE,,
-acceptance,B-warm-generated-seed42,p0-reaccept-20260919/B-warm-generated-seed42.mp4,FIRST_FRAME,Krea 生成（暖）,42,503,19.48,补边 0.502/0.502 离散 0.0/0.0,4,5,4,N/A,4,FALSE,,机器预评锚点示例（非人工验收，可改）：暖色素材、补边已中性灰、运动可见
-acceptance,B-warm-generated-seed932,p0-reaccept-20260919/B-warm-generated-seed932.mp4,FIRST_FRAME,Krea 生成（暖）,932,492,21.7298,补边 0.502/0.502 离散 0.0/0.0,,,,N/A,,FALSE,,
-acceptance,C-landscape-seed42,p0-reaccept-20260919/C-landscape-seed42.mp4,FIRST_FRAME,真实风景照,42,491,14.6448,补边 0.502/0.502 离散 0.0/0.0,,,,N/A,,FALSE,,
-acceptance,C-landscape-seed932,p0-reaccept-20260919/C-landscape-seed932.mp4,FIRST_FRAME,真实风景照,932,491,12.6059,补边 0.502/0.502 离散 0.0/0.0,,,,N/A,,FALSE,,
+acceptance,A-cold-white-seed42,p0-reaccept-20260919/A-cold-white-seed42.mp4,FIRST_FRAME,P0 白底产品图（冷）,42,496,27.6707,补边 0.502/0.502 离散 0.0/0.0,2,4,4,N/A,4,FALSE,,"机器预评：内容区 f0 RGB(136,131,125) → f48(80,117,179)，B 通道 125→179，""颜色保持不变""这条不成立；补边灰 ✓、构图与主体保持 ✓。待人工确认第 1/12/24 帧的闪烁"
+acceptance,A-cold-white-seed932,p0-reaccept-20260919/A-cold-white-seed932.mp4,FIRST_FRAME,P0 白底产品图（冷）,932,496,29.4855,补边 0.502/0.502 离散 0.0/0.0,2,4,3,N/A,4,FALSE,,机器预评：内容区偏蓝更重（B 125→243/252），离群帧 11–12 个且集中在前段；补边灰 ✓
+acceptance,B-warm-generated-seed42,p0-reaccept-20260919/B-warm-generated-seed42.mp4,FIRST_FRAME,Krea 生成（暖）,42,503,19.48,补边 0.502/0.502 离散 0.0/0.0,4,5,4,N/A,4,FALSE,,机器预评：构图/色相保持好，轻微推近并略暗；关键帧无伪影。补边灰 ✓
+acceptance,B-warm-generated-seed932,p0-reaccept-20260919/B-warm-generated-seed932.mp4,FIRST_FRAME,Krea 生成（暖）,932,492,21.7298,补边 0.502/0.502 离散 0.0/0.0,4,5,4,N/A,4,FALSE,,机器预评：同 seed42，末段趋于静止（末步差 0.12）
+acceptance,C-landscape-seed42,p0-reaccept-20260919/C-landscape-seed42.mp4,FIRST_FRAME,真实风景照,42,491,14.6448,补边 0.502/0.502 离散 0.0/0.0,4,4,4,N/A,4,FALSE,,机器预评：场景稳定、颜色基本保持（略变暗）；关键帧无伪影
+acceptance,C-landscape-seed932,p0-reaccept-20260919/C-landscape-seed932.mp4,FIRST_FRAME,真实风景照,932,491,12.6059,补边 0.502/0.502 离散 0.0/0.0,4,4,4,N/A,4,FALSE,,机器预评：同上；运动量最小（12.6）但仍可见变化
 reference,p1-live-run-seed42,p1-live-run/video.mp4,FIRST_FRAME,P0 白底产品图（冷）,42,487,,补边为灰（亮度 0.50）,,,,N/A,,FALSE,,修复前产物，可与修复后对照
-reference,gen2video-seed42,p1-yuyutian-verification/gen2video/video.mp4,FIRST_FRAME,Krea 生成（暖）,42,491,,"补边偏蓝 (26,109,186)",3,4,3,N/A,4,FALSE,,机器预评锚点示例（非人工验收，可改）：修复前样例，两侧蓝边应计入伪影
+reference,gen2video-seed42,p1-yuyutian-verification/gen2video/video.mp4,FIRST_FRAME,Krea 生成（暖）,42,491,,"补边偏蓝 (26,109,186)",3,4,3,N/A,4,FALSE,,"修复前产物：两侧补边偏蓝 (26,109,186)，应计入伪影；其余同 B-warm-generated-seed42"

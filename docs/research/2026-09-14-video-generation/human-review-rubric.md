@@ -111,7 +111,13 @@
   会把结论写进 `review-summary.json`，并可合并进 `vlm-review/reviews.json`（人工条目会标 `reviewer=human:*`、
   `notHumanReview=false`，与既有的自动 VLM 条目区分）。
 
-## 6. 局限（写在前面，免得被当成"已通过人工验收"）
+## 6. 逐模式的判据
+
+同一句"主体保持"在文生、单图首帧、两图参考里指的不是一回事，锚点必须按模式分开写：
+见 [per-mode-review-anchors.md](per-mode-review-anchors.md)（六个模式各自的看什么、5/3/1 判据、
+模式特有的一票否决，以及"哪些能先自动算"的分工）。
+
+## 7. 局限（写在前面，免得被当成"已通过人工验收"）
 
 - 仓库里已有的 14 条 `reviews.json` 是**自动 VLM 复核**（`notHumanReview=true`），只能当辅助；
   业界同样只把自动指标用于"与人评做相关性校验"，不能替代人。
