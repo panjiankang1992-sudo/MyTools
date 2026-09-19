@@ -42,6 +42,15 @@
 
 1. **人工评分未做**：`acceptance.md` 要求对指令遵循、主体保持、时间连贯、伪影逐项 1–5 打分，
    这是主观判断，需要人来定；本次只给了客观量测与关键帧。
+   评分怎么打、每一分长什么样，见 [human-review-rubric.md](../../../research/2026-09-14-video-generation/human-review-rubric.md)
+   （对齐 VBench / EvalCrafter / T2V-CompBench / EditEval / ITU-T P.910）。
+   可直接填的表在本目录 `review-sheet.csv`：6 条验收样例的路径、种子、耗时、运动量、补边量测都已填好，
+   只留分数与备注；另附 2 条修复前对照（`role=reference`，不参与准入判定），其中一条给了"机器预评"当锚点示例。
+   填完运行
+   `python3 service/deploy/summarize_video_review.py --sheet docs/verification/2026-09-14-video-generation/p0-reaccept-20260919/review-sheet.csv`
+   即得结论（只算 `role=acceptance` 的行；关键项均 ≥3 视为通过，至少 5/6 且无一票否决才准入；
+   加 `--write` 可合并进 `vlm-review/reviews.json`，人工条目会标 `reviewer=human:*`、`notHumanReview=false`）。
+   当前 `review-summary.json` 是**未评分草稿**（`complete: false`），因此 verdict 显示 reject 属预期。
 2. **稳定性补测未做**：矩阵要求通过后连续 10 个任务补测，本次是 6 个正式样例。
 3. 矩阵里写的"49 帧冒烟后再 81 帧"在当前实现里不适用：模式固定 49 帧，不支持 81 帧。
 4. 其余四个模式仍未验收。

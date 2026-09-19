@@ -1,0 +1,214 @@
+{
+  "verdict": "reject",
+  "samples": [
+    {
+      "sampleId": "A-cold-white-seed42",
+      "video": "p0-reaccept-20260919/A-cold-white-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": null,
+        "subjectPreservation": null,
+        "temporalCoherence": null,
+        "editLocality": null,
+        "artifacts": null
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "severe": false,
+      "passed": false
+    },
+    {
+      "sampleId": "A-cold-white-seed932",
+      "video": "p0-reaccept-20260919/A-cold-white-seed932.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": null,
+        "subjectPreservation": null,
+        "temporalCoherence": null,
+        "editLocality": null,
+        "artifacts": null
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "severe": false,
+      "passed": false
+    },
+    {
+      "sampleId": "B-warm-generated-seed42",
+      "video": "p0-reaccept-20260919/B-warm-generated-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": 4,
+        "subjectPreservation": 5,
+        "temporalCoherence": 4,
+        "editLocality": null,
+        "artifacts": 4
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [],
+      "severe": false,
+      "passed": true
+    },
+    {
+      "sampleId": "B-warm-generated-seed932",
+      "video": "p0-reaccept-20260919/B-warm-generated-seed932.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": null,
+        "subjectPreservation": null,
+        "temporalCoherence": null,
+        "editLocality": null,
+        "artifacts": null
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "severe": false,
+      "passed": false
+    },
+    {
+      "sampleId": "C-landscape-seed42",
+      "video": "p0-reaccept-20260919/C-landscape-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": null,
+        "subjectPreservation": null,
+        "temporalCoherence": null,
+        "editLocality": null,
+        "artifacts": null
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "severe": false,
+      "passed": false
+    },
+    {
+      "sampleId": "C-landscape-seed932",
+      "video": "p0-reaccept-20260919/C-landscape-seed932.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": null,
+        "subjectPreservation": null,
+        "temporalCoherence": null,
+        "editLocality": null,
+        "artifacts": null
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "severe": false,
+      "passed": false
+    },
+    {
+      "sampleId": "p1-live-run-seed42",
+      "video": "p1-live-run/video.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "reference",
+      "scores": {
+        "instructionFollowing": null,
+        "subjectPreservation": null,
+        "temporalCoherence": null,
+        "editLocality": null,
+        "artifacts": null
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "severe": false,
+      "passed": false
+    },
+    {
+      "sampleId": "gen2video-seed42",
+      "video": "p1-yuyutian-verification/gen2video/video.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "reference",
+      "scores": {
+        "instructionFollowing": 3,
+        "subjectPreservation": 4,
+        "temporalCoherence": 3,
+        "editLocality": null,
+        "artifacts": 4
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [],
+      "severe": false,
+      "passed": true
+    }
+  ],
+  "complete": false,
+  "counts": {
+    "graded": 6,
+    "reference": 2,
+    "passed": 1,
+    "severe": 0
+  },
+  "unscoredSamples": [
+    "A-cold-white-seed42",
+    "A-cold-white-seed932",
+    "B-warm-generated-seed932",
+    "C-landscape-seed42",
+    "C-landscape-seed932"
+  ],
+  "passRatio": 0.1667,
+  "rule": "只看 role=acceptance 的行；关键项均 ≥3 视为通过；至少 5/6 通过且无一票否决才准入",
+  "sheet": "review-sheet.csv"
+}
