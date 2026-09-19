@@ -1,5 +1,7 @@
 # P0 验证交付索引
 
+> 先看 **[PROGRESS.md](PROGRESS.md)**：当前状态、版本沿革、验收结论、修过的问题、待办与运维要点。
+
 日期：2026-09-14。P1（服务端 + App）的实现与验证状态见 [p1-server-app.md](p1-server-app.md)。
 
 **结论先看 [report.md](report.md) 的"结论摘要"一节**；本文件只负责说明证据放在哪、

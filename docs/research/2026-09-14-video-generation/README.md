@@ -1,4 +1,5 @@
 # MyTools 视频生成技术调研与实施方案
+> 进展与状态（版本沿革、验收结论、待办、运维要点）：[docs/verification/2026-09-14-video-generation/PROGRESS.md](../../verification/2026-09-14-video-generation/PROGRESS.md)
 
 日期：2026-09-14。状态：已完成 Ubuntu 只读盘点、官方资料检索及版本元数据核验；**同日完成 P0 受控验证**——
 隔离运行时与白名单权重（SHA-256 已校验）、调度层 GPU 准入、多图参考独立适配，以及文生（49/81 帧）、
