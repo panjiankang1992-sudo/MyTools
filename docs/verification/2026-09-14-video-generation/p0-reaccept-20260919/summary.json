@@ -1,0 +1,16 @@
+{
+  "samples": 6,
+  "succeeded": 6,
+  "edgesNeutral": true,
+  "objectiveVerdict": "accept",
+  "subjects": [
+    "A-cold-white",
+    "B-warm-generated",
+    "C-landscape"
+  ],
+  "seeds": [
+    42,
+    932
+  ],
+  "output": "/opt/yuyutian/mytools/runtime/video-production-20260919-v2/acceptance-20260919"
+}
