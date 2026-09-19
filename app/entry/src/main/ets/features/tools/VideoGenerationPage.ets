@@ -775,27 +775,32 @@ export struct VideoGenerationPage {
   private InputSlots() {
     Column({ space: 8 }) {
       ForEach(this.slots(), (slot: VideoInputSlot) => {
-        Row({ space: 10 }) {
+        Column({ space: 8 }) {
+          // 标签与规格独占一行：按钮再多样也不会把说明挤成竖排。
           Column({ space: 3 }) {
             Text(`${this.roleLabel(slot.role)}${slot.optional ? '（可选）' : ''}`)
-              .fontSize(13).fontWeight(FontWeight.Medium).fontColor(AppTheme.ink)
+              .fontSize(13).fontWeight(FontWeight.Medium).fontColor(AppTheme.ink).width('100%')
             Text(slot.kind === 'VIDEO' ? `${slot.optional ? '可选' : '必填'} · MP4，服务端实测不超过 200 MB` :
               `${slot.optional ? '可选' : '必填'} · PNG/JPEG，服务端实测不超过 20 MB`)
-              .fontSize(11).fontColor(AppTheme.textTertiary)
-          }.layoutWeight(1).alignItems(HorizontalAlign.Start)
-          if (slot.kind === 'IMAGE') {
-            Button('用我的图片作品').type(ButtonType.Normal).height(34).fontSize(12)
-              .fontColor(AppTheme.textSecondary).backgroundColor(AppTheme.surfaceTint).borderRadius(10)
-              .enabled(!this.busy).onClick(() => this.openImageWorks(slot))
-          }
-          Button(this.slotActionLabel(slot)).type(ButtonType.Normal).height(34).fontSize(12)
-            .fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft).borderRadius(10)
-            .enabled(!this.busy).onClick(() => this.pick(slot))
-          if (slot.index < this.uploadIds.length && this.uploadIds[slot.index].length > 0) {
-            Button('清除').type(ButtonType.Normal).height(34).fontSize(12)
-              .fontColor(AppTheme.textSecondary).backgroundColor(AppTheme.surfaceTint).borderRadius(10)
-              .enabled(!this.busy).onClick(() => this.clearSlot(slot.index))
-          }
+              .fontSize(11).fontColor(AppTheme.textTertiary).width('100%')
+          }.width('100%').alignItems(HorizontalAlign.Start)
+          // 操作按钮另起一行，按需换行而不是压缩文字。
+          Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start }) {
+            if (slot.kind === 'IMAGE') {
+              Button('我的作品').type(ButtonType.Normal).height(34).fontSize(12).margin({ right: 8, bottom: 8 }).padding({ left: 14, right: 14 })
+                .fontColor(AppTheme.textSecondary).backgroundColor(AppTheme.surfaceTint).borderRadius(10)
+                .enabled(!this.busy).onClick(() => this.openImageWorks(slot))
+            }
+            Button(this.slotActionLabel(slot)).type(ButtonType.Normal).height(34).fontSize(12).margin({ right: 8, bottom: 8 })
+              .padding({ left: 14, right: 14 })
+              .fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft).borderRadius(10)
+              .enabled(!this.busy).onClick(() => this.pick(slot))
+            if (slot.index < this.uploadIds.length && this.uploadIds[slot.index].length > 0) {
+              Button('清除').type(ButtonType.Normal).height(34).fontSize(12).margin({ right: 8, bottom: 8 }).padding({ left: 14, right: 14 })
+                .fontColor(AppTheme.textSecondary).backgroundColor(AppTheme.surfaceTint).borderRadius(10)
+                .enabled(!this.busy).onClick(() => this.clearSlot(slot.index))
+            }
+          }.width('100%')
         }.width('100%')
       }, (slot: VideoInputSlot) => `${slot.index}:${slot.role}:${slot.kind}`)
     }.width('100%')
@@ -859,7 +864,6 @@ export struct VideoGenerationPage {
         Column({ space: 10 }) {
           Text('素材').fontSize(14).fontWeight(FontWeight.Medium).width('100%')
           this.InputSlots()
-          // 选图面板就在素材行下面，点完入口即可见。
           this.ImageWorksSheet()
         }.padding(14).width('100%').backgroundColor(AppTheme.surface).borderRadius(20)
           .alignItems(HorizontalAlign.Start)
@@ -905,9 +909,9 @@ export struct VideoGenerationPage {
                 }.width('100%').padding(10).backgroundColor(AppTheme.background).borderRadius(12)
               }
             }, (job: ImageJob) => job.id)
-          }.width('100%').height(240)
+          }.width('100%').height(150)
         }
-      }.width('100%').padding(14).backgroundColor(AppTheme.surface).borderRadius(20)
+      }.width('100%').padding(12).backgroundColor(AppTheme.surfaceTint).borderRadius(14)
     }
   }
   private imageJobLabel(job: ImageJob): string {
