@@ -379,6 +379,78 @@ class MessageAutomationServiceTest {
     }
 
     @Test
+    void shouldNotPlanActionsForForwardedAttachmentFileNames() {
+        service.createRule(new CreateAutomationRuleRequest(41L, "qq_forwarded_attachment_names", ChannelType.QQ,
+                null, "qq-user-41", "", "HTTP_ASSET", 25, 100, true));
+        UUID messageId = UUID.randomUUID();
+        String body = """
+                [群聊的聊天记录]
+                === 消息 1 ===
+                [附件1] 类型:图片 文件名:EF84ED0FA716AB1DA73605C418C51E24.jpg 尺寸:1280x1707 大小:173.4KB URL:
+                [附件2] 类型:图片 文件名:526CF7E97548618E84D32105E3DB12CF.jpg 尺寸:1280x1707 大小:142.3KB URL:
+                """;
+        List<InboundMessage.MessagePart> parts = List.of(
+                new InboundMessage.MessagePart(UUID.randomUUID(), 1, "ATTACHMENT", "IMAGE",
+                        "EF84ED0FA716AB1DA73605C418C51E24.jpg", "image/jpeg", 177562L),
+                new InboundMessage.MessagePart(UUID.randomUUID(), 2, "ATTACHMENT", "IMAGE",
+                        "526CF7E97548618E84D32105E3DB12CF.jpg", "image/jpeg", 145715L));
+        when(messagingClient.get(messageId)).thenReturn(new InboundMessage(messageId, 41L, ChannelType.QQ,
+                "qq_main:C2C_MESSAGE_CREATE:forwarded", "qq:c2c:qq-user-41", "qq-user-41", null,
+                body, Instant.now(), Instant.now(), parts));
+
+        var run = service.process(messageId);
+
+        assertThat(run.actionCount()).isEqualTo(2);
+        assertThat(repository.findActions(run.id())).extracting("actionType")
+                .containsOnly("ATTACHMENT_DOWNLOAD");
+        verify(downloadClient, never()).createBatch(any(), anyLong(), any(), anyInt(), any(), any(), anyString());
+        verify(downloadClient, never()).create(any(), anyLong(), any(), anyInt(), anyString(), anyString(),
+                anyString(), any());
+    }
+
+    @Test
+    void shouldFailWithoutActionInputWhenBodyOnlyCarriesFileNames() {
+        service.createRule(new CreateAutomationRuleRequest(42L, "qq_file_name_only", ChannelType.QQ,
+                null, "qq-user-42", "", "HTTP_ASSET", 25, 100, true));
+        UUID messageId = UUID.randomUUID();
+        when(messagingClient.get(messageId)).thenReturn(new InboundMessage(messageId, 42L, ChannelType.QQ,
+                "qq_main:C2C_MESSAGE_CREATE:names", "qq:c2c:qq-user-42", "qq-user-42", null,
+                "CF3A6F3AADF2DB3093CD4FD3CD9269EF.png", Instant.now(), Instant.now()));
+
+        var run = service.process(messageId);
+
+        assertThat(run.status()).isEqualTo("FAILED");
+        assertThat(run.errorCode()).isEqualTo("AUTOMATION_002");
+        assertThat(run.actionCount()).isZero();
+        verify(downloadClient, never()).createBatch(any(), anyLong(), any(), anyInt(), any(), any(), anyString());
+    }
+
+    @Test
+    void shouldKeepRealLinksThatShareAttachmentFileExtensions() {
+        service.createRule(new CreateAutomationRuleRequest(43L, "qq_real_links", ChannelType.QQ,
+                null, "qq-user-43", "", "HTTP_ASSET", 25, 100, true));
+        UUID messageId = UUID.randomUUID();
+        String body = """
+                [群聊的聊天记录]
+                [附件1] 类型:图片 文件名:EF84ED0FA716AB1DA73605C418C51E24.jpg 尺寸:1280x1707 大小:173.4KB URL:
+                https://files.example/report.zip
+                files.example/album/cover.jpg
+                """;
+        when(messagingClient.get(messageId)).thenReturn(new InboundMessage(messageId, 43L, ChannelType.QQ,
+                "qq_main:C2C_MESSAGE_CREATE:links", "qq:c2c:qq-user-43", "qq-user-43", null,
+                body, Instant.now(), Instant.now()));
+
+        var run = service.process(messageId);
+
+        assertThat(repository.findActions(run.id())).extracting("actionType").containsExactly("DOWNLOAD_BATCH");
+        String payload = jdbcTemplate.queryForObject(
+                "SELECT source_url FROM automation_action WHERE automation_run_id = ?",
+                String.class, run.id().toString());
+        assertThat(payload).contains("https://files.example/report.zip")
+                .contains("https://files.example/album/cover.jpg");
+    }
+
+    @Test
     void shouldSplitUrlsIntoStableBatchesApplyServiceLimitAndRecover() {
         service.createRule(new CreateAutomationRuleRequest(22L, "bounded_url_batches", ChannelType.EMAIL,
                 "thread-22", "owner22@example.com", "", "HTTP_ASSET", 30, 100, true));

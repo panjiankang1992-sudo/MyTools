@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +49,14 @@ public class MessageAutomationService {
     private static final int MAXIMUM_BATCH_PAYLOAD_LENGTH = 4096;
     private static final int MAXIMUM_RECONCILIATION_ACTIONS_PER_RUN = 4;
     private static final int MAXIMUM_URL_CANDIDATES_PER_MESSAGE = 10_000;
+    // 附件描述只保留文件名（如 32 位十六进制.jpg），裸域名分支会把这类文件名误判为链接。
+    // 该集合只用于无协议的裸候选；带明确 http/https 协议的链接不受影响。
+    private static final Set<String> ATTACHMENT_FILE_EXTENSIONS = Set.of(
+            "avif", "bmp", "gif", "heic", "heif", "ico", "jpeg", "jpg", "png", "svg", "tif", "tiff", "webp",
+            "avi", "flv", "m4v", "mkv", "mov", "mp4", "mpeg", "mpg", "webm", "wmv",
+            "aac", "amr", "flac", "m4a", "mp3", "ogg", "opus", "wav", "wma",
+            "csv", "doc", "docx", "json", "pdf", "ppt", "pptx", "txt", "xls", "xlsx", "xml", "yaml", "yml",
+            "7z", "bz2", "gz", "rar", "tar", "tgz", "xz", "zip");
     private static final Pattern URL_PATTERN = Pattern.compile(
             "(?:magnet:\\?|https?://|(?<![@\\w])(?:[a-z0-9-]+\\.)+[a-z]{2,}(?=/|\\b))[^\\s<>\"'\\u3000-\\u303f\\uff00-\\uffef]*",
             Pattern.CASE_INSENSITIVE);
@@ -645,9 +655,13 @@ public class MessageAutomationService {
                 }
                 continue;
             }
-            String candidate = matched.regionMatches(true, 0, "http://", 0, 7)
-                    || matched.regionMatches(true, 0, "https://", 0, 8)
-                    ? matched : "https://" + matched;
+            boolean explicitScheme = matched.regionMatches(true, 0, "http://", 0, 7)
+                    || matched.regionMatches(true, 0, "https://", 0, 8);
+            // 无协议的裸候选若只是带扩展名的文件名，则不是可下载链接。
+            if (!explicitScheme && looksLikeFileName(matched)) {
+                continue;
+            }
+            String candidate = explicitScheme ? matched : "https://" + matched;
             try {
                 URI uri = new URI(candidate);
                 // 只允许明确的公网协议形态，实际 SSRF 防护由下载任务再次执行。
@@ -660,6 +674,28 @@ public class MessageAutomationService {
             }
         }
         return List.copyOf(urls);
+    }
+
+    /**
+     * 判断无协议的裸候选是否只是带扩展名的文件名，而不是真实域名。
+     */
+    private boolean looksLikeFileName(String value) {
+        // 主机名在路径、端口或查询串之前结束。
+        int boundary = value.length();
+        int slash = value.indexOf('/');
+        if (slash >= 0 && slash < boundary) {
+            boundary = slash;
+        }
+        int colon = value.indexOf(':');
+        if (colon >= 0 && colon < boundary) {
+            boundary = colon;
+        }
+        String host = value.substring(0, boundary);
+        int dot = host.lastIndexOf('.');
+        if (dot < 0 || dot == host.length() - 1) {
+            return false;
+        }
+        return ATTACHMENT_FILE_EXTENSIONS.contains(host.substring(dot + 1).toLowerCase(Locale.ROOT));
     }
 
     private void replyDuplicateLinks(InboundMessage message, UUID runId,
