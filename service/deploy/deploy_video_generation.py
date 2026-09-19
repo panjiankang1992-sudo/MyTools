@@ -46,7 +46,7 @@ ROOT = Path('/opt/yuyutian/mytools')
 NAME = os.environ.get('VIDEO_DEPLOY_NAME', 'video-production-20260914-v1')
 RELEASE = ROOT / 'releases' / NAME
 # 本发布携带的视频任务包版本；包内容不可变，改动必须升版本并同步调度器迁移。
-PACKAGE_VERSION = '1.0.1'
+PACKAGE_VERSION = '1.0.3'
 # 历史里程碑的脚本包根：基线若缺少其中的同名新版本，发布会把它们一并带上。
 BASELINE_PACKAGE_ROOTS = [ROOT / 'releases' / name / 'task-packages' for name in (
     'image-extension-20260914-v3', 'image-extension-20260914-v2', 'image-production-20260913-v1')]
@@ -69,7 +69,8 @@ WORKER_ENVIRONMENT = (
     'VIDEO_FIRST_LAST_VALIDATED', 'VIDEO_RESTYLE_VALIDATED', 'VIDEO_MASKED_VALIDATED',
     'VIDEO_GENERATION_ROOT', 'VIDEO_COMFY_URL', 'VIDEO_COMFY_OUTPUT_DIR', 'VIDEO_GPU_LOCK_FILE',
     'VIDEO_WORKFLOW_INDEX_FILE', 'VIDEO_WORKFLOW_INDEX_SHA256', 'VIDEO_MIN_FREE_MIB',
-    'VIDEO_INFERENCE_TIMEOUT_SECONDS', 'TAGGING_MODEL', 'TAGGING_SERVICE_URL',
+    'VIDEO_INFERENCE_TIMEOUT_SECONDS', 'VIDEO_FILL_BLEND', 'VIDEO_COLOR_MATCH',
+    'TAGGING_MODEL', 'TAGGING_SERVICE_URL',
 )
 MODE_FLAGS = {
     'FIRST_FRAME': 'VIDEO_FIRST_FRAME_VALIDATED',
@@ -514,6 +515,11 @@ def stage():
         'VIDEO_MIN_FREE_MIB': '14848',
         # 49 帧推理实测 8–17 分钟；超时上限留出两倍余量，超时后任务被判失败而不是无限占用 GPU。
         'VIDEO_INFERENCE_TIMEOUT_SECONDS': '2400',
+        # 首帧控制强度：P0 扫描里 0.50 的颜色保真明显好于 0.25，运动量几乎不变（0.75/repeat 已冻住）。
+        'VIDEO_FILL_BLEND': '0.50',
+        # 出片后的颜色校正强度：白底素材的内容区会漂蓝，只调混合强度不够（seed 932 在 0.50 下仍漂），
+        # 因此默认 1.0（把每帧内容区均值对齐首帧），置 0 可关闭。
+        'VIDEO_COLOR_MATCH': '1.0',
         'VIDEO_MODEL_REVISION': 'wan2.1-vace-1.3b-fp16',
         'VIDEO_WORKFLOW_REVISION': 'video-vace-1.3b-v1',
         'TASK_EXECUTOR_SCRIPT_ROOT': str(RELEASE / 'task-packages'),

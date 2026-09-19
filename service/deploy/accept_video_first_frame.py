@@ -24,6 +24,12 @@ import time
 
 DEPLOY = Path(__file__).resolve().parent / 'deploy_video_generation.py'
 SEEDS = (42, 932)
+# 色偏判据用"色平衡"而不是单通道绝对值：整段均匀变暗（三通道同向）不是色偏，
+# 而白底素材漂蓝时 R−B 会变化上百。实测 α=0.25：A 108.9、B 4.8、C 25.0；取 40 作"明显色偏"门槛。
+CONTENT_CAST_LIMIT = 40.0
+# 运动量下限/上限：低于下限说明"没动"，高于上限说明画面在乱跳。
+MOTION_FLOOR = 1.5
+MOTION_CEILING = 60.0
 SAMPLED_FRAMES = (0, 24, 48)
 # 固定提示词：验收比的是补边与构图，不引入提示词变量。
 PROMPT = ('The subject in the frame begins to move gently. The camera slowly pushes in. '
@@ -43,6 +49,47 @@ def frame_png(video, index, target):
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(video), '-vf', f'select=eq(n\\,{index})',
                     '-frames:v', '1', str(target)], check=True, timeout=120)
     return target
+
+
+def content_means(video, index):
+    """量测内容区（去掉两侧补边与最外圈）的通道均值，用来发现"补边是灰的、内容却变色了"。"""
+    raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', str(video), '-vf', f'select=eq(n\\,{index})',
+                          '-frames:v', '1', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'],
+                         check=True, capture_output=True).stdout
+    if len(raw) != 832 * 480 * 3:
+        return None
+    totals = [0, 0, 0]
+    count = 0
+    for row in range(40, 440):
+        base = row * 832 * 3
+        for column in range(200, 632):
+            offset = base + column * 3
+            for channel in range(3):
+                totals[channel] += raw[offset + channel]
+            count += 1
+    return [round(total / count, 1) for total in totals]
+
+
+def content_drift(video, frames):
+    """内容区颜色分析：逐通道漂移 + 色平衡漂移 + 亮度漂移。
+
+    判据只卡"色偏"（色平衡变化），不卡整体变暗/变亮：三通道同向变化属于亮度变化，可能是模型
+    合理的运动结果，由人评在指令遵循里判断；色平衡变化才是"变色"这类缺陷。
+    """
+    values = [content_means(video, index) for index in frames]
+    if not values or any(value is None for value in values):
+        return None
+    first, last = values[0], values[-1]
+    balance = [round(v[0] - v[2], 1) for v in values]          # R−B：色温/色偏
+    green = [round(v[1] - (v[0] + v[2]) / 2, 1) for v in values]  # 绿-品红轴
+    luma = [round(sum(v) / 3, 1) for v in values]
+    return {'frames': values,
+            'delta': [round(b - a, 1) for a, b in zip(first, last)],
+            'balance': balance, 'greenAxis': green, 'luma': luma,
+            'deltaBalance': round(balance[-1] - balance[0], 1),
+            'deltaGreenAxis': round(green[-1] - green[0], 1),
+            'deltaLuma': round(luma[-1] - luma[0], 1),
+            'maxAbsCast': round(max(abs(balance[-1] - balance[0]), abs(green[-1] - green[0])), 1)}
 
 
 def edges_are_neutral(deploy, edges):
@@ -157,18 +204,25 @@ def main() -> int:
                     entry['video'] = str(target)
                     entry['edges'] = deploy.edge_profile(target, SAMPLED_FRAMES)
                     entry['motion'] = motion(target)
+                    entry['contentDrift'] = content_drift(target, SAMPLED_FRAMES)
                     for index in SAMPLED_FRAMES:
                         frame_png(target, index, output / f"{subject['slug']}-seed{seed}-f{index:02d}.png")
                 samples.append(entry)
                 (output / 'acceptance.json').write_text(
                     json.dumps({'samples': samples}, ensure_ascii=False, indent=2) + '\n')
                 print(f"[{'ok' if entry['status'] == 'SUCCEEDED' else entry['status']}] {subject['label']} "
-                      f"seed={seed} job={entry['jobId']} edges={json.dumps(entry.get('edges', []), ensure_ascii=False)[:200]}",
+                      f"seed={seed} job={entry['jobId']} motion={entry.get('motion')} "
+                      f"cast={json.dumps((entry.get('contentDrift') or {}).get('maxAbsCast'), ensure_ascii=False)} "
+                      f"edges={json.dumps(entry.get('edges', []), ensure_ascii=False)[:160]}",
                       flush=True)
         # 客观判据：全部成功、且每条的补边都是中性灰。
+        # 客观判据：全部成功、补边中性灰、内容区色偏在限内、运动量在"sane 区间"（不是静止也不是乱跳）。
         objective_ok = (len(samples) == len(subjects) * len(SEEDS)
                         and all(item.get('status') == 'SUCCEEDED' for item in samples)
-                        and all(edges_are_neutral(deploy, item.get('edges') or []) for item in samples))
+                        and all(edges_are_neutral(deploy, item.get('edges') or []) for item in samples)
+                        and all((item.get('contentDrift') or {}).get('maxAbsCast', 999) <= CONTENT_CAST_LIMIT
+                                for item in samples)
+                        and all(MOTION_FLOOR <= (item.get('motion') or 0) <= MOTION_CEILING for item in samples))
     finally:
         # 收尾：恢复容量；模式开关按客观判据决定——全绿才继续开放，否则关掉等人工处理。
         with deploy.task_connection() as db, db.cursor() as cursor:
@@ -181,6 +235,8 @@ def main() -> int:
                'succeeded': sum(1 for item in samples if item.get('status') == 'SUCCEEDED'),
                'edgesNeutral': all(edges_are_neutral(deploy, item['edges'])
                                    for item in samples if item.get('edges')),
+               'maxContentCast': max((item.get('contentDrift') or {}).get('maxAbsCast', 0)
+                                     for item in samples) if samples else None,
                'objectiveVerdict': 'accept' if objective_ok else 'reject',
                'subjects': [subject['slug'] for subject in subjects], 'seeds': list(SEEDS),
                'output': str(output)}

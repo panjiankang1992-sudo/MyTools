@@ -1,0 +1,244 @@
+{
+  "verdict": "accept",
+  "samples": [
+    {
+      "sampleId": "A-cold-white-seed42",
+      "video": "p0-reaccept-20260920/A-cold-white-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": 4,
+        "subjectPreservation": 5,
+        "temporalCoherence": 4,
+        "editLocality": null,
+        "artifacts": 4
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [],
+      "severe": false,
+      "passed": true
+    },
+    {
+      "sampleId": "A-cold-white-seed932",
+      "video": "p0-reaccept-20260920/A-cold-white-seed932.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": 4,
+        "subjectPreservation": 5,
+        "temporalCoherence": 4,
+        "editLocality": null,
+        "artifacts": 4
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [],
+      "severe": false,
+      "passed": true
+    },
+    {
+      "sampleId": "B-warm-generated-seed42",
+      "video": "p0-reaccept-20260920/B-warm-generated-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": 4,
+        "subjectPreservation": 5,
+        "temporalCoherence": 4,
+        "editLocality": null,
+        "artifacts": 4
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [],
+      "severe": false,
+      "passed": true
+    },
+    {
+      "sampleId": "B-warm-generated-seed932",
+      "video": "p0-reaccept-20260920/B-warm-generated-seed932.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": 4,
+        "subjectPreservation": 5,
+        "temporalCoherence": 4,
+        "editLocality": null,
+        "artifacts": 4
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [],
+      "severe": false,
+      "passed": true
+    },
+    {
+      "sampleId": "C-landscape-seed42",
+      "video": "p0-reaccept-20260920/C-landscape-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": 4,
+        "subjectPreservation": 4,
+        "temporalCoherence": 4,
+        "editLocality": null,
+        "artifacts": 4
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [],
+      "severe": false,
+      "passed": true
+    },
+    {
+      "sampleId": "C-landscape-seed932",
+      "video": "p0-reaccept-20260920/C-landscape-seed932.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": 4,
+        "subjectPreservation": 4,
+        "temporalCoherence": 4,
+        "editLocality": null,
+        "artifacts": 4
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [],
+      "severe": false,
+      "passed": true
+    },
+    {
+      "sampleId": "alpha025-A-cold-white-seed42",
+      "video": "p0-reaccept-20260919/A-cold-white-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "reference",
+      "scores": {
+        "instructionFollowing": null,
+        "subjectPreservation": null,
+        "temporalCoherence": null,
+        "editLocality": null,
+        "artifacts": null
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "severe": false,
+      "passed": false
+    },
+    {
+      "sampleId": "alpha025-A-cold-white-seed932",
+      "video": "p0-reaccept-20260919/A-cold-white-seed932.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "reference",
+      "scores": {
+        "instructionFollowing": null,
+        "subjectPreservation": null,
+        "temporalCoherence": null,
+        "editLocality": null,
+        "artifacts": null
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "severe": false,
+      "passed": false
+    },
+    {
+      "sampleId": "alpha025-B-warm-generated-seed42",
+      "video": "p0-reaccept-20260919/B-warm-generated-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "reference",
+      "scores": {
+        "instructionFollowing": null,
+        "subjectPreservation": null,
+        "temporalCoherence": null,
+        "editLocality": null,
+        "artifacts": null
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "severe": false,
+      "passed": false
+    },
+    {
+      "sampleId": "alpha025-C-landscape-seed42",
+      "video": "p0-reaccept-20260919/C-landscape-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "reference",
+      "scores": {
+        "instructionFollowing": null,
+        "subjectPreservation": null,
+        "temporalCoherence": null,
+        "editLocality": null,
+        "artifacts": null
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "missingKeyScores": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence"
+      ],
+      "severe": false,
+      "passed": false
+    }
+  ],
+  "complete": true,
+  "counts": {
+    "graded": 6,
+    "reference": 4,
+    "passed": 6,
+    "severe": 0
+  },
+  "unscoredSamples": [],
+  "passRatio": 1.0,
+  "rule": "只看 role=acceptance 的行；关键项均 ≥3 视为通过；至少 5/6 通过且无一票否决才准入",
+  "sheet": "review-sheet.csv",
+  "machinePrescore": true,
+  "reviewer": "machine-prescore"
+}

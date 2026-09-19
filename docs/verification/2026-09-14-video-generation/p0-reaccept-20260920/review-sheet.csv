@@ -1,0 +1,11 @@
+role,sample_id,video,mode,source,seed,elapsed_s,motion,edge_note,instructionFollowing,subjectPreservation,temporalCoherence,editLocality,artifacts,severeFlag,overall_mos,notes
+acceptance,A-cold-white-seed42,p0-reaccept-20260920/A-cold-white-seed42.mp4,FIRST_FRAME,P0 白底产品图（冷）,42,495,6.9291,补边 0.502/0.502 离散 0.0/0.0；色偏 0.7；色平衡Δ 0.7；亮度Δ -0.5,4,5,4,N/A,4,FALSE,,机器预评（非人工验收）：色偏已消除（本次修复目标），亮度漂移也随校正消失；闪烁与整体观感仍待人看
+acceptance,A-cold-white-seed932,p0-reaccept-20260920/A-cold-white-seed932.mp4,FIRST_FRAME,P0 白底产品图（冷）,932,495,16.7188,补边 0.502/0.502 离散 0.0/0.0；色偏 0.6；色平衡Δ -0.6；亮度Δ 0.2,4,5,4,N/A,4,FALSE,,机器预评（非人工验收）：色偏已消除（本次修复目标），亮度漂移也随校正消失；闪烁与整体观感仍待人看
+acceptance,B-warm-generated-seed42,p0-reaccept-20260920/B-warm-generated-seed42.mp4,FIRST_FRAME,Krea 生成（暖）,42,494,8.4562,补边 0.502/0.502 离散 0.0/0.0；色偏 1.2；色平衡Δ 1.2；亮度Δ 0.8,4,5,4,N/A,4,FALSE,,机器预评（非人工验收）：色偏已消除（本次修复目标），亮度漂移也随校正消失；闪烁与整体观感仍待人看
+acceptance,B-warm-generated-seed932,p0-reaccept-20260920/B-warm-generated-seed932.mp4,FIRST_FRAME,Krea 生成（暖）,932,495,12.2289,补边 0.502/0.502 离散 0.0/0.0；色偏 5.0；色平衡Δ 5.0；亮度Δ 1.6,4,5,4,N/A,4,FALSE,,机器预评（非人工验收）：色偏已消除（本次修复目标），亮度漂移也随校正消失；闪烁与整体观感仍待人看
+acceptance,C-landscape-seed42,p0-reaccept-20260920/C-landscape-seed42.mp4,FIRST_FRAME,真实风景照,42,494,5.3142,补边 0.502/0.502 离散 0.0/0.0；色偏 1.0；色平衡Δ 1.0；亮度Δ -0.4,4,4,4,N/A,4,FALSE,,机器预评（非人工验收）：色偏已消除（本次修复目标），亮度漂移也随校正消失；闪烁与整体观感仍待人看
+acceptance,C-landscape-seed932,p0-reaccept-20260920/C-landscape-seed932.mp4,FIRST_FRAME,真实风景照,932,497,5.9574,补边 0.502/0.502 离散 0.0/0.0；色偏 0.3；色平衡Δ 0.0；亮度Δ -0.2,4,4,4,N/A,4,FALSE,,机器预评（非人工验收）：色偏已消除（本次修复目标），亮度漂移也随校正消失；闪烁与整体观感仍待人看
+reference,alpha025-A-cold-white-seed42,p0-reaccept-20260919/A-cold-white-seed42.mp4,FIRST_FRAME,P0 白底产品图（冷）,42,495,,修复前（α=0.25）：色偏 109.0,,,,N/A,,FALSE,,修复前产物，仅作对照
+reference,alpha025-A-cold-white-seed932,p0-reaccept-20260919/A-cold-white-seed932.mp4,FIRST_FRAME,P0 白底产品图（冷）,932,495,,修复前（α=0.25）：色偏 176.4,,,,N/A,,FALSE,,修复前产物，仅作对照
+reference,alpha025-B-warm-generated-seed42,p0-reaccept-20260919/B-warm-generated-seed42.mp4,FIRST_FRAME,Krea 生成（暖）,42,495,,修复前（α=0.25）：色偏 4.8,,,,N/A,,FALSE,,修复前产物，仅作对照
+reference,alpha025-C-landscape-seed42,p0-reaccept-20260919/C-landscape-seed42.mp4,FIRST_FRAME,真实风景照,42,495,,修复前（α=0.25）：色偏 25.0,,,,N/A,,FALSE,,修复前产物，仅作对照

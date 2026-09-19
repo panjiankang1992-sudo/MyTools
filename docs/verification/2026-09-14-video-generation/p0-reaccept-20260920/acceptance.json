@@ -1,0 +1,730 @@
+{
+  "samples": [
+    {
+      "subject": "冷白底",
+      "seed": 42,
+      "jobId": "44fe02fb-a9cb-4106-889a-b9659113411f",
+      "status": "SUCCEEDED",
+      "errorCode": "",
+      "elapsedMillis": 495000,
+      "result": {
+        "frames": 49,
+        "fps": 16,
+        "durationMs": 3063,
+        "width": 832,
+        "height": 480,
+        "resourcePeak": {},
+        "hasAudio": false
+      },
+      "video": "/opt/yuyutian/mytools/runtime/video-production-20260919-v4/acceptance-20260920/A-cold-white-seed42.mp4",
+      "edges": [
+        {
+          "frame": 0,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 176,
+          "greyBarsRight": 176
+        },
+        {
+          "frame": 24,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 176,
+          "greyBarsRight": 176
+        },
+        {
+          "frame": 48,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 176,
+          "greyBarsRight": 176
+        }
+      ],
+      "motion": 6.9291,
+      "contentDrift": {
+        "frames": [
+          [
+            134.7,
+            133.7,
+            126.5
+          ],
+          [
+            134.1,
+            132.5,
+            124.6
+          ],
+          [
+            134.6,
+            133.0,
+            125.7
+          ]
+        ],
+        "delta": [
+          -0.1,
+          -0.7,
+          -0.8
+        ],
+        "balance": [
+          8.2,
+          9.5,
+          8.9
+        ],
+        "greenAxis": [
+          3.1,
+          3.2,
+          2.8
+        ],
+        "luma": [
+          131.6,
+          130.4,
+          131.1
+        ],
+        "deltaBalance": 0.7,
+        "deltaGreenAxis": -0.3,
+        "deltaLuma": -0.5,
+        "maxAbsCast": 0.7
+      }
+    },
+    {
+      "subject": "冷白底",
+      "seed": 932,
+      "jobId": "46ab1168-78d8-46ea-a715-fef9c7ec3010",
+      "status": "SUCCEEDED",
+      "errorCode": "",
+      "elapsedMillis": 495000,
+      "result": {
+        "frames": 49,
+        "fps": 16,
+        "durationMs": 3063,
+        "width": 832,
+        "height": 480,
+        "resourcePeak": {},
+        "hasAudio": false
+      },
+      "video": "/opt/yuyutian/mytools/runtime/video-production-20260919-v4/acceptance-20260920/A-cold-white-seed932.mp4",
+      "edges": [
+        {
+          "frame": 0,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 176,
+          "greyBarsRight": 176
+        },
+        {
+          "frame": 24,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 176,
+          "greyBarsRight": 176
+        },
+        {
+          "frame": 48,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 176,
+          "greyBarsRight": 176
+        }
+      ],
+      "motion": 16.7188,
+      "contentDrift": {
+        "frames": [
+          [
+            132.3,
+            131.7,
+            122.5
+          ],
+          [
+            132.4,
+            131.8,
+            122.6
+          ],
+          [
+            132.3,
+            131.7,
+            123.1
+          ]
+        ],
+        "delta": [
+          0.0,
+          0.0,
+          0.6
+        ],
+        "balance": [
+          9.8,
+          9.8,
+          9.2
+        ],
+        "greenAxis": [
+          4.3,
+          4.3,
+          4.0
+        ],
+        "luma": [
+          128.8,
+          128.9,
+          129.0
+        ],
+        "deltaBalance": -0.6,
+        "deltaGreenAxis": -0.3,
+        "deltaLuma": 0.2,
+        "maxAbsCast": 0.6
+      }
+    },
+    {
+      "subject": "暖色生成",
+      "seed": 42,
+      "jobId": "a97a45c2-08c5-4094-b6af-8f83c547c3a4",
+      "status": "SUCCEEDED",
+      "errorCode": "",
+      "elapsedMillis": 494000,
+      "result": {
+        "frames": 49,
+        "fps": 16,
+        "durationMs": 3063,
+        "width": 832,
+        "height": 480,
+        "resourcePeak": {},
+        "hasAudio": false
+      },
+      "video": "/opt/yuyutian/mytools/runtime/video-production-20260919-v4/acceptance-20260920/B-warm-generated-seed42.mp4",
+      "edges": [
+        {
+          "frame": 0,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 199,
+          "greyBarsRight": 176
+        },
+        {
+          "frame": 24,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 176,
+          "greyBarsRight": 176
+        },
+        {
+          "frame": 48,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 193,
+          "greyBarsRight": 176
+        }
+      ],
+      "motion": 8.4562,
+      "contentDrift": {
+        "frames": [
+          [
+            161.3,
+            146.4,
+            120.3
+          ],
+          [
+            162.1,
+            147.2,
+            118.7
+          ],
+          [
+            162.3,
+            148.0,
+            120.1
+          ]
+        ],
+        "delta": [
+          1.0,
+          1.6,
+          -0.2
+        ],
+        "balance": [
+          41.0,
+          43.4,
+          42.2
+        ],
+        "greenAxis": [
+          5.6,
+          6.8,
+          6.8
+        ],
+        "luma": [
+          142.7,
+          142.7,
+          143.5
+        ],
+        "deltaBalance": 1.2,
+        "deltaGreenAxis": 1.2,
+        "deltaLuma": 0.8,
+        "maxAbsCast": 1.2
+      }
+    },
+    {
+      "subject": "暖色生成",
+      "seed": 932,
+      "jobId": "f4d2d139-253a-46d9-b80e-05241938cb01",
+      "status": "SUCCEEDED",
+      "errorCode": "",
+      "elapsedMillis": 495000,
+      "result": {
+        "frames": 49,
+        "fps": 16,
+        "durationMs": 3063,
+        "width": 832,
+        "height": 480,
+        "resourcePeak": {},
+        "hasAudio": false
+      },
+      "video": "/opt/yuyutian/mytools/runtime/video-production-20260919-v4/acceptance-20260920/B-warm-generated-seed932.mp4",
+      "edges": [
+        {
+          "frame": 0,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 202,
+          "greyBarsRight": 176
+        },
+        {
+          "frame": 24,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 231,
+          "greyBarsRight": 301
+        },
+        {
+          "frame": 48,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 222,
+          "greyBarsRight": 176
+        }
+      ],
+      "motion": 12.2289,
+      "contentDrift": {
+        "frames": [
+          [
+            164.3,
+            143.5,
+            118.6
+          ],
+          [
+            166.6,
+            146.1,
+            118.2
+          ],
+          [
+            167.5,
+            146.9,
+            116.8
+          ]
+        ],
+        "delta": [
+          3.2,
+          3.4,
+          -1.8
+        ],
+        "balance": [
+          45.7,
+          48.4,
+          50.7
+        ],
+        "greenAxis": [
+          2.1,
+          3.7,
+          4.8
+        ],
+        "luma": [
+          142.1,
+          143.6,
+          143.7
+        ],
+        "deltaBalance": 5.0,
+        "deltaGreenAxis": 2.7,
+        "deltaLuma": 1.6,
+        "maxAbsCast": 5.0
+      }
+    },
+    {
+      "subject": "风景照",
+      "seed": 42,
+      "jobId": "20323017-04e4-4623-a469-bbe622637609",
+      "status": "SUCCEEDED",
+      "errorCode": "",
+      "elapsedMillis": 494000,
+      "result": {
+        "frames": 49,
+        "fps": 16,
+        "durationMs": 3063,
+        "width": 832,
+        "height": 480,
+        "resourcePeak": {},
+        "hasAudio": false
+      },
+      "video": "/opt/yuyutian/mytools/runtime/video-production-20260919-v4/acceptance-20260920/C-landscape-seed42.mp4",
+      "edges": [
+        {
+          "frame": 0,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 177,
+          "greyBarsRight": 176
+        },
+        {
+          "frame": 24,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 178,
+          "greyBarsRight": 177
+        },
+        {
+          "frame": 48,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 290,
+          "greyBarsRight": 177
+        }
+      ],
+      "motion": 5.3142,
+      "contentDrift": {
+        "frames": [
+          [
+            141.8,
+            128.2,
+            153.4
+          ],
+          [
+            140.9,
+            127.5,
+            152.6
+          ],
+          [
+            141.8,
+            127.9,
+            152.4
+          ]
+        ],
+        "delta": [
+          0.0,
+          -0.3,
+          -1.0
+        ],
+        "balance": [
+          -11.6,
+          -11.7,
+          -10.6
+        ],
+        "greenAxis": [
+          -19.4,
+          -19.2,
+          -19.2
+        ],
+        "luma": [
+          141.1,
+          140.3,
+          140.7
+        ],
+        "deltaBalance": 1.0,
+        "deltaGreenAxis": 0.2,
+        "deltaLuma": -0.4,
+        "maxAbsCast": 1.0
+      }
+    },
+    {
+      "subject": "风景照",
+      "seed": 932,
+      "jobId": "edc9dc52-7534-497c-b883-b8d91d0cbf5b",
+      "status": "SUCCEEDED",
+      "errorCode": "",
+      "elapsedMillis": 497000,
+      "result": {
+        "frames": 49,
+        "fps": 16,
+        "durationMs": 3063,
+        "width": 832,
+        "height": 480,
+        "resourcePeak": {},
+        "hasAudio": false
+      },
+      "video": "/opt/yuyutian/mytools/runtime/video-production-20260919-v4/acceptance-20260920/C-landscape-seed932.mp4",
+      "edges": [
+        {
+          "frame": 0,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 176,
+          "greyBarsRight": 176
+        },
+        {
+          "frame": 24,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 176,
+          "greyBarsRight": 176
+        },
+        {
+          "frame": 48,
+          "leftMean": 0.502,
+          "rightMean": 0.502,
+          "leftChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "rightChannels": [
+            0.502,
+            0.502,
+            0.502
+          ],
+          "leftSpread": 0.0,
+          "rightSpread": 0.0,
+          "greyBarsLeft": 176,
+          "greyBarsRight": 176
+        }
+      ],
+      "motion": 5.9574,
+      "contentDrift": {
+        "frames": [
+          [
+            145.0,
+            122.8,
+            133.6
+          ],
+          [
+            144.2,
+            122.0,
+            132.9
+          ],
+          [
+            144.7,
+            122.8,
+            133.3
+          ]
+        ],
+        "delta": [
+          -0.3,
+          0.0,
+          -0.3
+        ],
+        "balance": [
+          11.4,
+          11.3,
+          11.4
+        ],
+        "greenAxis": [
+          -16.5,
+          -16.6,
+          -16.2
+        ],
+        "luma": [
+          133.8,
+          133.0,
+          133.6
+        ],
+        "deltaBalance": 0.0,
+        "deltaGreenAxis": 0.3,
+        "deltaLuma": -0.2,
+        "maxAbsCast": 0.3
+      }
+    }
+  ]
+}
