@@ -17,6 +17,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class InternalTokenFilterTest {
 
     @Test
+    void shouldProtectImageDeploymentPath() {
+        assertTrue(InternalTokenFilter.isProtectedPath("/internal/v1/image-generation-deployment"));
+    }
+
+    @Test
+    void shouldProtectVideoDeploymentPath() {
+        assertTrue(InternalTokenFilter.isProtectedPath("/internal/v1/video-generation-deployment"));
+    }
+
+    @Test
     void shouldRejectMissingTokenForProtectedPath() throws Exception {
         InternalTokenFilter filter = new InternalTokenFilter(
                 new TaskSecurityProperties(true, "scheduler-secret", "scheduler-secret"),

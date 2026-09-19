@@ -26,6 +26,14 @@ management:
       exposure:
         include: health,info,metrics,prometheus
 task:
+  workload-authorization:
+    enabled: ${TASK_WORKLOAD_AUTHORIZATION_ENABLED:false}
+    signing-keyring-file: ${TASK_WORKLOAD_SIGNING_KEYRING_FILE:}
+    issuer: ${TASK_WORKLOAD_ISSUER:mytools-task-scheduler}
+    assertion-seconds: ${TASK_WORKLOAD_ASSERTION_SECONDS:60}
+    overlap-seconds: ${TASK_WORKLOAD_OVERLAP_SECONDS:5}
+    executor-identities: {}
+    reader-identities: []
   outbox:
     webhook-url: ${TASK_OUTBOX_WEBHOOK_URL:}
     auth-token: ${TASK_OUTBOX_AUTH_TOKEN:}
@@ -41,6 +49,8 @@ task:
       task-executor-service: ${TASK_EXECUTOR_INTERNAL_TOKEN:}
       task-operator-service: ${TASK_OPERATOR_INTERNAL_TOKEN:}
     business-clients:
+      image-generation-service: ${TASK_BUSINESS_IMAGE_GENERATION_TOKEN:}
+      video-generation-service: ${TASK_BUSINESS_VIDEO_GENERATION_TOKEN:}
       mytools-service: ${TASK_BUSINESS_MYTOOLS_TOKEN:}
       messaging-service: ${TASK_BUSINESS_MESSAGING_TOKEN:${MESSAGING_INTERNAL_TOKEN:}}
       download-ingestion-service: ${TASK_BUSINESS_DOWNLOAD_TOKEN:${DOWNLOAD_INTERNAL_TOKEN:}}
@@ -67,3 +77,5 @@ task:
     cron-scan-batch-size: ${TASK_CRON_SCAN_BATCH_SIZE:64}
     cron-bootstrap-batch-size: ${TASK_CRON_BOOTSTRAP_BATCH_SIZE:128}
     deadline-scan-delay-ms: ${TASK_DEADLINE_SCAN_DELAY_MS:1000}
+    dispatch:
+      queue-timeout-seconds: ${TASK_QUEUE_DISPATCH_TIMEOUT_SECONDS:300}

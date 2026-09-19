@@ -1,4 +1,10 @@
+import { ImageGenerationPage } from '../features/tools/ImageGenerationPage';
+import { VideoGenerationPage } from '../features/tools/VideoGenerationPage';
 import { AppTheme } from '../theme/AppTheme';
+import { ChapterAdaptationPanel } from '../features/reader/ChapterAdaptationPanel';
+import { ReaderDirectoryCache } from '../features/reader/ReaderDirectoryCache';
+import { ReaderShelfFileCache } from '../features/reader/ReaderShelfFileCache';
+import { ChapterAdaptationPolicy } from '../features/reader/ChapterAdaptationPolicy';
 import { AppDangerPillButton, AppFilterChip, AppGlassTextArea, AppGlassTextInput, AppGlassTextOutput,
   AppPrimaryPillButton, AppSearchField, AppSecondaryPillButton, AppSegmentItem, AppSettingsRow } from
   '../components/AppControls';
@@ -412,8 +418,10 @@ struct Index {
   private mediaPlaybackProgress: MediaPlaybackProgress[] = [];
   private audiobookPlaybackProgress?: AudiobookPlaybackProgress = undefined;
   private lastAudiobookProgressPersistedAt: number = 0;
-  @State bookModeIndex: number = 0;
+  @State bookModeIndex: number = 3;
   @State books: Book[] = [];
+  private readonly readerDirectoryCache: ReaderDirectoryCache = new ReaderDirectoryCache();
+  private remoteBookVisibleCacheKey: string = '';
   private shelfBookTombstones: ShelfBookTombstone[] = [];
   @State shelfSearchText: string = '';
   @State bookSources: BookSource[] = [];
@@ -506,6 +514,14 @@ struct Index {
   @State readerSearchVisible: boolean = false;
   @State readerMoreVisible: boolean = false;
   @State readerCatalogVisible: boolean = false;
+  @State chapterAdaptationBook?: Book = undefined;
+  private chapterAdaptationIndex: number = -1;
+  private chapterAdaptationTitle: string = '';
+  private chapterAdaptationBack: () => void = (): void => this.CloseChapterAdaptation();
+  private chapterAdaptationLifetime: DownloadCancellationToken = new DownloadCancellationToken();
+  private chapterAdaptationAccountRevision: number = 0;
+  private chapterAdaptationAccountOwner: string = '';
+  private readonly chapterAdaptationPolicy: ChapterAdaptationPolicy = new ChapterAdaptationPolicy();
   @State readerCatalogMode: string = 'catalog';
   @State readerSearchText: string = '';
   @State readerSearchResults: IndexedTextSearchHit[] = [];
@@ -907,6 +923,7 @@ struct Index {
    * 页面销毁时释放媒体播放器和 DSH 网络客户端。
    */
   aboutToDisappear(): void {
+    this.CloseChapterAdaptation(false);
     this.pageLifecycleRevision++;
     this.authenticationUiRevision++;
     this.activeDownloadCancellation?.cancel();
@@ -977,6 +994,7 @@ struct Index {
    * 应用进入后台时立即保存阅读和远程播放进度。
    */
   onPageHide(): void {
+    this.CloseChapterAdaptation(false);
     if (this.readerVisible) {
       this.ClearScheduledReaderProgressSave();
       this.SaveCurrentProgress();
@@ -1005,6 +1023,7 @@ struct Index {
    * 按视觉层级消费系统返回操作，避免直接退出时丢失阅读进度或媒体状态。
    */
   onBackPress(): boolean {
+    if (this.chapterAdaptationBook !== undefined) { this.chapterAdaptationBack(); return true; }
     if (this.readerVisible) {
       if (this.readerShelfPromptVisible) this.readerShelfPromptVisible = false;
       else if (this.readerAnnotationVisible) this.readerAnnotationVisible = false;
@@ -1118,7 +1137,10 @@ struct Index {
   private StandardTabPage(index: number) {
     Column({ space: 14 }) {
       // 一级页面标题和头像固定在顶部，内容区独立滚动。
-      this.PageHeader(this.tabs[index].title)
+      if (!(index === 1 && (this.toolMode === 'image-generation' || this.toolMode === 'video-generation'))) {
+        this.PageHeader(this.tabs[index].title)
+      }
+      if (index === 0) this.BookModeSelector()
       if (index === 3) {
         this.MediaPage()
       } else if (index === 0 && this.bookModeIndex === 0 && this.sourceSearchPageVisible) {
@@ -1137,7 +1159,8 @@ struct Index {
         .scrollBar(BarState.Off)
         .onReachEnd(() => {
           if (index === 0 && this.bookModeIndex === 0) {
-            this.LoadMoreBookSourceSearchResults();
+            if (this.sourceSearchPageVisible) this.LoadMoreBookSourceSearchResults();
+            else this.LoadMoreManagedBookSources();
           } else if (index === 0 && this.bookModeIndex === 1) {
             this.LoadMoreRemoteBookDirectory();
           }
@@ -1162,9 +1185,6 @@ struct Index {
             .accessibilityText('局域网直连')
         }
       }.layoutWeight(1)
-      if (this.currentIndex === 0) {
-        this.BookModeSelector()
-      }
       if (this.currentIndex === 3) {
         this.MediaModeSwitch()
       }
@@ -1240,7 +1260,17 @@ struct Index {
       if (this.sourceSearchPageVisible) this.BookSourceSearchResultsPage()
       else {
         this.BookSourceSearchField()
-        this.BookShelfSection()
+        Row() {
+          Text('书源列表').layoutWeight(1).fontSize(18).fontColor(AppTheme.textPrimary)
+          Button('管理').fontColor(AppTheme.primary).backgroundColor(Color.Transparent)
+            .onClick(() => this.bookSourceManagementVisible = true)
+        }.width('100%')
+        this.BookSourceManageFilter()
+        if (this.sourceManageFilterVisible) this.BookSourceManageFilterMenu()
+        this.BookSourceManagementPanel()
+        if (this.VisibleManagedBookSources().length < this.FilteredManagedBookSources().length) {
+          Button('加载更多书源').onClick(() => this.LoadMoreManagedBookSources())
+        }
       }
     } else if (this.bookModeIndex === 1) {
       AppGlassTextInput({ value: this.remoteBookSearchText, placeholder: '搜索远程书名、作者或标签',
@@ -1330,8 +1360,9 @@ struct Index {
   @Builder
   private BookModeSelector() {
     Row() {
-      ForEach(['书源', '远程', '本地'], (item: string, index: number) => {
-        AppSegmentItem({ label: item, selected: this.bookModeIndex === index, action: () => {
+      ForEach([3, 0, 1, 2], (index: number) => {
+        // 保留原模式标识，避免新增首位入口改变远程、搜索和本地的既有路由。
+        AppSegmentItem({ label: this.BookModeLabel(index), selected: this.bookModeIndex === index, action: () => {
           if (index !== 0 && this.sourceSearchLoading) this.CancelBookSourceSearch();
           this.bookModeIndex = index;
           this.bookSourceManagementVisible = false;
@@ -1339,7 +1370,7 @@ struct Index {
           this.bookStatus = '';
           if (index === 1 && this.authenticated) this.LoadRemoteBooks();
         } })
-          .accessibilityText(`${item}添加图书方式`)
+          .accessibilityText(`${this.BookModeLabel(index)}阅读入口`)
       })
     }
     .height(40)
@@ -1349,6 +1380,10 @@ struct Index {
     .border({ width: 1, color: AppTheme.glassBorder, radius: AppTheme.pillRadius })
     .backdropBlur(14)
     .margin({ right: 4 })
+  }
+
+  private BookModeLabel(index: number): string {
+    return index === 3 ? '书架' : index === 0 ? '书源' : index === 1 ? '远程' : '本地';
   }
 
   @Builder
@@ -1387,8 +1422,9 @@ struct Index {
             .fontSize(12).fontFamily('HarmonyOS Sans').fontColor(AppTheme.textSecondary)
         }.layoutWeight(1).alignItems(HorizontalAlign.Start)
       }.width('100%')
-      if (this.bookModeIndex === 0) {
+      if (this.bookModeIndex === 0 || this.bookModeIndex === 3) {
         this.EmptyShelfAction('搜索并加入书源图书', 'sys.symbol.square_stack_3d_fill', () => {
+          this.bookModeIndex = 0;
           this.tabScrollers[0].scrollEdge(Edge.Top);
         })
       } else if (this.bookModeIndex === 2) {
@@ -1427,6 +1463,12 @@ struct Index {
       this.ToolFilesPage()
     } else if (this.toolMode === 'feedback') {
       this.ToolFeedbackPage()
+    } else if (this.toolMode === 'image-generation') {
+      ImageGenerationPage({ baseUrl: this.ActiveServiceUrl(), authManager: this.authManager,
+        accountKey: this.authenticated ? this.profileUsername : '', onBack: () => this.toolMode = 'home' })
+    } else if (this.toolMode === 'video-generation') {
+      VideoGenerationPage({ baseUrl: this.ActiveServiceUrl(), authManager: this.authManager,
+        accountKey: this.authenticated ? this.profileUsername : '', onBack: () => this.toolMode = 'home' })
     } else if (this.toolMode === 'market') {
       this.ToolMarketPage()
     } else if (this.toolMode === 'qrcode') {
@@ -1508,6 +1550,21 @@ struct Index {
           this.toolMode = 'feedback';
         })
       }
+      if (this.ToolMatches('图片生成 AI 绘画 创作 底稿')) {
+        this.ToolEntryRow('图片生成', '文字创作、底稿参考与我的作品', () => {
+          if (!this.authenticated) this.OpenLogin();
+          else this.toolMode = 'image-generation';
+        })
+      }
+      if (this.ToolMatches('视频生成 短视频 动画 VACE 首帧')) {
+        this.ToolEntryRow('视频生成', '文字、图片或视频生成短视频', () => {
+          if (!this.authenticated) this.OpenLogin();
+          else {
+            this.toolMode = 'video-generation';
+            this.RecordRecentTool('video-generation');
+          }
+        })
+      }
       if (this.ToolMatches('应用市场 扩展 MCP Skill App')) {
         this.ToolEntryRow('应用市场', '浏览MyTools提供的扩展目录', () => {
           this.RecordRecentTool('market');
@@ -1536,7 +1593,8 @@ struct Index {
         !this.ToolMatches('远程电子书 书库 EPUB PDF 漫画') &&
         !this.ToolMatches('远程多媒体 图片 音频 视频') && !this.ToolMatches('意见反馈 建议 问题') &&
         !this.ToolMatches('应用市场 扩展 MCP Skill App') && !this.ToolMatches('二维码 QR 生成 扫描') &&
-        !this.ToolMatches('下载管理 任务 历史 进度') &&
+        !this.ToolMatches('下载管理 任务 历史 进度') && !this.ToolMatches('图片生成 AI 绘画 创作 底稿') &&
+        !this.ToolMatches('视频生成 短视频 动画 VACE 首帧') &&
         !this.ToolMatches('文件传输 上传 下载 WebDAV NAS 远程文件') &&
         !this.ToolMatches('开发工具 URL 编码 解码 时间戳 JSON') &&
         !this.ToolMatches('加密工具 摘要 SHA256 SHA512 哈希 校验') &&
@@ -1885,7 +1943,7 @@ struct Index {
 
   private IsKnownToolId(id: string): boolean {
     return ['files', 'transfer', 'text', 'developer', 'digest', 'archive', 'remoteBooks', 'remoteMedia',
-      'feedback', 'market', 'qrcode', 'downloads'].includes(id);
+      'feedback', 'market', 'qrcode', 'downloads', 'video-generation'].includes(id);
   }
 
   private RestoreRecentToolIds(raw: string): void {
@@ -1957,6 +2015,9 @@ struct Index {
       this.toolMode = 'qrcode';
     } else if (id === 'downloads') {
       this.toolMode = 'downloads';
+    } else if (id === 'video-generation') {
+      if (!this.authenticated) this.OpenLogin();
+      else this.toolMode = 'video-generation';
     }
   }
 
@@ -1972,6 +2033,7 @@ struct Index {
     if (id === 'feedback') return '意见反馈';
     if (id === 'market') return '应用市场';
     if (id === 'qrcode') return '二维码';
+    if (id === 'video-generation') return '视频生成';
     return '下载管理';
   }
 
@@ -1984,6 +2046,7 @@ struct Index {
     if (id === 'market') return '只读目录';
     if (id === 'qrcode') return '生成与扫描';
     if (id === 'downloads') return '任务记录';
+    if (id === 'video-generation') return '生成短视频';
     return '提交建议';
   }
 
@@ -1998,6 +2061,7 @@ struct Index {
     if (id === 'feedback') return 'sys.symbol.bubble_left';
     if (id === 'market') return 'sys.symbol.square_grid_2x2';
     if (id === 'downloads') return 'sys.symbol.arrow_down_circle';
+    if (id === 'video-generation') return 'sys.symbol.play_round_rectangle_fill';
     return 'sys.symbol.doc_text';
   }
 
@@ -5585,21 +5649,23 @@ struct Index {
               .lineHeight(23).fontColor(AppTheme.textSecondary)
           }.width('100%').alignItems(HorizontalAlign.Start)
 
-          Button() {
-            Row({ space: 12 }) {
-              SymbolGlyph($r('sys.symbol.doc_plaintext')).fontSize(22).fontColor([AppTheme.textPrimary])
-              Text('目录').fontSize(17).fontFamily('HarmonyOS Sans').fontColor(AppTheme.textPrimary)
-              Blank().layoutWeight(1)
-              Text(this.detailChapterCount > 0 ? `${this.detailChapterCount}章` :
-                (this.detailLastChapter.length > 0 ? this.detailLastChapter : '打开后查看'))
-                .maxLines(1).fontSize(13).fontColor(AppTheme.textSecondary)
-              SymbolGlyph($r('sys.symbol.chevron_right')).fontSize(22).fontColor([AppTheme.textSecondary])
-            }.width('100%')
-          }.width('100%').height(58).padding({ left: 14, right: 14 })
-            .backgroundColor(AppTheme.surface).borderRadius(14)
-            .accessibilityText('目录')
-            .accessibilityDescription('打开当前图书并查看目录')
-            .onClick(() => this.ReadDetailBook())
+          Row({ space: 10 }) {
+            Button() {
+              Row({ space: 12 }) {
+                SymbolGlyph($r('sys.symbol.doc_plaintext')).fontSize(22).fontColor([AppTheme.textPrimary])
+                Text('目录').fontSize(17).fontFamily('HarmonyOS Sans').fontColor(AppTheme.textPrimary)
+                Blank().layoutWeight(1)
+                Text(this.detailChapterCount > 0 ? `${this.detailChapterCount}章` :
+                  (this.detailLastChapter.length > 0 ? this.detailLastChapter : '打开后查看'))
+                  .maxLines(1).fontSize(13).fontColor(AppTheme.textSecondary)
+                SymbolGlyph($r('sys.symbol.chevron_right')).fontSize(22).fontColor([AppTheme.textSecondary])
+              }.width('100%')
+            }.layoutWeight(1).height(58).padding({ left: 14, right: 14 })
+              .backgroundColor(AppTheme.surface).borderRadius(14)
+              .accessibilityText('目录')
+              .accessibilityDescription('打开当前图书并查看目录')
+              .onClick(() => this.ReadDetailBook())
+          }.width('100%')
 
           Blank().height(92)
         }.width('100%').padding({ left: 24, right: 24, top: 14, bottom: 20 })
@@ -5648,13 +5714,14 @@ struct Index {
             action: () => this.RemoveDetailBookFromShelf(false) }).layoutWeight(1)
         }
       }.width('100%')
-      if (this.detailBook?.origin === 'source') {
+      if (this.detailBook !== undefined) {
         Button(this.detailOperationBusy ? '正在清除缓存…' : '清除离线缓存')
           .width('100%').height(44).fontSize(13).fontFamily('HarmonyOS Sans')
           .fontColor(AppTheme.primary).backgroundColor(AppTheme.surfaceTint).enabled(!this.detailOperationBusy)
           .accessibilityDescription('清除本书已下载的目录和章节缓存')
           .onClick(() => this.ClearDetailSourceCache())
-      } else {
+      }
+      if (this.detailBook?.origin !== 'source') {
         AppDangerPillButton({
           label: this.detailBook?.origin === 'remote' ? '删除远程文件并移出书架' : '删除本地文件并移出书架',
           available: !this.detailOperationBusy, description: '永久删除图书文件并从当前书架移除',
@@ -6663,7 +6730,11 @@ struct Index {
             }, (uri: string) => uri)
           } else {
             ForEach(this.readerChapters, (chapter: ReaderChapter, index: number) => {
-              Button(chapter.title).width('100%').height(48).fontSize(15)
+              Row({ space: 8 }) {
+              Button() {
+                Text(chapter.title).width('100%').textAlign(TextAlign.Start).fontSize(15).maxLines(2)
+                  .fontColor(index === this.readerChapterIndex ? AppTheme.primary : AppTheme.textPrimary)
+              }.layoutWeight(1).height(52).padding({ left: 12, right: 8 })
                 .backgroundColor(Color.Transparent)
                 .fontColor(index === this.readerChapterIndex ? AppTheme.primary : AppTheme.textPrimary)
                 .accessibilityDescription(index === this.readerChapterIndex ? '当前章节' : '跳转到该章节')
@@ -6673,6 +6744,13 @@ struct Index {
                     this.readerStatus = error.message;
                   });
                 })
+              if (this.authenticated && this.chapterAdaptationPolicy.eligible(this.currentBook, this.books)) {
+                Button() { SymbolGlyph($r('sys.symbol.ai_edit')).fontSize(20).fontColor([AppTheme.primary]) }
+                  .width(44).height(44).borderRadius(AppTheme.iconRadius).backgroundColor(AppTheme.accentSoft)
+                  .accessibilityText($r('app.string.adaptation_open_chapter')).accessibilityDescription(chapter.title)
+                  .onClick(() => this.OpenChapterAdaptation(this.currentBook, index, chapter.title))
+              }
+              }.width('100%').padding({ top: 2, bottom: 2 })
             }, (chapter: ReaderChapter, index: number) => `${index}:${chapter.title}`)
           }
         }.width('100%').alignItems(HorizontalAlign.Start).justifyContent(FlexAlign.Start)
@@ -6968,6 +7046,29 @@ struct Index {
         await this.RestoreRemoteBookProgress(book, this.readerProgressSyncGeneration, this.localAccountScope);
         if (!this.ReaderOpenCurrent(openRevision, accountRevision, owner, lifecycleRevision, book)) return;
       }
+      loader.documentCacheScope = owner;
+      if (book.origin !== 'local' && book.format !== 'unknown' &&
+        this.books.some((stored: Book) => stored.id === book.id && stored.resourceUri === book.resourceUri)) {
+        const cachedFile = await loader.shelfFileCache.prepare(context, owner, this.ActiveServiceUrl(), book);
+        if (!this.ReaderOpenCurrent(openRevision, accountRevision, owner, lifecycleRevision, book)) return;
+        if (cachedFile !== '') {
+          try {
+            if (book.format === 'pdf') await this.OpenPreparedPdf(openRevision, accountRevision, owner,
+              lifecycleRevision, book, loader, await loader.prepareLocalPdf(context, cachedFile));
+            else {
+              const cachedDocument = book.format === 'txt' ? await loader.loadLocalText(context, cachedFile) :
+                book.format === 'mobi' || book.format === 'azw3' ? await loader.loadLocalMobi(context, cachedFile, book.format) :
+                  await loader.loadLocalArchive(context, cachedFile, book.format);
+              this.ApplyOpenedReaderDocument(openRevision, accountRevision, owner, lifecycleRevision, book, loader, cachedDocument);
+            }
+            return;
+          } catch (_) {
+            // 损坏的加速副本只影响本次命中；删除副本后按原授权流程回源一次。
+            loader.shelfFileCache.invalidate();
+            if (!this.ReaderOpenCurrent(openRevision, accountRevision, owner, lifecycleRevision, book)) return;
+          }
+        }
+      }
       if (book.origin === 'local') {
         await this.localBookPicker.activate(book.resourceUri);
         if (!this.ReaderOpenCurrent(openRevision, accountRevision, owner, lifecycleRevision, book)) return;
@@ -7009,8 +7110,7 @@ struct Index {
           accountRevision, owner, lifecycleRevision, book,
           loader, await loader.loadRemoteMobi(context, descriptor.url, book.format));
         else this.ApplyOpenedReaderDocument(openRevision, accountRevision, owner, lifecycleRevision, book,
-          loader, await loader.loadRemoteArchive(context, descriptor.url, book.format, undefined,
-            book.id, book.cacheVersion));
+          loader, await loader.loadRemoteArchive(context, descriptor.url, book.format));
       } else if (book.origin === 'source') {
         this.readerStatus = '正在准备书源图书…';
         if (!book.resourceUri.startsWith('https://') && !book.resourceUri.startsWith('http://')) {
@@ -7953,6 +8053,7 @@ struct Index {
   }
 
   private CloseReader(skipShelfPrompt: boolean = false): void {
+    this.CloseChapterAdaptation(false);
     if (!skipShelfPrompt && this.ShouldPromptReaderShelf()) {
       this.readerControlsVisible = false;
       this.readerShelfPromptVisible = true;
@@ -9368,6 +9469,8 @@ struct Index {
     this.bookSourceCredentialStore.selectScope(scope);
     this.opdsCredentialStore.selectScope(scope);
     this.readerStorageScope = scope;
+    this.readerDirectoryCache.clear(); this.remoteBookVisibleCacheKey = '';
+    ReaderContentLoader.clearTextDocumentCache();
     this.ApplyReaderSnapshot(this.readerRepository.restore(context, scope));
     this.bookDetailVisible = false;
     this.detailBook = undefined;
@@ -10612,8 +10715,57 @@ struct Index {
       .borderRadius(AppTheme.pillRadius).onClick(action)
   }
 
-  build() {
+  /** 从章节行打开；页面须重新核对权威目录并取得服务端章节身份。 */
+  private OpenChapterAdaptation(book: Book | undefined, index: number, title: string): void {
+    if (!this.authenticated || !this.chapterAdaptationPolicy.eligible(book, this.books)) return;
+    this.chapterAdaptationLifetime.cancel();
+    this.chapterAdaptationLifetime = new DownloadCancellationToken();
+    this.chapterAdaptationAccountRevision = this.accountOperationRevision;
+    this.chapterAdaptationAccountOwner = this.localAccountScope;
+    this.chapterAdaptationIndex = index; this.chapterAdaptationTitle = title;
     if (this.readerVisible) {
+      this.ClearScheduledReaderProgressSave(); this.SaveCurrentProgress(); this.FinishReadingSession();
+      this.StopReaderSpeech(); this.StopReaderPersistenceTimer();
+    }
+    this.chapterAdaptationBook = book;
+  }
+
+  /** 关闭只停止页面观察，后台任务必须由用户显式取消。 */
+  private CloseChapterAdaptation(resumeReader: boolean = true): void {
+    this.chapterAdaptationLifetime.cancel();
+    const opened = this.chapterAdaptationBook !== undefined;
+    this.chapterAdaptationBook = undefined;
+    this.chapterAdaptationBack = (): void => this.CloseChapterAdaptation();
+    if (opened && resumeReader && this.readerVisible && this.authenticated) {
+      this.readerSessionStartedAt = Date.now(); this.StartReaderPersistenceTimer();
+    }
+  }
+
+  build() {
+    if (this.chapterAdaptationBook !== undefined && this.authenticated &&
+      this.chapterAdaptationPolicy.eligible(this.chapterAdaptationBook, this.books)) {
+      ChapterAdaptationPanel({ bookId: this.chapterAdaptationBook.id, bookTitle: this.chapterAdaptationBook.name,
+        targetChapterIndex: this.chapterAdaptationIndex, targetChapterTitle: this.chapterAdaptationTitle,
+        onBackReady: (handler: () => void): void => { this.chapterAdaptationBack = handler; },
+        baseUrl: this.ActiveServiceUrl(), accountScope: this.chapterAdaptationAccountOwner,
+        authManager: this.authManager, lifetime: this.chapterAdaptationLifetime,
+        syncShelf: async (): Promise<void> => {
+          const book = this.chapterAdaptationBook;
+          if (book === undefined || !this.AccountOperationCurrent(this.chapterAdaptationAccountRevision,
+            this.chapterAdaptationAccountOwner) || !this.chapterAdaptationPolicy.eligible(book, this.books) || this.shelfSyncing) {
+            throw new Error('ADAPTATION_SHELF_NOT_SYNCED');
+          }
+          // 使用既有版本冲突处理队列补同步当前项，不上传正文、不改写远端墓碑。
+          this.PrepareReadingSyncForAccount(this.localAccountScope);
+          this.pendingShelfBooks = this.pendingShelfBooks.filter((item: ShelfSyncItem) => item.id !== book.id)
+            .concat(this.ShelfItemFromBook(book));
+          this.MarkReaderSyncPending();
+          await this.DrainShelfQueue();
+        },
+        isCurrent: (): boolean => this.AccountOperationCurrent(this.chapterAdaptationAccountRevision, this.chapterAdaptationAccountOwner) &&
+          this.chapterAdaptationPolicy.eligible(this.chapterAdaptationBook, this.books),
+        onClose: (): void => this.CloseChapterAdaptation() })
+    } else if (this.readerVisible) {
       this.ReaderPage()
     } else if (this.bookDetailVisible) {
       this.BookDetailPage()
@@ -11792,6 +11944,7 @@ struct Index {
       return;
     }
     this.authenticationUiRevision++;
+    this.CloseChapterAdaptation(false);
     this.accountOperationRevision++;
     this.activeDownloadCancellation?.cancel();
     this.activeOpdsCatalogCancellation?.cancel();
@@ -11904,6 +12057,7 @@ struct Index {
     this.mediaCatalogFilterContext = '';
     this.remoteBookSources = [];
     this.selectedRemoteBookSourceId = '';
+    this.readerDirectoryCache.clear(); this.remoteBookVisibleCacheKey = '';
     this.remoteBookSourceSelectorVisible = false;
     this.remoteBookItems = [];
     this.remoteBookCoverEntries = [];
@@ -11948,6 +12102,7 @@ struct Index {
   }
 
   private HandleSessionInvalidated(): void {
+    this.CloseChapterAdaptation(false);
     this.authenticationUiRevision++;
     this.accountOperationRevision++;
     this.activeDownloadCancellation?.cancel();
@@ -12002,6 +12157,7 @@ struct Index {
     this.mediaSources = [];
     this.remoteBookSources = [];
     this.mediaItems = [];
+    this.readerDirectoryCache.clear(); this.remoteBookVisibleCacheKey = '';
     this.mediaDirectoryGroupFilter = 'all';
     this.mediaDirectoryItems = [];
     this.ClearRemoteSubtitle();
@@ -12763,30 +12919,35 @@ struct Index {
 
   /** 根据顶部模式返回完全隔离的书架数据。 */
   private ModeShelfBooks(): Book[] {
+    if (this.bookModeIndex === 3) return this.books;
     if (this.bookModeIndex === 0) return this.books.filter((book: Book) => book.origin === 'source');
     if (this.bookModeIndex === 2) return this.books.filter((book: Book) => book.origin === 'local');
     return this.books.filter((book: Book) => book.origin === 'remote');
   }
 
   private BookShelfTitle(): string {
+    if (this.bookModeIndex === 3) return '我的书架';
     if (this.bookModeIndex === 0) return '书源书架';
     if (this.bookModeIndex === 1) return '远程书库';
     return '本地书架';
   }
 
   private BookShelfHeaderAction(): string {
+    if (this.bookModeIndex === 3) return '找书';
     if (this.bookModeIndex === 0) return '书源管理';
     if (this.bookModeIndex === 1) return this.ebookTransferBusy ? '上传中' : '上传书籍';
     return '添加书籍';
   }
 
   private BookShelfHeaderSymbol(): string {
+    if (this.bookModeIndex === 3) return 'sys.symbol.magnifyingglass';
     if (this.bookModeIndex === 0) return 'sys.symbol.square_stack_3d_fill';
     if (this.bookModeIndex === 1) return 'sys.symbol.cloud';
     return 'sys.symbol.plus';
   }
 
   private RunBookShelfHeaderAction(): void {
+    if (this.bookModeIndex === 3) { this.bookModeIndex = 0; return; }
     if (this.bookModeIndex === 0) {
       this.sourceManageVisibleCount = this.sourceManageRenderBatchSize;
       this.bookSourceManagementVisible = true;
@@ -12798,10 +12959,12 @@ struct Index {
   }
 
   private EmptyShelfTitle(): string {
+    if (this.bookModeIndex === 3) return '书架还是空的';
     return this.bookModeIndex === 0 ? '书源书架还是空的' : '本地书架还是空的';
   }
 
   private EmptyShelfDescription(): string {
+    if (this.bookModeIndex === 3) return '从书源、远程或本地添加图书后，在这里统一继续阅读';
     return this.bookModeIndex === 0 ? '从搜索结果加入图书，进度只在书源书架中展示' :
       '通过系统文件选择器一次添加一本或多本图书';
   }
@@ -12829,12 +12992,13 @@ struct Index {
     if (!tags.includes(origin)) tags.push(origin);
     const format = book.format.toUpperCase();
     if (!tags.includes(format)) tags.push(format);
-    return tags.sort((left: string, right: string) => {
+    const ordered = tags.filter((tag: string) => tag !== origin).sort((left: string, right: string) => {
       const leftAdult = left.startsWith('R18-');
       const rightAdult = right.startsWith('R18-');
       if (leftAdult === rightAdult) return 0;
       return leftAdult ? -1 : 1;
-    }).slice(0, 3);
+    });
+    return [origin].concat(ordered).slice(0, 3);
   }
 
   private BookOriginShortLabel(book: Book): string {
@@ -13273,6 +13437,7 @@ struct Index {
   }
 
   private OpenBookDetail(book: Book, intro: string = ''): void {
+    this.CloseChapterAdaptation(false);
     this.activeSourceCatalogCancellation?.cancel();
     const shelfBook = this.books.find((value: Book) => value.id === book.id);
     let selectedBook = shelfBook ?? book;
@@ -13332,6 +13497,7 @@ struct Index {
   }
 
   private CloseBookDetail(): void {
+    this.CloseChapterAdaptation(false);
     const returnToReader = this.detailReturnToReader && this.currentBook !== undefined;
     this.activeSourceCatalogCancellation?.cancel();
     this.activeSourceCatalogCancellation = undefined;
@@ -13419,11 +13585,18 @@ struct Index {
   private async ClearDetailSourceCache(): Promise<void> {
     const book = this.detailBook;
     const context = this.ApplicationContext();
-    if (book === undefined || book.origin !== 'source' || context === undefined || this.detailOperationBusy) return;
+    if (book === undefined || context === undefined || this.detailOperationBusy) return;
     this.detailOperationBusy = true;
     this.detailOperationStatus = '';
     try {
-      await this.bookSourceLocalCache.clearBook(context, this.localAccountScope, book.sourceId, book.resourceUri);
+      if (book.origin === 'source' && book.format === 'unknown') {
+        await this.bookSourceLocalCache.clearBook(context, this.localAccountScope, book.sourceId, book.resourceUri);
+      } else {
+        const cache = new ReaderShelfFileCache();
+        await cache.prepare(context, this.localAccountScope, this.ActiveServiceUrl(), book);
+        cache.invalidate();
+        ReaderContentLoader.clearTextDocumentCache();
+      }
       this.detailCatalog = undefined;
       this.detailCatalogBookId = '';
       if (this.currentBook?.id === book.id) this.CancelReaderChapterPrefetch();
@@ -14000,7 +14173,7 @@ struct Index {
   private async LoadRemoteBooks(): Promise<void> {
     if (!this.authenticated || this.serviceUrl.length === 0) return;
     if (this.remoteBookSources.length === 0) await this.LoadRemoteBookSources();
-    if (this.selectedRemoteBookSourceId.length > 0) await this.LoadRemoteBookDirectory();
+    if (this.selectedRemoteBookSourceId.length > 0) await this.LoadRemoteBookDirectory(false);
   }
 
   private async LoadRemoteBookSources(cancellation?: DownloadCancellationToken): Promise<void> {
@@ -14038,13 +14211,42 @@ struct Index {
     }
   }
 
-  private async LoadRemoteBookDirectory(): Promise<void> {
+  private RemoteBookCacheKey(): string {
+    return this.readerDirectoryCache.key(this.localAccountScope, this.ActiveServiceUrl(),
+      this.selectedRemoteBookSourceId, this.remoteBookPath, this.remoteBookSearchText, this.hideAdultContent);
+  }
+
+  private RememberRemoteBookDirectory(): void {
+    this.readerDirectoryCache.put(this.RemoteBookCacheKey(), { items: this.remoteBookItems,
+      page: this.remoteBookPage, total: this.remoteBookTotal, loadedCount: this.remoteBookLoadedCount,
+      hasMore: this.remoteBookHasMore, savedAt: Date.now() });
+  }
+
+  private async LoadRemoteBookDirectory(force: boolean = true): Promise<void> {
     if (this.selectedRemoteBookSourceId.length === 0) return;
+    const cacheKey = this.RemoteBookCacheKey();
+    if (!force && this.remoteBookLoading && this.remoteBookVisibleCacheKey === cacheKey) return;
+    this.activeRemoteBookDirectoryCancellation?.cancel();
+    this.activeRemoteBookCoverCancellation?.cancel();
+    const directoryRevision = ++this.remoteBookDirectoryRevision;
+    this.remoteBookLoading = false; this.remoteBookLoadingMore = false;
+    // 明确刷新和目录内容变更沿用强制请求；普通入口返回先恢复快照。
+    if (force) this.readerDirectoryCache.clear();
+    const cached = this.readerDirectoryCache.get(cacheKey, Date.now());
+    if (cached !== undefined) {
+      this.remoteBookItems = cached.items; this.remoteBookPage = cached.page;
+      this.remoteBookTotal = cached.total; this.remoteBookLoadedCount = cached.loadedCount;
+      this.remoteBookHasMore = cached.hasMore; this.bookStatus = '';
+      this.remoteBookVisibleCacheKey = cacheKey;
+      if (Date.now() - cached.savedAt < 60000) return;
+    } else if (this.remoteBookVisibleCacheKey !== cacheKey) {
+      this.remoteBookItems = []; this.remoteBookCoverEntries = [];
+    }
+    this.remoteBookVisibleCacheKey = cacheKey;
     this.activeRemoteBookDirectoryCancellation?.cancel();
     this.activeRemoteBookCoverCancellation?.cancel();
     const cancellation = new DownloadCancellationToken();
     this.activeRemoteBookDirectoryCancellation = cancellation;
-    const directoryRevision = ++this.remoteBookDirectoryRevision;
     const sourceId = this.selectedRemoteBookSourceId;
     const path = this.remoteBookPath;
     const pageSize = 40;
@@ -14056,7 +14258,7 @@ struct Index {
     this.remoteBookLoading = true;
     const revision = this.accountOperationRevision;
     const owner = this.localAccountScope;
-    this.bookStatus = '正在加载远程书库…';
+    this.bookStatus = this.remoteBookItems.length > 0 ? '' : '正在加载远程书库…';
     try {
       const api = new RemoteMediaApi(this.ActiveServiceUrl(), this.authManager);
       const source = this.remoteBookSources.find((value: RemoteMediaSource) => value.id === sourceId);
@@ -14077,12 +14279,18 @@ struct Index {
         directory.total !== undefined &&
         this.remoteBookLoadedCount < directory.total;
       this.bookStatus = this.remoteBookItems.length === 0 ? '当前目录没有支持的电子书' : '';
+      this.RememberRemoteBookDirectory();
       this.LoadRemoteBookCovers(this.remoteBookItems, sourceId, directoryRevision);
       this.LoadRemoteBookProgress(this.remoteBookItems, source, directoryRevision);
     } catch (error) {
       if (!this.AccountOperationCurrent(revision, owner) ||
         directoryRevision !== this.remoteBookDirectoryRevision) return;
       if (cancellation.isCancelled()) return;
+      // 刷新失败仍保留旧列表对应的分页游标，避免跳页或重复追加。
+      if (cached !== undefined) {
+        this.remoteBookPage = cached.page; this.remoteBookTotal = cached.total;
+        this.remoteBookLoadedCount = cached.loadedCount; this.remoteBookHasMore = cached.hasMore;
+      }
       this.bookStatus = error instanceof Error ? error.message : '加载远程书库失败';
     } finally {
       if (this.activeRemoteBookDirectoryCancellation === cancellation) {
@@ -14132,6 +14340,7 @@ struct Index {
       this.remoteBookLoadedCount += directory.items.length;
       this.remoteBookHasMore = directory.total !== undefined ? this.remoteBookLoadedCount < directory.total :
         directory.items.length >= pageSize;
+      this.RememberRemoteBookDirectory();
       this.LoadRemoteBookCovers(this.remoteBookItems, sourceId, directoryRevision);
       this.LoadRemoteBookProgress(this.remoteBookItems, source, directoryRevision);
     } catch (error) {

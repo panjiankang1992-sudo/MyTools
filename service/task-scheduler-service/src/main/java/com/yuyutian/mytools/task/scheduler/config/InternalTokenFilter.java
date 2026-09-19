@@ -86,6 +86,12 @@ public class InternalTokenFilter extends OncePerRequestFilter {
     }
 
     static boolean isProtectedPath(String path) {
+        if ("/internal/v1/image-generation-deployment".equals(path)) {
+            return true;
+        }
+        if ("/internal/v1/video-generation-deployment".equals(path)) {
+            return true;
+        }
         if (isBusinessPath(path)) {
             return true;
         }

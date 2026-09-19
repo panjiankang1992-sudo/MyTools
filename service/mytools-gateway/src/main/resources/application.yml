@@ -10,6 +10,9 @@ spring:
       fail-on-unknown-properties: true
 
 gateway:
+  chapter-adaptation:
+    read-enabled: ${GATEWAY_CHAPTER_ADAPTATION_READ_ENABLED:false}
+    create-enabled: ${GATEWAY_CHAPTER_ADAPTATION_CREATE_ENABLED:false}
   identity-mode: ${IDENTITY_VALIDATION_MODE:LEGACY}
   identity-route-enabled: ${GATEWAY_IDENTITY_ROUTE_ENABLED:false}
   reader-route-enabled: ${GATEWAY_READER_ROUTE_ENABLED:false}
@@ -28,6 +31,10 @@ gateway:
     route-enabled: ${GATEWAY_DSH_ROUTE_ENABLED:false}
     url: ${DSH_CONNECTOR_SERVICE_URL:http://127.0.0.1:23320}
     token: ${DSH_CONNECTOR_INTERNAL_TOKEN:}
+  video-generation:
+    route-enabled: ${VIDEO_GENERATION_ROUTE_ENABLED:false}
+    url: ${VIDEO_GENERATION_URL:http://127.0.0.1:23341}
+    token: ${VIDEO_GENERATION_INTERNAL_TOKEN:}
   mytools-url: ${MYTOOLS_INTERNAL_URL:http://127.0.0.1:23110}
   identity-url: ${IDENTITY_SERVICE_URL:http://127.0.0.1:23290}
   reader-url: ${READER_SERVICE_URL:http://127.0.0.1:23230}

@@ -20,6 +20,49 @@ import static org.mockito.Mockito.when;
 class GatewayRequestFilterTest {
 
     @Test
+    void videoRouteRequiresAuthenticationOnBothDocumentedPrefixes() throws Exception {
+        var filter = new GatewayRequestFilter(mock(PrincipalValidator.class), properties(false));
+        for (var uri : new String[]{"/api/app/v1/video-generation/models", "/api/video-generation/models"}) {
+            var request = new MockHttpServletRequest("GET", uri);
+            request.addHeader("X-Owner-Id", "55");
+            var response = new MockHttpServletResponse();
+            var chain = new MockFilterChain();
+            filter.doFilter(request, response, chain);
+            assertThat(response.getStatus()).as(uri).isEqualTo(401);
+            assertThat(chain.getRequest()).as(uri).isNull();
+        }
+    }
+
+    @Test
+    void videoPlaybackTicketIsItsOwnCredential() throws Exception {
+        // 原生播放器拿不到登录头，票据随机且绑定所有者，因此这条路径不要求主体。
+        var filter = new GatewayRequestFilter(mock(PrincipalValidator.class), properties(false));
+        var request = new MockHttpServletRequest("GET", "/api/app/v1/video-generation/tickets/" + "a".repeat(32));
+        var response = new MockHttpServletResponse();
+        var chain = new MockFilterChain();
+        filter.doFilter(request, response, chain);
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(chain.getRequest()).isNotNull();
+        // 非 32 位十六进制的票据路径仍然要求认证，不能被当作播放路径放行。
+        var malformed = new MockHttpServletRequest("GET", "/api/app/v1/video-generation/tickets/short");
+        var malformedResponse = new MockHttpServletResponse();
+        filter.doFilter(malformed, malformedResponse, new MockFilterChain());
+        assertThat(malformedResponse.getStatus()).isEqualTo(401);
+    }
+
+    @Test
+    void imageRouteRequiresAuthenticationEvenBeforeModelActivation() throws Exception {
+        var filter = new GatewayRequestFilter(mock(PrincipalValidator.class), properties(false));
+        var request = new MockHttpServletRequest("GET", "/api/app/v1/image-generation/models");
+        request.addHeader("X-Owner-Id", "55");
+        var response = new MockHttpServletResponse();
+        var chain = new MockFilterChain();
+        filter.doFilter(request, response, chain);
+        assertThat(response.getStatus()).isEqualTo(401);
+        assertThat(chain.getRequest()).isNull();
+    }
+
+    @Test
     void shouldNotValidateOrCallDownstreamWhenReaderRouteIsDisabled() throws Exception {
         PrincipalValidator validator = mock(PrincipalValidator.class);
         GatewayRequestFilter filter = new GatewayRequestFilter(validator, properties(false));

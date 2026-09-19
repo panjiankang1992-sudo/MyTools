@@ -88,6 +88,14 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
     }
 
     private Route route(String uri) {
+        // 图片接口始终认证，禁用门禁由控制器统一返回。
+        if (uri.startsWith("/api/app/v1/image-generation/")) return new Route(true, ignored -> true);
+        // 播放票据本身就是凭据：原生播放器拿不到登录头，只能靠 URL 里的随机票据取流。
+        if (uri.matches("^/api/(app/v1/)?video-generation/tickets/[a-f0-9]{32}$")) return new Route(false, ignored -> true);
+        // 视频接口同样始终认证，灰度开关由控制器统一返回 503；两个前缀指向同一批处理器。
+        if (uri.startsWith("/api/app/v1/video-generation/") || uri.startsWith("/api/video-generation/")) {
+            return new Route(true, ignored -> true);
+        }
         if (uri.matches("^/api/app/v1/media/tickets/[a-f0-9]{32}$")) {
             return new Route(false, ignored -> true);
         }
@@ -101,6 +109,9 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
             return new Route(false, ignored -> true);
         }
         if (uri.equals("/api/app/v1/connectivity/bootstrap")) {
+            return new Route(true, ignored -> true);
+        }
+        if (uri.equals("/api/app/v1/features/reader-adaptation") || uri.startsWith("/api/app/v1/features/reader-adaptation/")) {
             return new Route(true, ignored -> true);
         }
         if (uri.startsWith("/api/app/v1/reader/")) {

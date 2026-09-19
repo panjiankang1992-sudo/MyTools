@@ -17,6 +17,8 @@ interface StreamDownloadResult {
  */
 export class AuthorizedApiClient {
   private static readonly MAX_DOWNLOAD_BYTES: number = 2 * 1024 * 1024 * 1024;
+  /** 视频素材上传与成片下载的硬上限，与视频服务实测口径一致。 */
+  private static readonly MAX_VIDEO_BYTES: number = 200 * 1024 * 1024;
   private readonly baseUrl: string;
   private readonly authManager: AuthSessionManager;
   private readonly allowPublicFallback: boolean;
@@ -59,10 +61,37 @@ export class AuthorizedApiClient {
   }
 
   /**
+   * 以原始字节发起受认证的 POST 上传，未授权时刷新并完整重试一次。
+   * 上传不接受压缩、转码或 base64，服务端按原始字节重新实测素材。
+   */
+  async postBinary(path: string, bytes: ArrayBuffer, contentType: string): Promise<ApiEnvelope> {
+    if (!Number.isSafeInteger(bytes.byteLength) || bytes.byteLength <= 0 ||
+      bytes.byteLength > AuthorizedApiClient.MAX_VIDEO_BYTES) {
+      throw new Error('上传内容为空或超过 200 MB 限制');
+    }
+    // 请求头只允许固定素材类型，避免把任意头部带进认证网关。
+    if (contentType !== 'image/png' && contentType !== 'image/jpeg' && contentType !== 'video/mp4') {
+      throw new Error('上传内容类型不受支持');
+    }
+    const safePath = this.policy.path(path);
+    let accessToken = await this.authManager.validAccessToken();
+    let response = await this.binaryRequest(safePath, accessToken, bytes, contentType);
+    if (response.status === 401) {
+      accessToken = await this.authManager.forceRefresh(accessToken);
+      response = await this.binaryRequest(safePath, accessToken, bytes, contentType);
+    }
+    if (response.status < 200 || response.status >= 300 || response.envelope.code !== '0000') {
+      const message = typeof response.envelope.message === 'string' ? response.envelope.message : '';
+      throw new Error(message.length > 0 ? message : `上传失败：HTTP ${response.status}`);
+    }
+    return response.envelope;
+  }
+
+  /**
    * 发起无请求体的 JSON DELETE 请求。
    */
-  async delete(path: string): Promise<ApiEnvelope> {
-    return this.execute(path, http.RequestMethod.DELETE);
+  async delete(path: string, cancellation?: DownloadCancellationToken): Promise<ApiEnvelope> {
+    return this.execute(path, http.RequestMethod.DELETE, undefined, cancellation);
   }
 
   /**
@@ -87,6 +116,26 @@ export class AuthorizedApiClient {
       throw new Error(`下载失败：HTTP ${result.status}`);
     }
     if (result.bytes === 0) throw new Error('远程文件为空');
+    return result.bytes;
+  }
+
+  /**
+   * 将受认证的成片流式写入目标 URI，未授权时刷新并完整重试一次；上限 200 MB。
+   */
+  async downloadVideoToUri(path: string, targetUri: string,
+    onProgress?: (receivedBytes: number, totalBytes: number) => void): Promise<number> {
+    const safePath = this.policy.path(path);
+    let accessToken = await this.authManager.validAccessToken();
+    let result = await this.streamToUri(safePath, targetUri, accessToken, onProgress,
+      AuthorizedApiClient.MAX_VIDEO_BYTES, 'video/*');
+    if (result.status === 401) {
+      if (onProgress !== undefined) onProgress(0, 0);
+      accessToken = await this.authManager.forceRefresh(accessToken);
+      result = await this.streamToUri(safePath, targetUri, accessToken, onProgress,
+        AuthorizedApiClient.MAX_VIDEO_BYTES, 'video/*');
+    }
+    if (result.status < 200 || result.status >= 300) throw new Error(`视频下载失败：HTTP ${result.status}`);
+    if (result.bytes < 4) throw new Error('视频为空或格式无效');
     return result.bytes;
   }
 
@@ -321,6 +370,8 @@ export class AuthorizedApiClient {
           'Authorization': `Bearer ${accessToken}`
         },
         extraData: body,
+        // 登录后的任务状态必须读取服务器最新结果，不能复用系统 HTTP 缓存。
+        usingCache: false,
         connectTimeout: 10000,
         readTimeout: 20000
       });
@@ -339,6 +390,58 @@ export class AuthorizedApiClient {
       throw new Error(message);
     } finally {
       cancellation?.unbind(cancelHandler);
+      request.off('headersReceive');
+      request.destroy();
+    }
+  }
+
+  /** 原始字节上传复用与 JSON 请求相同的信封解析、重定向与长度校验。 */
+  private async binaryRequest(path: string, accessToken: string, bytes: ArrayBuffer,
+    contentType: string): Promise<ApiResponse> {
+    const request = http.createHttp();
+    let responseError = '';
+    try {
+      request.on('headersReceive', (headers: Object) => {
+        const values = headers as Record<string, Object>;
+        Object.keys(values).forEach((key: string) => {
+          const lower = key.toLowerCase();
+          if (lower === 'location') {
+            responseError = '认证API不允许重定向';
+            request.destroy();
+          } else if (lower === 'content-length') {
+            const length = Number(values[key]);
+            if (!Number.isSafeInteger(length) || length < 0 || length > 64 * 1024 * 1024) {
+              responseError = '认证API响应长度无效或超过64 MB限制';
+              request.destroy();
+            }
+          }
+        });
+      });
+      const response = await request.request(`${this.baseUrl}${path}`, {
+        method: http.RequestMethod.POST,
+        header: {
+          'Accept': 'application/json',
+          'Content-Type': contentType,
+          'Authorization': `Bearer ${accessToken}`
+        },
+        extraData: bytes,
+        // 上传必须保持原始字节，缓存或压缩都会破坏服务端的实测结果。
+        usingCache: false,
+        connectTimeout: 10000,
+        // 服务端需要对大素材实测时长与尺寸，读取超时放宽到 120 秒。
+        readTimeout: 120000
+      });
+      if (responseError.length > 0) throw new Error(responseError);
+      const text = this.ResponseText(response.result);
+      const size = new util.TextEncoder().encodeInto(text).length;
+      return {
+        status: response.responseCode,
+        envelope: this.policy.responseEnvelope(response.responseCode, text, size)
+      };
+    } catch (error) {
+      if (responseError.length > 0) throw new Error(responseError);
+      throw error instanceof Error ? error : new Error('上传请求失败');
+    } finally {
       request.off('headersReceive');
       request.destroy();
     }

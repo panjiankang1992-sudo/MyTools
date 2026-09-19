@@ -1,0 +1,41 @@
+server:
+  address: ${VIDEO_GENERATION_ADDRESS:127.0.0.1}
+  port: ${VIDEO_GENERATION_PORT:23341}
+  tomcat:
+    # 素材最大 200MB，超限时也要让容器把请求体读干净，否则连接会被直接重置。
+    max-swallow-size: 256MB
+spring:
+  application:
+    name: video-generation-service
+  datasource:
+    url: jdbc:mysql://${VIDEO_GENERATION_DB_HOST:127.0.0.1}:${VIDEO_GENERATION_DB_PORT:3306}/${VIDEO_GENERATION_DB_NAME:mytools_video_generation}?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+    username: ${VIDEO_GENERATION_DB_USER:mytools_video_generation}
+    password: ${VIDEO_GENERATION_DB_PASSWORD:}
+  flyway:
+    enabled: true
+video:
+  token: ${VIDEO_GENERATION_INTERNAL_TOKEN:}
+  root: ${VIDEO_GENERATION_ROOT:./runtime/video-generation}
+  reconcile-ms: ${VIDEO_GENERATION_RECONCILE_MS:5000}
+  # 引擎级门禁：模型与显存协调都必须先通过验收，模式级开关才有意义。
+  local-validated: ${VIDEO_LOCAL_VALIDATED:false}
+  gpu-coordination-validated: ${VIDEO_GPU_COORDINATION_VALIDATED:false}
+  # 逐模式验收开关；默认全部关闭，未验收模式只出现在能力目录里并带原因码。
+  t2v-validated: ${VIDEO_T2V_VALIDATED:false}
+  first-frame-validated: ${VIDEO_FIRST_FRAME_VALIDATED:false}
+  references-validated: ${VIDEO_REFERENCES_VALIDATED:false}
+  first-last-validated: ${VIDEO_FIRST_LAST_VALIDATED:false}
+  restyle-validated: ${VIDEO_RESTYLE_VALIDATED:false}
+  masked-validated: ${VIDEO_MASKED_VALIDATED:false}
+  # 模型与工作流规格的版本标识；工作流规格索引摘要在执行器侧固定。
+  model-revision: ${VIDEO_MODEL_REVISION:wan2.1-vace-1.3b-fp16}
+  workflow-revision: ${VIDEO_WORKFLOW_REVISION:video-vace-1.3b-v1}
+  scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
+  scheduler-token: ${TASK_BUSINESS_VIDEO_GENERATION_TOKEN:}
+  asset-url: ${ASSET_REGISTRY_URL:http://127.0.0.1:23270}
+  asset-token: ${ASSET_REGISTRY_INTERNAL_TOKEN:}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

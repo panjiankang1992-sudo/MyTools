@@ -7,7 +7,10 @@ export class DownloadStreamIntegrityPolicy {
     if (!Number.isSafeInteger(receivedBytes) || receivedBytes <= 0) return '远程文件为空';
     if (declaredBytes !== undefined && declaredBytes !== receivedBytes) return '远程文件长度与响应声明不一致';
     if (expectedContentType === 'image/*' && !actualContentType.startsWith('image/')) return '图片响应类型无效';
-    if (expectedContentType.length > 0 && expectedContentType !== 'image/*' && actualContentType !== expectedContentType) {
+    // 成片只接受 video/ 前缀，避免把错误页或封面当作视频写入缓存。
+    if (expectedContentType === 'video/*' && !actualContentType.startsWith('video/')) return '视频响应类型无效';
+    if (expectedContentType.length > 0 && expectedContentType !== 'image/*' && expectedContentType !== 'video/*' &&
+      actualContentType !== expectedContentType) {
       return '缩略图响应类型无效';
     }
     if (expectedContentType === 'image/jpeg' &&

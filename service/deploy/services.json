@@ -20,7 +20,9 @@
     {"name": "app-catalog-service", "port": 23310, "schema": "mytools_app_catalog", "dbPrefix": "APP_CATALOG", "runtime": "java", "after": ["asset-registry-service"]},
     {"name": "dsh-connector-service", "port": 23320, "schema": "mytools_dsh_connector", "dbPrefix": "DSH_CONNECTOR", "runtime": "java", "defaultEnabled": false},
     {"name": "msgservice-adapter-service", "port": 23321, "schema": "mytools_msgservice_adapter", "dbPrefix": "MSGSERVICE_ADAPTER", "runtime": "python", "executable": "mytools-msgservice-adapter", "after": ["messaging-service"], "defaultEnabled": false},
-    {"name": "legacy-asset-adapter-service", "port": 23330, "schema": "mytools_legacy_asset_adapter", "dbPrefix": "LEGACY_ASSET_ADAPTER", "runtime": "python", "executable": "mytools-legacy-asset-adapter", "after": ["asset-registry-service"], "defaultEnabled": false}
+    {"name": "legacy-asset-adapter-service", "port": 23330, "schema": "mytools_legacy_asset_adapter", "dbPrefix": "LEGACY_ASSET_ADAPTER", "runtime": "python", "executable": "mytools-legacy-asset-adapter", "after": ["asset-registry-service"], "defaultEnabled": false},
+    {"name": "image-generation-service", "port": 23340, "schema": "mytools_image_generation", "dbPrefix": "IMAGE_GENERATION", "runtime": "java", "after": ["task-scheduler-service", "asset-registry-service"], "defaultEnabled": false},
+    {"name": "video-generation-service", "port": 23341, "schema": "mytools_video_generation", "dbPrefix": "VIDEO_GENERATION", "runtime": "java", "after": ["task-scheduler-service", "asset-registry-service"], "defaultEnabled": false}
   ],
   "statelessServices": [
     {"name": "task-executor-service", "port": 23101, "runtime": "java", "after": ["task-scheduler-service"]},
