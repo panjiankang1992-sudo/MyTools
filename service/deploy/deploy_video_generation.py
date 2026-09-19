@@ -42,7 +42,8 @@ import urllib.request
 sys.path.insert(0, '/opt/yuyutian/mytools/runtime/video-generation/ops-python')
 
 ROOT = Path('/opt/yuyutian/mytools')
-NAME = 'video-production-20260914-v1'
+# 发布名按里程碑可覆盖：VIDEO_DEPLOY_NAME=video-production-20260919-v1 …
+NAME = os.environ.get('VIDEO_DEPLOY_NAME', 'video-production-20260914-v1')
 RELEASE = ROOT / 'releases' / NAME
 # 本发布携带的视频任务包版本；包内容不可变，改动必须升版本并同步调度器迁移。
 PACKAGE_VERSION = '1.0.1'
