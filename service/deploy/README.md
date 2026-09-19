@@ -102,10 +102,10 @@ sudo python3 /tmp/mytools-release-20260824_01/deploy/install_release.py \
 
 安装中断时删除未完成的新版本目录且不切换 `current`；已经存在的版本目录禁止覆盖。发布清单不包含 venv，venv 由远程 Python 从随版本携带的五个项目源码建立。
 
-安装后以 `mytools` 账号生成首次环境文件。下载、Storage 和媒体目录参数必须是远程主机上的独立绝对业务路径，工具会拒绝 `/opt/yuyutian/mytools` 和 `/opt/yuyutian/logs/mytools` 下的路径；Reader 参数是 Storage Gateway 逻辑根名称：
+安装后以 `root` 生成首次环境文件，并保持 `services.env` 为 `root:root 0600`。下载、Storage 和媒体目录参数必须是远程主机上的独立绝对业务路径，工具会拒绝 `/opt/yuyutian/mytools` 和 `/opt/yuyutian/logs/mytools` 下的路径；Reader 参数是 Storage Gateway 逻辑根名称：
 
 ```bash
-sudo -u mytools python3 /opt/yuyutian/mytools/releases/current/deploy/create_service_env.py \
+sudo python3 /opt/yuyutian/mytools/releases/current/deploy/create_service_env.py \
   --download-root /data/mytools/downloads \
   --storage-root /data/mytools/storage \
   --media-root /data/media \
@@ -119,13 +119,58 @@ sudo -u mytools python3 /opt/yuyutian/mytools/releases/current/deploy/create_ser
 
 注册邮件迁移默认生成 `MESSAGING_REGISTRATION_MAIL_MODE=LEGACY` 和 0% 灰度，同时生成独立的稳定路由密钥及 AES-256-GCM Outbox 密钥。真实灰度必须先执行根服务数据库迁移并验证 Messaging 邮件链路，再逐步调整 `CANARY` 百分比；路由密钥在灰度期间不得轮换，否则同一邮箱可能改变路径。加密密钥轮换前必须排空注册邮件真实投递 Outbox，回滚时也不得删除已提交记录。
 
-输出包含每个服务的 `.service`、`mytools-services.target`、目录参考配置、日志轮转配置及其 timer。默认 target 不包含迁移适配器、OneBot、PikPak、DSH RPC 和消息自动化；这些能力只能单独显式启用。部署时将服务单元、target 和 timer 安装到 `/etc/systemd/system/`，将 `mytools-services.logrotate` 安装为 `/etc/logrotate.d/mytools-services`。远程现有 `/opt/yuyutian` 父目录不是 root 所有，不能使用 `systemd-tmpfiles` 跨所有者创建子目录；应执行以下精确目录准备命令，再启用 `mytools-logrotate.timer` 和服务 target：
+输出包含每个服务的 `.service`、`mytools-services.target`、目录参考配置、日志轮转配置及其 timer。默认 target 不包含迁移适配器、OneBot、PikPak、DSH RPC 和消息自动化；这些能力只能单独显式启用。部署时将服务单元、target 和 timer 安装到 `/etc/systemd/system/`，将 `mytools-services.logrotate` 安装为 `/etc/logrotate.d/mytools-services`。`/opt/yuyutian/mytools`、`config` 和 `releases` 固定为 `root:mytools 0750`，服务账户只保留遍历权限；可写的 runtime、migration 与日志子目录仍归 `mytools`。远程 `/opt/yuyutian` 不是 root 所有，因此不要依赖 `systemd-tmpfiles` 跨所有者建立这条边界，必须执行以下精确目录准备命令，再启用 `mytools-logrotate.timer` 和服务 target：
 
 ```bash
 sudo python3 /opt/yuyutian/mytools/releases/current/deploy/prepare_runtime_directories.py --execute
 ```
 
-Java 发布包统一命名为 `releases/current/apps/<service>.jar`，Python 服务安装在 `releases/current/venv`。所有服务读取 `/opt/yuyutian/mytools/config/services.env`，该文件必须位于仓库外并限制为部署账号可读。systemd 单元不会限制业务数据必须位于部署根目录，但部署前必须由管理员为 `mytools` 账号授予所配置数据目录的最小读写权限。
+启用 QQ 登录前，必须在 `services.env` 中填写授权 QQ OpenID 和 OneBot owner，设置
+`ONEBOT_CONNECTOR_ENABLED=true`，并安装生成的固定动作单元后显式启动 request-file watcher：
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now mytools-onebot-relogin.path
+```
+
+`ONEBOT_CONNECTOR_RELOGIN_REQUEST_PATH` 必须保持为
+`/opt/yuyutian/mytools/runtime/onebot/relogin.request`，二维码路径必须与 NapCat 实际缓存路径一致。启用 QQ Connector
+前先确认该 `.path` 单元为 active；否则登录命令会进入有限失败终态，不会无限重试。
+
+QQ 流程配置工具只能在 `mytools-message-automation-service.service` 完全停止后运行。工具会在数据库规则与
+`services.env` 的跨资源迁移期间持有 root-only 的 `.qq-flow-configuration.pending` 意图文件；消息自动化单元通过
+`ConditionPathExists` 在该文件存在时拒绝启动。命令失败后不得手工删除意图文件，应保持消息自动化停止并原样重跑
+同一配置工具，直至数据库与环境文件均通过终态复核并由工具自行清除该文件。
+
+QQ 官方通道的 sender 是 OpenID，OneBot 的 sender 是数字 `user_id`，两者不得互相回填。运行配置工具前，ONEBOT
+下载规则必须已经由可信授权输入绑定唯一的 5–20 位非零数字 sender；禁止从历史消息、最近联系人或机器人自身账号推断。
+
+首次启用该保护时必须按以下闭环安装并验证单元；不能只把生成文件复制进版本目录：
+
+```bash
+sudo install -o root -g root -m 0644 \
+  /opt/yuyutian/mytools/releases/current/deploy/generated-systemd/mytools-message-automation-service.service \
+  /etc/systemd/system/mytools-message-automation-service.service
+sudo cmp --silent \
+  /opt/yuyutian/mytools/releases/current/deploy/generated-systemd/mytools-message-automation-service.service \
+  /etc/systemd/system/mytools-message-automation-service.service
+sudo systemctl daemon-reload
+sudo systemctl stop mytools-message-automation-service.service
+sudo systemctl show mytools-message-automation-service.service --no-pager \
+  --property=LoadState --property=ActiveState --property=SubState --property=MainPID
+sudo python3 \
+  /opt/yuyutian/mytools/releases/current/deploy/qq-flow-ops/configure_qq_allowed_sender.py
+sudo test ! -e /opt/yuyutian/mytools/config/.qq-flow-configuration.pending
+sudo systemctl start mytools-message-automation-service.service
+sudo python3 \
+  /opt/yuyutian/mytools/releases/current/deploy/qq-flow-ops/qq_flow_status.py \
+  --release-gate
+```
+
+`systemctl show` 必须精确显示 `LoadState=loaded`、`ActiveState=inactive`、`SubState=dead`、`MainPID=0`；
+安装后的单元必须为 `root:root 0644`，且与版本内生成文件逐字节相同。配置命令失败时不要执行后续启动命令，先按原命令重跑。
+
+Java 发布包统一命名为 `releases/current/apps/<service>.jar`，Python 服务安装在 `releases/current/venv`。完成安装的版本树固定为 `root:mytools`：目录和可执行文件为 `0750`，普通文件为 `0640`，服务账户不能修改发布代码。所有服务读取 `/opt/yuyutian/mytools/config/services.env`，该文件必须位于仓库外并保持 `root:root 0600`。systemd 单元不会限制业务数据必须位于部署根目录，但部署前必须由管理员为 `mytools` 账号授予所配置数据目录的最小读写权限。
 
 ## 日志保留
 

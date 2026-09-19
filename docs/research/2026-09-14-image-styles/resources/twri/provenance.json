@@ -1,0 +1,33 @@
+{
+  "repository": "https://github.com/twri/sdxl_prompt_styler",
+  "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+  "retrievedAt": "2026-09-14",
+  "license": "MIT",
+  "files": [
+    {
+      "path": "LICENSE",
+      "url": "https://raw.githubusercontent.com/twri/sdxl_prompt_styler/51068179927f79dce14f38c6b1984390ab242be2/LICENSE",
+      "sha256": "e14f9a1824d21f443a31c2b28af0b1c0d7d20d566ad3f6a0f030b517b5323d8d"
+    },
+    {
+      "path": "README.md",
+      "url": "https://raw.githubusercontent.com/twri/sdxl_prompt_styler/51068179927f79dce14f38c6b1984390ab242be2/README.md",
+      "sha256": "365bf990c5b4e34d6b9ca4378f7c17c0ebdcf6f4bd87c4ee408aa7cccc29d252"
+    },
+    {
+      "path": "sdxl_styles_base.json",
+      "url": "https://raw.githubusercontent.com/twri/sdxl_prompt_styler/51068179927f79dce14f38c6b1984390ab242be2/sdxl_styles_base.json",
+      "sha256": "138cf5702fe5e530f51c033df49e51450e2abb8040a3e5ba647401227033b3cc"
+    },
+    {
+      "path": "sdxl_styles_sai.json",
+      "url": "https://raw.githubusercontent.com/twri/sdxl_prompt_styler/51068179927f79dce14f38c6b1984390ab242be2/sdxl_styles_sai.json",
+      "sha256": "a70cfade8c71bc697a188a5f7f9eed531c2ac7446fcb6044114dbabaef5103fb"
+    },
+    {
+      "path": "sdxl_styles_twri.json",
+      "url": "https://raw.githubusercontent.com/twri/sdxl_prompt_styler/51068179927f79dce14f38c6b1984390ab242be2/sdxl_styles_twri.json",
+      "sha256": "3296a6a0b0572924e792dd330b374e12900f18deae05bf9158b9295ec2a96761"
+    }
+  ]
+}

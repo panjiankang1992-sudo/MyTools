@@ -18,6 +18,11 @@ def execute(context: dict, base_url: str, token: str, opener=urlopen) -> dict:
         raise ValueError("storage abort step kind is invalid")
     operation_id = str(UUID(str(context["parameters"]["operationId"])))
     headers = {"Authorization": f"Bearer {token}"}
+    if "taskInstanceId" in context and "fencingToken" in context:
+        headers |= {"X-Task-Instance-Id": str(context["taskInstanceId"]),
+                    "X-Task-Step-Name": str(context["stepName"]),
+                    "X-Task-Business-Key": operation_id,
+                    "X-Task-Fencing-Token": str(context["fencingToken"])}
     delete = Request(base_url.rstrip("/") +
                      f"/api/internal/v1/storage/operations/{operation_id}/native-copy/target",
                      method="DELETE", headers=headers)

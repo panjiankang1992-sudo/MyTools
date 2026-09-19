@@ -1,0 +1,10 @@
+T01-81 文生81帧 s42       frames 81  framemean 0.4822  min 0.4704  blank 0  dark  0  motion 0.01301
+T01-81 文生81帧 s932      frames 81  framemean 0.5621  min 0.5328  blank 0  dark  0  motion 0.01015
+R03 三图参考 s42           frames 49  framemean 0.5267  min 0.5125  blank 0  dark  0  motion 0.01146
+R03 三图参考 s932          frames 49  framemean 0.1555  min 0.1343  blank 0  dark  0  motion 0.02079
+S01 镜头2 s42            frames 49  framemean 0.2810  min 0.0195  blank 0  dark  2  motion 0.03185
+S01 镜头2 s932           frames 49  framemean 0.7240  min 0.6121  blank 0  dark  0  motion 0.02545
+
+=== 分镜镜头2 的逐帧亮度（看暗场是否复现） ===
+s42 : 0.61 0.38 0.34 0.34 0.34 0.29 0.22 0.23 0.23 0.21 0.02 0.02 0.03 0.03 0.04 0.06 0.10 0.13 0.15 0.18
+s932: 0.61 0.85 0.81 0.81 0.83 0.85 0.83 0.79 0.77 0.77 0.75 0.74 0.73 0.73 0.72 0.73 0.73 0.73 0.73 0.73

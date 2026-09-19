@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-14",
+  "sourceHashesVerified": 5,
+  "builtinTemplatesComposed": 24,
+  "customExampleComposed": true,
+  "invalidInputRejections": [
+    "duplicate-id",
+    "extra-placeholder",
+    "double-placeholder",
+    "negative-prompt",
+    "unsupported-model",
+    "blank",
+    "overlength",
+    "utf16-overlength"
+  ],
+  "loraCandidatesWithPinnedRevisionAndHash": 9,
+  "gpuStyleQualityTested": false,
+  "appStyleManagementImplemented": false
+}

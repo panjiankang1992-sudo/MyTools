@@ -1,0 +1,47 @@
+{
+  "runId": "run-01",
+  "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/firstframe-blend025-s42b-workflow.json",
+  "startedAt": 1789387350.4532988,
+  "preflight": {
+    "nodes": 16,
+    "classTypes": [
+      "CLIPLoader",
+      "CLIPTextEncode",
+      "GetVideoComponents",
+      "ImageToMask",
+      "KSampler",
+      "LoadVideo",
+      "ModelSamplingSD3",
+      "SaveImage",
+      "TrimVideoLatent",
+      "UNETLoader",
+      "VAEDecodeTiled",
+      "VAELoader",
+      "WanVaceToVideo"
+    ]
+  },
+  "inputs": [
+    {
+      "kind": "video",
+      "file": "p0-firstframe-blend025-control-b.mp4",
+      "bytes": 27488,
+      "sha256": "bf06bfcd02945b89f2d7c3ba451292fd546392eb9715b3b17bfd3607bf8fa2fa",
+      "decodable": true
+    },
+    {
+      "kind": "video",
+      "file": "p0-firstframe-blend025-mask-b.mp4",
+      "bytes": 3533,
+      "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f",
+      "decodable": true
+    }
+  ],
+  "warmStart": false,
+  "workflowSha256": "e2e168b12bab5881fc917fc45259015953f6b2462e4b75660ca6bfc9171b2d30",
+  "status": "INFERENCE_PASSED_REVIEW_PENDING",
+  "promptId": "67a81ae2-f65e-4849-8b8a-2c1d35345782",
+  "submittedAt": 1789387350.5049653,
+  "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T120220Z/run-01/output.mp4",
+  "outputSha256": "719dc86db253afd051f0f5284eedbedf9d7b46266fa94c07df4039d79883ba09",
+  "finishedAt": 1789387839.152749
+}

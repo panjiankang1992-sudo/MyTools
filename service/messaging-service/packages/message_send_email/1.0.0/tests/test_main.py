@@ -31,11 +31,19 @@ class MessageSendEmailTest(unittest.TestCase):
     @patch("urllib.request.urlopen", return_value=Response())
     def test_only_sends_delivery_identifier_to_internal_api(self, urlopen):
         result = MODULE.execute("00000000-0000-4000-8000-000000000001",
+                                {"taskInstanceId": "00000000-0000-4000-8000-000000000002",
+                                 "stepName": "send_email", "fencingToken": 7},
                                 "http://messaging", "secret")
 
         request = urlopen.call_args.args[0]
         self.assertEqual(b"", request.data)
         self.assertNotIn("secret", request.full_url)
+        self.assertEqual("00000000-0000-4000-8000-000000000002",
+                         request.headers["X-task-instance-id"])
+        self.assertEqual("send_email", request.headers["X-task-step-name"])
+        self.assertEqual("00000000-0000-4000-8000-000000000001",
+                         request.headers["X-task-business-key"])
+        self.assertEqual("7", request.headers["X-task-fencing-token"])
         self.assertEqual("DELIVERED", result["status"])
 
 

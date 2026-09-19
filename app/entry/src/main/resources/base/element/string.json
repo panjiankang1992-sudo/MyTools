@@ -1,12 +1,564 @@
 {
   "string": [
     {
+      "name": "adaptation_legacy_style",
+      "value": "历史版本（未使用模板）"
+    },
+    {
+      "name": "adaptation_empty_title",
+      "value": "还没有改编版本"
+    },
+    {
+      "name": "adaptation_empty_description",
+      "value": "选择一种风格，写下你的改编意图。每次生成都会保存为独立版本。"
+    },
+    {
+      "name": "adaptation_view_detail",
+      "value": "查看详情"
+    },
+    {
+      "name": "adaptation_intent_label",
+      "value": "改编要求"
+    },
+    {
+      "name": "adaptation_chapter_label",
+      "value": "章节"
+    },
+    {
+      "name": "adaptation_created_label",
+      "value": "创建时间"
+    },
+    {
+      "name": "adaptation_origin_label",
+      "value": "来源"
+    },
+    {
+      "name": "adaptation_origin_original",
+      "value": "原文章节"
+    },
+    {
+      "name": "adaptation_preview_label",
+      "value": "内容预览"
+    },
+    {
+      "name": "adaptation_detail_title",
+      "value": "改编详情"
+    },
+    {
+      "name": "adaptation_read_title",
+      "value": "改编正文"
+    },
+    {
+      "name": "adaptation_read_content",
+      "value": "阅读改编内容"
+    },
+    {
+      "name": "adaptation_style_label",
+      "value": "改编风格"
+    },
+    {
+      "name": "adaptation_style_reload",
+      "value": "重新加载风格模板"
+    },
+    {
       "name": "entry_app_name",
       "value": "MyTools"
     },
     {
       "name": "entry_desc",
       "value": "MyTools HarmonyOS NEXT client"
+    },
+    {
+      "name": "adaptation_title",
+      "value": "章节改编"
+    },
+    {
+      "name": "adaptation_consent_manage",
+      "value": "授权管理"
+    },
+    {
+      "name": "adaptation_consent_title",
+      "value": "第三方文本处理告知"
+    },
+    {
+      "name": "adaptation_consent_account_entry",
+      "value": "小说改编授权"
+    },
+    {
+      "name": "adaptation_consent_account_description",
+      "value": "查看处理告知或撤销授权，不删除历史改编结果"
+    },
+    {
+      "name": "adaptation_consent_refresh_required",
+      "value": "未能确认当前授权状态，请刷新后重新操作。关闭页面不会撤回已提交的操作。"
+    },
+    {
+      "name": "adaptation_consent_accepted",
+      "value": "已明确同意当前告知"
+    },
+    {
+      "name": "adaptation_consent_required",
+      "value": "尚未同意当前告知"
+    },
+    {
+      "name": "adaptation_consent_revision",
+      "value": "授权修订：%s"
+    },
+    {
+      "name": "adaptation_consent_older_active",
+      "value": "仍有旧告知下的授权记录，可在此统一撤销。"
+    },
+    {
+      "name": "adaptation_consent_processing",
+      "value": "我已阅读以上内容，同意按本告知向指定第三方发送改编所需文本。"
+    },
+    {
+      "name": "adaptation_consent_rights",
+      "value": "我确认拥有提交这些文本进行处理所需的权利或授权。"
+    },
+    {
+      "name": "adaptation_consent_accept",
+      "value": "确认同意"
+    },
+    {
+      "name": "adaptation_consent_revoke",
+      "value": "撤销全部改编处理授权"
+    },
+    {
+      "name": "adaptation_consent_revoke_notice",
+      "value": "撤销会阻止新的处理许可，不删除历史结果；已取得许可或已发送的第三方请求不能保证撤回。再次同意不会恢复旧授权下任务的发送资格。"
+    },
+    {
+      "name": "adaptation_consent_unavailable",
+      "value": "当前尚无可用的已登记告知，不能同意或提交改编。已有授权仍可撤销。"
+    },
+    {
+      "name": "adaptation_consent_create_gate",
+      "value": "需完成当前版本授权且服务开放创建后才能提交。可以先填写意图，历史结果仍可查看。"
+    },
+    {
+      "name": "adaptation_consent_back",
+      "value": "返回改编"
+    },
+    {
+      "name": "adaptation_verify_source",
+      "value": "核验原章与邻章"
+    },
+    {
+      "name": "adaptation_close",
+      "value": "关闭"
+    },
+    {
+      "name": "adaptation_optimize",
+      "value": "优化改编"
+    },
+    {
+      "name": "adaptation_regenerate",
+      "value": "重新改编"
+    },
+    {
+      "name": "adaptation_notice",
+      "value": "仅改编本人书架中的章节。保留原文和每次结果；需先完成服务端第三方文本处理授权，改编要求不能改变关键剧情。"
+    },
+    {
+      "name": "adaptation_refresh",
+      "value": "刷新"
+    },
+    {
+      "name": "adaptation_prepare",
+      "value": "准备权威目录"
+    },
+    {
+      "name": "adaptation_open_chapter",
+      "value": "查看或改编本章"
+    },
+    {
+      "name": "adaptation_first_page",
+      "value": "回到首页"
+    },
+    {
+      "name": "adaptation_next_page",
+      "value": "下一页"
+    },
+    {
+      "name": "adaptation_catalog",
+      "value": "改编目录"
+    },
+    {
+      "name": "adaptation_history",
+      "value": "版本历史"
+    },
+    {
+      "name": "adaptation_new",
+      "value": "新建改编"
+    },
+    {
+      "name": "adaptation_intent_placeholder",
+      "value": "必填，5—2000字。例如：增加环境、动作和心理描写，保持人物关系、事件顺序及章节结尾不变。"
+    },
+    {
+      "name": "adaptation_uncertain",
+      "value": "尚未确认提交结果，后台可能已接收。重试会使用同一请求，不会主动创建第二个版本；也可刷新版本历史确认。"
+    },
+    {
+      "name": "adaptation_retry_same",
+      "value": "重试同一请求"
+    },
+    {
+      "name": "adaptation_submit",
+      "value": "提交改编"
+    },
+    {
+      "name": "adaptation_cancel",
+      "value": "取消任务"
+    },
+    {
+      "name": "adaptation_source_unverified",
+      "value": "原章当前版本尚未验证或已变化，暂不能基于此版本继续优化或重新改编。历史正文仍可查看。"
+    },
+    {
+      "name": "adaptation_compare",
+      "value": "对比冻结原文"
+    },
+    {
+      "name": "adaptation_compare_close",
+      "value": "返回改编正文"
+    },
+    {
+      "name": "adaptation_compare_notice",
+      "value": "对比生成时冻结的原章与当前版本正式采用的结果，不受书源后续更新影响。"
+    },
+    {
+      "name": "adaptation_compare_fallback",
+      "value": "差异计算超过预算，以下依次展示完整原文和改编结果。"
+    },
+    {
+      "name": "adaptation_compare_original",
+      "value": "冻结原文"
+    },
+    {
+      "name": "adaptation_compare_adapted",
+      "value": "改编内容"
+    },
+    {
+      "name": "adaptation_compare_unchanged",
+      "value": "保持不变"
+    },
+    {
+      "name": "adaptation_pending_storage_error",
+      "value": "待确认请求的安全存储未完成。已保留原请求时只能重试同一请求，请勿另建版本。"
+    },
+    {
+      "name": "adaptation_request_error",
+      "value": "本次操作未完成，请查看当前状态后重试。"
+    },
+    {
+      "name": "adaptation_shelf_sync_required",
+      "value": "这本书尚未完成云端书架同步，或同步存在冲突。请保持联网，刷新重试；仍失败时请返回书架检查同步状态。"
+    },
+    {
+      "name": "adaptation_intent_conflict",
+      "value": "本次意图与原章剧情约束冲突，未生成正文。请返回版本列表新建改编，调整意图以保留关键事件、人物关系和章节结果；本次失败记录会保留。"
+    },
+    {
+      "name": "adaptation_failed_help",
+      "value": "本次改编未完成，失败记录已保留。请记录下方错误码排查；刷新只更新状态，不会重复生成。"
+    },
+    {
+      "name": "adaptation_chapter_unavailable",
+      "value": "本章暂不支持新建改编，已有历史仍可查看。"
+    },
+    {
+      "name": "adaptation_state_unknown",
+      "value": "状态待确认"
+    },
+    {
+      "name": "adaptation_state_dispatch",
+      "value": "等待任务分发"
+    },
+    {
+      "name": "adaptation_state_queued",
+      "value": "排队中"
+    },
+    {
+      "name": "adaptation_state_context",
+      "value": "冻结原章与上下文"
+    },
+    {
+      "name": "adaptation_state_plan",
+      "value": "分析剧情与改编计划"
+    },
+    {
+      "name": "adaptation_state_generate",
+      "value": "生成改编正文"
+    },
+    {
+      "name": "adaptation_state_validate",
+      "value": "检查剧情一致性"
+    },
+    {
+      "name": "adaptation_state_repair",
+      "value": "修复约束问题"
+    },
+    {
+      "name": "adaptation_state_persist",
+      "value": "保存本次结果"
+    },
+    {
+      "name": "adaptation_state_completed",
+      "value": "已完成"
+    },
+    {
+      "name": "adaptation_state_cancelling",
+      "value": "正在请求取消"
+    },
+    {
+      "name": "adaptation_state_cancelled",
+      "value": "已取消"
+    },
+    {
+      "name": "adaptation_state_failed",
+      "value": "处理失败"
+    },
+    {
+      "name": "adaptation_state_ready",
+      "value": "目录已就绪"
+    },
+    {
+      "name": "adaptation_state_preparing",
+      "value": "正在准备目录"
+    },
+    {
+      "name": "adaptation_state_unavailable",
+      "value": "暂不可用"
+    },
+    {
+      "name": "adaptation_state_checking",
+      "value": "正在核验原章与邻章"
+    },
+    {
+      "name": "adaptation_state_current",
+      "value": "原章与邻章核验通过"
+    },
+    {
+      "name": "adaptation_state_stale",
+      "value": "原章或邻章已变化"
+    },
+    {
+      "name": "adaptation_state_selected",
+      "value": "正式采用"
+    },
+    {
+      "name": "adaptation_state_not_selected",
+      "value": "未采用候选"
+    },
+    {
+      "name": "adaptation_state_rejected",
+      "value": "未通过剧情约束检查"
+    },
+    {
+      "name": "image_mode_edit",
+      "value": "图生图"
+    },
+    {
+      "name": "image_mode_prompt",
+      "value": "图片反推提示词"
+    },
+    {
+      "name": "image_extract_prompt",
+      "value": "提取提示词"
+    },
+    {
+      "name": "image_use_prompt",
+      "value": "用于创作"
+    },
+    {
+      "name": "image_prompt_notice",
+      "value": "根据画面推测的描述，不代表原始提示词。"
+    },
+    {
+      "name": "image_reference_upload",
+      "value": "添加底稿 ·"
+    },
+    {
+      "name": "image_reference_limit",
+      "value": "张 / 每张 ≤ 1 MB"
+    },
+    {
+      "name": "image_style_title",
+      "value": "图片风格"
+    },
+    {
+      "name": "image_style_none",
+      "value": "无风格"
+    },
+    {
+      "name": "image_style_builtin",
+      "value": "内置"
+    },
+    {
+      "name": "image_style_mine",
+      "value": "我的风格"
+    },
+    {
+      "name": "image_style_new",
+      "value": "新建风格"
+    },
+    {
+      "name": "image_style_refresh",
+      "value": "刷新目录"
+    },
+    {
+      "name": "image_style_copy",
+      "value": "复制"
+    },
+    {
+      "name": "image_style_edit",
+      "value": "编辑"
+    },
+    {
+      "name": "image_style_delete",
+      "value": "删除"
+    },
+    {
+      "name": "image_style_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "image_style_save",
+      "value": "保存并使用"
+    },
+    {
+      "name": "image_style_name",
+      "value": "风格名称"
+    },
+    {
+      "name": "image_style_sample",
+      "value": "湖边的一间木屋"
+    },
+    {
+      "name": "image_style_editor_help",
+      "value": "描述媒介、笔触、配色和光线，保留一个 {prompt} 作为画面主体。下方可预览合成结果；保存后点击生成图片试用。"
+    },
+    {
+      "name": "image_style_delete_notice",
+      "value": "删除后不再显示此风格，已有作品和历史版本仍保留。"
+    },
+    {
+      "name": "image_style_load_failed",
+      "value": "风格目录暂不可用，请刷新重试。"
+    },
+    {
+      "name": "image_style_save_failed",
+      "value": "保存未确认或版本冲突。可重试；若仍失败，请刷新目录后重新编辑。"
+    },
+    {
+      "name": "image_style_saved",
+      "value": "风格已保存并选用。"
+    },
+    {
+      "name": "image_style_deleted",
+      "value": "风格已删除。"
+    },
+    {
+      "name": "image_style_too_long",
+      "value": "合成提示词超过 4000 字符，请缩短主体或风格描述。"
+    },
+    {
+      "name": "image_style_name_watercolor",
+      "value": "水彩"
+    },
+    {
+      "name": "image_style_name_impressionist",
+      "value": "印象派"
+    },
+    {
+      "name": "image_style_name_pointillism",
+      "value": "点彩"
+    },
+    {
+      "name": "image_style_name_art_deco",
+      "value": "装饰艺术"
+    },
+    {
+      "name": "image_style_name_art_nouveau",
+      "value": "新艺术"
+    },
+    {
+      "name": "image_style_name_pop_art",
+      "value": "波普"
+    },
+    {
+      "name": "image_style_name_surrealist",
+      "value": "超现实"
+    },
+    {
+      "name": "image_style_name_anime",
+      "value": "动漫"
+    },
+    {
+      "name": "image_style_name_comic",
+      "value": "漫画"
+    },
+    {
+      "name": "image_style_name_line_art",
+      "value": "线稿"
+    },
+    {
+      "name": "image_style_name_digital_art",
+      "value": "数字绘画"
+    },
+    {
+      "name": "image_style_name_fantasy",
+      "value": "奇幻"
+    },
+    {
+      "name": "image_style_name_pixel",
+      "value": "像素"
+    },
+    {
+      "name": "image_style_name_isometric",
+      "value": "等距"
+    },
+    {
+      "name": "image_style_name_low_poly",
+      "value": "低多边形"
+    },
+    {
+      "name": "image_style_name_clay",
+      "value": "黏土"
+    },
+    {
+      "name": "image_style_name_origami",
+      "value": "折纸"
+    },
+    {
+      "name": "image_style_name_paper_cut",
+      "value": "多层剪纸"
+    },
+    {
+      "name": "image_style_name_minimalist",
+      "value": "极简"
+    },
+    {
+      "name": "image_style_name_monochrome",
+      "value": "黑白"
+    },
+    {
+      "name": "image_style_name_photographic",
+      "value": "写实摄影"
+    },
+    {
+      "name": "image_style_name_analog_film",
+      "value": "胶片"
+    },
+    {
+      "name": "image_style_name_cinematic",
+      "value": "电影感"
+    },
+    {
+      "name": "image_style_name_food_photo",
+      "value": "美食摄影"
     }
   ]
 }

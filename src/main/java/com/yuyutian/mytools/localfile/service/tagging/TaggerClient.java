@@ -36,7 +36,7 @@ public class TaggerClient {
     @Value("${tagging.service.url:http://192.168.1.9:8024}")
     private String taggingServiceUrl;
 
-    @Value("${tagging.service.model:huihui_ai/qwen3-vl-abliterated:4b}")
+    @Value("${tagging.service.model:huihui_ai/qwen3-vl-abliterated:8b}")
     private String taggingModel;
 
     /**
@@ -127,9 +127,20 @@ public class TaggerClient {
      */
     public boolean isServiceAvailable() {
         try {
-            restTemplate.getForObject(taggingServiceUrl + "/api/tags", String.class);
-            return true;
-        } catch (RestClientException e) {
+            String response = restTemplate.getForObject(taggingServiceUrl + "/api/tags", String.class);
+            // 服务存活不代表目标模型已安装，必须匹配当前配置的模型标识。
+            if (response == null || response.isBlank()) {
+                return false;
+            }
+            JsonNode models = objectMapper.readTree(response).path("models");
+            for (JsonNode model : models) {
+                if (taggingModel.equals(model.path("name").asText())
+                        || taggingModel.equals(model.path("model").asText())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (RestClientException | IOException e) {
             log.warn("打标签服务不可用: {}", taggingServiceUrl);
             return false;
         }
@@ -229,6 +240,15 @@ public class TaggerClient {
                 + "Filename: " + filename + "\nMIME type: " + mimeType + "\n"
                 + "Return JSON only in this exact shape: "
                 + "{\"tags\":[{\"tag_name\":\"short Chinese tag\",\"tag_type\":\"topic\",\"confidence\":0.95}]}. "
+                + "Prioritize people and characters when they are present or explicitly described. "
+                + "Rank tags in this order: character appearance and styling; distinctive character traits and actions; scene and general topic. "
+                + "Appearance includes hairstyle, hair color, clothing, accessories, makeup, facial hair, and overall styling. "
+                + "Traits include visible expressions, poses, actions, and explicitly described personality traits in text. "
+                + "When supported, allocate 3 to 4 of the maximum 6 tags to specific, non-redundant character details and place them first. "
+                + "Use remaining slots for the most informative scene or topic tags; avoid generic person or portrait tags when specific details are available. "
+                + "Do not invent details to fill a quota, infer personality from appearance, identify people, or infer sensitive attributes. "
+                + "If no person or character is supported by the input, use ordinary subject, scene, and topic tags without inventing a character. "
+                + "For metadata-only input, use only explicitly stated details. Keep tag_type as topic for compatibility. "
                 + "Return 3 to 6 concise Simplified Chinese tags. Confidence must be between 0 and 1.";
     }
 

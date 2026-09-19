@@ -1,0 +1,30 @@
+{
+  "runId": "run-03",
+  "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/restyle-gray-workflow.json",
+  "startedAt": 1789370053.098232,
+  "preflight": {
+    "nodes": 13,
+    "classTypes": [
+      "CLIPLoader",
+      "CLIPTextEncode",
+      "GetVideoComponents",
+      "KSampler",
+      "LoadVideo",
+      "ModelSamplingSD3",
+      "SaveImage",
+      "TrimVideoLatent",
+      "UNETLoader",
+      "VAEDecodeTiled",
+      "VAELoader",
+      "WanVaceToVideo"
+    ]
+  },
+  "warmStart": true,
+  "workflowSha256": "a0765bdf900e3a220d821e0898c3d8794b266aeb14ab7df686f0335dd377c960",
+  "status": "INFERENCE_PASSED_REVIEW_PENDING",
+  "promptId": "23ae7cbf-f65f-4606-afb0-eccba10feb45",
+  "submittedAt": 1789370053.0995612,
+  "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T065550Z/run-03/output.mp4",
+  "outputSha256": "73a6fd886ea45d00da61190599f5c11ec262486f84c4369653be7a0cea2205c6",
+  "finishedAt": 1789370537.3624177
+}

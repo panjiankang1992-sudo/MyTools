@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 public class MediaTagSidecarProperties {
     private boolean enabled;
     private String taskName = "media_generate_tags";
-    private String policyVersion = "media-tags-v1";
+    private String policyVersion = "media-tags-v2";
     private int priority = 40;
     private String serviceUrl = "http://127.0.0.1:11434";
-    private String model = "huihui_ai/qwen3-vl-abliterated:4b";
+    private String model = "huihui_ai/qwen3-vl-abliterated:8b";
 }

@@ -1,0 +1,125 @@
+{
+  "status": "EXTRACTED_SAMPLED_STYLE",
+  "model": "huihui_ai/qwen3-vl-abliterated:8b",
+  "modelDigest": "bda3299c5a283969d7161a6a319fbd1e481f09d9e2082acbffa50a0085040795",
+  "elapsedSeconds": 11.72,
+  "promptEvalCount": 5578,
+  "evalCount": 767,
+  "modelCallsThisTask": 3,
+  "priorCallStatus": "FIRST_CHAT_INVALID_JSON_SECOND_CHAT_EMPTY_CONTENT_BOTH_NOT_USED",
+  "interface": "api/generate raw ChatML",
+  "interfaceReason": "Existing model template is prompt-only; chat messages are not rendered.",
+  "doneReason": "stop",
+  "sources": [
+    {
+      "book": "B1",
+      "assetId": "7e415c82-234f-4a1d-8bc9-24d286ced25e",
+      "title": "末日欲望之路.txt",
+      "sha256": "35e497612848e0fb596233276fd64fe8c561b567e4b491e52150c5e10ca941ab",
+      "codepoints": 85284,
+      "samples": [
+        {
+          "id": "B1-S1",
+          "startCodepoint": 8528,
+          "endCodepoint": 9728,
+          "sha256": "318fd35e47c3201c34fd4db5314bfa74ee60dd87bfc56df0ccb5fad5cf0078e2"
+        },
+        {
+          "id": "B1-S2",
+          "startCodepoint": 38377,
+          "endCodepoint": 39577,
+          "sha256": "3b2c5940b10749f8b9e77ba24d29cfa93bdd5d6c0f47d0fabe0469682c5e5199"
+        },
+        {
+          "id": "B1-S3",
+          "startCodepoint": 68227,
+          "endCodepoint": 69427,
+          "sha256": "b7e2c3c503e4a17fd4917c8eb6e77edba7eeda6e947e8ae322d204fedb8d80ec"
+        }
+      ]
+    },
+    {
+      "book": "B2",
+      "sourceType": "READY_REMOTE_SHELF",
+      "shelfId": "6245915b-a9e5-4142-89f9-96d94024829d",
+      "title": "截胡女主，主角美母上门找我借钱",
+      "catalogChapterCount": 5,
+      "samples": [
+        {
+          "id": "B2-S1",
+          "chapterIndex": 0,
+          "chapterSha256": "069fa1a6f13b199435c40355a03634c5ad0f0403ebbaf2815246401e0abcd2b2",
+          "startCodepoint": 192,
+          "endCodepoint": 1392,
+          "sha256": "212cdfe8b74506894093f25d954d2225debe22b6b9261b1546f9a8efb3b6be0a"
+        },
+        {
+          "id": "B2-S2",
+          "chapterIndex": 2,
+          "chapterSha256": "c4f7196cda91729af9312ad01927671faf81318b05aec43e2a6b62d771173535",
+          "startCodepoint": 170,
+          "endCodepoint": 1370,
+          "sha256": "9a52d2b20a45282322135a8d5a3ee288aef751da7012c7cc39e54e3a101bdcbb"
+        },
+        {
+          "id": "B2-S3",
+          "chapterIndex": 4,
+          "chapterSha256": "0155158e4728366eef8a67fb5ecabc6a54816d9e981e613972baa4bc8938d08c",
+          "startCodepoint": 172,
+          "endCodepoint": 1372,
+          "sha256": "9cd694f1b9015e837539f1352f2f9912d359db63dac777b68ad030988960d269"
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "source": "8B output, condensed without source quotations; model judgments are not independently verified whole-book findings.",
+    "books": [
+      {
+        "book": "B1",
+        "traits": [
+          "短句与动词推进场景",
+          "动作和对话交替",
+          "即时心理反应连接外在行动"
+        ],
+        "referencedSampleIds": [
+          "B1-S1",
+          "B1-S2"
+        ]
+      },
+      {
+        "book": "B2",
+        "traits": [
+          "细节同时承担身份、物件和情绪信息",
+          "内心反应与外在表情形成情绪变化",
+          "有重复拟声词倾向，作为需避免的问题"
+        ],
+        "referencedSampleIds": [
+          "B2-S1",
+          "B2-S2"
+        ]
+      }
+    ],
+    "commonTraits": [
+      "短句推进",
+      "行动与心理衔接",
+      "细节具备多重叙事作用"
+    ],
+    "limitations": [
+      "两本资料各三个1200码点片段，不代表全书分析。",
+      "模型输出主要援引前两个样本，不能声称所有抽样位置均有等量依据。",
+      "第三人称和段落3至5句仅为模型观察，未作为模板硬规则。",
+      "模型的原文引句不纳入模板，也不视为已验证的逐字引文。"
+    ]
+  },
+  "unavailableSources": [
+    {
+      "title": "末世骄阳",
+      "reason": "LEGACY_LOCAL_FILE_MISSING"
+    },
+    {
+      "title": "仙宫香妃录",
+      "reason": "LEGACY_LOCAL_FILE_MISSING"
+    }
+  ]
+}

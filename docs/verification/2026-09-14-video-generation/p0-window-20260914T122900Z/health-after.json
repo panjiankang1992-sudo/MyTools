@@ -1,0 +1,60 @@
+{
+  "windowSummary": {
+    "windowId": "window-20260914T122900Z",
+    "results": [
+      {
+        "runId": "run-01",
+        "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/firstframe-blend025-s932c-workflow.json",
+        "startedAt": 1789388950.42263,
+        "preflight": {
+          "nodes": 16,
+          "classTypes": [
+            "CLIPLoader",
+            "CLIPTextEncode",
+            "GetVideoComponents",
+            "ImageToMask",
+            "KSampler",
+            "LoadVideo",
+            "ModelSamplingSD3",
+            "SaveImage",
+            "TrimVideoLatent",
+            "UNETLoader",
+            "VAEDecodeTiled",
+            "VAELoader",
+            "WanVaceToVideo"
+          ]
+        },
+        "inputs": [
+          {
+            "kind": "video",
+            "file": "p0-firstframe-blend025-control-c.mp4",
+            "bytes": 30694,
+            "sha256": "db9f523979d94c78a67541bc78f45aab5c2ef89471e5de72d34b22510fa5996a",
+            "decodable": true
+          },
+          {
+            "kind": "video",
+            "file": "p0-firstframe-blend025-mask-c.mp4",
+            "bytes": 3533,
+            "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f",
+            "decodable": true
+          }
+        ],
+        "warmStart": false,
+        "workflowSha256": "364eb0828d16ff465b129538b63f4c11cae1f2b64fed6fcd8f7ebc0d2477e2c1",
+        "status": "INFERENCE_PASSED_REVIEW_PENDING",
+        "promptId": "51638d0b-f2ea-4cf3-b115-eb5e23b27838",
+        "submittedAt": 1789388950.4827101,
+        "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T122900Z/run-01/output.mp4",
+        "outputSha256": "fed4d2bd3b2ce74d6640f98978f71dd14777e82e76d63bb7cec363279d93c97d",
+        "finishedAt": 1789389439.1145625
+      }
+    ]
+  },
+  "hostAfter": {
+    "time": 1789389443.3529665,
+    "availableMiB": 18215,
+    "gpu": "248, 15599, 0",
+    "memoryPressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=151504347\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=148630498"
+  }
+}

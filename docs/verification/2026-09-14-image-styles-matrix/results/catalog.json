@@ -1,0 +1,626 @@
+[
+  {
+    "id": "watercolor",
+    "name": "Watercolor",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "painting",
+    "promptTemplate": "Render {prompt} as a watercolor painting with translucent pigment washes, softly bleeding edges and visible paper texture.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_twri.json",
+      "name": "artstyle-watercolor",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "impressionist",
+    "name": "Impressionist",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "painting",
+    "promptTemplate": "Paint {prompt} with loose impressionist brushwork, broken color and luminous natural light.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_twri.json",
+      "name": "artstyle-impressionist",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "pointillism",
+    "name": "Pointillism",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "painting",
+    "promptTemplate": "Depict {prompt} using many small distinct dots of color that blend optically into a pointillist painting.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_twri.json",
+      "name": "artstyle-pointillism",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "art-deco",
+    "name": "Art Deco",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "design",
+    "promptTemplate": "Depict {prompt} in an Art Deco composition with bold symmetry, geometric ornament and an elegant limited palette.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_twri.json",
+      "name": "artstyle-art deco",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "art-nouveau",
+    "name": "Art Nouveau",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "design",
+    "promptTemplate": "Illustrate {prompt} with flowing botanical curves, ornamental framing and delicate Art Nouveau linework.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_twri.json",
+      "name": "artstyle-art nouveau",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "pop-art",
+    "name": "Pop Art",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "design",
+    "promptTemplate": "Depict {prompt} as pop art using bold flat colors, strong outlines and printed halftone textures.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_twri.json",
+      "name": "artstyle-pop art",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "surrealist",
+    "name": "Surrealist",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "painting",
+    "promptTemplate": "Depict {prompt} in a dreamlike surrealist scene with unexpected spatial relationships and carefully painted details.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_twri.json",
+      "name": "artstyle-surrealist",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "anime",
+    "name": "Anime",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "illustration",
+    "promptTemplate": "Create an anime illustration of {prompt} with expressive clean linework, cel shading and vivid colors.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_sai.json",
+      "name": "sai-anime",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "comic",
+    "name": "Comic Book",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "illustration",
+    "promptTemplate": "Draw {prompt} as a comic book illustration with confident ink outlines, graphic shadows and printed color.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_sai.json",
+      "name": "sai-comic book",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "line-art",
+    "name": "Line Art",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "illustration",
+    "promptTemplate": "Draw {prompt} as clean line art with deliberate contour lines and an uncluttered light background.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_sai.json",
+      "name": "sai-line art",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "digital-art",
+    "name": "Digital Art",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "illustration",
+    "promptTemplate": "Create a digital painting of {prompt} with expressive shapes, controlled lighting and refined painted detail.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_sai.json",
+      "name": "sai-digital art",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "fantasy",
+    "name": "Fantasy Art",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "illustration",
+    "promptTemplate": "Illustrate {prompt} with an imaginative fantasy atmosphere, intricate materials and dramatic magical lighting.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_sai.json",
+      "name": "sai-fantasy art",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "pixel",
+    "name": "Pixel Art",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "design",
+    "promptTemplate": "Render {prompt} as pixel art using a visible square pixel grid, a limited palette and crisp stepped edges.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_sai.json",
+      "name": "sai-pixel art",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "isometric",
+    "name": "Isometric",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "design",
+    "promptTemplate": "Render {prompt} in an isometric view with parallel architectural lines, clear geometry and consistent lighting.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_sai.json",
+      "name": "sai-isometric",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "low-poly",
+    "name": "Low Poly",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "three-dimensional",
+    "promptTemplate": "Render {prompt} as a low-poly scene with visible polygon facets, simplified geometry and broad color planes.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_sai.json",
+      "name": "sai-lowpoly",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "clay",
+    "name": "Clay",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "three-dimensional",
+    "promptTemplate": "Make {prompt} look handcrafted from modeling clay, with softly rounded shapes and tactile surface imperfections.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_sai.json",
+      "name": "sai-craft clay",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "origami",
+    "name": "Origami",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "papercraft",
+    "promptTemplate": "Depict {prompt} as folded paper origami with crisp creases, angular forms and gentle cast shadows.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_sai.json",
+      "name": "sai-origami",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "paper-cut",
+    "name": "Layered Paper Cut",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "papercraft",
+    "promptTemplate": "Create {prompt} from stacked cut-paper layers, with distinct silhouettes, tactile edges and shallow layered shadows.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_twri.json",
+      "name": "papercraft-stacked papercut",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "minimalist",
+    "name": "Minimalist",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "design",
+    "promptTemplate": "Depict {prompt} using a few essential shapes, a restrained palette and generous negative space.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_twri.json",
+      "name": "misc-minimalist",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "monochrome",
+    "name": "Monochrome",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "photography",
+    "promptTemplate": "Depict {prompt} in monochrome, emphasizing tonal separation, light, shadow and surface texture.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_twri.json",
+      "name": "misc-monochrome",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "photographic",
+    "name": "Photographic",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "photography",
+    "promptTemplate": "Photograph {prompt} with believable materials, natural light, coherent perspective and realistic optical detail.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_sai.json",
+      "name": "sai-photographic",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "analog-film",
+    "name": "Analog Film",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "photography",
+    "promptTemplate": "Photograph {prompt} on analog film, with subtle grain, soft highlight rolloff and gently muted colors.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_sai.json",
+      "name": "sai-analog film",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "cinematic",
+    "name": "Cinematic",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "photography",
+    "promptTemplate": "Frame {prompt} as a cinematic still with purposeful composition, motivated lighting and controlled color grading.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_sai.json",
+      "name": "sai-cinematic",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  },
+  {
+    "id": "food-photo",
+    "name": "Food Photography",
+    "kind": "PROMPT",
+    "version": 1,
+    "category": "photography",
+    "promptTemplate": "Photograph {prompt} as an appetizing food editorial, with careful plating, soft directional light and detailed food textures.",
+    "negativePrompt": "",
+    "compatibleModels": [
+      "krea2-local"
+    ],
+    "modes": [
+      "TEXT_TO_IMAGE",
+      "IMAGE_TO_IMAGE"
+    ],
+    "validationStatus": "UNTESTED_ON_GPU",
+    "source": {
+      "repository": "https://github.com/twri/sdxl_prompt_styler",
+      "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+      "file": "sdxl_styles_twri.json",
+      "name": "ads-food photography",
+      "license": "MIT",
+      "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+    },
+    "origin": "BUILTIN"
+  }
+]

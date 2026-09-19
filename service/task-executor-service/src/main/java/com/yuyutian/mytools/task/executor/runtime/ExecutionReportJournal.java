@@ -477,6 +477,13 @@ public class ExecutionReportJournal implements AutoCloseable {
                     }
                 } catch (SchedulerClientException exception) {
                     if (!exception.retryable()) {
+                        // Scheduler 的幂等记录可能刚由并发请求提交；REPORT_CONFLICT 先做一次有界重放，
+                        // 语义一致时下一次会返回 replayed，真实冲突仍会在第二次进入人工诊断。
+                        if ("REPORT_CONFLICT".equals(exception.errorCode())
+                                && state.retryCount() == 0) {
+                            throw new ReportRetryDeferredException(
+                                    deferRetry(report, state.retryCount()), exception);
+                        }
                         moveToDiagnostic(report, exception);
                     } else {
                         throw new ReportRetryDeferredException(deferRetry(report, state.retryCount()), exception);

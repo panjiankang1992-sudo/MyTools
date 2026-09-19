@@ -1,0 +1,142 @@
+[
+  {
+    "runId": "T01-t2v-49",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/trial-20260914T063810Z/output.mp4",
+    "prompt": "A red ceramic teapot on a wooden table gently releases steam. The camera slowly moves closer. Warm soft daylight.",
+    "mode": "TEXT_TO_VIDEO",
+    "anchors": [],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/T01-t2v-49"
+  },
+  {
+    "runId": "T01-81",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T082046Z/run-03/output.mp4",
+    "prompt": "A red ceramic teapot on a wooden table gently releases steam. The camera slowly moves closer. Warm soft daylight.",
+    "mode": "TEXT_TO_VIDEO",
+    "anchors": [],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/T01-81"
+  },
+  {
+    "runId": "I01-grey-s42",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T065550Z/run-01/output.mp4",
+    "prompt": "The subject in the frame begins to move gently. The camera slowly pushes in. The opening composition and colours stay unchanged.",
+    "mode": "FIRST_FRAME",
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png"
+    ],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-grey-s42"
+  },
+  {
+    "runId": "I01-grey-s932",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T103811Z/run-01/output.mp4",
+    "prompt": "The subject in the frame begins to move gently. The camera slowly pushes in. The opening composition and colours stay unchanged.",
+    "mode": "FIRST_FRAME",
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png"
+    ],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-grey-s932"
+  },
+  {
+    "runId": "I01-a025-s42",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T114940Z/run-01/output.mp4",
+    "prompt": "The subject in the frame begins to move gently. The camera slowly pushes in. The opening composition and colours stay unchanged.",
+    "mode": "FIRST_FRAME",
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png"
+    ],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-a025-s42"
+  },
+  {
+    "runId": "I01-a025-s932",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T112215Z/run-01/output.mp4",
+    "prompt": "The subject in the frame begins to move gently. The camera slowly pushes in. The opening composition and colours stay unchanged.",
+    "mode": "FIRST_FRAME",
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png"
+    ],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-a025-s932"
+  },
+  {
+    "runId": "R01-two-image",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T074325Z/run-01/output.mp4",
+    "prompt": "Both reference subjects appear together in one scene on a wooden table. The camera slowly moves closer. Keep each subject distinct and unchanged.",
+    "mode": "SUBJECT_REFERENCES",
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-b.png"
+    ],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/R01-two-image"
+  },
+  {
+    "runId": "R03-three-image",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T082046Z/run-02/output.mp4",
+    "prompt": "All three reference subjects appear together in one scene. The camera slowly moves closer. Keep each subject distinct and unchanged.",
+    "mode": "SUBJECT_REFERENCES",
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-b.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-scene.png"
+    ],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/R03-three-image"
+  },
+  {
+    "runId": "F01-firstlast",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T074325Z/run-03/output.mp4",
+    "prompt": "The scene transitions smoothly from the first image to the last image. The camera moves slowly and the lighting stays consistent.",
+    "mode": "FIRST_LAST_FRAMES",
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-b.png"
+    ],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/F01-firstlast"
+  },
+  {
+    "runId": "S01-shot2-s42",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T090441Z/run-02/output.mp4",
+    "prompt": "Shot 2. The person in the opening frame slowly turns their head toward the camera. The camera pushes in slightly and the background stays the same.",
+    "mode": "FIRST_FRAME",
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-b.png"
+    ],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/S01-shot2-s42"
+  },
+  {
+    "runId": "V01-restyle-synth",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T065550Z/run-03/output.mp4",
+    "prompt": "A watercolor painting on textured paper. The orange square keeps moving to the right at the same speed and direction, and the blue square stays in place. Visible brush strokes, soft edges, muted palette.",
+    "mode": "STRUCTURE_RESTYLE",
+    "anchors": [
+      "/tmp/vlm-anchors/motion-src.png"
+    ],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/V01-restyle-synth"
+  },
+  {
+    "runId": "V02-scene-gray",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T093408Z/run-01/output.mp4",
+    "prompt": "The camera pan over the landscape is repainted as a watercolor on textured paper. The pan direction, speed and framing stay the same. Visible brush strokes, soft edges, muted palette.",
+    "mode": "STRUCTURE_RESTYLE",
+    "anchors": [
+      "/tmp/vlm-anchors/scene-src.png"
+    ],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/V02-scene-gray"
+  },
+  {
+    "runId": "V02-scene-edge",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T093408Z/run-02/output.mp4",
+    "prompt": "The camera pan over the landscape is repainted as a watercolor on textured paper. The pan direction, speed and framing stay the same. Visible brush strokes, soft edges, muted palette.",
+    "mode": "STRUCTURE_RESTYLE",
+    "anchors": [
+      "/tmp/vlm-anchors/scene-src.png"
+    ],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/V02-scene-edge"
+  },
+  {
+    "runId": "M01-masked",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T082046Z/run-01/output.mp4",
+    "prompt": "In the right half of the frame the orange square becomes a glossy blue sphere. Everything in the left half stays exactly as it is, including the background.",
+    "mode": "MASKED_EDIT",
+    "anchors": [
+      "/tmp/vlm-anchors/masked-src.png"
+    ],
+    "workdir": "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/M01-masked"
+  }
+]

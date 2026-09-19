@@ -1,0 +1,11 @@
+{
+  "release": "image-styles-20260914-v1",
+  "gatewayBaseSha256": "1ed9dc4122ae28ccb1a33b9ca6f3e7a2131a6fc0e8286b7e5ab82a5cef399aa9",
+  "gatewayModifiedEntries": [
+    "BOOT-INF/classes/com/yuyutian/mytools/gateway/controller/ImageGenerationGatewayController.class"
+  ],
+  "artifacts": {
+    "image-generation-service.jar": "1b0bdea3ef29d36c3ac2f5b6d92c301baf4349daac9516e86ec056cd2b06fb93",
+    "mytools-gateway.jar": "85e55412e83446918d4119bf43040707517fd7ad5e9eeb9c5f85f0a092a0980c"
+  }
+}

@@ -1,3 +1,9 @@
+# Chapter adaptation option 2 — current gate (2026-09-13)
+
+Functional deployment result: passed for the bounded chapter acceptance; no new pixel-level visual assessment.
+
+Reader v6 is deployed, creation restored, and emulator V5 initial / V6 optimization / V7 regeneration all completed. Nine provider calls succeeded without retries. Actual history, detail and reading screens were verified; all three outputs persist with correct lineage and the original hash is unchanged. Failed V4 remains historical. Deployment and emulator usage were coordinated with the other session. See `/Users/pankang/mycode/MyTools/app/docs/chapter-adaptation-design/design-qa.md`. The results below remain historical checks for other scopes.
+
 # Multimedia / Remote Files Design QA
 
 ## Current iteration gate

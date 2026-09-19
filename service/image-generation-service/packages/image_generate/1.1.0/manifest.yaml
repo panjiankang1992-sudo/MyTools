@@ -1,0 +1,16 @@
+name: image_generate
+version: 1.1.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - filesystem_read
+  - filesystem_write
+  - http_comfyui
+  - http_ollama
+parameters:
+  required: [jobId, resourceId, prompt, mode, references, size, count, seed, workflowRevision]
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 2700
+  maxInputBytes: 10485760

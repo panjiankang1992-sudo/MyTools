@@ -1,0 +1,48 @@
+{
+  "windowId": "window-20260914T124159Z",
+  "scoring": "acceptance.md：指令遵循/主体保持/时间连贯/编辑局部性/伪影，各 1-5 分",
+  "status": "PENDING_HUMAN_REVIEW",
+  "cases": [
+    {
+      "caseId": "run-01",
+      "status": "BAD_SEED_PROBE",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "F01 首尾帧 @seed932：无全黑（YAVG 173.9→119.9，YMAX 237-253），与 seed42 几乎一致；证明“弱先验导致塌陷”的假设需要加上“只有一个锚点”这个条件。双锚点使跨种子运动差异仅 1.9%。"
+    },
+    {
+      "caseId": "run-02",
+      "status": "BAD_SEED_PROBE",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "V01 灰度重绘 @seed932：帧均值 0.011、46/49 帧属极暗，但每帧峰值 1.000、亮像素占比 2.7%——是“黑底 + 小块亮物体”而不是全黑帧。同一模式在纹理源片上正常，故为素材相关问题。"
+    },
+    {
+      "caseId": "run-03",
+      "status": "BAD_SEED_PROBE",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "M01 局部修改 @seed932：0 全黑、亮度 0.267、运动与 seed42 仅差 8.9%；强内容先验（原片 + 二值蒙版）使它在已知塌陷种子上依然稳定。"
+    }
+  ],
+  "blockingFindings": [
+    "在已知会塌陷的 seed 932 上，只有单图首帧出现全黑；塌陷是模式特有的，不是种子的普遍属性。",
+    "约束强度与跨种子稳定性正相关：无约束 68.4%、单锚点 44.4%、双锚点 1.9%。",
+    "灰度重绘在暗且低纹理素材上会把背景压成黑（均值 0.011-0.029），换纹理源片则正常，属素材相关问题。"
+  ]
+}

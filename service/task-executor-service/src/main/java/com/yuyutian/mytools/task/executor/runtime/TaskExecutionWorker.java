@@ -5,12 +5,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.task.executor.client.ClaimedStep;
 import com.yuyutian.mytools.task.executor.client.ClaimedTask;
+import com.yuyutian.mytools.task.executor.client.ClaimCapacityReservedException;
 import com.yuyutian.mytools.task.executor.client.ExecutorNodeRegistration;
 import com.yuyutian.mytools.task.executor.client.ExecutionCompletion;
 import com.yuyutian.mytools.task.executor.client.SchedulerClient;
 import com.yuyutian.mytools.task.executor.client.SchedulerClientException;
 import com.yuyutian.mytools.task.executor.config.ExecutorProperties;
 import com.yuyutian.mytools.task.executor.config.ExecutorDiskProperties;
+import com.yuyutian.mytools.task.executor.runtime.adaptation.NovelAdaptationTaskHost;
+import com.yuyutian.mytools.task.executor.client.adaptation.ReaderAdaptationException;
+import com.yuyutian.mytools.task.executor.common.ErrorCode;
 import com.yuyutian.mytools.task.executor.node.ExecutorNodeAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +37,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -54,7 +59,11 @@ public class TaskExecutionWorker {
     private final ExecutionReportJournal reportJournal;
     private final DiskSpaceGuard diskSpaceGuard;
     private final ObjectMapper objectMapper;
+    private final NovelAdaptationTaskHost adaptationHost;
     private final AtomicInteger runningTasks = new AtomicInteger();
+    private final Map<UUID, RunningTask> runningTaskIndex = new ConcurrentHashMap<>();
+    private final AtomicBoolean preferChildTakeover = new AtomicBoolean(true);
+    private final AtomicReference<UnorchestratedClaimScope> capacityReservationScope = new AtomicReference<>();
     private final AtomicInteger replayFailures = new AtomicInteger();
     private volatile Instant nextReplayAt = Instant.EPOCH;
 
@@ -107,11 +116,19 @@ public class TaskExecutionWorker {
      * @param reportJournal 执行结果持久上报日志
      * @param diskSpaceGuard 工作目录磁盘守卫
      */
-    @Autowired
     public TaskExecutionWorker(ExecutorProperties properties, ExecutorNodeAgent nodeAgent,
                                SchedulerClient schedulerClient, ScriptProcessRunner processRunner,
                                ScriptReleaseVerifier releaseVerifier, ObjectMapper objectMapper,
                                ExecutionReportJournal reportJournal, DiskSpaceGuard diskSpaceGuard) {
+        this(properties, nodeAgent, schedulerClient, processRunner, releaseVerifier, objectMapper, reportJournal, diskSpaceGuard, null);
+    }
+
+    /** 创建带专属小说改编入口的工作器，旧构造保留兼容但不能执行受保护任务。 */
+    @Autowired
+    public TaskExecutionWorker(ExecutorProperties properties, ExecutorNodeAgent nodeAgent,
+                               SchedulerClient schedulerClient, ScriptProcessRunner processRunner,
+                               ScriptReleaseVerifier releaseVerifier, ObjectMapper objectMapper,
+                               ExecutionReportJournal reportJournal, DiskSpaceGuard diskSpaceGuard, NovelAdaptationTaskHost adaptationHost) {
         this.properties = properties;
         this.nodeAgent = nodeAgent;
         this.schedulerClient = schedulerClient;
@@ -120,12 +137,13 @@ public class TaskExecutionWorker {
         this.objectMapper = objectMapper;
         this.reportJournal = reportJournal;
         this.diskSpaceGuard = diskSpaceGuard;
+        this.adaptationHost = adaptationHost;
     }
 
     /**
      * 在节点有剩余容量时领取一个任务。
      */
-    @Scheduled(fixedDelayString = "${executor.poll-seconds:1}000", initialDelay = 1500)
+    @Scheduled(fixedDelayString = "#{@executorPollInterval.milliseconds()}", initialDelay = 250)
     public void poll() {
         ExecutorNodeRegistration registration = nodeAgent.registration();
         if (registration == null || runningTasks.get() >= properties.maxConcurrentTasks()) {
@@ -150,16 +168,22 @@ public class TaskExecutionWorker {
             for (int claimedCount = 0;
                  claimedCount < claimBudget && runningTasks.get() < properties.maxConcurrentTasks();
                  claimedCount++) {
-                Optional<ClaimedTask> claimed = schedulerClient.claim(registration.id(), nodeAgent.instanceId());
+                Optional<ClaimedTask> claimed = claimNextTask(registration);
                 if (claimed.isEmpty()) {
                     return;
                 }
+                ClaimedTask task = claimed.get();
                 // 领取成功后先记录活动执行，再启动任务线程，单次轮询应立即填满空闲并发槽。
-                reportJournal.recordClaim(claimed.get());
+                reportJournal.recordClaim(task);
+                runningTaskIndex.put(task.taskInstanceId(), runningTask(task));
                 runningTasks.incrementAndGet();
                 nodeAgent.setRunningTasks(runningTasks.get());
-                Thread.startVirtualThread(() -> execute(claimed.get()));
+                Thread.startVirtualThread(() -> execute(task));
             }
+        } catch (ClaimCapacityReservedException exception) {
+            // 容量保留是正常调度控制信号，不对轮询做故障退避。
+            replayFailures.set(0);
+            nextReplayAt = Instant.EPOCH;
         } catch (IOException exception) {
             if (exception instanceof ReportRetryDeferredException deferred) {
                 // WAL 是上报退避时间的唯一权威，避免再叠加一层进程内退避和抖动。
@@ -184,6 +208,106 @@ public class TaskExecutionWorker {
         return runningTasks.get();
     }
 
+    private Optional<ClaimedTask> claimNextTask(ExecutorNodeRegistration registration) throws IOException {
+        int maximumTasks = properties.maxConcurrentTasks();
+        int reservedChildSlots = properties.effectiveReservedChildTaskSlots();
+        if (reservedChildSlots == 0) {
+            // 单槽节点无法同时运行阻塞父任务和子任务，维持旧领取行为以免根任务永久饥饿。
+            return schedulerClient.claim(registration.id(), nodeAgent.instanceId());
+        }
+        boolean hasOrchestrator = runningTaskIndex.values().stream().anyMatch(RunningTask::mayCreateChildren);
+        if (!hasOrchestrator) {
+            UnorchestratedClaimScope reservedScope = capacityReservationScope.get();
+            if (reservedScope != null) {
+                Optional<ClaimedTask> reservedTask = claimUnorchestratedScope(registration, reservedScope);
+                // 无保留信号的响应说明目标已领取或阻塞已消失，可以恢复根与子队列公平轮换。
+                capacityReservationScope.compareAndSet(reservedScope, null);
+                if (reservedTask.isPresent()) {
+                    return reservedTask;
+                }
+            }
+            // 没有阻塞编排任务时交替领取子任务和根任务，叶子任务可填满全部槽位且两类队列不饥饿。
+            boolean childFirst = nextUnorchestratedClaimPrefersChild();
+            UnorchestratedClaimScope firstScope = childFirst
+                    ? UnorchestratedClaimScope.CHILD : UnorchestratedClaimScope.ROOT;
+            Optional<ClaimedTask> first = claimUnorchestratedScope(registration, firstScope);
+            if (first.isPresent()) {
+                return first;
+            }
+            UnorchestratedClaimScope secondScope = childFirst
+                    ? UnorchestratedClaimScope.ROOT : UnorchestratedClaimScope.CHILD;
+            return claimUnorchestratedScope(registration, secondScope);
+        }
+        for (Set<UUID> parentScope : runningOrchestratorScopesDeepestFirst()) {
+            // 优先沿最深运行层向下领取，该层暂无候选时回退到浅层填充可执行兄弟。
+            Optional<ClaimedTask> descendant = schedulerClient.claimDirectChildTask(
+                    registration.id(), nodeAgent.instanceId(), parentScope);
+            if (descendant.isPresent()) {
+                return descendant;
+            }
+        }
+        int rootTaskLimit = maximumTasks - reservedChildSlots;
+        long localRootTasks = runningTaskIndex.values().stream()
+                .filter(task -> task.depth() == 0 && task.mayCreateChildren())
+                .count();
+        if (localRootTasks < rootTaskLimit) {
+            // 先确认当前编排链没有可运行后继，再用剩余根任务额度补充独立工作。
+            return schedulerClient.claimRootTask(registration.id(), nodeAgent.instanceId());
+        }
+        // 本地编排链未结束时不接管无关子树，避免其阻塞父任务侵占后继槽位。
+        return Optional.empty();
+    }
+
+    private Optional<ClaimedTask> claimUnorchestratedScope(ExecutorNodeRegistration registration,
+                                                            UnorchestratedClaimScope scope) throws IOException {
+        try {
+            return scope == UnorchestratedClaimScope.CHILD
+                    ? schedulerClient.claim(registration.id(), nodeAgent.instanceId(), true)
+                    : schedulerClient.claimRootTask(registration.id(), nodeAgent.instanceId());
+        } catch (ClaimCapacityReservedException exception) {
+            // 记住产生保留信号的准确范围，远端父任务接管不能被无关根任务覆盖。
+            capacityReservationScope.set(scope);
+            throw exception;
+        }
+    }
+
+    private boolean nextUnorchestratedClaimPrefersChild() {
+        while (true) {
+            boolean current = preferChildTakeover.get();
+            if (preferChildTakeover.compareAndSet(current, !current)) {
+                return current;
+            }
+        }
+    }
+
+    private List<Set<UUID>> runningOrchestratorScopesDeepestFirst() {
+        return runningTaskIndex.entrySet().stream()
+                .filter(entry -> entry.getValue().mayCreateChildren())
+                .collect(java.util.stream.Collectors.groupingBy(
+                        entry -> entry.getValue().depth(),
+                        java.util.TreeMap::new,
+                        java.util.stream.Collectors.mapping(
+                                Map.Entry::getKey,
+                                java.util.stream.Collectors.toUnmodifiableSet())))
+                .descendingMap()
+                .values()
+                .stream()
+                .toList();
+    }
+
+    private enum UnorchestratedClaimScope {
+        CHILD,
+        ROOT
+    }
+
+    private RunningTask runningTask(ClaimedTask task) {
+        RunningTask parent = task.parentTaskInstanceId() == null
+                ? null : runningTaskIndex.get(task.parentTaskInstanceId());
+        // 非本节点父任务的子任务作为新链入口，仍受本节点根任务额度约束。
+        int depth = parent == null ? 0 : parent.depth() + 1;
+        return new RunningTask(depth, task.mayCreateChildren());
+    }
+
     private void execute(ClaimedTask task) {
         AtomicBoolean cancellationRequested = new AtomicBoolean();
         AtomicBoolean monitorStopped = new AtomicBoolean();
@@ -202,6 +326,8 @@ public class TaskExecutionWorker {
         } finally {
             monitorStopped.set(true);
             monitor.interrupt();
+            // 即使终态上报 WAL 暂时失败，也先关闭普通正文能力。
+            schedulerClient.releaseWorkloadAuthorization(task.executionId());
             try {
                 reportJournal.persistCompletion(task, completion);
                 // 统一从 WAL 按步骤优先、终态最后的顺序投递，禁止终态越过未确认步骤。
@@ -211,6 +337,7 @@ public class TaskExecutionWorker {
                 LOGGER.error("Task completion report failed: taskInstanceId={}, status={}",
                         task.taskInstanceId(), completion.status(), exception);
             }
+            runningTaskIndex.remove(task.taskInstanceId());
             runningTasks.decrementAndGet();
             nodeAgent.setRunningTasks(runningTasks.get());
         }
@@ -218,6 +345,13 @@ public class TaskExecutionWorker {
 
     private StepOutcome executeNormalSteps(ClaimedTask task, AtomicBoolean cancellationRequested,
                                            AtomicReference<Instant> leaseUntil) throws IOException {
+        if (isAdaptation(task)) {
+            if (adaptationHost == null) throw new ReaderAdaptationException(ErrorCode.DISABLED, 0);
+            adaptationHost.validate(task);
+        } else if (adaptationHost != null && adaptationHost.dedicated()) {
+            // 挂载私钥和结算内容的专属宿主不执行任何通用脚本或空步骤任务。
+            throw new ReaderAdaptationException(ErrorCode.DISABLED, 0);
+        }
         List<ClaimedStep> normalSteps = stepsOfKind(task, "NORMAL");
         Map<String, Object> stepOutputs = new LinkedHashMap<>();
         for (ClaimedStep step : normalSteps) {
@@ -227,7 +361,7 @@ public class TaskExecutionWorker {
             }
             StepRun run = executeWithRetry(task, step, cancellationRequested::get, stepOutputs, true);
             stepOutputs.put(step.name(), run.outputs());
-            if (run.status().equals("TIMED_OUT")) {
+            if (run.status().equals("TIMED_OUT") && !"IGNORE".equals(step.failurePolicy())) {
                 return new StepOutcome("TIMED_OUT", step, run, stepOutputs);
             }
             if (run.status().equals("CANCELLED")) {
@@ -297,8 +431,9 @@ public class TaskExecutionWorker {
                         last.outputs(), last.errorCode(), last.errorMessage(), logIndex);
                 reportJournal.acknowledge(reportId);
             } catch (SchedulerClientException exception) {
-                if (!exception.retryable()) {
-                    // 协议冲突不能作为普通网络中断继续执行，交由 WAL 回放转入人工诊断。
+                if (!exception.retryable()
+                        && !"REPORT_CONFLICT".equals(exception.errorCode())) {
+                    // 明确的永久拒绝立即停止；幂等冲突允许 WAL 做一次有界重放后再判断。
                     throw exception;
                 }
                 LOGGER.warn("Step report deferred to WAL: executionId={}, step={}, attempt={}, errorCode={}",
@@ -344,6 +479,13 @@ public class TaskExecutionWorker {
                                 java.util.function.BooleanSupplier cancellationRequested,
                                 Map<String, Object> stepOutputs, boolean enforceTaskDeadline) throws IOException {
         Path workingDirectory = safeWorkDirectory(task, step, attempt);
+        if (isAdaptation(task)) {
+            // 受保护步骤必须在写入通用 context/lease 文件之前分流，脚本只得到受限 UDS。
+            if (adaptationHost == null) throw new ReaderAdaptationException(ErrorCode.DISABLED, 0);
+            var execution = adaptationHost.execute(task, step, safeEntrypoint(step), workingDirectory, cancellationRequested);
+            String code = execution.result().errorCode() == null ? null : execution.result().errorCode().code();
+            return new StepRun(execution.result().status(), execution.process(), Map.of(), code, code, false);
+        }
         Path contextFile = workingDirectory.resolve("task-context.json");
         Path resultFile = workingDirectory.resolve("task-result.json");
         Path errorFile = workingDirectory.resolve("task-error.json");
@@ -424,6 +566,7 @@ public class TaskExecutionWorker {
                         firstFailureAt = null;
                         if (renewed.cancelRequested() || !"ACTIVE".equals(renewed.leaseState())) {
                             cancellationRequested.set(true);
+                            schedulerClient.releaseWorkloadAuthorization(task.executionId());
                         }
                     }
                 } catch (InterruptedException exception) {
@@ -437,6 +580,7 @@ public class TaskExecutionWorker {
                     if (!now.isBefore(firstFailureAt.plusSeconds(properties.leaseSafetySeconds()))
                             || !now.isBefore(leaseUntil.get())) {
                         cancellationRequested.set(true);
+                        schedulerClient.releaseWorkloadAuthorization(task.executionId());
                     }
                     LOGGER.warn("Execution lease heartbeat failed: executionId={}, error={}",
                             task.executionId(), exception.getMessage());
@@ -471,6 +615,8 @@ public class TaskExecutionWorker {
                 step.scriptReleaseDigest());
         return entrypoint;
     }
+
+    private static boolean isAdaptation(ClaimedTask task) { return "reader_adapt_novel_chapter".equalsIgnoreCase(task.taskName()); }
 
     private List<String> buildCommand(Path entrypoint, List<String> templates, Map<String, Object> parameters) {
         List<String> command = new ArrayList<>();
@@ -581,6 +727,9 @@ public class TaskExecutionWorker {
     }
 
     private record StepOutcome(String status, ClaimedStep step, StepRun run, Map<String, Object> stepOutputs) {
+    }
+
+    private record RunningTask(int depth, boolean mayCreateChildren) {
     }
 
     private record CompensationOutcome(String status, boolean required, String errorCode) {

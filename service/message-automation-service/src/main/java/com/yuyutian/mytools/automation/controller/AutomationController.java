@@ -99,4 +99,28 @@ public class AutomationController {
         authorizer.requireAuthorized(authorization);
         return service.cancel(runId);
     }
+
+    /**
+     * 受控重新投递一条自动化完成通知死信。
+     */
+    @PostMapping("/completion-outbox/{eventId}/redrive")
+    public ResponseEntity<Void> redriveCompletion(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable UUID eventId) {
+        authorizer.requireAuthorized(authorization);
+        return repository.redriveDeadCompletion(eventId)
+                ? ResponseEntity.accepted().build() : ResponseEntity.notFound().build();
+    }
+
+    /**
+     * 原子恢复仍符合旧下载终态不一致故障特征且尚未发送分页的完成通知。
+     */
+    @PostMapping("/completion-outbox/{eventId}/recoverable-download-redrive")
+    public ResponseEntity<Void> redriveRecoverableDownloadCompletion(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @PathVariable UUID eventId) {
+        authorizer.requireAuthorized(authorization);
+        return repository.redriveRecoverableDownloadCompletion(eventId)
+                ? ResponseEntity.accepted().build() : ResponseEntity.notFound().build();
+    }
 }

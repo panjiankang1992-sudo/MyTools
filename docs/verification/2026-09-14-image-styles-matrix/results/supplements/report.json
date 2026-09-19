@@ -1,0 +1,278 @@
+[
+  {
+    "name": "art-deco-poster-baseline",
+    "styleId": "art-deco",
+    "status": "SUCCEEDED",
+    "jobId": "d02533a8-2114-4601-8eac-11eaaeefd695",
+    "request": {
+      "resourceId": "krea2-local",
+      "prompt": "A travel poster showing a tall coastal hotel, the sun rising over the sea, and palm trees at the sides. No lettering.",
+      "mode": "TEXT_TO_IMAGE",
+      "references": [],
+      "size": "1024x1024",
+      "count": 1,
+      "seed": 933,
+      "idempotencyKey": "image-styles-matrix-20260914-v1-extra-art-deco-poster-baseline",
+      "workflowRevision": "krea2-turbo-v1",
+      "modelId": "krea2-turbo"
+    },
+    "elapsedMillis": 64000,
+    "sha256": "8f06c0978ea63e771f031bc4c971ab206a5433329f93967463f796286fb61ad6"
+  },
+  {
+    "name": "art-deco-poster-styled",
+    "styleId": "art-deco",
+    "status": "SUCCEEDED",
+    "jobId": "39beb310-e64b-4ca4-b4ad-d1bf2a59c683",
+    "request": {
+      "resourceId": "krea2-local",
+      "prompt": "A travel poster showing a tall coastal hotel, the sun rising over the sea, and palm trees at the sides. No lettering.",
+      "mode": "TEXT_TO_IMAGE",
+      "references": [],
+      "size": "1024x1024",
+      "count": 1,
+      "seed": 933,
+      "idempotencyKey": "image-styles-matrix-20260914-v1-extra-art-deco-poster-styled",
+      "styleId": "art-deco",
+      "styleVersion": 1,
+      "styleSnapshot": {
+        "id": "art-deco",
+        "name": "Art Deco",
+        "kind": "PROMPT",
+        "version": 1,
+        "category": "design",
+        "promptTemplate": "Depict {prompt} in an Art Deco composition with bold symmetry, geometric ornament and an elegant limited palette.",
+        "negativePrompt": "",
+        "compatibleModels": [
+          "krea2-local"
+        ],
+        "modes": [
+          "TEXT_TO_IMAGE",
+          "IMAGE_TO_IMAGE"
+        ],
+        "validationStatus": "UNTESTED_ON_GPU",
+        "source": {
+          "repository": "https://github.com/twri/sdxl_prompt_styler",
+          "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+          "file": "sdxl_styles_twri.json",
+          "name": "artstyle-art deco",
+          "license": "MIT",
+          "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+        },
+        "origin": "BUILTIN"
+      },
+      "effectivePrompt": "Depict A travel poster showing a tall coastal hotel, the sun rising over the sea, and palm trees at the sides. No lettering. in an Art Deco composition with bold symmetry, geometric ornament and an elegant limited palette.",
+      "workflowRevision": "krea2-turbo-v1",
+      "modelId": "krea2-turbo"
+    },
+    "elapsedMillis": 98000,
+    "sha256": "d457cee3721c13de652d4374a792e45e8927409bfe496acd5701ab55ca6308c2"
+  },
+  {
+    "name": "surrealist-room-baseline",
+    "styleId": "surrealist",
+    "status": "SUCCEEDED",
+    "jobId": "d2865d65-c85a-4440-9a48-5884fafc33a1",
+    "request": {
+      "resourceId": "krea2-local",
+      "prompt": "A quiet room with a clock, a doorway and a staircase, with mountains visible through a window.",
+      "mode": "TEXT_TO_IMAGE",
+      "references": [],
+      "size": "1024x1024",
+      "count": 1,
+      "seed": 933,
+      "idempotencyKey": "image-styles-matrix-20260914-v1-extra-surrealist-room-baseline",
+      "workflowRevision": "krea2-turbo-v1",
+      "modelId": "krea2-turbo"
+    },
+    "elapsedMillis": 94000,
+    "sha256": "81ecd4c1d9a3d2021b7c7bd83bd19ed5ea683a7984b1037159f33c11a253fcc0"
+  },
+  {
+    "name": "surrealist-room-styled",
+    "styleId": "surrealist",
+    "status": "SUCCEEDED",
+    "jobId": "dd08aa9a-836c-45ae-bda4-abe379496b00",
+    "request": {
+      "resourceId": "krea2-local",
+      "prompt": "A quiet room with a clock, a doorway and a staircase, with mountains visible through a window.",
+      "mode": "TEXT_TO_IMAGE",
+      "references": [],
+      "size": "1024x1024",
+      "count": 1,
+      "seed": 933,
+      "idempotencyKey": "image-styles-matrix-20260914-v1-extra-surrealist-room-styled",
+      "styleId": "surrealist",
+      "styleVersion": 1,
+      "styleSnapshot": {
+        "id": "surrealist",
+        "name": "Surrealist",
+        "kind": "PROMPT",
+        "version": 1,
+        "category": "painting",
+        "promptTemplate": "Depict {prompt} in a dreamlike surrealist scene with unexpected spatial relationships and carefully painted details.",
+        "negativePrompt": "",
+        "compatibleModels": [
+          "krea2-local"
+        ],
+        "modes": [
+          "TEXT_TO_IMAGE",
+          "IMAGE_TO_IMAGE"
+        ],
+        "validationStatus": "UNTESTED_ON_GPU",
+        "source": {
+          "repository": "https://github.com/twri/sdxl_prompt_styler",
+          "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+          "file": "sdxl_styles_twri.json",
+          "name": "artstyle-surrealist",
+          "license": "MIT",
+          "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+        },
+        "origin": "BUILTIN"
+      },
+      "effectivePrompt": "Depict A quiet room with a clock, a doorway and a staircase, with mountains visible through a window. in a dreamlike surrealist scene with unexpected spatial relationships and carefully painted details.",
+      "workflowRevision": "krea2-turbo-v1",
+      "modelId": "krea2-turbo"
+    },
+    "elapsedMillis": 52000,
+    "sha256": "f0c7935cebb728c692fad29eadbb4a05bcbf5bdaf4f262fcdc715d9147384877"
+  },
+  {
+    "name": "line-art-neutral-baseline",
+    "styleId": "line-art",
+    "status": "SUCCEEDED",
+    "jobId": "d88a7101-3fa0-4831-8835-9c408c7dc7d8",
+    "request": {
+      "resourceId": "krea2-local",
+      "prompt": "A teapot, a plate of fruit and a potted plant on a table beside a window.",
+      "mode": "TEXT_TO_IMAGE",
+      "references": [],
+      "size": "1024x1024",
+      "count": 1,
+      "seed": 933,
+      "idempotencyKey": "image-styles-matrix-20260914-v1-extra-line-art-neutral-baseline",
+      "workflowRevision": "krea2-turbo-v1",
+      "modelId": "krea2-turbo"
+    },
+    "elapsedMillis": 52000,
+    "sha256": "9c88f88125f41040111a0d950936b1867b08211bd1ae378b49a0327482992d39"
+  },
+  {
+    "name": "line-art-neutral-styled",
+    "styleId": "line-art",
+    "status": "SUCCEEDED",
+    "jobId": "83e2ff68-5f33-48b6-90cd-059cd7048868",
+    "request": {
+      "resourceId": "krea2-local",
+      "prompt": "A teapot, a plate of fruit and a potted plant on a table beside a window.",
+      "mode": "TEXT_TO_IMAGE",
+      "references": [],
+      "size": "1024x1024",
+      "count": 1,
+      "seed": 933,
+      "idempotencyKey": "image-styles-matrix-20260914-v1-extra-line-art-neutral-styled",
+      "styleId": "line-art",
+      "styleVersion": 1,
+      "styleSnapshot": {
+        "id": "line-art",
+        "name": "Line Art",
+        "kind": "PROMPT",
+        "version": 1,
+        "category": "illustration",
+        "promptTemplate": "Draw {prompt} as clean line art with deliberate contour lines and an uncluttered light background.",
+        "negativePrompt": "",
+        "compatibleModels": [
+          "krea2-local"
+        ],
+        "modes": [
+          "TEXT_TO_IMAGE",
+          "IMAGE_TO_IMAGE"
+        ],
+        "validationStatus": "UNTESTED_ON_GPU",
+        "source": {
+          "repository": "https://github.com/twri/sdxl_prompt_styler",
+          "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+          "file": "sdxl_styles_sai.json",
+          "name": "sai-line art",
+          "license": "MIT",
+          "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+        },
+        "origin": "BUILTIN"
+      },
+      "effectivePrompt": "Draw A teapot, a plate of fruit and a potted plant on a table beside a window. as clean line art with deliberate contour lines and an uncluttered light background.",
+      "workflowRevision": "krea2-turbo-v1",
+      "modelId": "krea2-turbo"
+    },
+    "elapsedMillis": 52000,
+    "sha256": "662220cfabe473e411c4c74d70640257d596b4b2408a8eba6a521954a1b3b7dd"
+  },
+  {
+    "name": "monochrome-neutral-baseline",
+    "styleId": "monochrome",
+    "status": "SUCCEEDED",
+    "jobId": "c8091f1f-430a-4405-8e40-cd5ddd08c209",
+    "request": {
+      "resourceId": "krea2-local",
+      "prompt": "A teapot, a plate of fruit and a potted plant on a table beside a window.",
+      "mode": "TEXT_TO_IMAGE",
+      "references": [],
+      "size": "1024x1024",
+      "count": 1,
+      "seed": 933,
+      "idempotencyKey": "image-styles-matrix-20260914-v1-extra-monochrome-neutral-baseline",
+      "workflowRevision": "krea2-turbo-v1",
+      "modelId": "krea2-turbo"
+    },
+    "elapsedMillis": 48000,
+    "sha256": "9c88f88125f41040111a0d950936b1867b08211bd1ae378b49a0327482992d39"
+  },
+  {
+    "name": "monochrome-neutral-styled",
+    "styleId": "monochrome",
+    "status": "SUCCEEDED",
+    "jobId": "791fa890-914a-4c9e-84b2-1a03e096feb3",
+    "request": {
+      "resourceId": "krea2-local",
+      "prompt": "A teapot, a plate of fruit and a potted plant on a table beside a window.",
+      "mode": "TEXT_TO_IMAGE",
+      "references": [],
+      "size": "1024x1024",
+      "count": 1,
+      "seed": 933,
+      "idempotencyKey": "image-styles-matrix-20260914-v1-extra-monochrome-neutral-styled",
+      "styleId": "monochrome",
+      "styleVersion": 1,
+      "styleSnapshot": {
+        "id": "monochrome",
+        "name": "Monochrome",
+        "kind": "PROMPT",
+        "version": 1,
+        "category": "photography",
+        "promptTemplate": "Depict {prompt} in monochrome, emphasizing tonal separation, light, shadow and surface texture.",
+        "negativePrompt": "",
+        "compatibleModels": [
+          "krea2-local"
+        ],
+        "modes": [
+          "TEXT_TO_IMAGE",
+          "IMAGE_TO_IMAGE"
+        ],
+        "validationStatus": "UNTESTED_ON_GPU",
+        "source": {
+          "repository": "https://github.com/twri/sdxl_prompt_styler",
+          "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+          "file": "sdxl_styles_twri.json",
+          "name": "misc-monochrome",
+          "license": "MIT",
+          "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+        },
+        "origin": "BUILTIN"
+      },
+      "effectivePrompt": "Depict A teapot, a plate of fruit and a potted plant on a table beside a window. in monochrome, emphasizing tonal separation, light, shadow and surface texture.",
+      "workflowRevision": "krea2-turbo-v1",
+      "modelId": "krea2-turbo"
+    },
+    "elapsedMillis": 51000,
+    "sha256": "bf1031bf8793788ce609a7ecfe21e2775f0d388761ba66bd5f5aef1915b7405f"
+  }
+]

@@ -7,10 +7,12 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import socket
+from urllib.error import HTTPError, URLError
 from urllib.parse import unquote, urlparse
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
-from .models import Account, ContentSource
+from .models import (Account, ContentSource, ProviderPermanentRejectionError,
+                     ProviderRequestNotStartedError, ProviderTransientRejectionError)
 
 CHUNK_BYTES = 1024 * 1024
 
@@ -32,7 +34,7 @@ class SafeRedirectHandler(HTTPRedirectHandler):
 
 
 class OneBotClient:
-    """仅调用固定的 get_file 动作并受控传输结果。"""
+    """仅调用固定的 OneBot 动作并受控传输结果。"""
 
     def __init__(self, secret_resolver=None, opener=None, resolver=socket.getaddrinfo) -> None:
         self._secret_resolver = secret_resolver or resolve_secret
@@ -79,22 +81,57 @@ class OneBotClient:
             raise RuntimeError("OneBot get_forward_msg returned no messages")
         return messages
 
-    def _json_action(self, account: Account, path: str, payload: dict) -> dict:
+    def is_online(self, account: Account) -> bool:
+        """通过固定 get_status 动作确认 QQ 会话是否在线。"""
+        data = self._json_action(account, "/get_status", {}, timeout=3)
+        online = data.get("online")
+        if not isinstance(online, bool):
+            raise RuntimeError("OneBot get_status returned an invalid response")
+        return online
+
+    def _json_action(self, account: Account, path: str, payload: dict,
+                     timeout: float = 30) -> dict:
         """调用受控 OneBot JSON 动作并校验通用响应。"""
-        token = self._secret_resolver(account.secret_ref)
+        if timeout <= 0 or timeout > 30:
+            raise ValueError("OneBot action timeout is invalid")
+        try:
+            token = self._secret_resolver(account.secret_ref)
+        except (KeyError, ValueError) as exception:
+            # 凭据尚未解析成功时没有创建 HTTP 请求，允许上层安全退避。
+            raise ProviderRequestNotStartedError(
+                "OneBot provider request was not started") from exception
         request = Request(account.http_base_url.rstrip("/") + path,
                           data=json.dumps(payload, separators=(",", ":")).encode(), method="POST",
                           headers={"Authorization": f"Bearer {token}",
                                    "Content-Type": "application/json", "Accept": "application/json"})
         opener = self._opener or build_opener().open
-        with opener(request, timeout=30) as response:
-            raw = response.read(4 * 1024 * 1024 + 1)
-            if getattr(response, "status", 200) >= 400 or len(raw) > 4 * 1024 * 1024:
-                raise RuntimeError("OneBot action request failed")
+        try:
+            with opener(request, timeout=timeout) as response:
+                raw = response.read(4 * 1024 * 1024 + 1)
+                response_status = getattr(response, "status", 200)
+                if response_status >= 400:
+                    raise provider_http_rejection(response_status)
+                if len(raw) > 4 * 1024 * 1024:
+                    raise RuntimeError("OneBot action request failed")
+        except HTTPError as exception:
+            raise provider_http_rejection(exception.code) from exception
+        except ConnectionRefusedError as exception:
+            raise ProviderRequestNotStartedError(
+                "OneBot provider request was not started") from exception
+        except URLError as exception:
+            if isinstance(exception.reason, ConnectionRefusedError):
+                raise ProviderRequestNotStartedError(
+                    "OneBot provider request was not started") from exception
+            raise
         value = json.loads(raw.decode("utf-8"))
-        if not isinstance(value, dict) or value.get("status") not in (None, "ok") \
-                or int(value.get("retcode", 0)) != 0:
+        if not isinstance(value, dict):
             raise RuntimeError("OneBot action returned an invalid response")
+        try:
+            retcode = int(value.get("retcode", 0))
+        except (TypeError, ValueError) as exception:
+            raise RuntimeError("OneBot action returned an invalid response") from exception
+        if value.get("status") not in (None, "ok") or retcode != 0:
+            raise provider_action_rejection(retcode)
         data = value.get("data")
         return data if isinstance(data, dict) else {}
 
@@ -160,6 +197,21 @@ def resolve_secret(secret_ref: str) -> str:
     return value
 
 
+def provider_http_rejection(status: int) -> RuntimeError:
+    """把明确 HTTP 拒绝分类为可重试或永久失败。"""
+    if status in {408, 425, 429} or status >= 500:
+        return ProviderTransientRejectionError("OneBot provider temporarily rejected request")
+    return ProviderPermanentRejectionError("OneBot provider permanently rejected request")
+
+
+def provider_action_rejection(retcode: int) -> RuntimeError:
+    """按 OneBot/NapCat 返回码区分瞬时故障与请求级永久拒绝。"""
+    # 100/120x 表示执行环境或上游服务暂不可用；140x 是参数、权限或资源错误。
+    if retcode in {100, 1200, 1201, 1202, 1203}:
+        return ProviderTransientRejectionError("OneBot provider temporarily rejected request")
+    return ProviderPermanentRejectionError("OneBot provider permanently rejected request")
+
+
 def mapped_local_file(account: Account, returned_path: str) -> Path | None:
     """将容器 QQ 路径映射到宿主机根目录并阻止路径穿越。"""
     value = unquote(urlparse(returned_path).path) if returned_path.startswith("file://") else returned_path
@@ -205,7 +257,10 @@ def validate_stream_url(url: str, base_url: str, resolver=socket.getaddrinfo) ->
 def same_authority(left: str, right: str) -> bool:
     """比较规范化后的协议、主机和有效端口。"""
     first, second = urlparse(left), urlparse(right)
-    effective = lambda value: value.port or (443 if value.scheme == "https" else 80)
+
+    def effective(value) -> int:
+        return value.port or (443 if value.scheme == "https" else 80)
+
     try:
         return (first.scheme, first.hostname, effective(first)) == \
             (second.scheme, second.hostname, effective(second))

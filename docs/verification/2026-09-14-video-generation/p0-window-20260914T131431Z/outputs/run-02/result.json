@@ -1,0 +1,53 @@
+{
+  "runId": "run-02",
+  "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/subject-references-three-seed932-workflow.json",
+  "startedAt": 1789392723.785416,
+  "preflight": {
+    "nodes": 16,
+    "classTypes": [
+      "CLIPLoader",
+      "CLIPTextEncode",
+      "ImageBatch",
+      "KSampler",
+      "LoadImage",
+      "ModelSamplingSD3",
+      "SaveImage",
+      "TrimVideoLatent",
+      "UNETLoader",
+      "VAEDecodeTiled",
+      "VAELoader",
+      "WanVaceMultiReferenceToVideo"
+    ]
+  },
+  "inputs": [
+    {
+      "kind": "image",
+      "file": "p0-subject-a.png",
+      "bytes": 952822,
+      "sha256": "712c98518e3c9d40c142428fc6b7ca263e59723d9992e0d9519f7cbe71a6a8a3",
+      "decodable": true
+    },
+    {
+      "kind": "image",
+      "file": "p0-subject-b.png",
+      "bytes": 1129402,
+      "sha256": "6035cad323864b9514095cf112ac91176dbc2a1a61eaf064453e1b0cb44a811c",
+      "decodable": true
+    },
+    {
+      "kind": "image",
+      "file": "p0-scene.png",
+      "bytes": 1169401,
+      "sha256": "3488bd4c3070a571ee538e67524cc3b5147c9236b7e5dc3b749ac8f56e2e78c2",
+      "decodable": true
+    }
+  ],
+  "warmStart": true,
+  "workflowSha256": "f965c3207369e3accaa9dd966ee7f8b97a43dfbb5d8a417e3a3689c937b3c3b8",
+  "status": "INFERENCE_PASSED_REVIEW_PENDING",
+  "promptId": "9807c29f-1880-4e6c-b1ab-1f520d5e8705",
+  "submittedAt": 1789392723.9636605,
+  "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T131431Z/run-02/output.mp4",
+  "outputSha256": "3e5fb1e554d4b5ac2c9eb0342e1c92ca0984528599d39123892f347fda8eafbd",
+  "finishedAt": 1789393398.813951
+}

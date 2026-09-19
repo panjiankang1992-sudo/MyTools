@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ public class TaskDispatchService {
 
     private static final long LOG_SEGMENT_MAX_BYTES = 8L * 1024 * 1024;
     private static final int LOG_SEGMENT_MAX_COUNT = 1024;
+    private static final int PLACEMENT_SCAN_BATCH_SIZE = 32;
 
     private final JdbcTemplate jdbcTemplate;
     private final TaskInstanceRepository instanceRepository;
@@ -55,6 +57,7 @@ public class TaskDispatchService {
     private final NodeHealthProperties nodeHealthProperties;
     private final ChildTaskAggregationService childTaskAggregationService;
     private final TaskCancellationPropagationService cancellationPropagationService;
+    private final TaskExecutionAuthorizationService executionAuthorizationService;
 
     /**
      * 创建任务分发服务。
@@ -77,7 +80,8 @@ public class TaskDispatchService {
                                TaskEventService taskEventService,
                                NodeHealthProperties nodeHealthProperties,
                                ChildTaskAggregationService childTaskAggregationService,
-                               TaskCancellationPropagationService cancellationPropagationService) {
+                               TaskCancellationPropagationService cancellationPropagationService,
+                               TaskExecutionAuthorizationService executionAuthorizationService) {
         this.jdbcTemplate = jdbcTemplate;
         this.instanceRepository = instanceRepository;
         this.stepRepository = stepRepository;
@@ -88,6 +92,7 @@ public class TaskDispatchService {
         this.nodeHealthProperties = nodeHealthProperties;
         this.childTaskAggregationService = childTaskAggregationService;
         this.cancellationPropagationService = cancellationPropagationService;
+        this.executionAuthorizationService = executionAuthorizationService;
     }
 
     /**
@@ -98,29 +103,95 @@ public class TaskDispatchService {
      */
     @Transactional
     public Optional<ClaimedTaskView> claim(ClaimTaskRequest request) {
-        validateNodeInstance(request.nodeId(), request.instanceId());
+        boolean releaseDraining = lockAndValidateNodeInstance(request.nodeId(), request.instanceId());
         Optional<ClaimedTaskView> replayedClaim = findClaimByRequest(request);
         if (replayedClaim.isPresent()) {
             return replayedClaim;
         }
         Map<String, Object> nodeLabels = nodeLabels(request.nodeId());
-        Optional<ClaimedTaskView> existingTarget = claimExecutionTarget(request);
+        Optional<ClaimedTaskView> existingTarget = claimExecutionTarget(request, releaseDraining);
         if (existingTarget.isPresent()) {
             return existingTarget;
         }
-        expandNextMultiNodeTask(request.nodeId(), nodeLabels);
-        Optional<ClaimedTaskView> expandedTarget = claimExecutionTarget(request);
+        expandNextMultiNodeTask(request, nodeLabels, releaseDraining);
+        Optional<ClaimedTaskView> expandedTarget = claimExecutionTarget(request, releaseDraining);
         if (expandedTarget.isPresent()) {
             return expandedTarget;
         }
-        List<PlacementCandidate> candidates = jdbcTemplate.query("""
-                SELECT ti.id, ti.required_node_labels_json
+        Instant selectionTime = Instant.now();
+        PlacementCursor cursor = null;
+        // 按严格总序扫描所有分页，避免高优先级但标签不匹配的任务遮挡后续可领取任务。
+        while (true) {
+            List<PlacementCandidate> candidates = findSingleNodePlacementCandidates(
+                    request, selectionTime, cursor, releaseDraining);
+            if (candidates.isEmpty()) {
+                break;
+            }
+            for (PlacementCandidate candidate : candidates) {
+                if (!matchesRequiredLabels(candidate.requiredLabels(), nodeLabels)) {
+                    continue;
+                }
+                UUID taskId = candidate.taskId();
+                CapacityDecision capacity = capacityDecision(taskId, request.nodeId());
+                if (capacity == CapacityDecision.RESERVE_FOR_ORCHESTRATOR) {
+                    // 高优先级编排任务只差瞬时容量时立即停止本次领取，禁止同范围低需求任务回填保留槽。
+                    throw new ClaimCapacityReservedException();
+                }
+                if (capacity != CapacityDecision.AVAILABLE) {
+                    continue;
+                }
+                Instant now = Instant.now();
+                int claimed = jdbcTemplate.update("""
+                        UPDATE task_instance
+                        SET status = 'RUNNING', dispatch_attempts = dispatch_attempts + 1,
+                            started_at = COALESCE(started_at, ?), available_at = NULL, updated_at = ?
+                        WHERE id = ? AND status = 'QUEUED'
+                          AND (started_at IS NOT NULL OR (
+                              dispatch_deadline_at IS NOT NULL AND dispatch_deadline_at > ?
+                          ))
+                        """, Timestamp.from(now), Timestamp.from(now), taskId.toString(), Timestamp.from(now));
+                if (claimed == 1) {
+                    ClaimedTaskView execution = createExecution(request, taskId, null, null);
+                    taskEventService.appendTransition(taskId, "QUEUED", "RUNNING",
+                            execution.executionId().toString(), "EXECUTION_CLAIMED", 0, now);
+                    return Optional.of(execution);
+                }
+            }
+            cursor = PlacementCursor.after(candidates.getLast());
+            if (candidates.size() < PLACEMENT_SCAN_BATCH_SIZE) {
+                break;
+            }
+        }
+        return Optional.empty();
+    }
+
+    private List<PlacementCandidate> findSingleNodePlacementCandidates(ClaimTaskRequest request,
+                                                                        Instant selectionTime,
+                                                                        PlacementCursor cursor,
+                                                                        boolean releaseDraining) {
+        TaskScope taskScope = taskScope(request, "ti", releaseDraining);
+        String cursorCondition = cursor == null ? "" : """
+                  AND (
+                      ti.priority < ?
+                      OR (ti.priority = ? AND ti.created_at > ?)
+                      OR (ti.priority = ? AND ti.created_at = ? AND ti.id > ?)
+                  )
+                """;
+        String sql = """
+                SELECT ti.id, ti.parent_task_instance_id, ti.required_node_labels_json,
+                       ti.priority, ti.created_at
                 FROM task_instance ti
                 JOIN task_definition td ON td.id = ti.task_definition_id
                 JOIN execution_cluster ec ON ec.id = td.cluster_id AND ec.enabled = TRUE
                 JOIN cluster_node cn ON cn.cluster_id = ec.id AND cn.enabled = TRUE
                 WHERE ti.status = 'QUEUED' AND cn.node_id = ?
+                """ + taskScope.condition() + """
                   AND (ti.available_at IS NULL OR ti.available_at <= CURRENT_TIMESTAMP)
+                  AND (ti.started_at IS NOT NULL OR (
+                      ti.dispatch_deadline_at IS NOT NULL
+                      AND ti.dispatch_deadline_at > ?
+                  ))
+                  AND ti.created_at <= ?
                   AND td.execution_mode = 'SINGLE_NODE'
                   AND (
                       SELECT COUNT(*) FROM task_instance running_definition
@@ -140,58 +211,58 @@ public class TaskDispatchService {
                       SELECT 1 FROM task_step_definition ts
                       WHERE ts.task_definition_id = td.id AND ts.enabled = TRUE AND ts.step_kind = 'NORMAL'
                 )
-                ORDER BY ti.priority DESC, ti.created_at
-                LIMIT 32
-                FOR UPDATE SKIP LOCKED
-                """, (resultSet, rowNumber) -> new PlacementCandidate(
-                UUID.fromString(resultSet.getString("id")),
-                jsonColumnMapper.read(resultSet.getString("required_node_labels_json"))),
-                request.nodeId().toString());
-        for (PlacementCandidate candidate : candidates) {
-            if (!matchesRequiredLabels(candidate.requiredLabels(), nodeLabels)) {
-                continue;
-            }
-            UUID taskId = candidate.taskId();
-            if (!hasCapacity(taskId, request.nodeId())) {
-                continue;
-            }
-            Instant now = Instant.now();
-            int claimed = jdbcTemplate.update("""
-                    UPDATE task_instance
-                    SET status = 'RUNNING', dispatch_attempts = dispatch_attempts + 1,
-                        started_at = COALESCE(started_at, ?), available_at = NULL, updated_at = ?
-                    WHERE id = ? AND status = 'QUEUED'
-                    """, Timestamp.from(now), Timestamp.from(now), taskId.toString());
-            if (claimed == 1) {
-                ClaimedTaskView execution = createExecution(request, taskId, null, null);
-                taskEventService.appendTransition(taskId, "QUEUED", "RUNNING",
-                        execution.executionId().toString(), "EXECUTION_CLAIMED", 0, now);
-                return Optional.of(execution);
-            }
+                """ + cursorCondition + """
+                ORDER BY ti.priority DESC, ti.created_at, ti.id
+                LIMIT ?
+                """;
+        List<Object> parameters = new ArrayList<>();
+        parameters.add(request.nodeId().toString());
+        parameters.addAll(taskScope.parameters());
+        parameters.add(Timestamp.from(selectionTime));
+        parameters.add(Timestamp.from(selectionTime));
+        if (cursor != null) {
+            parameters.add(cursor.priority());
+            parameters.add(cursor.priority());
+            parameters.add(Timestamp.from(cursor.createdAt()));
+            parameters.add(cursor.priority());
+            parameters.add(Timestamp.from(cursor.createdAt()));
+            parameters.add(cursor.taskId().toString());
         }
-        return Optional.empty();
+        parameters.add(PLACEMENT_SCAN_BATCH_SIZE);
+        return jdbcTemplate.query(sql, (resultSet, rowNumber) -> new PlacementCandidate(
+                UUID.fromString(resultSet.getString("id")),
+                resultSet.getString("parent_task_instance_id") == null,
+                jsonColumnMapper.read(resultSet.getString("required_node_labels_json")),
+                resultSet.getInt("priority"), resultSet.getTimestamp("created_at").toInstant()),
+                parameters.toArray());
     }
 
-    private Optional<ClaimedTaskView> claimExecutionTarget(ClaimTaskRequest request) {
+    private Optional<ClaimedTaskView> claimExecutionTarget(ClaimTaskRequest request, boolean releaseDraining) {
         Map<String, Object> nodeLabels = nodeLabels(request.nodeId());
-        List<ExecutionTarget> targets = jdbcTemplate.query("""
+        TaskScope taskScope = taskScope(request, "ti", releaseDraining);
+        String sql = """
                 SELECT et.id, et.task_instance_id, et.target_index, et.target_count, td.execution_mode,
                        ti.required_node_labels_json
                 FROM task_execution_target et
                 JOIN task_instance ti ON ti.id = et.task_instance_id
                 JOIN task_definition td ON td.id = ti.task_definition_id
                 WHERE et.node_id = ? AND et.status = 'QUEUED' AND ti.status IN ('RUNNING', 'CANCELLING')
+                """ + taskScope.condition() + """
                   AND (et.available_at IS NULL OR et.available_at <= CURRENT_TIMESTAMP)
                 ORDER BY ti.priority DESC, et.created_at
                 LIMIT 32
                 FOR UPDATE SKIP LOCKED
-                """, (resultSet, rowNumber) -> new ExecutionTarget(
+                """;
+        List<Object> parameters = new ArrayList<>();
+        parameters.add(request.nodeId().toString());
+        parameters.addAll(taskScope.parameters());
+        List<ExecutionTarget> targets = jdbcTemplate.query(sql, (resultSet, rowNumber) -> new ExecutionTarget(
                 UUID.fromString(resultSet.getString("id")),
                 UUID.fromString(resultSet.getString("task_instance_id")),
                 resultSet.getInt("target_index"), resultSet.getInt("target_count"),
                 resultSet.getString("execution_mode"),
                 jsonColumnMapper.read(resultSet.getString("required_node_labels_json"))
-        ), request.nodeId().toString());
+        ), parameters.toArray());
         for (ExecutionTarget target : targets) {
             if (!matchesRequiredLabels(target.requiredLabels(), nodeLabels)) {
                 continue;
@@ -212,52 +283,108 @@ public class TaskDispatchService {
         return Optional.empty();
     }
 
-    private void expandNextMultiNodeTask(UUID requestingNodeId, Map<String, Object> nodeLabels) {
-        List<PlacementCandidate> candidates = jdbcTemplate.query("""
-                SELECT ti.id, ti.required_node_labels_json
+    private void expandNextMultiNodeTask(ClaimTaskRequest request, Map<String, Object> nodeLabels,
+                                         boolean releaseDraining) {
+        Instant selectionTime = Instant.now();
+        PlacementCursor cursor = null;
+        // 多节点任务使用相同游标策略，确保标签匹配任务不会被固定的首批候选饿死。
+        while (true) {
+            List<PlacementCandidate> candidates = findMultiNodePlacementCandidates(
+                    request, selectionTime, cursor, releaseDraining);
+            if (candidates.isEmpty()) {
+                return;
+            }
+            for (PlacementCandidate candidate : candidates) {
+                if (!matchesRequiredLabels(candidate.requiredLabels(), nodeLabels)) {
+                    continue;
+                }
+                UUID taskId = candidate.taskId();
+                if (!hasDefinitionCapacity(taskId)) {
+                    continue;
+                }
+                Instant now = Instant.now();
+                int claimed = jdbcTemplate.update("""
+                        UPDATE task_instance
+                        SET status = 'RUNNING', dispatch_attempts = dispatch_attempts + 1,
+                            started_at = COALESCE(started_at, ?), available_at = NULL, updated_at = ?
+                        WHERE id = ? AND status = 'QUEUED'
+                          AND (started_at IS NOT NULL OR (
+                              dispatch_deadline_at IS NOT NULL AND dispatch_deadline_at > ?
+                          ))
+                        """, Timestamp.from(now), Timestamp.from(now), taskId.toString(), Timestamp.from(now));
+                if (claimed == 1) {
+                    int expanded = createExecutionTargets(taskId);
+                    if (expanded == 0) {
+                        jdbcTemplate.update("UPDATE task_instance SET status = 'QUEUED', updated_at = ? WHERE id = ?",
+                                Timestamp.from(Instant.now()), taskId.toString());
+                    } else {
+                        taskEventService.appendTransition(taskId, "QUEUED", "RUNNING", "dispatch",
+                                "EXECUTION_TARGETS_CREATED", 0, now);
+                    }
+                    return;
+                }
+            }
+            cursor = PlacementCursor.after(candidates.getLast());
+            if (candidates.size() < PLACEMENT_SCAN_BATCH_SIZE) {
+                return;
+            }
+        }
+    }
+
+    private List<PlacementCandidate> findMultiNodePlacementCandidates(ClaimTaskRequest request,
+                                                                       Instant selectionTime,
+                                                                       PlacementCursor cursor,
+                                                                       boolean releaseDraining) {
+        TaskScope taskScope = taskScope(request, "ti", releaseDraining);
+        String cursorCondition = cursor == null ? "" : """
+                  AND (
+                      ti.priority < ?
+                      OR (ti.priority = ? AND ti.created_at > ?)
+                      OR (ti.priority = ? AND ti.created_at = ? AND ti.id > ?)
+                  )
+                """;
+        String sql = """
+                SELECT ti.id, ti.parent_task_instance_id, ti.required_node_labels_json,
+                       ti.priority, ti.created_at
                 FROM task_instance ti
                 JOIN task_definition td ON td.id = ti.task_definition_id
                 JOIN cluster_node cn ON cn.cluster_id = td.cluster_id AND cn.enabled = TRUE
                 WHERE ti.status = 'QUEUED' AND cn.node_id = ?
+                """ + taskScope.condition() + """
+                  AND (ti.started_at IS NOT NULL OR (
+                      ti.dispatch_deadline_at IS NOT NULL
+                      AND ti.dispatch_deadline_at > ?
+                  ))
+                  AND ti.created_at <= ?
                   AND td.execution_mode IN ('MULTI_NODE_BROADCAST', 'MULTI_NODE_SHARD')
                   AND EXISTS (
                       SELECT 1 FROM task_step_definition ts
                       WHERE ts.task_definition_id = td.id AND ts.enabled = TRUE AND ts.step_kind = 'NORMAL'
                 )
-                ORDER BY ti.priority DESC, ti.created_at
-                LIMIT 32
-                FOR UPDATE SKIP LOCKED
-                """, (resultSet, rowNumber) -> new PlacementCandidate(
-                UUID.fromString(resultSet.getString("id")),
-                jsonColumnMapper.read(resultSet.getString("required_node_labels_json"))),
-                requestingNodeId.toString());
-        for (PlacementCandidate candidate : candidates) {
-            if (!matchesRequiredLabels(candidate.requiredLabels(), nodeLabels)) {
-                continue;
-            }
-            UUID taskId = candidate.taskId();
-            if (!hasDefinitionCapacity(taskId)) {
-                continue;
-            }
-            Instant now = Instant.now();
-            int claimed = jdbcTemplate.update("""
-                    UPDATE task_instance
-                    SET status = 'RUNNING', dispatch_attempts = dispatch_attempts + 1,
-                        started_at = COALESCE(started_at, ?), available_at = NULL, updated_at = ?
-                    WHERE id = ? AND status = 'QUEUED'
-                    """, Timestamp.from(now), Timestamp.from(now), taskId.toString());
-            if (claimed == 1) {
-                int expanded = createExecutionTargets(taskId);
-                if (expanded == 0) {
-                    jdbcTemplate.update("UPDATE task_instance SET status = 'QUEUED', updated_at = ? WHERE id = ?",
-                            Timestamp.from(Instant.now()), taskId.toString());
-                } else {
-                    taskEventService.appendTransition(taskId, "QUEUED", "RUNNING", "dispatch",
-                            "EXECUTION_TARGETS_CREATED", 0, now);
-                }
-                return;
-            }
+                """ + cursorCondition + """
+                ORDER BY ti.priority DESC, ti.created_at, ti.id
+                LIMIT ?
+                """;
+        List<Object> parameters = new ArrayList<>();
+        parameters.add(request.nodeId().toString());
+        parameters.addAll(taskScope.parameters());
+        parameters.add(Timestamp.from(selectionTime));
+        parameters.add(Timestamp.from(selectionTime));
+        if (cursor != null) {
+            parameters.add(cursor.priority());
+            parameters.add(cursor.priority());
+            parameters.add(Timestamp.from(cursor.createdAt()));
+            parameters.add(cursor.priority());
+            parameters.add(Timestamp.from(cursor.createdAt()));
+            parameters.add(cursor.taskId().toString());
         }
+        parameters.add(PLACEMENT_SCAN_BATCH_SIZE);
+        return jdbcTemplate.query(sql, (resultSet, rowNumber) -> new PlacementCandidate(
+                UUID.fromString(resultSet.getString("id")),
+                resultSet.getString("parent_task_instance_id") == null,
+                jsonColumnMapper.read(resultSet.getString("required_node_labels_json")),
+                resultSet.getInt("priority"), resultSet.getTimestamp("created_at").toInstant()),
+                parameters.toArray());
     }
 
     private int createExecutionTargets(UUID taskId) {
@@ -291,12 +418,27 @@ public class TaskDispatchService {
         return nodeIds.size();
     }
 
-    private boolean hasCapacity(UUID taskId, UUID nodeId) {
+    private CapacityDecision capacityDecision(UUID taskId, UUID nodeId) {
         CapacityDefinition definition = lockCapacityDefinition(taskId);
         if (definition == null || !hasDefinitionCapacity(definition)) {
-            return false;
+            return CapacityDecision.UNAVAILABLE;
         }
-        return hasExecutionCapacity(definition, nodeId);
+        TaskCapacityRequirement requirement = taskCapacityRequirement(taskId, definition.definitionId());
+        ExecutionCapacity capacity = executionCapacity(definition, nodeId, requirement.minimumSlots());
+        if (requirement.rootTask()) {
+            OrchestrationReservation reservation = orchestrationReservation(definition.clusterId(), nodeId);
+            if (capacity.clusterRemaining() - 1 < reservation.clusterSlots()
+                    || capacity.nodeRemaining() - 1 < reservation.nodeSlots()) {
+                return CapacityDecision.UNAVAILABLE;
+            }
+        }
+        if (capacity.available()) {
+            return CapacityDecision.AVAILABLE;
+        }
+        if (requirement.minimumSlots() > 1 && capacity.theoreticallyFits()) {
+            return CapacityDecision.RESERVE_FOR_ORCHESTRATOR;
+        }
+        return CapacityDecision.UNAVAILABLE;
     }
 
     private boolean hasDefinitionCapacity(UUID taskId) {
@@ -332,10 +474,13 @@ public class TaskDispatchService {
 
     private boolean hasExecutionCapacity(UUID taskId, UUID nodeId) {
         CapacityDefinition definition = lockCapacityDefinition(taskId);
-        return definition != null && hasExecutionCapacity(definition, nodeId);
+        return definition != null && executionCapacity(
+                definition, nodeId, taskCapacityRequirement(taskId, definition.definitionId()).minimumSlots())
+                .available();
     }
 
-    private boolean hasExecutionCapacity(CapacityDefinition definition, UUID nodeId) {
+    private ExecutionCapacity executionCapacity(CapacityDefinition definition, UUID nodeId,
+                                                int minimumExecutionSlots) {
         int clusterRunning = count("""
                 SELECT COUNT(*) FROM task_execution te
                 JOIN task_instance ti ON ti.id = te.task_instance_id
@@ -348,13 +493,121 @@ public class TaskDispatchService {
         int nodeRunning = count(
                 "SELECT COUNT(*) FROM task_execution WHERE node_id = ? AND status = 'RUNNING'",
                 nodeId.toString());
-        return clusterRunning < definition.clusterMaxConcurrency()
-                && nodeLimit != null && nodeRunning < nodeLimit;
+        int normalizedNodeLimit = nodeLimit == null ? 0 : nodeLimit;
+        boolean available = definition.clusterMaxConcurrency() - clusterRunning >= minimumExecutionSlots
+                && normalizedNodeLimit - nodeRunning >= minimumExecutionSlots;
+        boolean theoreticallyFits = definition.clusterMaxConcurrency() >= minimumExecutionSlots
+                && normalizedNodeLimit >= minimumExecutionSlots;
+        return new ExecutionCapacity(available, theoreticallyFits,
+                definition.clusterMaxConcurrency() - clusterRunning,
+                normalizedNodeLimit - nodeRunning);
+    }
+
+    private TaskCapacityRequirement taskCapacityRequirement(UUID taskId, UUID definitionId) {
+        var task = instanceRepository.findById(taskId).orElseThrow();
+        List<String> scriptPackages = stepRepository.list(definitionId).stream()
+                .filter(step -> step.enabled())
+                .map(step -> step.scriptPackage())
+                .toList();
+        // 一个正在等待的编排任务必须在领取前留出一条完整后继链。
+        int minimumSlots = 1 + TaskOrchestrationCatalog.maximumDescendantDepth(
+                task.taskName(), scriptPackages);
+        return new TaskCapacityRequirement(minimumSlots, task.parentTaskInstanceId() == null);
+    }
+
+    private OrchestrationReservation orchestrationReservation(UUID clusterId, UUID nodeId) {
+        int nodeSlots = runningSynchronousOrchestratorDepth("te.node_id", nodeId);
+        int clusterSlots = Math.max(
+                runningSynchronousOrchestratorDepth("td.cluster_id", clusterId),
+                queuedChildOfRunningParentSlots(clusterId));
+        return new OrchestrationReservation(nodeSlots, clusterSlots);
+    }
+
+    private int runningSynchronousOrchestratorDepth(String identityColumn, UUID identity) {
+        List<String> packages = TaskOrchestrationCatalog.synchronousDirectChildPackages().stream()
+                .sorted()
+                .toList();
+        String placeholders = String.join(", ", java.util.Collections.nCopies(packages.size(), "?"));
+        String sql = """
+                SELECT ti.task_name, ts.script_package
+                FROM task_execution te
+                JOIN task_instance ti ON ti.id = te.task_instance_id
+                JOIN task_definition td ON td.id = ti.task_definition_id
+                JOIN task_step_definition ts ON ts.task_definition_id = td.id AND ts.enabled = TRUE
+                WHERE te.status = 'RUNNING'
+                  AND %s = ?
+                  AND ti.task_name <> 'download_resolve_x_url'
+                  AND ts.script_package IN (%s)
+                """.formatted(identityColumn, placeholders);
+        List<Object> parameters = new ArrayList<>();
+        parameters.add(identity.toString());
+        parameters.addAll(packages);
+        return jdbcTemplate.query(sql, (resultSet, rowNumber) -> new OrchestrationStep(
+                        resultSet.getString("task_name"), resultSet.getString("script_package")),
+                        parameters.toArray()).stream()
+                .mapToInt(step -> TaskOrchestrationCatalog.maximumDescendantDepth(
+                        step.taskName(), List.of(step.scriptPackage())))
+                .max()
+                .orElse(0);
+    }
+
+    private int queuedChildOfRunningParentSlots(UUID clusterId) {
+        List<OrchestrationStep> steps = jdbcTemplate.query("""
+                SELECT child.task_name, child_step.script_package
+                FROM task_instance child
+                JOIN task_definition child_definition ON child_definition.id = child.task_definition_id
+                JOIN task_step_definition child_step
+                  ON child_step.task_definition_id = child_definition.id AND child_step.enabled = TRUE
+                WHERE child.status = 'QUEUED'
+                  AND child_definition.cluster_id = ?
+                  AND child.parent_task_instance_id IS NOT NULL
+                  AND (child.available_at IS NULL OR child.available_at <= CURRENT_TIMESTAMP)
+                  AND EXISTS (
+                      SELECT 1 FROM task_execution parent_execution
+                      WHERE parent_execution.task_instance_id = child.parent_task_instance_id
+                        AND parent_execution.status = 'RUNNING'
+                  )
+                """, (resultSet, rowNumber) -> new OrchestrationStep(
+                resultSet.getString("task_name"), resultSet.getString("script_package")),
+                clusterId.toString());
+        return steps.stream()
+                .mapToInt(step -> 1 + TaskOrchestrationCatalog.maximumDescendantDepth(
+                        step.taskName(), List.of(step.scriptPackage())))
+                .max()
+                .orElse(0);
     }
 
     private int count(String sql, String id) {
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);
         return count == null ? 0 : count;
+    }
+
+    private TaskScope taskScope(ClaimTaskRequest request, String taskAlias, boolean releaseDraining) {
+        StringBuilder condition = new StringBuilder();
+        List<Object> parameters = new ArrayList<>();
+        if (releaseDraining) {
+            // 发布排空期只允许本节点已运行父任务的直接子任务，兼容旧 Executor 的无范围请求。
+            condition.append("  AND ").append(taskAlias).append(".parent_task_instance_id IN (\n")
+                    .append("      SELECT draining_parent.task_instance_id FROM task_execution draining_parent\n")
+                    .append("      WHERE draining_parent.node_id = ? AND draining_parent.status = 'RUNNING'\n")
+                    .append("  )\n");
+            parameters.add(request.nodeId().toString());
+        }
+        if (!request.parentTaskInstanceIds().isEmpty()) {
+            String placeholders = String.join(", ", java.util.Collections.nCopies(
+                    request.parentTaskInstanceIds().size(), "?"));
+            condition.append("  AND ").append(taskAlias).append(".parent_task_instance_id IN (")
+                    .append(placeholders).append(")\n");
+            parameters.addAll(request.parentTaskInstanceIds().stream()
+                    .map(UUID::toString)
+                    .map(value -> (Object) value)
+                    .toList());
+        } else if (request.rootTaskOnly()) {
+            condition.append("  AND ").append(taskAlias).append(".parent_task_instance_id IS NULL\n");
+        } else if (request.childTaskOnly()) {
+            condition.append("  AND ").append(taskAlias).append(".parent_task_instance_id IS NOT NULL\n");
+        }
+        return new TaskScope(condition.toString(), List.copyOf(parameters));
     }
 
     /**
@@ -366,6 +619,11 @@ public class TaskDispatchService {
      */
     @Transactional
     public LeaseHeartbeatView heartbeat(UUID executionId, LeaseHeartbeatRequest request) {
+        LeaseHeartbeatView authorized = executionAuthorizationService.renewIfProtected(executionId, request);
+        if (authorized != null) {
+            // 正文任务的续租和 generation 轮换同事务完成，不能走旧协议复活失效租约。
+            return authorized;
+        }
         Instant leaseUntil = Instant.now().plusSeconds(request.leaseSeconds());
         int updated = jdbcTemplate.update("""
                 UPDATE task_execution SET lease_until = ?, last_heartbeat_at = ?, updated_at = ?
@@ -439,6 +697,7 @@ public class TaskDispatchService {
             throw new IllegalArgumentException("Execution status is not terminal");
         }
         validateCompensation(request);
+        executionAuthorizationService.lockMutationIfProtected(executionId);
         ExecutionState current = executionState(executionId, request.leaseToken());
         if (!"RUNNING".equals(current.status())) {
             if (completionMatches(current, request)) {
@@ -469,6 +728,7 @@ public class TaskDispatchService {
             }
             throw reportConflict("Execution state changed concurrently");
         }
+        executionAuthorizationService.revokeExecution(executionId);
         ExecutionIdentity identity = jdbcTemplate.queryForObject("""
                 SELECT te.task_instance_id, te.execution_target_id, ti.status AS task_status
                 FROM task_execution te
@@ -599,6 +859,9 @@ public class TaskDispatchService {
                         step.entrypoint(), step.argumentsTemplate(), step.timeoutSeconds(), step.failurePolicy(),
                         step.sequenceNumber(), step.maxAttempts()))
                 .toList();
+        List<String> scriptPackages = steps.stream().map(ClaimedStepView::scriptPackage).toList();
+        boolean mayCreateChildren = TaskOrchestrationCatalog.mayCreateChildren(
+                task.taskName(), scriptPackages);
         Map<String, Object> parameters = new LinkedHashMap<>(task.parameters());
         if (target != null) {
             Map<String, Object> executionTarget = new LinkedHashMap<>();
@@ -609,11 +872,12 @@ public class TaskDispatchService {
             parameters.put("taskExecutionTarget", executionTarget);
         }
         String definitionDigest = definitionDigest(definitionId, definitionVersion, task.taskName(), steps);
-        return new ClaimedTaskView(executionId, task.id(), task.parentTaskInstanceId(), task.taskName(),
+        var claimed = new ClaimedTaskView(executionId, task.id(), task.parentTaskInstanceId(), task.taskName(),
                 definitionId, definitionVersion, definitionDigest, leaseToken,
                 fencingToken,
                 leaseUntil, task.startedAt().plusSeconds(timeoutSeconds == null ? 1 : timeoutSeconds),
-                parameters, steps);
+                mayCreateChildren, parameters, steps);
+        return claimed.withWorkloadAuthorization(executionAuthorizationService.issue(claimed));
     }
 
     private String definitionDigest(UUID definitionId, int version, String taskName, List<ClaimedStepView> steps) {
@@ -667,16 +931,24 @@ public class TaskDispatchService {
         return value;
     }
 
-    private void validateNodeInstance(UUID nodeId, UUID instanceId) {
-        Integer count = jdbcTemplate.queryForObject("""
-                SELECT COUNT(*) FROM executor_node
-                WHERE id = ? AND instance_id = ? AND enabled = TRUE AND status IN ('ONLINE', 'BUSY')
+    private boolean lockAndValidateNodeInstance(UUID nodeId, UUID instanceId) {
+        // 节点行锁覆盖整个领取事务，使排空更新不能插入校验与执行记录创建之间。
+        List<NodeClaimState> activeNodes = jdbcTemplate.query("""
+                SELECT id, status, status_reason FROM executor_node
+                WHERE id = ? AND instance_id = ? AND enabled = TRUE
+                  AND (status IN ('ONLINE', 'BUSY')
+                       OR (status = 'DRAINING' AND status_reason = 'QQ_FLOW_RELEASE'))
                   AND last_heartbeat_at >= ?
-                """, Integer.class, nodeId.toString(), instanceId.toString(),
+                FOR UPDATE
+                """, (resultSet, rowNumber) -> new NodeClaimState(
+                        resultSet.getString("status"), resultSet.getString("status_reason")),
+                nodeId.toString(), instanceId.toString(),
                 Timestamp.from(Instant.now().minusSeconds(nodeHealthProperties.offlineAfterSeconds())));
-        if (count == null || count != 1) {
+        if (activeNodes.size() != 1) {
             throw new IllegalArgumentException("Active executor node instance does not exist");
         }
+        NodeClaimState node = activeNodes.getFirst();
+        return "DRAINING".equals(node.status()) && "QQ_FLOW_RELEASE".equals(node.reason());
     }
 
     private Map<String, Object> nodeLabels(UUID nodeId) {
@@ -835,11 +1107,44 @@ public class TaskDispatchService {
                                       int clusterMaxConcurrency) {
     }
 
+    private record TaskCapacityRequirement(int minimumSlots, boolean rootTask) {
+    }
+
+    private record ExecutionCapacity(boolean available, boolean theoreticallyFits,
+                                     int clusterRemaining, int nodeRemaining) {
+    }
+
+    private record OrchestrationReservation(int nodeSlots, int clusterSlots) {
+    }
+
+    private record OrchestrationStep(String taskName, String scriptPackage) {
+    }
+
+    private enum CapacityDecision {
+        AVAILABLE,
+        RESERVE_FOR_ORCHESTRATOR,
+        UNAVAILABLE
+    }
+
     private record ExecutionTarget(UUID id, UUID taskInstanceId, int targetIndex, int targetCount,
                                    String executionMode, Map<String, Object> requiredLabels) {
     }
 
-    private record PlacementCandidate(UUID taskId, Map<String, Object> requiredLabels) {
+    private record PlacementCandidate(UUID taskId, boolean rootTask, Map<String, Object> requiredLabels,
+                                      int priority, Instant createdAt) {
+    }
+
+    private record PlacementCursor(int priority, Instant createdAt, UUID taskId) {
+
+        private static PlacementCursor after(PlacementCandidate candidate) {
+            return new PlacementCursor(candidate.priority(), candidate.createdAt(), candidate.taskId());
+        }
+    }
+
+    private record TaskScope(String condition, List<Object> parameters) {
+    }
+
+    private record NodeClaimState(String status, String reason) {
     }
 
     private record EligibleNode(UUID nodeId, Map<String, Object> labels, Map<String, Object> requiredLabels) {

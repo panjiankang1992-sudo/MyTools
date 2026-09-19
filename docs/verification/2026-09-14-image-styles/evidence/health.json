@@ -1,0 +1,48 @@
+{
+  "release": "image-styles-20260914-v1",
+  "services": {
+    "image-generation-service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "mytools-gateway": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "task-scheduler-service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "task-executor-service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "image-comfy": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "reader-service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    }
+  },
+  "task-scheduler-serviceSha256": "e3dd498b54aa3e24e4874812b6187a1aafad65fbba81ae1c97dff0ffc120fcd0",
+  "task-executor-serviceSha256": "4d369ff0bf63ba24ad9b58f4663df852bf34c08a9a7e001cce4428d4183719d1",
+  "imageMigrations": [
+    [
+      "1",
+      1
+    ],
+    [
+      "2",
+      1
+    ]
+  ],
+  "builtinCount": 24
+}

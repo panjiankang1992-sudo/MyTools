@@ -1,0 +1,23 @@
+{
+  "windowId": "window-20260914T114940Z",
+  "scoring": "acceptance.md：指令遵循/主体保持/时间连贯/编辑局部性/伪影，各 1-5 分",
+  "status": "PENDING_HUMAN_REVIEW",
+  "cases": [
+    {
+      "caseId": "run-01",
+      "status": "FIX_CANDIDATE_VERIFIED_BOTH_SEEDS",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "alpha=0.25 在两个固定种子上均 0 全黑、亮度 0.667/0.677（源图 0.714），跨种子帧间运动差异仅 7%（灰填充基线是 79%）。代价是运动幅度约为基线的 1/6；0.11-0.12 的首末帧差异是否满足“动起来”需人工确认。"
+    }
+  ],
+  "blockingFindings": [
+    "alpha=0.25 是目前唯一同时满足“不塌陷、保亮度、跨种子一致”的配置，列为单图首帧修复候选。",
+    "该候选尚未经人工确认运动幅度，也未在更多种子/主体上复核，因此模式仍标记为“有限”。"
+  ]
+}

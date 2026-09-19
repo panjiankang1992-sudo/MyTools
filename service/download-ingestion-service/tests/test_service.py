@@ -236,6 +236,138 @@ class DownloadRequestServiceTest(unittest.TestCase):
         reconciled = service.get(created.id)
         self.assertEqual(DownloadStatus.SUCCEEDED, reconciled.status)
 
+    def test_success_terminalizes_pending_tags_before_returning_summary(self):
+        """Scheduler 成功后必须立即把遗留 PENDING 标签收敛为失败终态。"""
+        repository = InMemoryDownloadRequestRepository()
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(repository, scheduler)
+        created = service.create(CreateDownloadRequest(
+            "http:terminal-tags", "HTTP", "terminal-tags", "HTTP_ASSET",
+            {"itemId": "item", "url": "https://example.invalid/item", "fileName": "item.jpg"}))
+        service.record_result(created.id, {
+            "itemId": "item", "fileName": "item.jpg", "contentSha256": "a" * 64,
+            "sizeBytes": 3, "storageUri": "storage://downloads/item.jpg", "assetId": str(uuid4())})
+        scheduler.status = "SUCCEEDED"
+
+        summary = service.result_summary(created.id)
+
+        self.assertEqual("SUCCEEDED", summary["status"])
+        self.assertEqual("FAILED", summary["items"][0]["tagStatus"])
+        self.assertEqual([], summary["items"][0]["tags"])
+
+    def test_every_scheduler_terminal_state_terminalizes_partial_result_tags(self):
+        """Scheduler 任一终态都必须把已下载条目的 PENDING 标签同步封口。"""
+        cases = {
+            "FAILED": "FAILED",
+            "TIMED_OUT": "FAILED",
+            "CANCELLED": "CANCELLED",
+        }
+        for scheduler_status, expected_status in cases.items():
+            with self.subTest(scheduler_status=scheduler_status):
+                repository = InMemoryDownloadRequestRepository()
+                scheduler = FakeScheduler()
+                service = DownloadRequestService(repository, scheduler)
+                created = service.create(CreateDownloadRequest(
+                    f"http:terminal-{scheduler_status.lower()}", "HTTP", scheduler_status,
+                    "HTTP_ASSET", {"itemId": "partial", "url": "https://example.invalid/partial",
+                                   "fileName": "partial.jpg"}))
+                service.record_result(created.id, {
+                    "itemId": "partial", "fileName": "partial.jpg", "contentSha256": "c" * 64,
+                    "sizeBytes": 5, "storageUri": "storage://downloads/partial.jpg",
+                    "assetId": str(uuid4())})
+                scheduler.status = scheduler_status
+
+                summary = service.result_summary(created.id)
+
+                self.assertEqual(expected_status, summary["status"])
+                self.assertEqual("FAILED", summary["items"][0]["tagStatus"])
+                self.assertEqual([], summary["items"][0]["tags"])
+
+    def test_success_repairs_legacy_succeeded_request_and_preserves_real_tags(self):
+        """历史成功聚合也应自愈，同时不得覆盖已经写入的真实标签。"""
+        repository = InMemoryDownloadRequestRepository()
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(repository, scheduler)
+        created = service.create(CreateDownloadRequest(
+            "http:legacy-tags", "HTTP", "legacy-tags", "HTTP_ASSET",
+            {"itemId": "pending", "url": "https://example.invalid/item", "fileName": "item.jpg"}))
+        for item_id, digest_character in (("pending", "a"), ("tagged", "b")):
+            service.record_result(created.id, {
+                "itemId": item_id, "fileName": f"{item_id}.jpg",
+                "contentSha256": digest_character * 64,
+                "sizeBytes": 3, "storageUri": f"storage://downloads/{item_id}.jpg",
+                "assetId": str(uuid4())})
+        tagged = {"itemId": "tagged", "tagStatus": "TAGGED",
+                  "tags": [{"name": "photo", "type": "topic", "confidence": 0.9}]}
+        service.record_tags(created.id, tagged)
+        repository.update_status(created.id, DownloadStatus.SUCCEEDED)
+        scheduler.status = "SUCCEEDED"
+
+        first = service.result_summary(created.id)
+        second = service.result_summary(created.id)
+
+        statuses = {item["itemId"]: item["tagStatus"] for item in first["items"]}
+        self.assertEqual({"pending": "FAILED", "tagged": "TAGGED"}, statuses)
+        self.assertEqual(first, second)
+        self.assertEqual(0, scheduler.get_calls)
+
+    def test_late_result_after_every_terminal_state_has_terminal_tags(self):
+        """任一终态封口后的迟到结果都不得重新制造 PENDING 标签。"""
+        for scheduler_status in ("SUCCEEDED", "FAILED", "CANCELLED", "TIMED_OUT"):
+            with self.subTest(scheduler_status=scheduler_status):
+                repository = InMemoryDownloadRequestRepository()
+                scheduler = FakeScheduler()
+                service = DownloadRequestService(repository, scheduler)
+                created = service.create(CreateDownloadRequest(
+                    f"http:late-{scheduler_status.lower()}", "HTTP", scheduler_status, "HTTP_ASSET",
+                    {"itemId": "late", "url": "https://example.invalid/late",
+                     "fileName": "late.jpg"}))
+                scheduler.status = scheduler_status
+                self.assertIn(service.get(created.id).status, {
+                    DownloadStatus.SUCCEEDED, DownloadStatus.FAILED, DownloadStatus.CANCELLED})
+
+                service.record_result(created.id, {
+                    "itemId": "late", "fileName": "late.jpg", "contentSha256": "b" * 64,
+                    "sizeBytes": 4, "storageUri": "storage://downloads/late.jpg",
+                    "assetId": str(uuid4())})
+
+                summary = service.result_summary(created.id)
+                self.assertEqual("FAILED", summary["items"][0]["tagStatus"])
+
+    def test_late_cancelling_update_cannot_regress_terminal_status(self):
+        """取消线程的迟到写入不得覆盖另一线程已经完成的终态封口。"""
+        repository = InMemoryDownloadRequestRepository()
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(repository, scheduler)
+        created = service.create(CreateDownloadRequest(
+            "http:terminal-race", "HTTP", "terminal-race", "HTTP_ASSET",
+            {"itemId": "item", "url": "https://example.invalid/item", "fileName": "item.jpg"}))
+        service.record_result(created.id, {
+            "itemId": "item", "fileName": "item.jpg", "contentSha256": "d" * 64,
+            "sizeBytes": 6, "storageUri": "storage://downloads/item.jpg", "assetId": str(uuid4())})
+
+        repository.complete_terminal(created.id, DownloadStatus.SUCCEEDED)
+        after_late_cancel = repository.update_status(created.id, DownloadStatus.CANCELLING)
+
+        self.assertEqual(DownloadStatus.SUCCEEDED, after_late_cancel.status)
+        self.assertEqual("FAILED", repository.list_results(created.id)[0]["tagStatus"])
+
+    def test_late_replayed_task_binding_cannot_regress_terminal_status(self):
+        """并发创建请求的迟到任务绑定不得把已完成终态回退为运行中。"""
+        repository = InMemoryDownloadRequestRepository()
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(repository, scheduler)
+        created = service.create(CreateDownloadRequest(
+            "http:late-bind", "HTTP", "late-bind", "HTTP_ASSET",
+            {"itemId": "item", "url": "https://example.invalid/item", "fileName": "item.jpg"}))
+        completed = repository.complete_terminal(created.id, DownloadStatus.SUCCEEDED)
+
+        rebound = repository.bind_task(created.id, completed.task_instance_id)
+
+        self.assertEqual(DownloadStatus.SUCCEEDED, rebound.status)
+        with self.assertRaisesRegex(ValueError, "task binding conflict"):
+            repository.bind_task(created.id, uuid4())
+
     def test_cancels_bound_scheduler_task(self):
         """Cancellation must mirror the scheduler cancellation state."""
         repository = InMemoryDownloadRequestRepository()

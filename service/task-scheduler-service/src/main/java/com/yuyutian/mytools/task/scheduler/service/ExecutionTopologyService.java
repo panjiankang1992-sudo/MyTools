@@ -33,6 +33,8 @@ import java.util.UUID;
 @Service
 public class ExecutionTopologyService {
 
+    private static final String QQ_FLOW_RELEASE_DRAIN_REASON = "QQ_FLOW_RELEASE";
+
     private final JdbcTemplate jdbcTemplate;
     private final JsonColumnMapper jsonColumnMapper;
     private final NodeRegistrationPolicyProperties registrationPolicy;
@@ -97,12 +99,26 @@ public class ExecutionTopologyService {
         if (!existing.isEmpty()) {
             UUID id = existing.getFirst().id();
             jdbcTemplate.update("""
-                    UPDATE executor_node SET instance_id = ?, status = ?, capabilities_json = ?, labels_json = ?,
-                    max_concurrent_tasks = ?, enabled = TRUE, last_heartbeat_at = ?, status_changed_at = ?,
-                    status_reason = 'NODE_REGISTERED', updated_at = ? WHERE id = ?
-                    """, request.instanceId(), NodeStatus.ONLINE.name(),
+                    UPDATE executor_node SET instance_id = ?,
+                    status = CASE
+                        WHEN status = 'DRAINING' AND status_reason = ? THEN 'DRAINING'
+                        ELSE ?
+                    END,
+                    capabilities_json = ?, labels_json = ?,
+                    max_concurrent_tasks = ?, enabled = TRUE, last_heartbeat_at = ?,
+                    status_changed_at = CASE
+                        WHEN status = 'DRAINING' AND status_reason = ? THEN status_changed_at
+                        ELSE ?
+                    END,
+                    status_reason = CASE
+                        WHEN status = 'DRAINING' AND status_reason = ? THEN status_reason
+                        ELSE 'NODE_REGISTERED'
+                    END,
+                    updated_at = ? WHERE id = ?
+                    """, request.instanceId(), QQ_FLOW_RELEASE_DRAIN_REASON, NodeStatus.ONLINE.name(),
                     jsonColumnMapper.write(capabilities), jsonColumnMapper.write(labels),
-                    request.maxConcurrentTasks(), Timestamp.from(now), Timestamp.from(now), Timestamp.from(now),
+                    request.maxConcurrentTasks(), Timestamp.from(now), QQ_FLOW_RELEASE_DRAIN_REASON,
+                    Timestamp.from(now), QQ_FLOW_RELEASE_DRAIN_REASON, Timestamp.from(now),
                     id.toString());
             assignConfiguredClusters(id, clusterNames);
             return getNode(id);
@@ -159,18 +175,43 @@ public class ExecutionTopologyService {
                 && request.status() != NodeStatus.DISABLED) {
             throw new IllegalArgumentException("Executor node status cannot be set manually");
         }
-        getNode(nodeId);
+        ExecutorNodeView current = getNodeForUpdate(nodeId);
+        if (!current.instanceId().equals(request.expectedInstanceId())) {
+            throw nodeInstanceConflict();
+        }
+        if (request.expectedRunningTasks() != null && request.status() != NodeStatus.DRAINING) {
+            throw new IllegalArgumentException("Running task precondition is only valid for draining");
+        }
+        if (request.expectedRunningTasks() != null) {
+            int activeExecutions = countActiveExecutions(nodeId);
+            if (current.runningTasks() != request.expectedRunningTasks()
+                    || activeExecutions != request.expectedRunningTasks()) {
+                throw new SchedulerException(ErrorCode.EXECUTION_STATE_CONFLICT, HttpStatus.CONFLICT,
+                        "Executor node is not at the expected running task count");
+            }
+        }
         Instant now = Instant.now();
         boolean enabled = request.status() != NodeStatus.DISABLED;
         String reason = request.reason() == null || request.reason().isBlank()
                 ? "MANUAL_STATUS_CHANGE" : request.reason().trim();
-        jdbcTemplate.update("""
+        int updated = jdbcTemplate.update("""
                 UPDATE executor_node
                 SET status = ?, enabled = ?, status_changed_at = ?, status_reason = ?, updated_at = ?
-                WHERE id = ?
+                WHERE id = ? AND instance_id = ?
                 """, request.status().name(), enabled, Timestamp.from(now), reason, Timestamp.from(now),
-                nodeId.toString());
+                nodeId.toString(), request.expectedInstanceId());
+        if (updated != 1) {
+            throw nodeInstanceConflict();
+        }
         return getNode(nodeId);
+    }
+
+    private int countActiveExecutions(UUID nodeId) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM task_execution
+                WHERE node_id = ? AND status = 'RUNNING'
+                """, Integer.class, nodeId.toString());
+        return count == null ? 0 : count;
     }
 
     /**
@@ -215,6 +256,16 @@ public class ExecutionTopologyService {
     private ExecutorNodeView getNode(UUID id) {
         return jdbcTemplate.query("SELECT * FROM executor_node WHERE id = ?", this::mapNode, id.toString())
                 .stream().findFirst().orElseThrow(() -> new IllegalArgumentException("Executor node does not exist"));
+    }
+
+    private ExecutorNodeView getNodeForUpdate(UUID id) {
+        return jdbcTemplate.query("SELECT * FROM executor_node WHERE id = ? FOR UPDATE", this::mapNode, id.toString())
+                .stream().findFirst().orElseThrow(() -> new IllegalArgumentException("Executor node does not exist"));
+    }
+
+    private SchedulerException nodeInstanceConflict() {
+        return new SchedulerException(ErrorCode.EXECUTION_STATE_CONFLICT, HttpStatus.CONFLICT,
+                "Executor node instance no longer matches the expected instance");
     }
 
     private void assignConfiguredClusters(UUID nodeId, Set<String> clusterNames) {

@@ -30,6 +30,11 @@ Scheduler V47 新增 `media_scan_directory` 父任务和 `media_ingest_scanned_f
 
 Scheduler V48 将 `media_analyze_video` 升级为版本化业务闭环。任务首先用 `mediaItemId + assetRegistryId + analysisVersion + taskInstanceId` 建立唯一绑定，随后执行探测、缩略图、故事板、可选标签和简介生成。缩略图及故事板先发布到 Storage Gateway，再登记为 Asset Registry 派生资产；最终步骤把标签、简介和派生资产 ID 在一个 Media Library 事务中提交。任何必需步骤失败、超时或取消时，场景步骤分别写入 `FAILED`、`TIMED_OUT` 或 `CANCELLED`，不会留下永久 `RUNNING` 分析。
 
+分析完成和失败接口必须携带 `taskInstanceId + stepName + mediaItemId + fencingToken` 四元组。
+V9 在 `media_analysis` 保存单调 fencing token 与对应身份，事务开始时通过条件更新取得写权限：
+更小 token 或同 token 不同身份返回冲突，标签替换、派生产物登记和媒体终态均不能被旧执行迟到写覆盖。
+`media_commit_analysis` 与 `media_fail_analysis` 脚本从标准任务上下文生成这些请求头。
+
 `POST /internal/v1/media/operations/directory-scans` 现可直接创建 `media_scan_directory` 任务，并通过操作接口查询或取消。创建请求只接受目录信息和是否继续分析，owner 由 Gateway 注入；物理路径最终仍由 Executor 的 `MEDIA_SCAN_ALLOWED_ROOTS` 校验。`media_operation` 只保存幂等绑定和任务状态，不复制扫描清单。
 
 旧 MyTools 可通过默认关闭的 `MEDIA_DIRECTORY_SCAN_SIDECAR_ENABLED` 每日向上述接口提交现有 `file.scan.path`。旁路先检查资源盘可用性，并使用“日期、规范化路径摘要”生成稳定幂等键；旧 `FileScanJob` 不变，新扫描只写 Media Library、Asset Registry 和任务 schema。启用前需把同一路径加入媒体 Executor 的 `MEDIA_SCAN_ALLOWED_ROOTS`。

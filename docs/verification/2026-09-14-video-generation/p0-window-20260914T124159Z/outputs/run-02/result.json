@@ -1,0 +1,39 @@
+{
+  "runId": "run-02",
+  "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/restyle-gray-seed932-workflow.json",
+  "startedAt": 1789390215.2176285,
+  "preflight": {
+    "nodes": 13,
+    "classTypes": [
+      "CLIPLoader",
+      "CLIPTextEncode",
+      "GetVideoComponents",
+      "KSampler",
+      "LoadVideo",
+      "ModelSamplingSD3",
+      "SaveImage",
+      "TrimVideoLatent",
+      "UNETLoader",
+      "VAEDecodeTiled",
+      "VAELoader",
+      "WanVaceToVideo"
+    ]
+  },
+  "inputs": [
+    {
+      "kind": "video",
+      "file": "p0-restyle-control-gray.mp4",
+      "bytes": 5333,
+      "sha256": "4358e8188b78e461c9083f37794b94d80f5c2fda92a2cb2e4e8a5e08a24c3266",
+      "decodable": true
+    }
+  ],
+  "warmStart": true,
+  "workflowSha256": "313103ceba8d7a767cc7b020556d59e021bda62f301dc57722271700717ee996",
+  "status": "INFERENCE_PASSED_REVIEW_PENDING",
+  "promptId": "2ba7d7d4-4b53-4446-b99f-e3d671804504",
+  "submittedAt": 1789390215.2408586,
+  "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T124159Z/run-02/output.mp4",
+  "outputSha256": "8f9f590ff5085ebf74725e228d86ba570c14e555e04bd4c2ea3c14b1da0110d2",
+  "finishedAt": 1789390698.6722803
+}

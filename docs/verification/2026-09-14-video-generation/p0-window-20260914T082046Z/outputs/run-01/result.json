@@ -1,0 +1,47 @@
+{
+  "runId": "run-01",
+  "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/masked-edit-workflow.json",
+  "startedAt": 1789374055.8257866,
+  "preflight": {
+    "nodes": 16,
+    "classTypes": [
+      "CLIPLoader",
+      "CLIPTextEncode",
+      "GetVideoComponents",
+      "ImageToMask",
+      "KSampler",
+      "LoadVideo",
+      "ModelSamplingSD3",
+      "SaveImage",
+      "TrimVideoLatent",
+      "UNETLoader",
+      "VAEDecodeTiled",
+      "VAELoader",
+      "WanVaceToVideo"
+    ]
+  },
+  "inputs": [
+    {
+      "kind": "video",
+      "file": "p0-masked-control.mp4",
+      "bytes": 6306,
+      "sha256": "06dab491c864abfc5a927c1f9cbd096ebb17a2b92f56e285951d1a1abc0aa745",
+      "decodable": true
+    },
+    {
+      "kind": "video",
+      "file": "p0-masked-mask.mp4",
+      "bytes": 3447,
+      "sha256": "5b1081f025cb097cdfa8535acad4f4bc690ec8443ba6f9c706d36b5c93b18478",
+      "decodable": true
+    }
+  ],
+  "warmStart": false,
+  "workflowSha256": "0cbfba3e9ecad4603ec5ab10262fc28bdef1428aa3941e99c40f46dacb231451",
+  "status": "INFERENCE_PASSED_REVIEW_PENDING",
+  "promptId": "d3469026-cada-40fc-8312-2d94d32fc281",
+  "submittedAt": 1789374055.8740058,
+  "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T082046Z/run-01/output.mp4",
+  "outputSha256": "a6460c81d9ab1b51942f304e2abd3bdbd77ed3ec11b07846c49107a8cf41f609",
+  "finishedAt": 1789374544.401341
+}

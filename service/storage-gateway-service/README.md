@@ -1,5 +1,13 @@
 # Storage Gateway Service
 
+## 任务执行隔离
+
+会启动远端复制、移动、删除或原生对象写入/补偿的任务内部接口必须携带
+`X-Task-Instance-Id`、`X-Task-Step-Name`、`X-Task-Business-Key` 和
+`X-Task-Fencing-Token`。其中 business key 固定为 operation UUID。Gateway 通过
+`storage_execution_fence` 原子推进单调 token；旧 token 或同 token 不同任务身份返回
+`409 STORAGE_030`，并在调用 Provider/rclone 连接器前终止请求。
+
 ## 技术栈
 
 Java 21 / Spring Boot

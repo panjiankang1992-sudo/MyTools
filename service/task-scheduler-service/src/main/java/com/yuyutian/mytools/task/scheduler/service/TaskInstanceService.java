@@ -28,6 +28,7 @@ public class TaskInstanceService {
     private final TaskCancellationPropagationService cancellationPropagationService;
     private final TaskSchemaValidationService schemaValidationService;
     private final TaskEventService taskEventService;
+    private final ReaderAdaptationTaskGuard readerAdaptationGuard;
 
     /**
      * 创建任务实例服务。
@@ -44,13 +45,14 @@ public class TaskInstanceService {
                                MultiNodeTaskAggregationService multiNodeTaskAggregationService,
                                TaskCancellationPropagationService cancellationPropagationService,
                                TaskSchemaValidationService schemaValidationService,
-                               TaskEventService taskEventService) {
+                               TaskEventService taskEventService, ReaderAdaptationTaskGuard readerAdaptationGuard) {
         this.instanceRepository = instanceRepository;
         this.definitionRepository = definitionRepository;
         this.multiNodeTaskAggregationService = multiNodeTaskAggregationService;
         this.cancellationPropagationService = cancellationPropagationService;
         this.schemaValidationService = schemaValidationService;
         this.taskEventService = taskEventService;
+        this.readerAdaptationGuard = readerAdaptationGuard;
     }
 
     /**
@@ -61,24 +63,18 @@ public class TaskInstanceService {
      */
     @Transactional
     public TaskInstanceView create(CreateTaskRequest request) {
+        ImageTaskAccess.require(request.taskName(),request.idempotencyKey());
+        readerAdaptationGuard.beforeCreate(request);
         Map<String, Object> requestedLabels = normalizedRequiredLabels(request.requiredNodeLabels());
+        TaskInstanceView existing = instanceRepository.findByIdempotencyKey(request.idempotencyKey()).orElse(null);
+        if (existing != null) {
+            // 已存在任务先按其原始请求重放，不依赖任务定义仍然开启。
+            requireSameRequest(existing, request, requestedLabels);
+            return readerAdaptationGuard.bind(request, existing);
+        }
         var definition = definitionRepository.findLatestEnabled(request.taskName())
                 .orElseThrow(() -> new IllegalArgumentException("Enabled task definition does not exist"));
         schemaValidationService.validateParameters(definition.parameterSchema(), contractParameters(request));
-        TaskInstanceView existing = instanceRepository.findByIdempotencyKey(request.idempotencyKey()).orElse(null);
-        if (existing != null) {
-            if (!existing.taskName().equals(request.taskName())
-                    || !existing.requiredNodeLabels().equals(requestedLabels)
-                    || !existing.parameters().equals(request.parameters())
-                    || !java.util.Objects.equals(existing.businessType(), request.businessType())
-                    || !java.util.Objects.equals(existing.businessId(), request.businessId())
-                    || !java.util.Objects.equals(existing.parentTaskInstanceId(), request.parentTaskInstanceId())
-                    || existing.priority() != request.priority()) {
-                throw new SchedulerException(ErrorCode.IDEMPOTENCY_CONFLICT, HttpStatus.CONFLICT,
-                        "Task idempotency key conflicts with the stored request");
-            }
-            return existing;
-        }
         if (request.parentTaskInstanceId() != null) {
             cancellationPropagationService.validateChildCreation(request.parentTaskInstanceId());
         }
@@ -86,9 +82,11 @@ public class TaskInstanceService {
             TaskInstanceView created = instanceRepository.insert(request, definition);
             taskEventService.appendTransition(created.id(), null, TaskStatus.QUEUED.name(), "create",
                     "TASK_CREATED", 0, created.createdAt());
-            return created;
+            return readerAdaptationGuard.bind(request, created);
         } catch (DuplicateKeyException exception) {
-            return instanceRepository.findByIdempotencyKey(request.idempotencyKey()).orElseThrow(() -> exception);
+            TaskInstanceView raced = instanceRepository.findByIdempotencyKey(request.idempotencyKey()).orElseThrow(() -> exception);
+            requireSameRequest(raced, request, requestedLabels);
+            return readerAdaptationGuard.bind(request, raced);
         }
     }
 
@@ -99,8 +97,11 @@ public class TaskInstanceService {
      * @return 任务实例
      */
     public TaskInstanceView get(UUID id) {
-        return instanceRepository.findById(id)
+        TaskInstanceView task = instanceRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Task instance does not exist"));
+        ImageTaskAccess.require(task.taskName(),task.idempotencyKey());
+        readerAdaptationGuard.requireAccess(task);
+        return task;
     }
 
     /**
@@ -111,6 +112,7 @@ public class TaskInstanceService {
      */
     @Transactional
     public TaskInstanceView cancel(UUID id) {
+        get(id);
         cancellationPropagationService.requestCancellation(id, "cancel");
         cancellationPropagationService.enqueueActiveChildren(id, id, 2);
         // 同步推进一个有界批次，让小任务树无需等待后台扫描，大任务树仍不会形成无界事务递归。
@@ -118,6 +120,15 @@ public class TaskInstanceService {
         multiNodeTaskAggregationService.aggregate(id, Instant.now());
         cancellationPropagationService.finalizeCancellationChain(id);
         return get(id);
+    }
+
+    private static void requireSameRequest(TaskInstanceView existing, CreateTaskRequest request, Map<String, Object> requestedLabels) {
+        if (!existing.taskName().equals(request.taskName()) || !existing.requiredNodeLabels().equals(requestedLabels)
+                || !existing.parameters().equals(request.parameters()) || !java.util.Objects.equals(existing.businessType(), request.businessType())
+                || !java.util.Objects.equals(existing.businessId(), request.businessId())
+                || !java.util.Objects.equals(existing.parentTaskInstanceId(), request.parentTaskInstanceId()) || existing.priority() != request.priority()) {
+            throw new SchedulerException(ErrorCode.IDEMPOTENCY_CONFLICT, HttpStatus.CONFLICT, "Task idempotency key conflicts with the stored request");
+        }
     }
 
     private Map<String, Object> normalizedRequiredLabels(Map<String, Object> labels) {

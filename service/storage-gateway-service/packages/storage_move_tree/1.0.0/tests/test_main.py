@@ -36,3 +36,20 @@ def test_execute_advances_until_success():
 
     assert result == {"operationId": "operation-id", "status": "SUCCEEDED"}
     assert sleeps == [0.1, 0.1]
+
+
+def test_execute_sends_execution_fence_headers():
+    captured = {}
+
+    def opener(request, timeout):
+        captured.update(dict(request.header_items()))
+        return Response({"phase": "TERMINAL", "finished": True, "success": True})
+
+    context = {"taskInstanceId": "00000000-0000-4000-8000-000000000001",
+               "stepName": "move", "fencingToken": 9}
+    MODULE.execute("operation-id", "http://storage", "token", opener=opener, context=context)
+
+    assert captured["X-task-instance-id"] == context["taskInstanceId"]
+    assert captured["X-task-step-name"] == "move"
+    assert captured["X-task-business-key"] == "operation-id"
+    assert captured["X-task-fencing-token"] == "9"

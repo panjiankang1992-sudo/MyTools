@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import pytest
-
 from mytools_onebot_connector.config_migration import build_manifest
 
 

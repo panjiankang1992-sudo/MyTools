@@ -18,7 +18,7 @@ def execute(context,storage,assets):
   relative=f"media/storyboards/{parent_id}/{parameters['analysisVersion']}/{index:02d}-{sha}.jpg";key=f"media-storyboard:{parent_id}:{parameters['analysisVersion']}:{index}:{sha}"
   uri=storage.publish(path,str(parameters.get("storageRoot")or"managed"),relative,key,size,sha)
   artifact=assets.register({"ownerId":int(parameters["ownerId"]),"idempotencyKey":key,"sourceType":"MEDIA_STORYBOARD_FRAME","sourceBusinessId":f"{parent_id}:{parameters['analysisVersion']}:{index}:{sha}","contentSha256":sha,"sizeBytes":size,"mimeType":"image/jpeg","location":{"idempotencyKey":key+":location","providerType":"STORAGE_GATEWAY","storageUri":uri,"providerVersion":"v1"}})
-  linked=assets.register_artifact(parent_id,{"expectedAssetVersion":version,"artifactAssetId":str(artifact["id"]),"idempotencyKey":key+":artifact","artifactKind":f"STORYBOARD_FRAME_{index:02d}","generatorName":"media_generate_storyboard","generatorVersion":str(parameters["analysisVersion"])})
+  linked=assets.register_artifact(parent_id,{"expectedAssetVersion":version,"artifactAssetId":str(artifact["id"]),"idempotencyKey":key+":artifact","artifactKind":f"STORYBOARD_FRAME_{index:02d}","generatorName":"media_generate_storyboard","generatorVersion":str(parameters["analysisVersion"])},context)
   version=int(linked["version"]);results.append({"index":index,"assetId":str(artifact["id"]),"storageUri":uri})
  return {"parentAssetId":parent_id,"parentVersion":version,"artifacts":results}
 def write_result(result):

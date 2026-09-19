@@ -1,0 +1,24 @@
+[
+  {
+    "mode": "IMAGE_TO_IMAGE",
+    "jobId": "2e0becb7-9121-499a-b297-1d8bab9d0b01",
+    "elapsedSeconds": 58.22,
+    "fixture": "photo",
+    "bytes": 1070231,
+    "sha256": "368e5eb8d8d6238b54ee17c30823f5ebb972dcb25f488ba6b82f2bf633f834ed"
+  },
+  {
+    "mode": "IMAGE_TO_PROMPT",
+    "jobId": "31a6bf39-70e2-4233-b631-3e00beac21f7",
+    "elapsedSeconds": 8.51,
+    "fixture": "photo",
+    "prompt": "A serene mountain lake at sunrise, surrounded by snow-capped peaks reflecting perfectly in the calm water. The mountains have rugged rocky slopes partially covered in snow, with golden sunlight illuminating their ridges against a soft pink and blue sky. Snow blankets the foreground shore with scattered rocks. The composition is symmetrical with the lake centering the reflection of the mountains. Lighting is warm and gentle, highlighting the contrast between the cool blues of the water and the warm tones of the sunrise. Colors include icy blues, whites, golden oranges, and soft pinks. Medium: photorealistic landscape photography. Style: tranquil natural scenery with sharp details and a peaceful atmosphere."
+  },
+  {
+    "mode": "IMAGE_TO_PROMPT",
+    "jobId": "9e61dfe1-9a04-4bc1-8140-e48111b3a255",
+    "elapsedSeconds": 4.88,
+    "fixture": "flat-illustration",
+    "prompt": "A minimalist landscape featuring layered blue mountains under a gradient sky transitioning from light blue to pale yellow at the horizon, with an orange sun partially obscured by the central mountain peak. Below, a calm turquoise lake reflects the surrounding peaks and the sun's glow, bordered by dark blue silhouettes of hills. The composition uses flat geometric shapes with clean lines, creating a serene and modern aesthetic. Lighting is soft and even, emphasizing the smooth color transitions between blues, turquoises, and warm oranges."
+  }
+]

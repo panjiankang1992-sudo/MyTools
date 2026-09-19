@@ -8,6 +8,7 @@ import com.yuyutian.mytools.messaging.model.DeliveryView;
 import com.yuyutian.mytools.messaging.model.ExecuteDeliveryResult;
 import com.yuyutian.mytools.messaging.model.InboundMessageView;
 import com.yuyutian.mytools.messaging.model.InboundMessagePage;
+import com.yuyutian.mytools.messaging.model.TaskExecutionFence;
 import com.yuyutian.mytools.messaging.provider.DeliveryProvider;
 import com.yuyutian.mytools.messaging.repository.MessagingRepository;
 import org.springframework.stereotype.Service;
@@ -95,17 +96,26 @@ public class DeliveryService {
 
     /**
      * 执行一个由 Scheduler 授权调度的原子投递。
+     *
+     * @param id 投递标识
+     * @param fence 任务执行隔离上下文
+     * @return 投递结果
      */
-    public ExecuteDeliveryResult execute(UUID id) {
+    public ExecuteDeliveryResult execute(UUID id, TaskExecutionFence fence) {
         DeliveryRecord record = required(id);
+        requireValidFence(record, id, fence);
         if ("DELIVERED".equals(record.status())) {
+            Boolean acquired = transactionTemplate.execute(status -> repository.acquireDeliveredFence(id, fence));
+            if (!Boolean.TRUE.equals(acquired)) {
+                throw new DeliveryStateInvalidException();
+            }
             return new ExecuteDeliveryResult(id, record.status(), record.providerMessageId());
         }
         DeliveryProvider provider = providers.get(record.channelType());
         if (provider == null) {
             throw new ProviderNotConfiguredException(record.channelType());
         }
-        Integer acquiredAttempt = transactionTemplate.execute(status -> repository.beginAttempt(id));
+        Integer acquiredAttempt = transactionTemplate.execute(status -> repository.beginAttempt(id, fence));
         int attempt = acquiredAttempt == null ? 0 : acquiredAttempt;
         if (attempt == 0) {
             throw new DeliveryStateInvalidException();
@@ -123,12 +133,36 @@ public class DeliveryService {
         }
     }
 
+    private void requireValidFence(DeliveryRecord record, UUID id, TaskExecutionFence fence) {
+        if (fence == null || !fence.valid() || !"send_email".equals(fence.stepName())
+                || !id.toString().equals(fence.businessKey())
+                || record.taskId() == null || !record.taskId().equals(fence.taskInstanceId())) {
+            throw new DeliveryStateInvalidException();
+        }
+    }
+
     /**
      * 幂等接收入站标准消息并写入 Outbox。
      */
     @Transactional
     public InboundMessageView receive(CreateInboundMessageRequest request) {
         return repository.saveInbound(request);
+    }
+
+    /**
+     * 原子接收含合并转发引用的 OneBot 消息，延后实时事件直至展开完成。
+     *
+     * @param request 标准消息
+     * @param rawEvent 原始 OneBot 事件
+     * @param accountKey OneBot 账户标识
+     * @param forwardIds 合并转发引用
+     * @param truncated 是否因安全预算截断
+     * @return 已持久化消息
+     */
+    @Transactional
+    public InboundMessageView receiveOneBot(CreateInboundMessageRequest request, String rawEvent,
+                                            String accountKey, List<String> forwardIds, boolean truncated) {
+        return repository.saveOneBotInbound(request, rawEvent, accountKey, forwardIds, truncated);
     }
 
     /**

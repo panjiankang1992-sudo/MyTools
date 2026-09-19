@@ -11,4 +11,10 @@ automation:
   messaging-url: http://messaging.test
   messaging-token: test-messaging-token
   download-url: http://download.test
+  completion-relay-max-attempts: 10
+  reconciliation-delay-ms: 3600000
+  reconciliation-concurrency: 4
+  reconciliation-lease-seconds: 180
+  reconciliation-max-attempts: 8
+  action-status-poll-delay-ms: 250
   max-actions-per-message: 10000

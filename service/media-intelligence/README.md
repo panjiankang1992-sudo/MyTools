@@ -20,7 +20,7 @@ Python 3.12 / Shell
 
 ## 已落地脚本包
 
-- `packages/media_generate_tags/1.0.0`：生成版本化标签结果，只写任务结果文件，不修改 MyTools 或 DownloadBot 数据库。
+- `packages/media_generate_tags/1.3.0`：生成版本化标签结果，只写任务结果文件，不修改 MyTools 或 DownloadBot 数据库。
 - `packages/media_compare_tags/1.0.0`：读取前一步生成结果与旧链路标签快照，生成精确匹配和 Jaccard 相似度。
 - `packages/media_probe/1.0.0`：通过受超时和输出大小约束的 ffprobe 生成媒体元数据。
 - `packages/media_generate_thumbnail/1.0.0`：在 Executor 工作目录生成内容哈希可校验的 JPEG 缩略图。

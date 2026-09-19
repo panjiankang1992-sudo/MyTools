@@ -1,0 +1,16 @@
+[
+  {
+    "kind": "video",
+    "file": "p0-firstframe-blend025-control.mp4",
+    "bytes": 20575,
+    "sha256": "4674b7e71273633702cb34429567459756fafe4290b48c574fe8653a982f08c8",
+    "decodable": true
+  },
+  {
+    "kind": "video",
+    "file": "p0-firstframe-blend025-mask.mp4",
+    "bytes": 3533,
+    "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f",
+    "decodable": true
+  }
+]

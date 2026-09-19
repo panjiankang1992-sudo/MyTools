@@ -1,0 +1,16 @@
+[
+  {
+    "kind": "video",
+    "file": "p0-storyboard-shot2-control.mp4",
+    "bytes": 15160,
+    "sha256": "433747f6856381ef63d0aa126d9440e510db08b8a81c50abafc51476a91bbd61",
+    "decodable": true
+  },
+  {
+    "kind": "video",
+    "file": "p0-storyboard-shot2-mask.mp4",
+    "bytes": 3533,
+    "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f",
+    "decodable": true
+  }
+]

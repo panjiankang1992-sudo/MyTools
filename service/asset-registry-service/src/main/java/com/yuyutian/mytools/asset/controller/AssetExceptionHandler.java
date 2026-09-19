@@ -7,6 +7,7 @@ import com.yuyutian.mytools.asset.service.AssetVersionConflictException;
 import com.yuyutian.mytools.asset.service.BundleManifestConflictException;
 import com.yuyutian.mytools.asset.service.IdempotencyConflictException;
 import com.yuyutian.mytools.asset.service.AssetInputInvalidException;
+import com.yuyutian.mytools.asset.service.ExecutionFenceConflictException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -72,6 +73,15 @@ public class AssetExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, String> handleBundleManifestConflict(BundleManifestConflictException exception) {
         return response(ErrorCode.BUNDLE_MANIFEST_CONFLICT);
+    }
+
+    /**
+     * 转换任务执行隔离冲突异常。
+     */
+    @ExceptionHandler(ExecutionFenceConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> handleExecutionFenceConflict(ExecutionFenceConflictException exception) {
+        return response(ErrorCode.EXECUTION_FENCE_CONFLICT);
     }
 
     private Map<String, String> response(ErrorCode errorCode) {

@@ -1,0 +1,23 @@
+{
+  "windowId": "window-20260914T110655Z",
+  "scoring": "acceptance.md：指令遵循/主体保持/时间连贯/编辑局部性/伪影，各 1-5 分",
+  "status": "PENDING_HUMAN_REVIEW",
+  "cases": [
+    {
+      "caseId": "run-01",
+      "status": "DIAGNOSTIC_VARIANT_NOT_A_FIX",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "参考图填充变体在 seed 932 下消除了全黑（0 全黑 / 0 极暗）并把亮度保持在 0.719，但产出的视频近乎静止：首末帧差异只有 0.00941，帧间运动是灰填充 seed42 的 1/7。对\"让照片动起来\"不满足要求，因此不能作为修复。"
+    }
+  ],
+  "blockingFindings": [
+    "该变体确认了机制（弱内容先验），但不是可用修复：它把\"全黑/大漂移\"换成了\"几乎不动\"。",
+    "真正的修复需要调节控制强度（部分填充或降低 vae_strength），并在两个种子上验证。"
+  ]
+}

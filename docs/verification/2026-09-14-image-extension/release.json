@@ -1,0 +1,56 @@
+{
+  "release": "image-extension-20260914-v3",
+  "packageVersion": "1.1.2",
+  "packages": 133,
+  "sha256": {
+    "apps/image-generation-service.jar": "c83a09b4351e3a8c6a15f5ac9869a2d22d87c3a5fade87ecc08cde0964956d9b",
+    "apps/task-scheduler-service.jar": "e3dd498b54aa3e24e4874812b6187a1aafad65fbba81ae1c97dff0ffc120fcd0",
+    "workflow.json": "0d9781e4354a18e9aa82aea95361b4dfab8535cec95beda8f424a59270aaa916",
+    "task-packages/image_generate/1.1.2/scripts/main.py": "7e5d53a6ddbc803e1e669a80351682da39d7280749126836b5a898ee043652df",
+    "task-packages/package-index.json": "5e491fde7ccea6042f732cc787872efd54abe248ff7748d8e64d60898fb7be70"
+  },
+  "services": {
+    "image-generation-service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "task-scheduler-service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "task-executor-service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "image-comfy": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "mytools-gateway": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "reader-service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    }
+  },
+  "migrations": [
+    [
+      "153",
+      1
+    ],
+    [
+      "154",
+      1
+    ]
+  ],
+  "activeScriptVersion": "1.1.2",
+  "gpu": "NVIDIA GeForce RTX 5060 Ti, 474 MiB, 0 %"
+}

@@ -1,5 +1,6 @@
 package com.yuyutian.mytools.drive.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,9 +27,11 @@ public class DriveConfiguration {
         @Value("${drive.storage-migration-token:}") String token) { return new StorageMigrationToken(token); }
     /** 仅用于账户 Provider 迁移的令牌。 */
     public record StorageMigrationToken(String value) { }
-    /** 创建任务调度客户端。 @param builder 客户端构建器 @param url 调度地址 @return 调度客户端 */
+    /** 创建任务调度客户端。 @param builder 客户端构建器 @param url 调度地址 @param token 业务令牌 @param objectMapper JSON 映射器 @return 调度客户端 */
     @Bean public DriveTaskSchedulerClient driveTaskSchedulerClient(RestClient.Builder builder,
-        @Value("${drive.task-scheduler-url:http://127.0.0.1:23410}") String url) {
-        return new DriveTaskSchedulerClient(builder.baseUrl(url).build());
+        @Value("${drive.task-scheduler-url:http://127.0.0.1:23410}") String url,
+        @Value("${drive.task-scheduler-token:}") String token, ObjectMapper objectMapper) {
+        return new DriveTaskSchedulerClient(new com.yuyutian.mytools.task.client.TaskSchedulerClient(
+            builder.baseUrl(url).build(), objectMapper, token, "drive-service"));
     }
 }

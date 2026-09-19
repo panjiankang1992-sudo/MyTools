@@ -3,6 +3,8 @@ package com.yuyutian.mytools.storage.repository;
 import com.yuyutian.mytools.storage.model.RemoteObjectView;
 import com.yuyutian.mytools.storage.model.StorageOperation;
 import com.yuyutian.mytools.storage.model.StorageProvider;
+import com.yuyutian.mytools.storage.model.TaskExecutionFence;
+import com.yuyutian.mytools.storage.service.ExecutionFenceConflictException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +26,26 @@ class StorageOperationRepositoryTest {
 
     @Autowired
     private StorageMoveRepository moveRepository;
+
+    @Autowired
+    private StorageExecutionFenceRepository executionFenceRepository;
+
+    @Test
+    void shouldRejectStaleAndSameTokenConflictingExecutionFence() {
+        String businessKey = UUID.randomUUID().toString();
+        UUID taskInstanceId = UUID.randomUUID();
+        executionFenceRepository.acquire(new TaskExecutionFence(taskInstanceId, "move", businessKey, 7));
+        executionFenceRepository.acquire(new TaskExecutionFence(taskInstanceId, "move", businessKey, 7));
+
+        assertThatThrownBy(() -> executionFenceRepository.acquire(
+                new TaskExecutionFence(taskInstanceId, "move", businessKey, 6)))
+                .isInstanceOf(ExecutionFenceConflictException.class).hasMessage("STORAGE_030");
+        assertThatThrownBy(() -> executionFenceRepository.acquire(
+                new TaskExecutionFence(UUID.randomUUID(), "move", businessKey, 7)))
+                .isInstanceOf(ExecutionFenceConflictException.class).hasMessage("STORAGE_030");
+
+        executionFenceRepository.acquire(new TaskExecutionFence(UUID.randomUUID(), "recover", businessKey, 8));
+    }
 
     @Test
     void shouldReplayIdenticalBatchWithoutInflatingCountAndRejectConflict() {

@@ -284,3 +284,18 @@ CREATE TABLE IF NOT EXISTS t_book_source_search_cache (
     expires_at BIGINT NOT NULL,
     PRIMARY KEY (user_id, normalized_keyword, query_mode, source_id, page)
 );
+
+CREATE TABLE IF NOT EXISTS t_registration_mail_shadow_outbox (
+    verification_id BIGINT PRIMARY KEY,
+    idempotency_key VARCHAR(255) NOT NULL UNIQUE,
+    recipient_hmac VARCHAR(64) NOT NULL,
+    payload_hmac VARCHAR(64) NOT NULL,
+    legacy_outcome VARCHAR(32) NOT NULL,
+    status VARCHAR(16) NOT NULL,
+    attempt_count INT NOT NULL DEFAULT 0,
+    available_at TIMESTAMP NOT NULL,
+    claimed_until TIMESTAMP,
+    last_error_code VARCHAR(64),
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);

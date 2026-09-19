@@ -11,6 +11,8 @@ import com.yuyutian.mytools.storage.model.MoveProgress;
 import com.yuyutian.mytools.storage.model.NativeWriteResult;
 import com.yuyutian.mytools.storage.model.CreateNativeTreeChildRequest;
 import com.yuyutian.mytools.storage.model.RemoteContent;
+import com.yuyutian.mytools.storage.model.TaskExecutionFence;
+import com.yuyutian.mytools.storage.repository.StorageExecutionFenceRepository;
 import com.yuyutian.mytools.storage.service.InternalAuthorizer;
 import com.yuyutian.mytools.storage.service.StorageOperationService;
 import com.yuyutian.mytools.storage.service.StorageMoveService;
@@ -45,6 +47,7 @@ public class StorageOperationController {
     private final InternalAuthorizer authorizer;
     private final StorageMoveService moveService;
     private final StorageNativeCopyService nativeCopyService;
+    private final StorageExecutionFenceRepository executionFenceRepository;
 
     /**
      * 创建操作控制器。
@@ -53,13 +56,16 @@ public class StorageOperationController {
      * @param authorizer 内部鉴权器
      * @param moveService 远端移动服务
      * @param nativeCopyService 原生复制服务
+     * @param executionFenceRepository 执行隔离仓储
      */
     public StorageOperationController(StorageOperationService operationService, InternalAuthorizer authorizer,
-                                      StorageMoveService moveService, StorageNativeCopyService nativeCopyService) {
+                                      StorageMoveService moveService, StorageNativeCopyService nativeCopyService,
+                                      StorageExecutionFenceRepository executionFenceRepository) {
         this.operationService = operationService;
         this.authorizer = authorizer;
         this.moveService = moveService;
         this.nativeCopyService = nativeCopyService;
+        this.executionFenceRepository = executionFenceRepository;
     }
 
     /**
@@ -119,8 +125,13 @@ public class StorageOperationController {
      */
     @PostMapping("/{id}/remote-job/start")
     public StorageOperation startRemoteJob(@PathVariable UUID id,
-            @RequestHeader("Authorization") String authorization) {
+            @RequestHeader("Authorization") String authorization,
+            @RequestHeader("X-Task-Instance-Id") UUID taskInstanceId,
+            @RequestHeader("X-Task-Step-Name") String stepName,
+            @RequestHeader("X-Task-Business-Key") String businessKey,
+            @RequestHeader("X-Task-Fencing-Token") long fencingToken) {
         authorizer.require(authorization);
+        acquireFence(id, taskInstanceId, stepName, businessKey, fencingToken);
         return operationService.startRemoteJob(id);
     }
 
@@ -146,8 +157,13 @@ public class StorageOperationController {
      */
     @PostMapping("/{id}/remote-job/stop")
     public void stopRemoteJob(@PathVariable UUID id,
-            @RequestHeader("Authorization") String authorization) {
+            @RequestHeader("Authorization") String authorization,
+            @RequestHeader("X-Task-Instance-Id") UUID taskInstanceId,
+            @RequestHeader("X-Task-Step-Name") String stepName,
+            @RequestHeader("X-Task-Business-Key") String businessKey,
+            @RequestHeader("X-Task-Fencing-Token") long fencingToken) {
         authorizer.require(authorization);
+        acquireFence(id, taskInstanceId, stepName, businessKey, fencingToken);
         operationService.stopRemoteJob(id);
     }
 
@@ -185,9 +201,14 @@ public class StorageOperationController {
     @PutMapping(path = "/{id}/native-copy/target", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public NativeWriteResult writeNativeCopyTarget(@PathVariable UUID id,
             @RequestHeader("Authorization") String authorization,
+            @RequestHeader("X-Task-Instance-Id") UUID taskInstanceId,
+            @RequestHeader("X-Task-Step-Name") String stepName,
+            @RequestHeader("X-Task-Business-Key") String businessKey,
+            @RequestHeader("X-Task-Fencing-Token") long fencingToken,
             @RequestParam long contentLength, @RequestParam String sha256,
             HttpServletRequest request) throws IOException {
         authorizer.require(authorization);
+        acquireFence(id, taskInstanceId, stepName, businessKey, fencingToken);
         if (request.getContentLengthLong() != contentLength) {
             throw new IllegalArgumentException(com.yuyutian.mytools.storage.model.ErrorCode.CONTENT_MISMATCH.code());
         }
@@ -216,8 +237,13 @@ public class StorageOperationController {
      */
     @DeleteMapping("/{id}/native-copy/target")
     public void deleteNativeCopyTarget(@PathVariable UUID id,
-            @RequestHeader("Authorization") String authorization) {
+            @RequestHeader("Authorization") String authorization,
+            @RequestHeader("X-Task-Instance-Id") UUID taskInstanceId,
+            @RequestHeader("X-Task-Step-Name") String stepName,
+            @RequestHeader("X-Task-Business-Key") String businessKey,
+            @RequestHeader("X-Task-Fencing-Token") long fencingToken) {
         authorizer.require(authorization);
+        acquireFence(id, taskInstanceId, stepName, businessKey, fencingToken);
         nativeCopyService.deleteTarget(id);
     }
 
@@ -238,8 +264,13 @@ public class StorageOperationController {
      */
     @PostMapping("/{id}/move/advance")
     public MoveProgress advanceMove(@PathVariable UUID id,
-            @RequestHeader("Authorization") String authorization) {
+            @RequestHeader("Authorization") String authorization,
+            @RequestHeader("X-Task-Instance-Id") UUID taskInstanceId,
+            @RequestHeader("X-Task-Step-Name") String stepName,
+            @RequestHeader("X-Task-Business-Key") String businessKey,
+            @RequestHeader("X-Task-Fencing-Token") long fencingToken) {
         authorizer.require(authorization);
+        acquireFence(id, taskInstanceId, stepName, businessKey, fencingToken);
         return moveService.advance(id);
     }
 
@@ -253,8 +284,13 @@ public class StorageOperationController {
      */
     @PostMapping("/{id}/move/abort")
     public MoveProgress abortMove(@PathVariable UUID id, @RequestHeader("Authorization") String authorization,
+                                  @RequestHeader("X-Task-Instance-Id") UUID taskInstanceId,
+                                  @RequestHeader("X-Task-Step-Name") String stepName,
+                                  @RequestHeader("X-Task-Business-Key") String businessKey,
+                                  @RequestHeader("X-Task-Fencing-Token") long fencingToken,
                                   @Valid @RequestBody AbortMoveRequest request) {
         authorizer.require(authorization);
+        acquireFence(id, taskInstanceId, stepName, businessKey, fencingToken);
         return moveService.abort(id, request.status());
     }
 
@@ -267,8 +303,13 @@ public class StorageOperationController {
      */
     @PostMapping("/{id}/move/recovery-required")
     public MoveProgress markMoveRecoveryRequired(@PathVariable UUID id,
-            @RequestHeader("Authorization") String authorization) {
+            @RequestHeader("Authorization") String authorization,
+            @RequestHeader("X-Task-Instance-Id") UUID taskInstanceId,
+            @RequestHeader("X-Task-Step-Name") String stepName,
+            @RequestHeader("X-Task-Business-Key") String businessKey,
+            @RequestHeader("X-Task-Fencing-Token") long fencingToken) {
         authorizer.require(authorization);
+        acquireFence(id, taskInstanceId, stepName, businessKey, fencingToken);
         return moveService.markRecoveryRequired(id);
     }
 
@@ -281,8 +322,13 @@ public class StorageOperationController {
      */
     @PostMapping("/{id}/move/recover")
     public MoveProgress recoverMove(@PathVariable UUID id,
-            @RequestHeader("Authorization") String authorization) {
+            @RequestHeader("Authorization") String authorization,
+            @RequestHeader("X-Task-Instance-Id") UUID taskInstanceId,
+            @RequestHeader("X-Task-Step-Name") String stepName,
+            @RequestHeader("X-Task-Business-Key") String businessKey,
+            @RequestHeader("X-Task-Fencing-Token") long fencingToken) {
         authorizer.require(authorization);
+        acquireFence(id, taskInstanceId, stepName, businessKey, fencingToken);
         return moveService.recover(id);
     }
 
@@ -346,5 +392,14 @@ public class StorageOperationController {
                                    @Valid @RequestBody FinishOperationRequest request) {
         authorizer.require(authorization);
         return operationService.finish(id, request.status(), request.errorCode());
+    }
+
+    private void acquireFence(UUID operationId, UUID taskInstanceId, String stepName, String businessKey,
+                              long fencingToken) {
+        if (!operationId.toString().equals(businessKey)) {
+            throw new IllegalArgumentException(com.yuyutian.mytools.storage.model.ErrorCode.OPERATION_STATE_INVALID.code());
+        }
+        executionFenceRepository.acquire(new TaskExecutionFence(taskInstanceId, stepName, businessKey,
+                fencingToken));
     }
 }

@@ -26,6 +26,7 @@ public class TaskCancellationPropagationService {
     private final TaskInstanceRepository instanceRepository;
     private final TaskEventService taskEventService;
     private final ChildTaskAggregationService childTaskAggregationService;
+    private final TaskExecutionAuthorizationService executionAuthorizationService;
 
     /**
      * 创建任务取消传播服务。
@@ -38,11 +39,13 @@ public class TaskCancellationPropagationService {
     public TaskCancellationPropagationService(JdbcTemplate jdbcTemplate,
                                               TaskInstanceRepository instanceRepository,
                                               TaskEventService taskEventService,
-                                              ChildTaskAggregationService childTaskAggregationService) {
+                                              ChildTaskAggregationService childTaskAggregationService,
+                                              TaskExecutionAuthorizationService executionAuthorizationService) {
         this.jdbcTemplate = jdbcTemplate;
         this.instanceRepository = instanceRepository;
         this.taskEventService = taskEventService;
         this.childTaskAggregationService = childTaskAggregationService;
+        this.executionAuthorizationService = executionAuthorizationService;
     }
 
     /**
@@ -151,6 +154,8 @@ public class TaskCancellationPropagationService {
         }
         Instant now = Instant.now();
         if (instanceRepository.updateStatus(taskId, current.status(), TaskStatus.CANCELLING, now)) {
+            // 正文执行授权与取消状态一起提交，旧 generation 不享有在途重叠期。
+            executionAuthorizationService.revokeTask(taskId);
             taskEventService.appendTransition(taskId, current.status().name(), TaskStatus.CANCELLING.name(),
                     sourceId, "CANCELLATION_REQUESTED", null, now);
             instanceRepository.cancelQueuedTargets(taskId);

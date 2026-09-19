@@ -1,0 +1,13 @@
+{
+  "time": 1789367895.3835871,
+  "availableMiB": 18964,
+  "gpu": "106, 15741, 0",
+  "memoryPressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=150129685\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=147258027",
+  "admission": {
+    "hostReserveMiB": 6144,
+    "workerMemoryHigh": "10G",
+    "workerMemoryMax": "12G",
+    "startGateMiB": 18432,
+    "calibration": "measured host ceiling ~18.5GiB; planned 20GiB gate unreachable"
+  }
+}

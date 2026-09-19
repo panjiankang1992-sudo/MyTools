@@ -56,6 +56,11 @@ async def run() -> None:
             raise web.HTTPBadRequest()
         return web.json_response({"mode": "STREAM", "downloadUrl": None})
 
+    async def business_status(request: web.Request) -> web.Response:
+        """返回超大文件中继所需的Business连接状态。"""
+        authorize(request)
+        return web.json_response(connector.business_status())
+
     async def content(request: web.Request) -> web.StreamResponse:
         """代理 Telegram 文件内容且不暴露 Bot token。"""
         authorize(request)
@@ -75,6 +80,7 @@ async def run() -> None:
     app.router.add_post("/internal/v1/messages/text", send_text)
     app.router.add_post("/internal/v1/provider-files/resolve", resolve)
     app.router.add_post("/internal/v1/provider-files/content", content)
+    app.router.add_get("/internal/v1/business-connection", business_status)
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, os.getenv("TELEGRAM_CONNECTOR_HTTP_HOST", "127.0.0.1"),

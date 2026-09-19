@@ -9,6 +9,7 @@ import com.yuyutian.mytools.asset.model.PublishBundleRequest;
 import com.yuyutian.mytools.asset.model.RegisterArtifactRequest;
 import com.yuyutian.mytools.asset.model.RegisterAssetRequest;
 import com.yuyutian.mytools.asset.model.RegisterLocationRequest;
+import com.yuyutian.mytools.asset.model.TaskExecutionFence;
 import com.yuyutian.mytools.asset.repository.AssetRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -75,12 +76,24 @@ public class AssetRegistryService {
     /**
      * 使用乐观版本登记派生资产关系。
      */
-    public AssetView registerArtifact(UUID id, RegisterArtifactRequest request) {
-        var asset = transactionTemplate.execute(status -> repository.registerArtifact(id, request));
+    public AssetView registerArtifact(UUID id, RegisterArtifactRequest request, TaskExecutionFence fence) {
+        validateArtifactFence(request, fence);
+        var asset = transactionTemplate.execute(status -> {
+            // 先在同一事务内取得领域 fence，再写派生关系与 Outbox。
+            repository.acquireExecutionFence(fence);
+            return repository.registerArtifact(id, request);
+        });
         if (asset == null) {
             throw new IllegalStateException("Asset artifact transaction returned no record");
         }
         return repository.view(asset.id());
+    }
+
+    private void validateArtifactFence(RegisterArtifactRequest request, TaskExecutionFence fence) {
+        if (fence == null || !fence.valid() || !request.idempotencyKey().equals(fence.businessKey())
+                || !Set.of("register_thumbnail", "register_storyboard").contains(fence.stepName())) {
+            throw new AssetInputInvalidException();
+        }
     }
 
     /**

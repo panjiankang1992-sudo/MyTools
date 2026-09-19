@@ -8,6 +8,7 @@ class Response:
  def read(self):return b""
 def test_maps_timeout_scenario_to_domain_terminal_state():
  captured={}
- def requester(request,timeout):captured["payload"]=json.loads(request.data);return Response()
- result=MODULE.execute({"stepName":"analysis_timeout","taskInstanceId":"00000000-0000-4000-8000-000000000001","parameters":{"mediaItemId":"00000000-0000-4000-8000-000000000002"}},"http://media","token",requester)
+ def requester(request,timeout):captured["payload"]=json.loads(request.data);captured["request"]=request;return Response()
+ result=MODULE.execute({"stepName":"analysis_timeout","taskInstanceId":"00000000-0000-4000-8000-000000000001","fencingToken":9,"parameters":{"mediaItemId":"00000000-0000-4000-8000-000000000002"}},"http://media","token",requester)
  assert result["status"]=="TIMED_OUT";assert captured["payload"]["errorCode"]=="MEDIA_ANALYSIS_TIMEOUT"
+ assert captured["request"].headers["X-task-step-name"]=="analysis_timeout";assert captured["request"].headers["X-task-fencing-token"]=="9"

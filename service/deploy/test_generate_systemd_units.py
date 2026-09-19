@@ -109,14 +109,82 @@ class GenerateSystemdUnitsTest(unittest.TestCase):
         self.assertIn("ProtectSystem=full", unit)
         self.assertNotIn("ReadWritePaths=", unit)
 
+    def test_automation_cannot_start_during_pending_qq_configuration(self) -> None:
+        entries = self.manifest["services"] + self.manifest["statelessServices"]
+        automation = next(
+            entry for entry in entries if entry["name"] == "message-automation-service"
+        )
+        condition = (
+            "ConditionPathExists="
+            "!/opt/yuyutian/mytools/config/.qq-flow-configuration.pending"
+        )
+        self.assertIn(
+            condition,
+            generator.service_unit(
+                automation,
+                self.manifest["deploymentRoot"],
+                self.manifest["logRoot"],
+            ),
+        )
+        for entry in entries:
+            if entry["name"] == "message-automation-service":
+                continue
+            self.assertNotIn(
+                condition,
+                generator.service_unit(
+                    entry,
+                    self.manifest["deploymentRoot"],
+                    self.manifest["logRoot"],
+                ),
+            )
+
     def test_onebot_relogin_units_use_only_fixed_paths_and_action(self) -> None:
         service = generator.onebot_relogin_service("/opt/yuyutian/mytools")
         path = generator.onebot_relogin_path("/opt/yuyutian/mytools")
 
         self.assertIn("docker restart --time 3 downloadbot-napcat", service)
+        self.assertIn("timeout --signal=TERM --kill-after=5s 75s", service)
         self.assertIn("rm -f /opt/napcat/cache/qrcode.png", service)
+        self.assertIn(
+            "/usr/bin/flock -x "
+            "/opt/yuyutian/mytools/runtime/onebot/relogin.request.lock",
+            service,
+        )
+        self.assertIn(
+            "/opt/yuyutian/mytools/runtime/onebot/relogin.request "
+            "/opt/yuyutian/mytools/runtime/onebot/relogin.request.ack",
+            service,
+        )
+        self.assertIn(
+            "/opt/yuyutian/mytools/runtime/onebot/relogin.request "
+            "/opt/yuyutian/mytools/runtime/onebot/relogin.request.failed",
+            service,
+        )
+        self.assertNotIn("ExecStopPost=", service)
+        self.assertIn("StartLimitIntervalSec=300", service)
+        self.assertIn("StartLimitBurst=3", service)
         self.assertIn("PathExists=/opt/yuyutian/mytools/runtime/onebot/relogin.request", path)
+        self.assertIn("WantedBy=multi-user.target", path)
         self.assertNotIn("%", service + path)
+
+    def test_tmpfiles_keeps_qq_login_wal_outside_release(self) -> None:
+        config = generator.tmpfiles_config(
+            self.manifest["deploymentRoot"], self.manifest["logRoot"],
+            self.manifest["services"] + self.manifest["statelessServices"])
+
+        self.assertIn("/opt/yuyutian/mytools/runtime/qq", config)
+
+    def test_tmpfiles_protects_release_and_configuration_parents(self) -> None:
+        """发布入口只能由 root 修改，服务账户仅能遍历。"""
+
+        config = generator.tmpfiles_config(
+            self.manifest["deploymentRoot"], self.manifest["logRoot"],
+            self.manifest["services"] + self.manifest["statelessServices"])
+
+        self.assertIn("d /opt/yuyutian/mytools 0750 root mytools -", config)
+        self.assertIn("d /opt/yuyutian/mytools/config 0750 root mytools -", config)
+        self.assertIn("d /opt/yuyutian/mytools/releases 0750 root mytools -", config)
+        self.assertIn("d /opt/yuyutian/mytools/runtime 0750 mytools mytools -", config)
 
 
 if __name__ == "__main__":

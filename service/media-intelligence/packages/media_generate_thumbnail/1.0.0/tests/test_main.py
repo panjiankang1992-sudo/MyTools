@@ -34,6 +34,13 @@ class MediaGenerateThumbnailTest(unittest.TestCase):
                     "download_asset": {"relativePath": "request/clip.mp4"}})
             self.assertEqual(Path(directory) / "request" / "clip.mp4", source)
 
+    def test_static_images_do_not_seek_past_the_only_frame(self):
+        """Static images must be decoded from their only frame."""
+        self.assertFalse(MODULE.should_seek(Path("photo.png"), 1.0))
+        self.assertFalse(MODULE.should_seek(Path("photo.JPG"), 1.0))
+        self.assertTrue(MODULE.should_seek(Path("clip.mp4"), 1.0))
+        self.assertFalse(MODULE.should_seek(Path("clip.mp4"), 0.0))
+
 
 if __name__ == "__main__":
     unittest.main()

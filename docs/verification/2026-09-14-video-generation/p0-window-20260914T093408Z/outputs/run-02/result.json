@@ -1,0 +1,39 @@
+{
+  "runId": "run-02",
+  "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/restyle-scene-edge-workflow.json",
+  "startedAt": 1789378947.498638,
+  "preflight": {
+    "nodes": 13,
+    "classTypes": [
+      "CLIPLoader",
+      "CLIPTextEncode",
+      "GetVideoComponents",
+      "KSampler",
+      "LoadVideo",
+      "ModelSamplingSD3",
+      "SaveImage",
+      "TrimVideoLatent",
+      "UNETLoader",
+      "VAEDecodeTiled",
+      "VAELoader",
+      "WanVaceToVideo"
+    ]
+  },
+  "inputs": [
+    {
+      "kind": "video",
+      "file": "p0-scene-control-edge.mp4",
+      "bytes": 62528,
+      "sha256": "08ef6cde4bfbaefe30cb713f99248186e7cea76885aecef73c4a6b5561cb11cd",
+      "decodable": true
+    }
+  ],
+  "warmStart": true,
+  "workflowSha256": "7095cd7666217fc67e03573803c582c1082b0f54eef2acd755a5fed084309500",
+  "status": "INFERENCE_PASSED_REVIEW_PENDING",
+  "promptId": "ff8cb6bc-dd2c-4143-a76c-5f7bad23e88f",
+  "submittedAt": 1789378947.5270689,
+  "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T093408Z/run-02/output.mp4",
+  "outputSha256": "071d00fe0104069f6b104de8244c82b191adca819b4711b9eb44ae07dfb4cb34",
+  "finishedAt": 1789379431.124971
+}

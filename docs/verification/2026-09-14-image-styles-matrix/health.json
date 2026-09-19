@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-09-14T03:49:05.875159+00:00",
+  "services": {
+    "image-generation-service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "mytools-gateway": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "task-scheduler-service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "task-executor-service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "image-comfy": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    },
+    "reader-service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "NRestarts": "0"
+    }
+  },
+  "comfyQueue": {
+    "running": 0,
+    "pending": 0
+  }
+}

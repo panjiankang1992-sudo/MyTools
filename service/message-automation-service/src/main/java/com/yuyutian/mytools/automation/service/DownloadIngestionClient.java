@@ -29,13 +29,24 @@ public class DownloadIngestionClient {
             "home", "explore", "search", "notifications", "messages", "settings", "compose", "i");
     private final RestClient restClient;
     private final String internalToken;
+    private final String pikpakAccountId;
+    private final String storageRoot;
 
     /**
      * 创建下载接入客户端。
      */
     public DownloadIngestionClient(RestClient restClient, String internalToken) {
+        this(restClient, internalToken, System.getenv("DOWNLOAD_MCP_PIKPAK_ACCOUNT_ID"),
+                System.getenv().getOrDefault("DOWNLOAD_STORAGE_ROOT", "managed"));
+    }
+
+    /** 创建带默认 PikPak 账户和本地存储根的下载客户端。 */
+    public DownloadIngestionClient(RestClient restClient, String internalToken,
+                                   String pikpakAccountId, String storageRoot) {
         this.restClient = restClient;
         this.internalToken = internalToken;
+        this.pikpakAccountId = pikpakAccountId;
+        this.storageRoot = storageRoot;
     }
 
     /**
@@ -46,7 +57,23 @@ public class DownloadIngestionClient {
     public String create(UUID messageId, long ownerId, UUID ruleId, int index, String requestKind,
                          String url, String fileName, Instant receivedAt) {
         String idempotencyKey = "automation:" + messageId + ":" + ruleId + ":" + index;
-        String effectiveRequestKind = effectiveRequestKind(requestKind, url);
+        boolean magnet = MagnetLink.isMagnet(url);
+        String effectiveRequestKind = magnet ? "MAGNET" : effectiveRequestKind(requestKind, url);
+        Map<String, Object> parameters;
+        if (magnet) {
+            // 磁力链接默认使用云端账户，账户缺失时显式失败，不退回本地 BT。
+            if (pikpakAccountId == null || pikpakAccountId.isBlank()) {
+                throw new IllegalStateException("PikPak default account is not configured");
+            }
+            parameters = Map.of("ownerId", ownerId, "magnetUri", MagnetLink.normalize(url),
+                    "accountId", UUID.fromString(pikpakAccountId).toString(),
+                    "destinationRootName", storageRoot);
+        } else {
+            parameters = Map.of("ownerId", ownerId, "itemId", messageId + "-" + index,
+                    "resourceUsername", messageResourceUsername(),
+                    "url", url, "fileName", fileName, "messageBatchId", messageId.toString(),
+                    "receivedAt", receivedAt.toString());
+        }
         Map<String, Object> payload = Map.of(
                 "ownerId", ownerId,
                 "idempotencyKey", idempotencyKey,
@@ -54,10 +81,7 @@ public class DownloadIngestionClient {
                 // 同一消息可包含多个下载动作，来源键必须包含稳定序号。
                 "sourceKey", messageId + ":" + index,
                 "requestKind", effectiveRequestKind,
-                "parameters", Map.of("ownerId", ownerId, "itemId", messageId + "-" + index,
-                        "resourceUsername", messageResourceUsername(),
-                        "url", url, "fileName", fileName, "messageBatchId", messageId.toString(),
-                        "receivedAt", receivedAt.toString()));
+                "parameters", parameters);
         JsonNode response = restClient.post().uri("/api/v1/download-requests")
                 .header("Authorization", "Bearer " + requiredToken())
                 .contentType(MediaType.APPLICATION_JSON).body(jsonBytes(payload)).retrieve().body(JsonNode.class);
@@ -73,12 +97,13 @@ public class DownloadIngestionClient {
      * @param messageId 标准消息标识
      * @param ownerId 所有者标识
      * @param ruleId 自动化规则标识
+     * @param sequence 自动化动作稳定序号
      * @param urls 消息内按出现顺序去重后的链接
      * @param receivedAt 消息接收时间
      * @param messageText 用于相册标题的有界消息文本
      * @return 下载业务请求标识
      */
-    public String createBatch(UUID messageId, long ownerId, UUID ruleId, List<String> urls,
+    public String createBatch(UUID messageId, long ownerId, UUID ruleId, int sequence, List<String> urls,
                               Instant receivedAt, String messageText) {
         if (urls == null || urls.size() < 2 || urls.size() > 20) {
             throw new IllegalArgumentException("Message URL batch size is invalid");
@@ -90,9 +115,10 @@ public class DownloadIngestionClient {
         }
         Map<String, Object> payload = Map.of(
                 "ownerId", ownerId,
-                "idempotencyKey", "automation-batch:" + messageId + ":" + ruleId,
+                "idempotencyKey", "automation-batch:" + messageId + ":" + ruleId + ":" + sequence,
                 "sourceType", "MESSAGE",
-                "sourceKey", messageId.toString(),
+                // 一条消息可拆成多个批次，来源键必须包含动作稳定序号以满足下游唯一约束。
+                "sourceKey", messageId + ":" + sequence,
                 "requestKind", "MESSAGE_URL_BATCH",
                 "parameters", Map.of("ownerId", ownerId, "messageBatchId", messageId.toString(),
                         "resourceUsername", messageResourceUsername(),
@@ -173,11 +199,34 @@ public class DownloadIngestionClient {
     public DownloadSummary summary(UUID requestId) {
         JsonNode response = restClient.get().uri("/api/v1/download-requests/{id}/result-summary", requestId)
                 .header("Authorization", "Bearer " + requiredToken()).retrieve().body(JsonNode.class);
+        return parseSummary(requestId, response);
+    }
+
+    /**
+     * 按消息所有者查询下载文件名和终态标签，不返回来源地址或物理路径。
+     *
+     * @param requestId 下载请求标识
+     * @param ownerId 消息所有者标识
+     * @return 下载结果摘要
+     */
+    public DownloadSummary summary(UUID requestId, long ownerId) {
+        JsonNode response = restClient.get().uri(uriBuilder -> uriBuilder
+                        .path("/internal/v1/download-requests/{id}/result-summary")
+                        .queryParam("ownerId", ownerId).build(requestId))
+                .header("Authorization", "Bearer " + requiredToken()).retrieve().body(JsonNode.class);
+        return parseSummary(requestId, response);
+    }
+
+    private DownloadSummary parseSummary(UUID requestId, JsonNode response) {
         if (response == null || !requestId.toString().equals(response.path("downloadRequestId").asText())) {
             throw new IllegalStateException("Download Ingestion returned an invalid result summary");
         }
+        JsonNode itemNodes = response.path("items");
+        if (!itemNodes.isArray()) {
+            throw new IllegalStateException("Download Ingestion returned invalid result summary items");
+        }
         List<DownloadItem> items = new java.util.ArrayList<>();
-        for (JsonNode item : response.path("items")) {
+        for (JsonNode item : itemNodes) {
             List<DownloadTag> tags = new java.util.ArrayList<>();
             for (JsonNode tag : item.path("tags")) {
                 tags.add(new DownloadTag(tag.path("name").asText(), tag.path("type").asText("topic"),

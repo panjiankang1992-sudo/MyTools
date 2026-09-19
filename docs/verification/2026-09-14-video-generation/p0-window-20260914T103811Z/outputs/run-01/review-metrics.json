@@ -1,0 +1,46 @@
+{
+  "frames": 49,
+  "fps": 16,
+  "durationSeconds": 3.0625,
+  "resolution": [
+    832,
+    480
+  ],
+  "motion": {
+    "min": 0.000845,
+    "mean": 0.033618,
+    "max": 0.407993,
+    "belowAbsoluteThreshold": 4
+  },
+  "brightness": {
+    "min": 0.0003,
+    "max": 0.7141,
+    "mean": 0.2021
+  },
+  "blankFrames": 2,
+  "veryDarkFrames": 7,
+  "darkFrameIndices": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "whiteFrames": 0,
+  "detail": {
+    "min": 4.4e-05,
+    "mean": 0.002685
+  },
+  "belowAbsoluteDetailThreshold": 8,
+  "firstLastDifference": 0.689401,
+  "thresholds": {
+    "frozenMotion": 0.004,
+    "darkBrightness": 0.02,
+    "blankPeak": 0.05,
+    "flatDetail": 0.002,
+    "note": "\u7edd\u5bf9\u9608\u503c\u4e0e\u5185\u5bb9\u76f8\u5173\uff1b\u5408\u6210\u7d20\u6750\u68af\u5ea6\u4f4e\uff0c\u5fc5\u987b\u7528 relativeToBaseline \u5224\u65ad"
+  },
+  "source": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T103811Z/run-01/output.mp4"
+}

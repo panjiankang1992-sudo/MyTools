@@ -1,0 +1,19 @@
+name: download_remote_storage_object
+version: 1.2.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - storage_read
+  - storage_write
+parameters:
+  required:
+    - downloadRequestId
+    - itemId
+    - sourceProviderId
+    - sourcePath
+    - fileName
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 7200
+  maxOutputBytes: 65536

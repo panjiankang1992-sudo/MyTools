@@ -9,7 +9,8 @@ def execute(context,base_url,token,requester=urllib.request.urlopen):
  if not token:raise ValueError("Media Library internal token is missing")
  status,error=SCENARIOS.get(str(context.get("stepName")),("FAILED","MEDIA_ANALYSIS_FAILED"));media_id=str(context["parameters"]["mediaItemId"])
  payload={"taskInstanceId":str(context["taskInstanceId"]),"status":status,"errorCode":error}
- request=urllib.request.Request(base_url.rstrip("/")+f"/internal/v1/media/items/{media_id}/analyses/fail",data=json.dumps(payload,separators=(",",":")).encode(),method="POST",headers={"Authorization":f"Bearer {token}","Content-Type":"application/json"})
+ headers={"Authorization":f"Bearer {token}","Content-Type":"application/json","X-Task-Instance-Id":str(context["taskInstanceId"]),"X-Task-Step-Name":str(context["stepName"]),"X-Task-Business-Key":media_id,"X-Task-Fencing-Token":str(context["fencingToken"])}
+ request=urllib.request.Request(base_url.rstrip("/")+f"/internal/v1/media/items/{media_id}/analyses/fail",data=json.dumps(payload,separators=(",",":")).encode(),method="POST",headers=headers)
  with requester(request,timeout=30)as response:response.read()
  return {"mediaItemId":media_id,"status":status}
 def write_result(result):

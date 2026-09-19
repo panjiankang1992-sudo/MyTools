@@ -1,0 +1,48 @@
+{
+  "windowId": "window-20260914T065550Z",
+  "scoring": "acceptance.md：指令遵循/主体保持/时间连贯/编辑局部性/伪影，各 1-5 分",
+  "status": "PENDING_HUMAN_REVIEW",
+  "cases": [
+    {
+      "caseId": "run-01",
+      "status": "PENDING_HUMAN_REVIEW_WITH_DEFECT",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "单图首帧 seed 42：本用例自身无全黑，但同模式在 seed 932 下出现全黑片段，因此模式级结论为\"有限/不可用\"，不能按单次成功标记可用。"
+    },
+    {
+      "caseId": "run-02",
+      "status": "VOID_INPUT_DEFECT",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "第二张参考图 p0-subject-b.png 在分发时被截断（261120 / 1129402 字节），ComfyUI 未拒绝该文件且 prompt 报 success，因此本用例不能作为多图证据。已用修正素材在 window-20260914T074325Z 重跑并完成对照实验。"
+    },
+    {
+      "caseId": "run-03",
+      "status": "pending",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": ""
+    }
+  ],
+  "note": "run-02 因输入素材损坏作废；多图结论以 window-20260914T074325Z 为准。",
+  "blockingFindings": [
+    "单图首帧在 seed 932 下出现 2 帧真全黑 + 7 帧极暗，触发 acceptance.md 的严重失败判据；在查明原因前该模式不得标记为可用。",
+    "换种子的输出差异（0.3620）大于换第二张参考图的差异（0.3511），说明外观受种子影响不低于受参考图影响。"
+  ]
+}

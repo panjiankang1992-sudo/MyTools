@@ -1,0 +1,47 @@
+{
+  "runId": "run-03",
+  "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/storyboard-shot3-workflow.json",
+  "startedAt": 1789377664.2471542,
+  "preflight": {
+    "nodes": 16,
+    "classTypes": [
+      "CLIPLoader",
+      "CLIPTextEncode",
+      "GetVideoComponents",
+      "ImageToMask",
+      "KSampler",
+      "LoadVideo",
+      "ModelSamplingSD3",
+      "SaveImage",
+      "TrimVideoLatent",
+      "UNETLoader",
+      "VAEDecodeTiled",
+      "VAELoader",
+      "WanVaceToVideo"
+    ]
+  },
+  "inputs": [
+    {
+      "kind": "video",
+      "file": "p0-storyboard-shot3-control.mp4",
+      "bytes": 15535,
+      "sha256": "eec39c876bb44011104dd7f0fa55d37e4445cfb1f2b621e066f2469f3cd4200d",
+      "decodable": true
+    },
+    {
+      "kind": "video",
+      "file": "p0-storyboard-shot3-mask.mp4",
+      "bytes": 3533,
+      "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f",
+      "decodable": true
+    }
+  ],
+  "warmStart": true,
+  "workflowSha256": "68d4ef61c3b4e98b5887c834ae34fd3a36fb80a2f7077455b5f3ad7c02dbd8c9",
+  "status": "INFERENCE_PASSED_REVIEW_PENDING",
+  "promptId": "176234e7-8f04-4035-8736-d389967c93d0",
+  "submittedAt": 1789377664.2960489,
+  "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T090441Z/run-03/output.mp4",
+  "outputSha256": "a7dad25b5fc52f056b0626b7578015d32493ce36b102841a9ef348729a406e9e",
+  "finishedAt": 1789378147.846511
+}

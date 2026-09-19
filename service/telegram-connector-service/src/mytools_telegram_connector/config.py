@@ -20,6 +20,9 @@ class Config:
     internal_token: str
     poll_timeout: int
     maximum_file_bytes: int
+    pikpak_bot: str
+    pikpak_threshold_bytes: int
+    business_connection_id: str
 
     @classmethod
     def load(cls) -> "Config":
@@ -37,8 +40,12 @@ class Config:
             os.environ["MESSAGING_INTERNAL_TOKEN"],
             os.environ["TELEGRAM_CONNECTOR_INTERNAL_TOKEN"],
             int(os.getenv("TELEGRAM_CONNECTOR_POLL_TIMEOUT", "45")),
-            int(os.getenv("TELEGRAM_CONNECTOR_MAXIMUM_FILE_BYTES", "2147483648")))
+            int(os.getenv("TELEGRAM_CONNECTOR_MAXIMUM_FILE_BYTES", "2147483648")),
+            os.getenv("TELEGRAM_CONNECTOR_PIKPAK_BOT", "@pikpak_bot"),
+            int(os.getenv("TELEGRAM_CONNECTOR_PIKPAK_THRESHOLD_BYTES", "20971520")),
+            os.getenv("TELEGRAM_CONNECTOR_BUSINESS_CONNECTION_ID", "").strip())
         if value.owner_id <= 0 or not value.bot_token \
-                or not 1 <= value.poll_timeout <= 50 or value.maximum_file_bytes <= 0:
+                or not 1 <= value.poll_timeout <= 50 or value.maximum_file_bytes <= 0 \
+                or not value.pikpak_bot.startswith("@") or value.pikpak_threshold_bytes <= 0:
             raise ValueError("Telegram Connector configuration is invalid")
         return value

@@ -10,14 +10,18 @@ import tempfile
 import urllib.request
 
 
-def execute(delivery_id: str, base_url: str, token: str) -> dict:
+def execute(delivery_id: str, task_context: dict, base_url: str, token: str) -> dict:
     """Call the authenticated Messaging Service execution boundary."""
     if not token:
         raise ValueError("Messaging Service internal token is missing")
     request = urllib.request.Request(
         f"{base_url.rstrip('/')}/internal/v1/deliveries/{delivery_id}/execute",
         data=b"",
-        headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
+        headers={"Authorization": f"Bearer {token}", "Accept": "application/json",
+                 "X-Task-Instance-Id": str(task_context["taskInstanceId"]),
+                 "X-Task-Step-Name": str(task_context["stepName"]),
+                 "X-Task-Business-Key": delivery_id,
+                 "X-Task-Fencing-Token": str(task_context["fencingToken"])},
         method="POST")
     with urllib.request.urlopen(request, timeout=120) as response:
         payload = json.loads(response.read().decode("utf-8"))
@@ -40,7 +44,7 @@ def write_result(result: dict) -> None:
 def main() -> None:
     """Execute one email delivery task."""
     context = json.loads(Path(os.environ["TASK_CONTEXT_FILE"]).read_text(encoding="utf-8"))
-    write_result(execute(str(context["parameters"]["deliveryId"]),
+    write_result(execute(str(context["parameters"]["deliveryId"]), context,
                          os.getenv("MESSAGING_SERVICE_URL", "http://127.0.0.1:23250"),
                          os.environ.get("MESSAGING_INTERNAL_TOKEN", "")))
 

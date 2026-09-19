@@ -36,9 +36,9 @@ class Assets:
         index = len(self.payloads)
         return {"id": f"00000000-0000-4000-8000-00000000000{index}", "version": index}
 
-    def register_artifact(self, asset_id, payload):
+    def register_artifact(self, asset_id, payload, task_context):
         """Capture the derived relationship."""
-        self.link = (asset_id, payload)
+        self.link = (asset_id, payload, task_context)
         return {"id": asset_id, "version": 2}
 
 
@@ -56,6 +56,8 @@ class MediaThumbnailRegistrationTest(unittest.TestCase):
             storage = Storage()
             assets = Assets()
             result = MODULE.execute({
+                "taskInstanceId": "00000000-0000-4000-8000-000000000010",
+                "stepName": "register_thumbnail", "fencingToken": 3,
                 "parameters": {"assetId": "42", "contentSha256": "a" * 64,
                                "sourcePath": str(source), "assetMimeType": "video/mp4"},
                 "stepOutputs": {"generate_thumbnail": {"artifactPath": str(thumbnail),
@@ -76,6 +78,8 @@ class MediaThumbnailRegistrationTest(unittest.TestCase):
             storage = Storage()
             assets = Assets()
             MODULE.execute({
+                "taskInstanceId": "00000000-0000-4000-8000-000000000011",
+                "stepName": "register_thumbnail", "fencingToken": 4,
                 "parameters": {"assetId": "42", "assetRegistryId":
                                "00000000-0000-4000-8000-000000000001",
                                "contentSha256": "a" * 64, "assetMimeType": "video/mp4"},

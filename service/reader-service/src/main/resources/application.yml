@@ -22,6 +22,23 @@ management:
         include: health,info,metrics,prometheus
 
 reader:
+  story-constraints:
+    minimum-length-permille: ${READER_STORY_MINIMUM_LENGTH_PERMILLE:700}
+    maximum-length-permille: ${READER_STORY_MAXIMUM_LENGTH_PERMILLE:2500}
+  attempt-settlement:
+    keyring-file: ${READER_ATTEMPT_SETTLEMENT_KEYRING_FILE:}
+  workload-authorization:
+    enabled: ${READER_WORKLOAD_AUTHORIZATION_ENABLED:false}
+    scheduler-url: ${READER_WORKLOAD_SCHEDULER_URL:}
+    issuer: ${READER_WORKLOAD_ISSUER:mytools-task-scheduler}
+    request-timeout-seconds: ${READER_WORKLOAD_TIMEOUT_SECONDS:3}
+    jwks-cache-seconds: ${READER_WORKLOAD_JWKS_CACHE_SECONDS:300}
+    key-store-file: ${READER_WORKLOAD_KEY_STORE_FILE:}
+    key-store-password-file: ${READER_WORKLOAD_KEY_STORE_PASSWORD_FILE:}
+    trust-store-file: ${READER_WORKLOAD_TRUST_STORE_FILE:}
+    trust-store-password-file: ${READER_WORKLOAD_TRUST_STORE_PASSWORD_FILE:}
+    identity: ${READER_WORKLOAD_IDENTITY:}
+    executor-identities: []
   scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
   scheduler-token: ${TASK_BUSINESS_READER_TOKEN:${TASK_BUSINESS_INTERNAL_TOKEN:${TASK_INTERNAL_TOKEN:}}}
   internal-token: ${READER_INTERNAL_TOKEN:}
@@ -34,3 +51,35 @@ reader:
   audiobook-daily-characters-per-owner: ${AUDIOBOOK_DAILY_CHARACTERS_PER_OWNER:3000000}
   audiobook-generation-enabled: ${AUDIOBOOK_GENERATION_ENABLED:true}
   audiobook-allowed-owner-ids: ${AUDIOBOOK_ALLOWED_OWNER_IDS:}
+  adaptation:
+    read-enabled: ${READER_ADAPTATION_READ_ENABLED:true}
+    create-enabled: ${READER_ADAPTATION_CREATE_ENABLED:false}
+    provider-deployment-id: ${READER_ADAPTATION_PROVIDER_DEPLOYMENT_ID:}
+    disclosure-version: ${READER_ADAPTATION_DISCLOSURE_VERSION:}
+    prompt-version: ${READER_ADAPTATION_PROMPT_VERSION:novel-adaptation-v1}
+    constraint-version: ${READER_ADAPTATION_CONSTRAINT_VERSION:story-constraints-v1}
+    maximum-active-per-owner: ${READER_ADAPTATION_MAXIMUM_ACTIVE_PER_OWNER:2}
+  adaptation-dispatch:
+    enabled: ${READER_ADAPTATION_DISPATCH_ENABLED:false}
+    lease-seconds: ${READER_ADAPTATION_DISPATCH_LEASE_SECONDS:30}
+    maximum-attempts: ${READER_ADAPTATION_DISPATCH_MAXIMUM_ATTEMPTS:5}
+    request-timeout-seconds: ${READER_ADAPTATION_DISPATCH_REQUEST_TIMEOUT_SECONDS:8}
+    observe-seconds: ${READER_ADAPTATION_DISPATCH_OBSERVE_SECONDS:5}
+    poll-ms: ${READER_ADAPTATION_DISPATCH_POLL_MS:1500}
+  adaptation-recovery:
+    enabled: ${READER_ADAPTATION_RECOVERY_ENABLED:false}
+    poll-ms: ${READER_ADAPTATION_RECOVERY_POLL_MS:2000}
+  shelf-chapters:
+    enabled: ${READER_SHELF_CHAPTERS_ENABLED:false}
+    runtime-egress-verified: ${READER_RUNTIME_EGRESS_VERIFIED:false}
+    locator-keyring-file: ${READER_LOCATOR_KEYRING_FILE:}
+    claim-seconds: ${READER_SHELF_CHAPTER_CLAIM_SECONDS:180}
+    maximum-attempts: ${READER_SHELF_CHAPTER_MAXIMUM_ATTEMPTS:3}
+    maximum-preparing-per-owner: ${READER_SHELF_CHAPTER_MAXIMUM_PREPARING_PER_OWNER:2}
+    poll-ms: ${READER_SHELF_CHAPTER_POLL_MS:1500}
+  chapter-content:
+    maximum-catalog-chapters: ${READER_CHAPTER_MAXIMUM_CATALOG_CHAPTERS:50000}
+    maximum-catalog-response-bytes: ${READER_CHAPTER_MAXIMUM_CATALOG_RESPONSE_BYTES:33554432}
+    maximum-chapter-response-bytes: ${READER_CHAPTER_MAXIMUM_RESPONSE_BYTES:2097152}
+    maximum-chapter-codepoints: ${READER_CHAPTER_MAXIMUM_CODEPOINTS:120000}
+    request-timeout-seconds: ${READER_CHAPTER_REQUEST_TIMEOUT_SECONDS:30}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "添加改编风格模板"
+  short_description: "通过后端接口新增或升级小说改编风格模板，保留不可变版本和历史提示词"
+  default_prompt: "使用 $add-adaptation-template，根据我的风格要求新增或升级模板，通过后端管理 API 发布并核验版本。"

@@ -1,0 +1,47 @@
+{
+  "runId": "run-02",
+  "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/firstframe-seed932-workflow.json",
+  "startedAt": 1789380414.6151335,
+  "preflight": {
+    "nodes": 16,
+    "classTypes": [
+      "CLIPLoader",
+      "CLIPTextEncode",
+      "GetVideoComponents",
+      "ImageToMask",
+      "KSampler",
+      "LoadVideo",
+      "ModelSamplingSD3",
+      "SaveImage",
+      "TrimVideoLatent",
+      "UNETLoader",
+      "VAEDecodeTiled",
+      "VAELoader",
+      "WanVaceToVideo"
+    ]
+  },
+  "inputs": [
+    {
+      "kind": "video",
+      "file": "p0-firstframe-control.mp4",
+      "bytes": 11222,
+      "sha256": "fe034cd97ebe02306f1c63643fc47d845b2addc28b17cdf8cc43d7e203a4900c",
+      "decodable": true
+    },
+    {
+      "kind": "video",
+      "file": "p0-firstframe-mask.mp4",
+      "bytes": 3533,
+      "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f",
+      "decodable": true
+    }
+  ],
+  "warmStart": true,
+  "workflowSha256": "62ed1211f5b97d40c662422ab5e53bf5f7c631e497d84b5214ab8aac8406dd5c",
+  "status": "INFERENCE_PASSED_REVIEW_PENDING",
+  "promptId": "b533681a-aa8d-4d31-bfb1-057d21528da0",
+  "submittedAt": 1789380414.663284,
+  "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T095836Z/run-02/output.mp4",
+  "outputSha256": "6f9836a04c4d6623e39baa3b2675db0e2afefdea4129ccafad9e654114ae20df",
+  "finishedAt": 1789380898.214192
+}

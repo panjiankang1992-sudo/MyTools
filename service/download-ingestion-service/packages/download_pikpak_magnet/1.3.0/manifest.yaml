@@ -1,0 +1,19 @@
+name: download_pikpak_magnet
+version: 1.3.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - network_http
+  - task_child_create
+  - task_status_query
+  - task_child_cancel
+parameters:
+  required:
+    - downloadRequestId
+    - accountId
+    - magnetUri
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 21600
+  maxOutputBytes: 65536

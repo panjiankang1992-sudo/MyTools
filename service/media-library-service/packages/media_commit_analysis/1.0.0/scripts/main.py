@@ -16,7 +16,8 @@ def execute(context,base_url,token,requester=urllib.request.urlopen):
  """Commit the analysis through its task binding."""
  if not token:raise ValueError("Media Library internal token is missing")
  media_id=str(context["parameters"]["mediaItemId"]);payload=build_payload(context)
- request=urllib.request.Request(base_url.rstrip("/")+f"/internal/v1/media/items/{media_id}/analyses/complete",data=json.dumps(payload,separators=(",",":")).encode(),method="POST",headers={"Authorization":f"Bearer {token}","Content-Type":"application/json"})
+ headers={"Authorization":f"Bearer {token}","Content-Type":"application/json","X-Task-Instance-Id":str(context["taskInstanceId"]),"X-Task-Step-Name":str(context["stepName"]),"X-Task-Business-Key":media_id,"X-Task-Fencing-Token":str(context["fencingToken"])}
+ request=urllib.request.Request(base_url.rstrip("/")+f"/internal/v1/media/items/{media_id}/analyses/complete",data=json.dumps(payload,separators=(",",":")).encode(),method="POST",headers=headers)
  with requester(request,timeout=30)as response:response.read()
  return {"mediaItemId":media_id,"status":"SUCCEEDED","tagCount":len(payload["tags"]),"artifactCount":len(payload["artifacts"])}
 def write_result(result):

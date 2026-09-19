@@ -1,0 +1,4 @@
+V01 合成素材 s42             framemean 0.0291  min 0.02725  max 0.0427  dark  0/49  blank 0  peakMax 1.000
+V01 合成素材 s932            framemean 0.0112  min 0.00838  max 0.0256  dark 46/49  blank 0  peakMax 1.000
+V02 纹理源 s42(灰度)          framemean 0.3768  min 0.32642  max 0.4208  dark  0/49  blank 0  peakMax 1.000
+V02 纹理源 s42(边缘)          framemean 0.6711  min 0.65230  max 0.6941  dark  0/49  blank 0  peakMax 1.000

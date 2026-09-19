@@ -8,6 +8,7 @@ import { MobiReaderNative } from './MobiReaderNative';
 import { RemoteBookDownloadPolicy, RemoteBookHeaderResult, RemoteBookPayloadKind } from './RemoteBookDownloadPolicy';
 import { TextPayloadPolicy } from './TextPayloadPolicy';
 import { ReaderTextMetadataPolicy } from './ReaderTextMetadataPolicy';
+import { ReaderShelfFileCache } from './ReaderShelfFileCache';
 
 interface DecodedText {
   text: string;
@@ -61,6 +62,12 @@ export interface IndexedTextSearchHit {
  * 加载文本阅读内容，限制单次读取大小以避免大文件占满内存。
  */
 export class ReaderContentLoader {
+  readonly shelfFileCache: ReaderShelfFileCache = new ReaderShelfFileCache();
+  documentCacheScope: string = '';
+  private static textDocumentCache: Map<string, string> = new Map();
+
+  /** 账号切换时清除解析快照，快照不引用临时解包目录。 */
+  static clearTextDocumentCache(): void { ReaderContentLoader.textDocumentCache.clear(); }
   private static readonly MAX_TEXT_BYTES: number = 20 * 1024 * 1024;
   private static readonly MAX_LARGE_TEXT_BYTES: number = 500 * 1024 * 1024;
   private static readonly TEXT_CHUNK_BYTES: number = 1024 * 1024;
@@ -121,12 +128,23 @@ export class ReaderContentLoader {
         await this.copyLocalBookFile(uri, cachePath, stat.size, 'TXT');
         return await this.indexLargeText(cachePath, stat.size, context);
       }
+      const documentKey = JSON.stringify([this.documentCacheScope, uri, stat.size, stat.mtime]);
+      const cachedDocument = ReaderContentLoader.textDocumentCache.get(documentKey);
+      if (cachedDocument !== undefined) return JSON.parse(cachedDocument) as ReaderDocument;
       const file = fs.openSync(uri, fs.OpenMode.READ_ONLY);
       try {
         const buffer = new ArrayBuffer(stat.size);
         const readBytes = fs.readSync(file.fd, buffer);
         if (readBytes !== stat.size) throw new Error('TXT读取长度不完整');
-        return this.parseTextBytes(new Uint8Array(buffer));
+        const document = this.parseTextBytes(new Uint8Array(buffer));
+        const serialized = JSON.stringify(document);
+        if (serialized.length <= 2 * 1024 * 1024) {
+          ReaderContentLoader.textDocumentCache.set(documentKey, serialized);
+          if (ReaderContentLoader.textDocumentCache.size > 4) {
+            ReaderContentLoader.textDocumentCache.delete(Array.from(ReaderContentLoader.textDocumentCache.keys())[0]);
+          }
+        }
+        return document;
       } finally {
         fs.closeSync(file);
       }
@@ -146,8 +164,10 @@ export class ReaderContentLoader {
     const size = this.isMyToolsTicketUrl(url) ?
       await this.downloadTicketTextRanges(url, cachePath, requestHeaders) :
       await this.downloadTextStream(url, cachePath, requestHeaders);
-    if (size > ReaderContentLoader.MAX_TEXT_BYTES) return await this.indexLargeText(cachePath, size, context);
-    return this.loadTextFile(cachePath, size);
+    const document = size > ReaderContentLoader.MAX_TEXT_BYTES ?
+      await this.indexLargeText(cachePath, size, context) : this.loadTextFile(cachePath, size);
+    this.shelfFileCache.save(cachePath);
+    return document;
   }
 
   /**
@@ -1072,12 +1092,16 @@ export class ReaderContentLoader {
     const cachePath = this.remoteArchiveCachePath(context, format, cacheIdentity, cacheVersion);
     try {
       if (cachePath.length > 0 && this.validRemoteArchiveCache(cachePath, format)) {
-        return await this.extractAndParse(cachePath, format);
+        const document = await this.extractAndParse(cachePath, format);
+        this.shelfFileCache.save(cachePath);
+        return document;
       }
       await this.downloadBinaryStream(url, archivePath, ReaderContentLoader.MAX_ARCHIVE_BYTES, '远程图书',
         'archive', requestHeaders);
       const persistedPath = cachePath.length > 0 ? this.persistRemoteArchiveCache(archivePath, cachePath) : '';
-      return await this.extractAndParse(persistedPath.length > 0 ? persistedPath : archivePath, format);
+      const document = await this.extractAndParse(persistedPath.length > 0 ? persistedPath : archivePath, format);
+      this.shelfFileCache.save(archivePath);
+      return document;
     } catch (error) {
       if (error instanceof Error) throw error;
       throw new Error('远程图书容器读取失败');
@@ -1173,6 +1197,7 @@ export class ReaderContentLoader {
     try {
       await this.downloadBinaryStream(url, path, ReaderContentLoader.MAX_ARCHIVE_BYTES, '远程PDF', 'pdf',
         requestHeaders);
+      this.shelfFileCache.save(path);
       return path;
     } catch (error) {
       if (error instanceof Error) throw error;
@@ -1208,7 +1233,9 @@ export class ReaderContentLoader {
     try {
       await this.downloadBinaryStream(url, path, ReaderContentLoader.MAX_ARCHIVE_BYTES, '远程MOBI', 'mobi',
         requestHeaders);
-      return this.mobiReader.parse(path, `${this.activeDirectory}/resources`);
+      const document = this.mobiReader.parse(path, `${this.activeDirectory}/resources`);
+      this.shelfFileCache.save(path);
+      return document;
     } catch (error) {
       if (error instanceof Error) throw error;
       throw new Error('远程MOBI读取失败');

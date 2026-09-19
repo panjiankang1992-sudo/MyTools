@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import re
 import socket
+import sys
 import tempfile
 from urllib.parse import urlparse
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener, urlopen
@@ -17,6 +18,8 @@ from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_ope
 CHUNK_BYTES = 1024 * 1024
 DEFAULT_MAX_BYTES = 2 * 1024 * 1024 * 1024
 MAX_CONFIGURED_BYTES = 20 * 1024 * 1024 * 1024
+PROGRESS_REPORT_TIMEOUT_SECONDS = 1.0
+PROGRESS_FAILURE_MESSAGE = "download progress callback unavailable; further updates suppressed"
 SAFE_NAME = re.compile(r"^[^/\\\x00]{1,255}$")
 TRUSTED_HOST_SUFFIXES = {".twimg.com"}
 
@@ -121,6 +124,7 @@ def stream_download(parameters: dict, destination_root: Path, opener=None,
     if proxy is not None:
         handlers.insert(0, ProxyHandler({"http": proxy, "https": proxy}))
     request_opener = opener or build_opener(*handlers).open
+    progress_active = progress_reporter is not None
     try:
         with request_opener(request, timeout=30) as response:
             declared = response.headers.get("Content-Length")
@@ -128,9 +132,10 @@ def stream_download(parameters: dict, destination_root: Path, opener=None,
                 raise ValueError("declared content length exceeds maxBytes")
             total = int(declared) if declared is not None else 0
             next_percent = 0
-            if total > 10 * 1024 * 1024 and progress_reporter is not None:
-                progress_reporter(request_id, item_id, 0, total, 0)
-                next_percent = 5
+            if total > 10 * 1024 * 1024 and progress_active:
+                progress_active = report_progress_best_effort(
+                    progress_reporter, request_id, item_id, 0, total, 0)
+                next_percent = 5 if progress_active else 0
             with tempfile.NamedTemporaryFile("wb", dir=target_dir, delete=False) as handle:
                 temporary_path = Path(handle.name)
                 while chunk := response.read(CHUNK_BYTES):
@@ -140,8 +145,13 @@ def stream_download(parameters: dict, destination_root: Path, opener=None,
                     digest.update(chunk)
                     handle.write(chunk)
                     percent = min(100, size * 100 // total) if total else 0
-                    while next_percent and percent >= next_percent:
-                        progress_reporter(request_id, item_id, size, total, next_percent)
+                    while progress_active and next_percent and percent >= next_percent:
+                        progress_active = report_progress_best_effort(
+                            progress_reporter, request_id, item_id, size, total, next_percent)
+                        if not progress_active:
+                            # 单次失败后停用本文件的后续里程碑，避免每块累计回调超时。
+                            next_percent = 0
+                            break
                         next_percent += 5
         content_sha256 = digest.hexdigest()
         expected = str(parameters.get("expectedSha256") or "").lower()
@@ -172,8 +182,20 @@ def report_progress(request_id: str, item_id: str, downloaded: int, total: int,
     request = Request(f"{base}/internal/v1/download-requests/{request_id}/progress",
                       data=payload, method="POST", headers={"Content-Type": "application/json",
                                                             "Authorization": f"Bearer {token}"})
-    with urlopen(request, timeout=10):
+    with urlopen(request, timeout=PROGRESS_REPORT_TIMEOUT_SECONDS):
         pass
+
+
+def report_progress_best_effort(progress_reporter, request_id: str, item_id: str,
+                                downloaded: int, total: int, percent: int) -> bool:
+    """发送一次进度；失败时仅输出固定告警并停用本文件后续回调。"""
+    try:
+        progress_reporter(request_id, item_id, downloaded, total, percent)
+        return True
+    except Exception:
+        # 进度不是下载完整性的一部分，不记录异常正文以免泄露下游响应。
+        print(PROGRESS_FAILURE_MESSAGE, file=sys.stderr)
+        return False
 
 
 def write_result(result: dict) -> None:

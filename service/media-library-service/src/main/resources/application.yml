@@ -11,6 +11,7 @@ spring:
 management.endpoints.web.exposure.include: health,info
 media-library.internal-token: ${MEDIA_LIBRARY_INTERNAL_TOKEN:}
 media-library.task-scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
+media-library.task-scheduler-token: ${TASK_BUSINESS_MEDIA_LIBRARY_TOKEN:${TASK_BUSINESS_INTERNAL_TOKEN:${TASK_INTERNAL_TOKEN:}}}
 media-library.legacy-db-host: ${MYTOOLS_LEGACY_DB_HOST:127.0.0.1}
 media-library.legacy-db-port: ${MYTOOLS_LEGACY_DB_PORT:3306}
 media-library.legacy-db-name: ${MYTOOLS_LEGACY_DB_NAME:mytools}

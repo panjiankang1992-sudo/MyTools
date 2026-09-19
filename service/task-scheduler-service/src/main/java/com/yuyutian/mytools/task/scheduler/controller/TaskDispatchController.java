@@ -1,13 +1,13 @@
 package com.yuyutian.mytools.task.scheduler.controller;
 
 import com.yuyutian.mytools.task.scheduler.model.ClaimTaskRequest;
-import com.yuyutian.mytools.task.scheduler.model.ClaimedTaskView;
 import com.yuyutian.mytools.task.scheduler.model.CompleteExecutionRequest;
 import com.yuyutian.mytools.task.scheduler.model.ExecutionReportView;
 import com.yuyutian.mytools.task.scheduler.model.LeaseHeartbeatRequest;
-import com.yuyutian.mytools.task.scheduler.model.LeaseHeartbeatView;
+import com.yuyutian.mytools.task.scheduler.model.WorkloadTransport;
 import com.yuyutian.mytools.task.scheduler.model.ReportStepExecutionRequest;
 import com.yuyutian.mytools.task.scheduler.service.TaskDispatchService;
+import com.yuyutian.mytools.task.scheduler.service.ClaimCapacityReservedException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,8 +43,16 @@ public class TaskDispatchController {
      * @return 任务或无内容响应
      */
     @PostMapping("/claim")
-    public ResponseEntity<ClaimedTaskView> claim(@Valid @RequestBody ClaimTaskRequest request) {
-        return service.claim(request).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
+    public ResponseEntity<WorkloadTransport.Claim> claim(@Valid @RequestBody ClaimTaskRequest request) {
+        try {
+            return service.claim(request).map(value -> ResponseEntity.ok().header("Cache-Control", "no-store, private")
+                    .body(new WorkloadTransport.Claim(value))).orElseGet(() -> ResponseEntity.noContent().build());
+        } catch (ClaimCapacityReservedException exception) {
+            // 二百零四保持旧 Executor 兼容，新 Executor 通过响应头停止浅层回退。
+            return ResponseEntity.noContent()
+                    .header("X-MyTools-Claim-Blocked", "CAPACITY_RESERVED")
+                    .build();
+        }
     }
 
     /**
@@ -55,9 +63,10 @@ public class TaskDispatchController {
      * @return 租约状态
      */
     @PostMapping("/{executionId}/heartbeat")
-    public LeaseHeartbeatView heartbeat(@PathVariable UUID executionId,
+    public ResponseEntity<WorkloadTransport.Heartbeat> heartbeat(@PathVariable UUID executionId,
                                         @Valid @RequestBody LeaseHeartbeatRequest request) {
-        return service.heartbeat(executionId, request);
+        return ResponseEntity.ok().header("Cache-Control", "no-store, private")
+                .body(new WorkloadTransport.Heartbeat(service.heartbeat(executionId, request)));
     }
 
     /**

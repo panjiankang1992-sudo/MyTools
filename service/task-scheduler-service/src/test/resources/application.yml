@@ -10,6 +10,9 @@ spring:
 task:
   scheduler:
     cancellation-scan-delay-ms: 60000
+    deadline-scan-delay-ms: 60000
+    dispatch:
+      queue-timeout-seconds: 300
   security:
     required: false
   node-registration:

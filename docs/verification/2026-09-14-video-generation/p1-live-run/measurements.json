@@ -1,0 +1,51 @@
+{
+  "video": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 832,
+        "height": 480,
+        "pix_fmt": "yuv420p",
+        "avg_frame_rate": "16/1",
+        "nb_read_frames": "49"
+      }
+    ],
+    "format": {
+      "duration": "3.062500",
+      "size": "159252"
+    }
+  },
+  "edges": [
+    {
+      "frame": 0,
+      "leftMean": 0.4998,
+      "rightMean": 0.5032,
+      "centreMean": 0.3757,
+      "greyBarsLeftPx": 176,
+      "greyBarsRightPx": 176
+    },
+    {
+      "frame": 24,
+      "leftMean": 0.5288,
+      "rightMean": 0.5304,
+      "centreMean": 0.4838,
+      "greyBarsLeftPx": 176,
+      "greyBarsRightPx": 177
+    },
+    {
+      "frame": 48,
+      "leftMean": 0.4347,
+      "rightMean": 0.4414,
+      "centreMean": 0.4101,
+      "greyBarsLeftPx": 0,
+      "greyBarsRightPx": 0
+    }
+  ],
+  "sha256": {
+    "video.mp4": "d0642d4c7dbb91dca3b085b4d43832da07063a14d7349498f76cc6cadf51eabc",
+    "cover.png": "1339352a41b558c5c7d7def682bae8a8aad2ac17d13187a39366b7f377bdd317"
+  },
+  "note": "白边回归判据：P0 的白边方案边缘亮度为 0.94–0.98；中性灰补边应接近 0.502。"
+}

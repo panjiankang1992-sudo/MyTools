@@ -19,6 +19,7 @@ public class TaskLeaseRecoveryService {
     private final JdbcTemplate jdbcTemplate;
     private final MultiNodeTaskAggregationService multiNodeTaskAggregationService;
     private final TaskEventService taskEventService;
+    private final TaskExecutionAuthorizationService executionAuthorizationService;
 
     /**
      * 创建过期执行租约回收服务。
@@ -29,16 +30,18 @@ public class TaskLeaseRecoveryService {
      */
     public TaskLeaseRecoveryService(JdbcTemplate jdbcTemplate,
                                     MultiNodeTaskAggregationService multiNodeTaskAggregationService,
-                                    TaskEventService taskEventService) {
+                                    TaskEventService taskEventService, TaskExecutionAuthorizationService executionAuthorizationService) {
         this.jdbcTemplate = jdbcTemplate;
         this.multiNodeTaskAggregationService = multiNodeTaskAggregationService;
         this.taskEventService = taskEventService;
+        this.executionAuthorizationService = executionAuthorizationService;
     }
 
     /**
      * 定时回收过期执行租约。
      */
     @Scheduled(fixedDelayString = "${task.scheduler.lease-recovery-delay-ms:10000}")
+    @Transactional
     public void scheduledRecover() {
         recoverExpiredLeases();
     }
@@ -59,6 +62,7 @@ public class TaskLeaseRecoveryService {
                 """, (resultSet, rowNumber) -> UUID.fromString(resultSet.getString(1)), Timestamp.from(now));
         int recovered = 0;
         for (UUID executionId : executionIds) {
+            executionAuthorizationService.lockMutationIfProtected(executionId);
             // 条件更新避免与恰好到达的续租请求争用同一个执行。
             int updated = jdbcTemplate.update("""
                     UPDATE task_execution
@@ -67,6 +71,7 @@ public class TaskLeaseRecoveryService {
                     """, Timestamp.from(now), Timestamp.from(now), Timestamp.from(now), executionId.toString(),
                     Timestamp.from(now));
             if (updated == 1) {
+                executionAuthorizationService.revokeExecution(executionId);
                 recoverTaskInstance(executionId, now);
                 recovered++;
             }

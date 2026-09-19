@@ -23,6 +23,7 @@ class TelegramConnector:
         self.session = session
         self.offset = 0
         self.albums: dict[tuple[str, str], tuple[float, str, list[dict[str, Any]]]] = {}
+        self.business_connection_id = config.business_connection_id
 
     async def api(self, method: str, payload: dict[str, Any] | None = None) -> Any:
         """调用 Bot API，异常中不包含 token 或消息正文。"""
@@ -39,7 +40,7 @@ class TelegramConnector:
         updates = await self.api("getUpdates", {
             "offset": self.offset, "timeout": timeout,
             "allowed_updates": ["message", "channel_post", "edited_message",
-                                "edited_channel_post"]})
+                                "edited_channel_post", "business_connection"]})
         if not isinstance(updates, list):
             raise RuntimeError("Telegram getUpdates returned an invalid result")
         for update in updates:
@@ -54,11 +55,14 @@ class TelegramConnector:
 
     async def receive(self, update: dict[str, Any]) -> None:
         """标准化一个 Telegram 更新并写入 Messaging。"""
+        business_connection = update.get("business_connection")
+        if isinstance(business_connection, dict):
+            self._capture_business_connection(business_connection)
+            return
         kind, message = next(((name, update[name]) for name in
                               ("message", "channel_post", "edited_message", "edited_channel_post")
                               if isinstance(update.get(name), dict)), ("", {}))
         chat = message.get("chat") if isinstance(message.get("chat"), dict) else {}
-        sender_data = message.get("from") if isinstance(message.get("from"), dict) else {}
         chat_id = str(chat.get("id") or "")
         message_id = str(message.get("message_id") or "")
         if not kind or not self._allowed(chat_id) or not message_id:
@@ -90,6 +94,16 @@ class TelegramConnector:
         chat_id = str(chat.get("id") or "")
         message_id = str(message.get("message_id") or "")
         sender = str(sender_data.get("id") or chat_id)
+        oversized = [(album_message, source_key, item) for album_message in messages
+                     for source_key, _, item in self._attachment_candidates(album_message)
+                     if int(item.get("file_size") or 0) > self.config.pikpak_threshold_bytes]
+        if oversized and self.business_connection_id:
+            # 超大文件直接复用Telegram file_id以用户身份发送，避免云Bot API下载上限。
+            for album_message, source_key, item in oversized:
+                await self._relay_to_pikpak(source_key, item, album_message)
+            await self.send_text(chat_id, int(message_id),
+                                 "Large media was forwarded to PikPak and will continue automatically.")
+            return
         parts: list[dict[str, Any]] = []
         body_values = []
         seen_messages = set()
@@ -168,24 +182,10 @@ class TelegramConnector:
 
     def _attachment_parts(self, message: dict[str, Any]) -> list[dict[str, Any]]:
         """把 Telegram 原生媒体映射为附件分段。"""
-        candidates: list[tuple[str, dict[str, Any]]] = []
-        photos = message.get("photo") if isinstance(message.get("photo"), list) else []
-        if photos:
-            photos = [item for item in photos if isinstance(item, dict)]
-            if photos:
-                candidates.append(("IMAGE", max(photos, key=lambda item: int(item.get("file_size") or 0))))
-        mapping = (("video", "VIDEO"), ("animation", "VIDEO"), ("audio", "RECORD"),
-                   ("voice", "RECORD"), ("video_note", "VIDEO"),
-                   ("document", "FILE"), ("sticker", "FILE"))
-        for key, attachment_type in mapping:
-            if isinstance(message.get(key), dict):
-                item = message[key]
-                if key == "sticker" and (item.get("is_video") or item.get("is_animated")):
-                    attachment_type = "VIDEO"
-                candidates.append((attachment_type, item))
+        candidates = self._attachment_candidates(message)
         result = []
         message_id = str(message.get("message_id") or "unknown")
-        for index, (attachment_type, item) in enumerate(candidates[:20]):
+        for index, (_, attachment_type, item) in enumerate(candidates[:20]):
             file_id = str(item.get("file_id") or "")
             if not file_id:
                 continue
@@ -198,6 +198,61 @@ class TelegramConnector:
                 "mimeType": str(item.get("mime_type") or self._default_mime_type(attachment_type))[:255],
                 "declaredSize": int(item["file_size"]) if int(item.get("file_size") or 0) > 0 else None})
         return result
+
+    @staticmethod
+    def _attachment_candidates(message: dict[str, Any]) -> list[tuple[str, str, dict[str, Any]]]:
+        """返回消息中的原生媒体字段、标准类型与文件对象。"""
+        candidates: list[tuple[str, str, dict[str, Any]]] = []
+        photos = message.get("photo") if isinstance(message.get("photo"), list) else []
+        if photos:
+            photos = [item for item in photos if isinstance(item, dict)]
+            if photos:
+                candidates.append(("photo", "IMAGE",
+                                   max(photos, key=lambda item: int(item.get("file_size") or 0))))
+        mapping = (("video", "VIDEO"), ("animation", "VIDEO"), ("audio", "RECORD"),
+                   ("voice", "RECORD"), ("video_note", "VIDEO"),
+                   ("document", "FILE"), ("sticker", "FILE"))
+        for key, attachment_type in mapping:
+            if isinstance(message.get(key), dict):
+                item = message[key]
+                if key == "sticker" and (item.get("is_video") or item.get("is_animated")):
+                    attachment_type = "VIDEO"
+                candidates.append((key, attachment_type, item))
+        return candidates
+
+    def _capture_business_connection(self, value: dict[str, Any]) -> None:
+        """捕获用户授权的Business连接，供超大文件中继使用。"""
+        connection_id = str(value.get("id") or "").strip()
+        rights = value.get("rights") if isinstance(value.get("rights"), dict) else {}
+        if value.get("is_enabled") and rights.get("can_reply") and connection_id:
+            self.business_connection_id = connection_id
+            logger.info("Telegram Business relay connection is ready")
+        elif connection_id and connection_id == self.business_connection_id:
+            self.business_connection_id = ""
+            logger.warning("Telegram Business relay connection was disabled")
+
+    async def _relay_to_pikpak(self, source_key: str, item: dict[str, Any],
+                               message: dict[str, Any]) -> None:
+        """使用Business身份把一个Telegram原生文件发送给PikPak Bot。"""
+        methods = {"photo": ("sendPhoto", "photo"), "video": ("sendVideo", "video"),
+                   "animation": ("sendAnimation", "animation"),
+                   "audio": ("sendAudio", "audio"), "voice": ("sendVoice", "voice"),
+                   "video_note": ("sendVideoNote", "video_note"),
+                   "document": ("sendDocument", "document"),
+                   "sticker": ("sendSticker", "sticker")}
+        method, parameter = methods[source_key]
+        payload = {"business_connection_id": self.business_connection_id,
+                   "chat_id": self.config.pikpak_bot,
+                   parameter: str(item.get("file_id") or "")}
+        caption = str(message.get("caption") or "").strip()
+        if caption and source_key not in {"video_note", "sticker"}:
+            payload["caption"] = caption[:1024]
+        await self.api(method, payload)
+
+    def business_status(self) -> dict[str, Any]:
+        """返回受鉴权内部接口使用的Business连接状态。"""
+        return {"connected": bool(self.business_connection_id),
+                "connectionId": self.business_connection_id or None}
 
     @staticmethod
     def _default_mime_type(attachment_type: str) -> str:

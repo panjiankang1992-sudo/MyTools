@@ -44,7 +44,7 @@ public class CopilotGatewayService {
             @Value("${copilot.gateway.enabled:false}") boolean enabled,
             @Value("${copilot.gateway.provider-url:http://127.0.0.1:11434/v1/chat/completions}") String providerUrl,
             @Value("${copilot.gateway.api-key:}") String providerApiKey,
-            @Value("${copilot.gateway.model:huihui_ai/qwen3-vl-abliterated:4b}") String model) {
+            @Value("${copilot.gateway.model:huihui_ai/qwen3-vl-abliterated:8b}") String model) {
         this.objectMapper = objectMapper;
         this.enabled = enabled;
         this.providerUri = validateProviderUri(providerUrl);

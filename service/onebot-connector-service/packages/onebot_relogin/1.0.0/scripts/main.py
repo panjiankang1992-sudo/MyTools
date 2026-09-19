@@ -15,27 +15,33 @@ from urllib.request import Request, urlopen
 from mytools_task_sdk.context import TaskContext
 
 SAFE_KEY = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
+RELOGIN_WAIT_SECONDS = 150.0
+RELOGIN_STATE_PROBE_INTERVAL = 4
 
 
 class ConnectorClient:
     """OneBot Connector 固定控制接口客户端。"""
 
-    def __init__(self, base_url: str, token: str, timeout: float = 15) -> None:
+    def __init__(self, base_url: str, token: str, timeout: float = 5) -> None:
+        if timeout <= 0:
+            raise ValueError("OneBot Connector timeout must be positive")
         self.base_url = base_url.rstrip("/")
         self.token = token
         self.timeout = timeout
 
-    def request_relogin(self, account_key: str, request_id: str) -> dict:
+    def request_relogin(self, account_key: str, request_id: str,
+                        timeout: float | None = None) -> dict:
         """提交一次幂等重登录请求。"""
         return self._json("/internal/v1/control/relogin",
-                          {"accountKey": account_key, "requestId": request_id})
+                          {"accountKey": account_key, "requestId": request_id}, timeout)
 
-    def qr_ready(self, account_key: str, requested_at: str) -> bool:
+    def qr_ready(self, account_key: str, requested_at: str,
+                 timeout: float | None = None) -> bool:
         """只判断新鲜二维码是否已通过 Connector 校验。"""
         request = self._request("/internal/v1/control/login-qr/content",
                                 {"accountKey": account_key, "requestedAt": requested_at})
         try:
-            with urlopen(request, timeout=self.timeout) as response:
+            with urlopen(request, timeout=self._timeout(timeout)) as response:
                 content_type = response.headers.get_content_type()
                 content_length = int(response.headers.get("Content-Length", "0"))
                 prefix = response.read(8)
@@ -47,8 +53,8 @@ class ConnectorClient:
                 return False
             raise
 
-    def _json(self, path: str, payload: dict) -> dict:
-        with urlopen(self._request(path, payload), timeout=self.timeout) as response:
+    def _json(self, path: str, payload: dict, timeout: float | None = None) -> dict:
+        with urlopen(self._request(path, payload), timeout=self._timeout(timeout)) as response:
             result = json.loads(response.read().decode("utf-8"))
         if not isinstance(result, dict):
             raise RuntimeError("OneBot Connector returned an invalid response")
@@ -60,22 +66,74 @@ class ConnectorClient:
                        method="POST", headers={"Authorization": f"Bearer {self.token}",
                                                 "Content-Type": "application/json"})
 
+    def _timeout(self, requested: float | None) -> float:
+        if requested is None:
+            return self.timeout
+        if requested <= 0:
+            raise ValueError("OneBot Connector timeout must be positive")
+        return min(self.timeout, requested)
 
-def execute(context: TaskContext, client: ConnectorClient, sleeper=time.sleep) -> dict:
+
+def execute(context: TaskContext, client: ConnectorClient, sleeper=time.sleep,
+            monotonic=time.monotonic) -> dict:
     """触发重登录并在任务超时边界内等待二维码。"""
     account_key = str(context.parameters["accountKey"])
     request_id = str(context.parameters["requestId"])
     if not SAFE_KEY.fullmatch(account_key) or not SAFE_KEY.fullmatch(request_id):
         raise ValueError("OneBot relogin parameters are invalid")
-    response = client.request_relogin(account_key, request_id)
-    requested_at = str(response.get("requestedAt", ""))
-    datetime.fromisoformat(requested_at.replace("Z", "+00:00"))
-    for _ in range(60):
-        if client.qr_ready(account_key, requested_at):
+    deadline = monotonic() + RELOGIN_WAIT_SECONDS
+    response = client.request_relogin(
+        account_key, request_id, timeout=_remaining_timeout(deadline, monotonic))
+    status, requested_at = _validated_relogin_response(response)
+    if status == "ALREADY_ONLINE":
+        return {"accountKey": account_key, "requestId": request_id,
+                "status": "ALREADY_ONLINE"}
+    if status == "FAILED":
+        raise RuntimeError("OneBot relogin action retry limit is exhausted")
+    for probe in range(240):
+        remaining = _remaining_timeout(deadline, monotonic)
+        if client.qr_ready(account_key, requested_at, timeout=remaining):
             return {"accountKey": account_key, "requestId": request_id,
                     "requestedAt": requested_at, "status": "QR_READY"}
-        sleeper(2)
+        if (probe + 1) % RELOGIN_STATE_PROBE_INTERVAL == 0:
+            response = client.request_relogin(
+                account_key, request_id,
+                timeout=_remaining_timeout(deadline, monotonic))
+            current_status, current_requested_at = _validated_relogin_response(response)
+            if current_status == "ALREADY_ONLINE":
+                return {"accountKey": account_key, "requestId": request_id,
+                        "status": "ALREADY_ONLINE"}
+            if current_requested_at != requested_at:
+                raise RuntimeError("OneBot relogin receipt changed during execution")
+            if current_status == "FAILED":
+                raise RuntimeError("OneBot relogin action retry limit is exhausted")
+        sleeper(min(0.5, _remaining_timeout(deadline, monotonic)))
     raise RuntimeError("fresh OneBot login QR was not generated before timeout")
+
+
+def _remaining_timeout(deadline: float, monotonic) -> float:
+    remaining = deadline - monotonic()
+    if remaining <= 0:
+        raise RuntimeError("fresh OneBot login QR was not generated before timeout")
+    return remaining
+
+
+def _validated_relogin_response(response: dict) -> tuple[str, str]:
+    if not isinstance(response, dict):
+        raise RuntimeError("OneBot Connector returned an invalid relogin response")
+    status = str(response.get("status") or "")
+    if status == "ALREADY_ONLINE":
+        return status, ""
+    if status not in {"REQUESTED", "RESTARTED", "FAILED"}:
+        raise RuntimeError("OneBot Connector returned an invalid relogin response")
+    requested_at = str(response.get("requestedAt") or "")
+    try:
+        parsed = datetime.fromisoformat(requested_at.replace("Z", "+00:00"))
+    except ValueError as exception:
+        raise RuntimeError("OneBot Connector returned an invalid relogin response") from exception
+    if parsed.tzinfo is None:
+        raise RuntimeError("OneBot Connector returned an invalid relogin response")
+    return status, requested_at
 
 
 def write_result(result: dict) -> None:

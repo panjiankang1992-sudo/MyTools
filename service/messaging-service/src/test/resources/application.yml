@@ -17,6 +17,7 @@ messaging:
   automation-token: test-automation-token
   automation-relay-enabled: false
   automation-relay-batch-size: 50
+  inbound-outbox-claim-lease-seconds: 30
   one-bot-ingress-enabled: true
   download-ingestion-url: http://download.test
   download-ingestion-token: test-download-token

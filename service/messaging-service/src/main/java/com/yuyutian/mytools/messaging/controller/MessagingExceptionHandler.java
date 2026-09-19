@@ -6,6 +6,8 @@ import com.yuyutian.mytools.messaging.service.DeliveryStateInvalidException;
 import com.yuyutian.mytools.messaging.service.DeliveryInvalidException;
 import com.yuyutian.mytools.messaging.service.ProviderNotConfiguredException;
 import com.yuyutian.mytools.messaging.service.InboundMessageNotFoundException;
+import com.yuyutian.mytools.messaging.service.InboundReplyDeferredException;
+import com.yuyutian.mytools.messaging.service.InboundReplyProviderFailureException;
 import com.yuyutian.mytools.messaging.service.InboundReplyRejectedException;
 import com.yuyutian.mytools.messaging.service.OneBotIngressDisabledException;
 import com.yuyutian.mytools.messaging.service.OneBotPayloadInvalidException;
@@ -13,7 +15,9 @@ import com.yuyutian.mytools.messaging.service.AttachmentDownloadInvalidException
 import com.yuyutian.mytools.messaging.service.AttachmentDownloadNotFoundException;
 import com.yuyutian.mytools.messaging.service.EmailIngressDisabledException;
 import com.yuyutian.mytools.messaging.service.EmailIngressException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -143,5 +147,35 @@ public class MessagingExceptionHandler {
     public Map<String, String> handleInboundReplyRejected(InboundReplyRejectedException exception) {
         return Map.of("code", ErrorCode.INBOUND_REPLY_REJECTED.code(),
                 "message", ErrorCode.INBOUND_REPLY_REJECTED.message());
+    }
+
+    /**
+     * 转换渠道提供方要求延迟重试的回复异常。
+     *
+     * @param exception 渠道回复延迟异常
+     * @return 包含有界重试提示的 425 响应
+     */
+    @ExceptionHandler(InboundReplyDeferredException.class)
+    public ResponseEntity<Map<String, String>> handleInboundReplyDeferred(InboundReplyDeferredException exception) {
+        return ResponseEntity.status(425)
+                .header(HttpHeaders.RETRY_AFTER, Integer.toString(exception.retryAfterSeconds()))
+                .body(Map.of("code", ErrorCode.INBOUND_REPLY_DEFERRED.code(),
+                        "message", ErrorCode.INBOUND_REPLY_DEFERRED.message(),
+                        "status", "DEFERRED"));
+    }
+
+    /**
+     * 转换需要向 Automation 保留状态的渠道永久失败。
+     *
+     * @param exception 渠道回复永久失败异常
+     * @return 保留原 HTTP 状态的安全失败响应
+     */
+    @ExceptionHandler(InboundReplyProviderFailureException.class)
+    public ResponseEntity<Map<String, String>> handleInboundReplyProviderFailure(
+            InboundReplyProviderFailureException exception) {
+        return ResponseEntity.status(exception.statusCode())
+                .body(Map.of("code", ErrorCode.INBOUND_REPLY_REJECTED.code(),
+                        "message", ErrorCode.INBOUND_REPLY_REJECTED.message(),
+                        "status", "REJECTED"));
     }
 }

@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import grp
 import json
 import os
 import pwd
 import shutil
+import stat
 import subprocess
 import sys
 from collections.abc import Sequence
@@ -78,7 +80,7 @@ def validate_destination(root: Path, release_id: str) -> Path:
                              for character in release_id):
         raise ValueError("release id is invalid")
     destination = root / "releases" / release_id
-    if destination.exists():
+    if os.path.lexists(destination):
         raise ValueError("release destination already exists")
     return destination
 
@@ -107,20 +109,51 @@ def switch_current(root: Path, destination: Path) -> None:
 
 def service_identity(name: str) -> tuple[int, int]:
     """Resolve the pre-created unprivileged service account."""
-    if not name or name == "root":
+    if name != "mytools":
         raise ValueError("service user is invalid")
     try:
         value = pwd.getpwnam(name)
+        group = grp.getgrnam(name)
     except KeyError as error:
-        raise ValueError("service user does not exist") from error
-    return value.pw_uid, value.pw_gid
+        raise ValueError("service identity does not exist") from error
+    if value.pw_gid != group.gr_gid:
+        raise ValueError("service user primary group is invalid")
+    return value.pw_uid, group.gr_gid
 
 
-def chown_tree(path: Path, uid: int, gid: int) -> None:
-    """Assign one exact new release tree to the unprivileged service account."""
-    os.chown(path, uid, gid)
-    for item in path.rglob("*"):
-        os.chown(item, uid, gid, follow_symlinks=False)
+def protect_release_tree(path: Path, gid: int) -> None:
+    """Make installed executables immutable to the unprivileged service account."""
+
+    for item in (path, *path.rglob("*")):
+        metadata = item.lstat()
+        if stat.S_ISLNK(metadata.st_mode):
+            os.chown(item, 0, gid, follow_symlinks=False)
+            continue
+        if stat.S_ISDIR(metadata.st_mode):
+            mode = 0o750
+        elif stat.S_ISREG(metadata.st_mode):
+            mode = 0o750 if metadata.st_mode & 0o111 else 0o640
+        else:
+            raise ValueError(f"release contains an unsupported file: {item}")
+        os.chown(item, 0, gid, follow_symlinks=False)
+        os.chmod(item, mode, follow_symlinks=False)
+
+
+def prepare_deployment_directories(root: Path, uid: int, gid: int) -> None:
+    """Prepare root-owned trust boundaries and service-owned writable roots."""
+
+    protected = (root, root / "config", root / "releases")
+    writable = (root / "runtime", root / "runtime" / "tasks", root / "runtime" / "qq",
+                root / "runtime" / "onebot", root / "migration")
+    for path in (*protected, *writable):
+        if path.is_symlink():
+            raise ValueError(f"deployment directory is a symbolic link: {path}")
+        path.mkdir(mode=0o750, parents=True, exist_ok=True)
+        if not path.is_dir():
+            raise ValueError(f"deployment path is not a directory: {path}")
+        owner = 0 if path in protected else uid
+        os.chown(path, owner, gid, follow_symlinks=False)
+        os.chmod(path, 0o750, follow_symlinks=False)
 
 
 def install(source: Path, root: Path, python: str, service_user: str) -> dict[str, Any]:
@@ -129,16 +162,11 @@ def install(source: Path, root: Path, python: str, service_user: str) -> dict[st
     uid, gid = service_identity(service_user)
     release_id = str(manifest.get("releaseId", ""))
     destination = validate_destination(root, release_id)
-    for path in (root / "config", root / "runtime" / "tasks", root / "migration",
-                 root / "releases"):
-        path.mkdir(mode=0o750, parents=True, exist_ok=True)
+    prepare_deployment_directories(root, uid, gid)
     shutil.copytree(source, destination, copy_function=shutil.copy2)
     try:
         install_python(destination, python)
-        for path in (root, root / "config", root / "runtime", root / "runtime" / "tasks",
-                     root / "migration", root / "releases"):
-            os.chown(path, uid, gid)
-        chown_tree(destination, uid, gid)
+        protect_release_tree(destination, gid)
         switch_current(root, destination)
     except BaseException:
         shutil.rmtree(destination, ignore_errors=True)

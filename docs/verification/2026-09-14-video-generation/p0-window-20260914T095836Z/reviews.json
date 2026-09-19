@@ -1,0 +1,47 @@
+{
+  "windowId": "window-20260914T095836Z",
+  "scoring": "acceptance.md：指令遵循/主体保持/时间连贯/编辑局部性/伪影，各 1-5 分",
+  "status": "PENDING_HUMAN_REVIEW",
+  "cases": [
+    {
+      "caseId": "run-01",
+      "status": "pending",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": ""
+    },
+    {
+      "caseId": "run-02",
+      "status": "PENDING_HUMAN_REVIEW_WITH_DEFECT",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "单图首帧 seed 932：第 3、4 帧为真全黑（YMAX=18/255），第 2–8 帧极暗。独立用 ffprobe signalstats 复核一致。符合 acceptance.md 的\"全黑\"严重失败判据，因此该模式不能标记为可用。证据见 outputs/run-02/blank-frame-evidence.json 与 blankcheck-*.png。"
+    },
+    {
+      "caseId": "run-03",
+      "status": "pending",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": ""
+    }
+  ],
+  "blockingFindings": [
+    "单图首帧在 seed 932 下出现 2 帧真全黑 + 7 帧极暗，触发 acceptance.md 的严重失败判据；在查明原因前该模式不得标记为可用。",
+    "换种子的输出差异（0.3620）大于换第二张参考图的差异（0.3511），说明外观受种子影响不低于受参考图影响。"
+  ]
+}

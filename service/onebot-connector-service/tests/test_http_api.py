@@ -48,8 +48,33 @@ def request(server, path, token, payload):
     return status, content_type, body
 
 
-def start_server():
-    server = ThreadingHTTPServer(("127.0.0.1", 0), create_handler(FakeService(), "internal", "admin"))
+def get_request(server, path):
+    connection = HTTPConnection("127.0.0.1", server.server_port)
+    connection.request("GET", path)
+    response = connection.getresponse()
+    body = response.read()
+    status = response.status
+    connection.close()
+    return status, json.loads(body)
+
+
+def chunked_request(server, path, token, payload):
+    connection = HTTPConnection("127.0.0.1", server.server_port)
+    body = json.dumps(payload).encode()
+    connection.request("POST", path, [body],
+                       {"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                       encode_chunked=True)
+    response = connection.getresponse()
+    content = response.read()
+    status = response.status
+    connection.close()
+    return status, content
+
+
+def start_server(health_provider=None):
+    server = ThreadingHTTPServer(
+        ("127.0.0.1", 0),
+        create_handler(FakeService(), "internal", "admin", health_provider))
     Thread(target=server.serve_forever, daemon=True).start()
     return server
 
@@ -101,6 +126,70 @@ def test_message_routes_require_internal_token():
         assert request(server, "/internal/v1/messages/text", "admin", {})[0] == 401
         assert request(server, "/internal/v1/messages/text", "internal", {})[0] == 200
         assert request(server, "/internal/v1/messages/forward/expand", "internal", {})[0] == 200
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_text_message_route_accepts_bounded_chunked_json():
+    server = start_server()
+    try:
+        status, body = chunked_request(server, "/internal/v1/messages/text", "internal", {})
+        assert status == 200
+        assert json.loads(body) == {"status": "SENT"}
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_liveness_stays_up_while_readiness_is_down():
+    server = start_server(lambda: {
+        "status": "DOWN",
+        "consumerConnected": False,
+        "walDeadEvents": 1,
+        "rejectedInboundEvents": 2,
+    })
+    try:
+        assert get_request(server, "/health/live") == (200, {"status": "UP"})
+        assert get_request(server, "/health") == (503, {
+            "status": "DOWN",
+            "consumerConnected": False,
+            "walDeadEvents": 1,
+            "rejectedInboundEvents": 2,
+        })
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_readiness_filters_unknown_fields_and_hides_probe_errors():
+    server = start_server(lambda: {
+        "status": "UP",
+        "inboundEnabled": True,
+        "payload": {"secret": "must-not-leak"},
+    })
+    try:
+        assert get_request(server, "/health") == (200, {
+            "status": "UP",
+            "inboundEnabled": True,
+        })
+    finally:
+        server.shutdown()
+        server.server_close()
+
+    def failed_probe():
+        raise RuntimeError("secret provider response")
+
+    server = start_server(failed_probe)
+    try:
+        status, response = get_request(server, "/health")
+        assert status == 503
+        assert response == {
+            "status": "DOWN",
+            "healthProbeReady": False,
+            "healthProbeErrorCode": "RuntimeError",
+        }
+        assert "secret" not in json.dumps(response)
     finally:
         server.shutdown()
         server.server_close()

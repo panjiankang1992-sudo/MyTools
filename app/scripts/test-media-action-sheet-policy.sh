@@ -37,7 +37,12 @@ for action in 重命名 移动到 管理标签 查看详情 删除 取消; do
 done
 printf '%s\n' "$sheet" | grep -Fq "this.mediaActionMode = 'delete-confirm'"
 printf '%s\n' "$sheet" | grep -Fq "Text('删除后无法恢复，确认删除这个远程媒体？')"
-printf '%s\n' "$sheet" | grep -Fq '.enabled(!this.mediaActionBusy)'
+printf '%s\n' "$sheet" | grep -Fq '!this.mediaActionBusy, () => this.ExecuteMediaAction(item))'
+printf '%s\n' "$sheet" | grep -Fq 'Flex({ justifyContent: FlexAlign.SpaceBetween })'
+grep -Fq "Button(label).width('48.5%')" "$page"
+grep -Fq 'private MediaActionDangerButton(label: string, available: boolean, action: () => void)' "$page"
+grep -Fq 'private MediaActionSecondaryButton(label: string, action: () => void)' "$page"
+grep -Fq '.borderRadius(AppTheme.pillRadius).enabled(available).onClick(action)' "$page"
 printf '%s\n' "$execute" | grep -Fq 'await api.renameEntry('
 printf '%s\n' "$execute" | grep -Fq 'await api.moveEntry('
 printf '%s\n' "$execute" | grep -Fq 'await api.replaceTags('

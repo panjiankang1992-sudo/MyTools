@@ -26,7 +26,9 @@ import com.yuyutian.mytools.reader.service.AudiobookExportUnavailableException;
 import com.yuyutian.mytools.reader.service.AudiobookCharacterLimitExceededException;
 import com.yuyutian.mytools.reader.service.AudiobookDailyCharacterQuotaExceededException;
 import com.yuyutian.mytools.reader.service.AudiobookGenerationUnavailableException;
+import com.yuyutian.mytools.reader.service.adaptation.ChapterAdaptationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -38,6 +40,32 @@ import java.util.Map;
  */
 @RestControllerAdvice
 public class ReaderExceptionHandler {
+
+    /** 按稳定错误码归一章节准备和改编异常，不返回外部异常链或正文。 */
+    @ExceptionHandler(ChapterAdaptationException.class)
+    public ResponseEntity<Map<String, String>> handleChapterAdaptation(ChapterAdaptationException exception) {
+        ErrorCode code = exception.errorCode();
+        HttpStatus status = switch (code) {
+            case READER_STATE_NOT_FOUND, ADAPTATION_NOT_FOUND, ADAPTATION_ATTEMPT_NOT_FOUND,
+                    ADAPTATION_TEMPLATE_NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case ADAPTATION_UNAVAILABLE -> HttpStatus.FORBIDDEN;
+            case ADAPTATION_CAPACITY_EXCEEDED -> HttpStatus.TOO_MANY_REQUESTS;
+            case ADAPTATION_PROVIDER_CONSENT_REQUIRED -> HttpStatus.PRECONDITION_REQUIRED;
+            case ADAPTATION_HISTORY_DELETED -> HttpStatus.GONE;
+            case ADAPTATION_REQUEST_INVALID -> HttpStatus.BAD_REQUEST;
+            case CHAPTER_ADAPTATION_INELIGIBLE, ADAPTATION_INTENT_INVALID, ADAPTATION_INTENT_CONFLICT,
+                    ADAPTATION_CONTENT_TOO_LARGE, ADAPTATION_CATALOG_TOO_LARGE -> HttpStatus.UNPROCESSABLE_ENTITY;
+            case CHAPTER_CATALOG_STALE, CHAPTER_SOURCE_CHANGED, ADAPTATION_IDEMPOTENCY_CONFLICT,
+                    ADAPTATION_ALREADY_ACTIVE, ADAPTATION_PARENT_INVALID, ADAPTATION_EXECUTION_FENCED,
+                    ADAPTATION_TASK_BIND_PENDING, ADAPTATION_DELETION_IN_PROGRESS, ADAPTATION_DEADLINE_EXCEEDED,
+                    READER_STATE_CONFLICT, ADAPTATION_CONSENT_REVISION_CONFLICT,
+                    ADAPTATION_TEMPLATE_VERSION_CONFLICT -> HttpStatus.CONFLICT;
+            case RUNTIME_UNAVAILABLE, ADAPTATION_PROVIDER_UNAVAILABLE, ADAPTATION_AUTHORIZATION_UNAVAILABLE,
+                    ADAPTATION_PERSISTENCE_UNAVAILABLE -> HttpStatus.SERVICE_UNAVAILABLE;
+            default -> HttpStatus.INTERNAL_SERVER_ERROR;
+        };
+        return ResponseEntity.status(status).body(Map.of("code", code.code(), "message", code.message()));
+    }
 
     /**
      * 转换搜索请求不存在异常。

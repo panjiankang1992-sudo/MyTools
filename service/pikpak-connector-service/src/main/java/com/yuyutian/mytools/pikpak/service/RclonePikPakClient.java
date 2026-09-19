@@ -63,7 +63,11 @@ public class RclonePikPakClient {
 
     /** 提交一次离线 URI。 @param remoteKey 远端键 @param path 隔离目录 @param magnetUri magnet URI */
     public void addUrl(String remoteKey, String path, String magnetUri) {
-        call("backend/command", Map.of("command", "addurl", "fs", remotePath(remoteKey, path),
+        String destination = remotePath(remoteKey, path);
+        // rclone 对不存在的目录会回退到默认目录，必须先创建隔离目录再提交。
+        call("operations/mkdir", Map.of("fs", remoteKey + ":", "remote", validPath(path)),
+            Duration.ofSeconds(10));
+        call("backend/command", Map.of("command", "addurl", "fs", destination,
             "arg", List.of(magnetUri), "opt", Map.of()), Duration.ofMinutes(3));
     }
 
@@ -120,7 +124,8 @@ public class RclonePikPakClient {
     }
 
     private void validateList(JsonNode values) {
-        if (!values.isArray() || values.size() > 10000) {
+        // rclone 使用 null 表示空列表；离线下载尚未产生文件时继续有界观察。
+        if ((!values.isArray() && !values.isNull()) || values.size() > 10000) {
             throw new IllegalStateException(RCLONE_LIST_INVALID.code());
         }
     }

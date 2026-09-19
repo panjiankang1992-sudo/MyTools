@@ -32,6 +32,7 @@ class CreateServiceEnvTest(unittest.TestCase):
         self.assertEqual("21600", first["TASK_EXECUTOR_MAXIMUM_CPU_SECONDS"])
         self.assertEqual("17179869184", first["TASK_EXECUTOR_MAXIMUM_VIRTUAL_MEMORY_BYTES"])
         self.assertEqual("107374182400", first["TASK_EXECUTOR_MAXIMUM_FILE_BYTES"])
+        self.assertEqual("/usr/bin/ffmpeg", first["FFMPEG_BINARY"])
         service_tokens = [
             first["TASK_EXECUTOR_INTERNAL_TOKEN"],
             first["TASK_OPERATOR_INTERNAL_TOKEN"],
@@ -66,6 +67,28 @@ class CreateServiceEnvTest(unittest.TestCase):
         self.assertEqual("false", first["DOWNLOADBOT_SNAPSHOT_EXPORT_ENABLED"])
         self.assertEqual("false", first["DOWNLOADBOT_RECONCILIATION_ENABLED"])
         self.assertEqual("true", first["MESSAGE_AUTOMATION_COMPLETION_RELAY_ENABLED"])
+        self.assertEqual(first["ONEBOT_CONNECTOR_ACCOUNT_KEY"],
+                         first["QQ_CONNECTOR_ONEBOT_ACCOUNT_KEY"])
+        self.assertEqual(
+            "/opt/yuyutian/mytools/runtime/qq/login-command-wal",
+            first["QQ_CONNECTOR_LOGIN_WAL_PATH"])
+        self.assertEqual(
+            "/opt/yuyutian/mytools/runtime/qq/inbound-wal",
+            first["QQ_CONNECTOR_INBOUND_WAL_PATH"])
+        self.assertEqual("4", first["QQ_CONNECTOR_INBOUND_WORKER_CONCURRENCY"])
+        self.assertEqual("1", first["QQ_CONNECTOR_INBOUND_WORKER_POLL_SECONDS"])
+        self.assertEqual(
+            "/opt/yuyutian/mytools/runtime/onebot/relogin.request",
+            first["ONEBOT_CONNECTOR_RELOGIN_REQUEST_PATH"])
+        self.assertEqual("/opt/napcat/cache/qrcode.png",
+                         first["ONEBOT_CONNECTOR_QR_PATH"])
+        self.assertEqual("250", first["MESSAGING_ONEBOT_ACCEPTANCE_RELAY_DELAY_MS"])
+        self.assertEqual("250", first["MESSAGE_AUTOMATION_RELAY_DELAY_MS"])
+        self.assertEqual("250", first["MESSAGE_AUTOMATION_COMPLETION_RELAY_DELAY_MS"])
+        self.assertEqual("250", first["MESSAGE_AUTOMATION_RECONCILIATION_DELAY_MS"])
+        self.assertEqual("250", first["MESSAGE_AUTOMATION_ACTION_STATUS_POLL_DELAY_MS"])
+        self.assertEqual("250", first["TASK_EXECUTOR_POLL_MILLISECONDS"])
+        self.assertEqual("0", first["TASK_EXECUTOR_RESERVED_CHILD_TASK_SLOTS"])
         self.assertFalse(first["DOWNLOAD_DESTINATION_ROOT"].startswith("/opt/yuyutian/mytools"))
 
     def test_rejects_business_paths_under_deployment_or_logs(self):

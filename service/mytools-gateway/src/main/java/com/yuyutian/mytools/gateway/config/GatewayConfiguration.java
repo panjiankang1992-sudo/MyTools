@@ -13,7 +13,7 @@ import java.time.Duration;
  */
 @Configuration
 @EnableConfigurationProperties({GatewayProperties.class, AppCatalogGatewayProperties.class,
-        DshGatewayProperties.class})
+        DshGatewayProperties.class, ChapterAdaptationGatewayProperties.class})
 public class GatewayConfiguration {
 
     /**

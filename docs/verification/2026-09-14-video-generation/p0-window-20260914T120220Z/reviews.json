@@ -1,0 +1,47 @@
+{
+  "windowId": "window-20260914T120220Z",
+  "scoring": "acceptance.md：指令遵循/主体保持/时间连贯/编辑局部性/伪影，各 1-5 分",
+  "status": "PENDING_HUMAN_REVIEW",
+  "cases": [
+    {
+      "caseId": "run-01",
+      "status": "FIX_CANDIDATE_GRID_CELL",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "首帧候选 α=0.25 的网格格：主体 b 与 c、seed 42，以及主体 b、seed 932。三格均 0 全黑、亮度 0.617-0.706、首末帧差异 0.080-0.119。"
+    },
+    {
+      "caseId": "run-02",
+      "status": "FIX_CANDIDATE_GRID_CELL",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "首帧候选 α=0.25 的网格格：主体 b 与 c、seed 42，以及主体 b、seed 932。三格均 0 全黑、亮度 0.617-0.706、首末帧差异 0.080-0.119。"
+    },
+    {
+      "caseId": "run-03",
+      "status": "FIX_CANDIDATE_GRID_CELL",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "首帧候选 α=0.25 的网格格：主体 b 与 c、seed 42，以及主体 b、seed 932。三格均 0 全黑、亮度 0.617-0.706、首末帧差异 0.080-0.119。"
+    }
+  ],
+  "blockingFindings": [
+    "α=0.25 在 3 主体 × 2 种子共 6 格上全部无全黑/极暗帧，亮度 0.617-0.723，跨种子运动差异 3.5-16%。",
+    "仍未定：首末帧差异只有 0.073-0.124，是否算“动起来”需人工判断；连续稳定性补测未做。"
+  ]
+}

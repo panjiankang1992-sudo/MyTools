@@ -1,0 +1,52 @@
+[
+  {
+    "file": "p0-firstframe-control.mp4",
+    "bytes": 11222,
+    "sha256": "fe034cd97ebe02306f1c63643fc47d845b2addc28b17cdf8cc43d7e203a4900c",
+    "storedInDeliverable": true
+  },
+  {
+    "file": "p0-firstframe-mask.mp4",
+    "bytes": 3533,
+    "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f",
+    "storedInDeliverable": true
+  },
+  {
+    "file": "p0-restyle-control-gray.mp4",
+    "bytes": 5333,
+    "sha256": "4358e8188b78e461c9083f37794b94d80f5c2fda92a2cb2e4e8a5e08a24c3266",
+    "storedInDeliverable": true
+  },
+  {
+    "file": "p0-scene.png",
+    "bytes": 1169401,
+    "sha256": "3488bd4c3070a571ee538e67524cc3b5147c9236b7e5dc3b749ac8f56e2e78c2",
+    "storedInDeliverable": false,
+    "sourceInRepository": "docs/verification/2026-09-13-image-generation/samples/landscape.png",
+    "note": "仓库内已有同名来源文件，交付目录不重复存放大图"
+  },
+  {
+    "file": "p0-source-motion.mp4",
+    "bytes": 5993,
+    "sha256": "9d3a56d94fc9324df6a77484579820f01c4000d3522420914a421b186fff3c7e",
+    "storedInDeliverable": true
+  },
+  {
+    "file": "p0-subject-a.png",
+    "bytes": 952822,
+    "sha256": "712c98518e3c9d40c142428fc6b7ca263e59723d9992e0d9519f7cbe71a6a8a3",
+    "storedInDeliverable": false,
+    "sourceInRepository": "docs/verification/2026-09-13-image-generation/samples/product.png",
+    "note": "仓库内已有同名来源文件，交付目录不重复存放大图"
+  },
+  {
+    "file": "p0-subject-b.png",
+    "bytes": 261120,
+    "sha256": "e00111d33a4fecf4d4310af00457379653f3202b5ad94d97971991abe2e705b4",
+    "storedInDeliverable": false,
+    "sourceInRepository": "docs/verification/2026-09-13-image-generation/samples/portrait.png",
+    "note": "仓库内已有同名来源文件，交付目录不重复存放大图",
+    "defect": "分发时 scp 被中断导致文件被截断：实际 261120 字节，正确文件 1129402 字节；正确 SHA-256 为 6035cad323864b9514095cf112ac91176dbc2a1a61eaf064453e1b0cb44a811c。本窗口中 run-02 使用该损坏素材，其多图结论作废，已在 window-20260914T074325Z 修正重跑。",
+    "superseded": true
+  }
+]

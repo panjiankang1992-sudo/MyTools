@@ -1,0 +1,154 @@
+{
+  "windowSummary": {
+    "windowId": "window-20260914T120220Z",
+    "results": [
+      {
+        "runId": "run-01",
+        "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/firstframe-blend025-s42b-workflow.json",
+        "startedAt": 1789387350.4532988,
+        "preflight": {
+          "nodes": 16,
+          "classTypes": [
+            "CLIPLoader",
+            "CLIPTextEncode",
+            "GetVideoComponents",
+            "ImageToMask",
+            "KSampler",
+            "LoadVideo",
+            "ModelSamplingSD3",
+            "SaveImage",
+            "TrimVideoLatent",
+            "UNETLoader",
+            "VAEDecodeTiled",
+            "VAELoader",
+            "WanVaceToVideo"
+          ]
+        },
+        "inputs": [
+          {
+            "kind": "video",
+            "file": "p0-firstframe-blend025-control-b.mp4",
+            "bytes": 27488,
+            "sha256": "bf06bfcd02945b89f2d7c3ba451292fd546392eb9715b3b17bfd3607bf8fa2fa",
+            "decodable": true
+          },
+          {
+            "kind": "video",
+            "file": "p0-firstframe-blend025-mask-b.mp4",
+            "bytes": 3533,
+            "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f",
+            "decodable": true
+          }
+        ],
+        "warmStart": false,
+        "workflowSha256": "e2e168b12bab5881fc917fc45259015953f6b2462e4b75660ca6bfc9171b2d30",
+        "status": "INFERENCE_PASSED_REVIEW_PENDING",
+        "promptId": "67a81ae2-f65e-4849-8b8a-2c1d35345782",
+        "submittedAt": 1789387350.5049653,
+        "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T120220Z/run-01/output.mp4",
+        "outputSha256": "719dc86db253afd051f0f5284eedbedf9d7b46266fa94c07df4039d79883ba09",
+        "finishedAt": 1789387839.152749
+      },
+      {
+        "runId": "run-02",
+        "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/firstframe-blend025-s42c-workflow.json",
+        "startedAt": 1789387839.1529586,
+        "preflight": {
+          "nodes": 16,
+          "classTypes": [
+            "CLIPLoader",
+            "CLIPTextEncode",
+            "GetVideoComponents",
+            "ImageToMask",
+            "KSampler",
+            "LoadVideo",
+            "ModelSamplingSD3",
+            "SaveImage",
+            "TrimVideoLatent",
+            "UNETLoader",
+            "VAEDecodeTiled",
+            "VAELoader",
+            "WanVaceToVideo"
+          ]
+        },
+        "inputs": [
+          {
+            "kind": "video",
+            "file": "p0-firstframe-blend025-control-c.mp4",
+            "bytes": 30694,
+            "sha256": "db9f523979d94c78a67541bc78f45aab5c2ef89471e5de72d34b22510fa5996a",
+            "decodable": true
+          },
+          {
+            "kind": "video",
+            "file": "p0-firstframe-blend025-mask-c.mp4",
+            "bytes": 3533,
+            "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f",
+            "decodable": true
+          }
+        ],
+        "warmStart": true,
+        "workflowSha256": "343633f0bdd187693979f2f05acdc2ef9eac0633e64af327610f55efa804c85e",
+        "status": "INFERENCE_PASSED_REVIEW_PENDING",
+        "promptId": "cd8fcbb8-a379-444b-932e-765ff90cd9b8",
+        "submittedAt": 1789387839.1991549,
+        "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T120220Z/run-02/output.mp4",
+        "outputSha256": "4fe3e4418ce023cacde1faffa3ceb050d988dfcb9a093264b0114b39c5168145",
+        "finishedAt": 1789388322.8762517
+      },
+      {
+        "runId": "run-03",
+        "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/firstframe-blend025-s932b-workflow.json",
+        "startedAt": 1789388322.8765996,
+        "preflight": {
+          "nodes": 16,
+          "classTypes": [
+            "CLIPLoader",
+            "CLIPTextEncode",
+            "GetVideoComponents",
+            "ImageToMask",
+            "KSampler",
+            "LoadVideo",
+            "ModelSamplingSD3",
+            "SaveImage",
+            "TrimVideoLatent",
+            "UNETLoader",
+            "VAEDecodeTiled",
+            "VAELoader",
+            "WanVaceToVideo"
+          ]
+        },
+        "inputs": [
+          {
+            "kind": "video",
+            "file": "p0-firstframe-blend025-control-b.mp4",
+            "bytes": 27488,
+            "sha256": "bf06bfcd02945b89f2d7c3ba451292fd546392eb9715b3b17bfd3607bf8fa2fa",
+            "decodable": true
+          },
+          {
+            "kind": "video",
+            "file": "p0-firstframe-blend025-mask-b.mp4",
+            "bytes": 3533,
+            "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f",
+            "decodable": true
+          }
+        ],
+        "warmStart": true,
+        "workflowSha256": "ce3e03386452212fc29ad66b81830fb24f0dca96f92cda1c01147231dce3c1f1",
+        "status": "INFERENCE_PASSED_REVIEW_PENDING",
+        "promptId": "fd98cb53-7ebd-47b9-85c7-31eb0466a1d3",
+        "submittedAt": 1789388322.9286976,
+        "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T120220Z/run-03/output.mp4",
+        "outputSha256": "8fe256bb8e9cf971faf3dc0ce261b5cddf2e8e9200a9e25974bc8d8b58d021e2",
+        "finishedAt": 1789388806.9168591
+      }
+    ]
+  },
+  "hostAfter": {
+    "time": 1789388811.1911974,
+    "availableMiB": 18169,
+    "gpu": "242, 15606, 0",
+    "memoryPressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=151503548\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=148629700"
+  }
+}

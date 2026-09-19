@@ -14,25 +14,32 @@ from urllib.request import Request, urlopen
 class StorageClient:
     """Call only the opaque Storage operation remote-job endpoints."""
 
-    def __init__(self, base_url: str, token: str, opener=urlopen):
+    def __init__(self, base_url: str, token: str, task_context: dict | None = None, opener=urlopen):
         self.base_url = base_url.rstrip("/")
         self.token = token
         self.opener = opener
+        self.task_context = task_context
 
     def start(self, operation_id: str) -> dict:
         """Idempotently start the server-defined transfer."""
-        return self._request("POST", f"/{operation_id}/remote-job/start")
+        return self._request("POST", f"/{operation_id}/remote-job/start", operation_id)
 
     def status(self, operation_id: str) -> dict:
         """Read the remote job and reconcile operation terminal state."""
         return self._request("GET", f"/{operation_id}/remote-job")
 
-    def _request(self, method: str, suffix: str) -> dict:
+    def _request(self, method: str, suffix: str, mutation_key: str | None = None) -> dict:
+        headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
+        if mutation_key is not None and self.task_context is not None:
+            headers |= {"X-Task-Instance-Id": str(self.task_context["taskInstanceId"]),
+                        "X-Task-Step-Name": str(self.task_context["stepName"]),
+                        "X-Task-Business-Key": mutation_key,
+                        "X-Task-Fencing-Token": str(self.task_context["fencingToken"])}
         request = Request(
             self.base_url + "/api/internal/v1/storage/operations" + suffix,
             data=b"{}" if method == "POST" else None,
             method=method,
-            headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"},
+            headers=headers,
         )
         with self.opener(request, timeout=60) as response:
             document = json.loads(response.read().decode("utf-8"))
@@ -73,7 +80,7 @@ def main() -> None:
     """Execute one Storage Gateway transfer operation."""
     context = json.loads(Path(os.environ["TASK_CONTEXT_FILE"]).read_text(encoding="utf-8"))
     client = StorageClient(os.getenv("STORAGE_GATEWAY_URL", "http://127.0.0.1:23240"),
-                           os.getenv("STORAGE_INTERNAL_TOKEN", ""))
+                           os.getenv("STORAGE_INTERNAL_TOKEN", ""), context)
     write_result(execute(context["parameters"], client))
 
 

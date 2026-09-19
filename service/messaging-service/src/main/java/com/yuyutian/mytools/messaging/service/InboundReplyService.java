@@ -5,6 +5,7 @@ import com.yuyutian.mytools.messaging.model.CreateInboundReplyRequest;
 import com.yuyutian.mytools.messaging.model.InboundMessageView;
 import com.yuyutian.mytools.messaging.model.InboundReplyView;
 import com.yuyutian.mytools.messaging.provider.InboundReplyProvider;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -18,6 +19,8 @@ import java.util.UUID;
  */
 @Service
 public class InboundReplyService {
+
+    private static final int DEFAULT_RETRY_AFTER_SECONDS = 1;
 
     private final DeliveryService deliveryService;
     private final Map<ChannelType, InboundReplyProvider> providers = new EnumMap<>(ChannelType.class);
@@ -49,12 +52,35 @@ public class InboundReplyService {
         try {
             provider.reply(message, request.idempotencyKey(), request.body());
         } catch (HttpClientErrorException exception) {
+            int statusCode = exception.getStatusCode().value();
+            if (statusCode == 425) {
+                // QQ 出站 WAL 尚在租约或退避窗口时必须通知 Automation 延迟，不能误报已受理。
+                throw new InboundReplyDeferredException(retryAfterSeconds(exception), exception);
+            }
             // 渠道侧的请求无效或目标不存在不会通过重试恢复，转换为稳定的永久失败。
-            if (exception.getStatusCode().value() == 400 || exception.getStatusCode().value() == 404) {
+            if (statusCode == 400 || statusCode == 404) {
                 throw new InboundReplyRejectedException(exception);
+            }
+            if (statusCode == 409 || statusCode == 422) {
+                // 幂等载荷冲突和已耗尽记录需保留原状态，供 Automation 立即转入死信。
+                throw new InboundReplyProviderFailureException(statusCode, exception);
             }
             throw exception;
         }
         return new InboundReplyView(messageId, message.channelType(), "ACCEPTED");
+    }
+
+    private long retryAfterSeconds(HttpClientErrorException exception) {
+        HttpHeaders headers = exception.getResponseHeaders();
+        String value = headers == null ? null : headers.getFirst(HttpHeaders.RETRY_AFTER);
+        if (value == null || value.isBlank()) {
+            return DEFAULT_RETRY_AFTER_SECONDS;
+        }
+        try {
+            return Long.parseLong(value.trim());
+        } catch (NumberFormatException ignored) {
+            // 内部 Connector 协议只允许 delta-seconds；损坏值采用最短安全退避。
+            return DEFAULT_RETRY_AFTER_SECONDS;
+        }
     }
 }

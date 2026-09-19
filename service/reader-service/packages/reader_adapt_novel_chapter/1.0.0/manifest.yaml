@@ -1,0 +1,13 @@
+name: reader_adapt_novel_chapter
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - reader_adaptation_host_broker
+parameters:
+  required:
+    - adaptationId
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 900

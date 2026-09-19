@@ -1,0 +1,11 @@
+{
+  "runId": "trial-20260914T063810Z",
+  "status": "INFERENCE_PASSED_REVIEW_PENDING",
+  "startedAt": 1789367890.1072164,
+  "workflowSha256": "fe32106497b2bda05194a53abb3ba50fa6dcc8e843e5aca387f54c2c5d78b17d",
+  "promptId": "0e1c1275-6063-43d3-93d8-2b5ff0f9f70d",
+  "submittedAt": 1789367899.4545748,
+  "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/trial-20260914T063810Z/output.mp4",
+  "outputSha256": "3957fe2887b8e92dee936d38592b3854f14462f687ada135a7ca81297050edde",
+  "finishedAt": 1789368388.0569415
+}

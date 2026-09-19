@@ -70,6 +70,8 @@ public class TaskInstanceController {
      */
     @GetMapping("/{id}/results")
     public TaskExecutionResultView getResults(@PathVariable UUID id) {
+        // 步骤结果与任务详情使用相同的业务范围守卫，不能绕过改编任务的 Reader 身份限制。
+        taskInstanceService.get(id);
         return taskResultQueryService.get(id);
     }
 

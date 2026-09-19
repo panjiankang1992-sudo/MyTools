@@ -3,6 +3,7 @@ package com.yuyutian.mytools.messaging.service;
 import com.yuyutian.mytools.messaging.model.ChannelType;
 import com.yuyutian.mytools.messaging.model.CreateDeliveryRequest;
 import com.yuyutian.mytools.messaging.model.CreateInboundMessageRequest;
+import com.yuyutian.mytools.messaging.model.TaskExecutionFence;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
@@ -49,16 +50,30 @@ class DeliveryServiceTest {
 
         var created = service.create(request);
         var duplicate = service.create(request);
-        var delivered = service.execute(created.id());
-        var replayed = service.execute(created.id());
+        assertThatThrownBy(() -> service.execute(created.id(),
+                new TaskExecutionFence(taskId, "other_step", created.id().toString(), 1)))
+                .isInstanceOf(DeliveryStateInvalidException.class);
+        assertThatThrownBy(() -> service.execute(created.id(),
+                new TaskExecutionFence(UUID.randomUUID(), "send_email", created.id().toString(), 1)))
+                .isInstanceOf(DeliveryStateInvalidException.class);
+        TaskExecutionFence firstFence = fence(taskId, created.id(), 1);
+        var delivered = service.execute(created.id(), firstFence);
+        var replayed = service.execute(created.id(), firstFence);
+        var newerReplay = service.execute(created.id(), fence(taskId, created.id(), 2));
 
         assertThat(duplicate.id()).isEqualTo(created.id());
         assertThat(delivered.status()).isEqualTo("DELIVERED");
         assertThat(replayed.providerMessageId()).isEqualTo(delivered.providerMessageId());
+        assertThat(newerReplay.providerMessageId()).isEqualTo(delivered.providerMessageId());
+        assertThatThrownBy(() -> service.execute(created.id(), firstFence))
+                .isInstanceOf(DeliveryStateInvalidException.class);
         assertThat(delivered.providerMessageId()).contains(created.id().toString());
         assertThat(service.get(created.id()).recipient()).isEqualTo("recipient@example.com");
         verify(mailSender, times(1)).send(any(MimeMessage.class));
         assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM delivery_attempt", Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT fencing_token FROM delivery_execution_fence WHERE delivery_request_id = ?",
+                Long.class, created.id().toString())).isEqualTo(2L);
         assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM messaging_outbox", Integer.class)).isEqualTo(2);
     }
 
@@ -109,5 +124,9 @@ class DeliveryServiceTest {
         assertThatThrownBy(()->service.get(delivery.id(),28L)).isInstanceOf(DeliveryNotFoundException.class);
         assertThat(service.cancel(delivery.id(),27L).status()).isEqualTo("CANCELLED");
         verify(schedulerClient).cancel(taskId);
+    }
+
+    private TaskExecutionFence fence(UUID taskId, UUID deliveryId, long token) {
+        return new TaskExecutionFence(taskId, "send_email", deliveryId.toString(), token);
     }
 }

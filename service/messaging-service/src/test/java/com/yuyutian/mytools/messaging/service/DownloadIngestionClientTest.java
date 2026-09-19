@@ -40,6 +40,7 @@ class DownloadIngestionClientTest {
                 .andExpect(jsonPath("$.parameters.assetMimeType").value("image/jpeg"))
                 .andExpect(jsonPath("$.parameters.receivedAt").value("2026-08-28T07:05:17Z"))
                 .andExpect(jsonPath("$.parameters.url").value("https://cdn.example.test/a.jpg"))
+                .andExpect(jsonPath("$.parameters.maxBytes").value(4L * 1024 * 1024 + 1024))
                 .andRespond(withAccepted().contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .body("{\"id\":\"" + downloadId + "\"}"));
         DownloadIngestionClient client = new DownloadIngestionClient(builder.build(), "download-token");
@@ -50,6 +51,16 @@ class DownloadIngestionClientTest {
 
         assertThat(created).isEqualTo(downloadId);
         server.verify();
+    }
+
+    @Test
+    void shouldBoundDeclaredSizeToleranceByAbsoluteMaximum() {
+        assertThat(DownloadIngestionClient.maximumBytes(8L * 1024 * 1024))
+                .isEqualTo(12L * 1024 * 1024);
+        assertThat(DownloadIngestionClient.maximumBytes(20L * 1024 * 1024 * 1024))
+                .isEqualTo(20L * 1024 * 1024 * 1024);
+        assertThat(DownloadIngestionClient.maximumBytes(null))
+                .isEqualTo(2L * 1024 * 1024 * 1024);
     }
 
     @Test
@@ -68,6 +79,26 @@ class DownloadIngestionClientTest {
         DownloadIngestionClient.DownloadSnapshot snapshot = client.get(downloadId, 19L);
 
         assertThat(snapshot.status()).isEqualTo("SUCCEEDED");
+        server.verify();
+    }
+
+    @Test
+    void shouldCancelDownloadWithOwnerScopeAndInternalToken() {
+        UUID downloadId = UUID.randomUUID();
+        RestClient.Builder builder = RestClient.builder().baseUrl("http://download.test");
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(requestTo("http://download.test/internal/v1/download-requests/" + downloadId
+                        + "/cancel?ownerId=19"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Authorization", "Bearer download-token"))
+                .andRespond(withSuccess("{\"id\":\"" + downloadId + "\",\"status\":\"CANCELLING\"}",
+                        org.springframework.http.MediaType.APPLICATION_JSON));
+        DownloadIngestionClient client = new DownloadIngestionClient(builder.build(), "download-token");
+
+        DownloadIngestionClient.DownloadSnapshot snapshot = client.cancel(downloadId, 19L);
+
+        assertThat(snapshot.id()).isEqualTo(downloadId);
+        assertThat(snapshot.status()).isEqualTo("CANCELLING");
         server.verify();
     }
 

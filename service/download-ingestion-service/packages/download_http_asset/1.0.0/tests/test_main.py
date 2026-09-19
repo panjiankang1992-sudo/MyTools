@@ -1,11 +1,15 @@
 """Tests for the bounded HTTP asset download task."""
 
 import importlib.util
+from contextlib import redirect_stderr
+import hashlib
 import io
 from pathlib import Path
 import tempfile
 import unittest
 import socket
+from unittest.mock import patch
+from urllib.error import HTTPError
 
 SCRIPT_PATH = Path(__file__).parents[1] / "scripts" / "main.py"
 SPEC = importlib.util.spec_from_file_location("download_http_asset", SCRIPT_PATH)
@@ -80,7 +84,9 @@ class DownloadHttpAssetTest(unittest.TestCase):
 
     def test_accepts_trusted_twimg_without_local_dns_resolution(self):
         """X 解析器生成的 HTTPS 媒体允许绕过受代理污染的本机 DNS。"""
-        resolver = lambda *_args, **_kwargs: self.fail("trusted host must not use local DNS")
+        def resolver(*_args, **_kwargs):
+            self.fail("trusted host must not use local DNS")
+
         self.assertEqual("https://pbs.twimg.com/media/test.jpg",
                          MODULE.validated_url("https://pbs.twimg.com/media/test.jpg", resolver,
                                               MODULE.trusted_host_suffix(".twimg.com")))
@@ -113,6 +119,60 @@ class DownloadHttpAssetTest(unittest.TestCase):
                     reports.append((downloaded, total, percent)))
         self.assertEqual([0, *range(5, 101, 5)], [report[2] for report in reports])
         self.assertTrue(all(report[1] == len(content) for report in reports))
+
+    def test_progress_http_500_does_not_restart_or_fail_download(self):
+        """进度端点返回 500 时应继续当前内容流并生成正确结果。"""
+        failure = HTTPError("http://progress.invalid", 500, "sensitive-response", {}, None)
+        self.assert_progress_failure_is_best_effort(failure)
+
+    def test_progress_timeout_does_not_restart_or_fail_download(self):
+        """进度端点超时时应继续当前内容流并生成正确结果。"""
+        self.assert_progress_failure_is_best_effort(TimeoutError("sensitive-timeout"))
+
+    def test_progress_callback_uses_short_timeout(self):
+        """进度回调应使用短超时且不做脚本内重试。"""
+        response = FakeResponse(b"")
+        with patch.object(MODULE, "urlopen", return_value=response) as opener, \
+                patch.dict(MODULE.os.environ, {
+                    "DOWNLOAD_INGESTION_URL": "http://127.0.0.1:23220",
+                    "DOWNLOAD_INTERNAL_TOKEN": "token",
+                }, clear=True):
+            MODULE.report_progress("request", "item", 1, 10, 10)
+        self.assertEqual(MODULE.PROGRESS_REPORT_TIMEOUT_SECONDS,
+                         opener.call_args.kwargs["timeout"])
+        self.assertEqual(1, opener.call_count)
+
+    def assert_progress_failure_is_best_effort(self, failure):
+        """验证任意进度故障均不会破坏已打开的下载流。"""
+        content = b"x" * (11 * 1024 * 1024)
+        expected_sha256 = hashlib.sha256(content).hexdigest()
+        parameters = {
+            "downloadRequestId": "request-progress-failure",
+            "itemId": "item-progress-failure",
+            "url": "https://example.invalid/file",
+            "fileName": "large.bin",
+            "maxBytes": len(content),
+            "expectedSha256": expected_sha256,
+        }
+        calls = []
+
+        def failing_reporter(*args):
+            calls.append(args)
+            raise failure
+
+        warning = io.StringIO()
+        with tempfile.TemporaryDirectory() as directory, redirect_stderr(warning):
+            root = Path(directory)
+            result = MODULE.stream_download(
+                parameters, root, opener=lambda *_args, **_kwargs: FakeResponse(content),
+                resolver=public_resolver, progress_reporter=failing_reporter)
+
+            self.assertEqual(content, (root / "request-progress-failure" / "large.bin").read_bytes())
+        self.assertEqual(1, len(calls))
+        self.assertEqual(len(content), result["sizeBytes"])
+        self.assertEqual(expected_sha256, result["contentSha256"])
+        self.assertEqual(MODULE.PROGRESS_FAILURE_MESSAGE + "\n", warning.getvalue())
+        self.assertNotIn("sensitive", warning.getvalue())
 
 
 def public_resolver(*_args, **_kwargs):

@@ -151,7 +151,9 @@ public class ExecutorNodeAgent {
             return;
         }
         try {
-            schedulerNodeClient.updateNodeStatus(current.id(), "DRAINING", "EXECUTOR_DISK_PRESSURE");
+            // 状态写入必须携带本次启动实例，避免旧进程排空新进程复用的同名节点。
+            schedulerNodeClient.updateNodeStatus(
+                    current.id(), instanceId, "DRAINING", "EXECUTOR_DISK_PRESSURE");
         } catch (IOException exception) {
             diskDraining.set(false);
             LOGGER.warn("Failed to drain executor node after disk pressure: {}", exception.getMessage());

@@ -18,10 +18,11 @@ BATCH_SIZE = 500
 class StorageClient:
     """Call only opaque operation APIs and the operation-owned Provider listing API."""
 
-    def __init__(self, base_url: str, token: str, opener=urlopen):
+    def __init__(self, base_url: str, token: str, task_context: dict | None = None, opener=urlopen):
         self.base_url = base_url.rstrip("/")
         self.token = token
         self.opener = opener
+        self.task_context = task_context
 
     def operation(self, operation_id: str) -> dict:
         """Read the server-owned delete definition."""
@@ -39,17 +40,23 @@ class StorageClient:
 
     def start(self, operation_id: str) -> dict:
         """Start the purge only after the complete preflight succeeds."""
-        return self._request("POST", f"/api/internal/v1/storage/operations/{operation_id}/remote-job/start", {})
+        return self._request("POST", f"/api/internal/v1/storage/operations/{operation_id}/remote-job/start", {},
+                             operation_id)
 
     def status(self, operation_id: str) -> dict:
         """Poll the purge and reconcile the durable operation state."""
         return self._request("GET", f"/api/internal/v1/storage/operations/{operation_id}/remote-job")
 
-    def _request(self, method: str, path: str, payload: dict | None = None):
+    def _request(self, method: str, path: str, payload: dict | None = None,
+                 mutation_key: str | None = None):
         body = None if payload is None else json.dumps(payload, separators=(",", ":")).encode()
-        request = Request(self.base_url + path, data=body, method=method,
-                          headers={"Authorization": f"Bearer {self.token}",
-                                   "Content-Type": "application/json"})
+        headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
+        if mutation_key is not None and self.task_context is not None:
+            headers |= {"X-Task-Instance-Id": str(self.task_context["taskInstanceId"]),
+                        "X-Task-Step-Name": str(self.task_context["stepName"]),
+                        "X-Task-Business-Key": mutation_key,
+                        "X-Task-Fencing-Token": str(self.task_context["fencingToken"])}
+        request = Request(self.base_url + path, data=body, method=method, headers=headers)
         with self.opener(request, timeout=120) as response:
             return json.loads(response.read().decode())
 
@@ -101,7 +108,7 @@ def main() -> None:
     """Run one bounded deletion task."""
     context = json.loads(Path(os.environ["TASK_CONTEXT_FILE"]).read_text(encoding="utf-8"))
     client = StorageClient(os.getenv("STORAGE_GATEWAY_URL", "http://127.0.0.1:23240"),
-                           os.getenv("STORAGE_INTERNAL_TOKEN", ""))
+                           os.getenv("STORAGE_INTERNAL_TOKEN", ""), context)
     result = execute(context["parameters"], client)
     target = Path(os.environ["TASK_RESULT_FILE"])
     target.parent.mkdir(parents=True, exist_ok=True)

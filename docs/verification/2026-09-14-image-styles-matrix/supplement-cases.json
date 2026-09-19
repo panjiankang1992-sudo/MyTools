@@ -1,0 +1,22 @@
+[
+  {
+    "id": "art-deco-poster",
+    "styleId": "art-deco",
+    "prompt": "A travel poster showing a tall coastal hotel, the sun rising over the sea, and palm trees at the sides. No lettering."
+  },
+  {
+    "id": "surrealist-room",
+    "styleId": "surrealist",
+    "prompt": "A quiet room with a clock, a doorway and a staircase, with mountains visible through a window."
+  },
+  {
+    "id": "line-art-neutral",
+    "styleId": "line-art",
+    "prompt": "A teapot, a plate of fruit and a potted plant on a table beside a window."
+  },
+  {
+    "id": "monochrome-neutral",
+    "styleId": "monochrome",
+    "prompt": "A teapot, a plate of fruit and a potted plant on a table beside a window."
+  }
+]

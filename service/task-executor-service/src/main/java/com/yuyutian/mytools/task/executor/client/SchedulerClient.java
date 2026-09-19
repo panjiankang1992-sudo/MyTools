@@ -3,12 +3,18 @@ package com.yuyutian.mytools.task.executor.client;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * 任务执行节点访问调度服务的协议接口。
  */
 public interface SchedulerClient {
+    /** 关闭宿主当前执行授权，旧客户端及不含正文能力的任务无需操作。 */
+    default void releaseWorkloadAuthorization(UUID executionId) {
+        // 兼容不持有工作负载授权的历史客户端。
+    }
+
 
     /**
      * 注册执行节点。
@@ -33,11 +39,13 @@ public interface SchedulerClient {
      * 更新节点调度状态。
      *
      * @param nodeId 节点标识
+     * @param expectedInstanceId 预期的启动实例标识
      * @param status 目标状态
      * @param reason 状态原因
      * @throws IOException 调用失败
      */
-    default void updateNodeStatus(UUID nodeId, String status, String reason) throws IOException {
+    default void updateNodeStatus(UUID nodeId, UUID expectedInstanceId, String status, String reason)
+            throws IOException {
         // 兼容只实现执行协议的测试客户端，生产 HTTP 客户端必须覆盖该方法。
     }
 
@@ -50,6 +58,48 @@ public interface SchedulerClient {
      * @throws IOException 调用失败
      */
     Optional<ClaimedTask> claim(UUID nodeId, UUID instanceId) throws IOException;
+
+    /**
+     * 按任务层级领取任务。
+     *
+     * @param nodeId 节点标识
+     * @param instanceId 启动实例标识
+     * @param childTaskOnly 是否只领取具有父任务的子任务
+     * @return 可选任务
+     * @throws IOException 调用失败
+     */
+    default Optional<ClaimedTask> claim(UUID nodeId, UUID instanceId, boolean childTaskOnly) throws IOException {
+        // 旧客户端不知道如何在服务端过滤子任务，保留槽请求必须安全返回空，不能误领根任务。
+        return childTaskOnly ? Optional.empty() : claim(nodeId, instanceId);
+    }
+
+    /**
+     * 只领取根任务。
+     *
+     * @param nodeId 节点标识
+     * @param instanceId 启动实例标识
+     * @return 可选根任务
+     * @throws IOException 调用失败
+     */
+    default Optional<ClaimedTask> claimRootTask(UUID nodeId, UUID instanceId) throws IOException {
+        // 兼容旧测试客户端；工作器仍会校验返回任务确实是根任务。
+        return claim(nodeId, instanceId);
+    }
+
+    /**
+     * 只领取指定父任务的直接子任务。
+     *
+     * @param nodeId 节点标识
+     * @param instanceId 启动实例标识
+     * @param parentTaskInstanceIds 父任务标识集合
+     * @return 可选直接子任务
+     * @throws IOException 调用失败
+     */
+    default Optional<ClaimedTask> claimDirectChildTask(UUID nodeId, UUID instanceId,
+                                                       Set<UUID> parentTaskInstanceIds) throws IOException {
+        // 旧客户端无法保证直接父任务过滤，宁可保留槽空闲也不能误领同层任务。
+        return Optional.empty();
+    }
 
     /**
      * 续期执行租约。

@@ -18,10 +18,21 @@ CHUNK_BYTES = 1024 * 1024
 class StorageClient:
     """仅调用操作专属的来源、目标和终态端点。"""
 
-    def __init__(self, base_url: str, token: str, opener=urlopen):
+    def __init__(self, base_url: str, token: str, task_context: dict | None = None, opener=urlopen):
         self.base_url = base_url.rstrip("/")
         self.token = token
         self.opener = opener
+        self.task_context = task_context
+
+    def _mutation_headers(self, operation_id: str) -> dict:
+        """构造写入与补偿请求的执行隔离头。"""
+        if self.task_context is None:
+            return {"Authorization": f"Bearer {self.token}"}
+        return {"Authorization": f"Bearer {self.token}",
+                "X-Task-Instance-Id": str(self.task_context["taskInstanceId"]),
+                "X-Task-Step-Name": str(self.task_context["stepName"]),
+                "X-Task-Business-Key": operation_id,
+                "X-Task-Fencing-Token": str(self.task_context["fencingToken"])}
 
     def download(self, operation_id: str, role: str, target: Path, maximum_bytes: int) -> tuple[int, str]:
         """有界下载来源或目标并计算摘要。"""
@@ -51,7 +62,7 @@ class StorageClient:
         query = urlencode({"contentLength": content_length, "sha256": sha256})
         with source.open("rb") as content:
             request = Request(self._url(operation_id, "target") + "?" + query, data=content, method="PUT",
-                              headers={"Authorization": f"Bearer {self.token}",
+                              headers=self._mutation_headers(operation_id) | {
                                        "Content-Type": "application/octet-stream",
                                        "Content-Length": str(content_length)})
             with self.opener(request, timeout=3600) as response:
@@ -60,7 +71,7 @@ class StorageClient:
     def delete_target(self, operation_id: str) -> None:
         """幂等补偿删除目标对象。"""
         request = Request(self._url(operation_id, "target"), method="DELETE",
-                          headers={"Authorization": f"Bearer {self.token}"})
+                          headers=self._mutation_headers(operation_id))
         with self.opener(request, timeout=60):
             pass
 
@@ -110,7 +121,7 @@ def main() -> None:
     """执行一个原生对象复制任务。"""
     context = json.loads(Path(os.environ["TASK_CONTEXT_FILE"]).read_text(encoding="utf-8"))
     client = StorageClient(os.getenv("STORAGE_GATEWAY_URL", "http://127.0.0.1:23240"),
-                           os.getenv("STORAGE_INTERNAL_TOKEN", ""))
+                           os.getenv("STORAGE_INTERNAL_TOKEN", ""), context)
     maximum = int(os.getenv("STORAGE_NATIVE_COPY_MAXIMUM_BYTES", str(20 * 1024 * 1024 * 1024)))
     write_result(execute(context["parameters"], client, Path(os.environ["TASK_WORK_DIR"]), maximum))
 

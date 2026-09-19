@@ -1,0 +1,95 @@
+{
+  "backendAcceptance": {
+    "jobId": "70a193de-4775-437d-b715-14aa4ead9613",
+    "assetId": "72cffdd3-380e-4a9e-9fb2-bd696f6d76cd",
+    "pngBytes": 918601,
+    "sha256": "7d01baa63fbddaa216cedb8e4cea9a36e17318e9ac62a87e5a55ffffa6c4ef82",
+    "elapsedSeconds": 56.5,
+    "idempotency": true,
+    "ownerIsolation": true,
+    "assetRegistered": true,
+    "historyReadable": true,
+    "referenceIsolation": true,
+    "restartPersistence": true,
+    "cancelledJobId": "d062150a-4c39-4e0a-9b00-5f553cc5f589",
+    "cancelled": true
+  },
+  "tagValidation": {
+    "exitCode": 0,
+    "elapsedSeconds": 9.88,
+    "usesProductionSdk": true,
+    "usesProductionGpuLock": true
+  },
+  "landscapeValidation": {
+    "jobId": "f557683a-f9d2-4a7e-8649-d56c6a733ab7",
+    "status": "SUCCEEDED",
+    "dimensions": [
+      1216,
+      832
+    ],
+    "elapsedSeconds": 51.17
+  },
+  "capabilities": {
+    "IMAGE_GENERATION_ROUTE_ENABLED": true,
+    "IMAGE_GENERATION_LOCAL_VALIDATED": true,
+    "IMAGE_GPU_COORDINATION_VALIDATED": true,
+    "IMAGE_GENERATION_STYLE_VALIDATED": false,
+    "IMAGE_REMOTE_VALIDATED": false
+  },
+  "appJob": {
+    "id": "8d3a4c1c-9de2-4f03-bafa-c7c3be475978",
+    "status": "SUCCEEDED",
+    "size": "832x1216",
+    "assetId": "5e75521a-cc85-4b0c-975d-beb40aae1d52",
+    "elapsedSeconds": 50
+  },
+  "services": {
+    "image-generation-service": "active",
+    "image-comfy": "active",
+    "task-scheduler-service": "active",
+    "task-executor-service": "active",
+    "mytools-gateway": "active",
+    "reader-service": "active",
+    "adaptation-executor": "active"
+  },
+  "currentRelease": "/opt/yuyutian/mytools/releases/chapter-adaptation-production-20260913-v5",
+  "artifacts": {
+    "imageService": {
+      "path": "/opt/yuyutian/mytools/releases/image-production-20260913-v3/apps/image-generation-service.jar",
+      "sha256": "41b792d2a83aae713d1d0aebe3ac3ada1a6928d6ca7e8d6381dc102f74bd394e"
+    },
+    "scheduler": {
+      "path": "/opt/yuyutian/mytools/releases/image-production-20260913-v1/apps/task-scheduler-service.jar",
+      "sha256": "033f99e24b85777ab84652481b7099474cb97340d14fe1913982e99628b2c091"
+    },
+    "gateway": {
+      "path": "/opt/yuyutian/mytools/releases/image-production-20260913-v1/apps/mytools-gateway.jar",
+      "sha256": "1ed9dc4122ae28ccb1a33b9ca6f3e7a2131a6fc0e8286b7e5ab82a5cef399aa9"
+    },
+    "executor": {
+      "path": "/opt/yuyutian/mytools/releases/image-production-20260913-v1/apps/task-executor-service.jar",
+      "sha256": "4d369ff0bf63ba24ad9b58f4663df852bf34c08a9a7e001cce4428d4183719d1"
+    },
+    "sdkRunner": {
+      "path": "/opt/yuyutian/mytools/releases/image-production-20260913-v5/task-executor-sdk/mytools_task_sdk/runner.py",
+      "sha256": "04f0df94f60ba7c87277c200d12082c40fba496399e2fbb0071f8ee2c8845ae6"
+    },
+    "packageIndex": {
+      "path": "/opt/yuyutian/mytools/releases/image-production-20260913-v4/task-packages/package-index.json",
+      "sha256": "a52e9bb1030c37431955742b06afb0da1b29e868b59b144404e22973499c886f"
+    }
+  },
+  "appArtifact": {
+    "path": "app/entry/build/default/outputs/default/entry-default-signed.hap",
+    "sha256": "9a9d954a30ffef41984719ec521a177f8fd05abd4a7bbdf1820bc24fd09091be"
+  },
+  "appAutoProgress": {
+    "states": [
+      "\u6392\u961f\u4e2d",
+      "\u6b63\u5728\u751f\u6210",
+      "\u5df2\u5b8c\u6210"
+    ],
+    "manualRefresh": false,
+    "previewVisible": true
+  }
+}

@@ -21,10 +21,12 @@ class StorageTaskSchedulerClientTest {
     @Test
     void shouldSubmitOpaqueDeleteOperationIdentity() throws Exception {
         AtomicReference<JsonNode> requestDocument = new AtomicReference<>();
+        AtomicReference<String> businessToken = new AtomicReference<>();
         ObjectMapper mapper = new ObjectMapper();
         UUID taskId = UUID.randomUUID();
         HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/api/v1/task-instances", exchange -> {
+            businessToken.set(exchange.getRequestHeaders().getFirst("X-Task-Business-Token"));
             requestDocument.set(mapper.readTree(exchange.getRequestBody()));
             byte[] body = mapper.writeValueAsBytes(java.util.Map.of("id", taskId.toString()));
             exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -35,7 +37,7 @@ class StorageTaskSchedulerClientTest {
         server.start();
         try {
             StorageTaskSchedulerClient client = new StorageTaskSchedulerClient(RestClient.builder(),
-                    "http://127.0.0.1:" + server.getAddress().getPort());
+                    "http://127.0.0.1:" + server.getAddress().getPort(), "business-secret");
             UUID operationId = UUID.randomUUID();
             Instant now = Instant.now();
             StorageOperation operation = new StorageOperation(operationId, UUID.randomUUID(), "delete:key",
@@ -43,6 +45,7 @@ class StorageTaskSchedulerClientTest {
                     0, 1000, null, now, now);
 
             assertThat(client.createOperationTask(operation)).isEqualTo(taskId);
+            assertThat(businessToken.get()).isEqualTo("business-secret");
 
             JsonNode document = requestDocument.get();
             assertThat(document.path("taskName").asText()).isEqualTo("storage_delete_tree");

@@ -33,7 +33,7 @@ class MediaTagSidecarTaskPublisherTest {
         @SuppressWarnings("unchecked")
         ArgumentCaptor<Map<String, Object>> parameters = ArgumentCaptor.forClass(Map.class);
         verify(gateway).create(eq("media_generate_tags"),
-                eq("media_generate_tags:" + hash + ":media-tags-v1"),
+                eq("media_generate_tags:" + hash + ":media-tags-v2"),
                 eq("MEDIA_FILE"), eq("42"), eq(40), parameters.capture());
         assertThat(parameters.getValue()).containsEntry("contentSha256", hash);
         assertThat(parameters.getValue()).containsEntry("legacyTags", List.of("legacy"));

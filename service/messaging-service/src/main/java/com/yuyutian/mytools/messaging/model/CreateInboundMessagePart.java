@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
  */
 public record CreateInboundMessagePart(@Pattern(regexp = "TEXT|ATTACHMENT") String type,
                                        @Size(max = 10_485_760) String text,
-                                       @Pattern(regexp = "IMAGE|VIDEO|RECORD|FILE") String attachmentType,
+                                       @Pattern(regexp = "IMAGE|VIDEO|RECORD|FILE|FORWARD_ERROR") String attachmentType,
                                        @Size(max = 512) String providerFileId,
                                        @Size(max = 255) String providerAccountKey,
                                        @Size(max = 4096) String sourceUrl,

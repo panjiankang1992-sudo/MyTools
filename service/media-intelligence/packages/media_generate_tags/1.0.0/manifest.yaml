@@ -4,6 +4,7 @@ runtime: python3.12
 entrypoint: scripts/main.py
 capabilities:
   - filesystem_read
+  - ffmpeg
   - http_ollama
 parameters:
   required:

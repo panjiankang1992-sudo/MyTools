@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["assetId", "version"],
+  "properties": {
+    "assetId": {"type": "string", "format": "uuid"},
+    "version": {"type": "integer", "minimum": 1}
+  },
+  "additionalProperties": false
+}

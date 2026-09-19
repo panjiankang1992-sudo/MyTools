@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import replace
 import hashlib
 import struct
+from threading import RLock
 from typing import Protocol
 from uuid import UUID
 
@@ -23,6 +24,12 @@ TASK_NAMES = {
     "MESSAGE_URL_BATCH": "download_message_url_batch",
 }
 
+TERMINAL_STATUSES = frozenset({
+    DownloadStatus.CANCELLED,
+    DownloadStatus.SUCCEEDED,
+    DownloadStatus.FAILED,
+})
+
 
 class DownloadRequestRepository(Protocol):
     """Persistence operations required by the application service."""
@@ -40,7 +47,10 @@ class DownloadRequestRepository(Protocol):
         """Bind the scheduler parent task and move the request to running."""
 
     def update_status(self, request_id: UUID, status: DownloadStatus) -> DownloadRequest:
-        """Update one request lifecycle status."""
+        """持久化生命周期状态，并禁止并发状态回退。"""
+
+    def complete_terminal(self, request_id: UUID, status: DownloadStatus) -> DownloadRequest:
+        """原子写入请求终态，并把全部待处理标签收敛为失败终态。"""
 
     def record_result(self, request_id: UUID, result: dict) -> dict:
         """Idempotently record one verified item and its registered asset."""
@@ -115,10 +125,17 @@ class DownloadRequestService:
 
     def _reconcile(self, current: DownloadRequest) -> DownloadRequest:
         """使用 Scheduler 状态推进一个已经授权的聚合。"""
+        if current.status in TERMINAL_STATUSES:
+            # 历史终态聚合无需再次依赖 Scheduler，即可幂等修复遗留标签。
+            return self._repository.complete_terminal(current.id, current.status)
         if current.task_instance_id is None:
             return current
         scheduler_task = self._scheduler.get_task(current.task_instance_id)
-        status = transition(current.status, scheduler_status(str(scheduler_task["status"])))
+        scheduler_state = scheduler_status(str(scheduler_task["status"]))
+        status = transition(current.status, scheduler_state)
+        if status in TERMINAL_STATUSES:
+            # 任一任务终态都必须与标签封口同事务落库，避免部分结果永久暴露 PENDING。
+            return self._repository.complete_terminal(current.id, status)
         return current if status == current.status else self._repository.update_status(current.id, status)
 
     def cancel(self, request_id: UUID) -> DownloadRequest | None:
@@ -135,13 +152,18 @@ class DownloadRequestService:
 
     def _cancel(self, current: DownloadRequest | None) -> DownloadRequest | None:
         """取消一个已经授权的下载聚合。"""
-        if current is None or current.task_instance_id is None:
+        if current is None:
             return current
-        if current.status in {DownloadStatus.CANCELLED, DownloadStatus.SUCCEEDED, DownloadStatus.FAILED}:
+        if current.status in TERMINAL_STATUSES:
+            # 取消入口也负责修复升级前已经写入的终态聚合。
+            return self._repository.complete_terminal(current.id, current.status)
+        if current.task_instance_id is None:
             return current
         scheduler_task = self._scheduler.cancel_task(current.task_instance_id)
-        return self._repository.update_status(
-            current.id, transition(current.status, scheduler_status(str(scheduler_task["status"]))))
+        status = transition(current.status, scheduler_status(str(scheduler_task["status"])))
+        if status in TERMINAL_STATUSES:
+            return self._repository.complete_terminal(current.id, status)
+        return current if status == current.status else self._repository.update_status(current.id, status)
 
     def record_result(self, request_id: UUID, result: dict) -> dict:
         """Validate and persist a verified executor result callback."""
@@ -293,8 +315,7 @@ def equivalent(existing: DownloadRequest, command: CreateDownloadRequest) -> boo
 
 def transition(current: DownloadStatus, proposed: DownloadStatus) -> DownloadStatus:
     """Prevent scheduler reconciliation from regressing terminal or cancelling requests."""
-    terminal = {DownloadStatus.CANCELLED, DownloadStatus.SUCCEEDED, DownloadStatus.FAILED}
-    if current in terminal:
+    if current in TERMINAL_STATUSES:
         return current
     if current == DownloadStatus.CANCELLING and proposed in {
             DownloadStatus.ACCEPTED, DownloadStatus.PLANNING, DownloadStatus.RUNNING}:
@@ -306,6 +327,7 @@ class InMemoryDownloadRequestRepository:
     """Deterministic repository used by domain tests and local prototypes."""
 
     def __init__(self):
+        self._lock = RLock()
         self._by_id: dict[UUID, DownloadRequest] = {}
         self._by_key: dict[str, UUID] = {}
         self._results: dict[tuple[UUID, str], dict] = {}
@@ -330,48 +352,77 @@ class InMemoryDownloadRequestRepository:
         return request
 
     def bind_task(self, request_id: UUID, task_instance_id: UUID) -> DownloadRequest:
-        """Bind a task to an accepted request."""
-        current = self._by_id[request_id]
-        updated = replace(current, task_instance_id=task_instance_id, status=DownloadStatus.RUNNING)
-        self._by_id[request_id] = updated
-        return updated
+        """幂等绑定任务，并禁止迟到绑定回退已推进的状态。"""
+        with self._lock:
+            current = self._by_id[request_id]
+            if current.task_instance_id is not None and current.task_instance_id != task_instance_id:
+                raise ValueError("download request task binding conflict")
+            if current.task_instance_id is not None:
+                return current
+            status = (current.status if current.status in TERMINAL_STATUSES
+                      or current.status == DownloadStatus.CANCELLING else DownloadStatus.RUNNING)
+            updated = replace(current, task_instance_id=task_instance_id, status=status)
+            self._by_id[request_id] = updated
+            return updated
 
     def update_status(self, request_id: UUID, status: DownloadStatus) -> DownloadRequest:
-        """Update one in-memory aggregate status."""
-        current = self._by_id[request_id]
-        updated = replace(current, status=status)
-        self._by_id[request_id] = updated
-        return updated
+        """持久化内存生命周期状态，并禁止并发状态回退。"""
+        if status in TERMINAL_STATUSES:
+            return self.complete_terminal(request_id, status)
+        with self._lock:
+            current = self._by_id[request_id]
+            resolved = transition(current.status, status)
+            updated = current if resolved == current.status else replace(current, status=resolved)
+            self._by_id[request_id] = updated
+            return updated
+
+    def complete_terminal(self, request_id: UUID, status: DownloadStatus) -> DownloadRequest:
+        """原子写入内存请求终态，并把全部待处理标签收敛为失败终态。"""
+        if status not in TERMINAL_STATUSES:
+            raise ValueError("download request status is not terminal")
+        with self._lock:
+            current = self._by_id[request_id]
+            for (owner_id, _), result in self._results.items():
+                if owner_id == request_id and result["tagStatus"] == "PENDING":
+                    result.update({"tagStatus": "FAILED", "tags": []})
+            updated = current if current.status in TERMINAL_STATUSES else replace(current, status=status)
+            self._by_id[request_id] = updated
+            return updated
 
     def record_result(self, request_id: UUID, result: dict) -> dict:
         """Record an immutable result or reject a conflicting replay."""
-        key = (request_id, str(result["itemId"]))
-        existing = self._results.get(key)
-        if existing is not None:
-            immutable = {name: existing[name] for name in result}
-            if immutable != result:
-                raise ValueError("download result idempotency conflict")
+        with self._lock:
+            key = (request_id, str(result["itemId"]))
+            existing = self._results.get(key)
+            if existing is not None:
+                immutable = {name: existing[name] for name in result}
+                if immutable != result:
+                    raise ValueError("download result idempotency conflict")
+                return dict(result)
+            request = self._by_id[request_id]
+            tag_status = "FAILED" if request.status in TERMINAL_STATUSES else "PENDING"
+            stored = {**result, "tagStatus": tag_status, "tags": []}
+            self._results[key] = stored
             return dict(result)
-        stored = {**result, "tagStatus": "PENDING", "tags": []}
-        self._results[key] = stored
-        return dict(result)
 
     def record_tags(self, request_id: UUID, result: dict) -> dict:
         """Record one terminal tag result without changing immutable asset fields."""
-        key = (request_id, str(result["itemId"]))
-        existing = self._results.get(key)
-        if existing is None:
-            raise KeyError("download item does not exist")
-        current = {"itemId": existing["itemId"], "tagStatus": existing["tagStatus"],
-                   "tags": existing["tags"]}
-        if current["tagStatus"] != "PENDING" and current != result:
-            raise ValueError("download tag result idempotency conflict")
-        existing.update({"tagStatus": result["tagStatus"], "tags": list(result["tags"])})
-        return dict(result)
+        with self._lock:
+            key = (request_id, str(result["itemId"]))
+            existing = self._results.get(key)
+            if existing is None:
+                raise KeyError("download item does not exist")
+            current = {"itemId": existing["itemId"], "tagStatus": existing["tagStatus"],
+                       "tags": existing["tags"]}
+            if current["tagStatus"] != "PENDING" and current != result:
+                raise ValueError("download tag result idempotency conflict")
+            existing.update({"tagStatus": result["tagStatus"], "tags": list(result["tags"])})
+            return dict(result)
 
     def list_results(self, request_id: UUID) -> list[dict]:
         """Return copied results without exposing mutable repository state."""
-        return [dict(value) for (owner, _), value in self._results.items() if owner == request_id]
+        with self._lock:
+            return [dict(value) for (owner, _), value in self._results.items() if owner == request_id]
 
     def record_progress(self, request_id: UUID, progress: dict) -> dict:
         """Record one monotonic in-memory progress milestone."""

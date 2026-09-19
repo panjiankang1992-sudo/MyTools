@@ -29,6 +29,7 @@ storage:
   rclone-rc-password: ${STORAGE_RCLONE_RC_PASSWORD:}
   rclone-serve-url: ${STORAGE_RCLONE_SERVE_URL:http://127.0.0.1:5573}
   scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
+  scheduler-token: ${TASK_BUSINESS_STORAGE_GATEWAY_TOKEN:${TASK_BUSINESS_INTERNAL_TOKEN:${TASK_INTERNAL_TOKEN:}}}
 
 management:
   endpoints:

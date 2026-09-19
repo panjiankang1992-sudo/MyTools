@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "image",
+    "file": "p0-subject-a.png",
+    "bytes": 952822,
+    "sha256": "712c98518e3c9d40c142428fc6b7ca263e59723d9992e0d9519f7cbe71a6a8a3",
+    "decodable": true
+  },
+  {
+    "kind": "image",
+    "file": "p0-subject-b.png",
+    "bytes": 1129402,
+    "sha256": "6035cad323864b9514095cf112ac91176dbc2a1a61eaf064453e1b0cb44a811c",
+    "decodable": true
+  },
+  {
+    "kind": "image",
+    "file": "p0-scene.png",
+    "bytes": 1169401,
+    "sha256": "3488bd4c3070a571ee538e67524cc3b5147c9236b7e5dc3b749ac8f56e2e78c2",
+    "decodable": true
+  }
+]

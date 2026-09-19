@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ExecutorNodeAgentTest {
@@ -152,6 +153,31 @@ class ExecutorNodeAgentTest {
 
         assertEquals(List.of(), client.events);
         assertNull(agent.registration());
+    }
+
+    @Test
+    void shouldFenceDiskPressureDrainWithCurrentStartupInstance() {
+        java.util.concurrent.atomic.AtomicReference<UUID> drainedNodeId =
+                new java.util.concurrent.atomic.AtomicReference<>();
+        java.util.concurrent.atomic.AtomicReference<UUID> expectedInstanceId =
+                new java.util.concurrent.atomic.AtomicReference<>();
+        RecordingSchedulerClient client = new RecordingSchedulerClient() {
+            @Override
+            public void updateNodeStatus(UUID nodeId, UUID instanceId, String status, String reason) {
+                drainedNodeId.set(nodeId);
+                expectedInstanceId.set(instanceId);
+                events.add(status + ":" + reason);
+            }
+        };
+        ExecutorNodeAgent agent = new ExecutorNodeAgent(client);
+
+        agent.maintainRegistration();
+        agent.drainForDiskPressure();
+
+        assertEquals(agent.registration().id(), drainedNodeId.get());
+        assertEquals(agent.instanceId(), expectedInstanceId.get());
+        assertNotEquals(drainedNodeId.get(), expectedInstanceId.get());
+        assertEquals(List.of("register", "DRAINING:EXECUTOR_DISK_PRESSURE"), client.events);
     }
 
     private ExecutorProperties properties() {

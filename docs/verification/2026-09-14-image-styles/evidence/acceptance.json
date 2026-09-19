@@ -1,0 +1,165 @@
+{
+  "release": "image-styles-20260914-v1",
+  "builtinCount": 24,
+  "ownerIsolation": true,
+  "createIdempotency": true,
+  "updateIdempotency": true,
+  "conflictsRejected": true,
+  "templateValidation": true,
+  "deletedStyleReplay": true,
+  "ownedHistoricalReuse": true,
+  "restartPersistence": true,
+  "jobs": [
+    {
+      "name": "ink",
+      "id": "a107b20a-4a29-4130-a01d-603a16eca908",
+      "elapsedMillis": 62000,
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "Keep the alpine lake and mountain composition.",
+        "mode": "IMAGE_TO_IMAGE",
+        "references": [
+          "80a8b3dd-f776-4fe3-99c7-18a2712b4954"
+        ],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-20260914-v1-ink",
+        "styleId": "dc48d75c-8c9e-414d-b560-1bbd1756f6b1",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "dc48d75c-8c9e-414d-b560-1bbd1756f6b1",
+          "version": 1,
+          "name": "Acceptance Ink",
+          "promptTemplate": "Render {prompt} as monochrome ink wash on textured rice paper, with flowing brush strokes, soft gray washes and generous negative space.",
+          "origin": "USER",
+          "kind": "PROMPT",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ]
+        },
+        "effectivePrompt": "Render Keep the alpine lake and mountain composition. as monochrome ink wash on textured rice paper, with flowing brush strokes, soft gray washes and generous negative space.",
+        "workflowRevision": "image-edit-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "4248ac58307246d5893a524c859c7ea2c781ccad1ee9eb025b7bc37d9d0da407"
+    },
+    {
+      "name": "baseline",
+      "id": "086ce0aa-9952-4ed3-a2e1-780b857a8a37",
+      "elapsedMillis": 50000,
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A small wooden cabin beside a tranquil mountain lake at sunrise, framed by pine trees.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-20260914-v1-baseline",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "437e880e1ce8fae76856352314cbbf71cfbfa5667a32b065379bfc4986b14134"
+    },
+    {
+      "name": "watercolor",
+      "id": "33dddfc7-234c-4706-bd75-d34497c81d66",
+      "elapsedMillis": 53000,
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A small wooden cabin beside a tranquil mountain lake at sunrise, framed by pine trees.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-20260914-v1-watercolor",
+        "styleId": "watercolor",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "watercolor",
+          "name": "Watercolor",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "painting",
+          "promptTemplate": "Render {prompt} as a watercolor painting with translucent pigment washes, softly bleeding edges and visible paper texture.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_twri.json",
+            "name": "artstyle-watercolor",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Render A small wooden cabin beside a tranquil mountain lake at sunrise, framed by pine trees. as a watercolor painting with translucent pigment washes, softly bleeding edges and visible paper texture.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "510080e3bd0b7043c27b8b01435f0baa7bf9b509565fb5e1cf5d27285403af7e"
+    },
+    {
+      "name": "pixel",
+      "id": "6dd2a70c-6dc6-403a-8729-3f49cbb019e6",
+      "elapsedMillis": 52000,
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A small wooden cabin beside a tranquil mountain lake at sunrise, framed by pine trees.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-20260914-v1-pixel",
+        "styleId": "pixel",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "pixel",
+          "name": "Pixel Art",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "design",
+          "promptTemplate": "Render {prompt} as pixel art using a visible square pixel grid, a limited palette and crisp stepped edges.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-pixel art",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Render A small wooden cabin beside a tranquil mountain lake at sunrise, framed by pine trees. as pixel art using a visible square pixel grid, a limited palette and crisp stepped edges.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "4390486856c6c5bd8738d43a5ab5df7ad14ab17fc6637fb311658c1b107bb169"
+    }
+  ]
+}

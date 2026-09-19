@@ -187,6 +187,25 @@ public class DiscoveryRepository {
                 ownerId, sourceId.toString()).stream().findFirst();
     }
 
+    /** 按所有者读取指定不可变书源版本，地址也从该版本快照取得。 */
+    public Optional<SourceExecutionSnapshot> findExecutionSnapshot(long ownerId, UUID sourceId, int sourceVersion) {
+        // 章节改编不允许缺失版本时回落到当前书源或其他用户的规则。
+        if (ownerId <= 0 || sourceId == null || sourceVersion <= 0) {
+            return Optional.empty();
+        }
+        return jdbcTemplate.query("""
+                SELECT bs.id, bsv.version, bsv.snapshot_json
+                FROM book_source bs JOIN book_source_version bsv ON bsv.book_source_id = bs.id
+                WHERE bs.owner_id = ? AND bs.id = ? AND bsv.version = ? AND bs.enabled = TRUE
+                """, (resultSet, rowNumber) -> {
+                    Map<String, Object> snapshot = readJson(resultSet.getString("snapshot_json"));
+                    String sourceUrl = text(snapshot.get("bookSourceUrl"));
+                    return new SourceExecutionSnapshot(UUID.fromString(resultSet.getString("id")),
+                            sourceUrl, resultSet.getInt("version"), snapshot);
+                }, ownerId, sourceId.toString(), sourceVersion).stream()
+                .filter(snapshot -> !snapshot.sourceUrl().isBlank()).findFirst();
+    }
+
     /**
      * 为受管媒体导入返回当前用户专属的稳定虚拟书源。
      *
@@ -373,5 +392,10 @@ public class DiscoveryRepository {
      * @param snapshot 规则快照
      */
     public record SourceExecutionSnapshot(UUID id, String sourceUrl, int version, Map<String, Object> snapshot) {
+        /** 不把规则快照中的私有地址或书源凭据写入诊断字符串。 */
+        @Override
+        public String toString() {
+            return "SourceExecutionSnapshot[id=" + id + ", version=" + version + ", content=redacted]";
+        }
     }
 }

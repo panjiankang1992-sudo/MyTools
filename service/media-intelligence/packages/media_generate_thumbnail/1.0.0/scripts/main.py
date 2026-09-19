@@ -10,6 +10,15 @@ from pathlib import Path
 import subprocess
 import tempfile
 
+STILL_IMAGE_SUFFIXES = {
+    ".avif", ".bmp", ".gif", ".heic", ".heif", ".jpeg", ".jpg", ".png", ".webp",
+}
+
+
+def should_seek(source: Path, seek_seconds: float) -> bool:
+    """仅对包含时间轴的媒体执行定位，避免静态图片在一秒处没有帧。"""
+    return seek_seconds > 0 and source.suffix.lower() not in STILL_IMAGE_SUFFIXES
+
 
 def generate(source: Path, target: Path, seek_seconds: float) -> None:
     """Generate one bounded thumbnail using ffmpeg without invoking a shell."""
@@ -19,7 +28,7 @@ def generate(source: Path, target: Path, seek_seconds: float) -> None:
     temporary = target.with_suffix(".tmp.jpg")
     temporary.unlink(missing_ok=True)
     command = ["ffmpeg", "-y"]
-    if seek_seconds > 0:
+    if should_seek(source, seek_seconds):
         command.extend(["-ss", str(seek_seconds)])
     command.extend([
         "-i", str(source), "-an", "-sn", "-dn", "-frames:v", "1", "-vf",

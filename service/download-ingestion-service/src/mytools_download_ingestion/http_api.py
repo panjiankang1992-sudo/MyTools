@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import asdict
 from datetime import datetime
+import hmac
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler
 import json
@@ -11,12 +12,11 @@ import logging
 from urllib.parse import parse_qs, urlparse
 from uuid import UUID
 
-LOGGER = logging.getLogger(__name__)
-import hmac
-
 from .models import CreateDownloadRequest, DownloadRequest
 from .migration import LegacyHistoryMigrationService
 from .service import DownloadRequestRepository, DownloadRequestService
+
+LOGGER = logging.getLogger(__name__)
 
 
 def request_document(request: DownloadRequest) -> dict:

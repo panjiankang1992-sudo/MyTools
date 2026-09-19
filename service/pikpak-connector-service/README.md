@@ -22,8 +22,21 @@ PikPak 外部协议适配服务，使用 Java 21、Spring Boot 和独立
 
 首次推进会再次携带 magnet URI，用于与已保存摘要核对后提交；服务不会把原文写入数据库、
 Outbox 或响应。READY 响应只提供 Storage Provider UUID 和逻辑远端路径，不返回 remote key；
-父任务据此创建逐对象物化、资产登记和结果回写子任务。服务和 PikPak 父任务仍保持禁用，完成
+父任务据此创建逐对象物化、资产登记和结果回写子任务。服务和 PikPak 父任务默认禁用，完成
 真实 rclone 集成与旧新摘要对账前不得开启。
+
+提交 `addurl` 前必须通过 `operations/mkdir` 创建操作专属目录。rclone 对不存在的目录会
+回退到默认收件箱，导致后续隔离目录查询失败；创建失败时禁止继续提交。空目录响应中的
+`list: null` 按空集合继续有界观察，缺失 `list` 字段仍视为协议错误。
+
+启用账户前还需验证 `STORAGE_RCLONE_SERVE_URL` 的只读流路由：如果使用 combine remote，
+必须存在 `<remoteKey>=<remoteKey>:` 映射。RC 列目录成功不代表读取服务也可访问该账户；
+缺失映射会在云端 READY 后造成 Storage Gateway 502。上线校验应包含实际文件读取及哈希验证。
+若 systemd 的 `ExecStartPre` 使用 `RCLONE_DRIVE_UPSTREAMS` 重建映射，应将映射保存在
+该服务的环境文件中，不能只修改生成的 rclone 配置，否则重启会覆盖修复。
+只读流服务与 RC 是独立进程，RC 移动后的文件不会自动刷新读取服务的 VFS 目录缓存。
+即时落盘链路应设置 `RCLONE_DIR_CACHE_TIME=0s` 与 `RCLONE_POLL_INTERVAL=0`，避免默认
+五分钟目录缓存将刚完成的文件误判为不存在；文件内容本身的流式缓冲不受影响。
 
 旧账户元数据通过 Scheduler 的 `pikpak_migrate_legacy_accounts` 手工任务导入。任务要求为每个
 旧 `externalKey` 显式提供 Storage Provider UUID 和 `secret://` 引用，不能从旧配置猜测映射。

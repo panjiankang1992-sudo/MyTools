@@ -69,7 +69,7 @@ def execute(context: dict, storage: StorageGatewayClient, assets: AssetRegistryC
         "artifactKind": "THUMBNAIL",
         "generatorName": "media_generate_thumbnail",
         "generatorVersion": generator_version,
-    })
+    }, context)
     return {"parentAssetId": str(parent["id"]), "artifactAssetId": str(artifact["id"]),
             "parentVersion": int(linked["version"]), "storageUri": storage_uri}
 

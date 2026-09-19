@@ -1,0 +1,29 @@
+{
+  "runId": "run-01",
+  "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/t2v-seed932-workflow.json",
+  "startedAt": 1789379925.9666505,
+  "preflight": {
+    "nodes": 11,
+    "classTypes": [
+      "CLIPLoader",
+      "CLIPTextEncode",
+      "KSampler",
+      "ModelSamplingSD3",
+      "SaveImage",
+      "TrimVideoLatent",
+      "UNETLoader",
+      "VAEDecodeTiled",
+      "VAELoader",
+      "WanVaceToVideo"
+    ]
+  },
+  "inputs": [],
+  "warmStart": false,
+  "workflowSha256": "53bc0268bf28bf50465bdf32dfa3d051bfdc496853d70efd7d12b6fa3efa56eb",
+  "status": "INFERENCE_PASSED_REVIEW_PENDING",
+  "promptId": "40794fc2-a13e-4d48-b222-d425d207d06f",
+  "submittedAt": 1789379925.9679399,
+  "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T095836Z/run-01/output.mp4",
+  "outputSha256": "2b250b629c67e409a0dbc74091277dd0b4f0e914ab33928a2e6d13441a87ac24",
+  "finishedAt": 1789380414.6149375
+}

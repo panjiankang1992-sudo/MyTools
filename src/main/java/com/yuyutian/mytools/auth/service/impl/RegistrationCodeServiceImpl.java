@@ -4,7 +4,12 @@ import com.yuyutian.mytools.auth.Model.EmailVerificationCode;
 import com.yuyutian.mytools.auth.Model.RegisterCodeRequest;
 import com.yuyutian.mytools.auth.Model.RegisterRequest;
 import com.yuyutian.mytools.auth.mapper.EmailVerificationCodeMapper;
-import com.yuyutian.mytools.auth.messaging.RegistrationMailSent;
+import com.yuyutian.mytools.auth.mapper.RegistrationMailDeliveryOutboxMapper;
+import com.yuyutian.mytools.auth.mapper.RegistrationMailShadowOutboxMapper;
+import com.yuyutian.mytools.auth.messaging.RegistrationMailDeliveryPayloadCipher;
+import com.yuyutian.mytools.auth.messaging.RegistrationMailRoute;
+import com.yuyutian.mytools.auth.messaging.RegistrationMailRoutingService;
+import com.yuyutian.mytools.auth.messaging.RegistrationMailShadowPayloadFactory;
 import com.yuyutian.mytools.auth.service.RegistrationCodeService;
 import com.yuyutian.mytools.common.BusinessException;
 import com.yuyutian.mytools.common.ErrorCode;
@@ -16,7 +21,6 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +53,11 @@ public class RegistrationCodeServiceImpl implements RegistrationCodeService {
     private final UserMapper userMapper;
     private final SnowflakeIdGenerator snowflakeIdGenerator;
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
-    private final ApplicationEventPublisher applicationEventPublisher;
+    private final RegistrationMailShadowOutboxMapper shadowOutboxMapper;
+    private final RegistrationMailShadowPayloadFactory shadowPayloadFactory;
+    private final RegistrationMailDeliveryOutboxMapper deliveryOutboxMapper;
+    private final RegistrationMailDeliveryPayloadCipher deliveryPayloadCipher;
+    private final RegistrationMailRoutingService mailRoutingService;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Value("${registration.mail.from:no-reply@mytools.local}")
@@ -91,10 +99,19 @@ public class RegistrationCodeServiceImpl implements RegistrationCodeService {
         // 新验证码生成后，旧验证码统一失效。
         verificationCodeMapper.invalidateUnusedByEmail(request.getEmail(), REGISTER_PURPOSE, now);
         verificationCodeMapper.insert(entity);
-        sendMail(request.getEmail(), code);
-        if (!devLogCode) {
-            // 事件仅在旧邮件成功且当前事务提交后触发，旁路失败不会回滚旧链路。
-            applicationEventPublisher.publishEvent(new RegistrationMailSent(entity.getId(), request.getEmail(), code));
+        RegistrationMailRoute route = devLogCode
+                ? RegistrationMailRoute.LEGACY : mailRoutingService.route(request.getEmail());
+        if (!devLogCode && route == RegistrationMailRoute.MESSAGING) {
+            // 灰度命中后只落真实投递 Outbox，禁止继续调用旧 SMTP 形成双发。
+            deliveryOutboxMapper.insert(deliveryPayloadCipher.encrypt(
+                    entity.getId(), request.getEmail(), code, now));
+        } else if (!devLogCode && shadowPayloadFactory.isEnabled()) {
+            // 在验证码事务内持久化脱敏证据，保证提交后可跨进程重试。
+            shadowOutboxMapper.insert(shadowPayloadFactory.create(entity.getId(), request.getEmail(), code, now));
+        }
+        if (route == RegistrationMailRoute.LEGACY) {
+            // 单路由原则要求仅旧路径发送真实邮件。
+            sendMail(request.getEmail(), code);
         }
         log.info("Register verification code created: email={}, expiresAt={}", request.getEmail(), entity.getExpireTime());
     }

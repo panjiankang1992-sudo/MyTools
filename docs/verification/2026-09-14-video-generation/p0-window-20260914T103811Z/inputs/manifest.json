@@ -1,0 +1,107 @@
+[
+  {
+    "file": "p0-firstframe-control.mp4",
+    "bytes": 11222,
+    "sha256": "fe034cd97ebe02306f1c63643fc47d845b2addc28b17cdf8cc43d7e203a4900c"
+  },
+  {
+    "file": "p0-firstframe-mask.mp4",
+    "bytes": 3533,
+    "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f"
+  },
+  {
+    "file": "p0-firstlast-control.mp4",
+    "bytes": 22403,
+    "sha256": "ed7b501729a926a19811cd3e758c9f451bf63a33d5995984eb7ed7598ffd98ae"
+  },
+  {
+    "file": "p0-firstlast-mask.mp4",
+    "bytes": 3556,
+    "sha256": "58d6b4a50f8bd567f2eb4d9fc9e1bf015bb31d81ac13ea159cff7c3dfff36f98"
+  },
+  {
+    "file": "p0-masked-control.mp4",
+    "bytes": 6306,
+    "sha256": "06dab491c864abfc5a927c1f9cbd096ebb17a2b92f56e285951d1a1abc0aa745"
+  },
+  {
+    "file": "p0-masked-mask.mp4",
+    "bytes": 3447,
+    "sha256": "5b1081f025cb097cdfa8535acad4f4bc690ec8443ba6f9c706d36b5c93b18478"
+  },
+  {
+    "file": "p0-restyle-control-edge.mp4",
+    "bytes": 6015,
+    "sha256": "e639c817664854fb09a7ed4eb423821a25f6588108175b8990931fe9318deb3a"
+  },
+  {
+    "file": "p0-restyle-control-gray.mp4",
+    "bytes": 5333,
+    "sha256": "4358e8188b78e461c9083f37794b94d80f5c2fda92a2cb2e4e8a5e08a24c3266"
+  },
+  {
+    "file": "p0-scene-control-edge.mp4",
+    "bytes": 62528,
+    "sha256": "08ef6cde4bfbaefe30cb713f99248186e7cea76885aecef73c4a6b5561cb11cd"
+  },
+  {
+    "file": "p0-scene-control-gray.mp4",
+    "bytes": 96478,
+    "sha256": "c619e64accf598bbf67b8bbe6ce942531bb5b40804b9f67a4dff6c1c50204e10"
+  },
+  {
+    "file": "p0-scene.png",
+    "bytes": 1169401,
+    "sha256": "3488bd4c3070a571ee538e67524cc3b5147c9236b7e5dc3b749ac8f56e2e78c2"
+  },
+  {
+    "file": "p0-source-motion.mp4",
+    "bytes": 5993,
+    "sha256": "9d3a56d94fc9324df6a77484579820f01c4000d3522420914a421b186fff3c7e"
+  },
+  {
+    "file": "p0-source-scene.mp4",
+    "bytes": 114979,
+    "sha256": "2106481a8dace223600b8e8a63d3fa34cf9d0762a1804cfd998ac80515f640bb"
+  },
+  {
+    "file": "p0-storyboard-shot1-control.mp4",
+    "bytes": 11222,
+    "sha256": "fe034cd97ebe02306f1c63643fc47d845b2addc28b17cdf8cc43d7e203a4900c"
+  },
+  {
+    "file": "p0-storyboard-shot1-mask.mp4",
+    "bytes": 3533,
+    "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f"
+  },
+  {
+    "file": "p0-storyboard-shot2-control.mp4",
+    "bytes": 15160,
+    "sha256": "433747f6856381ef63d0aa126d9440e510db08b8a81c50abafc51476a91bbd61"
+  },
+  {
+    "file": "p0-storyboard-shot2-mask.mp4",
+    "bytes": 3533,
+    "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f"
+  },
+  {
+    "file": "p0-storyboard-shot3-control.mp4",
+    "bytes": 15535,
+    "sha256": "eec39c876bb44011104dd7f0fa55d37e4445cfb1f2b621e066f2469f3cd4200d"
+  },
+  {
+    "file": "p0-storyboard-shot3-mask.mp4",
+    "bytes": 3533,
+    "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f"
+  },
+  {
+    "file": "p0-subject-a.png",
+    "bytes": 952822,
+    "sha256": "712c98518e3c9d40c142428fc6b7ca263e59723d9992e0d9519f7cbe71a6a8a3"
+  },
+  {
+    "file": "p0-subject-b.png",
+    "bytes": 1129402,
+    "sha256": "6035cad323864b9514095cf112ac91176dbc2a1a61eaf064453e1b0cb44a811c"
+  }
+]

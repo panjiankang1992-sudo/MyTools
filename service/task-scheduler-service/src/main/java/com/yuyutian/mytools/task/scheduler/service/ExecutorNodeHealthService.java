@@ -51,6 +51,7 @@ public class ExecutorNodeHealthService {
                 SET status = 'OFFLINE', running_tasks = 0, status_changed_at = ?,
                     status_reason = 'HEARTBEAT_TIMEOUT', updated_at = ?
                 WHERE enabled = TRUE AND status IN ('ONLINE', 'BUSY', 'DRAINING', 'UNHEALTHY')
+                  AND NOT (status = 'DRAINING' AND COALESCE(status_reason, '') = 'QQ_FLOW_RELEASE')
                   AND last_heartbeat_at < ?
                 """, Timestamp.from(now), Timestamp.from(now), Timestamp.from(cutoff));
     }

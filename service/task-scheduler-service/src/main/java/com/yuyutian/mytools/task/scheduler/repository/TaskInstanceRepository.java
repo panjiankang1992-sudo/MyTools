@@ -1,5 +1,6 @@
 package com.yuyutian.mytools.task.scheduler.repository;
 
+import com.yuyutian.mytools.task.scheduler.config.DispatchDeadlineProperties;
 import com.yuyutian.mytools.task.scheduler.model.CreateTaskRequest;
 import com.yuyutian.mytools.task.scheduler.model.TaskDefinitionView;
 import com.yuyutian.mytools.task.scheduler.model.TaskInstanceView;
@@ -24,16 +25,20 @@ public class TaskInstanceRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final JsonColumnMapper jsonColumnMapper;
+    private final DispatchDeadlineProperties dispatchDeadlineProperties;
 
     /**
      * 创建任务实例仓储。
      *
      * @param jdbcTemplate JDBC 模板
      * @param jsonColumnMapper JSON 转换器
+     * @param dispatchDeadlineProperties 首次派发截止配置
      */
-    public TaskInstanceRepository(JdbcTemplate jdbcTemplate, JsonColumnMapper jsonColumnMapper) {
+    public TaskInstanceRepository(JdbcTemplate jdbcTemplate, JsonColumnMapper jsonColumnMapper,
+                                  DispatchDeadlineProperties dispatchDeadlineProperties) {
         this.jdbcTemplate = jdbcTemplate;
         this.jsonColumnMapper = jsonColumnMapper;
+        this.dispatchDeadlineProperties = dispatchDeadlineProperties;
     }
 
     /**
@@ -50,14 +55,16 @@ public class TaskInstanceRepository {
                 INSERT INTO task_instance (
                     id, task_definition_id, task_definition_version, task_name, idempotency_key,
                     parent_task_instance_id, business_type, business_id, priority, parameters_json,
-                    required_node_labels_json, status, progress, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    required_node_labels_json, status, progress, dispatch_deadline_at, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 id.toString(), definition.id().toString(), definition.version(), definition.name(),
                 request.idempotencyKey(), uuidText(request.parentTaskInstanceId()), request.businessType(),
                 request.businessId(), request.priority(), jsonColumnMapper.write(request.parameters()),
                 jsonColumnMapper.write(request.requiredNodeLabels() == null ? Map.of() : request.requiredNodeLabels()),
-                TaskStatus.QUEUED.name(), 0, Timestamp.from(now), Timestamp.from(now));
+                TaskStatus.QUEUED.name(), 0,
+                Timestamp.from(now.plusSeconds(dispatchDeadlineProperties.queueTimeoutSeconds())),
+                Timestamp.from(now), Timestamp.from(now));
         return findById(id).orElseThrow();
     }
 

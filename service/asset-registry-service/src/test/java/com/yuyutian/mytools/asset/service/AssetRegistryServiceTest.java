@@ -5,12 +5,14 @@ import com.yuyutian.mytools.asset.model.RegisterAssetRequest;
 import com.yuyutian.mytools.asset.model.RegisterLocationRequest;
 import com.yuyutian.mytools.asset.model.InvalidateLocationRequest;
 import com.yuyutian.mytools.asset.model.PublishBundleRequest;
+import com.yuyutian.mytools.asset.model.TaskExecutionFence;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,7 +42,8 @@ class AssetRegistryServiceTest {
         var thumbnail = service.register(new RegisterAssetRequest(7L, "media-thumbnail:1", "MEDIA_ARTIFACT",
                 "thumbnail-1", "b".repeat(64), 128, "image/jpeg", null));
         var withArtifact = service.registerArtifact(first.id(), new RegisterArtifactRequest(
-                secondSource.version(), thumbnail.id(), "artifact-link:1", "THUMBNAIL", "ffmpeg", "1.0.0"));
+                        secondSource.version(), thumbnail.id(), "artifact-link:1", "THUMBNAIL", "ffmpeg", "1.0.0"),
+                new TaskExecutionFence(UUID.randomUUID(), "register_thumbnail", "artifact-link:1", 1));
 
         assertThat(duplicate.id()).isEqualTo(first.id());
         assertThat(secondSource.id()).isEqualTo(first.id());
@@ -65,6 +68,30 @@ class AssetRegistryServiceTest {
         assertThatThrownBy(() -> service.register(new RegisterAssetRequest(9L, "source-conflict", "DOWNLOAD",
                 "download-9", "d".repeat(64), 256, "application/octet-stream", null)))
                 .isInstanceOf(IdempotencyConflictException.class);
+    }
+
+    @Test
+    void shouldRejectStaleAndConflictingArtifactExecutionFences() {
+        var parent = service.register(new RegisterAssetRequest(91L, "fence-parent", "MEDIA", "fence-parent",
+                "8".repeat(64), 512, "video/mp4", null));
+        var artifact = service.register(new RegisterAssetRequest(91L, "fence-child", "MEDIA_ARTIFACT",
+                "fence-child", "9".repeat(64), 64, "image/jpeg", null));
+        UUID taskInstanceId = UUID.randomUUID();
+        var request = new RegisterArtifactRequest(parent.version(), artifact.id(), "fence-artifact-link",
+                "THUMBNAIL", "media_generate_thumbnail", "1.0.0");
+
+        service.registerArtifact(parent.id(), request,
+                new TaskExecutionFence(taskInstanceId, "register_thumbnail", request.idempotencyKey(), 7));
+
+        assertThatThrownBy(() -> service.registerArtifact(parent.id(), request,
+                new TaskExecutionFence(taskInstanceId, "register_thumbnail", request.idempotencyKey(), 6)))
+                .isInstanceOf(ExecutionFenceConflictException.class);
+        assertThatThrownBy(() -> service.registerArtifact(parent.id(), request,
+                new TaskExecutionFence(taskInstanceId, "register_storyboard", request.idempotencyKey(), 7)))
+                .isInstanceOf(ExecutionFenceConflictException.class);
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT fencing_token FROM asset_execution_fence WHERE business_key=?", Long.class,
+                request.idempotencyKey())).isEqualTo(7L);
     }
 
     @Test

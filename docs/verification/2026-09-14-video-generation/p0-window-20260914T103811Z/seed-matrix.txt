@@ -1,0 +1,6 @@
+source image brightness = 0.714
+seed   framemean min       blank       dark        verdict
+42     0.498     0.4334    0           0           ok
+932    0.202     0.0003    2           7           BLACKOUT
+933    0.463     0.1577    0           0           ok
+934    0.344     0.2598    0           0           ok

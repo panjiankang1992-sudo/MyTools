@@ -13,15 +13,20 @@ class RecordingConnector(TelegramConnector):
     def __init__(self) -> None:
         config = Config("telegram_main", "secret", 7, frozenset({"42"}),
                         "http://telegram.test", None, "http://messaging.test", "message-token",
-                        "internal-token", 45, 1024 * 1024)
+                        "internal-token", 45, 1024 * 1024, "@pikpak_bot", 20 * 1024 * 1024, "")
         super().__init__(config, object())  # type: ignore[arg-type]
         self.payload = None
         self.payloads = []
+        self.api_calls = []
 
     async def _internal_json(self, url: str, payload: dict) -> dict:
         self.payload = payload
         self.payloads.append(payload)
         return {"id": "message-id"}
+
+    async def api(self, method: str, payload: dict | None = None):
+        self.api_calls.append((method, payload))
+        return {"message_id": 99}
 
 
 def test_normalizes_hidden_link_and_largest_photo() -> None:
@@ -104,3 +109,33 @@ def test_groups_media_album_into_one_inbound_message() -> None:
     assert [part["fileName"] for part in connector.payload["parts"]] == [
         "telegram-image-31-1", "telegram-image-32-1"]
     assert [part["mimeType"] for part in connector.payload["parts"]] == ["image/jpeg", "image/jpeg"]
+
+
+def test_captures_enabled_business_connection() -> None:
+    """具备回复权限的Business连接应进入就绪状态。"""
+    connector = RecordingConnector()
+    asyncio.run(connector.receive({"update_id": 40, "business_connection": {
+        "id": "business-7", "is_enabled": True, "rights": {"can_reply": True}}}))
+    assert connector.business_status() == {"connected": True, "connectionId": "business-7"}
+
+
+def test_oversized_media_is_relayed_without_messaging_download() -> None:
+    """超大媒体应复用file_id发送到PikPak且不再创建下载任务。"""
+    async def scenario() -> RecordingConnector:
+        connector = RecordingConnector()
+        object.__setattr__(connector.config, "pikpak_threshold_bytes", 50)
+        connector.business_connection_id = "business-7"
+        await connector.receive({"update_id": 41, "message": {
+            "message_id": 88, "date": 1_700_000_000, "chat": {"id": 42},
+            "from": {"id": 99}, "video": {"file_id": "large-video", "file_size": 51}}})
+        return connector
+
+    connector = asyncio.run(scenario())
+    assert connector.payload is None
+    assert connector.api_calls == [
+        ("sendVideo", {"business_connection_id": "business-7", "chat_id": "@pikpak_bot",
+                       "video": "large-video"}),
+        ("sendMessage", {"chat_id": "42",
+                         "text": "Large media was forwarded to PikPak and will continue automatically.",
+                         "reply_parameters": {"message_id": 88,
+                                              "allow_sending_without_reply": True}})]

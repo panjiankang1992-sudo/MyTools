@@ -47,5 +47,9 @@ equal(policy.envelope('{"code":"0000","traceId":"bad trace"}', 38), {
 }, 'Invalid trace identifier omission');
 rejects(() => policy.envelope('{"code":"0000"}', 0), 'Empty byte count rejection');
 rejects(() => policy.envelope('{"code":"0000"}', 64 * 1024 * 1024 + 1), 'Response quota');
+equal(policy.responseEnvelope(204, '', 0), {
+  code: '0000', message: '', data: undefined, traceId: undefined
+}, 'Empty 204 response');
+rejects(() => policy.responseEnvelope(200, '', 0), 'Empty 200 response rejection');
 
 console.log('Authorized API policy tests passed');

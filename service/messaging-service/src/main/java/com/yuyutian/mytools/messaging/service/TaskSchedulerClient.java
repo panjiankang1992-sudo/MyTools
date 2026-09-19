@@ -1,7 +1,7 @@
 package com.yuyutian.mytools.messaging.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.http.MediaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yuyutian.mytools.task.client.CreateTaskRequest;
 import org.springframework.web.client.RestClient;
 
 import java.util.Map;
@@ -12,51 +12,51 @@ import java.util.UUID;
  */
 public class TaskSchedulerClient {
 
-    private final RestClient restClient;
+    private final com.yuyutian.mytools.task.client.TaskSchedulerClient client;
 
     /**
      * 创建任务调度客户端。
      */
     public TaskSchedulerClient(RestClient restClient) {
-        this.restClient = restClient;
+        this(restClient, "");
+    }
+
+    /**
+     * 创建携带业务服务令牌的任务调度客户端。
+     *
+     * @param restClient HTTP 客户端
+     * @param businessToken 业务服务令牌
+     */
+    public TaskSchedulerClient(RestClient restClient, String businessToken) {
+        this(new com.yuyutian.mytools.task.client.TaskSchedulerClient(restClient,
+                new ObjectMapper().findAndRegisterModules(), businessToken));
+    }
+
+    /**
+     * 创建基于公共 Scheduler 客户端的 Messaging 适配器。
+     *
+     * @param client 公共 Scheduler 客户端
+     */
+    public TaskSchedulerClient(com.yuyutian.mytools.task.client.TaskSchedulerClient client) {
+        this.client = client;
     }
 
     /**
      * 创建只包含投递标识的发送任务。
      */
     public UUID createDeliveryTask(UUID deliveryId, ChannelTask task) {
-        Map<String, Object> request = Map.of(
-                "taskName", task.taskName(),
-                "idempotencyKey", "message_delivery:" + deliveryId + ":v1",
-                "businessType", "MESSAGE_DELIVERY",
-                "businessId", deliveryId.toString(),
-                "priority", 80,
-                "parameters", Map.of("deliveryId", deliveryId.toString()));
-        JsonNode response = restClient.post().uri("/api/v1/task-instances")
-                .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
-        if (response == null || response.path("id").isMissingNode()) {
-            throw new IllegalStateException("Scheduler returned an invalid task response");
-        }
-        return UUID.fromString(response.path("id").asText());
+        return client.create(CreateTaskRequest.create(task.taskName(),
+                "message_delivery:" + deliveryId + ":v1", "MESSAGE_DELIVERY", deliveryId.toString(), 80,
+                Map.of("deliveryId", deliveryId.toString()))).id();
     }
 
     /**
      * 创建只包含附件任务标识的处理任务。
      */
     public UUID createAttachmentDownloadTask(UUID jobId) {
-        Map<String, Object> request = Map.of(
-                "taskName", "message_download_attachment",
-                "idempotencyKey", "message_attachment_download:" + jobId + ":v1",
-                "businessType", "MESSAGE_ATTACHMENT",
-                "businessId", jobId.toString(),
-                "priority", 70,
-                "parameters", Map.of("attachmentJobId", jobId.toString()));
-        JsonNode response = restClient.post().uri("/api/v1/task-instances")
-                .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
-        if (response == null || response.path("id").isMissingNode()) {
-            throw new IllegalStateException("Scheduler returned an invalid task response");
-        }
-        return UUID.fromString(response.path("id").asText());
+        return client.create(CreateTaskRequest.create("message_download_attachment",
+                "message_attachment_download:" + jobId + ":v1", "MESSAGE_ATTACHMENT", jobId.toString(), 70,
+                Map.of("attachmentJobId", jobId.toString()))).id();
     }
 
     /**
@@ -65,8 +65,7 @@ public class TaskSchedulerClient {
      * @param taskId 任务标识
      */
     public void cancel(UUID taskId) {
-        restClient.post().uri("/api/v1/task-instances/{id}/cancel", taskId)
-                .contentType(MediaType.APPLICATION_JSON).body(Map.of()).retrieve().toBodilessEntity();
+        client.cancel(taskId);
     }
 
     /**
@@ -76,9 +75,7 @@ public class TaskSchedulerClient {
      * @return 调度状态
      */
     public String status(UUID taskId) {
-        JsonNode response = restClient.get().uri("/api/v1/task-instances/{id}", taskId)
-                .retrieve().body(JsonNode.class);
-        String status = response == null ? "" : response.path("status").asText();
+        String status = client.get(taskId).status();
         if (status.isBlank()) {
             throw new IllegalStateException("Scheduler returned an invalid task status");
         }

@@ -8,6 +8,7 @@ import com.yuyutian.mytools.asset.model.PublishBundleRequest;
 import com.yuyutian.mytools.asset.model.RegisterArtifactRequest;
 import com.yuyutian.mytools.asset.model.RegisterAssetRequest;
 import com.yuyutian.mytools.asset.model.RegisterLocationRequest;
+import com.yuyutian.mytools.asset.model.TaskExecutionFence;
 import com.yuyutian.mytools.asset.service.AssetRegistryService;
 import com.yuyutian.mytools.asset.service.InternalRequestAuthorizer;
 import jakarta.validation.Valid;
@@ -79,9 +80,14 @@ public class AssetController {
     @PostMapping("/{id}/artifacts")
     public AssetView registerArtifact(
             @RequestHeader(name = "Authorization", required = false) String authorization,
+            @RequestHeader("X-Task-Instance-Id") UUID taskInstanceId,
+            @RequestHeader("X-Task-Step-Name") String stepName,
+            @RequestHeader("X-Task-Business-Key") String businessKey,
+            @RequestHeader("X-Task-Fencing-Token") long fencingToken,
             @PathVariable UUID id, @Valid @RequestBody RegisterArtifactRequest request) {
         authorizer.requireAuthorized(authorization);
-        return service.registerArtifact(id, request);
+        return service.registerArtifact(id, request,
+                new TaskExecutionFence(taskInstanceId, stepName, businessKey, fencingToken));
     }
 
     /**

@@ -1,0 +1,48 @@
+{
+  "windowId": "window-20260914T103811Z",
+  "scoring": "acceptance.md：指令遵循/主体保持/时间连贯/编辑局部性/伪影，各 1-5 分",
+  "status": "PENDING_HUMAN_REVIEW",
+  "cases": [
+    {
+      "caseId": "run-01",
+      "status": "CONFIRMED_SEVERE_DEFECT",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "首帧模式 seed 932：第 3、4 帧真全黑（YMAX=18/255），第 2–8 帧极暗；帧均值亮度 0.202 而源图是 0.714。重跑同一工作流产出逐位相同的 SHA-256，证明是确定性失败而非偶发。"
+    },
+    {
+      "caseId": "run-02",
+      "status": "pending",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": ""
+    },
+    {
+      "caseId": "run-03",
+      "status": "pending",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": ""
+    }
+  ],
+  "blockingFindings": [
+    "首帧模式在 4 个测试种子中有 1 个（seed 932）确定性全黑，触发 acceptance.md 的严重失败判据。",
+    "即使正常种子，首帧模式也把源图亮度从 0.714 压到 0.34–0.50，且首末帧漂移达 0.67。",
+    "单变量验证表明弱内容先验是原因，但换成参考图填充会让首末帧差异从 0.69 掉到 0.0094（近乎静止），不是可用修复。"
+  ]
+}

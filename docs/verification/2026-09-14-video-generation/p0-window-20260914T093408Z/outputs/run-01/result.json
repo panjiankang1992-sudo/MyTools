@@ -1,0 +1,39 @@
+{
+  "runId": "run-01",
+  "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/restyle-scene-gray-workflow.json",
+  "startedAt": 1789378458.6137748,
+  "preflight": {
+    "nodes": 13,
+    "classTypes": [
+      "CLIPLoader",
+      "CLIPTextEncode",
+      "GetVideoComponents",
+      "KSampler",
+      "LoadVideo",
+      "ModelSamplingSD3",
+      "SaveImage",
+      "TrimVideoLatent",
+      "UNETLoader",
+      "VAEDecodeTiled",
+      "VAELoader",
+      "WanVaceToVideo"
+    ]
+  },
+  "inputs": [
+    {
+      "kind": "video",
+      "file": "p0-scene-control-gray.mp4",
+      "bytes": 96478,
+      "sha256": "c619e64accf598bbf67b8bbe6ce942531bb5b40804b9f67a4dff6c1c50204e10",
+      "decodable": true
+    }
+  ],
+  "warmStart": false,
+  "workflowSha256": "7da407f8527dad4256a07ea8e8530ae07d8bf29fd4248d36ec63f31ca38a6794",
+  "status": "INFERENCE_PASSED_REVIEW_PENDING",
+  "promptId": "089b7958-4ab8-4cc4-86ff-fb83e3fd6700",
+  "submittedAt": 1789378458.647308,
+  "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T093408Z/run-01/output.mp4",
+  "outputSha256": "bd8c28c29043cb2b825e3420b764c0124c748e2a6bf8f2eb20fdd4f808c49238",
+  "finishedAt": 1789378947.4984314
+}

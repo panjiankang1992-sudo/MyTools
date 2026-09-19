@@ -12,7 +12,9 @@ import org.springframework.web.client.RestClient;
  * 阅读服务依赖配置。
  */
 @Configuration
-@EnableConfigurationProperties(ReaderProperties.class)
+@EnableConfigurationProperties({ReaderProperties.class, ReaderChapterContentProperties.class,
+        ReaderShelfChapterProperties.class, ReaderAdaptationProperties.class, ReaderAdaptationDispatchProperties.class,
+        ReaderWorkloadAuthorizationProperties.class, ReaderAttemptSettlementProperties.class, ReaderStoryConstraintProperties.class})
 public class ReaderConfiguration {
 
     /**

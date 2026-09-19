@@ -1,0 +1,47 @@
+{
+  "windowId": "window-20260914T112215Z",
+  "scoring": "acceptance.md：指令遵循/主体保持/时间连贯/编辑局部性/伪影，各 1-5 分",
+  "status": "PENDING_HUMAN_REVIEW",
+  "cases": [
+    {
+      "caseId": "run-01",
+      "status": "FIX_CANDIDATE_CONTROL_STRENGTH",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "控制强度扫描（掩码逐位相同，只改生成区间控制内容）：alpha=0.25/0.50/0.75 在 seed 932 上均无全黑帧，亮度 0.677-0.715；但运动随控制强度单调下降，alpha=0.75 已接近静止。alpha=0.25 是同时保住亮度与一定变化的最佳档。"
+    },
+    {
+      "caseId": "run-02",
+      "status": "FIX_CANDIDATE_CONTROL_STRENGTH",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "控制强度扫描（掩码逐位相同，只改生成区间控制内容）：alpha=0.25/0.50/0.75 在 seed 932 上均无全黑帧，亮度 0.677-0.715；但运动随控制强度单调下降，alpha=0.75 已接近静止。alpha=0.25 是同时保住亮度与一定变化的最佳档。"
+    },
+    {
+      "caseId": "run-03",
+      "status": "FIX_CANDIDATE_CONTROL_STRENGTH",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "控制强度扫描（掩码逐位相同，只改生成区间控制内容）：alpha=0.25/0.50/0.75 在 seed 932 上均无全黑帧，亮度 0.677-0.715；但运动随控制强度单调下降，alpha=0.75 已接近静止。alpha=0.25 是同时保住亮度与一定变化的最佳档。"
+    }
+  ],
+  "blockingFindings": [
+    "全黑可通过提高生成区间的控制内容强度消除，从 alpha=0.25 起即 0 全黑帧。",
+    "但运动量与控制强度此消彼长；灰填充基线的“大运动”实为不受控漂移，不是可用性优势。"
+  ]
+}

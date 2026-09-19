@@ -6,6 +6,8 @@ import com.yuyutian.mytools.task.executor.config.ExecutorNetworkIsolationPropert
 import com.yuyutian.mytools.task.executor.config.ExecutorProperties;
 import com.yuyutian.mytools.task.executor.config.ExecutorResourceLimitProperties;
 import com.yuyutian.mytools.task.executor.config.ExecutorLogArchiveProperties;
+import com.yuyutian.mytools.task.executor.config.ExecutorWorkloadTlsProperties;
+import com.yuyutian.mytools.task.executor.config.ExecutorNovelAdaptationProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -18,7 +20,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableConfigurationProperties({ExecutorProperties.class, ExecutorDiskProperties.class, ExecutorCgroupProperties.class,
         ExecutorResourceLimitProperties.class, ExecutorNetworkIsolationProperties.class,
-        ExecutorLogArchiveProperties.class})
+        ExecutorLogArchiveProperties.class, ExecutorWorkloadTlsProperties.class, ExecutorNovelAdaptationProperties.class})
 public class TaskExecutorApplication {
 
     /**

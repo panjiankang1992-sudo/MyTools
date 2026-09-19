@@ -55,6 +55,14 @@ def service_unit(entry: dict[str, Any], deployment_root: str, log_root: str) -> 
     lines = [
         "[Unit]",
         f"Description=MyTools {name}",
+        *(
+            [
+                "ConditionPathExists="
+                f"!{deployment_root}/config/.qq-flow-configuration.pending"
+            ]
+            if name == "message-automation-service"
+            else []
+        ),
         f"After={' '.join(after)}",
         "Wants=network-online.target",
         "",
@@ -104,8 +112,15 @@ def target_unit(entries: list[dict[str, Any]]) -> str:
 def tmpfiles_config(deployment_root: str, log_root: str, entries: list[dict[str, Any]]) -> str:
     """Render persistent directory ownership without deleting existing data."""
 
-    paths = ("config", "releases", "runtime/tasks", "runtime/onebot", "migration")
-    lines = [f"d {deployment_root}/{path} 0750 mytools mytools -" for path in paths]
+    # 发布根目录、配置目录和版本目录只允许 root 修改，服务账户仅保留遍历权限。
+    lines = [
+        f"d {deployment_root} 0750 root mytools -",
+        f"d {deployment_root}/config 0750 root mytools -",
+        f"d {deployment_root}/releases 0750 root mytools -",
+    ]
+    service_paths = ("runtime", "runtime/tasks", "runtime/onebot", "runtime/qq", "migration")
+    lines.extend(
+        f"d {deployment_root}/{path} 0750 mytools mytools -" for path in service_paths)
     lines.append(f"d {log_root} 0750 mytools mytools -")
     lines.extend(f"d {log_root}/{entry['name']} 0750 mytools mytools -" for entry in entries)
     return "\n".join(lines) + "\n"
@@ -186,12 +201,24 @@ def onebot_relogin_service(deployment_root: str) -> str:
     """Render the privileged fixed-action NapCat relogin service."""
 
     request_path = f"{deployment_root}/runtime/onebot/relogin.request"
+    lock_path = f"{request_path}.lock"
+    acknowledged_path = f"{request_path}.ack"
+    failed_path = f"{request_path}.failed"
+    action = (
+        f"/usr/bin/flock -x {lock_path} /bin/sh -c '"
+        "/usr/bin/rm -f /opt/napcat/cache/qrcode.png && "
+        "/usr/bin/timeout --signal=TERM --kill-after=5s 75s "
+        "/usr/bin/docker restart --time 3 downloadbot-napcat && "
+        f"/usr/bin/mv -f {request_path} {acknowledged_path}; "
+        "result=$$?; "
+        f"if [ $$result -ne 0 ]; then /usr/bin/mv -f {request_path} {failed_path}; fi; "
+        "exit $$result'"
+    )
     return "\n".join((
         "[Unit]", "Description=MyTools fixed OneBot relogin action",
-        "After=docker.service", "Requires=docker.service", "", "[Service]",
-        "Type=oneshot", "ExecStartPre=/usr/bin/rm -f /opt/napcat/cache/qrcode.png",
-        "ExecStart=/usr/bin/docker restart --time 3 downloadbot-napcat",
-        f"ExecStartPost=/usr/bin/rm -f {request_path}", "TimeoutStartSec=90",
+        "After=docker.service", "Requires=docker.service",
+        "StartLimitIntervalSec=300", "StartLimitBurst=3", "", "[Service]",
+        "Type=oneshot", f"ExecStart={action}", "TimeoutStartSec=90",
         "UMask=0077", "NoNewPrivileges=true", "PrivateTmp=true", "ProtectHome=true", ""))
 
 

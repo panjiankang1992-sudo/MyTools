@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 import runpy
 import socket
 import sys
@@ -42,6 +43,9 @@ def main() -> None:
         raise SystemExit("task runner requires an entrypoint")
     entrypoint = sys.argv[1]
     sys.argv = [entrypoint, *sys.argv[2:]]
+    original_path = sys.path.copy()
+    # 与直接执行脚本保持一致，使已校验包内的辅助模块可导入。
+    sys.path.insert(0, str(Path(entrypoint).resolve().parent))
     try:
         runpy.run_path(entrypoint, run_name="__main__")
     except SystemExit:
@@ -52,6 +56,8 @@ def main() -> None:
             code, category = classified
             write_task_error(code, category, str(exception)[:2048])
         raise
+    finally:
+        sys.path[:] = original_path
 
 
 if __name__ == "__main__":

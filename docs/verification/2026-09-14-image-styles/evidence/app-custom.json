@@ -1,0 +1,37 @@
+{
+  "id": "86a16afe-73dc-4fe4-a87b-d30e078a292e",
+  "status": "SUCCEEDED",
+  "elapsedMillis": 51000,
+  "request": {
+    "resourceId": "krea2-local",
+    "prompt": "A red ceramic teapot on a pale table, side view, soft daylight.",
+    "mode": "TEXT_TO_IMAGE",
+    "references": [],
+    "size": "1024x1024",
+    "count": 1,
+    "seed": 806092116,
+    "idempotencyKey": "9a233192-051b-457f-ae3b-277a6b87c28d",
+    "styleId": "e5f41f1b-0f9e-463b-aaab-c31c9725bcbc",
+    "styleVersion": 1,
+    "styleSnapshot": {
+      "id": "e5f41f1b-0f9e-463b-aaab-c31c9725bcbc",
+      "version": 1,
+      "name": "Acceptance Paper",
+      "promptTemplate": "Render {prompt} as layered cut-paper art with crisp edges, shallow shadows, red and cream colors.",
+      "origin": "USER",
+      "kind": "PROMPT",
+      "negativePrompt": "",
+      "compatibleModels": [
+        "krea2-local"
+      ],
+      "modes": [
+        "TEXT_TO_IMAGE",
+        "IMAGE_TO_IMAGE"
+      ]
+    },
+    "effectivePrompt": "Render A red ceramic teapot on a pale table, side view, soft daylight. as layered cut-paper art with crisp edges, shallow shadows, red and cream colors.",
+    "workflowRevision": "krea2-turbo-v1",
+    "modelId": "krea2-turbo"
+  },
+  "sha256": "cfdd5dd6cdea34d620b02383b7c112a02de14137ce8d84f081119ccdb970b7b4"
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import grp
 import json
 import os
 import pwd
@@ -34,31 +35,42 @@ def paths(manifest: dict[str, Any]) -> list[Path]:
     entries = manifest["services"] + manifest["statelessServices"]
     return [DEPLOYMENT_ROOT, DEPLOYMENT_ROOT / "config", DEPLOYMENT_ROOT / "releases",
             DEPLOYMENT_ROOT / "runtime", DEPLOYMENT_ROOT / "runtime" / "tasks",
+            DEPLOYMENT_ROOT / "runtime" / "qq",
+            DEPLOYMENT_ROOT / "runtime" / "onebot",
+            DEPLOYMENT_ROOT / "runtime" / "image-generation",
+            DEPLOYMENT_ROOT / "runtime" / "image-generation" / "inputs",
+            DEPLOYMENT_ROOT / "runtime" / "image-generation" / "outputs",
             DEPLOYMENT_ROOT / "migration", LOG_ROOT,
             *(LOG_ROOT / entry["name"] for entry in entries)]
 
 
 def identity(name: str) -> tuple[int, int]:
     """Resolve the non-root service account."""
-    if not name or name == "root":
+    if name != "mytools":
         raise ValueError("service user is invalid")
     try:
         value = pwd.getpwnam(name)
+        group = grp.getgrnam(name)
     except KeyError as error:
-        raise ValueError("service user does not exist") from error
-    return value.pw_uid, value.pw_gid
+        raise ValueError("service identity does not exist") from error
+    if value.pw_gid != group.gr_gid:
+        raise ValueError("service user primary group is invalid")
+    return value.pw_uid, group.gr_gid
 
 
 def prepare(manifest: dict[str, Any], uid: int, gid: int) -> list[str]:
     """Create or normalize only exact directories without following symbolic links."""
     prepared = []
+    protected = {DEPLOYMENT_ROOT, DEPLOYMENT_ROOT / "config", DEPLOYMENT_ROOT / "releases"}
     for path in paths(manifest):
         if path.is_symlink():
             raise ValueError(f"managed directory is a symbolic link: {path}")
         path.mkdir(mode=0o750, parents=True, exist_ok=True)
         if not path.is_dir():
             raise ValueError(f"managed path is not a directory: {path}")
-        os.chown(path, uid, gid, follow_symlinks=False)
+        # 发布根和配置边界只能由 root 修改，服务账号仅通过组权限遍历。
+        owner = 0 if path in protected else uid
+        os.chown(path, owner, gid, follow_symlinks=False)
         os.chmod(path, 0o750, follow_symlinks=False)
         prepared.append(str(path))
     return prepared

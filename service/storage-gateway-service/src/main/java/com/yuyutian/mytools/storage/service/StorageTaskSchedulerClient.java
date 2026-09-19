@@ -1,12 +1,13 @@
 package com.yuyutian.mytools.storage.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yuyutian.mytools.task.client.CreateTaskRequest;
 import com.yuyutian.mytools.storage.model.ErrorCode;
 import com.yuyutian.mytools.storage.model.StorageOperation;
 import com.yuyutian.mytools.storage.model.ChecksumOperation;
 import com.yuyutian.mytools.storage.repository.StorageRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -18,17 +19,39 @@ import java.util.UUID;
  */
 @Component
 public class StorageTaskSchedulerClient {
-    private final RestClient restClient;
+    private final com.yuyutian.mytools.task.client.TaskSchedulerClient client;
 
     /**
      * 创建任务调度客户端。
      *
      * @param builder REST 客户端构建器
      * @param schedulerUrl Scheduler 地址
+     * @param businessToken 业务服务令牌
+     * @param objectMapper JSON 映射器
      */
+    @Autowired
     public StorageTaskSchedulerClient(RestClient.Builder builder,
-                                      @Value("${storage.scheduler-url:http://127.0.0.1:23410}") String schedulerUrl) {
-        this.restClient = builder.baseUrl(schedulerUrl).build();
+                                      @Value("${storage.scheduler-url:http://127.0.0.1:23410}") String schedulerUrl,
+                                      @Value("${storage.scheduler-token:}") String businessToken,
+                                      ObjectMapper objectMapper) {
+        this.client = new com.yuyutian.mytools.task.client.TaskSchedulerClient(
+                builder.baseUrl(schedulerUrl).build(), objectMapper, businessToken,
+                "storage-gateway-service");
+    }
+
+    /** 创建兼容测试使用的客户端。 @param builder REST 客户端构建器 @param schedulerUrl Scheduler 地址 @param businessToken 业务服务令牌 */
+    public StorageTaskSchedulerClient(RestClient.Builder builder, String schedulerUrl, String businessToken) {
+        this(builder, schedulerUrl, businessToken, new ObjectMapper().findAndRegisterModules());
+    }
+
+    /**
+     * 创建不携带令牌的兼容客户端。
+     *
+     * @param builder REST 客户端构建器
+     * @param schedulerUrl Scheduler 地址
+     */
+    public StorageTaskSchedulerClient(RestClient.Builder builder, String schedulerUrl) {
+        this(builder, schedulerUrl, "", new ObjectMapper().findAndRegisterModules());
     }
 
     /**
@@ -55,19 +78,8 @@ public class StorageTaskSchedulerClient {
             case "DELETE_TREE" -> "storage_delete_tree";
             default -> throw new IllegalArgumentException(ErrorCode.OPERATION_STATE_INVALID.code());
         };
-        Map<String, Object> request = Map.of(
-                "taskName", taskName,
-                "idempotencyKey", "storage:" + operation.idempotencyKey(),
-                "businessType", "STORAGE_OPERATION",
-                "businessId", operation.id().toString(),
-                "priority", 40,
-                "parameters", parameters);
-        JsonNode response = restClient.post().uri("/api/v1/task-instances")
-                .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
-        if (response == null || response.path("id").isMissingNode()) {
-            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
-        }
-        return UUID.fromString(response.path("id").asText());
+        return client.create(CreateTaskRequest.create(taskName, "storage:" + operation.idempotencyKey(),
+                "STORAGE_OPERATION", operation.id().toString(), 40, parameters)).id();
     }
 
     /**
@@ -78,20 +90,10 @@ public class StorageTaskSchedulerClient {
      * @return 任务实例标识
      */
     public UUID createChecksumTask(ChecksumOperation operation, StorageRepository.ManagedRoot root) {
-        Map<String, Object> request = Map.of(
-                "taskName", "storage_compute_checksum",
-                "idempotencyKey", "storage-checksum:" + operation.idempotencyKey(),
-                "businessType", "STORAGE_CHECKSUM_OPERATION",
-                "businessId", operation.id().toString(),
-                "priority", 40,
-                "parameters", Map.of("checksumOperationId", operation.id().toString()),
-                "requiredNodeLabels", Map.of(root.nodeAffinityLabel(), root.nodeAffinityValue()));
-        JsonNode response = restClient.post().uri("/api/v1/task-instances")
-                .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
-        if (response == null || response.path("id").isMissingNode()) {
-            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
-        }
-        return UUID.fromString(response.path("id").asText());
+        return client.create(new CreateTaskRequest("storage_compute_checksum",
+                "storage-checksum:" + operation.idempotencyKey(), "STORAGE_CHECKSUM_OPERATION",
+                operation.id().toString(), 40, Map.of("checksumOperationId", operation.id().toString()),
+                Map.of(root.nodeAffinityLabel(), root.nodeAffinityValue()))).id();
     }
 
     /**
@@ -101,19 +103,9 @@ public class StorageTaskSchedulerClient {
      * @return 任务实例标识
      */
     public UUID createMoveRecoveryTask(StorageOperation operation) {
-        Map<String, Object> request = Map.of(
-                "taskName", "storage_recover_move",
-                "idempotencyKey", "storage-move-recovery:" + operation.id(),
-                "businessType", "STORAGE_MOVE_RECOVERY",
-                "businessId", operation.id().toString(),
-                "priority", 90,
-                "parameters", Map.of("operationId", operation.id().toString()));
-        JsonNode response = restClient.post().uri("/api/v1/task-instances")
-                .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
-        if (response == null || response.path("id").isMissingNode()) {
-            throw new IllegalStateException(ErrorCode.REMOTE_FAILURE.code());
-        }
-        return UUID.fromString(response.path("id").asText());
+        return client.create(CreateTaskRequest.create("storage_recover_move",
+                "storage-move-recovery:" + operation.id(), "STORAGE_MOVE_RECOVERY", operation.id().toString(),
+                90, Map.of("operationId", operation.id().toString()))).id();
     }
 
     /**
@@ -122,7 +114,6 @@ public class StorageTaskSchedulerClient {
      * @param taskId 任务实例标识
      */
     public void cancel(UUID taskId) {
-        restClient.post().uri("/api/v1/task-instances/{id}/cancel", taskId)
-                .contentType(MediaType.APPLICATION_JSON).body(Map.of()).retrieve().toBodilessEntity();
+        client.cancel(taskId);
     }
 }

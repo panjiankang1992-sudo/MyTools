@@ -9,10 +9,21 @@ import java.util.UUID;
  */
 public record InboundMessage(UUID id, long ownerId, ChannelType channelType, String externalMessageId,
                              String conversationKey, String sender, String subject, String body,
-                             Instant receivedAt, Instant createdAt, List<MessagePart> parts) {
+                             Instant receivedAt, Instant createdAt, List<MessagePart> parts,
+                             boolean preAcknowledged) {
 
     public InboundMessage {
         parts = parts == null ? List.of() : List.copyOf(parts);
+    }
+
+    /**
+     * 兼容尚未提供提前受理标记的消息响应。
+     */
+    public InboundMessage(UUID id, long ownerId, ChannelType channelType, String externalMessageId,
+                          String conversationKey, String sender, String subject, String body,
+                          Instant receivedAt, Instant createdAt, List<MessagePart> parts) {
+        this(id, ownerId, channelType, externalMessageId, conversationKey, sender, subject, body,
+                receivedAt, createdAt, parts, false);
     }
 
     /**
@@ -22,7 +33,7 @@ public record InboundMessage(UUID id, long ownerId, ChannelType channelType, Str
                           String conversationKey, String sender, String subject, String body,
                           Instant receivedAt, Instant createdAt) {
         this(id, ownerId, channelType, externalMessageId, conversationKey, sender, subject, body,
-                receivedAt, createdAt, List.of());
+                receivedAt, createdAt, List.of(), false);
     }
 
     /**

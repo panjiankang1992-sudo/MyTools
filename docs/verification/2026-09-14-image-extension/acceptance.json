@@ -1,0 +1,34 @@
+{
+  "release": "image-extension-20260914-v3",
+  "jobs": [
+    {
+      "id": "18c7f431-9f02-4bdf-b447-bc2f8fe3ebcf",
+      "mode": "IMAGE_TO_IMAGE",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 61000
+    },
+    {
+      "id": "cb3d2ddd-0c2b-44ce-96ef-2e1b3a293655",
+      "mode": "IMAGE_TO_PROMPT",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 7000
+    },
+    {
+      "id": "d426f28b-9572-4056-82f8-4906c39038cb",
+      "mode": "TEXT_TO_IMAGE",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 52000
+    }
+  ],
+  "prompt": "A serene mountain lake at sunrise surrounded by snow-capped peaks reflecting perfectly in the calm water, with rocky shores and patches of snow on the ground, set against a clear sky transitioning from soft pink to pale blue, capturing the tranquil beauty of a high-altitude alpine landscape with precise symmetry and natural lighting emphasizing the golden hour glow on the mountain slopes.",
+  "editSha256": "5738e0a7f3738ee5de42d523d820f93080cb029554bb1d53e99b1a3e42f7c046",
+  "regeneratedSha256": "79dffb2792a63314c80f523f3f2e499b4da67b95e938e8129dd927d918c1d2ea",
+  "editAssetId": "f5b67b70-6534-47ae-a65f-145f9d0c5861",
+  "ownerIsolation": true,
+  "idempotency": true,
+  "idempotencyConflict": true,
+  "emptyReferenceRejected": true,
+  "cancelled": true,
+  "restartPersistence": true,
+  "historyReadable": true
+}

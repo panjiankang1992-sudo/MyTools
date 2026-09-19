@@ -9,6 +9,12 @@ from uuid import UUID, uuid4
 
 from .models import DownloadRequest, DownloadStatus
 
+_TERMINAL_STATUSES = frozenset({
+    DownloadStatus.CANCELLED,
+    DownloadStatus.SUCCEEDED,
+    DownloadStatus.FAILED,
+})
+
 
 class MySqlDownloadRequestRepository:
     """Persist download requests through a PEP 249 connection factory."""
@@ -51,18 +57,37 @@ class MySqlDownloadRequestRepository:
             connection.close()
 
     def bind_task(self, request_id: UUID, task_instance_id: UUID) -> DownloadRequest:
-        """Idempotently bind the scheduler task and mark the request running."""
+        """幂等绑定 Scheduler 任务，并禁止迟到绑定回退已推进的状态。"""
         connection = self._connection_factory()
         now = datetime.now(UTC)
         try:
             with connection.cursor() as cursor:
+                # 与状态推进锁定同一请求行，避免并发 create 的迟到 bind 回退终态。
                 cursor.execute(
-                    """UPDATE download_request
-                       SET task_instance_id = COALESCE(task_instance_id, %s), status = %s, updated_at = %s
-                       WHERE id = %s""",
-                    (str(task_instance_id), DownloadStatus.RUNNING.value, now, str(request_id)),
+                    "SELECT task_instance_id, status FROM download_request WHERE id = %s FOR UPDATE",
+                    (str(request_id),),
                 )
+                row = cursor.fetchone()
+                if row is None:
+                    raise KeyError(f"download request does not exist: {request_id}")
+                existing_task_id = row["task_instance_id"]
+                if existing_task_id is not None and str(existing_task_id) != str(task_instance_id):
+                    raise ValueError("download request task binding conflict")
+                current_status = DownloadStatus(str(row["status"]))
+                if existing_task_id is None:
+                    status = (current_status if current_status in _TERMINAL_STATUSES
+                              or current_status == DownloadStatus.CANCELLING
+                              else DownloadStatus.RUNNING)
+                    cursor.execute(
+                        """UPDATE download_request
+                           SET task_instance_id = %s, status = %s, updated_at = %s
+                           WHERE id = %s""",
+                        (str(task_instance_id), status.value, now, str(request_id)),
+                    )
             connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
         finally:
             connection.close()
         bound = self.find_by_id(request_id)
@@ -71,15 +96,73 @@ class MySqlDownloadRequestRepository:
         return bound
 
     def update_status(self, request_id: UUID, status: DownloadStatus) -> DownloadRequest:
-        """Persist one reconciled lifecycle status."""
+        """持久化非终态生命周期，并在并发时禁止覆盖已提交的终态。"""
+        if status in _TERMINAL_STATUSES:
+            return self.complete_terminal(request_id, status)
         connection = self._connection_factory()
         try:
             with connection.cursor() as cursor:
+                # 状态推进和终态封口锁定同一行，避免迟到的 CANCELLING 覆盖成功终态。
                 cursor.execute(
-                    "UPDATE download_request SET status = %s, updated_at = %s WHERE id = %s",
-                    (status.value, datetime.now(UTC), str(request_id)),
+                    "SELECT status FROM download_request WHERE id = %s FOR UPDATE",
+                    (str(request_id),),
                 )
+                row = cursor.fetchone()
+                if row is None:
+                    raise KeyError(f"download request does not exist: {request_id}")
+                current_status = DownloadStatus(str(row["status"]))
+                regresses_cancelling = (current_status == DownloadStatus.CANCELLING
+                                        and status in {DownloadStatus.ACCEPTED,
+                                                       DownloadStatus.PLANNING,
+                                                       DownloadStatus.RUNNING})
+                if current_status not in _TERMINAL_STATUSES and not regresses_cancelling:
+                    cursor.execute(
+                        "UPDATE download_request SET status = %s, updated_at = %s WHERE id = %s",
+                        (status.value, datetime.now(UTC), str(request_id)),
+                    )
             connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            connection.close()
+        updated = self.find_by_id(request_id)
+        if updated is None:
+            raise KeyError(f"download request does not exist: {request_id}")
+        return updated
+
+    def complete_terminal(self, request_id: UUID, status: DownloadStatus) -> DownloadRequest:
+        """原子写入请求终态，并把全部待处理标签收敛为失败终态。"""
+        if status not in _TERMINAL_STATUSES:
+            raise ValueError("download request status is not terminal")
+        connection = self._connection_factory()
+        now = datetime.now(UTC)
+        try:
+            with connection.cursor() as cursor:
+                # 请求行锁与结果写入使用相同锁顺序，避免终态封口后出现新的 PENDING。
+                cursor.execute(
+                    "SELECT status FROM download_request WHERE id = %s FOR UPDATE",
+                    (str(request_id),),
+                )
+                row = cursor.fetchone()
+                if row is None:
+                    raise KeyError(f"download request does not exist: {request_id}")
+                cursor.execute(
+                    """UPDATE download_item
+                       SET tag_status = %s, tags_json = %s, updated_at = %s
+                       WHERE download_request_id = %s AND status = 'COMPLETED' AND tag_status = %s""",
+                    ("FAILED", "[]", now, str(request_id), "PENDING"),
+                )
+                current_status = DownloadStatus(str(row["status"]))
+                if current_status not in _TERMINAL_STATUSES:
+                    cursor.execute(
+                        "UPDATE download_request SET status = %s, updated_at = %s WHERE id = %s",
+                        (status.value, now, str(request_id)),
+                    )
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
         finally:
             connection.close()
         updated = self.find_by_id(request_id)
@@ -93,6 +176,14 @@ class MySqlDownloadRequestRepository:
         now = datetime.now(UTC)
         try:
             with connection.cursor() as cursor:
+                # 与终态封口事务先锁同一请求行，迟到结果只能直接进入失败标签终态。
+                cursor.execute(
+                    "SELECT status FROM download_request WHERE id = %s FOR UPDATE",
+                    (str(request_id),),
+                )
+                request_row = cursor.fetchone()
+                if request_row is None:
+                    raise KeyError("download request does not exist")
                 cursor.execute(
                     """SELECT source_index, external_item_id, file_name, content_sha256, size_bytes, storage_uri, asset_id
                        FROM download_item WHERE download_request_id = %s AND external_item_id = %s""",
@@ -116,14 +207,17 @@ class MySqlDownloadRequestRepository:
                     connection.commit()
                     return persisted
                 item_id = str(uuid4())
+                request_status = DownloadStatus(str(request_row["status"]))
+                tag_status = "FAILED" if request_status in _TERMINAL_STATUSES else "PENDING"
                 cursor.execute(
                     """INSERT INTO download_item (
                        id, download_request_id, source_index, external_item_id, file_name,
-                       content_sha256, size_bytes, storage_uri, asset_id, status, created_at, updated_at
-                       ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'COMPLETED', %s, %s)""",
+                       content_sha256, size_bytes, storage_uri, asset_id, status,
+                       tag_status, tags_json, created_at, updated_at
+                       ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'COMPLETED', %s, %s, %s, %s)""",
                     (item_id, str(request_id), comparable["sourceIndex"], comparable["itemId"], comparable["fileName"],
                      comparable["contentSha256"], comparable["sizeBytes"], comparable["storageUri"],
-                     comparable["assetId"], now, now),
+                     comparable["assetId"], tag_status, "[]", now, now),
                 )
                 cursor.execute(
                     """INSERT INTO download_outbox

@@ -37,7 +37,8 @@ class TaskSchedulerHttpClientTest(unittest.TestCase):
         """The adapter must send the scheduler's public create contract."""
         task_id = uuid4()
         mocked_open.return_value = FakeResponse({"id": str(task_id)})
-        client = TaskSchedulerHttpClient("http://scheduler")
+        client = TaskSchedulerHttpClient(
+            "http://scheduler", service_id="messaging-service", business_token="business-token")
 
         actual = client.create_task(
             task_name="download_http_asset",
@@ -52,3 +53,6 @@ class TaskSchedulerHttpClientTest(unittest.TestCase):
         self.assertEqual("DOWNLOAD_REQUEST", payload["businessType"])
         self.assertEqual("request-1", payload["businessId"])
         self.assertEqual("download_http_asset", payload["taskName"])
+        self.assertEqual(60, payload["priority"])
+        self.assertEqual("messaging-service", request.get_header("X-task-service-id"))
+        self.assertEqual("business-token", request.get_header("X-task-business-token"))

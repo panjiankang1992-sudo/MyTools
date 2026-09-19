@@ -1,0 +1,7 @@
+source image brightness = 0.714
+grey fill (official)     framemean 0.202 min 0.0003 blank 2 dark 7
+   first 8 frames: 0.71 0.42 0.01 0.00 0.00 0.00 0.00 0.00
+repeat fill (variant)    framemean 0.719 min 0.7105 blank 0 dark 0
+   first 8 frames: 0.71 0.72 0.71 0.71 0.71 0.71 0.71 0.71
+grey fill @seed42 (good) framemean 0.498 min 0.4334 blank 0 dark 0
+   first 8 frames: 0.71 0.70 0.71 0.67 0.68 0.52 0.48 0.47

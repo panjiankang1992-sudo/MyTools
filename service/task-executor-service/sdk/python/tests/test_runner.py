@@ -47,3 +47,10 @@ def test_leaves_unknown_exception_unclassified(tmp_path: Path, monkeypatch):
 
     assert completed.returncode != 0
     assert error is None
+
+
+def test_imports_helper_from_verified_entrypoint_directory(tmp_path: Path, monkeypatch):
+    (tmp_path / "gpu_helper.py").write_text("VALUE = 42\n", encoding="utf-8")
+    completed, error = run_script(tmp_path, monkeypatch, "from gpu_helper import VALUE\nassert VALUE == 42\n")
+    assert completed.returncode == 0, completed.stderr
+    assert error is None

@@ -1,0 +1,139 @@
+{
+  "repository": "Comfy-Org/Krea-2",
+  "revision": "e5ea8b4dd7f38f348b138eb0fe29f92c0e367e96",
+  "retrievedAt": "2026-09-14",
+  "files": [
+    {
+      "type": "file",
+      "oid": "fc7be399719b0d839cdc1900e21a87fd03d8d122",
+      "size": 469291992,
+      "lfs": {
+        "oid": "f47c4316dd93af66e0518c93b582f459571d4925b519133770c73a52cd5db7c6",
+        "size": 469291992,
+        "pointerSize": 134
+      },
+      "xetHash": "fdead7c2f83f6c9412f05c18f48b06122a470e890b5d79d558c2c0c112860d1a",
+      "path": "loras/krea2_darkbrush.safetensors"
+    },
+    {
+      "type": "file",
+      "oid": "c28ef9d23ac2d0bbd218bd566fb4b8b825112948",
+      "size": 469291992,
+      "lfs": {
+        "oid": "805aa30d863347222485b9d3ce81642dbc70a73cebc95ab57219d98b878fceec",
+        "size": 469291992,
+        "pointerSize": 134
+      },
+      "xetHash": "cccbc0463eb35a46ccc65b684516d2e5422a69bbe16bb66a5d3ed1fd2baa7408",
+      "path": "loras/krea2_dotmatrix.safetensors"
+    },
+    {
+      "type": "file",
+      "oid": "abd9a3ad6bde1d761e8a30326db4e3487673a9e8",
+      "size": 469291992,
+      "lfs": {
+        "oid": "8c1d45d204aeb4e34a7d9e16a7d473917592ba0048b03f4e03e037e3578ca500",
+        "size": 469291992,
+        "pointerSize": 134
+      },
+      "xetHash": "b3778e625e69fe595f281379bc5cbc3b7c7f026916c6e10d57c51fecff9ee887",
+      "path": "loras/krea2_kidsdrawing.safetensors"
+    },
+    {
+      "type": "file",
+      "oid": "e7bca90f70ad00cf31cc3917d203a4332663d471",
+      "size": 469291992,
+      "lfs": {
+        "oid": "a779c14435949eabae9ce0bface4320cad6672ef3547e8489107e3498d65e871",
+        "size": 469291992,
+        "pointerSize": 134
+      },
+      "xetHash": "4302ae2da244ec36567ffe76c0ccf3f8e7d7fb6459a73a7dc82d97e2a14551ea",
+      "path": "loras/krea2_neondrip.safetensors"
+    },
+    {
+      "type": "file",
+      "oid": "790dc45980c61dcee8e6c40206ac6f76c23a8202",
+      "size": 469291992,
+      "lfs": {
+        "oid": "7063a6f15ec6112ad3c06d79097b2a30a3ea7d9072821cb36021010d55989fe5",
+        "size": 469291992,
+        "pointerSize": 134
+      },
+      "xetHash": "afbc20c7244d7e6ec613b9dad8ab5b6bfdc575f9499b5fb41c5b033fce500296",
+      "path": "loras/krea2_rainywindow.safetensors"
+    },
+    {
+      "type": "file",
+      "oid": "7bfadc6d26cfacde12d0d600ce2f4e379f126b71",
+      "size": 469291992,
+      "lfs": {
+        "oid": "ca42107783d9e517c5d62cb9a9db9ab2ba4887d90e9dad97a9d1a7fe6ff14c56",
+        "size": 469291992,
+        "pointerSize": 134
+      },
+      "xetHash": "c04c7787cb99eaedb0abdbcb4449fec5880a05c470bfe9f2f2bf8ade66975270",
+      "path": "loras/krea2_retroanime.safetensors"
+    },
+    {
+      "type": "file",
+      "oid": "97ee72a533d5aec338df8ddbe5b9c1c408415e8f",
+      "size": 469291992,
+      "lfs": {
+        "oid": "3805e8655f19fbcac116542685e3f78f3a642e8fbfb857b5352bb32a4b3d445a",
+        "size": 469291992,
+        "pointerSize": 134
+      },
+      "xetHash": "45da2776f5d277582f623f8d264bf177bacbdee10dd8b5c135deea14eb81b12b",
+      "path": "loras/krea2_softwatercolor.safetensors"
+    },
+    {
+      "type": "file",
+      "oid": "46b2e4966671aeea3145eb189c43e17d5c53a4fc",
+      "size": 457111760,
+      "lfs": {
+        "oid": "f50df5a9e62e4be8aa926a63dd5bb1a64770c4004f763c1208007ae13daa82b8",
+        "size": 457111760,
+        "pointerSize": 134
+      },
+      "xetHash": "4b4297d095338ef1dd1548684168f5a8a02ef9f2db4cc9d09d776043d7079bd7",
+      "path": "loras/krea2_style_reference.safetensors"
+    },
+    {
+      "type": "file",
+      "oid": "dd8a1226a86c3011e660a51a5895cb292a42da4d",
+      "size": 469291992,
+      "lfs": {
+        "oid": "194abdd531ca190d32799f26ab5bab634aa5ba3f07b7a60ffb282657db8bf3a0",
+        "size": 469291992,
+        "pointerSize": 134
+      },
+      "xetHash": "44894b14d4860ec49f366adaed53f30b86a51b34f0b29b7084cfb8dd79e982d9",
+      "path": "loras/krea2_sunsetblur.safetensors"
+    },
+    {
+      "type": "file",
+      "oid": "cdb89fe434cbcb74cd6c0bec2d3ad7df34da24a3",
+      "size": 469423778,
+      "lfs": {
+        "oid": "db8c5bae0a415d448da9d842111d6e51f7d32e47143a3118eb267e5c4773de87",
+        "size": 469423778,
+        "pointerSize": 134
+      },
+      "xetHash": "d589be289ee8b0678d947921ac222e8bdef9aca7661d769f818ce86dbe7812a9",
+      "path": "loras/krea2_turbo_lora_rank_64_bf16.safetensors"
+    },
+    {
+      "type": "file",
+      "oid": "b42461707943adc48d03724672fb52ee5c4ab7f7",
+      "size": 469291992,
+      "lfs": {
+        "oid": "8cca96c56658fb3ac5269f9ef2245bd07cbf1b7a189f517c8763470bb1385f9f",
+        "size": 469291992,
+        "pointerSize": 134
+      },
+      "xetHash": "1faaee5b1373de17ad9a89cc16b6361d52cbf5b952d400a01b10edeaa5409d03",
+      "path": "loras/krea2_vintagetarot.safetensors"
+    }
+  ]
+}

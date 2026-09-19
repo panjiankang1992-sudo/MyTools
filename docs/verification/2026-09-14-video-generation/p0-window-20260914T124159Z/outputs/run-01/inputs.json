@@ -1,0 +1,16 @@
+[
+  {
+    "kind": "video",
+    "file": "p0-firstlast-control.mp4",
+    "bytes": 22403,
+    "sha256": "ed7b501729a926a19811cd3e758c9f451bf63a33d5995984eb7ed7598ffd98ae",
+    "decodable": true
+  },
+  {
+    "kind": "video",
+    "file": "p0-firstlast-mask.mp4",
+    "bytes": 3556,
+    "sha256": "58d6b4a50f8bd567f2eb4d9fc9e1bf015bb31d81ac13ea159cff7c3dfff36f98",
+    "decodable": true
+  }
+]

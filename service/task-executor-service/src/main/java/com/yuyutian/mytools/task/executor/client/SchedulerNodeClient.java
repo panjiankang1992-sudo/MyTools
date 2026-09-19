@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuyutian.mytools.task.executor.config.ExecutorProperties;
 import com.yuyutian.mytools.task.executor.runtime.ScriptReleaseVerifier;
+import com.yuyutian.mytools.task.executor.runtime.WorkloadAuthorizationRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,10 +16,14 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -35,7 +40,8 @@ public class SchedulerNodeClient implements SchedulerClient {
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
     private final ScriptReleaseVerifier releaseVerifier;
-    private final AtomicReference<UUID> pendingClaimRequestId = new AtomicReference<>();
+    private final WorkloadAuthorizationRegistry workloadAuthorizations;
+    private final Map<String, AtomicReference<UUID>> pendingClaimRequestIds = new ConcurrentHashMap<>();
 
     /**
      * 创建调度服务节点协议客户端。
@@ -43,11 +49,18 @@ public class SchedulerNodeClient implements SchedulerClient {
      * @param properties 执行节点配置
      * @param objectMapper JSON 映射器
      */
-    @Autowired
     public SchedulerNodeClient(ExecutorProperties properties, ObjectMapper objectMapper,
                                ScriptReleaseVerifier releaseVerifier) {
         this(properties, objectMapper, HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build(),
                 releaseVerifier);
+    }
+
+    /** 使用专属宿主 TLS 和不落盘的动态授权注册表创建生产客户端。 */
+    @Autowired
+    public SchedulerNodeClient(ExecutorProperties properties, ObjectMapper objectMapper,
+                               ScriptReleaseVerifier releaseVerifier, ExecutorWorkloadTls tls,
+                               WorkloadAuthorizationRegistry workloadAuthorizations) {
+        this(properties, objectMapper, tls.client(), releaseVerifier, workloadAuthorizations);
     }
 
     /**
@@ -66,10 +79,16 @@ public class SchedulerNodeClient implements SchedulerClient {
 
     SchedulerNodeClient(ExecutorProperties properties, ObjectMapper objectMapper, HttpClient httpClient,
                         ScriptReleaseVerifier releaseVerifier) {
+        this(properties, objectMapper, httpClient, releaseVerifier, null);
+    }
+
+    SchedulerNodeClient(ExecutorProperties properties, ObjectMapper objectMapper, HttpClient httpClient,
+                        ScriptReleaseVerifier releaseVerifier, WorkloadAuthorizationRegistry workloadAuthorizations) {
         this.properties = properties;
         this.objectMapper = objectMapper;
         this.httpClient = httpClient;
         this.releaseVerifier = releaseVerifier;
+        this.workloadAuthorizations = workloadAuthorizations;
     }
 
     /**
@@ -138,12 +157,20 @@ public class SchedulerNodeClient implements SchedulerClient {
 
     /**
      * 更新节点调度状态。
+     *
+     * @param nodeId 节点标识
+     * @param expectedInstanceId 预期的启动实例标识
+     * @param status 目标状态
+     * @param reason 状态原因
+     * @throws IOException 网络或响应解析失败
      */
     @Override
-    public void updateNodeStatus(UUID nodeId, String status, String reason) throws IOException {
+    public void updateNodeStatus(UUID nodeId, UUID expectedInstanceId, String status, String reason)
+            throws IOException {
         sendPatchJson("/api/v1/execution-topology/nodes/" + nodeId + "/status", Map.of(
                 "status", status,
-                "reason", reason
+                "reason", reason,
+                "expectedInstanceId", expectedInstanceId.toString()
         ));
     }
 
@@ -157,28 +184,116 @@ public class SchedulerNodeClient implements SchedulerClient {
      */
     @Override
     public Optional<ClaimedTask> claim(UUID nodeId, UUID instanceId) throws IOException {
-        UUID claimRequestId = pendingClaimRequestId.updateAndGet(
-                current -> current == null ? UUID.randomUUID() : current);
-        Map<String, Object> payload = Map.of(
-                "nodeId", nodeId.toString(),
-                "instanceId", instanceId.toString(),
-                "claimRequestId", claimRequestId.toString(),
-                "leaseSeconds", properties.leaseSeconds()
-        );
-        HttpResponse<String> response = post("/internal/v1/executions/claim", payload, Map.of());
-        if (response.statusCode() == 204) {
-            pendingClaimRequestId.compareAndSet(claimRequestId, null);
+        return claim(nodeId, instanceId, false, false, Set.of());
+    }
+
+    /**
+     * 按任务层级领取一个可执行任务。
+     *
+     * @param nodeId 节点标识
+     * @param instanceId 启动实例标识
+     * @param childTaskOnly 是否只领取具有父任务的子任务
+     * @return 可选任务租约
+     * @throws IOException 网络或响应解析失败
+     */
+    @Override
+    public Optional<ClaimedTask> claim(UUID nodeId, UUID instanceId, boolean childTaskOnly) throws IOException {
+        return claim(nodeId, instanceId, childTaskOnly, false, Set.of());
+    }
+
+    /**
+     * 只领取根任务。
+     */
+    @Override
+    public Optional<ClaimedTask> claimRootTask(UUID nodeId, UUID instanceId) throws IOException {
+        return claim(nodeId, instanceId, false, true, Set.of());
+    }
+
+    /**
+     * 只领取指定父任务的直接子任务。
+     */
+    @Override
+    public Optional<ClaimedTask> claimDirectChildTask(UUID nodeId, UUID instanceId,
+                                                      Set<UUID> parentTaskInstanceIds) throws IOException {
+        if (parentTaskInstanceIds == null || parentTaskInstanceIds.isEmpty()) {
             return Optional.empty();
         }
-        requireSuccess(response);
-        ClaimedTask claimedTask = objectMapper.readValue(response.body(), ClaimedTask.class);
+        return claim(nodeId, instanceId, true, false, parentTaskInstanceIds);
+    }
+
+    private Optional<ClaimedTask> claim(UUID nodeId, UUID instanceId, boolean childTaskOnly,
+                                        boolean rootTaskOnly, Set<UUID> parentTaskInstanceIds) throws IOException {
+        List<String> parentIds = parentTaskInstanceIds.stream()
+                .map(UUID::toString)
+                .sorted(Comparator.naturalOrder())
+                .toList();
+        String claimScope = childTaskOnly + ":" + rootTaskOnly + ":" + String.join(",", parentIds);
+        AtomicReference<UUID> pendingRequestId = pendingClaimRequestIds.computeIfAbsent(
+                claimScope, ignored -> new AtomicReference<>());
+        UUID claimRequestId = pendingRequestId.updateAndGet(
+                current -> current == null ? UUID.randomUUID() : current);
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("nodeId", nodeId.toString());
+        payload.put("instanceId", instanceId.toString());
+        payload.put("claimRequestId", claimRequestId.toString());
+        payload.put("leaseSeconds", properties.leaseSeconds());
+        payload.put("childTaskOnly", childTaskOnly);
+        payload.put("rootTaskOnly", rootTaskOnly);
+        payload.put("parentTaskInstanceIds", parentIds);
+        HttpResponse<String> response = post("/internal/v1/executions/claim", payload, Map.of());
+        if (response.statusCode() == 204) {
+            clearPendingClaim(claimScope, pendingRequestId, claimRequestId);
+            if (response.headers().firstValue("X-MyTools-Claim-Blocked")
+                    .filter("CAPACITY_RESERVED"::equalsIgnoreCase)
+                    .isPresent()) {
+                throw new ClaimCapacityReservedException();
+            }
+            return Optional.empty();
+        }
+        try {
+            requireSuccess(response);
+        } catch (SchedulerClientException exception) {
+            // 只有 Scheduler 明确判定旧领取租约丢失，才能放弃原 key 并开始下一次领取。
+            if (exception.statusCode() == 409 && "EXECUTION_LEASE_LOST".equals(exception.errorCode())) {
+                clearPendingClaim(claimScope, pendingRequestId, claimRequestId);
+            }
+            throw exception;
+        }
+        ClaimedTask claimedTask;
+        try {
+            claimedTask = objectMapper.readValue(response.body(), ClaimedTask.class);
+        } catch (JsonProcessingException exception) {
+            throw new IOException("Scheduler returned an invalid claim response");
+        }
         try {
             claimedTask.verifyDefinitionDigest();
         } catch (IllegalArgumentException exception) {
-            throw new IOException("Scheduler returned an invalid task definition digest", exception);
+            throw new IOException("Scheduler returned an invalid task definition digest");
         }
-        pendingClaimRequestId.compareAndSet(claimRequestId, null);
+        if (rootTaskOnly && claimedTask.parentTaskInstanceId() != null) {
+            throw new IOException("Scheduler returned a child task for a root-only claim");
+        }
+        if (childTaskOnly && claimedTask.parentTaskInstanceId() == null) {
+            throw new IOException("Scheduler returned a root task for a child-only claim");
+        }
+        if (!parentTaskInstanceIds.isEmpty()
+                && !parentTaskInstanceIds.contains(claimedTask.parentTaskInstanceId())) {
+            throw new IOException("Scheduler returned a task outside the direct-child claim scope");
+        }
+        if (workloadAuthorizations != null) {
+            workloadAuthorizations.acceptClaim(claimedTask);
+        } else if (WorkloadAuthorizationRegistry.protectedTask(claimedTask.taskName())
+                || claimedTask.workloadAssertion() != null || claimedTask.workloadAssertionExpiresAt() != null) {
+            throw new IOException("Executor workload authorization is unavailable");
+        }
+        clearPendingClaim(claimScope, pendingRequestId, claimRequestId);
         return Optional.of(claimedTask);
+    }
+
+    private void clearPendingClaim(String claimScope, AtomicReference<UUID> pendingRequestId, UUID claimRequestId) {
+        if (pendingRequestId.compareAndSet(claimRequestId, null)) {
+            pendingClaimRequestIds.remove(claimScope, pendingRequestId);
+        }
     }
 
     /**
@@ -190,11 +305,33 @@ public class SchedulerNodeClient implements SchedulerClient {
      */
     @Override
     public ExecutionLease heartbeatExecution(ClaimedTask task) throws IOException {
-        JsonNode response = sendJson("/internal/v1/executions/" + task.executionId() + "/heartbeat", Map.of(
-                "leaseToken", task.leaseToken().toString(),
-                "leaseSeconds", properties.leaseSeconds()
-        ), Map.of());
-        return objectMapper.treeToValue(response, ExecutionLease.class);
+        try {
+            JsonNode response = sendJson("/internal/v1/executions/" + task.executionId() + "/heartbeat", Map.of(
+                    "leaseToken", task.leaseToken().toString(), "leaseSeconds", properties.leaseSeconds()), Map.of());
+            ExecutionLease lease = objectMapper.treeToValue(response, ExecutionLease.class);
+            if (workloadAuthorizations != null) {
+                workloadAuthorizations.acceptHeartbeat(task, lease);
+            } else if (WorkloadAuthorizationRegistry.protectedTask(task.taskName())
+                    || lease.workloadAssertion() != null || lease.workloadAssertionExpiresAt() != null) {
+                throw new IOException("Executor workload authorization is unavailable");
+            }
+            return lease;
+        } catch (JsonProcessingException exception) {
+            releaseWorkloadAuthorization(task.executionId());
+            throw new IOException("Scheduler returned an invalid lease response");
+        } catch (SchedulerClientException exception) {
+            if (exception.statusCode() == 401 || exception.statusCode() == 403 || exception.statusCode() == 409) {
+                // 明确撤销不等待本地租约或 token 自然到期。
+                releaseWorkloadAuthorization(task.executionId());
+            }
+            throw exception;
+        }
+    }
+
+    /** 关闭本地普通执行授权，不影响仅可结算已发送 attempt 的未来独立 relay。 */
+    @Override
+    public void releaseWorkloadAuthorization(UUID executionId) {
+        if (workloadAuthorizations != null) workloadAuthorizations.close(executionId);
     }
 
     /**
@@ -259,6 +396,7 @@ public class SchedulerNodeClient implements SchedulerClient {
      */
     @Override
     public void complete(ClaimedTask task, ExecutionCompletion completion) throws IOException {
+        releaseWorkloadAuthorization(task.executionId());
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("completionRequestId", stableRequestId("complete", task.executionId(), completion.status(),
                 completion.compensationStatus(), completion.compensationRequired(),
@@ -282,7 +420,11 @@ public class SchedulerNodeClient implements SchedulerClient {
     private JsonNode sendJson(String path, Map<String, Object> payload, Map<String, String> headers) throws IOException {
         HttpResponse<String> response = post(path, payload, headers);
         requireSuccess(response);
-        return response.body().isBlank() ? objectMapper.createObjectNode() : objectMapper.readTree(response.body());
+        try {
+            return response.body().isBlank() ? objectMapper.createObjectNode() : objectMapper.readTree(response.body());
+        } catch (JsonProcessingException exception) {
+            throw new IOException("Scheduler returned an invalid JSON response");
+        }
     }
 
     private JsonNode sendPatchJson(String path, Map<String, Object> payload) throws IOException {
@@ -330,7 +472,8 @@ public class SchedulerNodeClient implements SchedulerClient {
             String errorCode = "HTTP_" + response.statusCode();
             try {
                 JsonNode body = objectMapper.readTree(response.body());
-                if (body.hasNonNull("code")) {
+                if (body != null && body.path("code").isTextual()
+                        && body.path("code").textValue().matches("[A-Z][A-Z0-9_]{0,63}")) {
                     errorCode = body.path("code").asText();
                 }
             } catch (JsonProcessingException ignored) {

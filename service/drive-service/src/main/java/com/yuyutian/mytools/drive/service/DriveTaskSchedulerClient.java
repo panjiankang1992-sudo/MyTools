@@ -1,7 +1,7 @@
 package com.yuyutian.mytools.drive.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.http.MediaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yuyutian.mytools.task.client.CreateTaskRequest;
 import org.springframework.web.client.RestClient;
 
 import java.util.Map;
@@ -11,7 +11,7 @@ import java.util.UUID;
  * Drive 使用的任务调度客户端。
  */
 public class DriveTaskSchedulerClient {
-    private final RestClient restClient;
+    private final com.yuyutian.mytools.task.client.TaskSchedulerClient client;
 
     /**
      * 创建客户端。
@@ -19,7 +19,23 @@ public class DriveTaskSchedulerClient {
      * @param restClient HTTP 客户端
      */
     public DriveTaskSchedulerClient(RestClient restClient) {
-        this.restClient = restClient;
+        this(restClient, "");
+    }
+
+    /**
+     * 创建携带业务服务令牌的客户端。
+     *
+     * @param restClient HTTP 客户端
+     * @param businessToken 业务服务令牌
+     */
+    public DriveTaskSchedulerClient(RestClient restClient, String businessToken) {
+        this(new com.yuyutian.mytools.task.client.TaskSchedulerClient(restClient,
+            new ObjectMapper().findAndRegisterModules(), businessToken));
+    }
+
+    /** 创建领域适配器。 @param client 公共 Scheduler 客户端 */
+    public DriveTaskSchedulerClient(com.yuyutian.mytools.task.client.TaskSchedulerClient client) {
+        this.client = client;
     }
 
     /**
@@ -31,19 +47,8 @@ public class DriveTaskSchedulerClient {
      * @return 任务标识
      */
     public UUID createIndexTask(UUID operationId, UUID accountId, String idempotencyKey) {
-        Map<String, Object> request = Map.of(
-            "taskName", "drive_index_account",
-            "idempotencyKey", "drive_index:" + idempotencyKey,
-            "businessType", "DRIVE_INDEX",
-            "businessId", operationId.toString(),
-            "priority", 40,
-            "parameters", Map.of("accountId", accountId.toString()));
-        JsonNode response = restClient.post().uri("/api/v1/task-instances")
-            .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(JsonNode.class);
-        if (response == null || response.path("id").isMissingNode()) {
-            throw new IllegalStateException("Scheduler returned an invalid task response");
-        }
-        return UUID.fromString(response.path("id").asText());
+        return client.create(CreateTaskRequest.create("drive_index_account", "drive_index:" + idempotencyKey,
+            "DRIVE_INDEX", operationId.toString(), 40, Map.of("accountId", accountId.toString()))).id();
     }
 
     /**
@@ -53,12 +58,7 @@ public class DriveTaskSchedulerClient {
      * @return 任务状态
      */
     public String getStatus(UUID taskId) {
-        JsonNode response = restClient.get().uri("/api/v1/task-instances/{id}", taskId)
-            .retrieve().body(JsonNode.class);
-        if (response == null || response.path("status").isMissingNode()) {
-            throw new IllegalStateException("Scheduler returned an invalid task response");
-        }
-        return response.path("status").asText();
+        return client.get(taskId).status();
     }
 
     /**
@@ -67,7 +67,6 @@ public class DriveTaskSchedulerClient {
      * @param taskId 任务标识
      */
     public void cancel(UUID taskId) {
-        restClient.post().uri("/api/v1/task-instances/{id}/cancel", taskId)
-            .contentType(MediaType.APPLICATION_JSON).body(Map.of()).retrieve().toBodilessEntity();
+        client.cancel(taskId);
     }
 }

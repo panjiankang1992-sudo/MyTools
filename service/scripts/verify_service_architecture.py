@@ -14,6 +14,7 @@ from typing import Mapping, Sequence
 
 
 JAVA_SERVICES = (
+    "image-generation-service",
     "task-scheduler-service",
     "task-executor-service",
     "storage-gateway-service",

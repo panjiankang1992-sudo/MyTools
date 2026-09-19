@@ -1,9 +1,55 @@
 package com.yuyutian.mytools.media.library.service;
-import com.fasterxml.jackson.databind.JsonNode;import org.springframework.http.MediaType;import org.springframework.web.client.RestClient;import java.util.*;
-/** Media Library 任务调度客户端。 */ public class MediaTaskSchedulerClient { private final RestClient client;
- /** 创建客户端。 @param client HTTP 客户端 */ public MediaTaskSchedulerClient(RestClient client){this.client=client;}
- /** 创建目录扫描任务。 @param operationId 操作 @param ownerId 所有者 @param idempotencyKey 幂等键 @param parameters 参数 @return 任务 */ public UUID createScan(UUID operationId,long ownerId,String idempotencyKey,Map<String,Object>parameters){Map<String,Object>body=Map.of("taskName","media_scan_directory","idempotencyKey",idempotencyKey,"businessType","MEDIA_SCAN","businessId",operationId.toString(),"priority",40,"parameters",parameters);JsonNode response=client.post().uri("/api/v1/task-instances").contentType(MediaType.APPLICATION_JSON).body(body).retrieve().body(JsonNode.class);if(response==null||response.path("id").isMissingNode())throw new IllegalStateException("Scheduler returned an invalid task response");return UUID.fromString(response.path("id").asText());}
- /** 创建媒体分析任务。 @param operationId 操作 @param idempotencyKey 幂等键 @param parameters 参数 @return 任务 */ public UUID createAnalysis(UUID operationId,String idempotencyKey,Map<String,Object>parameters){Map<String,Object>body=Map.of("taskName","media_analyze_video","idempotencyKey",idempotencyKey,"businessType","MEDIA_ANALYSIS","businessId",operationId.toString(),"priority",50,"parameters",parameters);JsonNode response=client.post().uri("/api/v1/task-instances").contentType(MediaType.APPLICATION_JSON).body(body).retrieve().body(JsonNode.class);if(response==null||response.path("id").isMissingNode())throw new IllegalStateException("Scheduler returned an invalid task response");return UUID.fromString(response.path("id").asText());}
- /** 查询任务状态。 @param taskId 任务 @return 状态 */ public String status(UUID taskId){JsonNode response=client.get().uri("/api/v1/task-instances/{id}",taskId).retrieve().body(JsonNode.class);if(response==null||response.path("status").isMissingNode())throw new IllegalStateException("Scheduler returned an invalid task response");return response.path("status").asText();}
- /** 取消任务。 @param taskId 任务 */ public void cancel(UUID taskId){client.post().uri("/api/v1/task-instances/{id}/cancel",taskId).contentType(MediaType.APPLICATION_JSON).body(Map.of()).retrieve().toBodilessEntity();}
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yuyutian.mytools.task.client.CreateTaskRequest;
+import org.springframework.web.client.RestClient;
+
+import java.util.Map;
+import java.util.UUID;
+
+/**
+ * Media Library 任务调度客户端。
+ */
+public class MediaTaskSchedulerClient {
+
+    private final com.yuyutian.mytools.task.client.TaskSchedulerClient client;
+
+    /** 创建客户端。 @param client HTTP 客户端 */
+    public MediaTaskSchedulerClient(RestClient client) {
+        this(client, "");
+    }
+
+    /** 创建携带业务服务令牌的客户端。 @param client HTTP 客户端 @param businessToken 业务服务令牌 */
+    public MediaTaskSchedulerClient(RestClient client, String businessToken) {
+        this(new com.yuyutian.mytools.task.client.TaskSchedulerClient(client,
+                new ObjectMapper().findAndRegisterModules(), businessToken));
+    }
+
+    /** 创建领域适配器。 @param client 公共 Scheduler 客户端 */
+    public MediaTaskSchedulerClient(com.yuyutian.mytools.task.client.TaskSchedulerClient client) {
+        this.client = client;
+    }
+
+    /** 创建目录扫描任务。 @param operationId 操作标识 @param ownerId 所有者标识 @param idempotencyKey 幂等键 @param parameters 参数 @return 任务标识 */
+    public UUID createScan(UUID operationId, long ownerId, String idempotencyKey,
+                           Map<String, Object> parameters) {
+        return client.create(CreateTaskRequest.create("media_scan_directory", idempotencyKey, "MEDIA_SCAN",
+                operationId.toString(), 40, parameters)).id();
+    }
+
+    /** 创建媒体分析任务。 @param operationId 操作标识 @param idempotencyKey 幂等键 @param parameters 参数 @return 任务标识 */
+    public UUID createAnalysis(UUID operationId, String idempotencyKey, Map<String, Object> parameters) {
+        return client.create(CreateTaskRequest.create("media_analyze_video", idempotencyKey, "MEDIA_ANALYSIS",
+                operationId.toString(), 50, parameters)).id();
+    }
+
+    /** 查询任务状态。 @param taskId 任务标识 @return 状态 */
+    public String status(UUID taskId) {
+        return client.get(taskId).status();
+    }
+
+    /** 取消任务。 @param taskId 任务标识 */
+    public void cancel(UUID taskId) {
+        client.cancel(taskId);
+    }
 }

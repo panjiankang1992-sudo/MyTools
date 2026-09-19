@@ -1,0 +1,4 @@
+source image (still)       frames   1 motion 0.00000 detail 0.00599 firstLastDiff 0.00000
+grey seed42                frames  49 motion 0.06045 detail 0.01366 firstLastDiff 0.67129
+grey seed932 (blackout)    frames  49 motion 0.03362 detail 0.00296 firstLastDiff 0.68940
+repeat seed932 (variant)   frames  49 motion 0.00811 detail 0.00670 firstLastDiff 0.00941

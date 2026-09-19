@@ -4,6 +4,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 SCRIPT = Path(__file__).with_name("install_release.py")
@@ -53,7 +54,7 @@ class InstallReleaseTest(unittest.TestCase):
         with patch.object(MODULE, "validate_destination",
                           side_effect=lambda root, release_id: root / "releases" / release_id), \
                 patch.object(MODULE, "service_identity", return_value=(0, 0)), \
-                patch.object(MODULE, "chown_tree"), patch.object(MODULE.os, "chown"):
+                patch.object(MODULE, "protect_release_tree"), patch.object(MODULE.os, "chown"):
             report = MODULE.install(self.source, self.root / "deployment", "python3", "mytools")
         self.assertTrue(report["ready"])
         current = self.root / "deployment" / "releases" / "current"
@@ -63,6 +64,46 @@ class InstallReleaseTest(unittest.TestCase):
     def test_requires_exact_remote_deployment_root(self):
         with self.assertRaisesRegex(ValueError, "deployment root"):
             MODULE.validate_destination(Path("/tmp/mytools"), "release_1")
+
+    def test_protects_release_and_configuration_parents(self):
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.object(MODULE.os, "chown") as chown:
+            root = Path(directory) / "deployment"
+
+            MODULE.prepare_deployment_directories(root, 123, 456)
+
+        ownership = {call.args[0]: call.args[1:3] for call in chown.call_args_list}
+        self.assertEqual((0, 456), ownership[root])
+        self.assertEqual((0, 456), ownership[root / "config"])
+        self.assertEqual((0, 456), ownership[root / "releases"])
+        self.assertEqual((123, 456), ownership[root / "runtime"])
+
+    def test_rejects_service_user_with_a_different_primary_group(self):
+        user = SimpleNamespace(pw_uid=123, pw_gid=456)
+        group = SimpleNamespace(gr_gid=789)
+        with patch.object(MODULE.pwd, "getpwnam", return_value=user), \
+                patch.object(MODULE.grp, "getgrnam", return_value=group), \
+                self.assertRaisesRegex(ValueError, "primary group"):
+            MODULE.service_identity("mytools")
+
+    def test_protects_installed_release_from_service_writes(self):
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.object(MODULE.os, "chown") as chown:
+            release = Path(directory) / "release"
+            script = release / "venv" / "bin" / "worker"
+            data = release / "apps" / "service.jar"
+            script.parent.mkdir(parents=True)
+            data.parent.mkdir()
+            script.write_text("#!/bin/sh\n", encoding="utf-8")
+            script.chmod(0o755)
+            data.write_bytes(b"jar")
+
+            MODULE.protect_release_tree(release, 456)
+
+            self.assertEqual(0o750, script.stat().st_mode & 0o777)
+            self.assertEqual(0o640, data.stat().st_mode & 0o777)
+            self.assertEqual(0o750, release.stat().st_mode & 0o777)
+        self.assertTrue(all(call.args[1:3] == (0, 456) for call in chown.call_args_list))
 
 
 if __name__ == "__main__":

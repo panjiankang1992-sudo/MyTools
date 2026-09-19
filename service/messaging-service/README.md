@@ -47,11 +47,21 @@ V7 将旧 MyTools `t_feedback` 归入消息域的 `support_feedback`，完整保
 
 邮件投递的幂等重放会校验收件人、主题和正文完全一致，相同幂等键不能复用不同邮件。Gateway 创建、查询和取消均绑定 owner，响应不暴露任务 ID和 Provider 消息 ID。
 
-MyTools 注册验证码已增加默认关闭的 `MESSAGING_REGISTRATION_MAIL_SIDECAR_ENABLED` 旁路。只有旧 SMTP 调用成功且验证码事务提交后才异步创建新投递；旁路异常不回滚旧链路，开发环境仅打印验证码时不会触发真实旁路邮件。旁路幂等键取验证码记录标识，便于双投递审计和后续切换。
+MyTools 注册验证码已增加默认关闭的 `MESSAGING_REGISTRATION_MAIL_SIDECAR_ENABLED` 旁路。根工程在验证码事务内写入仅含 HMAC 摘要的 Outbox，提交后由带领取租约、ACK、退避重试和死信状态的 Relay 调用 `/internal/v1/delivery-shadows`。Messaging 只保存无副作用影子证据，不创建 `delivery_request`，也不会发送第二封邮件；旁路幂等键取验证码记录标识，便于对账和后续单路由切换。
 
-`MESSAGE_AUTOMATION_RELAY_ENABLED` 默认关闭。启用后，Messaging 分批转发未发布的 `MessageReceived` Outbox 事件，Automation 返回成功后才标记 `published_at`；中继失败不丢弃事件，重复发送由下游消息唯一键去重。
+`MESSAGE_AUTOMATION_RELAY_ENABLED` 默认关闭。启用后，Messaging 分批转发未发布的 `MessageReceived` Outbox 事件，Automation 返回成功后才标记 `published_at`；中继失败采用有界退避，耗尽后保留死信且不再自动循环。OneBot 合并转发会先把原始事件、转发引用和独立 `OneBotForwardAccepted` 回复意图写入同一事务，再异步展开；受理回复确认或进入死信后，终态 `MessageReceived` 才可进入 Automation，避免提前触发空消息处理。`/actuator/health` 的 `inboundOutbox` 组件暴露两类死信计数；内部鉴权接口 `GET /internal/v1/messaging-outbox/inbound/dead-count` 查询计数，`POST /internal/v1/messaging-outbox/inbound/dead/{eventId}/redrive` 只按精确事件标识重驱并保留原载荷与幂等标识。
 
 IMAP 入站使用 `message_poll_email` 1.0.0 任务，参数只包含 `accountKey`。账户、邮箱和凭据由 `MESSAGING_IMAP_*`、`MESSAGING_EMAIL_OWNER_ID` 与 `MESSAGING_EMAIL_ACCOUNT_KEY` 配置，`MESSAGING_EMAIL_INGRESS_ENABLED=false` 默认拒绝轮询。轮询始终以只读方式打开邮箱，不设置已读标志；`email_poll_checkpoint` 记录账户、邮箱、UIDVALIDITY 和最后成功 UID。只有整批消息以及其中所有附件的统一下载任务都创建成功后才推进检查点，失败重放依赖标准入站消息与附件任务幂等键去重。
+
+## MCP stdio 适配器
+
+`mcp/mytools_messaging_mcp.py` 只调用当前 Messaging Service 的受控内部 API，不读取数据库，也不持有 SMTP/IMAP 凭据。适配器需要一个仅包含 `MESSAGING_INTERNAL_TOKEN`、`MESSAGING_MCP_OWNER_ID`、`MESSAGING_MCP_EMAIL_ACCOUNT_KEY` 与可选 `MESSAGING_URL` 的权限隔离环境文件。
+
+```bash
+python3 mcp/mytools_messaging_mcp.py --env-file /path/to/messaging-mcp.env
+```
+
+适配器提供异步发件与状态查询、取消投递、入站邮件分页与详情、按原渠道回复、主动轮询服务端已配置邮箱。写工具通过 MCP annotations 标记为非只读；SMTP/IMAP 密钥仍只由 Messaging Service 持有。
 
 邮件附件只在消息表保存服务端生成的 IMAP UID 引用和安全元数据，不保存原始字节。附件创建后立即进入既有 `message_download_attachment` 链路：Messaging 将 EMAIL 引用解析为 `STREAM`，按 UIDVALIDITY、UID 和附件序号重新打开只读 IMAP 流，并经 Download Ingestion 下载及资产登记。凭据、Message-ID 和邮件内容均不会进入 Scheduler 参数或任务结果。启用这一旁路不会停止或修改远程 `/opt/code/MsgService` 的监听器。
 

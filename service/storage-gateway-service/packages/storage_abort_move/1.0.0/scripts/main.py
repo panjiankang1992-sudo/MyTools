@@ -11,10 +11,16 @@ from urllib.request import Request, urlopen
 STATUS_BY_STEP = {"on_failure": "FAILED", "on_timeout": "TIMED_OUT", "on_cancel": "CANCELLED"}
 
 
-def request_json(url: str, body: dict, token: str, opener) -> dict:
+def request_json(url: str, body: dict, token: str, context: dict, operation_id: str, opener) -> dict:
     """POST one authenticated JSON request."""
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    if "taskInstanceId" in context and "fencingToken" in context:
+        headers |= {"X-Task-Instance-Id": str(context["taskInstanceId"]),
+                    "X-Task-Step-Name": str(context["stepName"]),
+                    "X-Task-Business-Key": operation_id,
+                    "X-Task-Fencing-Token": str(context["fencingToken"])}
     request = Request(url, data=json.dumps(body, separators=(",", ":")).encode(), method="POST",
-                      headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"})
+                      headers=headers)
     with opener(request, timeout=30) as response:
         return json.loads(response.read().decode())
 
@@ -30,14 +36,14 @@ def execute(context: dict, base_url: str, token: str, opener=urlopen, attempts: 
     progress = {}
     for _attempt in range(attempts):
         try:
-            progress = request_json(root + "/abort", {"status": status}, token, opener)
+            progress = request_json(root + "/abort", {"status": status}, token, context, operation_id, opener)
             if progress.get("finished"):
                 return {"status": status, "recoveryRequired": bool(progress.get("recoveryRequired"))}
         except Exception:
             # 后台任务过期或 RC 暂时不可用时，最终仍需持久化恢复动作。
             progress = {}
         sleeper(poll_seconds)
-    progress = request_json(root + "/recovery-required", {}, token, opener)
+    progress = request_json(root + "/recovery-required", {}, token, context, operation_id, opener)
     return {"status": status, "recoveryRequired": bool(progress.get("recoveryRequired", True))}
 
 

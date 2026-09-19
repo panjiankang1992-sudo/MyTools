@@ -1,0 +1,1 @@
+{"type":"object","required":["indices","workflowRevision"],"properties":{"indices":{"type":"array","maxItems":4,"items":{"type":"integer","minimum":0,"maximum":3}},"workflowRevision":{"type":"string"}},"additionalProperties":false}

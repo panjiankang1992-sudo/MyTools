@@ -37,14 +37,22 @@ class InitializeSchemasTest(unittest.TestCase):
     def test_environment_template_keeps_risky_features_disabled(self) -> None:
         with patch.dict(os.environ, {}, clear=True):
             environment = initializer.parse_env_file(Path(__file__).with_name("env.example"))
-        enabled_flags = {
+        intentionally_enabled = {
+            "AUDIOBOOK_GENERATION_ENABLED",
+            "MESSAGE_AUTOMATION_COMPLETION_RELAY_ENABLED",
+        }
+        disabled_flags = {
             key: value
             for key, value in environment.items()
-            if key.endswith("_ENABLED") or key.endswith("_ADAPTER_MODE")
+            if (key.endswith("_ENABLED") or key.endswith("_ADAPTER_MODE"))
+            and key not in intentionally_enabled
         }
 
-        self.assertTrue(enabled_flags)
-        self.assertTrue(all(value.lower() in {"false", "disabled"} for value in enabled_flags.values()))
+        self.assertTrue(disabled_flags)
+        self.assertTrue(all(value.lower() in {"false", "disabled"}
+                            for value in disabled_flags.values()))
+        self.assertTrue(all(environment[key].lower() == "true"
+                            for key in intentionally_enabled))
         self.assertEqual("/opt/yuyutian/mytools", environment["MYTOOLS_SERVICE_ROOT"])
         self.assertEqual("/opt/yuyutian/logs/mytools", environment["MYTOOLS_LOG_ROOT"])
         deployment_paths = [environment[key] for key in (

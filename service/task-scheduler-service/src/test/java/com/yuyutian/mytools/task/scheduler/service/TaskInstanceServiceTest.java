@@ -147,12 +147,56 @@ class TaskInstanceServiceTest {
                 "draining-node-" + suffix, instanceId.toString(), Map.of(), Map.of(), 1, Set.of()));
 
         topologyService.updateNodeStatus(node.id(),
-                new UpdateExecutorNodeStatusRequest(NodeStatus.DRAINING, "maintenance"));
+                new UpdateExecutorNodeStatusRequest(
+                        NodeStatus.DRAINING, "maintenance", instanceId.toString()));
         var heartbeatNode = topologyService.heartbeat(node.id(), instanceId.toString(), 0);
 
         assertEquals(NodeStatus.DRAINING, heartbeatNode.status());
         assertThrows(IllegalArgumentException.class, () -> dispatchService.claim(
                 new ClaimTaskRequest(node.id(), instanceId, UUID.randomUUID(), 60)));
+    }
+
+    @Test
+    void shouldOnlyClaimRunningParentsDirectChildrenDuringQqReleaseDrain() {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        var cluster = topologyService.createCluster(new CreateExecutionClusterRequest(
+                "release_drain_cluster_" + suffix, "Release drain cluster", "LEAST_RUNNING", 4,
+                Map.of(), true));
+        UUID instanceId = UUID.randomUUID();
+        var node = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "release-drain-node-" + suffix, instanceId.toString(), Map.of(), Map.of(), 4,
+                Set.of(cluster.name())));
+        var definition = definitionService.create(new CreateTaskDefinitionRequest(
+                "release_drain_task_" + suffix, "Release drain task", TaskType.IMMEDIATE, 120,
+                cluster.id(), null, null, ExecutionMode.SINGLE_NODE, true, 4,
+                "SKIP", "IGNORE", Map.of(), Map.of()));
+        stepService.create(definition.id(), new CreateTaskStepRequest(
+                "run", "Run", StepKind.NORMAL, "system_executor_acceptance", "1.0.0",
+                "scripts/main.py", List.of(), true, 60, FailurePolicy.FAIL_TASK, 10, 1));
+        var parent = service.create(new CreateTaskRequest(
+                definition.name(), "release_parent_" + suffix, "TEST", "parent", null, 200, Map.of()));
+        var child = service.create(new CreateTaskRequest(
+                definition.name(), "release_child_" + suffix, "TEST", "child", parent.id(), 1, Map.of()));
+        var queuedRoot = service.create(new CreateTaskRequest(
+                definition.name(), "release_root_" + suffix, "TEST", "root", null, 100, Map.of()));
+        var claimedParent = dispatchService.claim(new ClaimTaskRequest(
+                node.id(), instanceId, UUID.randomUUID(), 60, false, true, List.of())).orElseThrow();
+        assertEquals(parent.id(), claimedParent.taskInstanceId());
+
+        topologyService.updateNodeStatus(node.id(), new UpdateExecutorNodeStatusRequest(
+                NodeStatus.DRAINING, "QQ_FLOW_RELEASE", instanceId.toString()));
+        var claimedChild = dispatchService.claim(
+                new ClaimTaskRequest(node.id(), instanceId, UUID.randomUUID(), 60)).orElseThrow();
+
+        assertEquals(child.id(), claimedChild.taskInstanceId());
+        assertEquals(parent.id(), claimedChild.parentTaskInstanceId());
+        assertEquals(TaskStatus.QUEUED, service.get(queuedRoot.id()).status());
+        assertTrue(dispatchService.claim(
+                new ClaimTaskRequest(node.id(), instanceId, UUID.randomUUID(), 60)).isEmpty());
+        dispatchService.complete(claimedChild.executionId(),
+                new CompleteExecutionRequest(claimedChild.leaseToken(), TaskStatus.SUCCEEDED));
+        dispatchService.complete(claimedParent.executionId(),
+                new CompleteExecutionRequest(claimedParent.leaseToken(), TaskStatus.SUCCEEDED));
     }
 
     @Test
@@ -536,17 +580,17 @@ class TaskInstanceServiceTest {
                 "SELECT COUNT(*) FROM task_outbox WHERE aggregate_id = ?",
                 Integer.class, task.id().toString());
         String payload = jdbcTemplate.queryForObject(
-                "SELECT payload_json FROM task_outbox WHERE aggregate_id = ? AND event_type = 'TaskSucceeded'",
+                "SELECT payload_json FROM task_outbox WHERE aggregate_id = ? AND event_type = 'TaskFailed'",
                 String.class, task.id().toString());
         assertEquals(3, eventCount);
         assertEquals(3, outboxCount);
         assertFalse(payload.contains("assetId"));
         assertTrue(payload.contains("\"businessId\":\"asset-1\""));
         assertTrue(payload.contains("\"oldStatus\":\"RUNNING\""));
-        assertTrue(payload.contains("\"newStatus\":\"SUCCEEDED\""));
+        assertTrue(payload.contains("\"newStatus\":\"FAILED\""));
 
         String terminalEventId = jdbcTemplate.queryForObject(
-                "SELECT id FROM task_outbox WHERE aggregate_id = ? AND event_type = 'TaskSucceeded'",
+                "SELECT id FROM task_outbox WHERE aggregate_id = ? AND event_type = 'TaskFailed'",
                 String.class, task.id().toString());
         var outboxEvent = taskEventService.claimPending(1000, Instant.now()).stream()
                 .filter(event -> event.id().toString().equals(terminalEventId))
@@ -562,7 +606,7 @@ class TaskInstanceServiceTest {
         assertEquals("DEAD", jdbcTemplate.queryForObject(
                 "SELECT status FROM task_outbox WHERE id = ?", String.class, outboxEvent.id().toString()));
         assertTrue(taskOutboxMonitor.snapshot(Instant.now()).deadCount() >= 1);
-        assertEquals("DOWN", taskOutboxHealthIndicator.health().getStatus().getCode());
+        assertEquals("UP", taskOutboxHealthIndicator.health().getStatus().getCode());
         assertNotNull(meterRegistry.find("task.outbox.backlog").gauge());
         assertNotNull(meterRegistry.find("task.outbox.oldest.age.seconds").gauge());
         assertNotNull(meterRegistry.find("task.outbox.dead").gauge());
@@ -575,9 +619,9 @@ class TaskInstanceServiceTest {
         assertEquals(1, taskEventService.replayTask(task.id(), Instant.now()));
 
         assertEquals(1, stepService.list(definition.id()).size());
-        assertEquals(TaskStatus.SUCCEEDED, service.get(task.id()).status());
+        assertEquals(TaskStatus.FAILED, service.get(task.id()).status());
         var executionResult = resultQueryService.get(task.id());
-        assertEquals(TaskStatus.SUCCEEDED, executionResult.status());
+        assertEquals(TaskStatus.FAILED, executionResult.status());
         assertEquals(Map.of("duration", 12), executionResult.steps().getFirst().result());
         assertTrue(topologyService.listClusters().stream().anyMatch(item -> item.id().equals(cluster.id())));
         assertTrue(topologyService.listNodes().stream().anyMatch(item -> item.id().equals(node.id())));
@@ -669,6 +713,329 @@ class TaskInstanceServiceTest {
                 "SELECT COUNT(*) FROM task_execution WHERE node_id = ? AND status = 'RUNNING'",
                 Integer.class, node.id().toString());
         assertEquals(1, runningCount);
+    }
+
+    @Test
+    void shouldClaimOnlyChildTaskForReservedExecutorCapacity() {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        var cluster = topologyService.createCluster(new CreateExecutionClusterRequest(
+                "child_capacity_cluster_" + suffix, "Child capacity workers", "LEAST_RUNNING", 10,
+                Map.of(), true));
+        UUID instanceId = UUID.randomUUID();
+        var node = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "child-capacity-node-" + suffix, instanceId.toString(), Map.of(), Map.of(), 4,
+                Set.of(cluster.name())));
+        var definition = definitionService.create(new CreateTaskDefinitionRequest(
+                "child_capacity_task_" + suffix, "Child capacity task", TaskType.IMMEDIATE, 120,
+                cluster.id(), null, null, ExecutionMode.SINGLE_NODE, true, 10,
+                "QUEUE", "IGNORE", Map.of(), Map.of()));
+        stepService.create(definition.id(), new CreateTaskStepRequest(
+                "run", "Run", StepKind.NORMAL, "child_capacity", "1.0.0", "main.sh", List.of(), true,
+                60, FailurePolicy.FAIL_TASK, 10, 1));
+        var root = service.create(new CreateTaskRequest(
+                definition.name(), "child_capacity_root_" + suffix, "TEST", "root", null, 1, Map.of()));
+        var child = service.create(new CreateTaskRequest(
+                definition.name(), "child_capacity_child_" + suffix, "TEST", "child", root.id(), 100, Map.of()));
+        var grandchild = service.create(new CreateTaskRequest(
+                definition.name(), "child_capacity_grandchild_" + suffix, "TEST", "grandchild", child.id(),
+                50, Map.of()));
+
+        var claimedRoot = dispatchService.claim(
+                new ClaimTaskRequest(node.id(), instanceId, UUID.randomUUID(), 60,
+                        false, true, List.of())).orElseThrow();
+        var claimedChild = dispatchService.claim(
+                new ClaimTaskRequest(node.id(), instanceId, UUID.randomUUID(), 60,
+                        true, false, List.of(root.id()))).orElseThrow();
+        var claimedGrandchild = dispatchService.claim(
+                new ClaimTaskRequest(node.id(), instanceId, UUID.randomUUID(), 60,
+                        true, false, List.of(child.id()))).orElseThrow();
+
+        assertEquals(root.id(), claimedRoot.taskInstanceId());
+        assertEquals(null, claimedRoot.parentTaskInstanceId());
+        assertEquals(child.id(), claimedChild.taskInstanceId());
+        assertEquals(root.id(), claimedChild.parentTaskInstanceId());
+        assertEquals(grandchild.id(), claimedGrandchild.taskInstanceId());
+        assertEquals(child.id(), claimedGrandchild.parentTaskInstanceId());
+    }
+
+    @Test
+    void shouldRequireCapacityForPublishedSynchronousChildChain() {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        var cluster = topologyService.createCluster(new CreateExecutionClusterRequest(
+                "chain_capacity_cluster_" + suffix, "Chain capacity workers", "LEAST_RUNNING", 10,
+                Map.of(), true));
+        UUID instanceId = UUID.randomUUID();
+        var node = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "chain-capacity-node-" + suffix, instanceId.toString(), Map.of(), Map.of(), 3,
+                Set.of(cluster.name())));
+        var definition = definitionService.create(new CreateTaskDefinitionRequest(
+                "chain_capacity_task_" + suffix, "Chain capacity task", TaskType.IMMEDIATE, 120,
+                cluster.id(), null, null, ExecutionMode.SINGLE_NODE, true, 10,
+                "QUEUE", "IGNORE", Map.of(), Map.of()));
+        stepService.create(definition.id(), new CreateTaskStepRequest(
+                "run", "Run", StepKind.NORMAL, "download_message_url_batch", "1.0.0",
+                "scripts/main.py", List.of(), true, 60, FailurePolicy.FAIL_TASK, 10, 1));
+        var task = service.create(new CreateTaskRequest(
+                definition.name(), "chain_capacity_" + suffix, "TEST", "chain", null, 10, Map.of()));
+
+        assertTrue(dispatchService.claim(new ClaimTaskRequest(
+                node.id(), instanceId, UUID.randomUUID(), 60, false, true, List.of())).isEmpty());
+        jdbcTemplate.update("UPDATE executor_node SET max_concurrent_tasks = 4 WHERE id = ?",
+                node.id().toString());
+        var claimed = dispatchService.claim(new ClaimTaskRequest(
+                node.id(), instanceId, UUID.randomUUID(), 60, false, true, List.of())).orElseThrow();
+
+        assertEquals(task.id(), claimed.taskInstanceId());
+        assertTrue(claimed.mayCreateChildren());
+    }
+
+    @Test
+    void shouldKeepSuccessorCapacityWhenSeveralOrchestratorSiblingsAreQueued() {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        var cluster = topologyService.createCluster(new CreateExecutionClusterRequest(
+                "orchestrator_capacity_cluster_" + suffix, "Orchestrator capacity workers", "LEAST_RUNNING", 4,
+                Map.of(), true));
+        UUID instanceId = UUID.randomUUID();
+        var node = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "orchestrator-capacity-node-" + suffix, instanceId.toString(), Map.of(), Map.of(), 4,
+                Set.of(cluster.name())));
+        var rootDefinition = definitionService.create(new CreateTaskDefinitionRequest(
+                "orchestrator_root_" + suffix, "Orchestrator root", TaskType.IMMEDIATE, 120,
+                cluster.id(), null, null, ExecutionMode.SINGLE_NODE, true, 10,
+                "QUEUE", "IGNORE", Map.of(), Map.of()));
+        var userDefinition = definitionService.create(new CreateTaskDefinitionRequest(
+                "orchestrator_user_" + suffix, "Orchestrator user", TaskType.IMMEDIATE, 120,
+                cluster.id(), null, null, ExecutionMode.SINGLE_NODE, true, 10,
+                "QUEUE", "IGNORE", Map.of(), Map.of()));
+        var postDefinition = definitionService.create(new CreateTaskDefinitionRequest(
+                "orchestrator_post_" + suffix, "Orchestrator post", TaskType.IMMEDIATE, 120,
+                cluster.id(), null, null, ExecutionMode.SINGLE_NODE, true, 10,
+                "QUEUE", "IGNORE", Map.of(), Map.of()));
+        var leafDefinition = definitionService.create(new CreateTaskDefinitionRequest(
+                "orchestrator_leaf_" + suffix, "Orchestrator leaf", TaskType.IMMEDIATE, 120,
+                cluster.id(), null, null, ExecutionMode.SINGLE_NODE, true, 10,
+                "QUEUE", "IGNORE", Map.of(), Map.of()));
+        stepService.create(rootDefinition.id(), new CreateTaskStepRequest(
+                "run", "Run", StepKind.NORMAL, "download_message_url_batch", "1.0.0",
+                "scripts/main.py", List.of(), true, 60, FailurePolicy.FAIL_TASK, 10, 1));
+        stepService.create(userDefinition.id(), new CreateTaskStepRequest(
+                "run", "Run", StepKind.NORMAL, "download_resolve_x_user", "1.0.0",
+                "scripts/main.py", List.of(), true, 60, FailurePolicy.FAIL_TASK, 10, 1));
+        stepService.create(postDefinition.id(), new CreateTaskStepRequest(
+                "run", "Run", StepKind.NORMAL, "download_resolve_x_post", "1.0.0",
+                "scripts/main.py", List.of(), true, 60, FailurePolicy.FAIL_TASK, 10, 1));
+        stepService.create(leafDefinition.id(), new CreateTaskStepRequest(
+                "run", "Run", StepKind.NORMAL, "download_http_asset", "1.0.0",
+                "scripts/main.py", List.of(), true, 60, FailurePolicy.FAIL_TASK, 10, 1));
+        var root = service.create(new CreateTaskRequest(
+                rootDefinition.name(), "orchestrator_root_key_" + suffix, "TEST", "root", null, 100, Map.of()));
+        var firstUser = service.create(new CreateTaskRequest(
+                userDefinition.name(), "orchestrator_user_1_key_" + suffix, "TEST", "user-1",
+                root.id(), 100, Map.of()));
+        var secondUser = service.create(new CreateTaskRequest(
+                userDefinition.name(), "orchestrator_user_2_key_" + suffix, "TEST", "user-2",
+                root.id(), 90, Map.of()));
+        var firstPost = service.create(new CreateTaskRequest(
+                postDefinition.name(), "orchestrator_post_1_key_" + suffix, "TEST", "post-1",
+                firstUser.id(), 100, Map.of()));
+        var secondPost = service.create(new CreateTaskRequest(
+                postDefinition.name(), "orchestrator_post_2_key_" + suffix, "TEST", "post-2",
+                firstUser.id(), 90, Map.of()));
+        var asset = service.create(new CreateTaskRequest(
+                leafDefinition.name(), "orchestrator_leaf_key_" + suffix, "TEST", "asset",
+                firstPost.id(), 100, Map.of()));
+
+        var claimedRoot = dispatchService.claim(new ClaimTaskRequest(
+                node.id(), instanceId, UUID.randomUUID(), 60, false, true, List.of())).orElseThrow();
+        var claimedUser = dispatchService.claim(new ClaimTaskRequest(
+                node.id(), instanceId, UUID.randomUUID(), 60, true, false,
+                List.of(root.id()))).orElseThrow();
+        assertThrows(ClaimCapacityReservedException.class, () -> dispatchService.claim(new ClaimTaskRequest(
+                node.id(), instanceId, UUID.randomUUID(), 60, true, false,
+                List.of(root.id()))));
+        var claimedPost = dispatchService.claim(new ClaimTaskRequest(
+                node.id(), instanceId, UUID.randomUUID(), 60, true, false,
+                List.of(firstUser.id()))).orElseThrow();
+        assertThrows(ClaimCapacityReservedException.class, () -> dispatchService.claim(new ClaimTaskRequest(
+                node.id(), instanceId, UUID.randomUUID(), 60, true, false,
+                List.of(firstUser.id()))));
+        var claimedAsset = dispatchService.claim(new ClaimTaskRequest(
+                node.id(), instanceId, UUID.randomUUID(), 60, true, false,
+                List.of(firstPost.id()))).orElseThrow();
+
+        assertEquals(root.id(), claimedRoot.taskInstanceId());
+        assertEquals(firstUser.id(), claimedUser.taskInstanceId());
+        assertEquals(firstPost.id(), claimedPost.taskInstanceId());
+        assertEquals(asset.id(), claimedAsset.taskInstanceId());
+        assertEquals(TaskStatus.QUEUED, service.get(secondUser.id()).status());
+        assertEquals(TaskStatus.QUEUED, service.get(secondPost.id()).status());
+    }
+
+    @Test
+    void shouldDrainLeafBacklogBeforeStartingHighPriorityRootOrchestrator() {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        var cluster = topologyService.createCluster(new CreateExecutionClusterRequest(
+                "orchestrator_barrier_cluster_" + suffix, "Orchestrator barrier workers", "LEAST_RUNNING", 4,
+                Map.of(), true));
+        UUID instanceId = UUID.randomUUID();
+        var node = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "orchestrator-barrier-node-" + suffix, instanceId.toString(), Map.of(), Map.of(), 4,
+                Set.of(cluster.name())));
+        var leafDefinition = definitionService.create(new CreateTaskDefinitionRequest(
+                "orchestrator_barrier_leaf_" + suffix, "Orchestrator barrier leaf", TaskType.IMMEDIATE, 120,
+                cluster.id(), null, null, ExecutionMode.SINGLE_NODE, true, 20,
+                "QUEUE", "IGNORE", Map.of(), Map.of()));
+        var rootDefinition = definitionService.create(new CreateTaskDefinitionRequest(
+                "orchestrator_barrier_root_" + suffix, "Orchestrator barrier root", TaskType.IMMEDIATE, 120,
+                cluster.id(), null, null, ExecutionMode.SINGLE_NODE, true, 1,
+                "QUEUE", "IGNORE", Map.of(), Map.of()));
+        stepService.create(leafDefinition.id(), new CreateTaskStepRequest(
+                "run", "Run", StepKind.NORMAL, "capacity_leaf", "1.0.0",
+                "scripts/main.py", List.of(), true, 60, FailurePolicy.FAIL_TASK, 10, 1));
+        stepService.create(rootDefinition.id(), new CreateTaskStepRequest(
+                "run", "Run", StepKind.NORMAL, "download_message_url_batch", "1.0.0",
+                "scripts/main.py", List.of(), true, 60, FailurePolicy.FAIL_TASK, 10, 1));
+        List<com.yuyutian.mytools.task.scheduler.model.ClaimedTaskView> runningLeaves = new java.util.ArrayList<>();
+        for (int index = 0; index < 3; index++) {
+            service.create(new CreateTaskRequest(
+                    leafDefinition.name(), "orchestrator_barrier_running_" + suffix + "_" + index,
+                    "TEST", "running-" + index, null, 50, Map.of()));
+            runningLeaves.add(dispatchService.claim(new ClaimTaskRequest(
+                    node.id(), instanceId, UUID.randomUUID(), 60)).orElseThrow());
+        }
+        var orchestrator = service.create(new CreateTaskRequest(
+                rootDefinition.name(), "orchestrator_barrier_root_key_" + suffix,
+                "TEST", "orchestrator", null, 200, Map.of()));
+        for (int index = 0; index < 6; index++) {
+            service.create(new CreateTaskRequest(
+                    leafDefinition.name(), "orchestrator_barrier_backlog_" + suffix + "_" + index,
+                    "TEST", "backlog-" + index, null, 100, Map.of()));
+        }
+
+        assertThrows(ClaimCapacityReservedException.class, () -> dispatchService.claim(new ClaimTaskRequest(
+                node.id(), instanceId, UUID.randomUUID(), 60, false, true, List.of())));
+        for (int index = 0; index < runningLeaves.size() - 1; index++) {
+            var leaf = runningLeaves.get(index);
+            dispatchService.complete(leaf.executionId(),
+                    new CompleteExecutionRequest(leaf.leaseToken(), TaskStatus.SUCCEEDED));
+            assertThrows(ClaimCapacityReservedException.class, () -> dispatchService.claim(new ClaimTaskRequest(
+                    node.id(), instanceId, UUID.randomUUID(), 60, false, true, List.of())));
+        }
+        var lastLeaf = runningLeaves.getLast();
+        dispatchService.complete(lastLeaf.executionId(),
+                new CompleteExecutionRequest(lastLeaf.leaseToken(), TaskStatus.SUCCEEDED));
+        var claimedOrchestrator = dispatchService.claim(new ClaimTaskRequest(
+                node.id(), instanceId, UUID.randomUUID(), 60, false, true, List.of())).orElseThrow();
+
+        assertEquals(orchestrator.id(), claimedOrchestrator.taskInstanceId());
+        assertTrue(claimedOrchestrator.mayCreateChildren());
+        assertTrue(dispatchService.claim(new ClaimTaskRequest(
+                node.id(), instanceId, UUID.randomUUID(), 60, false, true, List.of())).isEmpty());
+    }
+
+    @Test
+    void shouldNotBypassCapacityBlockedChildOrchestratorWithSiblingLeaf() {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        var cluster = topologyService.createCluster(new CreateExecutionClusterRequest(
+                "child_barrier_cluster_" + suffix, "Child barrier workers", "LEAST_RUNNING", 4,
+                Map.of(), true));
+        UUID instanceId = UUID.randomUUID();
+        var node = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "child-barrier-node-" + suffix, instanceId.toString(), Map.of(), Map.of(), 4,
+                Set.of(cluster.name())));
+        var leafDefinition = definitionService.create(new CreateTaskDefinitionRequest(
+                "child_barrier_leaf_" + suffix, "Child barrier leaf", TaskType.IMMEDIATE, 120,
+                cluster.id(), null, null, ExecutionMode.SINGLE_NODE, true, 20,
+                "QUEUE", "IGNORE", Map.of(), Map.of()));
+        var orchestratorDefinition = definitionService.create(new CreateTaskDefinitionRequest(
+                "child_barrier_orchestrator_" + suffix, "Child barrier orchestrator", TaskType.IMMEDIATE, 120,
+                cluster.id(), null, null, ExecutionMode.SINGLE_NODE, true, 2,
+                "QUEUE", "IGNORE", Map.of(), Map.of()));
+        stepService.create(leafDefinition.id(), new CreateTaskStepRequest(
+                "run", "Run", StepKind.NORMAL, "capacity_leaf", "1.0.0",
+                "scripts/main.py", List.of(), true, 60, FailurePolicy.FAIL_TASK, 10, 1));
+        stepService.create(orchestratorDefinition.id(), new CreateTaskStepRequest(
+                "run", "Run", StepKind.NORMAL, "download_resolve_x_user", "1.0.0",
+                "scripts/main.py", List.of(), true, 60, FailurePolicy.FAIL_TASK, 10, 1));
+        List<com.yuyutian.mytools.task.scheduler.model.ClaimedTaskView> running = new java.util.ArrayList<>();
+        List<com.yuyutian.mytools.task.scheduler.model.TaskInstanceView> runningTasks = new java.util.ArrayList<>();
+        for (int index = 0; index < 3; index++) {
+            runningTasks.add(service.create(new CreateTaskRequest(
+                    leafDefinition.name(), "child_barrier_running_" + suffix + "_" + index,
+                    "TEST", "running-" + index, null, 50, Map.of())));
+            running.add(dispatchService.claim(new ClaimTaskRequest(
+                    node.id(), instanceId, UUID.randomUUID(), 60)).orElseThrow());
+        }
+        UUID parentId = runningTasks.getFirst().id();
+        var blockedOrchestrator = service.create(new CreateTaskRequest(
+                orchestratorDefinition.name(), "child_barrier_orchestrator_key_" + suffix,
+                "TEST", "blocked-orchestrator", parentId, 200, Map.of()));
+        var siblingLeaf = service.create(new CreateTaskRequest(
+                leafDefinition.name(), "child_barrier_sibling_key_" + suffix,
+                "TEST", "sibling-leaf", parentId, 100, Map.of()));
+
+        assertThrows(ClaimCapacityReservedException.class, () -> dispatchService.claim(new ClaimTaskRequest(
+                node.id(), instanceId, UUID.randomUUID(), 60, true, false, List.of(parentId))));
+
+        assertEquals(TaskStatus.QUEUED, service.get(blockedOrchestrator.id()).status());
+        assertEquals(TaskStatus.QUEUED, service.get(siblingLeaf.id()).status());
+    }
+
+    @Test
+    void shouldReserveAnotherClusterForQueuedChildOfRunningOrchestrator() {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        var parentCluster = topologyService.createCluster(new CreateExecutionClusterRequest(
+                "cross_cluster_parent_" + suffix, "Cross cluster parent", "LEAST_RUNNING", 2,
+                Map.of(), true));
+        var childCluster = topologyService.createCluster(new CreateExecutionClusterRequest(
+                "cross_cluster_child_" + suffix, "Cross cluster child", "LEAST_RUNNING", 2,
+                Map.of(), true));
+        UUID parentInstanceId = UUID.randomUUID();
+        UUID childInstanceId = UUID.randomUUID();
+        var parentNode = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "cross-cluster-parent-node-" + suffix, parentInstanceId.toString(), Map.of(), Map.of(), 2,
+                Set.of(parentCluster.name())));
+        var childNode = topologyService.registerNode(new RegisterExecutorNodeRequest(
+                "cross-cluster-child-node-" + suffix, childInstanceId.toString(), Map.of(), Map.of(), 2,
+                Set.of(childCluster.name())));
+        var parentDefinition = definitionService.create(new CreateTaskDefinitionRequest(
+                "cross_cluster_parent_task_" + suffix, "Cross cluster parent task", TaskType.IMMEDIATE, 120,
+                parentCluster.id(), null, null, ExecutionMode.SINGLE_NODE, true, 1,
+                "QUEUE", "IGNORE", Map.of(), Map.of()));
+        var childDefinition = definitionService.create(new CreateTaskDefinitionRequest(
+                "cross_cluster_child_task_" + suffix, "Cross cluster child task", TaskType.IMMEDIATE, 120,
+                childCluster.id(), null, null, ExecutionMode.SINGLE_NODE, true, 10,
+                "QUEUE", "IGNORE", Map.of(), Map.of()));
+        stepService.create(parentDefinition.id(), new CreateTaskStepRequest(
+                "run", "Run", StepKind.NORMAL, "download_resolve_x_post", "1.0.0",
+                "scripts/main.py", List.of(), true, 60, FailurePolicy.FAIL_TASK, 10, 1));
+        stepService.create(childDefinition.id(), new CreateTaskStepRequest(
+                "run", "Run", StepKind.NORMAL, "download_http_asset", "1.0.0",
+                "scripts/main.py", List.of(), true, 60, FailurePolicy.FAIL_TASK, 10, 1));
+        var parent = service.create(new CreateTaskRequest(
+                parentDefinition.name(), "cross_cluster_parent_key_" + suffix,
+                "TEST", "parent", null, 100, Map.of()));
+        dispatchService.claim(new ClaimTaskRequest(
+                parentNode.id(), parentInstanceId, UUID.randomUUID(), 60)).orElseThrow();
+        var child = service.create(new CreateTaskRequest(
+                childDefinition.name(), "cross_cluster_child_key_" + suffix,
+                "TEST", "child", parent.id(), 1, Map.of()));
+        var firstUnrelatedRoot = service.create(new CreateTaskRequest(
+                childDefinition.name(), "cross_cluster_root_key_" + suffix,
+                "TEST", "root", null, 200, Map.of()));
+        var secondUnrelatedRoot = service.create(new CreateTaskRequest(
+                childDefinition.name(), "cross_cluster_second_root_key_" + suffix,
+                "TEST", "second-root", null, 190, Map.of()));
+
+        var claimedRoot = dispatchService.claim(new ClaimTaskRequest(
+                childNode.id(), childInstanceId, UUID.randomUUID(), 60)).orElseThrow();
+        var claimedChild = dispatchService.claim(new ClaimTaskRequest(
+                childNode.id(), childInstanceId, UUID.randomUUID(), 60)).orElseThrow();
+
+        assertEquals(firstUnrelatedRoot.id(), claimedRoot.taskInstanceId());
+        assertEquals(child.id(), claimedChild.taskInstanceId());
+        assertEquals(parent.id(), claimedChild.parentTaskInstanceId());
+        assertEquals(TaskStatus.QUEUED, service.get(secondUnrelatedRoot.id()).status());
     }
 
     @Test

@@ -1,0 +1,351 @@
+[
+  {
+    "runId": "T01-t2v-49",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/trial-20260914T063810Z/output.mp4",
+    "mode": "TEXT_TO_VIDEO",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/T01-t2v-49/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/T01-t2v-49/vlm-frame-024.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/T01-t2v-49/vlm-frame-048.png"
+    ],
+    "scores": {
+      "instructionFollowing": 3,
+      "subjectPreservation": 2,
+      "temporalCoherence": 3,
+      "editLocality": null,
+      "artifacts": 4
+    },
+    "defects": "主体颜色与提示词不符（应为红色陶瓷茶壶，实际是黑色剪影）",
+    "summary": "视频中出现黑色剪影的茶壶而非红色陶瓷茶壶",
+    "severeFlag": false
+  },
+  {
+    "runId": "T01-81",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T082046Z/run-03/output.mp4",
+    "mode": "TEXT_TO_VIDEO",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/T01-81/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/T01-81/vlm-frame-040.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/T01-81/vlm-frame-080.png"
+    ],
+    "scores": {
+      "instructionFollowing": 3,
+      "subjectPreservation": 5,
+      "temporalCoherence": 4,
+      "editLocality": null,
+      "artifacts": 2
+    },
+    "defects": "画面有条纹和色块偏移，与提示词描述的红色茶壶不符",
+    "summary": "视频中茶壶颜色和细节出现条纹化变化",
+    "severeFlag": true
+  },
+  {
+    "runId": "I01-grey-s42",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T065550Z/run-01/output.mp4",
+    "mode": "FIRST_FRAME",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png"
+    ],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-grey-s42/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-grey-s42/vlm-frame-024.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-grey-s42/vlm-frame-048.png"
+    ],
+    "scores": {
+      "instructionFollowing": 3,
+      "subjectPreservation": 4,
+      "temporalCoherence": 2,
+      "editLocality": null,
+      "artifacts": 3
+    },
+    "defects": "第二张图主体位置偏移且有网格状干扰，第三张图主体完全改变",
+    "summary": "视频首帧后主体位置和形态发生突变",
+    "severeFlag": false
+  },
+  {
+    "runId": "I01-grey-s932",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T103811Z/run-01/output.mp4",
+    "mode": "FIRST_FRAME",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png"
+    ],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-grey-s932/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-grey-s932/vlm-frame-024.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-grey-s932/vlm-frame-048.png"
+    ],
+    "scores": {
+      "instructionFollowing": 3,
+      "subjectPreservation": 4,
+      "temporalCoherence": 2,
+      "editLocality": null,
+      "artifacts": 3
+    },
+    "defects": "第二张图中主体有明显色块偏移，第三张图主体消失",
+    "summary": "视频首帧后主体出现色块偏移并逐渐消失",
+    "severeFlag": false
+  },
+  {
+    "runId": "I01-a025-s42",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T114940Z/run-01/output.mp4",
+    "mode": "FIRST_FRAME",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png"
+    ],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-a025-s42/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-a025-s42/vlm-frame-024.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-a025-s42/vlm-frame-048.png"
+    ],
+    "scores": {
+      "instructionFollowing": 4,
+      "subjectPreservation": 5,
+      "temporalCoherence": 3,
+      "editLocality": null,
+      "artifacts": 2
+    },
+    "defects": "第2、3张图中杯底与碟子的接触点有变化，且第3张图中杯子底部阴影变浅",
+    "summary": "视频开始时主体轻微移动，镜头缓慢推进，但中间帧和末帧中杯子底部细节出现变化",
+    "severeFlag": true
+  },
+  {
+    "runId": "I01-a025-s932",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T112215Z/run-01/output.mp4",
+    "mode": "FIRST_FRAME",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png"
+    ],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-a025-s932/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-a025-s932/vlm-frame-024.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/I01-a025-s932/vlm-frame-048.png"
+    ],
+    "scores": {
+      "instructionFollowing": 4,
+      "subjectPreservation": 5,
+      "temporalCoherence": 3,
+      "editLocality": null,
+      "artifacts": 2
+    },
+    "defects": "第2、3张图左右两侧出现白色边框，与参考图左右无边框不一致",
+    "summary": "视频首帧正确但后续帧添加了不必要的白色边框",
+    "severeFlag": true
+  },
+  {
+    "runId": "R01-two-image",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T074325Z/run-01/output.mp4",
+    "mode": "SUBJECT_REFERENCES",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-b.png"
+    ],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/R01-two-image/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/R01-two-image/vlm-frame-024.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/R01-two-image/vlm-frame-048.png"
+    ],
+    "scores": {
+      "instructionFollowing": 4,
+      "subjectPreservation": 3,
+      "temporalCoherence": 2,
+      "editLocality": null,
+      "artifacts": 1
+    },
+    "defects": "第2张图与第3张图主体颜色变化，但提示词要求保持不变",
+    "summary": "视频中参考主体颜色在帧间发生变化",
+    "severeFlag": true
+  },
+  {
+    "runId": "F01-firstlast",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T074325Z/run-03/output.mp4",
+    "mode": "FIRST_LAST_FRAMES",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-b.png"
+    ],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/F01-firstlast/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/F01-firstlast/vlm-frame-024.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/F01-firstlast/vlm-frame-048.png"
+    ],
+    "scores": {
+      "instructionFollowing": 4,
+      "subjectPreservation": 5,
+      "temporalCoherence": 3,
+      "editLocality": null,
+      "artifacts": 2
+    },
+    "defects": "第2张图与第1张图相比，杯身和碟子的细节有变化，且第2张图左右两侧出现白色边框",
+    "summary": "视频从茶具特写过渡到人物肖像，但中间帧细节变化明显",
+    "severeFlag": true
+  },
+  {
+    "runId": "S01-shot2-s42",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T090441Z/run-02/output.mp4",
+    "mode": "FIRST_FRAME",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-b.png"
+    ],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/S01-shot2-s42/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/S01-shot2-s42/vlm-frame-024.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/S01-shot2-s42/vlm-frame-048.png"
+    ],
+    "scores": {
+      "instructionFollowing": 4,
+      "subjectPreservation": 5,
+      "temporalCoherence": 3,
+      "editLocality": null,
+      "artifacts": 2
+    },
+    "defects": "第二张图中人物头部有明显块状遮挡，第三张图完全黑帧",
+    "summary": "视频首帧人物正常，但中间帧和末帧出现遮挡与全黑问题",
+    "severeFlag": true
+  },
+  {
+    "runId": "V01-restyle-synth",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T065550Z/run-03/output.mp4",
+    "mode": "STRUCTURE_RESTYLE",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [
+      "/tmp/vlm-anchors/motion-src.png"
+    ],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/V01-restyle-synth/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/V01-restyle-synth/vlm-frame-024.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/V01-restyle-synth/vlm-frame-048.png"
+    ],
+    "scores": {
+      "instructionFollowing": 3,
+      "subjectPreservation": 2,
+      "temporalCoherence": 1,
+      "editLocality": null,
+      "artifacts": 4
+    },
+    "defects": "橙色方块应向右移动但未移动，蓝色方块颜色变深且位置变化，出现两个黄色方块",
+    "summary": "视频中橙色方块未按要求移动，蓝色方块位置和颜色改变，新增了黄色方块",
+    "severeFlag": false
+  },
+  {
+    "runId": "V02-scene-gray",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T093408Z/run-01/output.mp4",
+    "mode": "STRUCTURE_RESTYLE",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [
+      "/tmp/vlm-anchors/scene-src.png"
+    ],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/V02-scene-gray/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/V02-scene-gray/vlm-frame-024.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/V02-scene-gray/vlm-frame-048.png"
+    ],
+    "scores": {
+      "instructionFollowing": 3,
+      "subjectPreservation": 4,
+      "temporalCoherence": 2,
+      "editLocality": null,
+      "artifacts": 3
+    },
+    "defects": "画面整体偏绿，色彩失真严重，细节模糊",
+    "summary": "视频帧在水彩效果处理中出现过度饱和和色彩失真",
+    "severeFlag": false
+  },
+  {
+    "runId": "V02-scene-edge",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T093408Z/run-02/output.mp4",
+    "mode": "STRUCTURE_RESTYLE",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [
+      "/tmp/vlm-anchors/scene-src.png"
+    ],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/V02-scene-edge/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/V02-scene-edge/vlm-frame-024.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/V02-scene-edge/vlm-frame-048.png"
+    ],
+    "scores": {
+      "instructionFollowing": 3,
+      "subjectPreservation": 2,
+      "temporalCoherence": 1,
+      "editLocality": null,
+      "artifacts": 4
+    },
+    "defects": "画面风格完全改变，参考图是水彩画风，生成帧却是模糊的像素化效果且主体不清晰",
+    "summary": "视频从水彩风景变为模糊像素化的抽象画面",
+    "severeFlag": false
+  },
+  {
+    "runId": "M01-masked",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T082046Z/run-01/output.mp4",
+    "mode": "MASKED_EDIT",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [
+      "/tmp/vlm-anchors/masked-src.png"
+    ],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/M01-masked/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/M01-masked/vlm-frame-024.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/M01-masked/vlm-frame-048.png"
+    ],
+    "scores": {
+      "instructionFollowing": 3,
+      "subjectPreservation": 2,
+      "temporalCoherence": 1,
+      "editLocality": null,
+      "artifacts": 4
+    },
+    "defects": "橙色方块被替换为蓝色球体后，左侧出现额外的棕色方块且右侧紫色方块位置变化",
+    "summary": "橙色方块被替换为蓝色球体但左侧新增棕色方块且右侧紫色方块移动",
+    "severeFlag": false
+  },
+  {
+    "runId": "R03-three-image",
+    "video": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T082046Z/run-02/output.mp4",
+    "mode": "SUBJECT_REFERENCES",
+    "reviewer": "automated-vlm:huihui_ai/qwen3-vl-abliterated:8b",
+    "notHumanReview": true,
+    "anchors": [
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-a.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-subject-b.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1/ComfyUI/input/p0-scene.png"
+    ],
+    "frames": [
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/R03-three-image/vlm-frame-000.png",
+      "/opt/yuyutian/mytools/runtime/video-generation/evidence/vlm/R03-three-image/vlm-frame-024.png"
+    ],
+    "scores": {
+      "instructionFollowing": 3,
+      "subjectPreservation": 2,
+      "temporalCoherence": 1,
+      "editLocality": null,
+      "artifacts": 4
+    },
+    "defects": "三张参考图未同时出现在同一场景，且画面无渐进变化",
+    "summary": "视频中三个参考主体未共存于同一场景，画面无缓慢靠近的动态",
+    "severeFlag": false
+  }
+]

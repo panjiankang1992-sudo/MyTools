@@ -37,6 +37,11 @@ V3 新增 `asset_legacy_mapping`。`legacy_asset_capture_snapshot` 1.0.0 通过�
 
 V48 的 `asset_register_media_thumbnail` 和 `asset_register_media_storyboard` 负责把分析临时产物发布到 Storage Gateway，并按分析版本登记不可变派生资产关系。故事板按帧序号使用不同 `artifactKind`，相同任务重试通过幂等键恢复，父资产版本在每个新关系写入后顺序推进。
 
+V4 为任务型派生关系写入增加 `asset_execution_fence`。`POST /internal/v1/assets/{id}/artifacts`
+必须同时携带任务实例、步骤、关系幂等键和单调 fencing token；关系写入、资产版本推进与 Outbox
+处于同一事务。更小 token 或同 token 不同执行身份返回 `409 ASSET_008`。缩略图和故事板脚本
+通过共享 Executor SDK 从标准任务上下文发送这些请求头；非任务型内容/来源登记接口继续使用原有幂等契约。
+
 ## 实施要求
 
 - 根据真实旧 schema 实现只读源适配器，并执行生产副本 dry-run、正式迁移和对账。

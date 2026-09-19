@@ -70,6 +70,32 @@ Connector 创建并推进可恢复操作；账户凭据、rclone remote key 和�
 校验，发布至受管 Root，然后复用 Asset Registry 登记和结果回写步骤。父任务仍默认禁用，完成
 真实 PikPak/rclone 集成和旧新摘要对账后才允许灰度启用。
 
+消息自动化入口识别带合法 BTIH 的 `magnet:`，混合消息中的磁力链接独立于 HTTP 批次。
+默认账户使用 `DOWNLOAD_MCP_PIKPAK_ACCOUNT_ID`，本地目标使用 `DOWNLOAD_STORAGE_ROOT`
+（默认 `managed`）；账户缺失会显式失败，不自动改用本地 BT。PikPak 账户、其 Storage
+Provider 和任务定义都必须启用且云端鉴权可用。`download_pikpak_magnet` 1.1.0 的内部
+超时覆盖云端提交期限，空的云端完成结果视为失败。
+
+`download_remote_storage_object` 1.1.0 将逻辑路径直接映射为 Unicode 本地路径，不把
+URL 编码后的目录当作文件系统名称。每段名称最多 240 个 UTF-8 字节，超过时保留前缀、
+扩展名和稳定摘要；显示文件名与远端路径不变。发布幂等键升级为 `download-remote-v2`，
+避免修复路径与旧失败上传冲突。`download_pikpak_magnet` 1.2.0 的 `recoveryAttempt`
+仅用于人工补跑（1–10）；必须已有 READY 操作，只创建独立的本地子任务，不再次云下载。
+大文件落盘还需核对 `STORAGE_MAXIMUM_UPLOAD_BYTES`；默认 512 MiB，与下载侧上限不同。
+
+`download_remote_storage_object` 1.2.0 进一步将空格及 URI 不安全字符映射为带稳定摘要的
+本地名称（发布键 `download-remote-v3`），避免资产登记拒绝存储 URI；原始显示名不变。
+`download_pikpak_magnet` 1.3.0 为每个子文件传递从零开始的稳定 `sourceIndex`，
+避免多文件共用默认序号触发入库唯一键冲突。历史补跑前需审计并校正已入库文件的来源序号。
+
+`download_remote_storage_object` 1.3.0 识别图片与 MP4 文件头并传递 MIME，防止重放时
+通用二进制类型与已去重媒体资产冲突。`download_pikpak_magnet` 1.4.0 在人工补跑时
+从所有者隔离的结果摘要读取检查点，跳过已完成标签且身份匹配的文件，保留成功结果。
+
+HTTP 与消息附件在 `download_publish_file` 1.1.0 发布前识别 JPEG、PNG、GIF、WebP
+文件头，为缺少扩展名或 `.bin` 的图片补齐真实后缀。已识别 MIME 贯穿目录选择、资产登记和
+视觉标签步骤，原始下载临时文件保持不变，后续步骤以发布结果中的文件名和类型为准。
+
 `LOCAL_MAGNET` 映射到 `download_local_magnet`。该父任务只接受合法 BTIH magnet，使用
 Executor 节点固定的 aria2 二进制和 `/opt/yuyutian/mytools/runtime/executor/magnet` 持久
 staging；任务重试复用 `.aria2` 与 session 控制文件完成断点续传。下载过程持续检查总字节

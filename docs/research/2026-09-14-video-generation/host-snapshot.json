@@ -1,0 +1,74 @@
+{
+  "checkedAt": "2026-09-14T03:55:40.200006+00:00",
+  "os": {
+    "PRETTY_NAME": "Ubuntu 26.04 LTS",
+    "VERSION_ID": "26.04"
+  },
+  "kernel": "Linux 7.0.0-29-generic",
+  "gpu": "NVIDIA GeForce RTX 5060 Ti, 16311 MiB, 474 MiB, 595.84",
+  "memory": {
+    "MemTotal": "32116972 kB",
+    "MemAvailable": "15342100 kB",
+    "SwapTotal": "8388604 kB",
+    "SwapFree": "1364 kB"
+  },
+  "disk": "Filesystem         1B-blocks         Used    Available Use% Mounted on\n/dev/nvme0n1p2 1005867986944 271721725952 682975490048  29% /",
+  "cpu": "{\n   \"lscpu\": [\n      {\n         \"field\": \"Architecture:\",\n         \"data\": \"x86_64\"\n      },{\n         \"field\": \"CPU op-mode(s):\",\n         \"data\": \"32-bit, 64-bit\"\n      },{\n         \"field\": \"Address sizes:\",\n         \"data\": \"39 bits physical, 48 bits virtual\"\n      },{\n         \"field\": \"Byte Order:\",\n         \"data\": \"Little Endian\"\n      },{\n         \"field\": \"CPU(s):\",\n         \"data\": \"20\"\n      },{\n         \"field\": \"On-line CPU(s) list:\",\n         \"data\": \"0-19\"\n      },{\n         \"field\": \"Vendor ID:\",\n         \"data\": \"GenuineIntel\"\n      },{\n         \"field\": \"Model name:\",\n         \"data\": \"Intel(R) Core(TM) i5-14600KF\"\n      },{\n         \"field\": \"CPU family:\",\n         \"data\": \"6\"\n      },{\n         \"field\": \"Model:\",\n         \"data\": \"183\"\n      },{\n         \"field\": \"Thread(s) per core:\",\n         \"data\": \"2\"\n      },{\n         \"field\": \"Core(s) per socket:\",\n         \"data\": \"14\"\n      },{\n         \"field\": \"Socket(s):\",\n         \"data\": \"1\"\n      },{\n         \"field\": \"Stepping:\",\n         \"data\": \"1\"\n      },{\n         \"field\": \"CPU(s) scaling MHz:\",\n         \"data\": \"58%\"\n      },{\n         \"field\": \"CPU max MHz:\",\n         \"data\": \"5300.0000\"\n      },{\n         \"field\": \"CPU min MHz:\",\n         \"data\": \"800.0000\"\n      },{\n         \"field\": \"BogoMIPS:\",\n         \"data\": \"6988.80\"\n      },{\n         \"field\": \"Flags:\",\n         \"data\": \"fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb intel_pt sha_ni xsaveopt xsavec xgetbv1 xsaves split_lock_detect user_shstk avx_vnni dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp hwp_pkg_req hfi vnmi umip pku ospke waitpkg gfni vaes vpclmulqdq rdpid movdiri movdir64b fsrm md_clear serialize arch_lbr ibt flush_l1d arch_capabilities\"\n      },{\n         \"field\": \"Virtualization:\",\n         \"data\": \"VT-x\"\n      },{\n         \"field\": \"L1d cache:\",\n         \"data\": \"544 KiB (14 instances)\"\n      },{\n         \"field\": \"L1i cache:\",\n         \"data\": \"704 KiB (14 instances)\"\n      },{\n         \"field\": \"L2 cache:\",\n         \"data\": \"20 MiB (8 instances)\"\n      },{\n         \"field\": \"L3 cache:\",\n         \"data\": \"24 MiB (1 instance)\"\n      },{\n         \"field\": \"NUMA node(s):\",\n         \"data\": \"1\"\n      },{\n         \"field\": \"NUMA node0 CPU(s):\",\n         \"data\": \"0-19\"\n      },{\n         \"field\": \"Vulnerability Gather data sampling:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Ghostwrite:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Indirect target selection:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Itlb multihit:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability L1tf:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Mds:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Meltdown:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Mmio stale data:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Old microcode:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Reg file data sampling:\",\n         \"data\": \"Mitigation; Clear Register File\"\n      },{\n         \"field\": \"Vulnerability Retbleed:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Spec rstack overflow:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Spec store bypass:\",\n         \"data\": \"Mitigation; Speculative Store Bypass disabled via prctl\"\n      },{\n         \"field\": \"Vulnerability Spectre v1:\",\n         \"data\": \"Mitigation; usercopy/swapgs barriers and __user pointer sanitization\"\n      },{\n         \"field\": \"Vulnerability Spectre v2:\",\n         \"data\": \"Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS SW sequence; BHI BHI_DIS_S\"\n      },{\n         \"field\": \"Vulnerability Srbds:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Tsa:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Tsx async abort:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Vmscape:\",\n         \"data\": \"Mitigation; IBPB before exit to userspace\"\n      }\n   ]\n}",
+  "memoryPressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=149954475\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=147082960",
+  "vmstat": "procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu-------\n r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st gu\n 2  0 8387240 3636868  97936 12574000    3   12   972   975 10003   11  7  1 91  0  0  0\n 1  0 8387240 3637544  97936 12574388    0    0     0    72 10344 30654  7  0 93  0  0  0\n 1  0 8387240 3639480  97948 12574388    0    0     0   272 10720 31552  6  0 94  0  0  0",
+  "ffmpeg": "ffmpeg version 8.0.1-3ubuntu2 Copyright (c) 2000-2025 the FFmpeg developers",
+  "comfyRevision": "02d39c8cd7828566f48ccf783c1c75b8336044f5",
+  "torch": "{\"torch\": \"2.14.0+cu130\", \"cuda\": \"13.0\", \"archList\": [\"sm_75\", \"sm_80\", \"sm_86\", \"sm_90\", \"sm_100\", \"sm_120\"]}",
+  "services": {
+    "image-generation-service": "ActiveState=active\nMemoryCurrent=460603392\nMemoryMax=infinity\nMemorySwapMax=infinity",
+    "mytools-gateway": "ActiveState=active\nMemoryCurrent=347271168\nMemoryMax=infinity\nMemorySwapMax=infinity",
+    "task-scheduler-service": "ActiveState=active\nMemoryCurrent=564953088\nMemoryMax=infinity\nMemorySwapMax=infinity",
+    "task-executor-service": "ActiveState=active\nMemoryCurrent=768462848\nMemoryMax=infinity\nMemorySwapMax=infinity",
+    "image-comfy": "ActiveState=active\nMemoryCurrent=13997277184\nMemoryMax=19327352832\nMemorySwapMax=536870912",
+    "reader-service": "ActiveState=active\nMemoryCurrent=727240704\nMemoryMax=infinity\nMemorySwapMax=infinity"
+  },
+  "comfy": {
+    "running": 0,
+    "pending": 0
+  },
+  "ollama": [
+    {
+      "name": "huihui_ai/qwen3-vl-abliterated:8b",
+      "size": 6140410718
+    },
+    {
+      "name": "huihui_ai/qwen2.5-vl-abliterated:3b-instruct-q4_K_M",
+      "size": 3200628640
+    },
+    {
+      "name": "mytools-gemma3-abliterated:4b-q4",
+      "size": 3338937821
+    },
+    {
+      "name": "huihui_ai/gemma3-abliterated:4b",
+      "size": 8617523369
+    },
+    {
+      "name": "gemma3:4b",
+      "size": 3338801804
+    },
+    {
+      "name": "huihui_ai/gemma3-abliterated:12b",
+      "size": 24392820490
+    }
+  ],
+  "modelFiles": [
+    {
+      "name": "vae/qwen_image_vae.safetensors",
+      "bytes": 253806246
+    },
+    {
+      "name": "text_encoders/qwen3vl_4b_fp8_scaled.safetensors",
+      "bytes": 5242467968
+    },
+    {
+      "name": "diffusion_models/krea2_turbo_nvfp4.safetensors",
+      "bytes": 7673668448
+    }
+  ]
+}

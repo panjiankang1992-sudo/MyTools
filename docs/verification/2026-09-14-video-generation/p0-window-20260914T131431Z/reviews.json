@@ -1,0 +1,47 @@
+{
+  "windowId": "window-20260914T131431Z",
+  "scoring": "acceptance.md：指令遵循/主体保持/时间连贯/编辑局部性/伪影，各 1-5 分",
+  "status": "PENDING_HUMAN_REVIEW",
+  "cases": [
+    {
+      "caseId": "run-01",
+      "status": "SECOND_SEED_COVERAGE",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "T01-81 文生 81 帧 @seed932：0 暗帧、亮度 0.5621、运动 0.01015；与 seed42（0.4822 / 0.01301）一致，81 帧档在两个固定种子上都稳定。"
+    },
+    {
+      "caseId": "run-02",
+      "status": "SECOND_SEED_COVERAGE",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "R03 三图参考 @seed932：不塌陷（0 暗帧），但帧均值亮度 0.1555，远暗于 seed42 的 0.5267（差 3.4 倍）——三图参考的亮度对种子很敏感，需人工判断可接受度。"
+    },
+    {
+      "caseId": "run-03",
+      "status": "SECOND_SEED_COVERAGE",
+      "reviewedKeyframes": false,
+      "playedTwice": false,
+      "instructionFollowing": null,
+      "subjectPreservation": null,
+      "temporalCoherence": null,
+      "editLocality": null,
+      "artifacts": null,
+      "defects": "S01 分镜镜头2 @seed932：0 暗帧、亮度 0.7240、最低 0.6121；seed42 的暗场（帧 10-16）**没有复现**，证明该暗场是种子相关而非结构性问题。"
+    }
+  ],
+  "blockingFindings": [
+    "分镜镜头2 的暗场在第二个种子上未复现，属种子相关；但出现方向与单图首帧相反，说明无法靠固定种子规避。",
+    "R03 三图参考在两个种子上都不塌陷，但亮度相差 3.4 倍，质量稳定性需人工判断。"
+  ]
+}

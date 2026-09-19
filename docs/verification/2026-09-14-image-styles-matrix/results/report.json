@@ -1,0 +1,1229 @@
+{
+  "run": "image-styles-matrix-20260914-v1",
+  "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+  "seed": 932,
+  "size": "1024x1024",
+  "results": [
+    {
+      "style": "baseline",
+      "jobId": "ee298776-9552-4122-a05b-9dba7a356553",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 48000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-baseline",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "082d7592d6880e12e54fb8fa10ac0fcf56fd43e27491b37ef856c99ccfd5dced",
+      "bytes": 1094078
+    },
+    {
+      "style": "watercolor",
+      "jobId": "d54a813a-6d0e-4b3f-8f11-a22b840f8330",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 48000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-watercolor",
+        "styleId": "watercolor",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "watercolor",
+          "name": "Watercolor",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "painting",
+          "promptTemplate": "Render {prompt} as a watercolor painting with translucent pigment washes, softly bleeding edges and visible paper texture.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_twri.json",
+            "name": "artstyle-watercolor",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Render A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. as a watercolor painting with translucent pigment washes, softly bleeding edges and visible paper texture.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "1dc2c023aaf6d7ac96c17536c6a4b7b282668d40acdf8777e63aecd92530763c",
+      "bytes": 1485845
+    },
+    {
+      "style": "impressionist",
+      "jobId": "1760c1d6-aecc-4fc9-8021-b92126a60b30",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 49000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-impressionist",
+        "styleId": "impressionist",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "impressionist",
+          "name": "Impressionist",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "painting",
+          "promptTemplate": "Paint {prompt} with loose impressionist brushwork, broken color and luminous natural light.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_twri.json",
+            "name": "artstyle-impressionist",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Paint A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. with loose impressionist brushwork, broken color and luminous natural light.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "dfd24f79682c3d3939db1b3a2d8442483a41cf10813c96be36a1afc24b9bb733",
+      "bytes": 1457736
+    },
+    {
+      "style": "pointillism",
+      "jobId": "58179df1-65d8-44ff-b039-e66aec5b5b7c",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 52000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-pointillism",
+        "styleId": "pointillism",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "pointillism",
+          "name": "Pointillism",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "painting",
+          "promptTemplate": "Depict {prompt} using many small distinct dots of color that blend optically into a pointillist painting.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_twri.json",
+            "name": "artstyle-pointillism",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Depict A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. using many small distinct dots of color that blend optically into a pointillist painting.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "7a21b4a38c77837785323802a9951b3239289add96a409e9741dd2d23f07887e",
+      "bytes": 1665710
+    },
+    {
+      "style": "art-deco",
+      "jobId": "c6d7983d-4a04-42f9-9bd2-7bdc544e281c",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 52000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-art-deco",
+        "styleId": "art-deco",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "art-deco",
+          "name": "Art Deco",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "design",
+          "promptTemplate": "Depict {prompt} in an Art Deco composition with bold symmetry, geometric ornament and an elegant limited palette.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_twri.json",
+            "name": "artstyle-art deco",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Depict A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. in an Art Deco composition with bold symmetry, geometric ornament and an elegant limited palette.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "dfe065e7ade13a77d350d33828816b65a6607829d887d172a875abe779aa6ad3",
+      "bytes": 1149969
+    },
+    {
+      "style": "art-nouveau",
+      "jobId": "aac7747f-8fe4-4d13-8207-bec75937c0cc",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 52000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-art-nouveau",
+        "styleId": "art-nouveau",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "art-nouveau",
+          "name": "Art Nouveau",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "design",
+          "promptTemplate": "Illustrate {prompt} with flowing botanical curves, ornamental framing and delicate Art Nouveau linework.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_twri.json",
+            "name": "artstyle-art nouveau",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Illustrate A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. with flowing botanical curves, ornamental framing and delicate Art Nouveau linework.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "fecd00c5a3c7ca2fdf5837e4901e21f60de3eb548c35f8a5aa4fe0b267bd1b27",
+      "bytes": 1522433
+    },
+    {
+      "style": "pop-art",
+      "jobId": "2dc32dfa-4490-4ca7-8e0e-c0a6de4649e3",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 51000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-pop-art",
+        "styleId": "pop-art",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "pop-art",
+          "name": "Pop Art",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "design",
+          "promptTemplate": "Depict {prompt} as pop art using bold flat colors, strong outlines and printed halftone textures.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_twri.json",
+            "name": "artstyle-pop art",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Depict A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. as pop art using bold flat colors, strong outlines and printed halftone textures.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "52054addd3f839d2f4bc0fac52b9f969395c00a2c9873b7d516528767afd2831",
+      "bytes": 1545697
+    },
+    {
+      "style": "surrealist",
+      "jobId": "c4bdb86c-5fc9-49d2-a842-f53bf007b9b2",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 52000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-surrealist",
+        "styleId": "surrealist",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "surrealist",
+          "name": "Surrealist",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "painting",
+          "promptTemplate": "Depict {prompt} in a dreamlike surrealist scene with unexpected spatial relationships and carefully painted details.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_twri.json",
+            "name": "artstyle-surrealist",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Depict A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. in a dreamlike surrealist scene with unexpected spatial relationships and carefully painted details.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "91e5c275cc92d5ee3e35e17aaa2a894a2d6e4c13f77b860eafe4f892a367c76c",
+      "bytes": 1211188
+    },
+    {
+      "style": "anime",
+      "jobId": "609f070c-fc1b-4fb4-802e-56b6d935115e",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 49000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-anime",
+        "styleId": "anime",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "anime",
+          "name": "Anime",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "illustration",
+          "promptTemplate": "Create an anime illustration of {prompt} with expressive clean linework, cel shading and vivid colors.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-anime",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Create an anime illustration of A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. with expressive clean linework, cel shading and vivid colors.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "d732111b20cf3117d142292bb51554ac6e803a9eeb089b3c61d38061c5340397",
+      "bytes": 1329418
+    },
+    {
+      "style": "comic",
+      "jobId": "54bcd909-f0a7-4904-a3e3-3ebfc1febaa6",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 52000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-comic",
+        "styleId": "comic",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "comic",
+          "name": "Comic Book",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "illustration",
+          "promptTemplate": "Draw {prompt} as a comic book illustration with confident ink outlines, graphic shadows and printed color.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-comic book",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Draw A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. as a comic book illustration with confident ink outlines, graphic shadows and printed color.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "e9adcffc17c00decdcdbe19bb570a1e01306a081e3d03750f19d9d3055dae32b",
+      "bytes": 1628115
+    },
+    {
+      "style": "line-art",
+      "jobId": "00703f98-6cd2-437b-bc31-e86bbc58e58f",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 52000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-line-art",
+        "styleId": "line-art",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "line-art",
+          "name": "Line Art",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "illustration",
+          "promptTemplate": "Draw {prompt} as clean line art with deliberate contour lines and an uncluttered light background.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-line art",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Draw A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. as clean line art with deliberate contour lines and an uncluttered light background.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "ff50a68e7a6bb1df6056269ce4165fe5781257856699271b6313cf40c2fbdab3",
+      "bytes": 1160979
+    },
+    {
+      "style": "digital-art",
+      "jobId": "32c12f4d-3b53-477f-a2af-476e01cbbb65",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 49000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-digital-art",
+        "styleId": "digital-art",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "digital-art",
+          "name": "Digital Art",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "illustration",
+          "promptTemplate": "Create a digital painting of {prompt} with expressive shapes, controlled lighting and refined painted detail.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-digital art",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Create a digital painting of A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. with expressive shapes, controlled lighting and refined painted detail.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "74fde3a01ed43ef6adaf5d73dab044479946020db8d95f738bcd04f4fa758deb",
+      "bytes": 1285080
+    },
+    {
+      "style": "fantasy",
+      "jobId": "b9d91477-db86-418f-8e92-2f1253ab4a8f",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 51000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-fantasy",
+        "styleId": "fantasy",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "fantasy",
+          "name": "Fantasy Art",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "illustration",
+          "promptTemplate": "Illustrate {prompt} with an imaginative fantasy atmosphere, intricate materials and dramatic magical lighting.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-fantasy art",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Illustrate A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. with an imaginative fantasy atmosphere, intricate materials and dramatic magical lighting.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "adaa9ec512c4aef94c7f0fba6770d65348a6e9b52a032b07577f4377b69fad6b",
+      "bytes": 1279201
+    },
+    {
+      "style": "pixel",
+      "jobId": "ba2735b4-0832-45fe-a77a-55b371cc5779",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 51000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-pixel",
+        "styleId": "pixel",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "pixel",
+          "name": "Pixel Art",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "design",
+          "promptTemplate": "Render {prompt} as pixel art using a visible square pixel grid, a limited palette and crisp stepped edges.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-pixel art",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Render A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. as pixel art using a visible square pixel grid, a limited palette and crisp stepped edges.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "6dfa0888dc106b560829c166c622d5c4f429a71224aeb0b64c33b3a48d536664",
+      "bytes": 865530
+    },
+    {
+      "style": "isometric",
+      "jobId": "fba8ee8a-1a44-4487-9883-5d37687314b8",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 51000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-isometric",
+        "styleId": "isometric",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "isometric",
+          "name": "Isometric",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "design",
+          "promptTemplate": "Render {prompt} in an isometric view with parallel architectural lines, clear geometry and consistent lighting.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-isometric",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Render A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. in an isometric view with parallel architectural lines, clear geometry and consistent lighting.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "1f4d6bd5ff6f828b004a3cb0c8837ed326bfbc87f9065fed056da8a3312f3029",
+      "bytes": 1102388
+    },
+    {
+      "style": "low-poly",
+      "jobId": "4dfc6358-cb47-4961-932c-e1479fdc898a",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 51000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-low-poly",
+        "styleId": "low-poly",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "low-poly",
+          "name": "Low Poly",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "three-dimensional",
+          "promptTemplate": "Render {prompt} as a low-poly scene with visible polygon facets, simplified geometry and broad color planes.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-lowpoly",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Render A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. as a low-poly scene with visible polygon facets, simplified geometry and broad color planes.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "a4f40f84a1535582a0de8192ac49feb5822650eef479152ade5823a737a4505a",
+      "bytes": 976319
+    },
+    {
+      "style": "clay",
+      "jobId": "5447c7b4-08b7-4953-bede-19175c06dafb",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 52000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-clay",
+        "styleId": "clay",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "clay",
+          "name": "Clay",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "three-dimensional",
+          "promptTemplate": "Make {prompt} look handcrafted from modeling clay, with softly rounded shapes and tactile surface imperfections.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-craft clay",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Make A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. look handcrafted from modeling clay, with softly rounded shapes and tactile surface imperfections.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "09b03eb6185fcf637ec9647ead7fdfe1331e2b292a75b4b19022fc56c8012246",
+      "bytes": 1069136
+    },
+    {
+      "style": "origami",
+      "jobId": "bf25fd14-9776-4ad8-bd56-8a74da10f807",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 52000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-origami",
+        "styleId": "origami",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "origami",
+          "name": "Origami",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "papercraft",
+          "promptTemplate": "Depict {prompt} as folded paper origami with crisp creases, angular forms and gentle cast shadows.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-origami",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Depict A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. as folded paper origami with crisp creases, angular forms and gentle cast shadows.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "0714be9758f347e78bf1dcd3fb428fd943b5b6396f7e3da2b702b65f45fb9e3a",
+      "bytes": 1097782
+    },
+    {
+      "style": "paper-cut",
+      "jobId": "37c1a88f-7033-4ec5-a593-1cb9f2c8b1e9",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 51000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-paper-cut",
+        "styleId": "paper-cut",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "paper-cut",
+          "name": "Layered Paper Cut",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "papercraft",
+          "promptTemplate": "Create {prompt} from stacked cut-paper layers, with distinct silhouettes, tactile edges and shallow layered shadows.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_twri.json",
+            "name": "papercraft-stacked papercut",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Create A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. from stacked cut-paper layers, with distinct silhouettes, tactile edges and shallow layered shadows.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "f48059b5354fe48642fb9486579ef21cb8505626f644264a51cc23b807c8e965",
+      "bytes": 1194428
+    },
+    {
+      "style": "minimalist",
+      "jobId": "747a9e54-861e-4956-a2eb-a58041da62e7",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 51000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-minimalist",
+        "styleId": "minimalist",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "minimalist",
+          "name": "Minimalist",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "design",
+          "promptTemplate": "Depict {prompt} using a few essential shapes, a restrained palette and generous negative space.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_twri.json",
+            "name": "misc-minimalist",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Depict A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. using a few essential shapes, a restrained palette and generous negative space.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "d9ad10bf3c3ff89eee0cab9ed157c9761f8c93a4b02bf07ef2c1f01560aa3a81",
+      "bytes": 851534
+    },
+    {
+      "style": "monochrome",
+      "jobId": "ef334578-ba06-4a3e-853e-7853b7dc1846",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 51000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-monochrome",
+        "styleId": "monochrome",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "monochrome",
+          "name": "Monochrome",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "photography",
+          "promptTemplate": "Depict {prompt} in monochrome, emphasizing tonal separation, light, shadow and surface texture.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_twri.json",
+            "name": "misc-monochrome",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Depict A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. in monochrome, emphasizing tonal separation, light, shadow and surface texture.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "c52feea243cc4077690b7cd3b35be264efe3cd48064c0068d2b1a620e38d4c09",
+      "bytes": 1079484
+    },
+    {
+      "style": "photographic",
+      "jobId": "cc9093ca-2e16-4d6d-999d-5ab04c9c272d",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 49000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-photographic",
+        "styleId": "photographic",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "photographic",
+          "name": "Photographic",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "photography",
+          "promptTemplate": "Photograph {prompt} with believable materials, natural light, coherent perspective and realistic optical detail.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-photographic",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Photograph A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. with believable materials, natural light, coherent perspective and realistic optical detail.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "5383ec9b359b53517bbc582be548879b9f45dc8a1e3d1b8fa15491abc82be46f",
+      "bytes": 1100914
+    },
+    {
+      "style": "analog-film",
+      "jobId": "a45a2d98-6ba5-45e1-9eff-a758c75b18ea",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 52000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-analog-film",
+        "styleId": "analog-film",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "analog-film",
+          "name": "Analog Film",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "photography",
+          "promptTemplate": "Photograph {prompt} on analog film, with subtle grain, soft highlight rolloff and gently muted colors.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-analog film",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Photograph A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. on analog film, with subtle grain, soft highlight rolloff and gently muted colors.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "f1533683dacbf307a961f4f58638dcbef56f6ce9291cf5bddf1aed871f197bf0",
+      "bytes": 1143191
+    },
+    {
+      "style": "cinematic",
+      "jobId": "8aed5d58-8f5b-4b7e-9568-c97878b6d9cb",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 94000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-cinematic",
+        "styleId": "cinematic",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "cinematic",
+          "name": "Cinematic",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "photography",
+          "promptTemplate": "Frame {prompt} as a cinematic still with purposeful composition, motivated lighting and controlled color grading.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_sai.json",
+            "name": "sai-cinematic",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Frame A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. as a cinematic still with purposeful composition, motivated lighting and controlled color grading.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "7a4cd4b6487fcbada830a1fc40f01b6769e3f4e4841d3bba9c42b9427f89a2eb",
+      "bytes": 1009527
+    },
+    {
+      "style": "food-photo",
+      "jobId": "9ee85094-c8cb-423b-abce-ccca87904435",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 97000,
+      "errorCode": "",
+      "request": {
+        "resourceId": "krea2-local",
+        "prompt": "A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light.",
+        "mode": "TEXT_TO_IMAGE",
+        "references": [],
+        "size": "1024x1024",
+        "count": 1,
+        "seed": 932,
+        "idempotencyKey": "image-styles-matrix-20260914-v1-food-photo",
+        "styleId": "food-photo",
+        "styleVersion": 1,
+        "styleSnapshot": {
+          "id": "food-photo",
+          "name": "Food Photography",
+          "kind": "PROMPT",
+          "version": 1,
+          "category": "photography",
+          "promptTemplate": "Photograph {prompt} as an appetizing food editorial, with careful plating, soft directional light and detailed food textures.",
+          "negativePrompt": "",
+          "compatibleModels": [
+            "krea2-local"
+          ],
+          "modes": [
+            "TEXT_TO_IMAGE",
+            "IMAGE_TO_IMAGE"
+          ],
+          "validationStatus": "UNTESTED_ON_GPU",
+          "source": {
+            "repository": "https://github.com/twri/sdxl_prompt_styler",
+            "commit": "51068179927f79dce14f38c6b1984390ab242be2",
+            "file": "sdxl_styles_twri.json",
+            "name": "ads-food photography",
+            "license": "MIT",
+            "adaptation": "Rewritten as natural-language instructions; SDXL negative prompts omitted for the current Krea2 workflow."
+          },
+          "origin": "BUILTIN"
+        },
+        "effectivePrompt": "Photograph A red teapot and a plate of strawberries on a wooden table beside a window, with a small green potted plant and soft morning light. as an appetizing food editorial, with careful plating, soft directional light and detailed food textures.",
+        "workflowRevision": "krea2-turbo-v1",
+        "modelId": "krea2-turbo"
+      },
+      "sha256": "0111dad9f1014be04fa2f5d5234af9949a9e718f8838519d1326b9ce28703606",
+      "bytes": 1143999
+    }
+  ]
+}

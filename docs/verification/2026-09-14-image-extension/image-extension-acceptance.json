@@ -1,0 +1,34 @@
+{
+  "release": "image-extension-20260914-v2",
+  "jobs": [
+    {
+      "id": "042b0a7b-ef5f-4ab3-bed2-07aff3947415",
+      "mode": "IMAGE_TO_IMAGE",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 63000
+    },
+    {
+      "id": "5173fcaf-11da-4c95-9bc8-e3a15726b65b",
+      "mode": "IMAGE_TO_PROMPT",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 15000
+    },
+    {
+      "id": "4c0e269c-3ca0-4a83-a1dc-f5a5decaf433",
+      "mode": "TEXT_TO_IMAGE",
+      "status": "SUCCEEDED",
+      "elapsedMillis": 54000
+    }
+  ],
+  "prompt": "Photorealistic landscape of a tranquil alpine lake at dawn, surrounded by snow-capped mountains with rocky outcrops and patches of snow on the shore. The calm water perfectly mirrors the peaks and sky, creating symmetrical composition. Golden hour sunlight illuminates the mountain ridges, casting warm orange reflections on the lake's surface against cool blue tones of the water and snow. Foreground features include smooth snow-covered ground with scattered rocks, midground mountains with rugged textures, and a clear gradient sky transitioning from soft peach to pale blue. Realistic photography style emphasizing natural lighting and serene atmosphere.",
+  "editSha256": "16af6622767e92e8ca8dd915d14d5e3cb1cc1d34dd5bf8e0e0cb01c734b0b0c0",
+  "regeneratedSha256": "e625508acee0f61f1391872e9f159123a49a2272ebee6ecc15df6053352da66d",
+  "editAssetId": "f090cc52-ffc6-41d1-87ee-4b956a8834a7",
+  "ownerIsolation": true,
+  "idempotency": true,
+  "idempotencyConflict": true,
+  "emptyReferenceRejected": true,
+  "cancelled": true,
+  "restartPersistence": true,
+  "historyReadable": true
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "kind": "video",
+    "file": "p0-masked-control.mp4",
+    "bytes": 6306,
+    "sha256": "06dab491c864abfc5a927c1f9cbd096ebb17a2b92f56e285951d1a1abc0aa745",
+    "decodable": true
+  },
+  {
+    "kind": "video",
+    "file": "p0-masked-mask.mp4",
+    "bytes": 3447,
+    "sha256": "5b1081f025cb097cdfa8535acad4f4bc690ec8443ba6f9c706d36b5c93b18478",
+    "decodable": true
+  }
+]

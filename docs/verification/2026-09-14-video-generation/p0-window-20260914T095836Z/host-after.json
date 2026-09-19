@@ -1,0 +1,6 @@
+{
+  "time": 1789381506.9215608,
+  "availableMiB": 18242,
+  "gpu": "242, 15606, 0",
+  "memoryPressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=151261164\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=148387365"
+}

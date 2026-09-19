@@ -1,0 +1,30 @@
+{
+  "runId": "run-02",
+  "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/subject-references-alt-workflow.json",
+  "startedAt": 1789372419.6072488,
+  "preflight": {
+    "nodes": 14,
+    "classTypes": [
+      "CLIPLoader",
+      "CLIPTextEncode",
+      "ImageBatch",
+      "KSampler",
+      "LoadImage",
+      "ModelSamplingSD3",
+      "SaveImage",
+      "TrimVideoLatent",
+      "UNETLoader",
+      "VAEDecodeTiled",
+      "VAELoader",
+      "WanVaceMultiReferenceToVideo"
+    ]
+  },
+  "warmStart": true,
+  "workflowSha256": "37102c0e7e4fdf8914722691fdb6b06d8c92540df4fdf9b50ca234a27a9db3ed",
+  "status": "INFERENCE_PASSED_REVIEW_PENDING",
+  "promptId": "33d913da-dbb2-4c8f-8c57-346c103a1172",
+  "submittedAt": 1789372419.6086526,
+  "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T074325Z/run-02/output.mp4",
+  "outputSha256": "9e12e4c29624a9e844071445ef0f3142115dccf937a2803de277f04a26918789",
+  "finishedAt": 1789373023.912399
+}

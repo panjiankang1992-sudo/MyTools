@@ -5,6 +5,11 @@ server:
 spring:
   application:
     name: messaging-service
+  task:
+    scheduling:
+      pool:
+        size: ${MESSAGING_SCHEDULING_POOL_SIZE:4}
+      thread-name-prefix: messaging-scheduler-
   datasource:
     url: jdbc:mysql://${MESSAGING_DB_HOST:127.0.0.1}:${MESSAGING_DB_PORT:3306}/${MESSAGING_DB_NAME:mytools_messaging}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: ${MESSAGING_DB_USER:}
@@ -31,12 +36,17 @@ management:
 
 messaging:
   scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
+  scheduler-token: ${TASK_BUSINESS_MESSAGING_TOKEN:${MESSAGING_INTERNAL_TOKEN:${TASK_BUSINESS_INTERNAL_TOKEN:${TASK_INTERNAL_TOKEN:}}}}
   internal-token: ${MESSAGING_INTERNAL_TOKEN:}
   mail-from: ${MESSAGING_MAIL_FROM:}
   automation-url: ${MESSAGE_AUTOMATION_URL:http://127.0.0.1:23260}
   automation-token: ${MESSAGE_AUTOMATION_INTERNAL_TOKEN:}
   automation-relay-enabled: ${MESSAGE_AUTOMATION_RELAY_ENABLED:false}
   automation-relay-batch-size: ${MESSAGE_AUTOMATION_RELAY_BATCH_SIZE:50}
+  automation-relay-delay-ms: ${MESSAGE_AUTOMATION_RELAY_DELAY_MS:250}
+  inbound-outbox-claim-lease-seconds: ${MESSAGING_INBOUND_OUTBOX_CLAIM_LEASE_SECONDS:30}
+  onebot-forward-relay-delay-ms: ${MESSAGING_ONEBOT_FORWARD_RELAY_DELAY_MS:500}
+  onebot-acceptance-relay-delay-ms: ${MESSAGING_ONEBOT_ACCEPTANCE_RELAY_DELAY_MS:250}
   one-bot-ingress-enabled: ${MESSAGING_ONEBOT_INGRESS_ENABLED:false}
   download-ingestion-url: ${DOWNLOAD_INGESTION_URL:http://127.0.0.1:23220}
   download-ingestion-token: ${DOWNLOAD_INTERNAL_TOKEN:}

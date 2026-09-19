@@ -273,6 +273,13 @@ public class ExecutionReportJournalTest {
             }
         };
 
+        ReportRetryDeferredException deferred = assertThrows(
+                ReportRetryDeferredException.class, () -> journal.replayPending(client));
+        assertEquals(1, journal.status().pendingReports());
+        assertEquals(0, journal.status().diagnosticReports());
+        long waitMillis = Math.max(1L,
+                Duration.between(Instant.now(), deferred.retryAt()).toMillis() + 50L);
+        Thread.sleep(waitMillis);
         assertThrows(SchedulerClientException.class, () -> journal.replayPending(client));
         assertThrows(IOException.class, journal::validate);
         var health = new ExecutionJournalHealthIndicator(journal).health();

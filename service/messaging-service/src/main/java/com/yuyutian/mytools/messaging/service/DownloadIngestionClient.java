@@ -15,6 +15,9 @@ import java.time.Instant;
 public class DownloadIngestionClient {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final long DEFAULT_MAXIMUM_BYTES = 2L * 1024 * 1024 * 1024;
+    private static final long ABSOLUTE_MAXIMUM_BYTES = 20L * 1024 * 1024 * 1024;
+    private static final long DECLARED_SIZE_MINIMUM_TOLERANCE_BYTES = 4L * 1024 * 1024;
 
     private final RestClient restClient;
     private final String token;
@@ -35,8 +38,7 @@ public class DownloadIngestionClient {
         if (token == null || token.isBlank()) {
             throw new IllegalStateException("Download Ingestion internal token is missing");
         }
-        long maximum = declaredSize == null ? 2L * 1024 * 1024 * 1024
-                : Math.min(20L * 1024 * 1024 * 1024, Math.max(declaredSize, 1024 * 1024));
+        long maximum = maximumBytes(declaredSize);
         Map<String, Object> parameters = Map.of(
                 "ownerId", ownerId,
                 "itemId", partId.toString(),
@@ -68,8 +70,7 @@ public class DownloadIngestionClient {
      */
     public UUID createStreamedAttachment(UUID jobId, long ownerId, UUID partId, String fileName,
                                          String mimeType, Long declaredSize, Instant receivedAt) {
-        long maximum = declaredSize == null ? 2L * 1024 * 1024 * 1024
-                : Math.min(20L * 1024 * 1024 * 1024, Math.max(declaredSize, 1024 * 1024));
+        long maximum = maximumBytes(declaredSize);
         Map<String, Object> parameters = Map.of(
                 "ownerId", ownerId,
                 "itemId", partId.toString(),
@@ -80,6 +81,18 @@ public class DownloadIngestionClient {
                 "receivedAt", receivedAt.toString(),
                 "maxBytes", maximum);
         return create(jobId, partId, "MESSAGE_ATTACHMENT", parameters, "v4");
+    }
+
+    static long maximumBytes(Long declaredSize) {
+        if (declaredSize == null) {
+            return DEFAULT_MAXIMUM_BYTES;
+        }
+        if (declaredSize >= ABSOLUTE_MAXIMUM_BYTES) {
+            return ABSOLUTE_MAXIMUM_BYTES;
+        }
+        // 渠道声明大小仅用于预估；增加至少 4 MiB 或 25% 的容差，同时保留全局硬上限。
+        long tolerance = Math.max(DECLARED_SIZE_MINIMUM_TOLERANCE_BYTES, declaredSize / 4);
+        return Math.min(ABSOLUTE_MAXIMUM_BYTES, declaredSize + tolerance);
     }
 
     private UUID create(UUID jobId, UUID partId, String requestKind, Map<String, Object> parameters,
@@ -120,6 +133,30 @@ public class DownloadIngestionClient {
         String status = response == null ? "" : response.path("status").asText();
         if (!downloadRequestId.toString().equals(identifier) || status.isBlank()) {
             throw new IllegalStateException("Download Ingestion returned an invalid status response");
+        }
+        return new DownloadSnapshot(downloadRequestId, status);
+    }
+
+    /**
+     * 按所有者取消下载请求。
+     *
+     * @param downloadRequestId 下载请求标识
+     * @param ownerId 所有者标识
+     * @return 下载请求最新快照
+     */
+    public DownloadSnapshot cancel(UUID downloadRequestId, long ownerId) {
+        if (token == null || token.isBlank()) {
+            throw new IllegalStateException("Download Ingestion internal token is missing");
+        }
+        JsonNode response = restClient.post().uri(uriBuilder -> uriBuilder
+                        .path("/internal/v1/download-requests/{id}/cancel")
+                        .queryParam("ownerId", ownerId).build(downloadRequestId))
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).body(Map.of()).retrieve().body(JsonNode.class);
+        String identifier = response == null ? "" : response.path("id").asText();
+        String status = response == null ? "" : response.path("status").asText();
+        if (!downloadRequestId.toString().equals(identifier) || status.isBlank()) {
+            throw new IllegalStateException("Download Ingestion returned an invalid cancel response");
         }
         return new DownloadSnapshot(downloadRequestId, status);
     }

@@ -1,0 +1,191 @@
+{
+  "revision": "image-edit-v1",
+  "modes": [
+    "IMAGE_TO_IMAGE"
+  ],
+  "allowedClassTypes": [
+    "CLIPLoader",
+    "CLIPTextEncode",
+    "ConditioningZeroOut",
+    "ImageScale",
+    "KSampler",
+    "LoadImage",
+    "SaveImage",
+    "UNETLoader",
+    "VAEDecode",
+    "VAEEncode",
+    "VAELoader"
+  ],
+  "graph": {
+    "3": {
+      "class_type": "KSampler",
+      "inputs": {
+        "model": [
+          "10",
+          0
+        ],
+        "positive": [
+          "6",
+          0
+        ],
+        "negative": [
+          "13",
+          0
+        ],
+        "latent_image": [
+          "32",
+          0
+        ],
+        "seed": 42,
+        "steps": 8,
+        "cfg": 1.0,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 0.65
+      }
+    },
+    "6": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "text": "A landscape at sunrise",
+        "clip": [
+          "11",
+          0
+        ]
+      }
+    },
+    "8": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": [
+          "3",
+          0
+        ],
+        "vae": [
+          "12",
+          0
+        ]
+      }
+    },
+    "10": {
+      "class_type": "UNETLoader",
+      "inputs": {
+        "unet_name": "krea2_turbo_nvfp4.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    "11": {
+      "class_type": "CLIPLoader",
+      "inputs": {
+        "clip_name": "qwen3vl_4b_fp8_scaled.safetensors",
+        "type": "krea2",
+        "device": "cpu"
+      }
+    },
+    "12": {
+      "class_type": "VAELoader",
+      "inputs": {
+        "vae_name": "qwen_image_vae.safetensors"
+      }
+    },
+    "13": {
+      "class_type": "ConditioningZeroOut",
+      "inputs": {
+        "conditioning": [
+          "6",
+          0
+        ]
+      }
+    },
+    "29": {
+      "class_type": "SaveImage",
+      "inputs": {
+        "images": [
+          "8",
+          0
+        ],
+        "filename_prefix": "mytools-krea2-edit"
+      }
+    },
+    "30": {
+      "class_type": "LoadImage",
+      "inputs": {
+        "image": ""
+      }
+    },
+    "31": {
+      "class_type": "ImageScale",
+      "inputs": {
+        "image": [
+          "30",
+          0
+        ],
+        "upscale_method": "lanczos",
+        "width": 1024,
+        "height": 1024,
+        "crop": "center"
+      }
+    },
+    "32": {
+      "class_type": "VAEEncode",
+      "inputs": {
+        "pixels": [
+          "31",
+          0
+        ],
+        "vae": [
+          "12",
+          0
+        ]
+      }
+    }
+  },
+  "bindings": {
+    "prompt": [
+      [
+        "6",
+        "text"
+      ]
+    ],
+    "seed": [
+      [
+        "3",
+        "seed"
+      ]
+    ],
+    "width": [
+      [
+        "31",
+        "width"
+      ]
+    ],
+    "height": [
+      [
+        "31",
+        "height"
+      ]
+    ],
+    "reference0": [
+      [
+        "30",
+        "image"
+      ]
+    ]
+  },
+  "outputNode": "29",
+  "provenance": {
+    "source": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/image_krea2_turbo_t2i.json",
+    "comfyCommit": "02d39c8cd7828566f48ccf783c1c75b8336044f5",
+    "changes": [
+      "NVFP4 candidate",
+      "CPU text encoder",
+      "prompt enhancement disabled",
+      "LoRA disabled",
+      "Input image resized with center crop and VAE encoded",
+      "Image latent connected to KSampler",
+      "Fixed candidate denoise 0.65; requires GPU quality validation"
+    ],
+    "validated": false,
+    "nodeSource": "https://github.com/Comfy-Org/ComfyUI/blob/02d39c8cd7828566f48ccf783c1c75b8336044f5/nodes.py"
+  }
+}

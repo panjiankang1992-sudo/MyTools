@@ -1,5 +1,6 @@
 package com.yuyutian.mytools.storage.controller;
 
+import com.yuyutian.mytools.storage.service.ExecutionFenceConflictException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,7 +20,8 @@ public class StorageExceptionHandler {
      * @param exception 异常
      * @return 错误响应
      */
-    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
+    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class,
+            ExecutionFenceConflictException.class})
     public ResponseEntity<Map<String, String>> handleRuntime(RuntimeException exception) {
         String code = exception.getMessage() != null && exception.getMessage().matches("STORAGE_\\d{3}")
                 ? exception.getMessage() : "STORAGE_007";
@@ -28,7 +30,7 @@ public class StorageExceptionHandler {
                     "STORAGE_019" -> HttpStatus.NOT_FOUND;
             case "STORAGE_010" -> HttpStatus.UNAUTHORIZED;
             case "STORAGE_002", "STORAGE_005", "STORAGE_008", "STORAGE_012", "STORAGE_016",
-                    "STORAGE_017", "STORAGE_020" -> HttpStatus.CONFLICT;
+                    "STORAGE_017", "STORAGE_020", "STORAGE_030" -> HttpStatus.CONFLICT;
             case "STORAGE_014" -> HttpStatus.BAD_GATEWAY;
             default -> HttpStatus.BAD_REQUEST;
         };

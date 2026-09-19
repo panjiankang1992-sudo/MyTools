@@ -16,7 +16,7 @@ actual_tabs="$(printf '%s\n' "$tabs_block" | sed -n "s/.*{ title: '\([^']*\)'.*/
 [[ "$actual_tabs" == "$expected_tabs" ]] || fail "main navigation is stale"
 
 for pattern in \
-  "ForEach(['书源', '远程', '本地']" \
+  "ForEach([3, 0, 1, 2]" \
   'this.BookShelfHeader()' \
   "AppSecondaryPillButton({ label: this.DetailBookInShelf() ? '书架中' : '试读'" \
   "AppPrimaryPillButton({ label: this.DetailBookInShelf() ? '继续阅读' : '加入书架'" \

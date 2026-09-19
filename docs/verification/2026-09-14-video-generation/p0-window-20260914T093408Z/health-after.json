@@ -1,0 +1,91 @@
+{
+  "windowSummary": {
+    "windowId": "window-20260914T093408Z",
+    "results": [
+      {
+        "runId": "run-01",
+        "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/restyle-scene-gray-workflow.json",
+        "startedAt": 1789378458.6137748,
+        "preflight": {
+          "nodes": 13,
+          "classTypes": [
+            "CLIPLoader",
+            "CLIPTextEncode",
+            "GetVideoComponents",
+            "KSampler",
+            "LoadVideo",
+            "ModelSamplingSD3",
+            "SaveImage",
+            "TrimVideoLatent",
+            "UNETLoader",
+            "VAEDecodeTiled",
+            "VAELoader",
+            "WanVaceToVideo"
+          ]
+        },
+        "inputs": [
+          {
+            "kind": "video",
+            "file": "p0-scene-control-gray.mp4",
+            "bytes": 96478,
+            "sha256": "c619e64accf598bbf67b8bbe6ce942531bb5b40804b9f67a4dff6c1c50204e10",
+            "decodable": true
+          }
+        ],
+        "warmStart": false,
+        "workflowSha256": "7da407f8527dad4256a07ea8e8530ae07d8bf29fd4248d36ec63f31ca38a6794",
+        "status": "INFERENCE_PASSED_REVIEW_PENDING",
+        "promptId": "089b7958-4ab8-4cc4-86ff-fb83e3fd6700",
+        "submittedAt": 1789378458.647308,
+        "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T093408Z/run-01/output.mp4",
+        "outputSha256": "bd8c28c29043cb2b825e3420b764c0124c748e2a6bf8f2eb20fdd4f808c49238",
+        "finishedAt": 1789378947.4984314
+      },
+      {
+        "runId": "run-02",
+        "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/restyle-scene-edge-workflow.json",
+        "startedAt": 1789378947.498638,
+        "preflight": {
+          "nodes": 13,
+          "classTypes": [
+            "CLIPLoader",
+            "CLIPTextEncode",
+            "GetVideoComponents",
+            "KSampler",
+            "LoadVideo",
+            "ModelSamplingSD3",
+            "SaveImage",
+            "TrimVideoLatent",
+            "UNETLoader",
+            "VAEDecodeTiled",
+            "VAELoader",
+            "WanVaceToVideo"
+          ]
+        },
+        "inputs": [
+          {
+            "kind": "video",
+            "file": "p0-scene-control-edge.mp4",
+            "bytes": 62528,
+            "sha256": "08ef6cde4bfbaefe30cb713f99248186e7cea76885aecef73c4a6b5561cb11cd",
+            "decodable": true
+          }
+        ],
+        "warmStart": true,
+        "workflowSha256": "7095cd7666217fc67e03573803c582c1082b0f54eef2acd755a5fed084309500",
+        "status": "INFERENCE_PASSED_REVIEW_PENDING",
+        "promptId": "ff8cb6bc-dd2c-4143-a76c-5f7bad23e88f",
+        "submittedAt": 1789378947.5270689,
+        "output": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T093408Z/run-02/output.mp4",
+        "outputSha256": "071d00fe0104069f6b104de8244c82b191adca819b4711b9eb44ae07dfb4cb34",
+        "finishedAt": 1789379431.124971
+      }
+    ]
+  },
+  "hostAfter": {
+    "time": 1789379435.3893702,
+    "availableMiB": 18197,
+    "gpu": "242, 15606, 0",
+    "memoryPressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=151071052\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=148197300"
+  }
+}

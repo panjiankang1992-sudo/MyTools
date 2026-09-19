@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "styles": [
+    {
+      "id": "custom-soft-ink",
+      "name": "Soft Ink",
+      "kind": "PROMPT",
+      "version": 1,
+      "category": "custom",
+      "promptTemplate": "Depict {prompt} as a serene ink wash illustration on textured rice paper, with flowing brush strokes, soft gray washes, a small vermilion accent and generous negative space.",
+      "negativePrompt": "",
+      "compatibleModels": [
+        "krea2-local"
+      ],
+      "modes": [
+        "TEXT_TO_IMAGE",
+        "IMAGE_TO_IMAGE"
+      ],
+      "validationStatus": "UNTESTED_ON_GPU"
+    }
+  ]
+}

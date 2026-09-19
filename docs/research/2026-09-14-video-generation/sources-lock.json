@@ -1,0 +1,430 @@
+{
+  "checkedAt": "2026-09-14T03:59:17.373609+00:00",
+  "github": [
+    {
+      "repository": "Lightricks/LTX-Video",
+      "url": "https://github.com/Lightricks/LTX-Video",
+      "branch": "main",
+      "commit": "4b2d053057623ddd4d0a1d3e9cd28890e9ef487f",
+      "commitDate": "2026-01-05T22:37:06Z",
+      "license": "Apache-2.0"
+    },
+    {
+      "repository": "Wan-Video/Wan2.2",
+      "url": "https://github.com/Wan-Video/Wan2.2",
+      "branch": "main",
+      "commit": "42bf4cfaa384bc21833865abc2f9e6c0e67233dc",
+      "commitDate": "2026-03-17T10:48:41Z",
+      "license": "Apache-2.0"
+    },
+    {
+      "repository": "ali-vilab/VACE",
+      "url": "https://github.com/ali-vilab/VACE",
+      "branch": "main",
+      "commit": "48eb44f1c4be87cc65a98bff985a26976841e9f3",
+      "commitDate": "2025-10-17T05:46:57Z",
+      "license": "Apache-2.0"
+    },
+    {
+      "repository": "Wan-Video/Wan2.1",
+      "url": "https://github.com/Wan-Video/Wan2.1",
+      "branch": "main",
+      "commit": "9737cba9c1c3c4d04b33fcad41c111989865d315",
+      "commitDate": "2026-03-05T09:38:07Z",
+      "license": "Apache-2.0"
+    },
+    {
+      "repository": "Tencent-Hunyuan/HunyuanVideo-1.5",
+      "url": "https://github.com/Tencent-Hunyuan/HunyuanVideo-1.5",
+      "branch": "main",
+      "commit": "60783e704160023913bee78f0b47036d393d4dfa",
+      "commitDate": "2026-04-10T06:14:58Z",
+      "license": "NOASSERTION"
+    },
+    {
+      "repository": "ModelTC/LightX2V",
+      "url": "https://github.com/ModelTC/LightX2V",
+      "branch": "main",
+      "commit": "9bf4d39ac048a0d922b9a2139da9ed795f78f4e8",
+      "commitDate": "2026-09-11T12:04:39Z",
+      "license": "Apache-2.0"
+    },
+    {
+      "repository": "Lightricks/LTX-Desktop",
+      "url": "https://github.com/Lightricks/LTX-Desktop",
+      "branch": "main",
+      "commit": "68cd86c15e5fd25f56229ea63c0dbcb0338f7812",
+      "commitDate": "2026-08-26T14:31:12Z",
+      "license": "Apache-2.0"
+    },
+    {
+      "repository": "Lightricks/LTX-2",
+      "url": "https://github.com/Lightricks/LTX-2",
+      "branch": "main",
+      "commit": "a95ab856bf29407b6b066ede0abe1846050db56c",
+      "commitDate": "2026-08-26T10:46:59Z",
+      "license": "NOASSERTION"
+    },
+    {
+      "repository": "MiniMax-AI/MiniMax-H3",
+      "url": "https://github.com/MiniMax-AI/MiniMax-H3",
+      "branch": "main",
+      "commit": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+      "commitDate": "2026-08-15T08:31:16Z",
+      "license": null
+    }
+  ],
+  "models": [
+    {
+      "model": "Wan-AI/Wan2.1-VACE-1.3B",
+      "url": "https://huggingface.co/Wan-AI/Wan2.1-VACE-1.3B",
+      "revision": "574e6a744642ce3bee319afc31496b88bde8aac4",
+      "lastModified": "2025-05-19T03:18:05.000Z",
+      "gated": false,
+      "files": [
+        {
+          "path": "Wan2.1_VAE.pth",
+          "bytes": 507609880
+        },
+        {
+          "path": "config.json",
+          "bytes": 349
+        },
+        {
+          "path": "diffusion_pytorch_model.safetensors",
+          "bytes": 7146067848
+        },
+        {
+          "path": "google/umt5-xxl/special_tokens_map.json",
+          "bytes": 6623
+        },
+        {
+          "path": "google/umt5-xxl/tokenizer.json",
+          "bytes": 16837417
+        },
+        {
+          "path": "google/umt5-xxl/tokenizer_config.json",
+          "bytes": 61728
+        },
+        {
+          "path": "models_t5_umt5-xxl-enc-bf16.pth",
+          "bytes": 11361920418
+        }
+      ]
+    },
+    {
+      "model": "Wan-AI/Wan2.1-T2V-1.3B",
+      "url": "https://huggingface.co/Wan-AI/Wan2.1-T2V-1.3B",
+      "revision": "37ec512624d61f7aa208f7ea8140a131f93afc9a",
+      "lastModified": "2025-03-01T09:31:33.000Z",
+      "gated": false,
+      "files": [
+        {
+          "path": "Wan2.1_VAE.pth",
+          "bytes": 507609880
+        },
+        {
+          "path": "config.json",
+          "bytes": 249
+        },
+        {
+          "path": "diffusion_pytorch_model.safetensors",
+          "bytes": 5676070424
+        },
+        {
+          "path": "google/umt5-xxl/special_tokens_map.json",
+          "bytes": 6623
+        },
+        {
+          "path": "google/umt5-xxl/tokenizer.json",
+          "bytes": 16837417
+        },
+        {
+          "path": "google/umt5-xxl/tokenizer_config.json",
+          "bytes": 61728
+        },
+        {
+          "path": "models_t5_umt5-xxl-enc-bf16.pth",
+          "bytes": 11361920418
+        }
+      ]
+    },
+    {
+      "model": "Lightricks/LTX-Video",
+      "url": "https://huggingface.co/Lightricks/LTX-Video",
+      "revision": "8984fa25007f376c1a299016d0957a37a2f797bb",
+      "lastModified": "2025-07-16T14:32:35.000Z",
+      "gated": false,
+      "files": [
+        {
+          "path": "ltx-video-2b-v0.9.1.safetensors",
+          "bytes": 5716863844
+        },
+        {
+          "path": "ltx-video-2b-v0.9.5.safetensors",
+          "bytes": 6340729500
+        },
+        {
+          "path": "ltx-video-2b-v0.9.safetensors",
+          "bytes": 9370442108
+        },
+        {
+          "path": "ltxv-13b-0.9.7-dev-fp8.safetensors",
+          "bytes": 15694279916
+        },
+        {
+          "path": "ltxv-13b-0.9.7-dev.safetensors",
+          "bytes": 28579183340
+        },
+        {
+          "path": "ltxv-13b-0.9.7-distilled-fp8.safetensors",
+          "bytes": 15694280020
+        },
+        {
+          "path": "ltxv-13b-0.9.7-distilled-lora128.safetensors",
+          "bytes": 1325666536
+        },
+        {
+          "path": "ltxv-13b-0.9.7-distilled.safetensors",
+          "bytes": 28579183444
+        },
+        {
+          "path": "ltxv-13b-0.9.8-dev-fp8.safetensors",
+          "bytes": 15694279916
+        },
+        {
+          "path": "ltxv-13b-0.9.8-dev.safetensors",
+          "bytes": 28579183340
+        },
+        {
+          "path": "ltxv-13b-0.9.8-distilled-fp8.safetensors",
+          "bytes": 15694280140
+        },
+        {
+          "path": "ltxv-13b-0.9.8-distilled.safetensors",
+          "bytes": 28579183564
+        },
+        {
+          "path": "ltxv-2b-0.9.6-dev-04-25.safetensors",
+          "bytes": 6340743924
+        },
+        {
+          "path": "ltxv-2b-0.9.6-distilled-04-25.safetensors",
+          "bytes": 6340744028
+        },
+        {
+          "path": "ltxv-2b-0.9.8-distilled-fp8.safetensors",
+          "bytes": 4461695684
+        },
+        {
+          "path": "ltxv-2b-0.9.8-distilled.safetensors",
+          "bytes": 6340744492
+        },
+        {
+          "path": "ltxv-spatial-upscaler-0.9.7.safetensors",
+          "bytes": 505024432
+        },
+        {
+          "path": "ltxv-spatial-upscaler-0.9.8.safetensors",
+          "bytes": 505024432
+        },
+        {
+          "path": "ltxv-temporal-upscaler-0.9.7.safetensors",
+          "bytes": 523894768
+        },
+        {
+          "path": "ltxv-temporal-upscaler-0.9.8.safetensors",
+          "bytes": 523894768
+        },
+        {
+          "path": "model_index.json",
+          "bytes": 412
+        },
+        {
+          "path": "scheduler/scheduler_config.json",
+          "bytes": 418
+        },
+        {
+          "path": "text_encoder/config.json",
+          "bytes": 781
+        },
+        {
+          "path": "text_encoder/model-00001-of-00004.safetensors",
+          "bytes": 4989319680
+        },
+        {
+          "path": "text_encoder/model-00002-of-00004.safetensors",
+          "bytes": 4999830656
+        },
+        {
+          "path": "text_encoder/model-00003-of-00004.safetensors",
+          "bytes": 4865612720
+        },
+        {
+          "path": "text_encoder/model-00004-of-00004.safetensors",
+          "bytes": 4194506688
+        },
+        {
+          "path": "text_encoder/model.safetensors.index.json",
+          "bytes": 19886
+        },
+        {
+          "path": "tokenizer/added_tokens.json",
+          "bytes": 2593
+        },
+        {
+          "path": "tokenizer/special_tokens_map.json",
+          "bytes": 2543
+        },
+        {
+          "path": "tokenizer/tokenizer_config.json",
+          "bytes": 20618
+        },
+        {
+          "path": "transformer/config.json",
+          "bytes": 500
+        },
+        {
+          "path": "transformer/diffusion_pytorch_model-00001-of-00002.safetensors",
+          "bytes": 4939189200
+        },
+        {
+          "path": "transformer/diffusion_pytorch_model-00002-of-00002.safetensors",
+          "bytes": 2754433648
+        },
+        {
+          "path": "transformer/diffusion_pytorch_model.safetensors.index.json",
+          "bytes": 72060
+        },
+        {
+          "path": "vae/config.json",
+          "bytes": 501
+        },
+        {
+          "path": "vae/diffusion_pytorch_model.safetensors",
+          "bytes": 1676798532
+        }
+      ]
+    },
+    {
+      "model": "Lightricks/LTX-2.5",
+      "url": "https://huggingface.co/Lightricks/LTX-2.5",
+      "revision": "5e6e71018ee1756ed329b697a7b4aedc934dfce9",
+      "lastModified": "2026-09-01T06:29:03.000Z",
+      "gated": "auto",
+      "files": [
+        {
+          "path": "diffusion_models/ltx-2.5-22b-dev-transformer-bf16.safetensors",
+          "bytes": 42018190584
+        },
+        {
+          "path": "diffusion_models/ltx-2.5-22b-dev-transformer-comfy-int8-convrot.safetensors",
+          "bytes": 21504034224
+        },
+        {
+          "path": "diffusion_models/ltx-2.5-22b-distilled-transformer-bf16.safetensors",
+          "bytes": 42018190584
+        },
+        {
+          "path": "diffusion_models/ltx-2.5-22b-distilled-transformer-comfy-int8-convrot.safetensors",
+          "bytes": 21504034224
+        },
+        {
+          "path": "diffusion_models/ltx-2.5-22b-distilled-transformer-nvfp4.safetensors",
+          "bytes": 18721548408
+        },
+        {
+          "path": "latent_upscale_models/ltx-2.5-latent-spatial-upscaler-x2-bf16-1.0.safetensors",
+          "bytes": 995778752
+        },
+        {
+          "path": "latent_upscale_models/ltx-2.5-latent-temporal-upscaler-x2-bf16-1.0.safetensors",
+          "bytes": 261944000
+        },
+        {
+          "path": "loras/ltx-2.5-22b-distilled-lora-450-bf16.safetensors",
+          "bytes": 8899889568
+        },
+        {
+          "path": "model_patches/ltx-2.5-duration-head-bf16.safetensors",
+          "bytes": 3843690
+        },
+        {
+          "path": "text_encoders/gemma4-12b-with-proj-ltx-2.5-bf16.safetensors",
+          "bytes": 26263858182
+        },
+        {
+          "path": "text_encoders/gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors",
+          "bytes": 15372969374
+        },
+        {
+          "path": "vae/ltx-2.5-audio-vae-bf16.safetensors",
+          "bytes": 364866540
+        },
+        {
+          "path": "vae/ltx-2.5-video-vae-bf16.safetensors",
+          "bytes": 1472223346
+        },
+        {
+          "path": "vae/ltx-2.5-video-vae-conv-bf16.safetensors",
+          "bytes": 1452269922
+        }
+      ]
+    },
+    {
+      "model": "lightx2v/LightWan2.2-A14B",
+      "url": "https://huggingface.co/lightx2v/LightWan2.2-A14B",
+      "revision": "27213d1d4a6cfb1ecd9c60d214764c917d0f6c45",
+      "lastModified": "2026-07-27T08:15:59.000Z",
+      "gated": false,
+      "files": [
+        {
+          "path": "Wan2.2-I2V-A14B_NVFP4_Sparse_high.safetensors",
+          "bytes": 8379833592
+        },
+        {
+          "path": "Wan2.2-I2V-A14B_NVFP4_Sparse_high_comfy.safetensors",
+          "bytes": 8379918824
+        },
+        {
+          "path": "Wan2.2-I2V-A14B_NVFP4_Sparse_low.safetensors",
+          "bytes": 8379833592
+        },
+        {
+          "path": "Wan2.2-I2V-A14B_NVFP4_Sparse_low_comfy.safetensors",
+          "bytes": 8379918824
+        },
+        {
+          "path": "Wan2.2-T2V-A14B_NVFP4_Sparse_high.safetensors",
+          "bytes": 8379014392
+        },
+        {
+          "path": "Wan2.2-T2V-A14B_NVFP4_Sparse_high_comfy.safetensors",
+          "bytes": 8379099624
+        },
+        {
+          "path": "Wan2.2-T2V-A14B_NVFP4_Sparse_low.safetensors",
+          "bytes": 8379014392
+        },
+        {
+          "path": "Wan2.2-T2V-A14B_NVFP4_Sparse_low_comfy.safetensors",
+          "bytes": 8379099624
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "name": "showlab/Kiwi-Edit",
+      "error": "HTTPError"
+    },
+    {
+      "name": "WeChatCV/NovaEdit",
+      "error": "HTTPError"
+    },
+    {
+      "name": "PKU-YuanGroup/Helios",
+      "error": "HTTPError"
+    }
+  ]
+}

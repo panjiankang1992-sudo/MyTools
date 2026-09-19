@@ -5,6 +5,7 @@
   <groupId>com.yuyutian.mytools.service</groupId><artifactId>drive-service</artifactId><version>0.1.0-SNAPSHOT</version>
   <properties><java.version>21</java.version></properties>
   <dependencies>
+    <dependency><groupId>com.yuyutian.mytools.service</groupId><artifactId>task-scheduler-client</artifactId><version>0.1.0-SNAPSHOT</version></dependency>
     <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>
     <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-validation</artifactId></dependency>
     <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-actuator</artifactId></dependency>

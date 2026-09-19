@@ -1,0 +1,50 @@
+{
+  "shots": [
+    {
+      "file": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T090441Z/run-01/output.mp4",
+      "frames": 49,
+      "width": 832,
+      "height": 480,
+      "fps": "16/1",
+      "durationSeconds": 3.062012,
+      "sha256": "c4c334ebeb73ba037128cfd9a5a6c68ab61c0cfdfc4246ee7692180d873f9cf5"
+    },
+    {
+      "file": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T090441Z/run-02/output.mp4",
+      "frames": 49,
+      "width": 832,
+      "height": 480,
+      "fps": "16/1",
+      "durationSeconds": 3.0625,
+      "sha256": "468887fe788ebeff0642b7b21c357b17f4be56c282a3042a813d23acf4e6b5f5"
+    },
+    {
+      "file": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T090441Z/run-03/output.mp4",
+      "frames": 49,
+      "width": 832,
+      "height": 480,
+      "fps": "16/1",
+      "durationSeconds": 3.0625,
+      "sha256": "a7dad25b5fc52f056b0626b7578015d32493ce36b102841a9ef348729a406e9e"
+    }
+  ],
+  "expected": {
+    "frames": 139,
+    "durationSeconds": 8.687,
+    "transitionSeconds": 0.25
+  },
+  "result": {
+    "file": "/opt/yuyutian/mytools/runtime/video-generation/evidence/window-20260914T090441Z/storyboard/storyboard-crossfade.mp4",
+    "frames": 139,
+    "width": 832,
+    "height": 480,
+    "fps": "16/1",
+    "durationSeconds": 8.687012,
+    "sha256": "d1fe430a5e4c2154a62bd4c1e9ff88f23758c28ee950c129dd14439e01c88186"
+  },
+  "transitionSeconds": 0.25,
+  "transitionOffsets": [
+    2.812,
+    5.6245
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "wan2.1_vace_1.3B_fp16.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan",
+      "device": "default"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors"
+    }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "The subject in the frame begins to move gently. The camera slowly pushes in. The opening composition and colours stay unchanged."
+    }
+  },
+  "5": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "blurry, static, distorted, deformed, text, watermark, flickering"
+    }
+  },
+  "6": {
+    "class_type": "WanVaceToVideo",
+    "inputs": {
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "width": 832,
+      "height": 480,
+      "length": 49,
+      "batch_size": 1,
+      "strength": 1.0,
+      "control_video": [
+        "14",
+        0
+      ],
+      "control_masks": [
+        "17",
+        0
+      ]
+    }
+  },
+  "7": {
+    "class_type": "ModelSamplingSD3",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "shift": 16.0
+    }
+  },
+  "8": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "7",
+        0
+      ],
+      "seed": 932,
+      "steps": 50,
+      "cfg": 5.0,
+      "sampler_name": "uni_pc",
+      "scheduler": "simple",
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "6",
+        1
+      ],
+      "latent_image": [
+        "6",
+        2
+      ],
+      "denoise": 1.0
+    }
+  },
+  "9": {
+    "class_type": "TrimVideoLatent",
+    "inputs": {
+      "samples": [
+        "8",
+        0
+      ],
+      "trim_amount": [
+        "6",
+        3
+      ]
+    }
+  },
+  "10": {
+    "class_type": "VAEDecodeTiled",
+    "inputs": {
+      "samples": [
+        "9",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "tile_size": 256,
+      "overlap": 64,
+      "temporal_size": 16,
+      "temporal_overlap": 4
+    }
+  },
+  "11": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "10",
+        0
+      ],
+      "filename_prefix": "run-03/frame"
+    }
+  },
+  "13": {
+    "class_type": "LoadVideo",
+    "inputs": {
+      "file": "p0-firstframe-blend075-control.mp4"
+    }
+  },
+  "14": {
+    "class_type": "GetVideoComponents",
+    "inputs": {
+      "video": [
+        "13",
+        0
+      ]
+    }
+  },
+  "15": {
+    "class_type": "LoadVideo",
+    "inputs": {
+      "file": "p0-firstframe-blend075-mask.mp4"
+    }
+  },
+  "16": {
+    "class_type": "GetVideoComponents",
+    "inputs": {
+      "video": [
+        "15",
+        0
+      ]
+    }
+  },
+  "17": {
+    "class_type": "ImageToMask",
+    "inputs": {
+      "image": [
+        "16",
+        0
+      ],
+      "channel": "red"
+    }
+  }
+}

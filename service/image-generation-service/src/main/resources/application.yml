@@ -1,0 +1,34 @@
+server:
+  address: ${IMAGE_GENERATION_ADDRESS:127.0.0.1}
+  port: ${IMAGE_GENERATION_PORT:23340}
+spring:
+  application:
+    name: image-generation-service
+  datasource:
+    url: jdbc:mysql://${IMAGE_GENERATION_DB_HOST:127.0.0.1}:${IMAGE_GENERATION_DB_PORT:3306}/${IMAGE_GENERATION_DB_NAME:mytools_image_generation}?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+    username: ${IMAGE_GENERATION_DB_USER:mytools_image_generation}
+    password: ${IMAGE_GENERATION_DB_PASSWORD:}
+  flyway:
+    enabled: true
+image:
+  token: ${IMAGE_GENERATION_INTERNAL_TOKEN:}
+  root: ${IMAGE_GENERATION_ROOT:./runtime/images}
+  gpu-coordination-validated: ${IMAGE_GPU_COORDINATION_VALIDATED:false}
+  remote-validated: ${IMAGE_REMOTE_VALIDATED:false}
+  remote-model: ${IMAGE_REMOTE_MODEL:}
+  local-validated: ${IMAGE_GENERATION_LOCAL_VALIDATED:false}
+  edit-validated: ${IMAGE_GENERATION_EDIT_VALIDATED:false}
+  edit-workflow-revision: ${IMAGE_EDIT_WORKFLOW_REVISION:image-edit-v1}
+  prompt-validated: ${IMAGE_PROMPT_VALIDATED:false}
+  vision-model: ${TAGGING_MODEL:huihui_ai/qwen3-vl-abliterated:8b}
+  style-validated: ${IMAGE_GENERATION_STYLE_VALIDATED:false}
+  workflow-revision: ${IMAGE_GENERATION_WORKFLOW_REVISION:krea2-turbo-v1}
+  scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
+  scheduler-token: ${TASK_BUSINESS_IMAGE_GENERATION_TOKEN:}
+  asset-url: ${ASSET_REGISTRY_URL:http://127.0.0.1:23270}
+  asset-token: ${ASSET_REGISTRY_INTERNAL_TOKEN:}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

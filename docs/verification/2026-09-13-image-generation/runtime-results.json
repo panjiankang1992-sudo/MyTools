@@ -1,0 +1,86 @@
+{
+  "first-evaluation-report.json": {
+    "exitCode": 0,
+    "elapsedSeconds": 48.65
+  },
+  "stability-report.json": {
+    "cases": [
+      {
+        "category": "landscape",
+        "jobId": "a07ca86d-dcaa-47de-baf5-ac36a70c003d",
+        "requested": 4,
+        "images": 4,
+        "exitCode": 0,
+        "elapsedSeconds": 195.41
+      },
+      {
+        "category": "product",
+        "jobId": "7cb2aa6d-807f-4efb-a027-f29e5eb762d9",
+        "requested": 4,
+        "images": 4,
+        "exitCode": 0,
+        "elapsedSeconds": 187.45
+      },
+      {
+        "category": "portrait",
+        "jobId": "e1bbab5d-08dd-48aa-a69f-6fd3ecf9c715",
+        "requested": 4,
+        "images": 4,
+        "exitCode": 0,
+        "elapsedSeconds": 190.72
+      },
+      {
+        "category": "portrait-cn",
+        "jobId": "0c122911-5158-4ec4-92af-50a7ea0d5c4c",
+        "requested": 4,
+        "images": 4,
+        "exitCode": 0,
+        "elapsedSeconds": 194.67
+      },
+      {
+        "category": "landscape-cn",
+        "jobId": "b790d79b-d709-4557-9afb-4f0bc85ae419",
+        "requested": 2,
+        "images": 2,
+        "exitCode": 0,
+        "elapsedSeconds": 94.32
+      },
+      {
+        "category": "product-cn",
+        "jobId": "5e625f0c-056e-46b3-a696-a687f100cd90",
+        "requested": 1,
+        "images": 1,
+        "exitCode": 0,
+        "elapsedSeconds": 49.3
+      }
+    ],
+    "sampledPeak": {
+      "gpuMiB": 8410,
+      "processMemoryBytes": 17228058624
+    }
+  },
+  "tag-evaluation-report.json": {
+    "exitCode": 0,
+    "elapsedSeconds": 35.31
+  },
+  "recovery-report.json": {
+    "cancel": {
+      "jobId": "f32718d2-d46c-4fbd-b75a-6e0e5ccc9499",
+      "signalSent": true,
+      "exitCode": 143
+    },
+    "recovery": {
+      "jobId": "4a029ec0-0e5c-4629-9c64-06d4a0e1aa4a",
+      "exitCode": 0,
+      "images": 1,
+      "elapsedSeconds": 47.3
+    }
+  },
+  "restart-report.json": {
+    "jobId": "4a8a9706-84ca-4dd2-a90b-f0ed04e63b07",
+    "exitCode": 0,
+    "images": 1,
+    "elapsedSeconds": 48.26,
+    "replayExitCode": 0
+  }
+}

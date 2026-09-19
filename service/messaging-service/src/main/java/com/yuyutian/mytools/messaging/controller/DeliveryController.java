@@ -14,12 +14,16 @@ import com.yuyutian.mytools.messaging.model.EmailPollRequest;
 import com.yuyutian.mytools.messaging.model.EmailPollResult;
 import com.yuyutian.mytools.messaging.model.CreateInboundReplyRequest;
 import com.yuyutian.mytools.messaging.model.InboundReplyView;
+import com.yuyutian.mytools.messaging.model.TaskExecutionFence;
+import com.yuyutian.mytools.messaging.model.CreateDeliveryShadowRequest;
+import com.yuyutian.mytools.messaging.model.DeliveryShadowView;
 import com.yuyutian.mytools.messaging.service.DeliveryService;
 import com.yuyutian.mytools.messaging.service.InternalRequestAuthorizer;
 import com.yuyutian.mytools.messaging.service.OneBotInboundAdapter;
 import com.yuyutian.mytools.messaging.service.AttachmentDownloadService;
 import com.yuyutian.mytools.messaging.service.EmailIngressService;
 import com.yuyutian.mytools.messaging.service.InboundReplyService;
+import com.yuyutian.mytools.messaging.service.DeliveryShadowService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,6 +51,7 @@ public class DeliveryController {
     private final AttachmentDownloadService attachmentDownloadService;
     private final EmailIngressService emailIngressService;
     private final InboundReplyService inboundReplyService;
+    private final DeliveryShadowService deliveryShadowService;
 
     /**
      * 创建消息内部控制器。
@@ -55,13 +60,15 @@ public class DeliveryController {
                               OneBotInboundAdapter oneBotInboundAdapter,
                               AttachmentDownloadService attachmentDownloadService,
                               EmailIngressService emailIngressService,
-                              InboundReplyService inboundReplyService) {
+                              InboundReplyService inboundReplyService,
+                              DeliveryShadowService deliveryShadowService) {
         this.service = service;
         this.authorizer = authorizer;
         this.oneBotInboundAdapter = oneBotInboundAdapter;
         this.attachmentDownloadService = attachmentDownloadService;
         this.emailIngressService = emailIngressService;
         this.inboundReplyService = inboundReplyService;
+        this.deliveryShadowService = deliveryShadowService;
     }
 
     /**
@@ -73,6 +80,21 @@ public class DeliveryController {
             @Valid @RequestBody CreateDeliveryRequest request) {
         authorizer.requireAuthorized(authorization);
         return ResponseEntity.accepted().body(service.create(request));
+    }
+
+    /**
+     * 记录不产生投递副作用的影子证据。
+     *
+     * @param authorization 内部鉴权头
+     * @param request 影子请求
+     * @return 影子记录
+     */
+    @PostMapping("/delivery-shadows")
+    public ResponseEntity<DeliveryShadowView> recordShadow(
+            @RequestHeader(name = "Authorization", required = false) String authorization,
+            @Valid @RequestBody CreateDeliveryShadowRequest request) {
+        authorizer.requireAuthorized(authorization);
+        return ResponseEntity.accepted().body(deliveryShadowService.record(request));
     }
 
     /**
@@ -98,9 +120,14 @@ public class DeliveryController {
     @PostMapping("/deliveries/{id}/execute")
     public ExecuteDeliveryResult execute(
             @RequestHeader(name = "Authorization", required = false) String authorization,
+            @RequestHeader("X-Task-Instance-Id") UUID taskInstanceId,
+            @RequestHeader("X-Task-Step-Name") String stepName,
+            @RequestHeader("X-Task-Business-Key") String businessKey,
+            @RequestHeader("X-Task-Fencing-Token") long fencingToken,
             @PathVariable UUID id) {
         authorizer.requireAuthorized(authorization);
-        return service.execute(id);
+        return service.execute(id, new TaskExecutionFence(
+                taskInstanceId, stepName, businessKey, fencingToken));
     }
 
     /**

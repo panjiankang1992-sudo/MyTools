@@ -1,0 +1,3 @@
+[console_scripts]
+mytools-onebot-account-migration = mytools_onebot_connector.config_migration:main
+mytools-onebot-connector = mytools_onebot_connector.main:main

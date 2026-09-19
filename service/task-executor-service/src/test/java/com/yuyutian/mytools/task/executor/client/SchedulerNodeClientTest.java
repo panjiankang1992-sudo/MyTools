@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.time.Instant;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -35,7 +36,11 @@ class SchedulerNodeClientTest {
     private final AtomicReference<String> internalToken = new AtomicReference<>();
     private final AtomicReference<String> serviceId = new AtomicReference<>();
     private final List<String> claimRequestIds = new CopyOnWriteArrayList<>();
+    private final List<Boolean> childTaskOnlyClaims = new CopyOnWriteArrayList<>();
+    private final List<Boolean> rootTaskOnlyClaims = new CopyOnWriteArrayList<>();
+    private final List<List<String>> parentTaskScopes = new CopyOnWriteArrayList<>();
     private final AtomicInteger claimCount = new AtomicInteger();
+    private final AtomicBoolean forceClaimCapacityReservation = new AtomicBoolean();
     private final List<String> stepReportRequestIds = new CopyOnWriteArrayList<>();
     private final List<String> completionRequestIds = new CopyOnWriteArrayList<>();
     private final AtomicReference<String> completionPayload = new AtomicReference<>();
@@ -43,6 +48,7 @@ class SchedulerNodeClientTest {
     private final AtomicInteger completionCount = new AtomicInteger();
     private final AtomicReference<String> nodeStatus = new AtomicReference<>();
     private final AtomicReference<String> nodeStatusReason = new AtomicReference<>();
+    private final AtomicReference<String> nodeStatusPayload = new AtomicReference<>();
     private final AtomicInteger forcedReportStatus = new AtomicInteger();
     private final AtomicReference<String> registrationPayload = new AtomicReference<>();
 
@@ -87,11 +93,15 @@ class SchedulerNodeClientTest {
                 Path.of("scripts"), Path.of("sdk/python"), Path.of("/usr/bin/python3"), 10, 1, 60, 4,
                 Map.of(), Map.of(), java.util.Set.of(), false, Map.of());
         SchedulerNodeClient client = new SchedulerNodeClient(properties, new ObjectMapper());
+        UUID instanceId = UUID.randomUUID();
 
-        client.updateNodeStatus(nodeId, "DRAINING", "EXECUTOR_DISK_PRESSURE");
+        client.updateNodeStatus(nodeId, instanceId, "DRAINING", "EXECUTOR_DISK_PRESSURE");
 
         assertEquals("DRAINING", nodeStatus.get());
         assertEquals("EXECUTOR_DISK_PRESSURE", nodeStatusReason.get());
+        assertEquals(new ObjectMapper().readTree("""
+                {"status":"DRAINING","reason":"EXECUTOR_DISK_PRESSURE","expectedInstanceId":"%s"}
+                """.formatted(instanceId)), new ObjectMapper().readTree(nodeStatusPayload.get()));
     }
 
     @Test
@@ -143,10 +153,57 @@ class SchedulerNodeClientTest {
                 properties, new ObjectMapper().findAndRegisterModules());
 
         assertThrows(IOException.class, () -> client.claim(nodeId, UUID.randomUUID()));
-        assertTrue(client.claim(nodeId, UUID.randomUUID()).isPresent());
+        ClaimedTask claimed = client.claim(nodeId, UUID.randomUUID()).orElseThrow();
 
         assertEquals(2, claimRequestIds.size());
         assertEquals(claimRequestIds.get(0), claimRequestIds.get(1));
+        assertEquals(List.of(false, false), childTaskOnlyClaims);
+        assertTrue(claimed.mayCreateChildren());
+    }
+
+    @Test
+    void shouldKeepFilteredClaimRequestIdSeparateFromGeneralClaims() throws Exception {
+        ExecutorProperties properties = new ExecutorProperties(
+                "executor-test", "http://127.0.0.1:" + server.getAddress().getPort(), Path.of("runtime/tasks"),
+                Path.of("scripts"), Path.of("sdk/python"), Path.of("/usr/bin/python3"), 10, 1, 60, 4,
+                Map.of(), Map.of(), java.util.Set.of(), false, Map.of());
+        SchedulerNodeClient client = new SchedulerNodeClient(
+                properties, new ObjectMapper().findAndRegisterModules());
+        UUID instanceId = UUID.randomUUID();
+
+        assertThrows(IOException.class, () -> client.claim(nodeId, instanceId, true));
+        assertTrue(client.claim(nodeId, instanceId, true).isPresent());
+        assertTrue(client.claim(nodeId, instanceId).isPresent());
+        assertTrue(client.claimRootTask(nodeId, instanceId).isPresent());
+        UUID parentId = UUID.randomUUID();
+        assertTrue(client.claimDirectChildTask(nodeId, instanceId, java.util.Set.of(parentId)).isPresent());
+
+        assertEquals(List.of(true, true, false, false, true), childTaskOnlyClaims);
+        assertEquals(List.of(false, false, false, true, false), rootTaskOnlyClaims);
+        assertEquals(List.of(List.of(), List.of(), List.of(), List.of(), List.of(parentId.toString())),
+                parentTaskScopes);
+        assertEquals(claimRequestIds.get(0), claimRequestIds.get(1));
+        assertTrue(!claimRequestIds.get(1).equals(claimRequestIds.get(2)));
+    }
+
+    @Test
+    void shouldSurfaceCapacityReservationAndClearClaimRequestId() throws Exception {
+        ExecutorProperties properties = new ExecutorProperties(
+                "executor-test", "http://127.0.0.1:" + server.getAddress().getPort(), Path.of("runtime/tasks"),
+                Path.of("scripts"), Path.of("sdk/python"), Path.of("/usr/bin/python3"), 10, 1, 60, 4,
+                Map.of(), Map.of(), java.util.Set.of(), false, Map.of());
+        SchedulerNodeClient client = new SchedulerNodeClient(
+                properties, new ObjectMapper().findAndRegisterModules());
+        UUID instanceId = UUID.randomUUID();
+        forceClaimCapacityReservation.set(true);
+
+        assertThrows(ClaimCapacityReservedException.class,
+                () -> client.claim(nodeId, instanceId, true));
+        claimCount.set(1);
+        assertTrue(client.claim(nodeId, instanceId, true).isPresent());
+
+        assertEquals(2, claimRequestIds.size());
+        assertTrue(!claimRequestIds.get(0).equals(claimRequestIds.get(1)));
     }
 
     @Test
@@ -233,7 +290,9 @@ class SchedulerNodeClientTest {
 
     private void handleHeartbeat(HttpExchange exchange) throws IOException {
         if ("PATCH".equals(exchange.getRequestMethod())) {
-            var request = new ObjectMapper().readTree(exchange.getRequestBody());
+            String requestBody = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            nodeStatusPayload.set(requestBody);
+            var request = new ObjectMapper().readTree(requestBody);
             nodeStatus.set(request.path("status").asText());
             nodeStatusReason.set(request.path("reason").asText());
             send(exchange, "{}");
@@ -248,16 +307,32 @@ class SchedulerNodeClientTest {
 
     private void handleClaim(HttpExchange exchange) throws IOException {
         String requestBody = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-        claimRequestIds.add(new ObjectMapper().readTree(requestBody).path("claimRequestId").asText());
+        var request = new ObjectMapper().readTree(requestBody);
+        claimRequestIds.add(request.path("claimRequestId").asText());
+        childTaskOnlyClaims.add(request.path("childTaskOnly").asBoolean());
+        rootTaskOnlyClaims.add(request.path("rootTaskOnly").asBoolean());
+        List<String> parentIds = new CopyOnWriteArrayList<>();
+        request.path("parentTaskInstanceIds").forEach(value -> parentIds.add(value.asText()));
+        parentTaskScopes.add(List.copyOf(parentIds));
+        if (forceClaimCapacityReservation.compareAndSet(true, false)) {
+            exchange.getResponseHeaders().add("X-MyTools-Claim-Blocked", "CAPACITY_RESERVED");
+            exchange.sendResponseHeaders(204, -1);
+            exchange.close();
+            return;
+        }
         if (claimCount.incrementAndGet() == 1) {
             exchange.close();
             return;
         }
+        String parentTaskInstanceId = request.path("childTaskOnly").asBoolean()
+                ? "\"" + (request.path("parentTaskInstanceIds").isEmpty()
+                ? UUID.randomUUID() : UUID.fromString(request.path("parentTaskInstanceIds").get(0).asText())) + "\""
+                : "null";
         String response = """
-                {"executionId":"%s","taskInstanceId":"%s","parentTaskInstanceId":null,
+                {"executionId":"%s","taskInstanceId":"%s","parentTaskInstanceId":%s,
                  "taskName":"sample","leaseToken":"%s","fencingToken":1,
-                 "leaseUntil":"%s","deadlineAt":"%s","parameters":{},"steps":[]}
-                """.formatted(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
+                 "leaseUntil":"%s","deadlineAt":"%s","mayCreateChildren":true,"parameters":{},"steps":[]}
+                """.formatted(UUID.randomUUID(), UUID.randomUUID(), parentTaskInstanceId, UUID.randomUUID(),
                 Instant.now().plusSeconds(60), Instant.now().plusSeconds(120));
         send(exchange, response);
     }

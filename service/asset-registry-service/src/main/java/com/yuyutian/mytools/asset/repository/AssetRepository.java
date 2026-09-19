@@ -10,11 +10,14 @@ import com.yuyutian.mytools.asset.model.PublishBundleRequest;
 import com.yuyutian.mytools.asset.model.RegisterArtifactRequest;
 import com.yuyutian.mytools.asset.model.RegisterAssetRequest;
 import com.yuyutian.mytools.asset.model.RegisterLocationRequest;
+import com.yuyutian.mytools.asset.model.TaskExecutionFence;
 import com.yuyutian.mytools.asset.service.ArtifactCycleException;
 import com.yuyutian.mytools.asset.service.AssetNotFoundException;
 import com.yuyutian.mytools.asset.service.AssetVersionConflictException;
 import com.yuyutian.mytools.asset.service.BundleManifestConflictException;
 import com.yuyutian.mytools.asset.service.IdempotencyConflictException;
+import com.yuyutian.mytools.asset.service.ExecutionFenceConflictException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -161,6 +164,52 @@ public class AssetRepository {
         appendOutbox(parentId, "AssetArtifactRegistered", Map.of("assetId", parentId.toString(),
                 "artifactAssetId", request.artifactAssetId().toString(), "kind", request.artifactKind()));
         return required(parentId);
+    }
+
+    /**
+     * 原子取得或推进领域写隔离令牌。
+     *
+     * @param fence 任务执行隔离凭据
+     */
+    public void acquireExecutionFence(TaskExecutionFence fence) {
+        int updated = jdbcTemplate.update("""
+                UPDATE asset_execution_fence
+                SET task_instance_id=?, step_name=?, fencing_token=?, updated_at=?
+                WHERE business_key=? AND (fencing_token<? OR
+                    (fencing_token=? AND task_instance_id=? AND step_name=?))
+                """, fence.taskInstanceId().toString(), fence.stepName(), fence.fencingToken(),
+                Timestamp.from(Instant.now()), fence.businessKey(), fence.fencingToken(), fence.fencingToken(),
+                fence.taskInstanceId().toString(), fence.stepName());
+        if (updated == 1) {
+            return;
+        }
+        Integer existing = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM asset_execution_fence WHERE business_key=?", Integer.class,
+                fence.businessKey());
+        if (existing != null && existing > 0) {
+            throw new ExecutionFenceConflictException();
+        }
+        try {
+            jdbcTemplate.update("""
+                    INSERT INTO asset_execution_fence
+                        (business_key,task_instance_id,step_name,fencing_token,updated_at)
+                    VALUES (?,?,?,?,?)
+                    """, fence.businessKey(), fence.taskInstanceId().toString(), fence.stepName(),
+                    fence.fencingToken(), Timestamp.from(Instant.now()));
+        } catch (DuplicateKeyException exception) {
+            // 并发首次写入由唯一键裁决，失败请求必须重新比较令牌，不能直接视为成功。
+            int retried = jdbcTemplate.update("""
+                    UPDATE asset_execution_fence
+                    SET task_instance_id=?, step_name=?, fencing_token=?, updated_at=?
+                    WHERE business_key=? AND (fencing_token<? OR
+                        (fencing_token=? AND task_instance_id=? AND step_name=?))
+                    """, fence.taskInstanceId().toString(), fence.stepName(), fence.fencingToken(),
+                    Timestamp.from(Instant.now()), fence.businessKey(), fence.fencingToken(), fence.fencingToken(),
+                    fence.taskInstanceId().toString(), fence.stepName());
+            if (retried != 1) {
+                throw new ExecutionFenceConflictException();
+            }
+        }
     }
 
     /**

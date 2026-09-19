@@ -1,0 +1,90 @@
+{
+  "windowId": "window-20260914T065550Z",
+  "runtime": {
+    "comfyRevision": "02d39c8cd7828566f48ccf783c1c75b8336044f5",
+    "sourceRuntime": "/opt/yuyutian/mytools/runtime/krea2-evaluation-20260913",
+    "runtime": "/opt/yuyutian/mytools/runtime/video-generation/runtime-v1",
+    "environmentMethod": "independent copy with relocated interpreter; no production package mutation",
+    "python": "Python 3.12.14"
+  },
+  "weights": [
+    {
+      "path": "split_files/diffusion_models/wan2.1_vace_1.3B_fp16.safetensors",
+      "bytes": 4309519800,
+      "sha256": "640ccc0577e6a5d4bb15cd91b11b699ef914fc55f126c5a1c544e152130784f2",
+      "verifiedAtEpoch": 1789366100.6505406
+    },
+    {
+      "path": "split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "bytes": 6735906897,
+      "sha256": "c3355d30191f1f066b26d93fba017ae9809dce6c627dda5f6a66eaa651204f68",
+      "verifiedAtEpoch": 1789366298.6482255
+    },
+    {
+      "path": "split_files/vae/wan_2.1_vae.safetensors",
+      "bytes": 253815318,
+      "sha256": "2fc39d31359a4b0a64f55876d8ff7fa8d780956ae2cb13463b0223e15148976b",
+      "verifiedAtEpoch": 1789366311.9786086
+    }
+  ],
+  "modelsLock": {
+    "repository": "Comfy-Org/Wan_2.1_ComfyUI_repackaged",
+    "revision": "617a7633e636506f850e043bc4605f290a466a8e",
+    "files": [
+      {
+        "path": "split_files/diffusion_models/wan2.1_t2v_1.3B_bf16.safetensors",
+        "bytes": 2838104528,
+        "sha256": "6f999b0d6cb9a72b3d98ac386ed96f57f8cecae13994a69232514ea4974ad5fd"
+      },
+      {
+        "path": "split_files/diffusion_models/wan2.1_vace_1.3B_fp16.safetensors",
+        "bytes": 4309519800,
+        "sha256": "640ccc0577e6a5d4bb15cd91b11b699ef914fc55f126c5a1c544e152130784f2"
+      },
+      {
+        "path": "split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+        "bytes": 6735906897,
+        "sha256": "c3355d30191f1f066b26d93fba017ae9809dce6c627dda5f6a66eaa651204f68"
+      },
+      {
+        "path": "split_files/vae/wan_2.1_vae.safetensors",
+        "bytes": 253815318,
+        "sha256": "2fc39d31359a4b0a64f55876d8ff7fa8d780956ae2cb13463b0223e15148976b"
+      }
+    ]
+  },
+  "plan": {
+    "runs": [
+      {
+        "index": 1,
+        "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/firstframe-workflow.json"
+      },
+      {
+        "index": 2,
+        "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/subject-references-workflow.json"
+      },
+      {
+        "index": 3,
+        "workflow": "/opt/yuyutian/mytools/runtime/video-generation/workflows/restyle-gray-workflow.json"
+      }
+    ],
+    "customNodes": {
+      "wan_vace_multi_reference": {
+        "__init__.py": "bf0c9cf948f8c67761042d9397d6f22e42a51c8f8dc585e21b4459055f99dbaa",
+        "reference_frames.py": "c9ce48678689c2fd18a2f8d22b1a73ceed00fe106d2810c0a81c0ed0094f2578",
+        "tests/test_reference_frames.py": "6bdf2f78469b16af13d22ae331ef22f1885fc1390d26929ebb5a2e93bc7e76d4"
+      }
+    }
+  },
+  "schemaSha256": "6907acfb7b2d50498152b4a8c94bde7a8d8d32d5205563d12ceb4b3cf7fd922d",
+  "admission": {
+    "hostReserveMiB": 6144,
+    "workerMemoryHigh": "10G",
+    "workerMemoryMax": "12G",
+    "startGateMiB": 18432,
+    "calibration": "measured host ceiling ~18.5GiB; planned 20GiB gate unreachable"
+  },
+  "caseCount": 3,
+  "passed": 3,
+  "failed": 0
+}

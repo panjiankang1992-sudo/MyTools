@@ -1,0 +1,16 @@
+[
+  {
+    "kind": "video",
+    "file": "p0-firstframe-repeat-control.mp4",
+    "bytes": 28543,
+    "sha256": "4c390219e846a6084164045a8bb79b1f5bc89ed9fc247372e5e59eb69031ce5c",
+    "decodable": true
+  },
+  {
+    "kind": "video",
+    "file": "p0-firstframe-repeat-mask.mp4",
+    "bytes": 3533,
+    "sha256": "1b54ae2f123814d43ceea1d32b6b60dda9caf452c9fcb4bb6e66feb0548b4f5f",
+    "decodable": true
+  }
+]
