@@ -1,0 +1,16 @@
+name: video_generate
+version: "1.0.1"
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - filesystem_read
+  - filesystem_write
+  - http_comfyui
+  - http_ollama
+parameters:
+  required: [jobId, resourceId, mode, prompt, seed, width, height, workflowRevision, resolvedInputs, output]
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 3600
+  maxInputBytes: 209715200

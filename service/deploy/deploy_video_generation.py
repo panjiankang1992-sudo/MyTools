@@ -16,7 +16,7 @@
 
     manifest.json                 扁平映射 {相对路径: sha256}，用于校验传输完整性
     apps/<service>.jar            调度器、执行器、网关与 video-generation-service
-    packages/video_generate/1.0.0 任务包（隐含 tests 不随发布分发）
+    packages/video_generate/<PACKAGE_VERSION> 任务包（隐含 tests 不随发布分发）
     tools/emit_workflow_specs.py  生成固定工作流规格
     tools/workflow.py             规格生成依赖的构图代码
     tools/prepare_control.py      开发期控制信号工具（随发布归档，便于复现证据）
@@ -44,6 +44,8 @@ sys.path.insert(0, '/opt/yuyutian/mytools/runtime/video-generation/ops-python')
 ROOT = Path('/opt/yuyutian/mytools')
 NAME = 'video-production-20260914-v1'
 RELEASE = ROOT / 'releases' / NAME
+# 本发布携带的视频任务包版本；包内容不可变，改动必须升版本并同步调度器迁移。
+PACKAGE_VERSION = '1.0.1'
 # 历史里程碑的脚本包根：基线若缺少其中的同名新版本，发布会把它们一并带上。
 BASELINE_PACKAGE_ROOTS = [ROOT / 'releases' / name / 'task-packages' for name in (
     'image-extension-20260914-v3', 'image-extension-20260914-v2', 'image-production-20260913-v1')]
@@ -333,7 +335,7 @@ def assert_pinned_packages_indexed():
 
 def stage():
     assert not RELEASE.exists() and not ENV.exists(), 'stage_already_exists'
-    required = ['manifest.json', 'packages/video_generate/1.0.0/manifest.yaml',
+    required = ['manifest.json', f'packages/video_generate/{PACKAGE_VERSION}/manifest.yaml',
                 'tools/emit_workflow_specs.py', 'tools/workflow.py', 'tools/prepare_control.py']
     for name in required:
         assert (SOURCE / name).is_file(), 'source_missing_' + name.replace('/', '_')
@@ -364,17 +366,19 @@ def stage():
     base = current_script_root()
     assert base.is_dir(), 'executor_package_root_missing'
     shutil.copytree(base, RELEASE / 'task-packages')
-    shutil.copytree(SOURCE / 'packages/video_generate/1.0.0', RELEASE / 'task-packages/video_generate/1.0.0')
+    shutil.copytree(SOURCE / f'packages/video_generate/{PACKAGE_VERSION}',
+                    RELEASE / 'task-packages/video_generate' / PACKAGE_VERSION)
     index_path = RELEASE / 'task-packages/package-index.json'
     index = json.loads(index_path.read_text())
-    assert not any(item['name'] == 'video_generate' for item in index['packages']), 'package_already_indexed'
-    package_root = RELEASE / 'task-packages/video_generate/1.0.0'
+    assert not any(item['name'] == 'video_generate' and item['version'] == PACKAGE_VERSION
+                   for item in index['packages']), 'package_already_indexed'
+    package_root = RELEASE / 'task-packages/video_generate' / PACKAGE_VERSION
     files = []
     for file in sorted(package_root.rglob('*')):
         if file.is_file() and '__pycache__' not in file.parts and 'tests' not in file.relative_to(package_root).parts:
             files.append({'path': str(file.relative_to(package_root)), 'sizeBytes': file.stat().st_size,
                           'sha256': hashlib.sha256(file.read_bytes()).hexdigest()})
-    index['packages'].append({'name': 'video_generate', 'version': '1.0.0', 'entrypoint': 'scripts/main.py',
+    index['packages'].append({'name': 'video_generate', 'version': PACKAGE_VERSION, 'entrypoint': 'scripts/main.py',
                               'files': files})
     index['packageCount'] = len(index['packages'])
     index['contentSha256'] = hashlib.sha256(json.dumps(index['packages'], sort_keys=True,

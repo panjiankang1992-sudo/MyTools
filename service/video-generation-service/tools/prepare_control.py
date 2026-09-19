@@ -26,6 +26,10 @@ PRESERVED_MASK = 0
 # 因此改为与 REFERENCE_FILL 一致的中性灰，让补边融入 VACE 自身的未知区域先验。
 PAD_COLOR = 128
 PAD_COLOR_HEX = '0x808080'
+# 与生产包同一套补边还原语义：几何从控制帧量出，出片与封面共用滤镜。
+PAD_COLOR_RGB = (128, 128, 128)
+PAD_DRAW_COLOR = '0x808080'
+PAD_TOLERANCE = 4
 # ITU-R 601 亮度权重，与 cv2.COLOR_BGR2GRAY 相同；本脚本输入为 RGB，因此按 R/G/B 顺序应用。
 LUMA = np.array([0.299, 0.587, 0.114], dtype=np.float32)
 SIGNAL_FILTERS = {'raw': None, 'gray': None, 'edge': 'edgedetect=low=0.1:high=0.4'}
@@ -157,6 +161,47 @@ def decode_image(path, width, height, pad_color=PAD_COLOR_HEX):
                           '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'],
                          check=True, capture_output=True).stdout
     return np.frombuffer(raw, dtype=np.uint8).reshape(1, height, width, 3).copy()
+
+
+def detect_pad_rects(frame):
+    """从控制帧量出补边矩形 (left, right, top, bottom)，与生产包同源。"""
+    height, width = frame.shape[:2]
+    fill = np.array(PAD_COLOR_RGB, dtype=np.int16)
+
+    def column_is_pad(x):
+        return bool(np.all(np.abs(frame[:, x, :].astype(np.int16) - fill) <= PAD_TOLERANCE))
+
+    def row_is_pad(y):
+        return bool(np.all(np.abs(frame[y, :, :].astype(np.int16) - fill) <= PAD_TOLERANCE))
+
+    left = 0
+    while left < width // 2 and column_is_pad(left):
+        left += 1
+    right = 0
+    while right < width - left and column_is_pad(width - 1 - right):
+        right += 1
+    top = 0
+    while top < height // 2 and row_is_pad(top):
+        top += 1
+    bottom = 0
+    while bottom < height - top and row_is_pad(height - 1 - bottom):
+        bottom += 1
+    return left, right, top, bottom
+
+
+def restore_filter(rects, width, height):
+    """把补边还原为中性灰的 ffmpeg 滤镜；没有补边时返回 None。"""
+    left, right, top, bottom = rects
+    boxes = []
+    if left > 0:
+        boxes.append(f'drawbox=x=0:y=0:w={left}:h={height}:color={PAD_DRAW_COLOR}@1:t=fill')
+    if right > 0:
+        boxes.append(f'drawbox=x={width - right}:y=0:w={right}:h={height}:color={PAD_DRAW_COLOR}@1:t=fill')
+    if top > 0:
+        boxes.append(f'drawbox=x=0:y=0:w={width}:h={top}:color={PAD_DRAW_COLOR}@1:t=fill')
+    if bottom > 0:
+        boxes.append(f'drawbox=x=0:y={height - bottom}:w={width}:h={bottom}:color={PAD_DRAW_COLOR}@1:t=fill')
+    return ','.join(boxes) if boxes else None
 
 
 def encode(path, frames, fps):

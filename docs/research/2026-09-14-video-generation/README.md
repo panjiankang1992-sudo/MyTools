@@ -154,7 +154,7 @@ flowchart LR
 
 - 新建 `service/video-generation-service`，负责账户授权、能力目录、请求快照、幂等、业务状态、作品关系；不让 App 直连 Comfy/Ollama。
 - Gateway 新增 `/api/video-generation/**`；继续用现有身份与授权策略，不把 ownerId 交由客户端决定。
-- 任务包 `video_generate/1.0.0`；第一版串行阶段：VALIDATE → PREPROCESS → WAITING_RESOURCE → LOADING → GENERATING → ENCODING → PUBLISHING。后期拆 CPU/GPU 步骤也必须维持同一作业状态机。
+- 任务包 `video_generate/1.0.1`；第一版串行阶段：VALIDATE → PREPROCESS → WAITING_RESOURCE → LOADING → GENERATING → ENCODING → PUBLISHING。后期拆 CPU/GPU 步骤也必须维持同一作业状态机。
 - 输出 MP4/H.264/yuv420p/faststart、封面、probe 元数据；播放/下载使用现有资产授权，支持 Range。Worker 生成成功后必须资产落库才标记 SUCCEEDED。
 - 表：video_job、video_input、video_output、video_job_event；字段包含 originalPrompt/effectivePrompt、输入哈希/角色/裁剪、modelRevision、workflowRevision、seed、实际帧率/帧数、parentJobId、错误码、阶段时间与峰值资源。
 - 错误码放新服务 `common/ErrorCode.java`；例如 VIDEO_001 输入无效、VIDEO_002 能力不支持、VIDEO_003 资源不足、VIDEO_004 推理失败、VIDEO_005 超时、VIDEO_006 资产保存失败。用户文案走 App i18n。

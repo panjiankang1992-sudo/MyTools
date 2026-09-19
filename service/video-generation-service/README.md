@@ -1,7 +1,7 @@
 # video-generation-service
 
 本机视频生成工具的服务端。用户素材先落到受管目录，任务以幂等键写入自己的库，
-再经调度器派发给 `video_generate/1.0.0` 执行器，在共享显存租约内跑固定 VACE 工作流。
+再经调度器派发给 `video_generate/1.0.1` 执行器，在共享显存租约内跑固定 VACE 工作流。
 成片与封面登记到资产服务，App 只通过网关访问。
 
 ## 为什么独立成服务
@@ -68,6 +68,22 @@
   `work/<jobId>/`（预处理中间产物）。
 - 任务参数快照里**不写主机绝对路径**，执行器按根目录与 `uploadId` 自行定位。
 
+## 补边还原（1.0.1）
+
+参考图/源片按目标尺寸等比缩放后由 ffmpeg `pad` 补中性灰边（`0x808080`）。但模型会把成片里这两条边
+改成任意颜色（实测同一素材一次偏蓝一次偏黄），所以 1.0.1 起在出片阶段按**控制帧量出的几何**把补边
+覆盖回中性灰：
+
+- `vace_control.detect_pad_rects(control_frame)` 量出 `(left, right, top, bottom)`：补边是整列/整行
+  同一个中性灰，扫描边界即可；对边互不重叠，整幅纯色也不会把有效画面吞掉。
+- `vace_control.restore_filter(rects, width, height)` 生成等价的 `drawbox` 滤镜，**成片与封面共用**，
+  避免封面留着被改色的边；结果里的 `padRects` 记录本次几何，便于验收复核。
+- 几何来自控制帧而不是重新推导 ffmpeg 的取整细节，因此与工作流实际喂进去的输入严格一致。
+- 与开发期工具 `tools/prepare_control.py` 同源，`tests/test_worker.py` 的漂移用例逐项比对两者。
+
+回归用例见 `packages/video_generate/1.0.1/tests/test_end_to_end.py`：假 Comfy 故意把两侧涂成蓝色，
+断言成片第 0/24 帧与封面的补边仍是中性灰、而中间区域未被覆盖。
+
 ## 关键配置
 
 | 变量 | 说明 |
@@ -93,7 +109,7 @@ mvn -o -f service/video-generation-service/pom.xml test
 本机可跑、不需要 GPU 的执行器测试：
 
 ```bash
-cd service/video-generation-service/packages/video_generate/1.0.0/tests
+cd service/video-generation-service/packages/video_generate/1.0.1/tests
 python3 -m unittest test_worker
 ```
 
