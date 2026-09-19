@@ -156,7 +156,23 @@ DEF-15 的两个子问题分别可见：补丁后 `result_json` 变为
 4. **补边几何只重跑了一次**：P0 的 3 主体 × 2 种子网格是白边几何下的结论；本次确认了缺陷消失，
    但没有重跑六格网格，也**没有人工看片**。
 
-## 9. App 侧的验证边界
+## 9. 部署漂移审计（2026-09-19）
+
+提交代码后核对"生产上跑的字节 = 仓库 HEAD 构建的字节"。做法是按**成员内容**计算 jar 的聚合摘要
+（不依赖 zip 时间戳/压缩方式，只反映每个成员解压后的内容），本地构建与生产发布目录各算一次：
+
+| jar | 审计前 | 处理后 |
+|---|---|---|
+| `video-generation-service.jar` | 与 HEAD 一致 | 一致 |
+| `mytools-gateway.jar` | 与 HEAD 一致 | 一致 |
+| `task-scheduler-service.jar` | 与 HEAD 一致 | 一致 |
+| `task-executor-service.jar` | **漂移**：复用的是 Sep 13 的旧构建，缺少 HEAD 里 `script-environments.image_generate` 的 4 行默认值（`IMAGE_PROMPT_VALIDATED`、`IMAGE_GENERATION_EDIT_VALIDATED`、`IMAGE_EDIT_WORKFLOW_FILE/SHA256`） | 已用 1 个成员的增量把 HEAD 构建发布上去（与基线 269 个成员中其余 268 个早已逐字节一致），重启后执行器重新注册并声明 `video_generate:1.0.0` |
+
+漂移的实际影响有限（这 4 个值在生产由 image-extension 的 `executor-extension.properties` 提供，
+而该配置片段在 DEF-12 的修复中被显式保留），但"生产 == 已提交代码"这一不变式现在成立了，
+不再依赖"某个配置片段恰好补上"。
+
+## 10. App 侧的验证边界
 
 App 只做了**编译与静态检查**，没有真机/模拟器验证：系统图片选择器、`Video` 组件播放、
 大文件上传与端到端联调都没有实跑（服务端尚未部署）。这是本轮最大的验证缺口，
@@ -166,7 +182,7 @@ App 为接入视频改动了两处**共享网络代码**（`AuthorizedApiClient`
 `DownloadStreamIntegrityPolicy` 新增 `video/*` 前缀分支），既有方法签名与行为未变，
 相关静态检查通过。该文件里另有他人未提交的改动（`delete` 的取消参数、`usingCache`），不属于本次工作。
 
-## 10. 已知限制与未做的事
+## 11. 已知限制与未做的事
 
 - **没有人工评分**：P0 的机器复核结论仍然生效，`reviews.json` 全部是 `pending`；
   P1 没有改变这一点。
