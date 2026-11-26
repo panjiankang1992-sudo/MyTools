@@ -7,15 +7,15 @@ from datetime import UTC, datetime
 import hashlib
 import json
 import logging
-import mimetypes
 import random
-import re
 import time
 from typing import Any
 
 import aiohttp
 
 from .config import Config
+from .message_parser import MessageParser, message_indices
+from .reference_store import MessageReferenceStore
 from .inbound_wal import (
     InboundEventWal,
     InboundWalEntry,
@@ -29,10 +29,6 @@ from .login_wal import (
 )
 
 logger = logging.getLogger(__name__)
-COMPOSITE_ATTACHMENT = re.compile(
-    r"\[附件\d+\]\s+类型:(?P<type>\S+)\s+文件名:(?P<filename>.*?)\s+"
-    r"(?:尺寸:\S+\s+)?大小:(?P<size>\S+)\s+URL:(?P<url>https?://\S+)", re.MULTILINE)
-MAXIMUM_NESTED_VALUES = 100_000
 SUPPORTED_MESSAGE_EVENTS = {"C2C_MESSAGE_CREATE", "GROUP_AT_MESSAGE_CREATE",
                             "AT_MESSAGE_CREATE", "DIRECT_MESSAGE_CREATE"}
 QQ_HTTP_TIMEOUT = aiohttp.ClientTimeout(total=30, connect=10, sock_read=20)
@@ -83,11 +79,13 @@ class QQConnector:
     """维护官方 QQ Gateway，并把消息转交给内部服务。"""
 
     def __init__(self, config: Config, session: aiohttp.ClientSession,
-                 login_wal: LoginCommandWal, inbound_wal: InboundEventWal) -> None:
+                 login_wal: LoginCommandWal, inbound_wal: InboundEventWal,
+                 reference_store: MessageReferenceStore | None = None) -> None:
         self.config = config
         self.session = session
         self.login_wal = login_wal
         self.inbound_wal = inbound_wal
+        self.reference_store = reference_store
         self._token = ""
         self._token_expires_at = 0.0
         self._token_lock = asyncio.Lock()
@@ -156,7 +154,11 @@ class QQConnector:
             return
         if not sender or not message_id or not target:
             raise PermanentInboundEventError("INVALID_MESSAGE_IDENTITY")
-        is_login_text = content in {"登录", "登陆"}
+        # 纯官方模式关闭旧登录桥接；引用和复合消息不能被当成控制命令。
+        is_login_text = bool(self.config.onebot_token) and not data.get("msg_elements") \
+            and not data.get("attachments") and not data.get("payload") \
+            and data.get("message_type") != 103 and not message_indices(data)[1] \
+            and content in {"登录", "登陆"}
         if is_login_text and event_type != "C2C_MESSAGE_CREATE":
             # 群聊和频道不得接收登录凭据，但必须明确引导到受控私聊入口。
             try:
@@ -218,50 +220,20 @@ class QQConnector:
     async def _messaging_receive(self, payload: dict[str, Any], sender: str,
                                  message_id: str, content: str, target: str | None = None,
                                  conversation_type: str = "c2c") -> str:
-        parts = [{"type": "TEXT", "text": content or "[empty]", "attachmentType": None,
-                  "providerFileId": None, "providerAccountKey": None, "sourceUrl": None,
-                  "fileName": None, "mimeType": None, "declaredSize": None}]
         data = payload.get("d") if isinstance(payload.get("d"), dict) else {}
-        attachment_urls = []
-        attachments = self._recursive_attachments(data)
-        for index, attachment in enumerate(attachments[:100]):
-            source_url = str(attachment.get("voice_wav_url") or attachment.get("download_url")
-                             or attachment.get("file_url") or attachment.get("url") or "").strip()
-            if not source_url.startswith(("http://", "https://")):
-                continue
-            mime_type = str(attachment.get("content_type") or attachment.get("mime")
-                            or "application/octet-stream")[:255]
-            attachment_type = ("IMAGE" if mime_type.startswith("image/") else
-                               "VIDEO" if mime_type.startswith("video/") else
-                               "RECORD" if mime_type.startswith("audio/") else "FILE")
-            raw_size = attachment.get("size") or attachment.get("file_size")
-            try:
-                declared_size = int(raw_size) if raw_size is not None else None
-            except (TypeError, ValueError):
-                declared_size = None
-            if declared_size is not None and declared_size <= 0:
-                declared_size = None
-            attachment_urls.append(source_url)
-            parts.append({"type": "ATTACHMENT", "text": None,
-                          "attachmentType": attachment_type,
-                          "providerFileId": str(attachment.get("file_id") or attachment.get("id") or "")[:512]
-                              or None,
-                          "providerAccountKey": self.config.account_key,
-                          "sourceUrl": source_url[:4096],
-                          "fileName": str(attachment.get("filename") or attachment.get("file_name")
-                                          or attachment.get("name") or f"qq-attachment-{index + 1}")[:1024],
-                          "mimeType": mime_type, "declaredSize": declared_size})
-        normalized_content = content
-        for source_url in attachment_urls:
-            # 结构化附件已独立入库，正文不再重复暴露同一 URL 触发第二次下载。
-            normalized_content = normalized_content.replace(source_url, "")
-        normalized_body = normalized_content.strip() or "[empty]"
+        scope = self._reference_scope(conversation_type, target or sender)
+        await self._remember_message(scope, data)
+        lookup = (lambda key: self.reference_store.get(scope, key)) if self.reference_store else None
+        parsed = await asyncio.to_thread(MessageParser(self.config.account_key, lookup).parse, data)
+        normalized_body = parsed.body
+        if parsed.issues:
+            logger.warning("QQ message partially parsed issueCount=%s", len(parsed.issues))
         event_type = str(payload.get("t") or "C2C_MESSAGE_CREATE")
         body = {"ownerId": self.config.owner_id, "channelType": "QQ",
                 "externalMessageId": f"{self.config.account_key}:{event_type}:{message_id}",
                 "conversationKey": f"{self.config.account_key}:{conversation_type}:{target or sender}", "sender": sender,
                 "subject": None, "body": normalized_body,
-                "receivedAt": datetime.now(UTC).isoformat(), "parts": parts}
+                "receivedAt": self._received_at(data), "parts": parsed.parts}
         await self._internal_json("POST", self.config.messaging_url + "/internal/v1/inbound-messages",
                                   body, self.config.messaging_token)
         return normalized_body
@@ -277,79 +249,28 @@ class QQConnector:
             return str(data.get("channel_id") or ""), "channel"
         return "", "unknown"
 
+    def _reference_scope(self, conversation_type: str, target: str) -> str:
+        """引用缓存按应用、账户和会话隔离，避免跨群或跨私聊读取。"""
+        return json.dumps([self.config.app_id, self.config.account_key,
+                           conversation_type, target], separators=(",", ":"))
+
+    async def _remember_message(self, scope: str, data: dict[str, Any]) -> None:
+        """先记录已收到的消息原文，再交给可能并行运行的下游处理。"""
+        if self.reference_store is not None:
+            await asyncio.to_thread(self.reference_store.remember, scope, data)
+
     @staticmethod
-    def _parse_size(value: object) -> int | None:
-        """解析 QQ 复合消息中的有界文件大小。"""
-        try:
-            size = int(value)
-            return size if size > 0 else None
-        except (TypeError, ValueError):
-            match = re.fullmatch(r"(\d+(?:\.\d+)?)\s*([KMGT]?B)", str(value), re.IGNORECASE)
-            if match is None:
-                return None
-            units = {"B": 1, "KB": 1024, "MB": 1024 ** 2,
-                     "GB": 1024 ** 3, "TB": 1024 ** 4}
-            return round(float(match.group(1)) * units[match.group(2).upper()])
-
-    @classmethod
-    def _recursive_attachments(cls, value: Any) -> list[dict[str, Any]]:
-        """迭代扫描 QQ 复合结构和内嵌 JSON，提取并去重全部附件。"""
-        result = []
-        seen_urls = set()
-        seen_containers = set()
-        stack: list[tuple[Any, str]] = [(value, "root")]
-        visited = 0
-
-        def append(item: dict[str, Any]) -> None:
-            url = str(item.get("voice_wav_url") or item.get("download_url")
-                      or item.get("file_url") or item.get("url") or "").strip()
-            if url.startswith(("http://", "https://")) and url not in seen_urls:
-                seen_urls.add(url)
-                result.append(item)
-
-        while stack:
-            current, context = stack.pop()
-            visited += 1
-            if visited > MAXIMUM_NESTED_VALUES:
-                raise ValueError("QQ message exceeds nested value limit")
-            if isinstance(current, dict):
-                identity = id(current)
-                if identity in seen_containers:
-                    continue
-                seen_containers.add(identity)
-                has_url = any(current.get(key) for key in
-                              ("voice_wav_url", "download_url", "file_url", "url"))
-                looks_like = context.lower() in {"attachment", "attachments", "media", "medias",
-                                                  "file", "files"} \
-                    or any(key in current for key in
-                           ("filename", "file_name", "content_type", "mime", "file_id"))
-                if has_url and looks_like:
-                    append(current)
-                for key, child in reversed(tuple(current.items())):
-                    if isinstance(child, (dict, list)):
-                        stack.append((child, str(key)))
-                    elif isinstance(child, str):
-                        for match in COMPOSITE_ATTACHMENT.finditer(child):
-                            name = match.group("filename").strip()
-                            append({"url": match.group("url"), "filename": name,
-                                    "content_type": mimetypes.guess_type(name)[0]
-                                    or "application/octet-stream",
-                                    "size": cls._parse_size(match.group("size"))})
-                        candidate = child.strip()
-                        if len(candidate) <= 2 * 1024 * 1024 and candidate[:1] in {"{", "["}:
-                            try:
-                                decoded = json.loads(candidate)
-                            except (json.JSONDecodeError, RecursionError):
-                                continue
-                            if isinstance(decoded, (dict, list)):
-                                stack.append((decoded, str(key)))
-            elif isinstance(current, list):
-                identity = id(current)
-                if identity in seen_containers:
-                    continue
-                seen_containers.add(identity)
-                stack.extend((child, context) for child in reversed(current))
-        return result
+    def _received_at(data: dict[str, Any]) -> str:
+        """优先使用平台时间，重放时不把处理时间伪装成发送时间。"""
+        raw = data.get("timestamp")
+        if isinstance(raw, str):
+            try:
+                value = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+                if value.tzinfo is not None:
+                    return value.astimezone(UTC).isoformat()
+            except ValueError:
+                pass
+        return datetime.now(UTC).isoformat()
 
     async def run_inbound_worker(self, stop: asyncio.Event) -> None:
         """并行恢复持久化 Dispatch，失败按单事件预算退避且不阻塞后续消息。"""
@@ -977,6 +898,15 @@ class QQConnector:
                 else:
                     try:
                         await asyncio.to_thread(self.inbound_wal.store, inbound_event)
+                        # 按 Gateway 接收顺序建立索引，避免并行 worker 先处理后到的引用。
+                        event_data = data
+                        author = event_data.get("author", {})
+                        if isinstance(author, dict):
+                            sender = str(author.get("user_openid") or author.get("member_openid")
+                                         or author.get("id") or "")
+                            target, kind = self._conversation(event_data, event_type, sender)
+                            if sender and target:
+                                await self._remember_message(self._reference_scope(kind, target), event_data)
                     except (InboundWalError, OSError) as exception:
                         raise InboundWalUnavailableError(
                             "QQ inbound event persistence failed") from exception

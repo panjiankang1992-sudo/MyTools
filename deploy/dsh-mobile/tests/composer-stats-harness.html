@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DSH composer statistics checks</title>
+  <link rel="stylesheet" href="../mobile.css">
+  <style>
+    #fixture { width: min(100%, 390px); margin: 40px auto; }
+    .uV2eYG_root { display: flex; flex-direction: column; align-items: center; }
+    .uV2eYG_dock { display: flex; justify-content: center; align-items: center; gap: 12px; max-width: 100%; padding-top: 4px; }
+    .uV2eYG_root:not(.uV2eYG_hero) > .uV2eYG_dock { min-height: 22px; }
+    .bOPqQW_anchor, .JObwrW_root { display: inline-flex; min-width: 0; font-size: var(--test-font-size, 13px); line-height: 20px; }
+    .bOPqQW_pill, .JObwrW_trigger { display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px; max-width: 100%; white-space: nowrap; font: inherit; }
+    .bOPqQW_label { overflow: hidden; text-overflow: ellipsis; }
+    .bOPqQW_sep { margin: 0 6px; }
+    svg { flex: none; width: 14px; height: 14px; }
+  </style>
+</head>
+<body>
+  <main id="fixture" class="wSkVaW_root uV2eYG_root">
+    <div class="uV2eYG_dock" data-composer-dock>
+      <span class="bOPqQW_anchor" data-composer-stat="activity">
+        <button class="bOPqQW_pill" aria-label="7 轮 8 步 · 32 tok/s" data-mytools-stat-primary="7 轮 8 步">
+          <svg aria-hidden="true"></svg><span class="bOPqQW_label">7 轮 8 步<span class="bOPqQW_sep" aria-hidden="true">·</span>32 tok/s</span>
+        </button>
+      </span>
+      <span class="bOPqQW_anchor" data-composer-stat="usage">
+        <button class="bOPqQW_pill" aria-label="109K tok · 缓存命中 45%" data-mytools-stat-primary="109K tok">
+          <svg aria-hidden="true"></svg><span class="bOPqQW_label">109K tok<span class="bOPqQW_sep" aria-hidden="true">·</span>缓存命中 45%</span>
+        </button>
+      </span>
+      <span class="JObwrW_root"><button class="JObwrW_trigger" aria-label="上下文占用 2%"><svg aria-hidden="true"></svg>2%</button></span>
+    </div>
+  </main>
+  <span class="bOPqQW_label" id="unrelated">Unrelated truncating label</span>
+  <output id="result"></output>
+  <script>
+    const result = document.getElementById('result');
+    const fixture = document.getElementById('fixture');
+    const dock = fixture.querySelector('[data-composer-dock]');
+    const buttons = [...dock.querySelectorAll('button')];
+    const [activity, usage, context] = buttons;
+    const originalLabels = [activity, usage].map(button => button.getAttribute('aria-label'));
+    const mobile = matchMedia('(max-width: 767px), (max-width: 900px) and (max-height: 500px)').matches;
+    function check(value, message) {
+      if (!value) throw Error(message);
+    }
+    function withinDock(elements) {
+      const parent = dock.getBoundingClientRect();
+      return elements.every(element => {
+        const child = element.getBoundingClientRect();
+        return child.left >= parent.left - 1 && child.right <= parent.right + 1;
+      });
+    }
+    try {
+      check(getComputedStyle(document.getElementById('unrelated')).textOverflow === 'ellipsis', 'ellipsis scope');
+      if (!mobile) {
+        check(getComputedStyle(activity.querySelector('.bOPqQW_label')).display !== 'none', 'desktop full label');
+        check(getComputedStyle(activity, '::after').content === 'none', 'desktop generated content');
+        result.textContent = 'PASS: desktop full statistics';
+      } else {
+        check(dock.getBoundingClientRect().height <= 34, 'single compact row');
+        check(getComputedStyle(dock).columnGap === '8px', 'compact column gap');
+        for (const [index, button] of [activity, usage].entries()) {
+          check(getComputedStyle(button.querySelector('.bOPqQW_label')).display === 'none', 'secondary labels hidden');
+          const visual = getComputedStyle(button, '::after');
+          check(visual.content === JSON.stringify(button.dataset.mytoolsStatPrimary), 'full primary label');
+          check(visual.textOverflow === 'clip', 'no statistical ellipsis');
+          check(button.getAttribute('aria-label') === originalLabels[index], 'full accessible reading');
+        }
+        check(context.textContent.trim() === '2%' && context.getBoundingClientRect().height === 32, 'context tap area');
+        fixture.style.width = '245px';
+        fixture.style.setProperty('--test-font-size', '20px');
+        activity.dataset.mytoolsStatPrimary = '9999 轮 99999 步';
+        check(withinDock(buttons), 'narrow large-text layout');
+        result.textContent = 'PASS: compact metrics, complete labels, accessibility, narrow layout';
+      }
+    } catch (error) {
+      result.textContent = 'FAIL: ' + error.message;
+    }
+  </script>
+</body>
+</html>

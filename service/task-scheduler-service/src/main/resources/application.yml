@@ -49,6 +49,8 @@ task:
       task-executor-service: ${TASK_EXECUTOR_INTERNAL_TOKEN:}
       task-operator-service: ${TASK_OPERATOR_INTERNAL_TOKEN:}
     business-clients:
+      news-digest-service: ${TASK_BUSINESS_NEWS_TOKEN:}
+      pdf-service: ${TASK_BUSINESS_PDF_TOKEN:}
       image-generation-service: ${TASK_BUSINESS_IMAGE_GENERATION_TOKEN:}
       video-generation-service: ${TASK_BUSINESS_VIDEO_GENERATION_TOKEN:}
       mytools-service: ${TASK_BUSINESS_MYTOOLS_TOKEN:}
@@ -59,11 +61,14 @@ task:
       media-library-service: ${TASK_BUSINESS_MEDIA_LIBRARY_TOKEN:}
       reader-service: ${TASK_BUSINESS_READER_TOKEN:}
       storage-gateway-service: ${TASK_BUSINESS_STORAGE_GATEWAY_TOKEN:}
+      # 公开工具箱 PDF 实例的独立身份；未配置令牌时不生效。
+      public-pdf-service: ${TASK_BUSINESS_PUBLIC_PDF_TOKEN:}
   node-registration:
     enforce: ${TASK_NODE_REGISTRATION_POLICY_ENFORCE:true}
-    allowed-cluster-names: ${TASK_ALLOWED_EXECUTOR_CLUSTERS:media,reader,reader-probe-orchestration,download,download-orchestration,messaging,asset,drive,identity,storage}
+    allowed-cluster-names: ${TASK_ALLOWED_EXECUTOR_CLUSTERS:news,media,reader,reader-probe-orchestration,download,download-orchestration,messaging,asset,drive,identity,storage}
     allowed-capability-keys: ${TASK_ALLOWED_EXECUTOR_CAPABILITIES:runtimes,scriptReleases}
     trusted-labels:
+      "[news.node]": ${TASK_NEWS_NODE_VALUE:absent}
       "[storage.mount.managed]": ${STORAGE_DEFAULT_ROOT_NODE_VALUE:present}
       "[dsh.connector]": ${DSH_CONNECTOR_NODE_VALUE:absent}
   node-health:
@@ -78,4 +83,5 @@ task:
     cron-bootstrap-batch-size: ${TASK_CRON_BOOTSTRAP_BATCH_SIZE:128}
     deadline-scan-delay-ms: ${TASK_DEADLINE_SCAN_DELAY_MS:1000}
     dispatch:
-      queue-timeout-seconds: ${TASK_QUEUE_DISPATCH_TIMEOUT_SECONDS:300}
+      # 兼容旧环境变量，调度器已取消排队期限。
+      queue-timeout-seconds: ${TASK_QUEUE_DISPATCH_TIMEOUT_SECONDS:0}

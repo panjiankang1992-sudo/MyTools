@@ -1,0 +1,20 @@
+[
+  {
+    "scope": "整册",
+    "unitId": null,
+    "entries": 320,
+    "file": "scope-whole-4p.pdf",
+    "pageCount": 4,
+    "bytes": 164078,
+    "page0": "595x842pt"
+  },
+  {
+    "scope": "第一单元",
+    "unitId": "cn-ty-3-1-pep-2024-u01",
+    "entries": 64,
+    "file": "scope-unit-u01-1p.pdf",
+    "pageCount": 1,
+    "bytes": 82956,
+    "page0": "595x842pt"
+  }
+]

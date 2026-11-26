@@ -1,0 +1,16 @@
+{
+  "built": true,
+  "signature": "passed",
+  "artifact": "/Users/pankang/mycode/MyTools/app/build/acceptance/ui-subpages-20261103-accepted-signed.hap",
+  "sha256": "fc67c79f910bb2796e6fecec700e63572ceef5077b120de66d495368157eb964",
+  "etsSnapshotSha256": "dfc6bbb9f206febb97a4a919d2631ca093850e74666e795703037ff4c89a1383",
+  "stringsSha256": "8d0d61d25aba6323d3a1b22e8a505fcd3a8c15444abb392eeeddd4a959bd1499",
+  "sourceStableAfterBuild": true,
+  "deviceInstall": "pending-device-reconnection",
+  "geometry": {
+    "download": "four controls measured156px=48vp on earlier installed version; same field implementation retained",
+    "equalActionRow": "final two-pass layout not yet device-verified"
+  },
+  "knownWarning": "Existing system PasteButton clipboard permission warning; no new restricted permission.",
+  "supersededBy": "../accepted-build.json"
+}

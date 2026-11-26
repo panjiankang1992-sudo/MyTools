@@ -96,6 +96,9 @@ class VideoServiceTest {
   VideoCapability catalog = new VideoCapability(env);
   capability = mock(VideoCapability.class);
   when(capability.models()).thenAnswer(invocation -> catalog.models());
+  when(capability.model(anyString())).thenAnswer(invocation -> catalog.model(invocation.getArgument(0)));
+  when(capability.modelRevision(anyString())).thenAnswer(invocation -> catalog.modelRevision(invocation.getArgument(0)));
+  when(capability.workflowRevision(anyString())).thenAnswer(invocation -> catalog.workflowRevision(invocation.getArgument(0)));
   when(capability.require(anyString(), anyString())).thenAnswer(invocation ->
    catalog.require(invocation.getArgument(0, String.class), invocation.getArgument(1, String.class)));
   when(capability.allowsFrames(any(), anyInt())).thenAnswer(invocation ->
@@ -607,5 +610,21 @@ class VideoServiceTest {
   ByteArrayOutputStream bytes = new ByteArrayOutputStream();
   ImageIO.write(image, format, bytes);
   return bytes.toByteArray();
+ }
+ /** 新模型请求保存独立修订与尺寸，不能混用 VACE 横屏参数。 */
+ @Test
+ void ltxCreationPersistsItsOwnRevisionsAndRejectsVaceSize() throws Exception {
+  env.setProperty("video.ltx-first-frame-validated", "true");
+  UUID upload = imageUpload(1);
+  Create request = new Create(VideoCapability.LTX_RESOURCE_ID, "Slow camera push", "FIRST_FRAME",
+   List.of(input(upload, "FIRST_FRAME")), new Output("640x640", 49, 16), 42L, "ltx_create_0001", null, null);
+  String id = service.create(1, request).path("id").asText();
+  assertThat(jdbc.queryForObject("SELECT model_revision FROM video_job WHERE id=?", String.class, id))
+   .isEqualTo("ltxv-2b-0.9.8-distilled-8984fa25");
+  assertThat(jdbc.queryForObject("SELECT workflow_revision FROM video_job WHERE id=?", String.class, id))
+   .isEqualTo("video-ltx-2b-i2v-v1");
+  Create invalid = new Create(VideoCapability.LTX_RESOURCE_ID, "Slow camera push", "FIRST_FRAME",
+   List.of(input(upload, "FIRST_FRAME")), new Output("832x480", 49, 16), 42L, "ltx_create_0002", null, null);
+  assertCode(ErrorCode.VIDEO_002, () -> service.create(1, invalid));
  }
 }

@@ -1,0 +1,298 @@
+{
+  "date": "2026-10-18",
+  "goalStatus": "ACTIVE",
+  "realMysqlVerified": false,
+  "productionEnabled": false,
+  "realDeliveryTested": false,
+  "news": {
+    "totals": {
+      "tests": 176,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 4
+    },
+    "suites": [
+      {
+        "suite": "com.yuyutian.mytools.news.DigestEngineTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.DispatchIntegrationTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.DispatchRestartPersistenceTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.FeedParserTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.GithubTrendCalculatorTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.LiveFeedSmokeTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.LiveTechnicalSourcesTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 3
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.NewsDeliveryRendererTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.NewsIntegrationTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.OperationsHttpTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.PipelineIntegrationTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.PublicNetworkPolicyTest",
+        "tests": 29,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.RegionIntegrationTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.RestartPersistenceTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.RetentionTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.SchedulingIntegrationTest",
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.SubscriptionScheduleTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.TechnicalCollectorsTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.TechnicalMigrationTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.TechnicalPersistenceTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.TokenFilterTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.service.NewsMessagingClientTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.news.service.NewsSchedulerClientTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "gateway": {
+    "tests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "operationsPython": {
+    "tests": 6,
+    "passed": 6
+  },
+  "totalPassed": 189,
+  "totalSkipped": 4,
+  "webTypecheck": "passed",
+  "webBuild": "passed",
+  "alertYaml": "parsed, 7 rules",
+  "promtool": "unavailable; not validated",
+  "sourceSha256": {
+    "service/deploy/monitoring/news-digest-alerts.yml": "95aba134bdfc5af0176b3ad50384c4361496ebbafc99daa76294dddca5005b35",
+    "service/deploy/news_operations.py": "1213141ad8d22186e4e80f5b02b9503ad34febdfbc6bd0f6c80a7f27023b4abd",
+    "service/deploy/test_news_operations.py": "7408134b3622028b6f87544bea585e08be0783d50f35269b5a329536f66ed06a",
+    "service/news-digest-service/db/migrations/V7__add_content_retention.sql": "eb2714d69d0493514d3a02fb954d6519057ebcdbe852b6be1a6707940007c818",
+    "service/news-digest-service/pom.xml": "6b8a13e65222fa932fe55815270756e916e147620789ae1e0c808b95f29434fe",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/Model/DeliveryModels.java": "72794db36b18576e5b10a68c23c6eb87b3bf108762b13b8205330e9167b7b377",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/Model/NewsModels.java": "9462a0e61a2a79503f3fa5879c36a2b964ca87835d3a1798a43a7a92155b456b",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/Model/PipelineModels.java": "aca3a8082b674090433b1d569fb9783489ac0d0dbf0c962da555c58c1bbf755f",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/Model/RegionModels.java": "e49e8ce050ead99e9fc3e3613eea121a08ab282abf8263938a78de1363b3477c",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/Model/SchedulingModels.java": "97a63c8a4a5252e56499aad940e8ec125abf76e53248ceae2cee9ca1fe9aa654",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/NewsDigestApplication.java": "4863d126a51a3d994886d665398319316b253ae474e09db12332ad9b220a6830",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/common/ErrorCode.java": "5043b59ca7806e9fc1f3c2be6ae0c19281b9ed9f352d0a33b2c5aa80a5e8be37",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/common/NewsException.java": "38abda1bf3309036face204b65d3010d3b06ff2ff44910e20b49f304193eacf6",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/common/SourceRateLimitException.java": "f701ce94e009e3fc05076f50706f1c94613ff9487f15fd7507287d1f885dd649",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/DeliveryProperties.java": "7d60dc6e8ca4b8252fe7d26f0d986cb6e1931a51c177adeaa97403584feb8e47",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/InternalTokenFilter.java": "665e5f20cb624f40eb6db9126af93569ac33f8e33255a7cda67597594738c507",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/NewsConfiguration.java": "a268811fa9eecaca96dd6c9da17865198fdc4020fe432d0d4b44bc59c4151933",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/NewsDispatchTimer.java": "2b3fe7c40234c99f1e3538fd29eb2a069951b1b41a597c91f6610493b6868230",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/NewsPipelineTimer.java": "75c01899a16a9856ab65ecf78196264d90e7800fb9934c2df101809821b891ec",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/NewsProperties.java": "67b5e5f189bf4fdf2740dc8e7df7e23f5ead3603c0a8f7e79d62d1136f933aad",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/NewsRetentionTimer.java": "ffc6ba802ac2576d95d88c426d6500e8787636342f7e583ced93522e372b51ad",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/NewsSchedulingTimer.java": "69dac91abf496f3abb62650c3eaed6a689de4316017ad89be6aee17b01e2038c",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/PipelineProperties.java": "1cbf914deb034d4e9618dd73f5d2e266a04cfde91841b80f83852d710e184f77",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/RegionProperties.java": "e7e638757e6d06da4bf67586276766d9ad26aa8fc8711ae6844f0142e06e14c8",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/RetentionProperties.java": "9608722248f55a482c25eb7624764ad8d36e23bc7f347d3dd51d135a7fdea22a",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/SchedulingProperties.java": "0e87b1203ced9d33b89429334232d0a28e1006aa662503df022cadb733bcec53",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/TechSourceProperties.java": "b02f8eacce28cd12fd650f0ed7170f0f27d8931c386ab06d3844fc41e2fcb4c1",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/controller/NewsController.java": "6a616e6fe096d2be4a68ea54ac09168cf8a2c8c12eb021a78fd5732abd1eeb86",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/controller/NewsDeliveryController.java": "f8b3e023adf7f07dbdd27bb10d2d9e114ec7ba940e61f9adf0d61078e6788bfd",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/controller/NewsExceptionHandler.java": "9e6114585806851371be93b3dc5a1bf2fc42d2cd7b959086fbd832e847fa8b4e",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/controller/NewsJobController.java": "05f9f665319f246a6b777b1f5749428ce437011e4df4c95197e9467f5ec92f24",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/controller/NewsOperationsController.java": "6b3eab87b54c39c9cf0bd90dd6ba3c58a967539d4e0d7c5d9690c51789f3b9d5",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/controller/NewsPipelineAdminController.java": "03e6f3b6bf9b7a4d31159eae45cf16434c3578e7e3a42d0fd3bf81b56336b6f2",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/controller/NewsSchedulingAdminController.java": "1f9302232554dd5eb674ddc93974149f100383e058c902522c6c9deffba9d5ba",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/controller/RegionController.java": "1b5e328d081d1415f8c1fe3aaea5a666cb563063497251d92031d8aa219e42b1",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/controller/RegionJobController.java": "a7611943338b1f3023cdee6a75404a0f62c1fc98d033d7b9b0ba1e03a21cad1c",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/controller/SourceController.java": "71e7389476dbec628f6a9850a27e52e9b42121f2af889a92dcee75dfb13e24e8",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/controller/SubscriptionController.java": "06b47bbb4f814133acde33bf927a9eb73b09943d44cb3a5935990a760d32a8a8",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/DispatchRepository.java": "3853a48695e85fff5a7f8b0cc63312efd33ea0f35829f3558b978d7e628bb7cb",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/GithubSnapshotRepository.java": "194f1a282697bc05778a35d2bd2fec41f1f3c32b3a14619ee38d522b266c1ecb",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/NewsRepository.java": "e30f47b997f3a4ea41201736bd2228facd97d09a05c7e15a47c11911773e44fa",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/RegionJobRepository.java": "fd9f9ae5c2a9061fe7b480516dc03f32f241134254f2b7159a1344c6563d4805",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/RegionRepository.java": "7f237028f4d67ac99f8b692d98a48968ffe70d5a50ce4f3248865e01d0300a8c",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/RetentionRepository.java": "af69a5fe791ac11752a9b767b27a364a2c7cd4431d6925736bcab5125bb5cf68",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/SchedulingRepository.java": "227cfaba615d0c69365bddbc3165355a4b1d55669df0dfdb0db53af153c65ccf",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/SourcePollingRepository.java": "6f9dfa4809da105b7ae91c793da0de665048210d1d28b4e706598c38eeb2b479",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/CollectionService.java": "71769e1981bd4611b2f618c59108052b6c9e7aec5f4020c07557f74422506348",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/DigestEngine.java": "7da1175f78c7a52f8079059882ee6f69b1627cb6c540b321ad608966e81944b0",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/EditionService.java": "4578bb87f966dd54f3bb66a670d180b0f1bf92efa4f9754108a6b1ffc6aa54d0",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/FeedParser.java": "1898fcbb57ea14a949322a5e330c4f9d6c7a9bd79c793e4ca965ff2e13428bc7",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/FeedTransport.java": "8707e7115df03d1268e2bd6bd2ee3d5b5a9f35d5807ee4afd7163596c48f2230",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/HttpFeedTransport.java": "a4eea1afa04b5ff60d5233699cf617c8272f587bb16e0f4d06312bfbbca927e6",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/NewsDeliveryRenderer.java": "4514411a1a67f7f13b1c06089b92161531b28c3057cd0b98bac6b3020c4eb342",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/NewsDispatchService.java": "1d93fd5341721af2d5cd877fabf30f5089074f2ddc82435f8598d225c6a45928",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/NewsMessagingClient.java": "b6e322c3c118126c599b6e28030a9cc01f8e56af6c92ffccb51952a5c241ff78",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/NewsOperations.java": "26c6500621c63b2fd02fdccbe7aa81fd571ea2be1daaa98896a94970fb196a61",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/NewsSchedulerClient.java": "29d8d3e08ae601c0768f1645397d8396284ad9be965dc786ef576926d667bfb3",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/RegionJobService.java": "841585ec4c223173ff76a318f97f080af35d67f6f27e64359baf01180746bce3",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/RegionService.java": "52d08f9d8f55febcfa0c7b0babc2b45711ea4c9ff89d19fd5451e9ae22217096",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/SchedulingService.java": "191f799f4d0609923b92d4d977c379f6e3fdf65ad5887ad596b8790c6d69aec5",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/SourcePollingService.java": "ca4606b7e1cac77bf129365e365ce9dfd57f8d578abd1a65a028c86067f7d04d",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/technical/DevCollector.java": "3d2ba4babeb73c4e7f3eb1619a2be7c58b6ca7c3e4fc8522761ad7ea81b9ddc5",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/technical/GithubCollector.java": "10a73c137e8e2e674b9c2f8758efe08d31b43dde4565d6e6da738d8da2f734c2",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/technical/GithubTrendCalculator.java": "450b4d08b63ea3b4651daf7058c747fdaecb1d8bf797c18b43239ee896a1e799",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/technical/HackerNewsCollector.java": "643b2dc9fe5cca52d3d49df2cf41c3bc77a68e699c781848620798e5fa1b9d21",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/technical/JsonSourceClient.java": "27ef143f8138d90e8b5f5063a8a816e74145e1bedae7a615352c5411239b9c76",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/technical/TechnicalCollector.java": "3852522497d089c6db0d0ed4358ec1ac92bc54b206d1ce150e4ad6f4bf61f9ef",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/technical/TechnicalParsing.java": "d7d3c58fb85e6dbfd1263e6bea73a25b39c4a53501bfd7dcc5853261cd77cfa6",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/utils/ContentIdentity.java": "a07d6ba01748f574d2320579039a841af09a476a472ac6786420e16b2b79529a",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/utils/PublicNetworkPolicy.java": "de1685e81c71b3aabe5b13682e77c12ab80d7166e2a60b44f81ec12c0e5dd204",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/utils/RateLimitPolicy.java": "992fa428fa6fe6bcc5f8644ae3533fb9ad53c56156e7ca481e3917159dfd2fe6",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/utils/SubscriptionSchedule.java": "23f60ac492c618417001cdce2722a9a9d6af662e37a68a57f5ca9dc13796fa85",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/utils/TechnicalSourcePolicy.java": "cc656fafa520ef3715b23f9f41578d82847cf07a7023a3d06cd19157a9257826",
+    "service/news-digest-service/src/main/resources/application.yml": "97721e1f8468515385eef576f1d53f05c092c6add1c241c5b482d7de72acd776",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/OperationsHttpTest.java": "77b90319dd622848a7d997e91a21f4ac3549b8fa4b58b02209e900259eb166b1",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/RetentionTest.java": "5fd18a4625d981b0675968a2dcb85dc281ac17661dfad6c4ff316289deb72e8b",
+    "webapp/src/locales/news.ts": "9461c7b488f458e27101c863ef0d2d5a0a0ba50f36c906927a9c514e8d1a6faf",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/DispatchRestartPersistenceTest.java": "891e5e486e2dae8eb36100a8e8f68b5ddb01bd1b1222db04ef8eac9dfd8ab4d7",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/TechnicalPersistenceTest.java": "9fc97845814a42576b3b4ed3e2aba96affc89eb023a2fe8a2d528b289c956c84",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/PipelineIntegrationTest.java": "0e02099ccdf3a4e667f505f600c9dbb95ee52d5ed04726ed2259b5fd0f391f00",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/NewsDeliveryRendererTest.java": "79d9b9ace63ac15bea046e2ecd240cc12d329830e5b824787f8fa8b5450f8350",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/Fixtures.java": "7a57146900e1459fcd41157a9f38052dc5ed9800eff5a864e7fdd94ccdfd81fe",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/GithubTrendCalculatorTest.java": "08a1877c5c60aaf290ccde94a0007213ca4082cb955faf74540281d6a5b1da29",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/SubscriptionScheduleTest.java": "1bcfa198f61e7c1e16edd9791fa19f9772574b890c061503984924d2d42d1103",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/RegionIntegrationTest.java": "31e7a4ca640dc7f95768a55318fb43a552757e90459ed9eff43537206ffc9863",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/PublicNetworkPolicyTest.java": "470817a3152e98baddb17b23e7c8ffeaac7ea5d52f0ba349337bebbbdb56db4d",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/RestartPersistenceTest.java": "80d2120f3e8b908f9dc33ac074d10e601c3c9139dcd62fe7b43e8944abb518c1",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/FeedParserTest.java": "db6da8e06dca1987a9fbcfb2587f7a74e7a257b1b976ad9ea18cf48de0b14c9f",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/DigestEngineTest.java": "6f78857cc6d2710b271dd9650f41b79c6e4b588d43300bfde18d71f59665c51e",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/TechnicalCollectorsTest.java": "fa6f8de901c8e7b8e97d277405dd262f4509ccc9eee708d3e3950d03ee064a2b",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/TokenFilterTest.java": "a3912df8662ffcff723fb03aad28ab351be6fb2661cdf3fcfcb7a5abc8bcd3a1",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/DispatchIntegrationTest.java": "a03e85924ae31729fc615716be2bcde90a63593902879ca508b2567f8a073a28",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/SchedulingIntegrationTest.java": "30addb8d51701731f888bff0087a392f4f5f896cfc378c00e73e36239247d86f",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/LiveTechnicalSourcesTest.java": "4ad88300a71bbcd3cce0ecd693c788719e34d191f4058c0cc41ddeedbc983647",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/NewsIntegrationTest.java": "37c20a85956a0e10226248d99dd951167bbd085540b023383a25fce3f4afbb30",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/LiveFeedSmokeTest.java": "0857785453eb7f3ea2893163fc89310f87dcb06db988840715d792ca559d384b",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/TechnicalMigrationTest.java": "274514b7f31ef902725d32dfe0b3a1d6689bd77b050b032a90efa7c20a8d5510",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/service/NewsSchedulerClientTest.java": "8d7248850ec8869a1773640da1e7dcdf6d15c7b4184bbe57a110e6d633be7468",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/service/NewsMessagingClientTest.java": "96eb2984c1a335b26a32be54c50bd83b9ac7c64fb86ad54f6090656140005a9c",
+    "service/mytools-gateway/src/main/java/com/yuyutian/mytools/gateway/service/NewsGatewayClient.java": "4cd8315113e9d5e79dc55c9f7265eea3a10dba720b234601a1f20761e41abf53",
+    "service/mytools-gateway/src/main/java/com/yuyutian/mytools/gateway/common/ErrorCode.java": "a1122b0a41a47605ce687f8b88491c64bdac254f234635ca57c878e9740f1895",
+    "service/mytools-gateway/src/test/java/com/yuyutian/mytools/gateway/controller/NewsGatewayControllerTest.java": "be8b7ba4bbb3212ea6c263fd33757da78aa4fded0ca5cb0a94a5b213f82747c4"
+  }
+}

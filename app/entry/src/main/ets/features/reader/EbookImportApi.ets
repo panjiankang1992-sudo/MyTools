@@ -84,7 +84,7 @@ export class EbookImportApi {
     const file: request.File = { filename: filename, name: 'file', uri: uri, type: 'application/octet-stream' };
     const nameData: request.RequestData = { name: 'filename', value: filename };
     const config: request.UploadConfig = {
-      url: `${this.baseUrl}/api/ebooks/import/upload`,
+      url: `${this.authManager.resolveBusinessBaseUrl(this.baseUrl)}/api/ebooks/import/upload`,
       header: { 'Authorization': `Bearer ${token}` },
       method: 'POST', files: [file], data: [nameData]
     };

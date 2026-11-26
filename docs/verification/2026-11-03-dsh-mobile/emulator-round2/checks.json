@@ -1,0 +1,41 @@
+{
+  "environment": "Pura 90 HarmonyOS 6.1.1 API 24 arm64 emulator",
+  "version": "20261103-v5",
+  "myToolsSessionPreserved": true,
+  "credentialsEntered": false,
+  "productionChanged": false,
+  "normalDirectConnection": "passed-with-existing-resource-cache",
+  "normalDirectReadinessObservedWithinSeconds": 34,
+  "normalDirectSettings": "passed",
+  "coldCachePublicStability": "not-passed",
+  "relayDiagnostics": {
+    "uiReadyWithinSeconds": 20,
+    "tlsValidationPreserved": true,
+    "authenticationUnchanged": true,
+    "changesRemoved": true
+  },
+  "uiChecks": {
+    "settingsFiveCategories": "passed-relay",
+    "languageMenuBack": "passed-relay",
+    "pluginListAndAddDialog": "passed-relay",
+    "keyboardFocusAndDismiss": "passed-relay",
+    "dialogBack": "passed-relay",
+    "rootBack": "passed-relay",
+    "automationEmptyState": "passed-relay"
+  },
+  "networkErrorClassificationTests": "passed",
+  "dshRegressionTests": "passed",
+  "arkTsBuild": "passed",
+  "preExistingWarning": "DownloadToolsPage.ets READ_PASTEBOARD declaration",
+  "pending": [
+    "cold-cache public reliability",
+    "fresh external login callback",
+    "microphone recording",
+    "system file picker and download save",
+    "remaining plugin details and populated automation scenarios"
+  ],
+  "sourceHashes": {
+    "app/entry/src/main/ets/pages/Index.ets": "f90428aa7820321adfe1bcc4d3ebaa4a2969817c035453f5d5a1ea874e1e7c47",
+    "app/tests/dsh_web_load_monitor_test.cjs": "936d20645b5bc19794a5175c9bb7ffdca2890f9a341821c10f25a7e7ca70c104"
+  }
+}

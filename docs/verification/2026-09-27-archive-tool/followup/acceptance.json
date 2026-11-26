@@ -1,0 +1,27 @@
+{
+  "build": "success",
+  "warnings": false,
+  "hapSha256": "7b330c3f80eac630fdd24987665440054815f2f79a92718e436e1d80d616e9a6",
+  "newTreeExportChecks": 20,
+  "passwordRegressionChecks": 6,
+  "simulatorFlow": {
+    "folderSelectDeselectedTwoChildren": true,
+    "threeOutputsByteExact": true,
+    "emptyDirectoryRecorded": true,
+    "batchExport": "3/3",
+    "exportSizes": [
+      22,
+      23,
+      16
+    ]
+  },
+  "cleanup": {
+    "testResultRemoved": true,
+    "testCacheRemoved": true,
+    "inputRemoved": true,
+    "exportFolderPermanentlyDeleted": true,
+    "passwordsAdded": 0
+  },
+  "physicalDeviceTested": false,
+  "directoryExportOn2in1Tested": false
+}

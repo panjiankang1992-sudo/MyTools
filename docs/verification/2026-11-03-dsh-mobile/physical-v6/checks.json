@@ -1,0 +1,48 @@
+{
+  "version": "20261103-v6",
+  "device": "BRA-AL00 physical USB device",
+  "hapSha256": "5f701e3a1554b12f8fdef43e21cb9815852ed0fc7452f67935edcc013d5bcf0a",
+  "install": {
+    "signature": "passed",
+    "install": "passed",
+    "coldStart": "passed",
+    "processObserved": "passed"
+  },
+  "existingAppDataPreserved": true,
+  "credentialsEntered": false,
+  "diagnosticProxyUsed": false,
+  "productionChanged": false,
+  "change": "Restore DSH connection after startup authentication and endpoint discovery; ignore stale account restoration",
+  "regressionTests": "passed-including-failure-reproduction-without-fix",
+  "arkTsBuild": "passed-with-existing-download-clipboard-warning",
+  "startupObservedResult": "network error and retry after 21.5 seconds; no indefinite spinner",
+  "publicAttempts": [
+    {
+      "attempt": 1,
+      "observedSeconds": 21.5,
+      "result": "network-error-retry-visible"
+    },
+    {
+      "attempt": 2,
+      "observedSeconds": 21.5,
+      "result": "network-error-retry-visible"
+    },
+    {
+      "attempt": 3,
+      "observedSeconds": 61.2,
+      "result": "60-second-web-load-deadline-retry-visible"
+    }
+  ],
+  "gatewayHealth": 200,
+  "layoutEvidence": "Previous v5 physical observations only; v6 full-page interaction not passed",
+  "pending": [
+    "public connection reliability",
+    "settings model/plugin data completeness",
+    "keyboard and back sequence",
+    "automation page",
+    "fresh external login callback",
+    "microphone recording",
+    "file selection and download save"
+  ],
+  "overall": "installation-passed-startup-recovery-fixed-full-functional-acceptance-not-passed"
+}

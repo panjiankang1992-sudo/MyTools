@@ -1,0 +1,53 @@
+{
+  "definitions": [
+    {
+      "id": "00000000-0000-4000-8000-000000000101",
+      "name": "media_generate_tags",
+      "capacity": 4
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000102",
+      "name": "media_generate_tags",
+      "capacity": 4
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000305",
+      "name": "media_analyze_video",
+      "capacity": 2
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000407",
+      "name": "download_message_attachment",
+      "capacity": 4
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000405",
+      "name": "download_remote_storage_object",
+      "capacity": 4
+    },
+    {
+      "id": "bc4024f1-2062-440f-aed1-a50b9b6f6650",
+      "name": "image_generate",
+      "capacity": 1
+    },
+    {
+      "id": "f35203bc-75d5-4194-a831-b7d11f56fa5d",
+      "name": "video_ltx_tag_acceptance",
+      "capacity": 1
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000400",
+      "name": "download_storage_object",
+      "capacity": 4
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000304",
+      "name": "download_http_asset",
+      "capacity": 8
+    }
+  ],
+  "restored": true,
+  "startedAt": 1790579970.5629108,
+  "imageWasActive": true,
+  "restoredAt": 1790580109.6870618
+}

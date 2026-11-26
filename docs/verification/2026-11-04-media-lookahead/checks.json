@@ -1,0 +1,15 @@
+{
+  "build": "passed",
+  "checks": {
+    "catalogPrefetchAndPagination": "passed",
+    "adjacentPreloadPolicy": "passed",
+    "imageCacheConcurrencyAndNavigation": "passed",
+    "thumbnailPipeline": "passed",
+    "thumbnailCancellation": "passed",
+    "thumbnailRestore": "passed",
+    "imageGesturePolicy": "passed",
+    "cacheManagement": "passed",
+    "playbackEndpointSwitch": "passed"
+  },
+  "existingBuildWarning": "DownloadToolsPage READ_PASTEBOARD permission declaration"
+}

@@ -1,0 +1,75 @@
+{
+  "reviewer": "ai:codex",
+  "notHumanReview": true,
+  "reviewedFrames": 1746,
+  "productionEnabled": false,
+  "status": "partial_improvement_not_release_pass",
+  "runs": [
+    {
+      "variant": "cfg2",
+      "samples": 3,
+      "serviceSuccess": 3,
+      "findings": {
+        "portrait": "闭眼持续较基线缩短，随后微笑；仍有头部/构图偏移。",
+        "landscape": "水波更明显，但固定机位仍偏移。",
+        "product": "颜色与主体基本保持，前推进指令仍变成横向偏移。"
+      }
+    },
+    {
+      "variant": "end-guide",
+      "samples": 2,
+      "serviceSuccess": 2,
+      "findings": {
+        "portrait": "尾段回到原构图，但出现重复闭眼和表情回退。",
+        "landscape": "背景较稳定，同时期望的水面波纹明显受抑制，不能以几乎静止作为通过。"
+      }
+    },
+    {
+      "variant": "guided-cfg2",
+      "samples": 4,
+      "seeds": [
+        42,
+        932
+      ],
+      "serviceSuccess": 4,
+      "findings": {
+        "portrait": "42 种子出现明显闭眼持续和低头；932 种子较稳但眨眼动作不足，跨种子不一致。",
+        "landscape": "两个种子构图较稳定，水面细微运动不足，不能因为近乎静止就判定固定机位成功。"
+      }
+    },
+    {
+      "variant": "two-stage",
+      "samples": 3,
+      "serviceSuccess": 3,
+      "seed": 42,
+      "findings": {
+        "product": "主体保持，但要求的缓慢前推进仍变为明显横移。",
+        "portrait": "约第 12 帧开始闭眼，随后长时间低头，未实现短暂眨眼后立即睁眼。",
+        "landscape": "固定机位要求失败，镜头明显上移，湖面逐渐离开画面。"
+      }
+    },
+    {
+      "variant": "two-stage-complete",
+      "samples": 3,
+      "serviceSuccess": 3,
+      "seed": 42,
+      "findings": {
+        "product": "补齐末次求值后仍为明显横移，未实现前推进。",
+        "portrait": "仍长时间闭眼及低头，未实现短暂眨眼立即睁眼。",
+        "landscape": "镜头仍持续上移，固定构图失败。"
+      }
+    },
+    {
+      "variant": "two-stage-complete",
+      "promptStyle": "action-first",
+      "samples": 3,
+      "serviceSuccess": 3,
+      "seed": 42,
+      "findings": {
+        "product": "茶壶略变大但镜头仍横移，未做到沿主体中心前推进。",
+        "portrait": "微笑更明显，但大段闭眼与低头持续存在，未通过。",
+        "landscape": "画面仍上移，山体在画面中下移，机位未固定。"
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "hapSha256": "9b6a2b252581c9885eb1c2109ca0d24a878cd8d5652401e38b34c872e9f35ef9",
+  "result": "passed",
+  "controls": [
+    {
+      "label": "重置",
+      "type": "Button",
+      "bounds": [
+        42,
+        2562,
+        646,
+        2716
+      ],
+      "widthPx": 604,
+      "heightPx": 154,
+      "enabled": "true"
+    },
+    {
+      "label": "生成 PDF",
+      "type": "Button",
+      "bounds": [
+        674,
+        2562,
+        1278,
+        2716
+      ],
+      "widthPx": 604,
+      "heightPx": 154,
+      "enabled": "false"
+    }
+  ],
+  "equalVisibleHeight": true,
+  "heightPx": 154,
+  "heightVp": 44,
+  "scalePxPerVp": 3.5,
+  "sourceLayout": "/tmp/mytools-ui-simulator-private/13-pdf-text-final.json",
+  "scope": "empty text form; reset and disabled generation action visible; no file generated"
+}

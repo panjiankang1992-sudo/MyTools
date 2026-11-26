@@ -1,0 +1,129 @@
+{
+  "result": "passed",
+  "httpChecks": [
+    {
+      "interface": "192.168.1.7",
+      "path": "/api/app/v1/identity/me",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "interface": "192.168.1.7",
+      "path": "/api/app/v1/connectivity/bootstrap",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "interface": "192.168.1.7",
+      "path": "/internal/dsh-web/lan/authorize",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "interface": "192.168.1.7",
+      "path": "/_mytools/authorize",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "interface": "192.168.1.7",
+      "path": "/actuator/health",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "interface": "192.168.1.7",
+      "path": "/",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "interface": "192.168.1.7",
+      "path": "/api/app/v1/reader/data/summary",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "interface": "192.168.1.7",
+      "path": "/api/cloud/files",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "interface": "192.168.1.7",
+      "path": "/api/ebooks",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "interface": "192.168.1.7",
+      "path": "/api/localfiles",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "interface": "192.168.3.159",
+      "path": "/api/app/v1/identity/me",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "interface": "192.168.3.159",
+      "path": "/api/app/v1/connectivity/bootstrap",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "interface": "192.168.3.159",
+      "path": "/internal/dsh-web/lan/authorize",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "interface": "192.168.3.159",
+      "path": "/_mytools/authorize",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "interface": "192.168.3.159",
+      "path": "/actuator/health",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "interface": "192.168.3.159",
+      "path": "/",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "interface": "192.168.3.159",
+      "path": "/api/app/v1/reader/data/summary",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "interface": "192.168.3.159",
+      "path": "/api/cloud/files",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "interface": "192.168.3.159",
+      "path": "/api/ebooks",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "interface": "192.168.3.159",
+      "path": "/api/localfiles",
+      "status": 401,
+      "expected": 401
+    }
+  ],
+  "invalidProbe": 401,
+  "gatewayActive": "active",
+  "avahiActive": "active",
+  "deviceAuthenticatedTraffic": "not-verified-device-unavailable"
+}

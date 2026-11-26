@@ -10,6 +10,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -23,6 +26,13 @@ import java.util.UUID;
  */
 @Component
 public class GatewayRequestFilter extends OncePerRequestFilter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GatewayRequestFilter.class);
+    private static final String OBSERVATION_TRACE = "gatewayObservationTrace";
+    private static final String OBSERVATION_MODULE = "gatewayObservationModule";
+
+    /** 观测只使用固定模块名，不能携带路径中的业务数据。 */
+    private enum RequestModule { CONNECTIVITY, IDENTITY_SELF, READER, MEDIA, OTHER }
 
     public static final String PRINCIPAL_ATTRIBUTE = "gatewayPrincipal";
     public static final String CORRELATION_ATTRIBUTE = "gatewayCorrelationId";
@@ -64,30 +74,96 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
         String correlationId = correlation(request.getHeader("X-Correlation-Id"));
         request.setAttribute(CORRELATION_ATTRIBUTE, correlationId);
         response.setHeader("X-Correlation-Id", correlationId);
-        Route route = route(request.getRequestURI());
-        if (route.enabled()) {
-            String authorization = request.getHeader("Authorization");
-            if (authorization == null || !authorization.startsWith("Bearer ")
-                    || authorization.length() <= 7) {
-                unauthorized(response, correlationId);
-                return;
-            }
+        RequestModule module = module(request.getRequestURI());
+        // 诊断标识独立于客户端提供的关联头，不能把客户端标识作为日志数据。
+        String observationTrace = UUID.randomUUID().toString();
+        String previousTrace = MDC.get(OBSERVATION_TRACE);
+        String previousModule = MDC.get(OBSERVATION_MODULE);
+        long started = System.nanoTime();
+        boolean forwarded = false;
+        boolean completed = false;
+        MDC.put(OBSERVATION_TRACE, observationTrace);
+        MDC.put(OBSERVATION_MODULE, module.name());
+        LOGGER.info("Gateway request phase=received module={} trace={} status=0 elapsedMs=0",
+                module, observationTrace);
+        try {
+            Route route = route(request.getRequestURI());
+            long authenticationStarted = System.nanoTime();
+            boolean authenticated = false;
+            boolean authenticationCompleted = false;
             try {
-                GatewayPrincipal principal = validator.validate(authorization.substring(7));
-                if (!route.allowed(principal.userId())) {
-                    routeDisabled(response, correlationId);
-                    return;
+                if (route.enabled()) {
+                    String authorization = request.getHeader("Authorization");
+                    if (authorization == null || !authorization.startsWith("Bearer ")
+                            || authorization.length() <= 7) {
+                        unauthorized(response, correlationId);
+                        return;
+                    }
+                    try {
+                        GatewayPrincipal principal = validator.validate(authorization.substring(7));
+                        authenticated = true;
+                        if (!route.allowed(principal.userId())) {
+                            routeDisabled(response, correlationId);
+                            return;
+                        }
+                        request.setAttribute(PRINCIPAL_ATTRIBUTE, principal);
+                    } catch (GatewayUnauthorizedException exception) {
+                        unauthorized(response, correlationId);
+                        return;
+                    }
                 }
-                request.setAttribute(PRINCIPAL_ATTRIBUTE, principal);
-            } catch (GatewayUnauthorizedException exception) {
-                unauthorized(response, correlationId);
-                return;
+                authenticationCompleted = true;
+            } finally {
+                int status = response.getStatus();
+                // 未被既有认证处理器转为响应的异常需要明确标为失败，避免误记默认的 200。
+                if (!authenticationCompleted && status < 400) status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+                LOGGER.info("Gateway request phase=auth-complete module={} trace={} required={} authenticated={} status={} elapsedMs={}",
+                        module, observationTrace, route.enabled(), authenticated, status, elapsedMillis(authenticationStarted));
             }
+            forwarded = true;
+            filterChain.doFilter(request, response);
+            completed = true;
+        } finally {
+            int status = response.getStatus();
+            if (!completed && status < 400) status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+            // 此阶段表示过滤器后续处理返回，流式正文的传输量仍由原票据指标记录。
+            LOGGER.info("Gateway request phase=upstream-complete module={} trace={} forwarded={} completed={} status={} elapsedMs={}",
+                    module, observationTrace, forwarded, completed, status, elapsedMillis(started));
+            restoreMdc(OBSERVATION_TRACE, previousTrace);
+            restoreMdc(OBSERVATION_MODULE, previousModule);
         }
-        filterChain.doFilter(request, response);
+    }
+
+    private RequestModule module(String uri) {
+        if (uri.equals("/api/app/v1/connectivity/bootstrap") || uri.startsWith("/api/public/connectivity/")) {
+            return RequestModule.CONNECTIVITY;
+        }
+        if (uri.equals("/api/app/v1/identity/me")) return RequestModule.IDENTITY_SELF;
+        if (uri.equals("/api/app/v1/reader") || uri.startsWith("/api/app/v1/reader/")) return RequestModule.READER;
+        if (uri.equals("/api/app/v1/media") || uri.startsWith("/api/app/v1/media/")) return RequestModule.MEDIA;
+        return RequestModule.OTHER;
+    }
+
+    private long elapsedMillis(long started) {
+        return Math.max(0L, (System.nanoTime() - started) / 1_000_000L);
+    }
+
+    private void restoreMdc(String key, String value) {
+        if (value == null) MDC.remove(key);
+        else MDC.put(key, value);
     }
 
     private Route route(String uri) {
+        // RSS 始终认证，即使功能关闭也不能绕过用户身份校验。
+        if (uri.equals("/api/app/v1/rss") || uri.startsWith("/api/app/v1/rss/")
+                || uri.equals("/api/v1/rss") || uri.startsWith("/api/v1/rss/")) return new Route(true, ignored -> true);
+        // 新闻始终先认证，两个公开前缀共享同一所有者隔离策略。
+        if (uri.equals("/api/app/v1/news") || uri.startsWith("/api/app/v1/news/")
+                || uri.equals("/api/v1/news") || uri.startsWith("/api/v1/news/")) return new Route(true, ignored -> true);
+        // DSH 网页票据始终校验 MyTools 登录态，工作区授权由桥接服务检查。
+        if (uri.equals("/api/app/v1/dsh/web-ticket")) return new Route(true, ignored -> true);
+        // PDF 工具始终校验会话，功能开关由领域代理控制。
+        if (uri.equals("/api/app/v1/pdf") || uri.startsWith("/api/app/v1/pdf/")) return new Route(true, ignored -> true);
         // 图片接口始终认证，禁用门禁由控制器统一返回。
         if (uri.startsWith("/api/app/v1/image-generation/")) return new Route(true, ignored -> true);
         // 播放票据本身就是凭据：原生播放器拿不到登录头，只能靠 URL 里的随机票据取流。
@@ -96,7 +172,7 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
         if (uri.startsWith("/api/app/v1/video-generation/") || uri.startsWith("/api/video-generation/")) {
             return new Route(true, ignored -> true);
         }
-        if (uri.matches("^/api/app/v1/media/tickets/[a-f0-9]{32}$")) {
+        if (uri.matches("^/api/app/v1/media/tickets/[a-f0-9]{32}(?:/(?:mobile\\.mp4|master\\.m3u8|v[0-9]{1,4}(?:\\.m3u8|-[0-9]{5}\\.ts)))?$")) {
             return new Route(false, ignored -> true);
         }
         if (uri.matches("^/api/app/v1/drive-tickets/[a-f0-9]{32}$")) {
@@ -119,6 +195,9 @@ public class GatewayRequestFilter extends OncePerRequestFilter {
         }
         if (uri.startsWith("/api/app/v1/drive/")) {
             return new Route(properties.driveRouteEnabled(), properties::driveTenantAllowed);
+        }
+        if (uri.startsWith("/api/app/v1/download-tools/")) {
+            return new Route(properties.downloadRouteEnabled(), ignored -> true);
         }
         if (uri.startsWith("/api/app/v1/downloads/")) {
             return new Route(properties.downloadRouteEnabled(), properties::downloadTenantAllowed);

@@ -1,0 +1,31 @@
+{
+  "viewport": [
+    1320,
+    2856
+  ],
+  "checks": {
+    "summaryStartsAtCardLeftAndBelowImage": true,
+    "twoAndThreeLineTitlesInspected": true,
+    "textOnlyRowsInspected": true,
+    "thumbnailOpensReader": true,
+    "imageConfirmationAbsent": true,
+    "productionBuildPassed": true,
+    "productionHapExcludesTestEntry": true
+  },
+  "firstArticle": {
+    "image": [
+      70,
+      990,
+      392,
+      1270
+    ],
+    "summary": [
+      70,
+      1312,
+      1250,
+      1466
+    ]
+  },
+  "deviceInstallation": "installed_and_launched",
+  "deviceModel": "BRA-AL00"
+}

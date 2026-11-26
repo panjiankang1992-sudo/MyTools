@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DSH mobile terminal checks</title>
+<link rel="stylesheet" href="../mobile.css">
+<style>
+body{margin:0;padding:16px;font:15px system-ui;background:#f6f8fa;color:#153e38}
+h1{font-size:22px}button{min-height:44px;padding:8px 14px}section{margin:12px 0;background:white;border:1px solid #dce4df;border-radius:12px;overflow:hidden}
+textarea{box-sizing:border-box;width:100%;height:64px;font:16px monospace}output{display:block;white-space:pre-wrap;padding:16px;background:white;border-radius:12px;line-height:1.6}
+dialog{position:fixed;inset:20px;z-index:100;background:white}
+</style>
+<h1>Terminal input checks</h1>
+<p>Uses the actual mobile script with two isolated input targets. It never connects to DSH.</p>
+<button id="run">Run checks</button>
+<section data-sidebar-terminal><div class="xterm"><textarea class="xterm-helper-textarea" aria-label="Terminal A"></textarea></div></section>
+<section data-sidebar-terminal><div class="xterm"><textarea class="xterm-helper-textarea" aria-label="Terminal B"></textarea></div></section>
+<output id="result" role="status">Ready</output>
+<script src="../mobile.js"></script>
+<script>
+// 隔离目标只记录事件字段，不连接任何真实终端或远端服务。
+document.querySelector('#run').onclick = function () {
+  var output = document.querySelector('#result');
+  var targets = Array.from(document.querySelectorAll('textarea'));
+  var events = [[], []], reports = [];
+  var handlers = targets.map(function (input, index) {
+    var handler = function (event) { events[index].push({key:event.key,code:event.code,ctrl:event.ctrlKey,number:event.keyCode}); };
+    input.addEventListener('keydown', handler);
+    return handler;
+  });
+  function check(value, name) { if (!value) throw new Error(name); reports.push('PASS '+name); }
+  function key(index, label) { return targets[index].closest('section').querySelector('[aria-label="'+label+'"]'); }
+  var modal;
+  try {
+    targets[0].focus(); targets[1].focus(); targets[0].focus();
+    var mobile = matchMedia('(max-width:767px),(max-width:900px) and (max-height:500px)').matches;
+    if (!mobile) {
+      var bars = Array.from(document.querySelectorAll('[data-mytools-terminal-keys]'));
+      check(bars.every(function(bar){return getComputedStyle(bar).display === 'none';}), 'desktop hides mobile toolbars');
+      bars.forEach(function(bar){bar.querySelector('button').click();});
+      check(events[0].length === 0 && events[1].length === 0, 'desktop ignores stale mobile controls');
+    } else {
+      check(document.querySelectorAll('[data-mytools-terminal-keys]').length === 2, 'one toolbar per terminal after repeated focus');
+      key(0, 'Tab').click(); key(1, 'Ctrl+C').click(); key(0, 'ArrowLeft').click();
+      check(events[0].length === 2 && events[1].length === 1, 'events stay with the owning terminal');
+      check(events[0][0].key === 'Tab' && events[0][0].number === 9, 'Tab is a terminal key, not a focus jump');
+      check(events[1][0].key === 'c' && events[1][0].ctrl && events[1][0].code === 'KeyC', 'Ctrl+C modifier and code');
+      check(document.activeElement === targets[0], 'focus returns to the intended input');
+      modal = document.createElement('div'); modal.setAttribute('role','dialog'); modal.textContent = 'Modal'; document.body.appendChild(modal);
+      key(0, 'End').click();
+      check(events[0].length === 2, 'modal prevents background terminal input');
+      modal.remove();
+      targets[0].disabled = true; key(0, 'Home').click(); targets[0].disabled = false;
+      check(events[0].length === 2, 'disabled terminal ignores auxiliary input');
+      var section = targets[1].closest('section'), oldButton = key(1, 'Ctrl+C');
+      section.remove(); oldButton.click(); document.querySelector('#result').before(section);
+      check(events[1].length === 1, 'detached terminal ignores late button clicks');
+      check(events.flat().every(function(event){return event.key !== 'Enter';}), 'no command submission');
+    }
+    output.textContent = reports.join('\n');
+    output.dataset.passed = 'true';
+  } catch (error) {
+    output.textContent = reports.join('\n')+'\nFAIL '+error.message;
+    output.dataset.passed = 'false';
+  } finally {
+    modal?.remove();
+    targets.forEach(function(input,index){input.removeEventListener('keydown',handlers[index]);});
+  }
+};
+</script>
+</html>

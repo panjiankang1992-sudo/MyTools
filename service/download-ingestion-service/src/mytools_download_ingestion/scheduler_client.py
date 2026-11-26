@@ -18,7 +18,7 @@ class TaskSchedulerHttpClient:
         self._business_token = business_token
 
     def create_task(self, *, task_name: str, idempotency_key: str,
-                    business_id: str, parameters: dict) -> UUID:
+                    business_id: str, parameters: dict, priority: int = 60) -> UUID:
         """Idempotently create one scheduler task instance."""
         payload = {
             "taskName": task_name,
@@ -27,7 +27,7 @@ class TaskSchedulerHttpClient:
             "businessId": business_id,
             "parentTaskInstanceId": None,
             # 新请求优先于故障恢复期间形成的历史积压，空闲时仍会按创建时间清空旧队列。
-            "priority": 60,
+            "priority": priority,
             "parameters": parameters,
         }
         result = self._request("POST", "/api/v1/task-instances", payload)

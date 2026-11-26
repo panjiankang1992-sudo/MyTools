@@ -1,0 +1,397 @@
+{
+  "scope": "DSH 0.2.1-rc.2 当前可见页面与能力族，不代表所有状态或第三方未来插件。",
+  "labels": {
+    "preview": "本轮预览通过",
+    "previous": "前轮已验",
+    "device": "代码完成·待真机",
+    "service": "服务前置未满足",
+    "desktop": "桌面能力未适配",
+    "scenario": "待场景验证"
+  },
+  "counts": {
+    "preview": 29,
+    "previous": 2,
+    "device": 7,
+    "service": 2,
+    "desktop": 2,
+    "scenario": 5
+  },
+  "entries": [
+    {
+      "id": 1,
+      "group": "会话",
+      "name": "新会话与输入区",
+      "status": "preview",
+      "note": "320px 模型名称、推理等级和发送入口可见；新建后收起抽屉。",
+      "image": "23-chat-320.png"
+    },
+    {
+      "id": 2,
+      "group": "会话",
+      "name": "会话列表与更多菜单",
+      "status": "preview",
+      "note": "更多入口常驻 44×44；置顶、重命名、分叉、归档和复制 ID 均可见，未修改历史。",
+      "image": "30-sidebar-actions.png"
+    },
+    {
+      "id": 3,
+      "group": "会话",
+      "name": "历史消息与工具结果",
+      "status": "preview",
+      "note": "实际历史消息加载、长文本与工具结果可阅读；为避免留存个人内容不保存正文截图。",
+      "image": ""
+    },
+    {
+      "id": 4,
+      "group": "会话",
+      "name": "轨迹与工具调用列表",
+      "status": "preview",
+      "note": "实际轨迹页加载，390px 页面无横向溢出；没有执行或重放工具调用。",
+      "image": ""
+    },
+    {
+      "id": 5,
+      "group": "会话",
+      "name": "指令与长期目标入口",
+      "status": "preview",
+      "note": "文件、目标、计划、反馈、压缩、权限、模型和日志入口可达；目标草稿已清空。",
+      "image": "03-command-menu.png"
+    },
+    {
+      "id": 6,
+      "group": "会话",
+      "name": "访问模式",
+      "status": "preview",
+      "note": "四种模式完整可见；未改变权限策略。",
+      "image": "25-permission-menu.png"
+    },
+    {
+      "id": 7,
+      "group": "会话",
+      "name": "模型菜单与推理等级",
+      "status": "previous",
+      "note": "前轮已验证多级菜单及返回；本轮验证标签和输入区，不重复修改模型。",
+      "image": ""
+    },
+    {
+      "id": 8,
+      "group": "会话",
+      "name": "Agent 模式选择",
+      "status": "preview",
+      "note": "标准、PTC、极简、创造模式的选择菜单可阅读；未修改模式。",
+      "image": ""
+    },
+    {
+      "id": 9,
+      "group": "会话",
+      "name": "反馈表单",
+      "status": "preview",
+      "note": "分类、输入区及提交按钮可达；未向他人发送反馈。",
+      "image": "29-feedback.png"
+    },
+    {
+      "id": 10,
+      "group": "会话",
+      "name": "日志导出与文件保存",
+      "status": "device",
+      "note": "App 下载代理、系统保存器和生命周期测试通过；真实 ArkWeb 下载及保存仍需手机。",
+      "image": ""
+    },
+    {
+      "id": 11,
+      "group": "会话",
+      "name": "文件上传与附件",
+      "status": "device",
+      "note": "保留 ArkWeb 默认文件选择器；手机文件 URI、图片选择和服务端接收尚未端到端验收。",
+      "image": ""
+    },
+    {
+      "id": 12,
+      "group": "会话",
+      "name": "运行中任务、授权问题、计划与目标状态",
+      "status": "scenario",
+      "note": "当前没有合适的进行中任务；未为验证而启动会消耗额度或修改文件的 Agent 任务。",
+      "image": ""
+    },
+    {
+      "id": 13,
+      "group": "会话",
+      "name": "分支会话、重命名与归档提交",
+      "status": "scenario",
+      "note": "入口可达；未对既有会话提交改动。",
+      "image": ""
+    },
+    {
+      "id": 14,
+      "group": "工作区",
+      "name": "工作区选择与目录浏览",
+      "status": "preview",
+      "note": "现有工作区、添加入口、远端目录树和取消操作正常；未新建目录。",
+      "image": "24-workspace-picker.png"
+    },
+    {
+      "id": 15,
+      "group": "工作区",
+      "name": "文件树",
+      "status": "preview",
+      "note": "文件行提升到 44px；文件面板不再触发 React #185。",
+      "image": "06-file-tabs-after.png"
+    },
+    {
+      "id": 16,
+      "group": "工作区",
+      "name": "文件标签、新标签和关闭",
+      "status": "preview",
+      "note": "窄屏标签与操作分行；横屏恢复单行；能够打开、切换和关闭。",
+      "image": "06-file-tabs-after.png"
+    },
+    {
+      "id": 17,
+      "group": "工作区",
+      "name": "Markdown、代码与文本查看",
+      "status": "preview",
+      "note": "Markdown 和代码模式实际打开；纯文本入口已确认，长文件名可横向浏览。",
+      "image": "05-markdown-before.png"
+    },
+    {
+      "id": 18,
+      "group": "工作区",
+      "name": "HTML、图片、PDF、音视频预览",
+      "status": "scenario",
+      "note": "本轮没有逐一准备各格式样本；不把通用容器适配等同于各格式都通过。",
+      "image": ""
+    },
+    {
+      "id": 19,
+      "group": "工作区",
+      "name": "终端与 Shell 选择",
+      "status": "preview",
+      "note": "可选 bash，终端成功连接并显示提示符；已关闭检查用空终端，没有执行命令。",
+      "image": "27-terminal-320.png"
+    },
+    {
+      "id": 20,
+      "group": "工作区",
+      "name": "终端软键盘与组合键",
+      "status": "device",
+      "note": "浏览器可聚焦终端；手机输入法、Ctrl/Tab 等组合输入待真机验收。",
+      "image": ""
+    },
+    {
+      "id": 21,
+      "group": "工作区",
+      "name": "横屏、全屏工作面板",
+      "status": "preview",
+      "note": "844×390 下工作面板宽约 844px，标签栏约 60px；关闭按钮可用。",
+      "image": "28-landscape-workspace.png"
+    },
+    {
+      "id": 22,
+      "group": "工作区",
+      "name": "分栏、拖动与浮动窗口",
+      "status": "scenario",
+      "note": "分栏入口保留，不再按 disabled 隐藏；手机拖动和多窗操作尚未验收。",
+      "image": ""
+    },
+    {
+      "id": 23,
+      "group": "设置",
+      "name": "账号与余额",
+      "status": "preview",
+      "note": "仅记录布局：390px 无横向溢出、五个分类可达；未保存账号或余额截图，未充值。",
+      "image": ""
+    },
+    {
+      "id": 24,
+      "group": "设置",
+      "name": "通用设置",
+      "status": "preview",
+      "note": "语言、外观、字号及工作步骤设置可浏览，未更改配置。",
+      "image": "31-settings-general.png"
+    },
+    {
+      "id": 25,
+      "group": "设置",
+      "name": "快捷键设置",
+      "status": "previous",
+      "note": "前轮验证二级弹窗与逐层返回；本轮没有重新录制。",
+      "image": ""
+    },
+    {
+      "id": 26,
+      "group": "设置",
+      "name": "模型提供商表单",
+      "status": "preview",
+      "note": "新增提供商页面可达，输入区和底部操作可见；取消退出，未读取或填写密钥。",
+      "image": "07-provider-form.png"
+    },
+    {
+      "id": 27,
+      "group": "设置",
+      "name": "内置插件清单",
+      "status": "preview",
+      "note": "清单、搜索框和模式筛选可查看。",
+      "image": "08-builtin-plugins.png"
+    },
+    {
+      "id": 28,
+      "group": "设置",
+      "name": "Agent 预设与说明",
+      "status": "preview",
+      "note": "四种内置模式及二级说明可读，滚动正常。",
+      "image": "09-agent-presets.png"
+    },
+    {
+      "id": 29,
+      "group": "设置",
+      "name": "打开原始配置文件",
+      "status": "desktop",
+      "note": "上游调用 Host 的 openSettingsDocument，实际是在服务器打开本地编辑器；尚无手机内原始文件查看适配。",
+      "image": ""
+    },
+    {
+      "id": 30,
+      "group": "插件",
+      "name": "插件总览、添加与安装表单",
+      "status": "preview",
+      "note": "安装入口及来源菜单可达；320×450 下输入框和安装按钮都可通过滚动到达，未执行安装。",
+      "image": "20-install-short-viewport.png"
+    },
+    {
+      "id": 31,
+      "group": "插件",
+      "name": "子智能体",
+      "status": "preview",
+      "note": "输入框、模型开关和保存入口可浏览；开关恢复 36×20 的原比例。",
+      "image": "11-plugin-detail-after.png"
+    },
+    {
+      "id": 32,
+      "group": "插件",
+      "name": "网页搜索",
+      "status": "preview",
+      "note": "密钥为空白保留态，地址、搜索次数和保存入口可浏览，未保存。",
+      "image": "12-web-search.png"
+    },
+    {
+      "id": 33,
+      "group": "插件",
+      "name": "Agent 循环",
+      "status": "preview",
+      "note": "并行数量及保存入口可浏览。",
+      "image": "13-agent-loop.png"
+    },
+    {
+      "id": 34,
+      "group": "插件",
+      "name": "终端设置",
+      "status": "preview",
+      "note": "命令超时与输出上限可查看。",
+      "image": "14-terminal-settings.png"
+    },
+    {
+      "id": 35,
+      "group": "插件",
+      "name": "智能体团队",
+      "status": "preview",
+      "note": "详情、组件和来源可查看；当前未启用，未修改运行状态。",
+      "image": "17-team-plugin.png"
+    },
+    {
+      "id": 36,
+      "group": "插件",
+      "name": "自动授权审查",
+      "status": "preview",
+      "note": "详情、组件开关与状态可查看；长说明和状态分行。",
+      "image": "22-plugin-components-320.png"
+    },
+    {
+      "id": 37,
+      "group": "插件",
+      "name": "开发者工具",
+      "status": "preview",
+      "note": "组件与设置可查看；未启用调试能力。",
+      "image": "18-developer-plugin.png"
+    },
+    {
+      "id": 38,
+      "group": "插件",
+      "name": "桌面 NodeJS DevTools",
+      "status": "desktop",
+      "note": "属于桌面开发者工具，不等于手机内 DevTools。",
+      "image": ""
+    },
+    {
+      "id": 39,
+      "group": "插件",
+      "name": "语音设置与安装引导",
+      "status": "preview",
+      "note": "设备、语言、模型来源及准备说明可查看。",
+      "image": "15-voice-settings.png"
+    },
+    {
+      "id": 40,
+      "group": "插件",
+      "name": "语音转写服务",
+      "status": "service",
+      "note": "服务端提示首次需要下载并准备 SenseVoice 模型；本轮未安装。",
+      "image": "26-voice-setup.png"
+    },
+    {
+      "id": 41,
+      "group": "插件",
+      "name": "网页录音与系统授权",
+      "status": "device",
+      "note": "HTTPS 优先、可信来源音频授权和系统权限代码已实现；实际录音、拒绝后重试需手机。",
+      "image": ""
+    },
+    {
+      "id": 42,
+      "group": "插件",
+      "name": "大肥鱼设置",
+      "status": "service",
+      "note": "页面打开，但插件提示未连接 DSH Host；属于上游插件连接问题。",
+      "image": "19-installed-plugin.png"
+    },
+    {
+      "id": 43,
+      "group": "自动化",
+      "name": "列表、筛选、搜索与新建入口",
+      "status": "preview",
+      "note": "空态与控件正常；新建入口可进入会话，未创建定时任务。",
+      "image": "33-automation.png"
+    },
+    {
+      "id": 44,
+      "group": "自动化",
+      "name": "任务详情、编辑、启停与运行记录",
+      "status": "scenario",
+      "note": "当前列表为空，未在生产建立定时任务，待隔离样本验收。",
+      "image": ""
+    },
+    {
+      "id": 45,
+      "group": "连接",
+      "name": "登录与外部授权窗口",
+      "status": "device",
+      "note": "既有弹窗生命周期测试通过；本轮增加普通外链接管，真实登录回流仍需手机。",
+      "image": ""
+    },
+    {
+      "id": 46,
+      "group": "连接",
+      "name": "HTTPS 优先与局域网备用",
+      "status": "device",
+      "note": "票据仍严格校验；HTTPS 选择和 LAN 回退测试通过，业务 API 地址不变；切换网络需手机验收。",
+      "image": ""
+    },
+    {
+      "id": 47,
+      "group": "连接",
+      "name": "系统返回与错误恢复",
+      "status": "device",
+      "note": "前轮验证网页层级返回；本轮代码保留该协议并补齐下载清理，真实系统返回待验收。",
+      "image": ""
+    }
+  ]
+}

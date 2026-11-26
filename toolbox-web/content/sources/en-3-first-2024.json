@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "sourceId": "yilin-en-3-first-2024",
+      "kind": "officialEbookPageImages",
+      "title": "译林版《英语》三年级上册（2022 课标修订版，2024 年秋启用）教材 Word lists",
+      "publisher": "译林出版社",
+      "isbn": "9787575300377",
+      "accessBasis": "publicPlatformPageImages",
+      "verifiedAt": "2026-10-02",
+      "locators": [
+        "教材 Word lists：书第 78—82 页（I 单元序 / II 字母序 / III 专有名词）",
+        "官方资源页面图像：https://r1-ndr.ykt.cbern.com.cn/edu_product/esp/assets/1206a3aa-1969-9e64-b354-e6eae4325ed4.t/zh-CN/1750301600485/transcode/image/<n>.jpg",
+        "资源元数据：https://s-file-1.ykt.cbern.com.cn/zxx/ndrv2/resources/tch_material/details/aa2275a3-f969-c5fe-1c2c-d08b92223b67.json"
+      ],
+      "reconciliation": {
+        "totalEntries": 140,
+        "vocabulary": 126,
+        "expression": 14,
+        "word": 120,
+        "phrase": 20,
+        "byUnit": {
+          "Unit 1": 15,
+          "Unit 2": 13,
+          "Unit 3": 19,
+          "Unit 4": 12,
+          "Unit 5": 19,
+          "Unit 6": 12,
+          "Unit 7": 31,
+          "Unit 8": 19
+        },
+        "crossCheck": "与独立托管的同册词表镜像逐条比对：可比对 127 条全部一致，0 冲突；另用 tesseract OCR 官方页面图像复核，140 条命中 135，未命中 5 条经 8—10 倍放大确认为 OCR 误识",
+        "result": "词条与释义按教材原印；括号标注已在导入前剥离，词头为干净形式"
+      },
+      "knownGaps": [
+        "该册在平台上被限制下载（download_policy=2，PDF 直链 403），数据取自同一官方资源的页面图像判读，不是文字层",
+        "New Year's Day 是唯一没有第二来源的词条（镜像缺第三节，OCR 未命中）",
+        "11 条专有名词本身没有独立来源，仅有教材页面图像",
+        "专有名词的单元归属由印刷页码与单元页码范围推定，教材未按单元列出专有名词",
+        "13 条教材标注 * 的非核心词没有字段承载，未区分记录",
+        "未收录字母教学、Learning tips、Project 与课文正文中未被 Word lists 收录的词"
+      ],
+      "reviewedBy": "cross-source-verification",
+      "reviewNotes": "版本判定依据：平台资源元数据 provider_list=译林出版社 且标注「译林版」，PDF 文件名含 ISBN 9787575300377；豆瓣同 ISBN 记录；知网 2024 年文献说明 2024 年 9 月启用；平台该册带 2026 年度标签。旧版（2012 课标）目录已记录作对照，未取其数据。",
+      "revisionReviews": [
+        {
+          "contentVersion": "1.0.1",
+          "previousContentVersion": "1.0.0",
+          "verifiedAt": "2026-10-04T06:02:25.799Z",
+          "reviewedBy": "official-page-image-reconciliation",
+          "previousBookPath": "toolbox-web/content/textbooks/en-yl-3-1-yilin-2024/1.0.0/book.json",
+          "previousBookSha256": "07691496d6d7c988b4fbbca00bed4cced5491d31f7dd29001ef83707ec8a9238",
+          "bookPath": "toolbox-web/content/textbooks/en-yl-3-1-yilin-2024/1.0.1/book.json",
+          "bookSha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4",
+          "versionEvidence": "版权页图像直接确认为 2024 年 7 月第 1 版、第 1 次印刷，ISBN 978-7-5753-0037-7；不据此推断用户手中课本的版次。",
+          "reconciliation": {
+            "totalEntries": 140,
+            "wordListI": 129,
+            "wordListIII": 11,
+            "vocabulary": 140,
+            "expression": 0,
+            "word": 120,
+            "phrase": 20,
+            "nonCoreAnnotations": 13,
+            "printedVariantAnnotations": 5,
+            "byUnit": {
+              "Unit 1": 13,
+              "Unit 2": 11,
+              "Unit 3": 17,
+              "Unit 4": 9,
+              "Unit 5": 18,
+              "Unit 6": 12,
+              "Unit 7": 31,
+              "Unit 8": 18,
+              "专有名词（附录）": 11
+            },
+            "byPrintedPage": {
+              "78": 52,
+              "79": 68,
+              "80": 9,
+              "82": 11
+            },
+            "result": "按原图逐项核对 Word lists I 的 129 项基础词头、中文义项、单元与顺序，未发现其他实质抄录差异；取消自行按句末标点划分词表来源，恢复 14 项原印句型的单词表成员身份。附录 III 保留全部 11 项，并移入独立目录。"
+          },
+          "classificationRule": "listTypes=vocabulary 表示教材 Word lists 来源，含原表生词、短语和重要句型；form 仅记录既有词目形态。Word lists III 单列附录，Word lists II 不重复导入。",
+          "changes": [
+            "保留全部 140 个 entryId、基础词头、中文义项、原序及 word/phrase 形态；不修改 1.0.0。",
+            "Unit 1—8 使用教材目录完整标题；移除由单元标题复制而来的伪课文层，全部 lessonId=null。",
+            "11 项专有名词按 Word lists III 独立分组，不再按正文首次出现页码推定单元。",
+            "13 个非核心词星号与 5 个印刷括号注记保存于 context；Mr.、mom、grandpa、grandma 记录为教材给出的可接受变体。children 仅保留复数注记，不作为 child 的同义答案。",
+            "补足每项原表分区、原序与印刷页码；ISBN 以版权页直接核实。"
+          ],
+          "nonCoreEntries": [
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0006",
+              "text": "ah",
+              "unit": 1,
+              "page": 78
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0030",
+              "text": "ha",
+              "unit": 3,
+              "page": 78
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0033",
+              "text": "oh",
+              "unit": 3,
+              "page": 78
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0035",
+              "text": "twin",
+              "unit": 3,
+              "page": 78
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0037",
+              "text": "excuse me",
+              "unit": 3,
+              "page": 78
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0059",
+              "text": "quick",
+              "unit": 5,
+              "page": 79
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0062",
+              "text": "pond",
+              "unit": 5,
+              "page": 79
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0076",
+              "text": "wow",
+              "unit": 6,
+              "page": 79
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0122",
+              "text": "dizzy",
+              "unit": 8,
+              "page": 80
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0124",
+              "text": "er",
+              "unit": 8,
+              "page": 80
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0125",
+              "text": "fox",
+              "unit": 8,
+              "page": 80
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0126",
+              "text": "get together",
+              "unit": 8,
+              "page": 80
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0129",
+              "text": "thing",
+              "unit": 8,
+              "page": 80
+            }
+          ],
+          "printedAnnotations": [
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0024",
+              "printedText": "Mr (AmE Mr.)",
+              "page": 78
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0054",
+              "printedText": "mum (AmE mom)",
+              "page": 79
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0069",
+              "printedText": "grandfather (grandpa)",
+              "page": 79
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0072",
+              "printedText": "grandmother (grandma)",
+              "page": 79
+            },
+            {
+              "entryId": "en-yl-3-1-yilin-2024-0128",
+              "printedText": "child (pl. children)",
+              "page": 80
+            }
+          ],
+          "evidence": [
+            {
+              "url": "https://r1-ndr.ykt.cbern.com.cn/edu_product/esp/assets/1206a3aa-1969-9e64-b354-e6eae4325ed4.t/zh-CN/1750301600485/transcode/image/3.jpg",
+              "page": null,
+              "scope": "版权页：2024 年 7 月第 1 版、第 1 次印刷；ISBN 978-7-5753-0037-7",
+              "sha256": "2d425ee6dff9d63125f4e8d3c020c7c3d72e57d7048df49e0aa2ff62d06476c9"
+            },
+            {
+              "url": "https://r1-ndr.ykt.cbern.com.cn/edu_product/esp/assets/1206a3aa-1969-9e64-b354-e6eae4325ed4.t/zh-CN/1750301600485/transcode/image/7.jpg",
+              "page": null,
+              "scope": "教材目录：Unit 1—8 原印标题",
+              "sha256": "ca4841ede2638281d475dee7959a268d3d34dddc56ef7edea1775b55098dfbe7"
+            },
+            {
+              "url": "https://r1-ndr.ykt.cbern.com.cn/edu_product/esp/assets/1206a3aa-1969-9e64-b354-e6eae4325ed4.t/zh-CN/1750301600485/transcode/image/79.jpg",
+              "page": 78,
+              "scope": "Word lists I，第 1—52 项",
+              "sha256": "83fce253dc123e8c449d8a4bbb5549a78045884156e2bfc53e9f7918407bace7"
+            },
+            {
+              "url": "https://r1-ndr.ykt.cbern.com.cn/edu_product/esp/assets/1206a3aa-1969-9e64-b354-e6eae4325ed4.t/zh-CN/1750301600485/transcode/image/80.jpg",
+              "page": 79,
+              "scope": "Word lists I，第 53—120 项",
+              "sha256": "5e17192a5ad9a172fd41e9b9a544a4b4b15efdcc8ba09640a2d14422538fecaf"
+            },
+            {
+              "url": "https://r1-ndr.ykt.cbern.com.cn/edu_product/esp/assets/1206a3aa-1969-9e64-b354-e6eae4325ed4.t/zh-CN/1750301600485/transcode/image/81.jpg",
+              "page": 80,
+              "scope": "Word lists I，第 121—129 项；Word lists II 说明",
+              "sha256": "728f5a1afa7c5e7d7b8b7f3045e14beae5eb3080b1aa00e5e94e2ec0107f0870"
+            },
+            {
+              "url": "https://r1-ndr.ykt.cbern.com.cn/edu_product/esp/assets/1206a3aa-1969-9e64-b354-e6eae4325ed4.t/zh-CN/1750301600485/transcode/image/83.jpg",
+              "page": 82,
+              "scope": "Word lists III，11 项专有名词",
+              "sha256": "ae4b183cb4e3951bf114ce7b7e5f1bc87bfe8cad448bc65d956ffacad0dc6eea"
+            }
+          ],
+          "limitations": [
+            "本次核对使用此前留存的官方资源页图；在线工具当前无法重新读取资源直链，未把本次网络访问失败解释为来源失效。",
+            "没有用户手中课本的版次或具体差异样例，不能据此认定用户反馈的所有不一致已经解决。"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -24,7 +24,24 @@
           "audioPlayback"
         ],
         "exported": true,
+        "metadata": [
+          {
+            "name": "ohos.ability.shortcuts",
+            "resource": "$profile:shortcuts"
+          }
+        ],
         "skills": [
+          {
+            "actions": ["ohos.want.action.viewData"],
+            "uris": [
+              { "scheme": "file", "type": "application/zip" },
+              { "scheme": "file", "type": "application/x-7z-compressed" },
+              { "scheme": "file", "type": "application/vnd.rar" },
+              { "scheme": "file", "type": "application/x-rar-compressed" },
+              { "scheme": "file", "type": "application/x-tar" },
+              { "scheme": "file", "type": "application/gzip" }
+            ]
+          },
           {
             "entities": [
               "entity.system.home"
@@ -37,6 +54,17 @@
       }
     ],
     "requestPermissions": [
+      {
+        "name": "ohos.permission.ACCESS_BLUETOOTH",
+        "reason": "$string:vehicle_bluetooth_reason",
+        "usedScene": { "abilities": ["EntryAbility"], "when": "inuse" }
+      },
+      {
+        "name": "ohos.permission.MICROPHONE",
+        "reason": "$string:dsh_microphone_reason",
+        "usedScene": { "abilities": ["EntryAbility"], "when": "inuse" }
+      },
+      { "name": "ohos.permission.ACCESS_BIOMETRIC" },
       {
         "name": "ohos.permission.INTERNET"
       },

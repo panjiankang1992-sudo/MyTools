@@ -6,6 +6,8 @@ import com.yuyutian.mytools.gateway.service.GatewayDownstreamException;
 import com.yuyutian.mytools.gateway.service.GatewayNotFoundException;
 import com.yuyutian.mytools.gateway.service.GatewayReaderRejectedException;
 import com.yuyutian.mytools.gateway.service.GatewayUnauthorizedException;
+import com.yuyutian.mytools.gateway.service.DshWebForbiddenException;
+import com.yuyutian.mytools.gateway.common.ErrorCode;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +35,13 @@ public class GatewayExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public Map<String, String> unauthorized(GatewayUnauthorizedException exception) {
         return Map.of("code", "GATEWAY_001", "message", "Gateway authentication failed");
+    }
+
+    /** 将工作区访问拒绝与登录失效区分，保留 MyTools 登录态。 */
+    @ExceptionHandler(DshWebForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, String> dshForbidden(DshWebForbiddenException exception) {
+        return Map.of("code", ErrorCode.DSH_WEB_001.name(), "message", "DSH workspace access is not allowed");
     }
 
     /**

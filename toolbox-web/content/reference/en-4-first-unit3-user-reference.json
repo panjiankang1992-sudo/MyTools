@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "purpose": "用户提供的实物教材照片，作为「英语四年级上册」内容的对照基准。不用于发布，只用于核对来源是否一致。",
+  "subject": "english",
+  "grade": 4,
+  "semester": "first",
+  "unitLabel": "第三单元（用户标注）",
+  "providedBy": "用户",
+  "providedAt": "2026-10-04",
+  "sourcePhotos": [
+    {
+      "file": "20261004-141232.jpg",
+      "sha256": "cacae88f3e0b1c1ed842b9639ac549e1928f3111ba9ee2c6513ee72866724799",
+      "note": "无页码，含 dancing/lesson/walk/dog/tomorrow/free/See you tomorrow!"
+    },
+    {
+      "file": "20261004-141249.jpg",
+      "sha256": "9c032f4f9061c721721af07b18f273bc0c4b907a6275021e131ecbb8dc02f73e",
+      "note": "带页码标注 (24)(26)(28)，含星期与 today 组"
+    }
+  ],
+  "accessBasis": "userProvidedPhysicalCopy",
+  "entries": [
+    {
+      "text": "dancing",
+      "meaning": "跳舞，舞蹈",
+      "page": null
+    },
+    {
+      "text": "lesson",
+      "meaning": "一节课，一课时",
+      "page": null
+    },
+    {
+      "text": "walk",
+      "meaning": "牵着（动物）走，遛",
+      "page": null
+    },
+    {
+      "text": "dog",
+      "meaning": "狗",
+      "page": null
+    },
+    {
+      "text": "tomorrow",
+      "meaning": "明天，在明天",
+      "page": null
+    },
+    {
+      "text": "free",
+      "meaning": "空闲的",
+      "page": null
+    },
+    {
+      "text": "See you tomorrow!",
+      "meaning": "明天见！",
+      "page": null
+    },
+    {
+      "text": "week",
+      "meaning": "周，星期",
+      "page": 24
+    },
+    {
+      "text": "Monday",
+      "meaning": "星期一",
+      "page": 24
+    },
+    {
+      "text": "Tuesday",
+      "meaning": "星期二",
+      "page": 24
+    },
+    {
+      "text": "Wednesday",
+      "meaning": "星期三",
+      "page": 24
+    },
+    {
+      "text": "Thursday",
+      "meaning": "星期四",
+      "page": 24
+    },
+    {
+      "text": "Friday",
+      "meaning": "星期五",
+      "page": 24
+    },
+    {
+      "text": "Saturday",
+      "meaning": "星期六",
+      "page": 24
+    },
+    {
+      "text": "Sunday",
+      "meaning": "星期天",
+      "page": 24
+    },
+    {
+      "text": "when",
+      "meaning": "什么时候",
+      "page": 26
+    },
+    {
+      "text": "every",
+      "meaning": "每一个，每个",
+      "page": 26
+    },
+    {
+      "text": "at",
+      "meaning": "在（某时间）",
+      "page": 26
+    },
+    {
+      "text": "up",
+      "meaning": "起床",
+      "page": 26
+    },
+    {
+      "text": "today",
+      "meaning": "在今天",
+      "page": 26
+    },
+    {
+      "text": "What day is it today?",
+      "meaning": "今天星期几？",
+      "page": 26
+    },
+    {
+      "text": "cinema",
+      "meaning": "电影院",
+      "page": 28
+    },
+    {
+      "text": "after school",
+      "meaning": "放学后",
+      "page": 28
+    }
+  ],
+  "count": 23,
+  "identifiedEdition": {
+    "editionId": "en-yl-4-1-yilin-2024",
+    "publisher": "译林出版社",
+    "series": "译林版（三起）",
+    "editionLabel": "2024 年版",
+    "grade": 4,
+    "semester": "first",
+    "unit": "Unit 3 My week",
+    "identificationBasis": "照片内容与「牛津译林版四年级上册 Unit 3 My week」公开资料一致",
+    "identificationEvidence": [
+      "https://yy.suyang123.com/xiaoxue/sinianji/njylb_shangce_words3.html",
+      "https://www.renrendoc.com/paper/495860271.html"
+    ],
+    "consistencyRule": "用户裁定：与该照片不一致的内容不属于目标范围"
+  },
+  "officialSourceCheck": {
+    "checkedAt": "2026-10-04",
+    "platform": "国家中小学智慧教育平台 · 电子教材",
+    "url": "https://basic.smartedu.cn/tchMaterial/",
+    "reachability": {
+      "directCurl": "HTTP 403（无浏览器会话时被拒）",
+      "headlessChrome": "HTTP 200，页面标题「国家中小学智慧教育平台」，电子教材页含小学/初中/高中与学科筛选",
+      "mirror": "basic.nmg.smartedu.cn HTTP 200（已用于语文 2 上 的来源记录）"
+    },
+    "conclusion": "官方入口可通过真实浏览器访问，具备按既有方式（officialEbook + 来源记录）取得缺册的条件；本轮按要求只出清单，未下载或写入任何教材正文。"
+  }
+}

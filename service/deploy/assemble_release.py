@@ -13,6 +13,11 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
+# 作为发布包内的命令运行时，导入本地校验器前就禁止生成字节码缓存。
+sys.dont_write_bytecode = True
+
+from verify_news_deployment import inspect_release as inspect_news_release
+
 
 def canonical(value: Any) -> bytes:
     """Serialize release metadata deterministically."""
@@ -54,6 +59,10 @@ def python_services(manifest: dict[str, Any]) -> list[str]:
 
 def build_java(service_root: Path, names: list[str]) -> None:
     """Package every Java service after the shared verification gate has passed."""
+    # RSS 的中立解析库需要先进入本地 Maven 仓库，干净构建机不能依赖历史缓存。
+    if "rss-service" in names:
+        subprocess.run(["mvn", "-q", "install", "-DskipTests"],
+                       cwd=service_root / "feed-core", check=True)
     for name in names:
         subprocess.run(["mvn", "-q", "package", "-DskipTests"],
                        cwd=service_root / name, check=True)
@@ -97,7 +106,7 @@ def copy_deploy_tools(repository: Path, target: Path) -> None:
     monitoring = source / "monitoring"
     if monitoring.is_dir():
         shutil.copytree(monitoring, target / "monitoring")
-        for name in ("task-reliability-alerts.md", "audiobook-generation-alerts.md"):
+        for name in ("task-reliability-alerts.md", "audiobook-generation-alerts.md", "daily-news-retention-operations.md", "daily-news-release.md"):
             runbook = repository / "docs" / "runbooks" / name
             if not runbook.is_file():
                 raise ValueError(f"Monitoring alert runbook is missing: {name}")
@@ -187,6 +196,9 @@ def assemble(repository: Path, output: Path, release_id: str,
         report = {"releaseId": release_id, "javaServiceCount": len(java),
                   "pythonServiceCount": len(python), "fileCount": len(files), "files": files}
         (temporary / "release-manifest.json").write_bytes(canonical(report) + b"\n")
+        # 新闻发布必须同时具备迁移、完整任务包及静态文件身份，失败时不发布输出目录。
+        if "news-digest-service" in java:
+            inspect_news_release(temporary)
         temporary.rename(output)
     except BaseException:
         shutil.rmtree(temporary, ignore_errors=True)

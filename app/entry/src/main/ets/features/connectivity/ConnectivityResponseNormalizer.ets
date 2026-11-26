@@ -1,5 +1,6 @@
 import { LanBootstrap, LanChallenge } from './ConnectivityModels';
 import { TrustedLanEndpointPolicy } from './TrustedLanEndpointPolicy';
+import { Ipv6EndpointPolicy } from './Ipv6EndpointPolicy';
 
 /**
  * 严格校验局域网连接协商响应。
@@ -21,10 +22,30 @@ export class ConnectivityResponseNormalizer {
       probeId: this.pattern(data, 'probeId', /^[0-9a-f]{32}$/),
       proofKey: this.pattern(data, 'proofKey', /^[A-Za-z0-9_-]{43}$/),
       expiresAt: this.positiveInteger(data, 'expiresAt'),
-      lanAddresses: addresses
+      lanAddresses: addresses,
+      lanPort: this.positiveInteger(data, 'lanPort')
     };
-    if (result.serviceType !== '_mytools._tcp.local') throw new Error('局域网服务类型无效');
-    if (result.expiresAt <= Date.now()) throw new Error('局域网探测材料已过期');
+    if (result.serviceType !== '_mytools-gateway._tcp.local' || result.lanPort !== 23201) {
+      throw new Error('局域网服务类型或端口无效');
+    }
+    if (result.expiresAt <= Date.now() || result.expiresAt > Date.now() + 10 * 60 * 1000) {
+      throw new Error('局域网探测材料有效期无效');
+    }
+    // 新字段可缺省，旧 Gateway 仍保持原有局域网与公网行为。
+    const direct = data['ipv6DirectOrigins'];
+    result.ipv6DirectOrigins = [];
+    if (direct !== undefined) {
+      if (!Array.isArray(direct) || direct.length > 4) throw new Error('Invalid direct origins');
+      const policy = new Ipv6EndpointPolicy();
+      result.ipv6DirectOrigins = direct.map((origin: Object): string => {
+        if (typeof origin !== 'string') throw new Error('Invalid direct origin');
+        return policy.normalizeOrigin(origin);
+      });
+      result.directConfigExpiresAt = this.positiveInteger(data, 'directConfigExpiresAt');
+      if (result.directConfigExpiresAt <= Date.now() || result.directConfigExpiresAt > Date.now() + 7 * 86400000) {
+        throw new Error('Invalid direct configuration expiry');
+      }
+    }
     return result;
   }
 

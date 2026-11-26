@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-11-22T15:02:06.957948+00:00",
+  "bundleName": "com.yuyutian.mytools",
+  "abilityName": "EntryAbility",
+  "deviceModel": "BRA-AL00",
+  "targetSha256": "67d62276e6ee3f6860aaf2b3aa03bad518a6c438b31240f83ea9b35c6fa2ad84",
+  "hapSha256": "d0722930ef96c9acfdbd2658bf175c6e293c8715f5325e2d4d0f97c70bcae882",
+  "checks": {
+    "signature": "passed",
+    "install": "passed",
+    "launch": "passed",
+    "processObserved": "passed",
+    "newsToolEntry": "passed"
+  },
+  "scope": "Install and launch verification; no new news collection requested."
+}

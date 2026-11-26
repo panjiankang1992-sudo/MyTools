@@ -1,0 +1,64 @@
+{
+  "hapSha256": "9b6a2b252581c9885eb1c2109ca0d24a878cd8d5652401e38b34c872e9f35ef9",
+  "result": "passed",
+  "controls": [
+    {
+      "label": "",
+      "type": "Button",
+      "bounds": [
+        56,
+        2548,
+        224,
+        2716
+      ],
+      "widthPx": 168,
+      "heightPx": 168,
+      "enabled": "true"
+    },
+    {
+      "label": "",
+      "type": "TextArea",
+      "bounds": [
+        252,
+        2548,
+        774,
+        2716
+      ],
+      "widthPx": 522,
+      "heightPx": 168,
+      "enabled": "true"
+    },
+    {
+      "label": "粘贴",
+      "type": "PasteButton",
+      "bounds": [
+        802,
+        2548,
+        1026,
+        2716
+      ],
+      "widthPx": 224,
+      "heightPx": 168,
+      "enabled": "true"
+    },
+    {
+      "label": "发送",
+      "type": "Button",
+      "bounds": [
+        1054,
+        2548,
+        1264,
+        2716
+      ],
+      "widthPx": 210,
+      "heightPx": 168,
+      "enabled": "false"
+    }
+  ],
+  "equalVisibleHeight": true,
+  "heightPx": 168,
+  "heightVp": 48,
+  "scalePxPerVp": 3.5,
+  "sourceLayout": "/tmp/mytools-ui-simulator-private/12-download-final.json",
+  "scope": "production formal HAP default single-line composer; no clipboard or message action triggered"
+}

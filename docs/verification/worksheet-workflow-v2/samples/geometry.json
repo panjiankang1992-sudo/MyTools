@@ -1,0 +1,122 @@
+{
+  "generatedAt": "2026-10-03T07:11:25.403Z",
+  "font": "public/fonts/NotoSansCJKsc-Regular.otf",
+  "params": {
+    "pageWidthMm": 210,
+    "pageHeightMm": 297,
+    "marginMm": 15,
+    "headerMm": 22,
+    "footerMm": 10,
+    "density": "compact",
+    "gridMm": 12,
+    "itemGapMm": 2.5,
+    "rowGapMm": 3,
+    "pinyinCellMinMm": 16,
+    "fourLineGapMm": 3,
+    "numberFontPt": 9,
+    "pinyinFontPt": 10,
+    "promptFontPt": 14,
+    "englishCellMinMm": 40
+  },
+  "comparison": {
+    "singleCharacters": {
+      "input": 24,
+      "oldFirstRow": 4,
+      "newFirstRow": 10,
+      "oldPages": 1,
+      "newPages": 1
+    },
+    "doubleCharacters": {
+      "input": 8,
+      "oldFirstRow": 2,
+      "newFirstRow": 6,
+      "oldPages": 1,
+      "newPages": 1
+    }
+  },
+  "geometryChecks": [],
+  "reloaded": [
+    {
+      "file": "new-mi-single.pdf",
+      "pages": 1,
+      "widthPt": 595.2756,
+      "heightPt": 841.8898,
+      "expectedWidthPt": 595.2756,
+      "expectedHeightPt": 841.8898,
+      "widthErrorPt": 0,
+      "heightErrorPt": 0
+    },
+    {
+      "file": "new-mi-double.pdf",
+      "pages": 1,
+      "widthPt": 595.2756,
+      "heightPt": 841.8898,
+      "expectedWidthPt": 595.2756,
+      "expectedHeightPt": 841.8898,
+      "widthErrorPt": 0,
+      "heightErrorPt": 0
+    },
+    {
+      "file": "new-pinyin.pdf",
+      "pages": 1,
+      "widthPt": 595.2756,
+      "heightPt": 841.8898,
+      "expectedWidthPt": 595.2756,
+      "expectedHeightPt": 841.8898,
+      "widthErrorPt": 0,
+      "heightErrorPt": 0
+    },
+    {
+      "file": "old-mi-single.pdf",
+      "pages": 1,
+      "widthPt": 595.2756,
+      "heightPt": 841.8898,
+      "expectedWidthPt": 595.2756,
+      "expectedHeightPt": 841.8898,
+      "widthErrorPt": 0,
+      "heightErrorPt": 0
+    },
+    {
+      "file": "old-mi-double.pdf",
+      "pages": 1,
+      "widthPt": 595.2756,
+      "heightPt": 841.8898,
+      "expectedWidthPt": 595.2756,
+      "expectedHeightPt": 841.8898,
+      "widthErrorPt": 0,
+      "heightErrorPt": 0
+    }
+  ],
+  "samples": [
+    {
+      "label": "新紧凑装行 · 米字格单字",
+      "file": "new-mi-single.pdf",
+      "pages": 1,
+      "firstRowCount": 10
+    },
+    {
+      "label": "新紧凑装行 · 米字格双字",
+      "file": "new-mi-double.pdf",
+      "pages": 1,
+      "firstRowCount": 6
+    },
+    {
+      "label": "新紧凑装行 · 拼音字帖",
+      "file": "new-pinyin.pdf",
+      "pages": 1,
+      "firstRowCount": 8
+    },
+    {
+      "label": "旧固定 4 列 · 米字格单字",
+      "file": "old-mi-single.pdf",
+      "pages": 1,
+      "firstRowCount": 4
+    },
+    {
+      "label": "旧固定 2 列 · 米字格双字",
+      "file": "old-mi-double.pdf",
+      "pages": 1,
+      "firstRowCount": 2
+    }
+  ]
+}

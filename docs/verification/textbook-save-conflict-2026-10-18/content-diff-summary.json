@@ -1,0 +1,3714 @@
+{
+  "editionId": "en-yl-4-1-yilin-2024",
+  "revision": 4,
+  "changes": [
+    {
+      "id": "en-yl-4-1-yilin-2024-0010",
+      "base": {
+        "text": "best",
+        "meaning": "最，最高程度地",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "Labour",
+        "meaning": "劳动（课）",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "best",
+        "meaning": "最，最高程度地",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0011",
+      "base": {
+        "text": "also",
+        "meaning": "也",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "best",
+        "meaning": "最，最高程度地",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "also",
+        "meaning": "也",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0012",
+      "base": {
+        "text": "It's time for …",
+        "meaning": "是……的时候了。",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "also",
+        "meaning": "也",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "It's time for …",
+        "meaning": "是……的时候了。",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0013",
+      "base": {
+        "text": "mouse",
+        "meaning": "鼠标；老鼠",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "It's time for …",
+        "meaning": "是……的时候了。",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "mouse",
+        "meaning": "鼠标；老鼠",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0014",
+      "base": {
+        "text": "Welcome back to …",
+        "meaning": "欢迎回到……",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "mouse",
+        "meaning": "鼠标；老鼠",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "Welcome back to …",
+        "meaning": "欢迎回到……",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0015",
+      "base": {
+        "text": "new",
+        "meaning": "新的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "Welcome back to …",
+        "meaning": "欢迎回到……",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "new",
+        "meaning": "新的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0016",
+      "base": {
+        "text": "timetable",
+        "meaning": "课程表；时间表",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "be good at",
+        "meaning": "擅长",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "timetable",
+        "meaning": "课程表；时间表",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0017",
+      "base": {
+        "text": "be good at",
+        "meaning": "擅长",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "interesting",
+        "meaning": "有趣的，有吸引力的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "be good at",
+        "meaning": "擅长",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0018",
+      "base": {
+        "text": "number",
+        "meaning": "数字",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "learn about",
+        "meaning": "学习",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "number",
+        "meaning": "数字",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0019",
+      "base": {
+        "text": "interesting",
+        "meaning": "有趣的，有吸引力的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "culture",
+        "meaning": "文化，文明",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "interesting",
+        "meaning": "有趣的，有吸引力的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0020",
+      "base": {
+        "text": "learn about",
+        "meaning": "学习",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "read",
+        "meaning": "阅读",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "learn about",
+        "meaning": "学习",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0021",
+      "base": {
+        "text": "culture",
+        "meaning": "文化，文明",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "story",
+        "meaning": "故事",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "culture",
+        "meaning": "文化，文明",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0022",
+      "base": {
+        "text": "read",
+        "meaning": "阅读",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "all",
+        "meaning": "全部，都",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "read",
+        "meaning": "阅读",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0023",
+      "base": {
+        "text": "story",
+        "meaning": "故事",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "sports ground",
+        "meaning": "操场，运动场",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "story",
+        "meaning": "故事",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0024",
+      "base": {
+        "text": "all",
+        "meaning": "全部，都",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "day",
+        "meaning": "一天，一日",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "all",
+        "meaning": "全部，都",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0025",
+      "base": {
+        "text": "playground",
+        "meaning": "操场",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "get up",
+        "meaning": "起床",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "playground",
+        "meaning": "操场",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u01",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0026",
+      "base": {
+        "text": "day",
+        "meaning": "一天，一日",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "wash",
+        "meaning": "洗",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "day",
+        "meaning": "一天，一日",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0027",
+      "base": {
+        "text": "get up",
+        "meaning": "起床",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "face",
+        "meaning": "脸，面孔",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "get up",
+        "meaning": "起床",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0028",
+      "base": {
+        "text": "wash",
+        "meaning": "洗",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "have lessons",
+        "meaning": "上课",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "wash",
+        "meaning": "洗",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0029",
+      "base": {
+        "text": "face",
+        "meaning": "脸，面孔",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "have",
+        "meaning": "吃，喝",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "face",
+        "meaning": "脸，面孔",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0030",
+      "base": {
+        "text": "have lessons",
+        "meaning": "上课",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "dinner",
+        "meaning": "正餐（常指晚餐）",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "have lessons",
+        "meaning": "上课",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0031",
+      "base": {
+        "text": "have",
+        "meaning": "吃，喝",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "breakfast",
+        "meaning": "早餐，早饭",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "have",
+        "meaning": "吃，喝",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0032",
+      "base": {
+        "text": "dinner",
+        "meaning": "正餐（常指晚餐）",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "lunch",
+        "meaning": "午餐，午饭",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "dinner",
+        "meaning": "正餐（常指晚餐）",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0033",
+      "base": {
+        "text": "breakfast",
+        "meaning": "早餐，早饭",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "go to bed",
+        "meaning": "上床睡觉",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "breakfast",
+        "meaning": "早餐，早饭",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0034",
+      "base": {
+        "text": "lunch",
+        "meaning": "午餐，午饭",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "o'clock",
+        "meaning": "（表示整点）……点钟",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "lunch",
+        "meaning": "午餐，午饭",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0035",
+      "base": {
+        "text": "go to bed",
+        "meaning": "上床睡觉",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "early",
+        "meaning": "早的，早",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "go to bed",
+        "meaning": "上床睡觉",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0036",
+      "base": {
+        "text": "o'clock",
+        "meaning": "（表示整点）……点钟",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "thirty",
+        "meaning": "三十",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "o'clock",
+        "meaning": "（表示整点）……点钟",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0037",
+      "base": {
+        "text": "early",
+        "meaning": "早的，早",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "first",
+        "meaning": "首先，第一",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "early",
+        "meaning": "早的，早",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0038",
+      "base": {
+        "text": "thirty",
+        "meaning": "三十",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "hurry up",
+        "meaning": "快点",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "thirty",
+        "meaning": "三十",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0039",
+      "base": {
+        "text": "first",
+        "meaning": "首先，第一",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "What time is it?",
+        "meaning": "几点了？",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "first",
+        "meaning": "首先，第一",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0040",
+      "base": {
+        "text": "hurry up",
+        "meaning": "快点",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "I'm coming!",
+        "meaning": "我来了！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "hurry up",
+        "meaning": "快点",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0041",
+      "base": {
+        "text": "What time is it?",
+        "meaning": "几点了？",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "twenty",
+        "meaning": "二十",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "What time is it?",
+        "meaning": "几点了？",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0042",
+      "base": {
+        "text": "I'm coming!",
+        "meaning": "我来了！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "Come on!",
+        "meaning": "赶快！加把劲！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "I'm coming!",
+        "meaning": "我来了！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0043",
+      "base": {
+        "text": "twenty",
+        "meaning": "二十",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "class",
+        "meaning": "课，上课",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "twenty",
+        "meaning": "二十",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0044",
+      "base": {
+        "text": "Come on!",
+        "meaning": "赶快！加把劲！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "eleven",
+        "meaning": "十一",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "Come on!",
+        "meaning": "赶快！加把劲！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0045",
+      "base": {
+        "text": "class",
+        "meaning": "课，上课",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "sport",
+        "meaning": "体育运动",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "class",
+        "meaning": "课，上课",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0046",
+      "base": {
+        "text": "eleven",
+        "meaning": "十一",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "fifteen",
+        "meaning": "十五",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "eleven",
+        "meaning": "十一",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0047",
+      "base": {
+        "text": "sport",
+        "meaning": "体育运动",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "It's time to …",
+        "meaning": "到了……的时间了。",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "sport",
+        "meaning": "体育运动",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0048",
+      "base": {
+        "text": "fifteen",
+        "meaning": "十五",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "bed",
+        "meaning": "床",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "fifteen",
+        "meaning": "十五",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0049",
+      "base": {
+        "text": "It's time to …",
+        "meaning": "到了……的时间了。",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "Good night!",
+        "meaning": "晚安！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "It's time to …",
+        "meaning": "到了……的时间了。",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0050",
+      "base": {
+        "text": "bed",
+        "meaning": "床",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "week",
+        "meaning": "周，星期",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "bed",
+        "meaning": "床",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0051",
+      "base": {
+        "text": "Good night!",
+        "meaning": "晚安！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "Monday",
+        "meaning": "星期一",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "Good night!",
+        "meaning": "晚安！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u02",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0052",
+      "base": {
+        "text": "week",
+        "meaning": "周，星期",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "Tuesday",
+        "meaning": "星期二",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "week",
+        "meaning": "周，星期",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0053",
+      "base": {
+        "text": "Sunday",
+        "meaning": "星期天",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "Wednesday",
+        "meaning": "星期三",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "Sunday",
+        "meaning": "星期天",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0054",
+      "base": {
+        "text": "Monday",
+        "meaning": "星期一",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "Thursday",
+        "meaning": "星期四",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "Monday",
+        "meaning": "星期一",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0055",
+      "base": {
+        "text": "Tuesday",
+        "meaning": "星期二",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "Friday",
+        "meaning": "星期五",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "Tuesday",
+        "meaning": "星期二",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0056",
+      "base": {
+        "text": "Wednesday",
+        "meaning": "星期三",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "Saturday",
+        "meaning": "星期六",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "Wednesday",
+        "meaning": "星期三",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0057",
+      "base": {
+        "text": "Thursday",
+        "meaning": "星期四",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "Sunday",
+        "meaning": "星期天",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "Thursday",
+        "meaning": "星期四",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0058",
+      "base": {
+        "text": "Friday",
+        "meaning": "星期五",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "when",
+        "meaning": "什么时候",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "Friday",
+        "meaning": "星期五",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0059",
+      "base": {
+        "text": "Saturday",
+        "meaning": "星期六",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "every",
+        "meaning": "每一个，每个",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "Saturday",
+        "meaning": "星期六",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0060",
+      "base": {
+        "text": "up",
+        "meaning": "起床",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "at",
+        "meaning": "在（某时间）",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "up",
+        "meaning": "起床",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0061",
+      "base": {
+        "text": "so",
+        "meaning": "（表示程度）这么，那么",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "up",
+        "meaning": "起床",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "so",
+        "meaning": "（表示程度）这么，那么",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0062",
+      "base": {
+        "text": "early",
+        "meaning": "提早，提前",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "today",
+        "meaning": "在今天",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "early",
+        "meaning": "提早，提前",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0063",
+      "base": {
+        "text": "when",
+        "meaning": "什么时候",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "What day is it today?",
+        "meaning": "今天星期几？",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "when",
+        "meaning": "什么时候",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0064",
+      "base": {
+        "text": "every",
+        "meaning": "每一个，每个",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "cinema",
+        "meaning": "电影院",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "every",
+        "meaning": "每一个，每个",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0065",
+      "base": {
+        "text": "at",
+        "meaning": "在（某时间）",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "after school",
+        "meaning": "放学后",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "at",
+        "meaning": "在（某时间）",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0066",
+      "base": {
+        "text": "today",
+        "meaning": "在今天",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "dancing",
+        "meaning": "跳舞，舞蹈",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "today",
+        "meaning": "在今天",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0067",
+      "base": {
+        "text": "What day is it today?",
+        "meaning": "今天星期几？",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "lesson",
+        "meaning": "一节课，一课时",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "What day is it today?",
+        "meaning": "今天星期几？",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0068",
+      "base": {
+        "text": "cinema",
+        "meaning": "电影院",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "walk",
+        "meaning": "牵着（动物）走，遛",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "cinema",
+        "meaning": "电影院",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0069",
+      "base": {
+        "text": "after school",
+        "meaning": "放学后",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "dog",
+        "meaning": "狗",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "after school",
+        "meaning": "放学后",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0070",
+      "base": {
+        "text": "dancing",
+        "meaning": "跳舞，舞蹈",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "tomorrow",
+        "meaning": "明天；在明天",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "dancing",
+        "meaning": "跳舞，舞蹈",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0071",
+      "base": {
+        "text": "lesson",
+        "meaning": "一节课，一课时",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "free",
+        "meaning": "空闲的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "lesson",
+        "meaning": "一节课，一课时",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0072",
+      "base": {
+        "text": "walk",
+        "meaning": "牵着（动物）走，遛",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "See you tomorrow!",
+        "meaning": "明天见！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "walk",
+        "meaning": "牵着（动物）走，遛",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0073",
+      "base": {
+        "text": "dog",
+        "meaning": "狗",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "play",
+        "meaning": "打（球），踢（球）",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "dog",
+        "meaning": "狗",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0074",
+      "base": {
+        "text": "tomorrow",
+        "meaning": "明天；在明天",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "football",
+        "meaning": "足球运动；足球",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "tomorrow",
+        "meaning": "明天；在明天",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0075",
+      "base": {
+        "text": "free",
+        "meaning": "空闲的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "ping-pong",
+        "meaning": "乒乓球运动",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "free",
+        "meaning": "空闲的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0076",
+      "base": {
+        "text": "See you tomorrow!",
+        "meaning": "明天见！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "basketball",
+        "meaning": "篮球运动；篮球",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "See you tomorrow!",
+        "meaning": "明天见！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u03",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0077",
+      "base": {
+        "text": "play",
+        "meaning": "打（球），踢（球）",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "great",
+        "meaning": "非常的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "play",
+        "meaning": "打（球），踢（球）",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0078",
+      "base": {
+        "text": "football",
+        "meaning": "足球运动；足球",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "swimming",
+        "meaning": "游泳；游泳运动",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "football",
+        "meaning": "足球运动；足球",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0079",
+      "base": {
+        "text": "ping-pong",
+        "meaning": "乒乓球运动",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "so",
+        "meaning": "（表示程度）这么，那么",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "ping-pong",
+        "meaning": "乒乓球运动",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0080",
+      "base": {
+        "text": "basketball",
+        "meaning": "篮球运动；篮球",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "well",
+        "meaning": "好",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "basketball",
+        "meaning": "篮球运动；篮球",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0081",
+      "base": {
+        "text": "great",
+        "meaning": "非常的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "Have a go!",
+        "meaning": "试一试！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "great",
+        "meaning": "非常的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0082",
+      "base": {
+        "text": "well",
+        "meaning": "好",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "hard",
+        "meaning": "难做的，不易的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "well",
+        "meaning": "好",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0083",
+      "base": {
+        "text": "Have a go!",
+        "meaning": "试一试！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "It's OK.",
+        "meaning": "没关系。",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "Have a go!",
+        "meaning": "试一试！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0084",
+      "base": {
+        "text": "oops",
+        "meaning": "哎哟",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "try",
+        "meaning": "试",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "swimming",
+        "meaning": "游泳；游泳运动",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "conflictedFields": [
+        "text",
+        "meaning"
+      ]
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0085",
+      "base": {
+        "text": "try",
+        "meaning": "试",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "Well played!",
+        "meaning": "好球！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "try",
+        "meaning": "试",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0086",
+      "base": {
+        "text": "Well played!",
+        "meaning": "好球！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "different",
+        "meaning": "不同的，有区别的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "Well played!",
+        "meaning": "好球！",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0087",
+      "base": {
+        "text": "different",
+        "meaning": "不同的，有区别的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "same",
+        "meaning": "相同的，同一的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "different",
+        "meaning": "不同的，有区别的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0088",
+      "base": {
+        "text": "same",
+        "meaning": "相同的，同一的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "hair",
+        "meaning": "头发",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "same",
+        "meaning": "相同的，同一的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0089",
+      "base": {
+        "text": "hair",
+        "meaning": "头发",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "eye",
+        "meaning": "眼睛",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "hair",
+        "meaning": "头发",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0090",
+      "base": {
+        "text": "eye",
+        "meaning": "眼睛",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "ear",
+        "meaning": "耳朵",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "eye",
+        "meaning": "眼睛",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0091",
+      "base": {
+        "text": "ear",
+        "meaning": "耳朵",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "nose",
+        "meaning": "鼻子",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "ear",
+        "meaning": "耳朵",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0092",
+      "base": {
+        "text": "nose",
+        "meaning": "鼻子",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "mouth",
+        "meaning": "嘴，口",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "nose",
+        "meaning": "鼻子",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0093",
+      "base": {
+        "text": "mouth",
+        "meaning": "嘴，口",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "arm",
+        "meaning": "手臂",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "mouth",
+        "meaning": "嘴，口",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0094",
+      "base": {
+        "text": "arm",
+        "meaning": "手臂",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "leg",
+        "meaning": "腿",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "arm",
+        "meaning": "手臂",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0095",
+      "base": {
+        "text": "leg",
+        "meaning": "腿",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "robot",
+        "meaning": "机器人",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "leg",
+        "meaning": "腿",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0096",
+      "base": {
+        "text": "robot",
+        "meaning": "机器人",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "his",
+        "meaning": "他的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "robot",
+        "meaning": "机器人",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0097",
+      "base": {
+        "text": "his",
+        "meaning": "他的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "tall",
+        "meaning": "高的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "his",
+        "meaning": "他的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0098",
+      "base": {
+        "text": "tall",
+        "meaning": "高的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "short",
+        "meaning": "短的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "tall",
+        "meaning": "高的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0104",
+      "base": {
+        "text": "puppet",
+        "meaning": "玩偶，木偶",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "have",
+        "meaning": "组织，举办",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "puppet",
+        "meaning": "玩偶，木偶",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u05",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0118",
+      "base": {
+        "text": "meet",
+        "meaning": "（与……）会面，集合",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u06",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "fly a kite",
+        "meaning": "放风筝",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u06",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "meet",
+        "meaning": "（与……）会面，集合",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u06",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0119",
+      "base": {
+        "text": "fly a kite",
+        "meaning": "放风筝",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u06",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "It's raining.",
+        "meaning": "下雨了。",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u06",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "fly a kite",
+        "meaning": "放风筝",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u06",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0133",
+      "base": {
+        "text": "cold",
+        "meaning": "寒冷的，冷的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "new",
+        "meaning": "新的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "cold",
+        "meaning": "寒冷的，冷的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0134",
+      "base": {
+        "text": "bird",
+        "meaning": "鸟",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "cold",
+        "meaning": "寒冷的，冷的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "bird",
+        "meaning": "鸟",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0135",
+      "base": {
+        "text": "back",
+        "meaning": "回原处",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "bird",
+        "meaning": "鸟",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "back",
+        "meaning": "回原处",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0136",
+      "base": {
+        "text": "in",
+        "meaning": "在（某段时间）内",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "back",
+        "meaning": "回原处",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "in",
+        "meaning": "在（某段时间）内",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0137",
+      "base": {
+        "text": "year",
+        "meaning": "年",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "in",
+        "meaning": "在（某段时间）内",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "year",
+        "meaning": "年",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0138",
+      "base": {
+        "text": "plant",
+        "meaning": "栽种，种植",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "year",
+        "meaning": "年",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "plant",
+        "meaning": "栽种，种植",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0139",
+      "base": {
+        "text": "pick",
+        "meaning": "采，摘",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "plant",
+        "meaning": "栽种，种植",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "pick",
+        "meaning": "采，摘",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0140",
+      "base": {
+        "text": "snow",
+        "meaning": "雪，积雪",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "pick",
+        "meaning": "采，摘",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "snow",
+        "meaning": "雪，积雪",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0141",
+      "base": {
+        "text": "holiday",
+        "meaning": "假日，假期",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "snow",
+        "meaning": "雪，积雪",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u07",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "holiday",
+        "meaning": "假日，假期",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0142",
+      "base": {
+        "text": "clothes",
+        "meaning": "衣服",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "wear",
+        "meaning": "穿，戴",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "clothes",
+        "meaning": "衣服",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0150",
+      "base": {
+        "text": "look",
+        "meaning": "看来好像，显得",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "shorts",
+        "meaning": "短裤",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "look",
+        "meaning": "看来好像，显得",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0151",
+      "base": {
+        "text": "in",
+        "meaning": "穿着，戴着",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "look",
+        "meaning": "看来好像，显得",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "in",
+        "meaning": "穿着，戴着",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0152",
+      "base": {
+        "text": "sunglasses",
+        "meaning": "太阳镜，墨镜",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "in",
+        "meaning": "穿着，戴着",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "sunglasses",
+        "meaning": "太阳镜，墨镜",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0153",
+      "base": {
+        "text": "why",
+        "meaning": "为什么",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "sunglasses",
+        "meaning": "太阳镜，墨镜",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "why",
+        "meaning": "为什么",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0154",
+      "base": {
+        "text": "wear",
+        "meaning": "穿，戴",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "current": {
+        "text": "why",
+        "meaning": "为什么",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "draft": {
+        "text": "wear",
+        "meaning": "穿，戴",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "en-yl-4-1-yilin-2024-0157",
+      "base": null,
+      "current": {
+        "text": "clothes",
+        "meaning": "衣服",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u08",
+        "lessonId": ""
+      },
+      "draft": null,
+      "conflictedFields": []
+    },
+    {
+      "id": "row-157",
+      "base": null,
+      "current": null,
+      "draft": {
+        "text": "so",
+        "meaning": "（表示程度）这么，那么",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "row-158",
+      "base": null,
+      "current": null,
+      "draft": {
+        "text": "hard",
+        "meaning": "难做的，不易的",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    },
+    {
+      "id": "row-159",
+      "base": null,
+      "current": null,
+      "draft": {
+        "text": "It's OK.",
+        "meaning": "没关系",
+        "pinyinDisplay": "",
+        "listTypes": [
+          "vocabulary"
+        ],
+        "unitId": "en-yl-4-1-yilin-2024-u04",
+        "lessonId": ""
+      },
+      "conflictedFields": []
+    }
+  ],
+  "conflictedEntryCount": 1,
+  "diagnosticOnly": true,
+  "note": "Initial comparison by entryId only. Historical IDs were reused, so these are not actual merge conflicts. See merge-dryrun-summary.json for semantic identity-aligned result."
+}

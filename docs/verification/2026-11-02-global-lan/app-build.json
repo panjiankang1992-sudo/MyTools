@@ -1,0 +1,19 @@
+{
+  "built": true,
+  "sourceStable": true,
+  "etsSourceSha256": "efe2edb0f1259101ebf5433ea87a2ca7d8bcc6832b1b915b892bfac330edac1a",
+  "etsFileCount": 194,
+  "artifact": "/Users/pankang/mycode/MyTools/app/build/acceptance/global-lan-20261102-signed.hap",
+  "sha256": "37b16752b81fc6cf5d74f5a968d4042ec01c4e1614eeb0f166bd4bb23dc4a237",
+  "bytes": 51392202,
+  "signature": "passed",
+  "deviceInstall": "pending-device-connection",
+  "knownWarning": "Existing DownloadToolsPage getData READ_PASTEBOARD warning; no new compiler warnings.",
+  "workingTreeChangedAfterBuild": true,
+  "postBuildConcurrentFiles": [
+    "features/dsh/DshWebCapabilityPolicy.ets",
+    "features/dsh/DshDownloadBridge.ets",
+    "pages/Index.ets"
+  ],
+  "snapshotNote": "HAP preserves the successful, source-stable build snapshot. Later parallel DSH changes are not included in this artifact."
+}

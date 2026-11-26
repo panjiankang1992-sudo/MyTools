@@ -1,0 +1,69 @@
+[
+  {
+    "run": "ltx-cfg2-20260927",
+    "restored": true,
+    "count": 3,
+    "seconds": [
+      20.47,
+      16.35,
+      12.31
+    ]
+  },
+  {
+    "run": "ltx-guide-20260927",
+    "restored": true,
+    "count": 2,
+    "seconds": [
+      16.38,
+      8.21
+    ]
+  },
+  {
+    "run": "ltx-guided-cfg2-20260927",
+    "restored": true,
+    "count": 2,
+    "seconds": [
+      22.39,
+      14.23
+    ]
+  },
+  {
+    "run": "ltx-guided-cfg2-seed932-20260927",
+    "restored": true,
+    "count": 2,
+    "seconds": [
+      22.39,
+      12.25
+    ]
+  },
+  {
+    "run": "ltx-two-stage-20260927",
+    "restored": true,
+    "count": 3,
+    "seconds": [
+      14.43,
+      10.33,
+      8.3
+    ]
+  },
+  {
+    "run": "ltx-two-stage-complete-retry-20260927",
+    "restored": true,
+    "count": 3,
+    "seconds": [
+      14.34,
+      10.34,
+      8.29
+    ]
+  },
+  {
+    "run": "ltx-action-first-20260927",
+    "restored": true,
+    "count": 3,
+    "seconds": [
+      14.34,
+      10.32,
+      8.32
+    ]
+  }
+]

@@ -25,7 +25,9 @@ public class GatewayEnvelopeAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter returnType,
                             Class<? extends HttpMessageConverter<?>> converterType) {
-        return true;
+        // 认证桥接重定向和鉴权子请求没有 JSON 响应体。
+        return returnType.getParameterType() != void.class
+                || !returnType.getDeclaringClass().getSimpleName().equals("DshWebController");
     }
 
     /**

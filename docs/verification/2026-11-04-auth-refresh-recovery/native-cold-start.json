@@ -1,0 +1,13 @@
+{
+  "coldStartCycles": 2,
+  "processesWereTerminated": true,
+  "processIdsChanged": true,
+  "firstIdentityVisible": true,
+  "secondIdentityVisible": true,
+  "sameAccountRestored": true,
+  "loginScreenVisible": false,
+  "authRestoreEvents": [
+    "11-04 15:07:07.527Auth restore: STORED",
+    "11-04 15:09:15.023Auth restore: STORED"
+  ]
+}

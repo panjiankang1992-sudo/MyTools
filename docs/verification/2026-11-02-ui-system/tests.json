@@ -1,0 +1,173 @@
+{
+  "date": "2026-11-02",
+  "passed": 21,
+  "results": [
+    {
+      "suite": "test-ui-action-layout.sh",
+      "exit": 0,
+      "tail": [
+        "UI action layout: native flex root, fixed gap, stretched plates/targets, long text, large type, constrained width and fresh measurement passed"
+      ],
+      "rerunAfterNativeFix": true
+    },
+    {
+      "suite": "test-ui-design-policy.sh",
+      "exit": 0,
+      "tail": [
+        "UI design policy tests passed"
+      ],
+      "rerunAfterNativeFix": true
+    },
+    {
+      "suite": "test-book-source-layout-policy.sh",
+      "exit": 0,
+      "tail": [
+        "Book source layout policy tests passed"
+      ]
+    },
+    {
+      "suite": "test-media-action-sheet-policy.sh",
+      "exit": 0,
+      "tail": [
+        "Media action sheet integration policy tests passed"
+      ],
+      "rerunAfterNativeFix": true
+    },
+    {
+      "suite": "test-media-gallery-regression-policy.sh",
+      "exit": 0,
+      "tail": [
+        "media gallery regression policy tests passed"
+      ]
+    },
+    {
+      "suite": "test-download-cancellation.sh",
+      "exit": 0,
+      "tail": [
+        "Download cancellation token tests passed",
+        "Download cancellation integration tests passed"
+      ]
+    },
+    {
+      "suite": "test-reader-pagination-policy.sh",
+      "exit": 0,
+      "tail": [
+        "Reader pagination policy tests passed",
+        "Reader pagination integration policy tests passed"
+      ]
+    },
+    {
+      "suite": "test-reader-text-scale-policy.sh",
+      "exit": 0,
+      "tail": [
+        "Reader text scale policy tests passed",
+        "Reader text scale integration policy tests passed"
+      ]
+    },
+    {
+      "suite": "test-reader-viewport-policy.sh",
+      "exit": 0,
+      "tail": [
+        "Reader viewport policy tests passed",
+        "Reader viewport integration policy tests passed"
+      ]
+    },
+    {
+      "suite": "test-dsh-web-auth-policy.sh",
+      "exit": 0,
+      "tail": [
+        "PASS: DSH one-time ticket URL restrictions"
+      ]
+    },
+    {
+      "suite": "test-rss.sh",
+      "exit": 0,
+      "tail": [
+        "RSS response boundaries and reader policy: passed"
+      ]
+    },
+    {
+      "suite": "test-image-reference-policy.sh",
+      "exit": 0,
+      "tail": [
+        "18 large image input and aspect ratio assertions passed"
+      ]
+    },
+    {
+      "suite": "test-download-clipboard-policy.sh",
+      "exit": 0,
+      "tail": [
+        "15 clipboard age, content and deduplication assertions passed"
+      ]
+    },
+    {
+      "suite": "test-archive-tree.sh",
+      "exit": 0,
+      "tail": [
+        "20 archive tree/export policy checks passed"
+      ]
+    },
+    {
+      "suite": "test-archive-password-policy.sh",
+      "exit": 0,
+      "tail": [
+        "6 archive password policy checks passed"
+      ]
+    },
+    {
+      "suite": "test-media-seek-policy.sh",
+      "exit": 0,
+      "tail": [
+        "Media seek policy tests passed",
+        "Media seek integration policy tests passed"
+      ]
+    },
+    {
+      "suite": "test-reader-cross-chapter-policy.sh",
+      "exit": 0,
+      "tail": [
+        "reader cross chapter policy tests passed"
+      ]
+    },
+    {
+      "suite": "test-reader-progress-sync-policy.sh",
+      "exit": 0,
+      "tail": [
+        "Reader progress sync policy tests passed"
+      ]
+    },
+    {
+      "suite": "test-reader-open-performance.sh",
+      "exit": 0,
+      "tail": [
+        "Source chapter cache failed: disk full",
+        "Reader opening: 22 -> 2 initial chapters; incremental loading, indexed resume, stale progress and cache-write failure passed",
+        "{\"environment\":\"Node synthetic benchmark, not device startup timing\",\"characters\":4128863,\"iterations\":20,\"oldJsonParseMs\":26.98,\"cachedCloneMs\":0.25}",
+        "TXT cache: mutation isolation, account/version invalidation, memory limits, LRU and first-download reuse passed",
+        "Shelf navigation, persistent cache hits, legacy migration, isolation, bounds and invalidation passed",
+        "Remote details: immediate metadata, cached cover reuse, late-cover rejection and rapid selection passed"
+      ]
+    },
+    {
+      "suite": "test-reader-persistent-cache.sh",
+      "exit": 0,
+      "tail": [
+        "Fresh process: six formats and indexed TXT opened without network, parsing, extraction or copying",
+        "Persistent snapshots: assets, corruption fallback, version/account/server isolation, removal and trial retention passed",
+        "Shelf preload: deduplication, serial queue, retries, cancellation, six formats/three origins and persisted chapter window passed",
+        "Shelf navigation, persistent cache hits, legacy migration, isolation, bounds and invalidation passed",
+        "Cached reader opens without progress/ticket requests; miss, corruption and cancellation passed"
+      ]
+    },
+    {
+      "suite": "test-reader-source-flow-regression-policy.sh",
+      "exit": 0,
+      "tail": [
+        "Source chapter cache failed: disk full",
+        "Reader opening: 22 -> 2 initial chapters; incremental loading, indexed resume, stale progress and cache-write failure passed",
+        "reader source flow regression policy tests passed"
+      ]
+    }
+  ],
+  "scope": "Host policy/unit/integration tests; not device visual acceptance."
+}

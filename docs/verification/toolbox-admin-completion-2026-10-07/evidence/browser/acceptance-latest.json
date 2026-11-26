@@ -1,0 +1,434 @@
+{
+  "target": "http://127.0.0.1:4173",
+  "started": "2026-10-06T19:18:45.110Z",
+  "finished": "2026-10-06T19:28:45.849Z",
+  "exitCode": 1,
+  "totals": {
+    "checks": 61,
+    "failed": 5
+  },
+  "results": [
+    {
+      "name": "A/chinese-dictation：侧面板可选择题型「汉字字帖」",
+      "ok": true,
+      "detail": "下拉选项=[] 尝试=0 生效=true"
+    },
+    {
+      "name": "A/chinese-dictation：草稿预览完成绘制",
+      "ok": true,
+      "detail": "canvas={\"width\":953,\"height\":1348} 遮挡=无 按钮=打印预览/关闭预览"
+    },
+    {
+      "name": "A/chinese-dictation：预览标注本次快照（修订号与范围）",
+      "ok": true,
+      "detail": "快照标注=「本次预览基于修订 4 · 范围 整册」 设置栏=「预览题型 汉字字帖 题型：汉字字帖 · 当前范围：整册 预览整册内容。 修改摘要（可选，写入版本记录）」"
+    },
+    {
+      "name": "A/chinese-dictation：可打开打印预览窗口（独立 target）",
+      "ok": true,
+      "detail": "target=53BA23CC"
+    },
+    {
+      "name": "A/chinese-dictation：页面未全部准备完成时点打印不触发打印",
+      "ok": false,
+      "detail": "未能在 CPU 节流 20x 下观察到「未就绪」状态（就绪=true 页图=6），本项无法判定"
+    },
+    {
+      "name": "A/chinese-dictation：全部页面准备完成后才就绪（print-ready + 打印按钮启用）",
+      "ok": true,
+      "detail": "就绪=true 打印按钮禁用=false 页图=6/6 已解码=6 页数文案=「6 页」"
+    },
+    {
+      "name": "A/chinese-dictation：打印窗口逐页渲染出可打印纸张",
+      "ok": true,
+      "detail": "页图=6 已解码=6 摘要页数=6"
+    },
+    {
+      "name": "A/chinese-dictation：就绪后点击打印确实发起打印",
+      "ok": true,
+      "detail": "print 调用次数=1"
+    },
+    {
+      "name": "A/chinese-dictation：打印窗口的 PDF 是真实文件且可被解析",
+      "ok": true,
+      "detail": "/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/chinese-dictation-6pages.pdf 127085 字节 页数=6 尺寸=210×297mm"
+    },
+    {
+      "name": "A/chinese-dictation：PDF 页数与打印窗口页数一致",
+      "ok": true,
+      "detail": "PDF=6 打印窗口=6"
+    },
+    {
+      "name": "A/chinese-dictation：下载按钮产出真实 PDF 文件",
+      "ok": true,
+      "detail": "chinese-dictation-student.pdf 127085 字节 页数=6"
+    },
+    {
+      "name": "A/chinese-dictation：关闭打印预览窗口后专用 PDF 地址被回收",
+      "ok": true,
+      "detail": "关闭后 fetch(blob) => {\"fetched\":false,\"reason\":\"Failed to fetch\"}"
+    },
+    {
+      "name": "A/chinese-dictation：关闭打印窗口不影响主预览",
+      "ok": true,
+      "detail": "主预览画布仍在=true"
+    },
+    {
+      "name": "A/chinese-pinyin：侧面板可选择题型「拼音字帖」",
+      "ok": true,
+      "detail": "下拉选项=[\"汉字字帖\",\"拼音字帖\"] 尝试=1 生效=true"
+    },
+    {
+      "name": "A/chinese-pinyin：草稿预览完成绘制",
+      "ok": true,
+      "detail": "canvas={\"width\":953,\"height\":1348} 遮挡=无 按钮=打印预览/关闭预览"
+    },
+    {
+      "name": "A/chinese-pinyin：预览标注本次快照（修订号与范围）",
+      "ok": true,
+      "detail": "快照标注=「本次预览基于修订 4 · 范围 整册」 设置栏=「预览题型 拼音字帖 题型：拼音字帖 · 当前范围：整册 预览整册内容。 修改摘要（可选，写入版本记录）」"
+    },
+    {
+      "name": "A/chinese-pinyin：可打开打印预览窗口（独立 target）",
+      "ok": true,
+      "detail": "target=69B3614F"
+    },
+    {
+      "name": "A/chinese-pinyin：页面未全部准备完成时点打印不触发打印",
+      "ok": false,
+      "detail": "未能在 CPU 节流 20x 下观察到「未就绪」状态（就绪=true 页图=8），本项无法判定"
+    },
+    {
+      "name": "A/chinese-pinyin：全部页面准备完成后才就绪（print-ready + 打印按钮启用）",
+      "ok": true,
+      "detail": "就绪=true 打印按钮禁用=false 页图=8/8 已解码=8 页数文案=「8 页」"
+    },
+    {
+      "name": "A/chinese-pinyin：打印窗口逐页渲染出可打印纸张",
+      "ok": true,
+      "detail": "页图=8 已解码=8 摘要页数=8"
+    },
+    {
+      "name": "A/chinese-pinyin：就绪后点击打印确实发起打印",
+      "ok": true,
+      "detail": "print 调用次数=1"
+    },
+    {
+      "name": "A/chinese-pinyin：打印窗口的 PDF 是真实文件且可被解析",
+      "ok": true,
+      "detail": "/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/chinese-pinyin-8pages.pdf 130351 字节 页数=8 尺寸=210×297mm"
+    },
+    {
+      "name": "A/chinese-pinyin：PDF 页数与打印窗口页数一致",
+      "ok": true,
+      "detail": "PDF=8 打印窗口=8"
+    },
+    {
+      "name": "A/chinese-pinyin：下载按钮产出真实 PDF 文件",
+      "ok": true,
+      "detail": "chinese-pinyin-student.pdf 130351 字节 页数=8"
+    },
+    {
+      "name": "A/chinese-pinyin：关闭打印预览窗口后专用 PDF 地址被回收",
+      "ok": true,
+      "detail": "关闭后 fetch(blob) => {\"fetched\":false,\"reason\":\"Failed to fetch\"}"
+    },
+    {
+      "name": "A/chinese-pinyin：关闭打印窗口不影响主预览",
+      "ok": true,
+      "detail": "主预览画布仍在=true"
+    },
+    {
+      "name": "A/english-dictation：侧面板可选择题型「英语默写」",
+      "ok": true,
+      "detail": "下拉选项=[] 尝试=0 生效=true"
+    },
+    {
+      "name": "A/english-dictation：草稿预览完成绘制",
+      "ok": true,
+      "detail": "canvas={\"width\":953,\"height\":1348} 遮挡=无 按钮=打印预览/关闭预览"
+    },
+    {
+      "name": "A/english-dictation：预览标注本次快照（修订号与范围）",
+      "ok": true,
+      "detail": "快照标注=「本次预览基于修订 4 · 范围 整册」 设置栏=「预览题型 英语默写 题型：英语默写 · 当前范围：整册 预览整册内容。 修改摘要（可选，写入版本记录）」"
+    },
+    {
+      "name": "A/english-dictation：可打开打印预览窗口（独立 target）",
+      "ok": true,
+      "detail": "target=75B5AE52"
+    },
+    {
+      "name": "A/english-dictation：页面未全部准备完成时点打印不触发打印",
+      "ok": false,
+      "detail": "未能在 CPU 节流 20x 下观察到「未就绪」状态（就绪=true 页图=6），本项无法判定"
+    },
+    {
+      "name": "A/english-dictation：全部页面准备完成后才就绪（print-ready + 打印按钮启用）",
+      "ok": true,
+      "detail": "就绪=true 打印按钮禁用=false 页图=6/6 已解码=6 页数文案=「6 页」"
+    },
+    {
+      "name": "A/english-dictation：打印窗口逐页渲染出可打印纸张",
+      "ok": true,
+      "detail": "页图=6 已解码=6 摘要页数=6"
+    },
+    {
+      "name": "A/english-dictation：就绪后点击打印确实发起打印",
+      "ok": true,
+      "detail": "print 调用次数=1"
+    },
+    {
+      "name": "A/english-dictation：打印窗口的 PDF 是真实文件且可被解析",
+      "ok": true,
+      "detail": "/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/english-dictation-6pages.pdf 130388 字节 页数=6 尺寸=210×297mm"
+    },
+    {
+      "name": "A/english-dictation：PDF 页数与打印窗口页数一致",
+      "ok": true,
+      "detail": "PDF=6 打印窗口=6"
+    },
+    {
+      "name": "A/english-dictation：下载按钮产出真实 PDF 文件",
+      "ok": true,
+      "detail": "english-dictation-student.pdf 130388 字节 页数=6"
+    },
+    {
+      "name": "A/english-dictation：关闭打印预览窗口后专用 PDF 地址被回收",
+      "ok": true,
+      "detail": "关闭后 fetch(blob) => {\"fetched\":false,\"reason\":\"Failed to fetch\"}"
+    },
+    {
+      "name": "A/english-dictation：关闭打印窗口不影响主预览",
+      "ok": true,
+      "detail": "主预览画布仍在=true"
+    },
+    {
+      "name": "A/english-meaning：侧面板可选择题型「中文释义练习」",
+      "ok": true,
+      "detail": "下拉选项=[\"英语默写\",\"中文释义练习\"] 尝试=1 生效=true"
+    },
+    {
+      "name": "A/english-meaning：草稿预览完成绘制",
+      "ok": true,
+      "detail": "canvas={\"width\":953,\"height\":1348} 遮挡=无 按钮=打印预览/关闭预览"
+    },
+    {
+      "name": "A/english-meaning：预览标注本次快照（修订号与范围）",
+      "ok": true,
+      "detail": "快照标注=「本次预览基于修订 4 · 范围 整册」 设置栏=「预览题型 中文释义练习 题型：中文释义练习 · 当前范围：整册 预览整册内容。 修改摘要（可选，写入版本记录）」"
+    },
+    {
+      "name": "A/english-meaning：可打开打印预览窗口（独立 target）",
+      "ok": true,
+      "detail": "target=E50D37D7"
+    },
+    {
+      "name": "A/english-meaning：页面未全部准备完成时点打印不触发打印",
+      "ok": false,
+      "detail": "未能在 CPU 节流 20x 下观察到「未就绪」状态（就绪=true 页图=6），本项无法判定"
+    },
+    {
+      "name": "A/english-meaning：全部页面准备完成后才就绪（print-ready + 打印按钮启用）",
+      "ok": true,
+      "detail": "就绪=true 打印按钮禁用=false 页图=6/6 已解码=6 页数文案=「6 页」"
+    },
+    {
+      "name": "A/english-meaning：打印窗口逐页渲染出可打印纸张",
+      "ok": true,
+      "detail": "页图=6 已解码=6 摘要页数=6"
+    },
+    {
+      "name": "A/english-meaning：就绪后点击打印确实发起打印",
+      "ok": true,
+      "detail": "print 调用次数=1"
+    },
+    {
+      "name": "A/english-meaning：打印窗口的 PDF 是真实文件且可被解析",
+      "ok": true,
+      "detail": "/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/english-meaning-6pages.pdf 76275 字节 页数=6 尺寸=210×297mm"
+    },
+    {
+      "name": "A/english-meaning：PDF 页数与打印窗口页数一致",
+      "ok": true,
+      "detail": "PDF=6 打印窗口=6"
+    },
+    {
+      "name": "A/english-meaning：下载按钮产出真实 PDF 文件",
+      "ok": true,
+      "detail": "english-meaning-student.pdf 76275 字节 页数=6"
+    },
+    {
+      "name": "A/english-meaning：关闭打印预览窗口后专用 PDF 地址被回收",
+      "ok": true,
+      "detail": "关闭后 fetch(blob) => {\"fetched\":false,\"reason\":\"Failed to fetch\"}"
+    },
+    {
+      "name": "A/english-meaning：关闭打印窗口不影响主预览",
+      "ok": true,
+      "detail": "主预览画布仍在=true"
+    },
+    {
+      "name": "A/汇总：chinese-dictation 至少 3 页",
+      "ok": true,
+      "detail": "PDF 页数=6 打印窗口页数=6 文件=/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/chinese-dictation-6pages.pdf"
+    },
+    {
+      "name": "A/汇总：chinese-pinyin 至少 3 页",
+      "ok": true,
+      "detail": "PDF 页数=8 打印窗口页数=8 文件=/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/chinese-pinyin-8pages.pdf"
+    },
+    {
+      "name": "A/汇总：english-dictation 至少 3 页",
+      "ok": true,
+      "detail": "PDF 页数=6 打印窗口页数=6 文件=/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/english-dictation-6pages.pdf"
+    },
+    {
+      "name": "A/汇总：english-meaning 至少 3 页",
+      "ok": true,
+      "detail": "PDF 页数=6 打印窗口页数=6 文件=/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/english-meaning-6pages.pdf"
+    },
+    {
+      "name": "A/汇总：四种题型各生成一次",
+      "ok": true,
+      "detail": "chinese-dictation, chinese-pinyin, english-dictation, english-meaning"
+    },
+    {
+      "name": "边界：整个验收过程未向非回环主机发起请求",
+      "ok": true,
+      "detail": "全部请求都在 127.0.0.1"
+    },
+    {
+      "name": "边界：没有非预期的 4xx/5xx 静态或接口响应",
+      "ok": true,
+      "detail": "无"
+    },
+    {
+      "name": "边界：验收期间前端源码未发生变化（Vite HMR 不重建组件）",
+      "ok": false,
+      "detail": "指纹变化 267049854bb070bd → 36dc7fb3d3bcd402；变化文件 1 个：/Users/pankang/mycode/MyTools/toolbox-web/src/components/admin/VersionHistoryDrawer.vue"
+    },
+    {
+      "name": "边界：失败请求仅来自「关闭打印窗口后回收 blob 地址」的预期失败",
+      "ok": true,
+      "detail": "预期（blob 已回收）4 条，非预期 0 条"
+    }
+  ],
+  "transcript": [
+    "证据目录：/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07",
+    "目标：http://127.0.0.1:4173",
+    "浏览器：/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "临时 profile：/var/folders/18/m880fd0x23b5pp66h8631x9c0000gn/T/toolbox-admin-acceptance-7rlFzi/chrome",
+    "开始时间：2026-10-06T19:18:45.110Z",
+    "  已登录（第 1 次点击提交成功）：管理员 · local-admin",
+    "\n===== 章节 modes：任务 A：四题型草稿预览 / PDF / 打印预览 =====",
+    "\n--- 题型 chinese-dictation（汉字字帖，教材 accept-cn-2026a）---",
+    "  编辑器：内容 198 条 修订 4；条目数=198 条",
+    "PASS  A/chinese-dictation：侧面板可选择题型「汉字字帖」 — 下拉选项=[] 尝试=0 生效=true",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/A-editor-1-chinese-dictation.png（140363 字节）",
+    "  警告：预览画布未在超时内完成绘制（overlay=null）",
+    "PASS  A/chinese-dictation：草稿预览完成绘制 — canvas={\"width\":953,\"height\":1348} 遮挡=无 按钮=打印预览/关闭预览",
+    "PASS  A/chinese-dictation：预览标注本次快照（修订号与范围） — 快照标注=「本次预览基于修订 4 · 范围 整册」 设置栏=「预览题型 汉字字帖 题型：汉字字帖 · 当前范围：整册 预览整册内容。 修改摘要（可选，写入版本记录）」",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/A-preview-1-chinese-dictation.png（182382 字节）",
+    "PASS  A/chinese-dictation：可打开打印预览窗口（独立 target） — target=53BA23CC",
+    "  打印窗口初始状态（CPU 节流 20x）：就绪=true 打印按钮禁用=false 页图=6/6 状态=「」",
+    "FAIL  A/chinese-dictation：页面未全部准备完成时点打印不触发打印 — 未能在 CPU 节流 20x 下观察到「未就绪」状态（就绪=true 页图=6），本项无法判定",
+    "PASS  A/chinese-dictation：全部页面准备完成后才就绪（print-ready + 打印按钮启用） — 就绪=true 打印按钮禁用=false 页图=6/6 已解码=6 页数文案=「6 页」",
+    "PASS  A/chinese-dictation：打印窗口逐页渲染出可打印纸张 — 页图=6 已解码=6 摘要页数=6",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/A-print-ready-1-chinese-dictation.png（187868 字节）",
+    "PASS  A/chinese-dictation：就绪后点击打印确实发起打印 — print 调用次数=1",
+    "PASS  A/chinese-dictation：打印窗口的 PDF 是真实文件且可被解析 — /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/chinese-dictation-6pages.pdf 127085 字节 页数=6 尺寸=210×297mm",
+    "PASS  A/chinese-dictation：PDF 页数与打印窗口页数一致 — PDF=6 打印窗口=6",
+    "PASS  A/chinese-dictation：下载按钮产出真实 PDF 文件 — chinese-dictation-student.pdf 127085 字节 页数=6",
+    "PASS  A/chinese-dictation：关闭打印预览窗口后专用 PDF 地址被回收 — 关闭后 fetch(blob) => {\"fetched\":false,\"reason\":\"Failed to fetch\"}",
+    "  关闭后页面探针：{\"openCalls\":1,\"printCalls\":1}",
+    "PASS  A/chinese-dictation：关闭打印窗口不影响主预览 — 主预览画布仍在=true",
+    "\n--- 题型 chinese-pinyin（拼音字帖，教材 accept-cn-2026a）---",
+    "  编辑器：内容 198 条 修订 4；条目数=198 条",
+    "PASS  A/chinese-pinyin：侧面板可选择题型「拼音字帖」 — 下拉选项=[\"汉字字帖\",\"拼音字帖\"] 尝试=1 生效=true",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/A-editor-2-chinese-pinyin.png（141325 字节）",
+    "  警告：预览画布未在超时内完成绘制（overlay=null）",
+    "PASS  A/chinese-pinyin：草稿预览完成绘制 — canvas={\"width\":953,\"height\":1348} 遮挡=无 按钮=打印预览/关闭预览",
+    "PASS  A/chinese-pinyin：预览标注本次快照（修订号与范围） — 快照标注=「本次预览基于修订 4 · 范围 整册」 设置栏=「预览题型 拼音字帖 题型：拼音字帖 · 当前范围：整册 预览整册内容。 修改摘要（可选，写入版本记录）」",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/A-preview-2-chinese-pinyin.png（109850 字节）",
+    "PASS  A/chinese-pinyin：可打开打印预览窗口（独立 target） — target=69B3614F",
+    "  打印窗口初始状态（CPU 节流 20x）：就绪=true 打印按钮禁用=false 页图=8/8 状态=「」",
+    "FAIL  A/chinese-pinyin：页面未全部准备完成时点打印不触发打印 — 未能在 CPU 节流 20x 下观察到「未就绪」状态（就绪=true 页图=8），本项无法判定",
+    "PASS  A/chinese-pinyin：全部页面准备完成后才就绪（print-ready + 打印按钮启用） — 就绪=true 打印按钮禁用=false 页图=8/8 已解码=8 页数文案=「8 页」",
+    "PASS  A/chinese-pinyin：打印窗口逐页渲染出可打印纸张 — 页图=8 已解码=8 摘要页数=8",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/A-print-ready-2-chinese-pinyin.png（68530 字节）",
+    "PASS  A/chinese-pinyin：就绪后点击打印确实发起打印 — print 调用次数=1",
+    "PASS  A/chinese-pinyin：打印窗口的 PDF 是真实文件且可被解析 — /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/chinese-pinyin-8pages.pdf 130351 字节 页数=8 尺寸=210×297mm",
+    "PASS  A/chinese-pinyin：PDF 页数与打印窗口页数一致 — PDF=8 打印窗口=8",
+    "PASS  A/chinese-pinyin：下载按钮产出真实 PDF 文件 — chinese-pinyin-student.pdf 130351 字节 页数=8",
+    "PASS  A/chinese-pinyin：关闭打印预览窗口后专用 PDF 地址被回收 — 关闭后 fetch(blob) => {\"fetched\":false,\"reason\":\"Failed to fetch\"}",
+    "  关闭后页面探针：{\"openCalls\":1,\"printCalls\":1}",
+    "PASS  A/chinese-pinyin：关闭打印窗口不影响主预览 — 主预览画布仍在=true",
+    "\n--- 题型 english-dictation（英语默写，教材 accept-en-2026a）---",
+    "  编辑器：内容 198 条 修订 4；条目数=198 条",
+    "PASS  A/english-dictation：侧面板可选择题型「英语默写」 — 下拉选项=[] 尝试=0 生效=true",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/A-editor-3-english-dictation.png（133927 字节）",
+    "  警告：预览画布未在超时内完成绘制（overlay=null）",
+    "PASS  A/english-dictation：草稿预览完成绘制 — canvas={\"width\":953,\"height\":1348} 遮挡=无 按钮=打印预览/关闭预览",
+    "PASS  A/english-dictation：预览标注本次快照（修订号与范围） — 快照标注=「本次预览基于修订 4 · 范围 整册」 设置栏=「预览题型 英语默写 题型：英语默写 · 当前范围：整册 预览整册内容。 修改摘要（可选，写入版本记录）」",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/A-preview-3-english-dictation.png（103372 字节）",
+    "PASS  A/english-dictation：可打开打印预览窗口（独立 target） — target=75B5AE52",
+    "  打印窗口初始状态（CPU 节流 20x）：就绪=true 打印按钮禁用=false 页图=6/6 状态=「」",
+    "FAIL  A/english-dictation：页面未全部准备完成时点打印不触发打印 — 未能在 CPU 节流 20x 下观察到「未就绪」状态（就绪=true 页图=6），本项无法判定",
+    "PASS  A/english-dictation：全部页面准备完成后才就绪（print-ready + 打印按钮启用） — 就绪=true 打印按钮禁用=false 页图=6/6 已解码=6 页数文案=「6 页」",
+    "PASS  A/english-dictation：打印窗口逐页渲染出可打印纸张 — 页图=6 已解码=6 摘要页数=6",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/A-print-ready-3-english-dictation.png（59064 字节）",
+    "PASS  A/english-dictation：就绪后点击打印确实发起打印 — print 调用次数=1",
+    "PASS  A/english-dictation：打印窗口的 PDF 是真实文件且可被解析 — /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/english-dictation-6pages.pdf 130388 字节 页数=6 尺寸=210×297mm",
+    "PASS  A/english-dictation：PDF 页数与打印窗口页数一致 — PDF=6 打印窗口=6",
+    "PASS  A/english-dictation：下载按钮产出真实 PDF 文件 — english-dictation-student.pdf 130388 字节 页数=6",
+    "PASS  A/english-dictation：关闭打印预览窗口后专用 PDF 地址被回收 — 关闭后 fetch(blob) => {\"fetched\":false,\"reason\":\"Failed to fetch\"}",
+    "  关闭后页面探针：{\"openCalls\":1,\"printCalls\":1}",
+    "PASS  A/english-dictation：关闭打印窗口不影响主预览 — 主预览画布仍在=true",
+    "\n--- 题型 english-meaning（中文释义练习，教材 accept-en-2026a）---",
+    "  编辑器：内容 198 条 修订 4；条目数=198 条",
+    "PASS  A/english-meaning：侧面板可选择题型「中文释义练习」 — 下拉选项=[\"英语默写\",\"中文释义练习\"] 尝试=1 生效=true",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/A-editor-4-english-meaning.png（135487 字节）",
+    "  警告：预览画布未在超时内完成绘制（overlay=null）",
+    "PASS  A/english-meaning：草稿预览完成绘制 — canvas={\"width\":953,\"height\":1348} 遮挡=无 按钮=打印预览/关闭预览",
+    "PASS  A/english-meaning：预览标注本次快照（修订号与范围） — 快照标注=「本次预览基于修订 4 · 范围 整册」 设置栏=「预览题型 中文释义练习 题型：中文释义练习 · 当前范围：整册 预览整册内容。 修改摘要（可选，写入版本记录）」",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/A-preview-4-english-meaning.png（102732 字节）",
+    "PASS  A/english-meaning：可打开打印预览窗口（独立 target） — target=E50D37D7",
+    "  打印窗口初始状态（CPU 节流 20x）：就绪=true 打印按钮禁用=false 页图=6/6 状态=「」",
+    "FAIL  A/english-meaning：页面未全部准备完成时点打印不触发打印 — 未能在 CPU 节流 20x 下观察到「未就绪」状态（就绪=true 页图=6），本项无法判定",
+    "PASS  A/english-meaning：全部页面准备完成后才就绪（print-ready + 打印按钮启用） — 就绪=true 打印按钮禁用=false 页图=6/6 已解码=6 页数文案=「6 页」",
+    "PASS  A/english-meaning：打印窗口逐页渲染出可打印纸张 — 页图=6 已解码=6 摘要页数=6",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/A-print-ready-4-english-meaning.png（57930 字节）",
+    "PASS  A/english-meaning：就绪后点击打印确实发起打印 — print 调用次数=1",
+    "PASS  A/english-meaning：打印窗口的 PDF 是真实文件且可被解析 — /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/english-meaning-6pages.pdf 76275 字节 页数=6 尺寸=210×297mm",
+    "PASS  A/english-meaning：PDF 页数与打印窗口页数一致 — PDF=6 打印窗口=6",
+    "PASS  A/english-meaning：下载按钮产出真实 PDF 文件 — english-meaning-student.pdf 76275 字节 页数=6",
+    "PASS  A/english-meaning：关闭打印预览窗口后专用 PDF 地址被回收 — 关闭后 fetch(blob) => {\"fetched\":false,\"reason\":\"Failed to fetch\"}",
+    "  关闭后页面探针：{\"openCalls\":1,\"printCalls\":1}",
+    "PASS  A/english-meaning：关闭打印窗口不影响主预览 — 主预览画布仍在=true",
+    "PASS  A/汇总：chinese-dictation 至少 3 页 — PDF 页数=6 打印窗口页数=6 文件=/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/chinese-dictation-6pages.pdf",
+    "PASS  A/汇总：chinese-pinyin 至少 3 页 — PDF 页数=8 打印窗口页数=8 文件=/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/chinese-pinyin-8pages.pdf",
+    "PASS  A/汇总：english-dictation 至少 3 页 — PDF 页数=6 打印窗口页数=6 文件=/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/english-dictation-6pages.pdf",
+    "PASS  A/汇总：english-meaning 至少 3 页 — PDF 页数=6 打印窗口页数=6 文件=/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/pdfs/english-meaning-6pages.pdf",
+    "PASS  A/汇总：四种题型各生成一次 — chinese-dictation, chinese-pinyin, english-dictation, english-meaning",
+    "\n===== 跳过章节 snapshot（E2E_ONLY 未包含）=====",
+    "\n===== 跳过章节 widths（E2E_ONLY 未包含）=====",
+    "\n===== 跳过章节 dark（E2E_ONLY 未包含）=====",
+    "\n===== 跳过章节 keyboard（E2E_ONLY 未包含）=====",
+    "\n===== 生产泄漏哨兵与页面错误 =====",
+    "PASS  边界：整个验收过程未向非回环主机发起请求 — 全部请求都在 127.0.0.1",
+    "PASS  边界：没有非预期的 4xx/5xx 静态或接口响应 — 无",
+    "  控制台错误 0 条：",
+    "  未捕获异常 0 条：",
+    "  失败请求 4 条：Fetch net::ERR_FILE_NOT_FOUND | Fetch net::ERR_FILE_NOT_FOUND | Fetch net::ERR_FILE_NOT_FOUND | Fetch net::ERR_FILE_NOT_FOUND",
+    "FAIL  边界：验收期间前端源码未发生变化（Vite HMR 不重建组件） — 指纹变化 267049854bb070bd → 36dc7fb3d3bcd402；变化文件 1 个：/Users/pankang/mycode/MyTools/toolbox-web/src/components/admin/VersionHistoryDrawer.vue",
+    "PASS  边界：失败请求仅来自「关闭打印窗口后回收 blob 地址」的预期失败 — 预期（blob 已回收）4 条，非预期 0 条",
+    "\n===== 浏览器验收结果：56/61 通过 =====",
+    "未通过项：",
+    "  - A/chinese-dictation：页面未全部准备完成时点打印不触发打印：未能在 CPU 节流 20x 下观察到「未就绪」状态（就绪=true 页图=6），本项无法判定",
+    "  - A/chinese-pinyin：页面未全部准备完成时点打印不触发打印：未能在 CPU 节流 20x 下观察到「未就绪」状态（就绪=true 页图=8），本项无法判定",
+    "  - A/english-dictation：页面未全部准备完成时点打印不触发打印：未能在 CPU 节流 20x 下观察到「未就绪」状态（就绪=true 页图=6），本项无法判定",
+    "  - A/english-meaning：页面未全部准备完成时点打印不触发打印：未能在 CPU 节流 20x 下观察到「未就绪」状态（就绪=true 页图=6），本项无法判定",
+    "  - 边界：验收期间前端源码未发生变化（Vite HMR 不重建组件）：指纹变化 267049854bb070bd → 36dc7fb3d3bcd402；变化文件 1 个：/Users/pankang/mycode/MyTools/toolbox-web/src/components/admin/VersionHistoryDrawer.vue"
+  ]
+}

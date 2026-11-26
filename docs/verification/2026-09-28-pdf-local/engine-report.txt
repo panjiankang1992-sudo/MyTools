@@ -1,0 +1,43 @@
+PASSED
+PASS text-one-page
+PASS extract-english
+PASS extract-chinese
+PASS markdown
+PASS source-two-pages
+PASS cut-four-pages
+CUT 0 {"left":0,"bottom":0,"right":300,"top":400} 300x400
+PASS cut-width-0
+PASS text-layer-0
+CUT 1 {"left":300,"bottom":0,"right":600,"top":400} 300x400
+PASS cut-width-1
+PASS text-layer-1
+CUT 2 {"left":0,"bottom":0,"right":300,"top":400} 300x400
+PASS cut-width-2
+PASS text-layer-2
+CUT 3 {"left":300,"bottom":0,"right":600,"top":400} 300x400
+PASS cut-width-3
+PASS text-layer-3
+PASS horizontal
+PASS cut-retain-unselected
+PASS split-two-files
+PASS merge-two-pages
+PASS export-png
+PASS export-jpeg
+PASS images-to-pdf
+PASS invalid-range
+PASS cancel-no-result
+PASS source-thumbnail
+PASS saved-file-exact-size
+PASS rotated-0-true
+PASS rotated-0-false
+PASS rotated-90-true
+PASS rotated-90-false
+PASS rotated-180-true
+PASS rotated-180-false
+PASS rotated-270-true
+PASS rotated-270-false
+PASS password-rejected
+PASS password-unlocked
+PASS encrypted-cut
+PASS text-pagination
+PASS persistent-history

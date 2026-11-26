@@ -655,6 +655,37 @@ class MessageAutomationServiceTest {
     }
 
     @Test
+    void shouldKeepResolvedAndSubmittedAttachmentsRunningUntilDownloadSucceeds() {
+        service.createRule(new CreateAutomationRuleRequest(39L, "attachment_intermediate_states",
+                ChannelType.TELEGRAM, "chat-39", "user-39", "", "MESSAGE_ATTACHMENT", 1, 100, true));
+        UUID messageId = UUID.randomUUID();
+        UUID partId = UUID.randomUUID();
+        UUID jobId = UUID.randomUUID();
+        UUID requestId = UUID.randomUUID();
+        var part = new InboundMessage.MessagePart(partId, 0, "ATTACHMENT", "IMAGE",
+                "photo.png", "image/png", 100L);
+        when(messagingClient.get(messageId)).thenReturn(new InboundMessage(messageId, 39L,
+                ChannelType.TELEGRAM, "external-39", "chat-39", "user-39", null,
+                "", Instant.now(), Instant.now(), List.of(part)));
+        when(messagingClient.createAttachment(messageId, partId, 39L))
+                .thenReturn(new MessagingClient.AttachmentSnapshot(jobId, "QUEUED"));
+        when(messagingClient.attachment(jobId, 39L))
+                .thenReturn(new MessagingClient.AttachmentSnapshot(jobId, "RESOLVED"),
+                        new MessagingClient.AttachmentSnapshot(jobId, "SUBMITTED", requestId),
+                        new MessagingClient.AttachmentSnapshot(jobId, "SUCCEEDED", requestId));
+
+        service.process(messageId);
+        reconcile(messageId);
+
+        assertThat(reconcile(messageId).actions()).extracting("status").containsExactly("RUNNING");
+        assertThat(reconcile(messageId).actions()).extracting("status").containsExactly("RUNNING");
+        var completed = reconcile(messageId);
+        assertThat(completed.status()).isEqualTo("SUCCEEDED");
+        assertThat(completed.actions()).extracting("status").containsExactly("SUCCEEDED");
+        verify(messagingClient, times(3)).attachment(jobId, 39L);
+    }
+
+    @Test
     void shouldPollFourSubmittedActionsInOneBoundedRunRound() {
         service.createRule(new CreateAutomationRuleRequest(38L, "bounded_submitted_polling",
                 ChannelType.TELEGRAM, "chat-38", "user-38", "", "MESSAGE_ATTACHMENT", 4, 100, true));

@@ -1,0 +1,392 @@
+{
+  "versions": [
+    {
+      "editionId": "cn-ty-2-1-pep-2017",
+      "status": 200,
+      "data": [
+        {
+          "editionId": "cn-ty-2-1-pep-2017",
+          "contentVersion": "1.0.2",
+          "contentSha256": "1d14e1fd6d3c819dfa5a74b00de26d9476e04e7f9d5e5780a97dff71914f8778",
+          "byteLength": 693200,
+          "publishedBy": "local-admin-1001",
+          "publishedAt": 1791312003000,
+          "hasSourceSnapshot": true,
+          "sourceSnapshotSha256": "d6159d53a901d77694707661c828229ecc1af56acf4e1f314f3806b700ab6e9a"
+        },
+        {
+          "editionId": "cn-ty-2-1-pep-2017",
+          "contentVersion": "1.0.3",
+          "contentSha256": "daf97d35520076d4bccc94c74b40e119267a5266013d5fbbbdf167dab3962bb1",
+          "byteLength": 452002,
+          "publishedBy": "local-admin-1001",
+          "publishedAt": 1791312009000,
+          "hasSourceSnapshot": true,
+          "sourceSnapshotSha256": "10b0f9ad57a8089d5c96fe79da1d34baaba5cb5e9eca405d4b052ae779d8e42e"
+        }
+      ]
+    },
+    {
+      "editionId": "cn-ty-3-1-pep-2024",
+      "status": 200,
+      "data": [
+        {
+          "editionId": "cn-ty-3-1-pep-2024",
+          "contentVersion": "1.0.0",
+          "contentSha256": "49abe27d8b49e50b99af599726d0374b13071b47f4447538fcaab65b74fd7cdf",
+          "byteLength": 716239,
+          "publishedBy": "local-admin-1001",
+          "publishedAt": 1791312003000,
+          "hasSourceSnapshot": true,
+          "sourceSnapshotSha256": "6a87b17ded6d3523133f866e77186cf2754d6bc2d10d2cd9b325d567bb93fe24"
+        },
+        {
+          "editionId": "cn-ty-3-1-pep-2024",
+          "contentVersion": "1.0.1",
+          "contentSha256": "6466208d77380ff24ad81c952cf65e591b515d5cb1b5e461b74b771350e59881",
+          "byteLength": 468590,
+          "publishedBy": "local-admin-1001",
+          "publishedAt": 1791312009000,
+          "hasSourceSnapshot": true,
+          "sourceSnapshotSha256": "b02699dd111257e6f6afefc3b8a396db2e718afcd67299090cb4dbdd921025d0"
+        }
+      ]
+    },
+    {
+      "editionId": "en-yl-3-1-yilin-2024",
+      "status": 200,
+      "data": [
+        {
+          "editionId": "en-yl-3-1-yilin-2024",
+          "contentVersion": "1.0.1",
+          "contentSha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4",
+          "byteLength": 117917,
+          "publishedBy": "local-admin-1001",
+          "publishedAt": 1791312003000,
+          "hasSourceSnapshot": true,
+          "sourceSnapshotSha256": "5b1a42aa8994aa0454d35e4cf710d3026a45536873c60b7e38d5dbc9c0e35013"
+        },
+        {
+          "editionId": "en-yl-3-1-yilin-2024",
+          "contentVersion": "1.0.2",
+          "contentSha256": "2bb2e25676ed3bf5d351573a4abc6696cac2b62944167067d0e032dd81bef086",
+          "byteLength": 81943,
+          "publishedBy": "local-admin-1001",
+          "publishedAt": 1791312010000,
+          "hasSourceSnapshot": true,
+          "sourceSnapshotSha256": "116e26b9903562eedffefee0c69ca37631e192e1ac1b68cd9dfc6bb32a820643"
+        },
+        {
+          "editionId": "en-yl-3-1-yilin-2024",
+          "contentVersion": "1.0.3",
+          "contentSha256": "4d19348879c114cfa0da7650f7ab6cc5afd3b4d12a48b87ae9433580d3db09d1",
+          "byteLength": 81407,
+          "publishedBy": "local-admin-1001",
+          "publishedAt": 1791312010000,
+          "hasSourceSnapshot": true,
+          "sourceSnapshotSha256": "8bc54b691280ec96f1c7b16a6a4408f237192914c9204bd5e0cd9a557dc794fc"
+        }
+      ]
+    }
+  ],
+  "sourceSnapshots": [
+    {
+      "editionId": "cn-ty-2-1-pep-2017",
+      "contentVersion": "1.0.2",
+      "status": 200,
+      "summary": {
+        "version": {
+          "editionId": "cn-ty-2-1-pep-2017",
+          "contentVersion": "1.0.2",
+          "versionId": "cn-ty-2-1-pep-2017@1.0.2"
+        },
+        "contentSha256": "1d14e1fd6d3c819d",
+        "capture": {
+          "capturedAt": "2026-10-06T18:40:03.019245Z",
+          "capturedBy": "local-admin-1001",
+          "origin": "import",
+          "operationId": "import:cn-ty-2-1-pep-2017@1.0.2"
+        },
+        "manifestBaseline": {
+          "present": true,
+          "missingReason": null,
+          "catalogVersion": "2026-10-04.1",
+          "fileSha256": "107460ab893b7cbee890c3667807d534e5deaa7cdd96485a190c1b60b571f3cf",
+          "byteLength": 5822
+        },
+        "sourceCount": 1,
+        "sourceIds": [
+          "nmg-smartedu-cn-2-first"
+        ],
+        "entryLocatorCount": 760,
+        "entryLocatorWithSourceRefs": 760
+      },
+      "snapshotSha256": "d6159d53a901d77694707661c828229ecc1af56acf4e1f314f3806b700ab6e9a"
+    },
+    {
+      "editionId": "cn-ty-2-1-pep-2017",
+      "contentVersion": "1.0.3",
+      "status": 200,
+      "summary": {
+        "version": {
+          "editionId": "cn-ty-2-1-pep-2017",
+          "contentVersion": "1.0.3",
+          "versionId": "cn-ty-2-1-pep-2017@1.0.3"
+        },
+        "contentSha256": "daf97d35520076d4",
+        "capture": {
+          "capturedAt": "2026-10-06T18:40:08.874550Z",
+          "capturedBy": "local-admin-1001",
+          "origin": "publish",
+          "operationId": "publish:cn-ty-2-1-pep-2017@1.0.3"
+        },
+        "manifestBaseline": {
+          "present": true,
+          "missingReason": null,
+          "catalogVersion": "2026-10-04.1",
+          "fileSha256": "107460ab893b7cbee890c3667807d534e5deaa7cdd96485a190c1b60b571f3cf",
+          "byteLength": 5822
+        },
+        "sourceCount": 2,
+        "sourceIds": [
+          "nmg-smartedu-cn-2-first",
+          "manual-984830edc6d6b862"
+        ],
+        "entryLocatorCount": 761,
+        "entryLocatorWithSourceRefs": 761
+      },
+      "snapshotSha256": "10b0f9ad57a8089d5c96fe79da1d34baaba5cb5e9eca405d4b052ae779d8e42e"
+    },
+    {
+      "editionId": "cn-ty-3-1-pep-2024",
+      "contentVersion": "1.0.0",
+      "status": 200,
+      "summary": {
+        "version": {
+          "editionId": "cn-ty-3-1-pep-2024",
+          "contentVersion": "1.0.0",
+          "versionId": "cn-ty-3-1-pep-2024@1.0.0"
+        },
+        "contentSha256": "49abe27d8b49e50b",
+        "capture": {
+          "capturedAt": "2026-10-06T18:40:03.148114Z",
+          "capturedBy": "local-admin-1001",
+          "origin": "import",
+          "operationId": "import:cn-ty-3-1-pep-2024@1.0.0"
+        },
+        "manifestBaseline": {
+          "present": true,
+          "missingReason": null,
+          "catalogVersion": "2026-10-04.1",
+          "fileSha256": "107460ab893b7cbee890c3667807d534e5deaa7cdd96485a190c1b60b571f3cf",
+          "byteLength": 5822
+        },
+        "sourceCount": 1,
+        "sourceIds": [
+          "smartedu-ebook-cn-3-first-2024"
+        ],
+        "entryLocatorCount": 777,
+        "entryLocatorWithSourceRefs": 777
+      },
+      "snapshotSha256": "6a87b17ded6d3523133f866e77186cf2754d6bc2d10d2cd9b325d567bb93fe24"
+    },
+    {
+      "editionId": "cn-ty-3-1-pep-2024",
+      "contentVersion": "1.0.1",
+      "status": 200,
+      "summary": {
+        "version": {
+          "editionId": "cn-ty-3-1-pep-2024",
+          "contentVersion": "1.0.1",
+          "versionId": "cn-ty-3-1-pep-2024@1.0.1"
+        },
+        "contentSha256": "6466208d77380ff2",
+        "capture": {
+          "capturedAt": "2026-10-06T18:40:09.413908Z",
+          "capturedBy": "local-admin-1001",
+          "origin": "publish",
+          "operationId": "publish:cn-ty-3-1-pep-2024@1.0.1"
+        },
+        "manifestBaseline": {
+          "present": true,
+          "missingReason": null,
+          "catalogVersion": "2026-10-04.1",
+          "fileSha256": "107460ab893b7cbee890c3667807d534e5deaa7cdd96485a190c1b60b571f3cf",
+          "byteLength": 5822
+        },
+        "sourceCount": 2,
+        "sourceIds": [
+          "smartedu-ebook-cn-3-first-2024",
+          "manual-3b163f03f7c6e6c9"
+        ],
+        "entryLocatorCount": 778,
+        "entryLocatorWithSourceRefs": 778
+      },
+      "snapshotSha256": "b02699dd111257e6f6afefc3b8a396db2e718afcd67299090cb4dbdd921025d0"
+    },
+    {
+      "editionId": "en-yl-3-1-yilin-2024",
+      "contentVersion": "1.0.1",
+      "status": 200,
+      "summary": {
+        "version": {
+          "editionId": "en-yl-3-1-yilin-2024",
+          "contentVersion": "1.0.1",
+          "versionId": "en-yl-3-1-yilin-2024@1.0.1"
+        },
+        "contentSha256": "aed31475025e503c",
+        "capture": {
+          "capturedAt": "2026-10-06T18:40:03.324251Z",
+          "capturedBy": "local-admin-1001",
+          "origin": "import",
+          "operationId": "import:en-yl-3-1-yilin-2024@1.0.1"
+        },
+        "manifestBaseline": {
+          "present": true,
+          "missingReason": null,
+          "catalogVersion": "2026-10-04.1",
+          "fileSha256": "107460ab893b7cbee890c3667807d534e5deaa7cdd96485a190c1b60b571f3cf",
+          "byteLength": 5822
+        },
+        "sourceCount": 1,
+        "sourceIds": [
+          "yilin-en-3-first-2024"
+        ],
+        "entryLocatorCount": 140,
+        "entryLocatorWithSourceRefs": 140
+      },
+      "snapshotSha256": "5b1a42aa8994aa0454d35e4cf710d3026a45536873c60b7e38d5dbc9c0e35013"
+    },
+    {
+      "editionId": "en-yl-3-1-yilin-2024",
+      "contentVersion": "1.0.2",
+      "status": 200,
+      "summary": {
+        "version": {
+          "editionId": "en-yl-3-1-yilin-2024",
+          "contentVersion": "1.0.2",
+          "versionId": "en-yl-3-1-yilin-2024@1.0.2"
+        },
+        "contentSha256": "2bb2e25676ed3bf5",
+        "capture": {
+          "capturedAt": "2026-10-06T18:40:09.643604Z",
+          "capturedBy": "local-admin-1001",
+          "origin": "publish",
+          "operationId": "publish:en-yl-3-1-yilin-2024@1.0.2"
+        },
+        "manifestBaseline": {
+          "present": true,
+          "missingReason": null,
+          "catalogVersion": "2026-10-04.1",
+          "fileSha256": "107460ab893b7cbee890c3667807d534e5deaa7cdd96485a190c1b60b571f3cf",
+          "byteLength": 5822
+        },
+        "sourceCount": 2,
+        "sourceIds": [
+          "yilin-en-3-first-2024",
+          "manual-f6e47d2c58d5a59a"
+        ],
+        "entryLocatorCount": 141,
+        "entryLocatorWithSourceRefs": 141
+      },
+      "snapshotSha256": "116e26b9903562eedffefee0c69ca37631e192e1ac1b68cd9dfc6bb32a820643"
+    },
+    {
+      "editionId": "en-yl-3-1-yilin-2024",
+      "contentVersion": "1.0.3",
+      "status": 200,
+      "summary": {
+        "version": {
+          "editionId": "en-yl-3-1-yilin-2024",
+          "contentVersion": "1.0.3",
+          "versionId": "en-yl-3-1-yilin-2024@1.0.3"
+        },
+        "contentSha256": "4d19348879c114cf",
+        "capture": {
+          "capturedAt": "2026-10-06T18:40:09.814493Z",
+          "capturedBy": "local-admin-1001",
+          "origin": "publish",
+          "operationId": "publish:en-yl-3-1-yilin-2024@1.0.3"
+        },
+        "manifestBaseline": {
+          "present": true,
+          "missingReason": null,
+          "catalogVersion": "2026-10-04.1",
+          "fileSha256": "107460ab893b7cbee890c3667807d534e5deaa7cdd96485a190c1b60b571f3cf",
+          "byteLength": 5822
+        },
+        "sourceCount": 2,
+        "sourceIds": [
+          "yilin-en-3-first-2024",
+          "manual-f6e47d2c58d5a59a"
+        ],
+        "entryLocatorCount": 140,
+        "entryLocatorWithSourceRefs": 140
+      },
+      "snapshotSha256": "8bc54b691280ec96f1c7b16a6a4408f237192914c9204bd5e0cd9a557dc794fc"
+    }
+  ],
+  "reconciliation": {
+    "status": 200,
+    "data": {
+      "comparisons": [
+        {
+          "editionId": "cn-ty-1-1-pep-2024",
+          "fileVersion": "1.0.2",
+          "databaseVersion": "1.0.2",
+          "fileEntryCount": 318,
+          "databaseEntryCount": 318,
+          "fileSha256": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527",
+          "databaseSha256": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527",
+          "status": "identical"
+        },
+        {
+          "editionId": "cn-ty-2-1-pep-2017",
+          "fileVersion": "1.0.2",
+          "databaseVersion": "1.0.3",
+          "fileEntryCount": 760,
+          "databaseEntryCount": 761,
+          "fileSha256": "1d14e1fd6d3c819dfa5a74b00de26d9476e04e7f9d5e5780a97dff71914f8778",
+          "databaseSha256": "daf97d35520076d4bccc94c74b40e119267a5266013d5fbbbdf167dab3962bb1",
+          "status": "different"
+        },
+        {
+          "editionId": "cn-ty-3-1-pep-2024",
+          "fileVersion": "1.0.0",
+          "databaseVersion": "1.0.1",
+          "fileEntryCount": 777,
+          "databaseEntryCount": 778,
+          "fileSha256": "49abe27d8b49e50b99af599726d0374b13071b47f4447538fcaab65b74fd7cdf",
+          "databaseSha256": "6466208d77380ff24ad81c952cf65e591b515d5cb1b5e461b74b771350e59881",
+          "status": "different"
+        },
+        {
+          "editionId": "cn-ty-4-1-pep-2024",
+          "fileVersion": "1.0.0",
+          "databaseVersion": "1.0.0",
+          "fileEntryCount": 640,
+          "databaseEntryCount": 640,
+          "fileSha256": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295",
+          "databaseSha256": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295",
+          "status": "identical"
+        },
+        {
+          "editionId": "en-yl-3-1-yilin-2024",
+          "fileVersion": "1.0.1",
+          "databaseVersion": "1.0.3",
+          "fileEntryCount": 140,
+          "databaseEntryCount": 140,
+          "fileSha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4",
+          "databaseSha256": "4d19348879c114cfa0da7650f7ab6cc5afd3b4d12a48b87ae9433580d3db09d1",
+          "status": "different"
+        }
+      ],
+      "identicalCount": 2,
+      "totalCount": 5,
+      "switchSafe": false,
+      "notes": [
+        "存在内容不同的教材：切换后公开内容会发生变化。"
+      ]
+    }
+  }
+}

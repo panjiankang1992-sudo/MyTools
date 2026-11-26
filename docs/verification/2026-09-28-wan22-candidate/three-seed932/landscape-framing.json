@@ -1,0 +1,15 @@
+{
+  "translationOnly": {
+    "scale": 1.0,
+    "dxAt128": 0,
+    "dyAt128": -2,
+    "mse": 422.92362243082925
+  },
+  "scaleAndTranslation": {
+    "scale": 1.0000000000000002,
+    "dxAt128": 0,
+    "dyAt128": -2,
+    "mse": 422.92362243082925
+  },
+  "note": "Two-dimensional fit only; not proof of physical camera trajectory."
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "name": "english-only",
+    "bytes": 60867,
+    "pages": 1,
+    "promptPresent": true,
+    "missingAnswerAbsent": true,
+    "a4": true
+  },
+  {
+    "name": "meaning-only",
+    "bytes": 60262,
+    "pages": 1,
+    "promptPresent": true,
+    "missingAnswerAbsent": true,
+    "a4": true
+  },
+  {
+    "name": "pinyin-only",
+    "bytes": 61048,
+    "pages": 1,
+    "promptPresent": true,
+    "missingAnswerAbsent": true,
+    "a4": true
+  },
+  {
+    "name": "hanzi-only",
+    "bytes": 60527,
+    "pages": 1,
+    "promptPresent": true,
+    "missingAnswerAbsent": true,
+    "a4": true
+  }
+]

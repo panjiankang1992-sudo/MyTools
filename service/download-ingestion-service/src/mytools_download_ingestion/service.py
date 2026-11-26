@@ -4,9 +4,11 @@ from __future__ import annotations
 
 from dataclasses import replace
 import hashlib
+import re
 import struct
 from threading import RLock
 from typing import Protocol
+from urllib.error import HTTPError, URLError
 from uuid import UUID
 
 from .models import CreateDownloadRequest, DownloadRequest, DownloadStatus
@@ -14,6 +16,7 @@ from .models import CreateDownloadRequest, DownloadRequest, DownloadStatus
 TASK_NAMES = {
     "HTTP_ASSET": "download_http_asset",
     "LOCAL_IMPORT": "download_local_import",
+    "STORAGE_OBJECT": "download_storage_object",
     "X_POST": "download_x_post",
     "X_USER": "download_x_user",
     "WEB_ARCHIVE": "download_web_archive",
@@ -39,6 +42,9 @@ class DownloadRequestRepository(Protocol):
 
     def find_by_id(self, request_id: UUID) -> DownloadRequest | None:
         """Return a request by its business identifier."""
+
+    def unfinished_app_request_ids(self, owner_id: int) -> list[str]:
+        """返回所有者未完成的 APP 下载请求标识。"""
 
     def insert(self, request: DownloadRequest) -> DownloadRequest:
         """Persist a newly accepted request."""
@@ -89,26 +95,42 @@ class DownloadRequestService:
         self._repository = repository
         self._scheduler = scheduler
 
-    def create(self, command: CreateDownloadRequest) -> DownloadRequest:
+    def create(self, command: CreateDownloadRequest, *, defer_unavailable_scheduler: bool = False) -> DownloadRequest:
         """Idempotently create a request and its scheduler task binding."""
         existing = self._repository.find_by_idempotency_key(command.idempotency_key)
         if existing is not None and not equivalent(existing, command):
             raise ValueError("download request idempotency conflict")
-        if existing is not None and existing.task_instance_id is not None:
+        if existing is not None and (existing.task_instance_id is not None or existing.status in TERMINAL_STATUSES):
             return existing
         task_name = TASK_NAMES.get(command.request_kind)
         if task_name is None:
             raise ValueError(f"unsupported download request kind: {command.request_kind}")
         accepted = existing or self._repository.insert(DownloadRequest.accept(command))
-        if accepted.task_instance_id is not None:
+        if accepted.task_instance_id is not None or accepted.status in TERMINAL_STATUSES:
             return accepted
-        task_id = self._scheduler.create_task(
-            task_name=task_name,
-            idempotency_key=f"download:{accepted.idempotency_key}",
-            business_id=str(accepted.id),
-            parameters={**accepted.parameters, "ownerId": accepted.owner_id,
-                        "downloadRequestId": str(accepted.id)},
-        )
+        parameters = {**accepted.parameters, "ownerId": accepted.owner_id,
+                      "downloadRequestId": str(accepted.id)}
+        if accepted.source_type == "APP_TOOL" and command.request_kind in {"MESSAGE_URL_BATCH", "X_USER"}:
+            # APP 批次不是消息身份，使用稳定命名空间避免误登记到机器人消息去重表。
+            parameters["messageBatchId"] = f"app:{accepted.id}"
+        if command.request_kind in {"X_POST", "X_USER", "WEB_ARCHIVE"}:
+            # 编排任务自行生成每个媒体的身份；兼容旧消息入口携带的单文件字段。
+            # 仅清理已知无效字段，保留原始请求用于幂等比对，不放宽调度器参数校验。
+            parameters.pop("itemId", None)
+            parameters.pop("fileName", None)
+        try:
+            task_id = self._scheduler.create_task(
+                task_name=task_name,
+                idempotency_key=f"download:{accepted.idempotency_key}",
+                business_id=str(accepted.id),
+                parameters=parameters,
+            )
+        except (URLError, TimeoutError, ConnectionError) as error:
+            # 后台对账已随请求落库，APP 可先绑定该请求，后续提交仍使用相同幂等键。
+            retryable = not isinstance(error, HTTPError) or error.code == 429 or error.code >= 500
+            if retryable and defer_unavailable_scheduler and getattr(self._repository, 'background_enabled', False):
+                return accepted
+            raise
         return self._repository.bind_task(accepted.id, task_id)
 
     def get(self, request_id: UUID) -> DownloadRequest | None:
@@ -236,7 +258,9 @@ class DownloadRequestService:
         if current is None:
             return None
         items = sorted(self._repository.list_results(request_id), key=lambda item: str(item["itemId"]))
-        return {**self._summary(current, items), **self._repository.progress_summary(request_id)}
+        return {**self._summary(current, items), **self._repository.progress_summary(request_id),
+                **(self._repository.background_summary(request_id)
+                   if getattr(self._repository, 'background_enabled', False) else {})}
 
     def result_summary_for_owner(self, request_id: UUID, owner_id: int) -> dict | None:
         """仅向匹配所有者返回不含来源 Secret 的结果摘要。"""
@@ -244,7 +268,23 @@ class DownloadRequestService:
         if current is None:
             return None
         items = sorted(self._repository.list_results(request_id), key=lambda item: str(item["itemId"]))
-        return {**self._summary(current, items), **self._repository.progress_summary(request_id)}
+        return {**self._summary(current, items), **self._repository.progress_summary(request_id),
+                **(self._repository.background_summary(request_id)
+                   if getattr(self._repository, 'background_enabled', False) else {})}
+
+    def result_snapshot_for_owner(self, request_id: UUID, owner_id: int) -> dict | None:
+        """只读已落库状态，列表查询不持锁调用外部 Scheduler。"""
+        current = self._repository.find_by_id(request_id)
+        if current is None or current.owner_id != owner_id:
+            return None
+        items = sorted(self._repository.list_results(request_id), key=lambda item: str(item['itemId']))
+        return {**self._summary(current, items), **self._repository.progress_summary(request_id),
+                **(self._repository.background_summary(request_id)
+                   if getattr(self._repository, 'background_enabled', False) else {})}
+
+    def unfinished_app_request_ids(self, owner_id: int) -> list[str]:
+        """只读已落库的未完成 APP 下载请求标识。"""
+        return self._repository.unfinished_app_request_ids(owner_id)
 
     @staticmethod
     def _summary(current: DownloadRequest, items: list[dict]) -> dict:
@@ -326,7 +366,9 @@ def transition(current: DownloadStatus, proposed: DownloadStatus) -> DownloadSta
 class InMemoryDownloadRequestRepository:
     """Deterministic repository used by domain tests and local prototypes."""
 
-    def __init__(self):
+    def __init__(self, *, background_enabled: bool = False):
+        self.background_enabled = background_enabled
+        self._async_items: set[tuple[UUID, str]] = set()
         self._lock = RLock()
         self._by_id: dict[UUID, DownloadRequest] = {}
         self._by_key: dict[str, UUID] = {}
@@ -341,6 +383,13 @@ class InMemoryDownloadRequestRepository:
     def find_by_id(self, request_id: UUID) -> DownloadRequest | None:
         """Return a request by identifier."""
         return self._by_id.get(request_id)
+
+    def unfinished_app_request_ids(self, owner_id: int) -> list[str]:
+        """返回所有者未完成的 APP 下载请求标识。"""
+        with self._lock:
+            return [str(request.id) for request in self._by_id.values()
+                    if request.owner_id == owner_id and request.source_type == "APP_TOOL"
+                    and request.status not in TERMINAL_STATUSES]
 
     def insert(self, request: DownloadRequest) -> DownloadRequest:
         """Insert one request while enforcing key uniqueness."""
@@ -383,7 +432,8 @@ class InMemoryDownloadRequestRepository:
         with self._lock:
             current = self._by_id[request_id]
             for (owner_id, _), result in self._results.items():
-                if owner_id == request_id and result["tagStatus"] == "PENDING":
+                if (owner_id == request_id and result["tagStatus"] == "PENDING"
+                        and (owner_id, str(result["itemId"])) not in self._async_items):
                     result.update({"tagStatus": "FAILED", "tags": []})
             updated = current if current.status in TERMINAL_STATUSES else replace(current, status=status)
             self._by_id[request_id] = updated
@@ -403,6 +453,8 @@ class InMemoryDownloadRequestRepository:
             tag_status = "FAILED" if request.status in TERMINAL_STATUSES else "PENDING"
             stored = {**result, "tagStatus": tag_status, "tags": []}
             self._results[key] = stored
+            if result.get('enrichmentMode') == 'ASYNC' and request.status not in TERMINAL_STATUSES:
+                self._async_items.add(key)
             return dict(result)
 
     def record_tags(self, request_id: UUID, result: dict) -> dict:
@@ -441,3 +493,13 @@ class InMemoryDownloadRequestRepository:
         downloaded = sum(value["downloadedBytes"] for value in values)
         return {"progressDownloadedBytes": downloaded, "progressTotalBytes": total,
                 "progressPercent": 0 if total == 0 else downloaded * 100 // total}
+
+    def background_summary(self, request_id: UUID) -> dict:
+        """返回内存原型的独立后处理状态。"""
+        values = [value for key, value in self._results.items()
+                  if key[0] == request_id and key in self._async_items]
+        pending = sum(value['tagStatus'] == 'PENDING' for value in values)
+        failed = sum(value['tagStatus'] == 'FAILED' for value in values)
+        return {'postProcessingStatus': 'PENDING' if pending else 'FAILED' if failed else
+                'SUCCEEDED' if values else 'NOT_REQUIRED', 'postProcessingPending': pending,
+                'postProcessingFailed': failed}

@@ -17,8 +17,8 @@ export class TrustedLanEndpointPolicy {
 
   /** 规范化固定端口的局域网HTTP地址。 */
   normalize(value: string): string {
-    const matched = /^http:\/\/(\d{1,3}(?:\.\d{1,3}){3}):23110\/?$/.exec(value.trim());
+    const matched = /^http:\/\/(\d{1,3}(?:\.\d{1,3}){3}):23201\/?$/.exec(value.trim());
     if (matched === null || !this.isPrivateIpv4(matched[1])) throw new Error('局域网服务地址无效');
-    return `http://${matched[1]}:23110`;
+    return `http://${matched[1]}:23201`;
   }
 }

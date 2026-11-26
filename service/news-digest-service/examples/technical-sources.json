@@ -1,0 +1,41 @@
+[
+  {
+    "id": "github-discovery",
+    "name": "GitHub Repository Discovery",
+    "feedUrl": "https://api.github.com/search/repositories",
+    "category": "TECH",
+    "publisherKey": "github",
+    "regionCode": null,
+    "evidencePolicy": "METADATA_ONLY",
+    "rightsReference": "https://docs.github.com/en/rest/search/search",
+    "authority": 0.8,
+    "enabled": false,
+    "kind": "GITHUB"
+  },
+  {
+    "id": "hacker-news-top",
+    "name": "Hacker News Top Stories",
+    "feedUrl": "https://hacker-news.firebaseio.com/v0/topstories.json",
+    "category": "TECH",
+    "publisherKey": "hacker-news",
+    "regionCode": null,
+    "evidencePolicy": "METADATA_ONLY",
+    "rightsReference": "https://github.com/HackerNews/API",
+    "authority": 0.6,
+    "enabled": false,
+    "kind": "HACKER_NEWS"
+  },
+  {
+    "id": "dev-weekly",
+    "name": "DEV Weekly Articles",
+    "feedUrl": "https://dev.to/api/articles",
+    "category": "TECH",
+    "publisherKey": "dev-community",
+    "regionCode": null,
+    "evidencePolicy": "METADATA_ONLY",
+    "rightsReference": "https://developers.forem.com/api/v1",
+    "authority": 0.6,
+    "enabled": false,
+    "kind": "DEV"
+  }
+]

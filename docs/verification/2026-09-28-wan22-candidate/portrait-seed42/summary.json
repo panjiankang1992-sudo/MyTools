@@ -1,0 +1,17 @@
+{
+  "samples": [
+    {
+      "name": "portrait",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "model": "wan22",
+      "variant": "baseline",
+      "promptStyle": "original",
+      "seconds": 195.02,
+      "status": "SUCCEEDED"
+    }
+  ],
+  "quality": "pending",
+  "productionEnabled": false
+}

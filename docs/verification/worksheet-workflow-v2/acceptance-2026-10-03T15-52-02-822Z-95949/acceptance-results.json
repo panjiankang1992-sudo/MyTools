@@ -1,0 +1,2841 @@
+{
+  "schemaVersion": 2,
+  "runId": "acceptance-2026-10-03T15-52-02-822Z-95949",
+  "startedAt": "2026-10-03T15:52:02.822Z",
+  "finishedAt": "2026-10-03T15:52:02.837Z",
+  "environment": {
+    "node": "v24.19.0",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "executor": "local-domain-probes",
+    "browser": null,
+    "device": null
+  },
+  "buildId": null,
+  "commit": null,
+  "sourceSnapshot": {
+    "sha256": "22a48fb0eb4abc0066b08aa5ef500158695833c04fb854048364457ce081a61e",
+    "fileCount": 62
+  },
+  "contract": {
+    "path": "/Users/pankang/mycode/MyTools/docs/design/2026-10-03-worksheet-workflow-revision/acceptance.md",
+    "sha256": "ea888a99d2c3908aa8c7a0f871cf4861d5c6e74c9c447ca3d991a84b4703cfd7"
+  },
+  "scope": {
+    "manifestPath": null,
+    "exclusions": [],
+    "recordedHistoricalDecisions": "FINAL-REPORT.md records assisted Chinese OCR and PDF-only verification. These records are retained, not automatically converted into scope authorization or current execution evidence."
+  },
+  "note": "Only listed domain probes ran. UI, current PDF downloads, real OCR and device checks did not run. Historical attachments never satisfy current requirements.",
+  "historicalEvidence": [
+    {
+      "path": "acceptance-results.json",
+      "sha256": "1e1b6a4fe96a232cfa197d7554bf91f6fe8c2e921859b969fe863d440ca1a521",
+      "provenance": "historical",
+      "reusedAsCurrentPass": false
+    },
+    {
+      "path": "ocr-fixtures.json",
+      "sha256": "fc1e154b5a4cbf1a98f6d3ccd24459fa0881bc3a1330435575dd683a46a3a347",
+      "provenance": "historical",
+      "reusedAsCurrentPass": false
+    },
+    {
+      "path": "ocr-ab.json",
+      "sha256": "ddff52fd09aba030e3947ba07047e18c0c2639230c12532ee3dbcb12d05c8b6f",
+      "provenance": "historical",
+      "reusedAsCurrentPass": false
+    },
+    {
+      "path": "layout-density.json",
+      "sha256": "17ced4092a3e2dd007ae66bf082da20362b37203aeec1f40c55f37618270bcde",
+      "provenance": "historical",
+      "reusedAsCurrentPass": false
+    },
+    {
+      "path": "responsive-report.json",
+      "sha256": "03eda2cabd1ad2baa5d1205a9445bbd6915dafad2be5302b4450dd6722f1eb93",
+      "provenance": "historical",
+      "reusedAsCurrentPass": false
+    },
+    {
+      "path": "accessibility-report.json",
+      "sha256": "9102c7f40370c7ec04802da5a3c7b189cabae90fd8760c0d332b890ebb960237",
+      "provenance": "historical",
+      "reusedAsCurrentPass": false
+    }
+  ],
+  "total": 44,
+  "inScope": 44,
+  "counts": {
+    "pass": 0,
+    "fail": 0,
+    "blocked": 0,
+    "not_run": 44,
+    "excluded": 0
+  },
+  "gate": {
+    "passed": false,
+    "exitCode": 2
+  },
+  "cases": [
+    {
+      "id": "W01",
+      "title": "四步闭环",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "逐一从三入口开始。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "完成输入进入处理。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "选择题型生成预览。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "回到编辑后再次生成并导出。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-5",
+          "description": "在英语页重复。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "初始文本框为空，不自动填样例；六条路径都经可编辑输入、统一处理、预览调整、输出四步；没有某来源绕过必要校对直接输出；当前步骤和返回路径明确，空输入不能进入可输出状态。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "六路径录像/截图与状态序列、空输入断言。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [
+        {
+          "caseId": "W01",
+          "id": "W01.empty-document",
+          "title": "新草稿原文为空（不覆盖六路径界面闭环）",
+          "covers": [],
+          "provenance": "current",
+          "status": "pass",
+          "startedAt": "2026-10-03T15:52:02.825Z",
+          "finishedAt": "2026-10-03T15:52:02.825Z",
+          "assertions": [
+            {
+              "message": "新草稿没有自动填入示例",
+              "actual": "",
+              "expected": "",
+              "passed": true
+            },
+            {
+              "message": "新草稿没有候选",
+              "actual": 0,
+              "expected": 0,
+              "passed": true
+            }
+          ],
+          "evidence": [],
+          "reason": null
+        }
+      ],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "step-5",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W02",
+      "title": "教材字表只筛内容",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "分别勾选三种字表。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "同时勾选并取消其中一类。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "进入处理由用户选择题型。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "返回输入再改变字表选择。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "三种表仅决定取词范围；无按表自动分配题型，无逐项 mode，无混合卷；已明确选择的全局 mode 不因增删字表自动变化。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "选择前后草稿 diff、UI 录像、生成后每题投影断言。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W03",
+      "title": "教材转可编辑文本及来源",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "按课/单元选内容并转为文本。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "核对词语之间空格。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "编辑其中一个词并换册后返回。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "检查各词来源。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "教材内容以可编辑文本展示，词语不被连接为一串；未改条目保留真实版本与来源引用，修改条目标为用户编辑；换册不暗中混入旧册或覆盖已输入内容，不为用户新增词伪造教材来源。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "正式来源对照、转换原文、编辑/换册前后 rawText 和 sourceRefs 摘要。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W04",
+      "title": "原文为真值",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "粘贴含连续空格、换行和引号的文本。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "编辑后切换输入来源入口并返回。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "完成处理/预览后回编。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "撤销一次输入修改。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "唯一 `rawText` 保留原字符串的空格、换行、引号及输入顺序；规范化 token 不反写覆盖原文；生成预览不是替换编辑框原文的依据；切换来源入口不自动覆盖已输入内容。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "输入字符串逐码点比较、状态转换快照、回编录屏。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [
+        {
+          "caseId": "W04",
+          "id": "W04.raw-string",
+          "title": "解析保留原字符串（不覆盖界面切换及撤销）",
+          "covers": [],
+          "provenance": "current",
+          "status": "pass",
+          "startedAt": "2026-10-03T15:52:02.825Z",
+          "finishedAt": "2026-10-03T15:52:02.825Z",
+          "assertions": [
+            {
+              "message": "原字符串空白及引号完整保留",
+              "actual": "apple   \"ice cream\"\ndon't",
+              "expected": "apple   \"ice cream\"\ndon't",
+              "passed": true
+            },
+            {
+              "message": "派生分项正确",
+              "actual": [
+                "apple",
+                "ice cream",
+                "don't"
+              ],
+              "expected": [
+                "apple",
+                "ice cream",
+                "don't"
+              ],
+              "passed": true
+            }
+          ],
+          "evidence": [],
+          "reason": null
+        }
+      ],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W05",
+      "title": "中文空白分词与输入显示",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "输入单字和双字词混合串。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "分别测空格/Tab/换行/全角空格。",
+          "status": "pass",
+          "checkIds": [
+            "W05.whitespace"
+          ]
+        },
+        {
+          "id": "step-3",
+          "description": "输入未分隔 `春花秋月`。",
+          "status": "pass",
+          "checkIds": [
+            "W05.whitespace"
+          ]
+        },
+        {
+          "id": "step-4",
+          "description": "输入标点、补充平面字符、HTML/不可见控制字符。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "支持的空白分隔规则与契约一致；`春花秋月` 保留一个词，不自动拆四字；标点只能显式清理且可撤销，不静默拼接；字格计数不按 UTF-16 半个代理项截断，错误位置仍正确映射 textarea；空 token 不成题；HTML 作为文字显示不执行，控制字符定位报错。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "parser 单测、offset/字格计数、清理撤销及输入显示截图、执行事件为零的断言。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [
+        {
+          "caseId": "W05",
+          "id": "W05.whitespace",
+          "title": "中文分隔符和未分隔串",
+          "covers": [
+            "step-2",
+            "step-3"
+          ],
+          "provenance": "current",
+          "status": "pass",
+          "startedAt": "2026-10-03T15:52:02.825Z",
+          "finishedAt": "2026-10-03T15:52:02.825Z",
+          "assertions": [
+            {
+              "message": "分隔符 \" \"",
+              "actual": [
+                "春天",
+                "花朵"
+              ],
+              "expected": [
+                "春天",
+                "花朵"
+              ],
+              "passed": true
+            },
+            {
+              "message": "分隔符 \"\\t\"",
+              "actual": [
+                "春天",
+                "花朵"
+              ],
+              "expected": [
+                "春天",
+                "花朵"
+              ],
+              "passed": true
+            },
+            {
+              "message": "分隔符 \"\\n\"",
+              "actual": [
+                "春天",
+                "花朵"
+              ],
+              "expected": [
+                "春天",
+                "花朵"
+              ],
+              "passed": true
+            },
+            {
+              "message": "分隔符 \"　\"",
+              "actual": [
+                "春天",
+                "花朵"
+              ],
+              "expected": [
+                "春天",
+                "花朵"
+              ],
+              "passed": true
+            },
+            {
+              "message": "未分隔串不自动拆字",
+              "actual": [
+                "春花秋月"
+              ],
+              "expected": [
+                "春花秋月"
+              ],
+              "passed": true
+            }
+          ],
+          "evidence": [],
+          "reason": null
+        }
+      ],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W06",
+      "title": "英语短语和引号",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "空格模式导入带双引号短语。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "切“每行一个词/短语”。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "测试大小写、撇号、连字符。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "输入未闭合引号。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-5",
+          "description": "回切解析模式。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "`\"ice cream\"` 在空格模式为一个 token；逐行模式 `ice cream` 为一个词组；保留大小写/符号；引号不成为答案字符；未闭合引号定位阻断处理；切解析模式保留原文并明确刷新候选。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "parser 断言、原文和 token 对照、错误截图、模式切换记录。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [
+        {
+          "caseId": "W06",
+          "id": "W06.phrase-parser",
+          "title": "短语、逐行及引号错误领域检查",
+          "covers": [],
+          "provenance": "current",
+          "status": "pass",
+          "startedAt": "2026-10-03T15:52:02.825Z",
+          "finishedAt": "2026-10-03T15:52:02.825Z",
+          "assertions": [
+            {
+              "message": "引号短语保持一项",
+              "actual": [
+                "apple",
+                "ice cream",
+                "don't"
+              ],
+              "expected": [
+                "apple",
+                "ice cream",
+                "don't"
+              ],
+              "passed": true
+            },
+            {
+              "message": "逐行短语保持一项",
+              "actual": [
+                "ice cream",
+                "New York"
+              ],
+              "expected": [
+                "ice cream",
+                "New York"
+              ],
+              "passed": true
+            },
+            {
+              "message": "未闭合引号被阻断",
+              "actual": true,
+              "expected": true,
+              "passed": true
+            }
+          ],
+          "evidence": [],
+          "reason": null
+        }
+      ],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "step-5",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W07",
+      "title": "旧成对格式高级入口",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "进入高级导入并导入 CSV/TSV/旧竖线格式。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "核对二列对应关系。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "测 BOM、转义、空字段与错误列数。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "回普通文本编辑再预览。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "高级入口可找到；保留此前有效成对格式，读音/释义随条目绑定；错误定位到行且不部分静默成功；普通文本更改后关联校对信息按 token 身份更新，不错配到相邻词。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "有效导入结果与历史期望对比、错误行清单、改词后字段映射。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W08",
+      "title": "三来源共用原文与追加替换",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "分别将相同词送入处理。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "保留自定义原文，再追加教材和已校对 OCR。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "取消一次替换，再明确替换一次。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "选全局 mode 生成，并手工删除中间一个词。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "相同校对输入采用同一 token/题型规则；三来源写入同一文本框，没有多个按来源/题型分开的输入真值；追加有正确空白分隔，替换必须明确操作，取消不改变原文；sidecar 保留有效来源且不绑定题型；删除词后输出不遗留该词。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "三来源 token 对照、追加/替换前后 rawText 和 sidecar、确认录像、题目集合 diff。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W09",
+      "title": "文件格式与解码拒绝",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "选合法 PNG/JPEG/WebP。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "选伪装成 .png 的非图片和损坏图片。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "选 PDF/SVG/GIF/HEIC 等首期不支持文件。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "合法格式可解码；实际 MIME/签名与解码结果共同校验，不能只信扩展名；不支持或损坏文件明确拒绝且不进入 OCR；提示保留已有草稿/其他合法图片。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "文件 manifest、拒绝阶段断言、UI 错误、worker 任务数。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [
+        {
+          "caseId": "W09",
+          "id": "W09.signature",
+          "title": "文件签名检查（不覆盖真实解码及页面拒绝）",
+          "covers": [],
+          "provenance": "current",
+          "status": "pass",
+          "startedAt": "2026-10-03T15:52:02.825Z",
+          "finishedAt": "2026-10-03T15:52:02.825Z",
+          "assertions": [
+            {
+              "message": "合法 PNG 签名通过",
+              "actual": 0,
+              "expected": 0,
+              "passed": true
+            },
+            {
+              "message": "伪装 GIF 签名被拒",
+              "actual": true,
+              "expected": true,
+              "passed": true
+            }
+          ],
+          "evidence": [],
+          "reason": null
+        }
+      ],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W10",
+      "title": "数量字节像素边界",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "逐个测单文件与总字节边界。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "测 5/6 张。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "测 24 MP、8192 px 边界及超界。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "删除一图后重选。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "等于上限可接受，超过上限拒绝；合计按原文件实际字节计；超像素/长边在送入 OCR 前拒绝；不启动无界图像运算，不用缩小后尺寸掩盖原图超限；删除后额度恢复。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "边界表、实际 size/dimensions、处理阶段调用日志、额度变化。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [
+        {
+          "caseId": "W10",
+          "id": "W10.working-size",
+          "title": "工作图缩放边界（不覆盖队列删除额度）",
+          "covers": [],
+          "provenance": "current",
+          "status": "pass",
+          "startedAt": "2026-10-03T15:52:02.825Z",
+          "finishedAt": "2026-10-03T15:52:02.825Z",
+          "assertions": [
+            {
+              "message": "工作图像素不超限",
+              "actual": true,
+              "expected": true,
+              "passed": true
+            },
+            {
+              "message": "工作图最长边不超限",
+              "actual": true,
+              "expected": true,
+              "passed": true
+            }
+          ],
+          "evidence": [],
+          "reason": null
+        }
+      ],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W11",
+      "title": "本机 OCR 与按需加载",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "未打开图片入口时访问首页/字帖。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "进入图片入口第一次识别。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "断开外网并在资产缓存就绪后再次识别。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "检查所有 fetch/XHR/beacon 请求。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "首屏不下载 OCR worker/WASM/语言包；识别所需资源从同域按需加载，资源版本可固定；图片、裁剪图、识别原文不发往后端或第三方；资产未缓存的断网场景准确提示资源加载失败，不能宣称已离线可用。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "请求 URL/大小摘要、资源版本/hash、请求体无图像正文证明、在线/离线结果。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W12",
+      "title": "裁选、方向、缩小与串行",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "按正确方向预览并框选一栏。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "连续提交多张。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "对大图执行识别。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "返回原图重选不同区域。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "OCR 只识别所选区域；先纠正方向再建立一致裁剪坐标；一次最多一个 OCR 工作任务，队列可见；工作图≤6 MP 且最长边≤4096；原图仍可重选，不被缩小图替换；裁剪边界不漏选/串列。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "原图/裁选/工作图尺寸、区域文字对照、并发任务峰值=1、原图重选录像。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W13",
+      "title": "真实 OCR 到校对输入",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "中文/英语分别真实识别。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "对照夹具转写，中文按字符、英语按词计算编辑距离。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "修正一个识别错误并增删空格。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "确认使用再进入处理。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "识别返回非占位文本；固定清晰中文集合 CER≤5%、英文集合 WER≤5%，错误可完整校对；确认后 rawText 与用户校对值完全相同，词语空格可编辑；测试桩的返回值不能作为 OCR 识别率证据。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "真实引擎/语言包版本、原图、识别原文、CER/WER 计算、人工校对后精确对照。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W14",
+      "title": "低质量与空结果",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "分别识别。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "查看置信度或需校对提示。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "尝试在无有效文本时继续。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "选择手工输入恢复。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "低质量结果明确要求校对，置信度不冒充准确率；空结果不生成“识别成功”的空字帖；不依据语义自动补造缺字；失败/空结果提供重选区域、重试及手工输入，原图和已有文本保留。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "返回文本/分数、提示截图、空生成阻断断言、恢复记录。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W15",
+      "title": "超时取消与重试",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "模型加载悬挂至 60 秒。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "资源已就绪后识别悬挂至 120 秒。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "识别中主动取消。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "在资源加载失败后重试并继续下一张。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "资产加载 60 秒与 recognize 开始后 120 秒独立计时并明确报错；识别超时终止当前任务并释放槽位；取消后可继续操作；重试新建任务，不重复追加旧结果；失败不抹原文；不通过隐藏 loading 冒充已取消 worker。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "两阶段起止/超时/取消时间线、worker terminate/cleanup 记录、重试 requestId、真实取消录屏。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W16",
+      "title": "晚到 OCR 不覆写",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "发起识别后手工改原文再让结果返回。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "取消识别后返回结果。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "删除图片/关闭识别会话后返回结果。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "启动第二次识别并让第一次最后结束。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "晚到结果按 requestId/识别会话有效性/编辑 revision 判废；已编辑文本不会自动被覆盖；取消/删除的识别任务不复活；只有当前有效任务可呈现待确认结果，写入原文需用户明确追加或替换。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "四场景单测、rawText 前后值、请求/revision 时间线、资源释放断言。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W17",
+      "title": "更换图片与覆盖确认",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "更换图片或重新裁选。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "取消替换确认。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "再次确认替换并识别。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "识别失败。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-5",
+          "description": "成功但不点应用。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "可能覆盖已校对内容时明确确认；取消后图像及原文不变；确认后旧文本保持到新结果被主动采用或有明确可恢复状态；识别失败不造成原文丢失；不以换图动作直接静默清空草稿。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "确认/取消路径录像、各阶段图像与 rawText 摘要、失败恢复截图。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "step-5",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W18",
+      "title": "OCR 资源与实机输入",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "从相册/文件选择图片。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "连续识别、取消、重选 10 轮。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "切路由并返回。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "在加载/识别阶段旋转屏幕。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "无标签页崩溃和持续累积的 worker/Object URL；退出或删除时释放对应资源，保留当前文本；拍摄/相册照片方向正确；进度、取消、校对输入在小屏与软键盘下可达；不将内存不足误报为完成。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "实机型号/系统、录屏、worker/URL 生命周期记录、轮次前后资源测量和错误恢复。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W19",
+      "title": "用户选择全局 mode",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "第一次进入处理观察题型控件。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "用户选拼音字帖生成。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "改为汉字字帖重新预览。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "返回新增词语/更换来源。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "题型由用户在处理步明确选择/确认；全草稿只一个 mode；改变 mode 不改变 rawText、来源、已校对读音；新增来源不悄改已选 mode；每次模式变化生成新 revision 的全部题目。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "mode 与 rawText diff、两份预览、revision 对照。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [
+        {
+          "caseId": "W19",
+          "id": "W19.global-mode",
+          "title": "切全局模式保留原文（不覆盖教材选择及 UI）",
+          "covers": [],
+          "provenance": "current",
+          "status": "pass",
+          "startedAt": "2026-10-03T15:52:02.825Z",
+          "finishedAt": "2026-10-03T15:52:02.826Z",
+          "assertions": [
+            {
+              "message": "切换全局模式不改原文",
+              "actual": "春 天",
+              "expected": "春 天",
+              "passed": true
+            },
+            {
+              "message": "全局模式更新",
+              "actual": "chinese-dictation",
+              "expected": "chinese-dictation",
+              "passed": true
+            }
+          ],
+          "evidence": [],
+          "reason": null
+        }
+      ],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W20",
+      "title": "中文拼音字帖",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "仅提供汉字生成学生卷。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "检查单字/多字词和四线区。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "未确认拼音时尝试生成答案。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "确认后生成答案并检查学生产物数据。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "学生卷只需有效汉字，题面是汉字、书写区为空四线三格，不因未确认答案拼音被阻断；按字数保留足够音节书写区，不拆乱词语；答案输出必须有已确认读音；学生投影/打印数据/PDF 文本层、元数据、附件无答案拼音。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "学生/答案文件、分阶段字段校验、投影结构、逐题对照和答案扫描。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W21",
+      "title": "中文汉字字帖",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "生成学生卷。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "检查拼音、字数及米字格。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "生成答案。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "扫描学生产物中的答案。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "题面为经校对的拼音，汉字答案区域为空米字格；每个汉字对应一格，双字/长词保留题内整体；不存在以 CSS 隐藏汉字答案的学生节点；独立答案题号/汉字与题面一一对应。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "学生/答案 PDF、题面/格数断言、DOM/投影/PDF 结构扫描。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W22",
+      "title": "拼音优先级与编辑失效",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "加载教材词并生成候选。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "手动修改读音。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "再次处理/回编。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "修改该词汉字而不改其他词。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "未编辑教材使用已审读音；用户确认的覆盖值优先且跨回编保留；自动候选不覆写已审/已确认值；词文变化后旧读音覆盖失效或要求重新确认，只影响被修改词，不串到下一行。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "各阶段来源/读音/审核状态表、编辑前后差异、优先级测试。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W23",
+      "title": "多音字、缺字与按产物校验",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "输入多音字及缺读音词。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "故意给错误音节数。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "分别生成汉字字帖学生卷、拼音字帖学生卷及其答案。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "逐项校对后重试。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-5",
+          "description": "触发缺字形。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "汉字字帖题面及任何中文答案需要拼音时，未确认歧义/缺失/音节数不符定位阻断；拼音字帖仅学生卷仍可凭有效汉字生成；自动拼音为候选而非已审教材事实；修复解除对应阻断；实际产物所需字形缺失时不变方框、不删声调/字符。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "按 mode/artifactKind 的校验矩阵、错误清单、校对状态迁移、修复 PDF 和字符诊断。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "step-5",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W24",
+      "title": "英语看中文写英文",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "输入词/短语并通过教材匹配或手填中文义。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "生成学生卷与答案。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "删除一个词的中文义再生成。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "学生仅有对应中文提示及空四线三格，英文答案不泄露；短语有足够可写宽度；匹配词典来源可查，未命中不捏造释义；缺中文义定位阻断，不能以空提示成卷假成功。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "配对审核表、学生/答案 PDF、字段缺失阻断结果、答案隔离扫描。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W25",
+      "title": "英语看英文写中文",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "仅输入含大小写/符号的词和短语生成学生卷。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "尝试生成答案。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "填或确认中文义后生成答案。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "切另一全局方向并返回。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "学生卷仅需有效英文，保留原英文词形且后方为空横线；不能因未填答案释义阻断学生卷；答案必须有确认中文义，无释义时定位阻断；切方向保留词对，新方向必要字段重新校验，不错配释义。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "两阶段输出/阻断、配对映射、原文字串和答案扫描。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W26",
+      "title": "去重与来源保留",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "将三来源追加到统一原文。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "执行处理。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "检查候选计数与来源。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "改全局 mode 后再处理。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-5",
+          "description": "启用显式重复次数。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "按契约中的文本、读音、义项键去重；完全相同项合并 sourceRefs；异音/异义不合并；去重不修改 rawText；全局换题型不改变候选集合；用户显式重复是在去重后展开，不被再次去掉。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "去重 key/保留 ID/sourceRefs、候选与展开题数、换模式前后集合 diff。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "step-5",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W27",
+      "title": "顺序、抽取与规模上限",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "默认生成并核对 token 顺序。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "固定种子抽取两次并手动排序。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "测原文 64 KiB/解析 2000 token 边界与各超 1。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "201 候选分别抽选 200 项及 all 选 201 项。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-5",
+          "description": "测重复 1—5、展开 500/501 题。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-6",
+          "description": "混入自定义词尝试教材单元均衡。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "默认稳定按原文顺序，同输入/种子/算法同结果，不能渲染前重排；201 候选可处理并抽选 200，all 选 201 阻断；原文 64 KiB/2000 token 等于上限接受、超 1 拒绝；超限保留原文不截前 200/500；无可信单元的自定义/OCR 项不伪造单元参与均衡，入口说明原因。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "序列/seed/算法、UTF-8 字节与 token 边界、候选/选入/展开数、均衡范围与原文未变断言。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "step-5",
+        "step-6",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W28",
+      "title": "调整回完整编辑框",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "点“调整内容与样式”。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "核对完整输入框。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "增删词并调格距/标题。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "再生成后返回，连续三轮。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "每次返回都可直接编辑完整原始文本，不仅显示只读词条/旧预览；原空格、换行、引号、模式、校对覆盖、样式及有效 sidecar 保留；未改词不丢关联；预览更新反映最终输入。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "三轮 rawText 精确对照、覆盖设置 diff、前后 PDF 与录屏。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W29",
+      "title": "编辑时旧产物禁用",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "改原文、mode、版式各一次。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "新 revision 未完成时点下载/打印。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "故意使渲染失败。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "修复并重新生成。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "草稿修改立即使旧产物失效；待生成/失败状态不能导出旧卷冒充当前卷；仅当前 revision 成功时启用输出；旧预览如暂保留必须标过期，失败保留编辑内容并可重试。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "revision/artifact 时间线、按钮状态、阻断日志、下载 hash 与当前版本对照。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W30",
+      "title": "渲染竞争、清空与内容身份",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "连续改变 mode/字号/标题十次并让最早请求最后返回。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "同 ID、同条数下改正文/读音/释义。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "生成中清空或切路由。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "字体加载失败后重试。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "只有当前文档/版本/generationId 可发布；同数量内容变化必须改变 contentHash/renderHash 并更新卷面；清空取消任务、释放产物、busy=false 且输出禁用；旧结果不复活草稿；切路由不丢已输入原文；字体失败不输出空白卷。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "竞争测试、hash/revision/取消时间线、清空状态、资源释放断言、字体失败录屏。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W31",
+      "title": "v2 草稿保存与恢复",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "编辑但不保存并检查存储。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "主动保存、刷新并恢复。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "检查 rawText、mode、校对及样式。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "模拟配额失败。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-5",
+          "description": "清除草稿。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "继续采用主动保存策略；保存使用 schemaVersion=2 与 v2 键，恢复原文及必要版本/用户覆盖；不将图片二进制、Object URL 或 worker 状态误作可长期恢复资源；失败不谎称已保存且当前内容仍可用；清除确实删除对应记录。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "存储前后键/结构、恢复 diff、失败提示、清除存在性检查。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "step-5",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W32",
+      "title": "v1 只读有限迁移",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "恢复有效 v1。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "核对旧全局 mode、配对字段及顺序。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "恢复只有 selectedIds 的旧教材选择。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "保存 v2。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-5",
+          "description": "测坏 JSON/不支持版本。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "旧键字节不变；v1 未保存 rawText 时仅重建等价文本，并提示原格式未保存，不承诺旧空格保真；selectedIds 按原版本联网取回并确认，失败保留可恢复自定义词；来源不明标 legacy，不按字表更改 mode；迁移错误不清空其他草稿。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "v1 前后 hash、规范化迁移 fixture diff、提示/断网记录、legacy 断言。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "step-5",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W33",
+      "title": "解析错误与重新匹配",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "改成未闭合引号/空输入等错误。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "切步骤。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "修复并重新处理。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "插入/删除中间一个词。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "错误定位原输入而非静默吞词；无效输入保留且不能借旧预览输出；修复恢复处理；读音/释义按稳定 token/条目身份匹配，不靠数组下标导致后续字段错位；被删词覆盖不污染新词。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "原文错误范围、覆盖映射前后、无效输出阻断、修复后的题单。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W34",
+      "title": "冻结快照与答案隔离",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "生成中修改页面 reactive 条目及嵌套拼音/sourceRefs。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "先看/下载答案再切学生。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "检查学生 projection、打印窗口 DOM/脚本数据及 PDF 对象。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "来回三次后修改学生卷。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "渲染只读深复制冻结快照，不受外部嵌套对象修改影响；学生与答案独立投影，不能靠 CSS 隐藏；学生窗口只接学生产物/像素，唯一答案标记不进其文本/元数据/附件/数据；新卷缺答案时不留上一卷答案可点。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "快照不变断言、四模式扫描、窗口数据检查、学生/答案 hash/revision 表。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W35",
+      "title": "单字紧凑密度",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "生成汉字字帖。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "用布局结果和 PDF 坐标检查首行题数。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "切拼音字帖比较。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "固定输入再生成。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "180 mm 内容宽下，固定短读音单字夹具汉字字帖首行 10 题，拼音字帖首行 8 题；后者每个音节空四线区至少 16 mm 宽、9 mm 高；按真实宽度稳定 greedy packing，不硬设 4/5 列；题号宽为 max(3 mm, 实测+0.8 mm)，题间 2.5 mm、行间 3 mm；两模式无重叠。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "layout JSON、行宽求和、首行题数、PDF 几何和整页渲染图。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W36",
+      "title": "双字紧凑密度与真实宽度",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "默认 12 mm 生成汉字字帖双字词。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "测短读音首行题数。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "混入长拼音。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "切 10/14 mm 和拼音字帖。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "汉字字帖典型短读音双字词首行 6 题；长拼音按真实测宽扩项，可减少题数；拼音字帖多字词按每音节至少 16 mm 分配，可出现一行 4/5 项，不能缩小手写区强凑 6 项；10/14 mm 重新排版，字号≥9 pt。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "各布局行内宽度、字体测量值、题数、边界截图、PDF 字号/格距报告。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W37",
+      "title": "米字格与四线几何",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "提取格线 PDF 坐标。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "检查米字格外框、横竖中线和两条对角线。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "测四线三格。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "检查英语汉义横线。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "米字格完整含外框/横竖/两条虚线对角线，非旧田字格；四线三格为四条水平线、相邻 3 mm；汉义区横线与英文四线区区分；各配置尺寸误差≤0.5 pt，浅色线在黑白输出可辨。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "坐标/线型报告、放大局部、三格距及四模式 PDF。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W38",
+      "title": "长词、换页和大卷",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "生成四模式及 500 题。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "检查所有换行换页点。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "输入长到超单行/超整页的题项。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "横屏缩放预览。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "测宽采用实际字体；英语不强制中文列数；长内容按规定换行/独占行或明确报错，字号≥9 pt；题面及其完整书写区不跨页拆散，题号连续、无缺题半格/多余空白页；超单页不可布局项明确阻断，不截断；预览缩放不变纸面。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "逐页题号/边界机器检查、分页渲染、长项错误、完整页数与峰值资源报告。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W39",
+      "title": "同 artifact 预览下载打印",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "查看首末页。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "点正式下载并取得实际设备文件。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "独立解析文件。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "打开应用打印预览/系统预览并取消。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-5",
+          "description": "再次主动打印；测试移动打印不可用。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "预览、下载与打印均使用同 revision 的同一 artifact，下载 SHA-256 与该 artifact 一致、签名为 %PDF- 且页数完整；取消不宣称打印成功；手机打印不可用可保存完整 PDF；不能拿临时函数文件代替按钮下载证据。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "实际下载路径/大小/hash、独立解析报告、各浏览器系统预览、取消与降级记录。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "step-5",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W40",
+      "title": "实体打印校验",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "默认实际大小打印四模式，另打印其余中文格距。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "测多处格距/四线间隔和页面边界。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "核对黑白格线、首末题、答案隔离。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "真正出纸；格线间距误差≤±0.5 mm，15 mm 页面边界误差≤±1 mm；无截边、缺题、拼音声调丢失或学生卷答案泄露；四种模式均有样张；没有打印机本用例必须 blocked。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "带尺照片、打印机/驱动/设置、测量 CSV、每张对应 PDF hash。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W41",
+      "title": "统计一次与模式归属",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "明确生成一次题单。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "调样式/回编预览/同配置重生成/刷新。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "重放事件。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "实际改变内容后生成另一题单。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-5",
+          "description": "切题型并检查事件。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "继续用四模式既有 toolId，无 mixed ID；纯版式/同配置重渲染/等价空白/网络重试沿用 operationId，不多算成功；有效内容实际改变后新生成才用新 operationId；失败不记成功；事件 mode 来自成功快照，不把旧结果算新 mode；统计失败不影响本机功能。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "eventId/operationId/toolId/revision/contentHash 映射、去重计数、失败及重试摘要。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "step-5",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W42",
+      "title": "全尺寸交互与可访问性",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "完整走四步。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "打开左菜单、OCR 裁选、末行校对。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "输入长文本弹软键盘。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "只用键盘切步骤/纠错/输出。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-5",
+          "description": "浅深色检查。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "无页面整体横向溢出（scrollWidth≤clientWidth+1）；只有纸张放大容器可独立平移；关键触控框≥44×44 px；键盘不遮当前输入/错误/主要操作；焦点顺序、返回焦点与异步状态可感知；打印纸始终白底黑字，暗色编辑控件可读。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "七宽度截图/宽度 JSON、实机软键盘录屏、点击框报告、键盘/读屏路线。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "step-5",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W43",
+      "title": "已发布教材回归和缺口展示",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "冻结执行时已发布版本清单。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "每个已发布版本两模式生成并回编。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "检查原需求 20 册槽位的缺失/partial 展示。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "断教材请求后重试。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-5",
+          "description": "比较首屏/OCR 资源加载。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "执行时全部已发布版本均回归；当前本地为 5 个 partial 版本、2635 条，至少形成 10 条版本×模式记录，实际以执行时清单为准；缺失/partial 如实展示，不回退样例或虚称全册；失败可恢复且原文保留；首屏不加载 OCR 模型。未补齐其他册是既有内容缺口，不单独阻塞本次工作流验收。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "已发布版本×两模式回归表、20 槽位缺口表、来源/产物索引、故障截图、资源加载对照。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "step-5",
+        "criteria",
+        "evidence"
+      ]
+    },
+    {
+      "id": "W44",
+      "title": "旧功能回归与交接完成",
+      "required": [
+        {
+          "id": "step-1",
+          "description": "执行本节列出的现有命令和新增单测。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-2",
+          "description": "回归首页、左导航、8 个 PDF 工具核心路径。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-3",
+          "description": "验证旧链接/旧草稿及手机保存。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "step-4",
+          "description": "收集失败修复记录并逐项填写 W01—W43。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "criteria",
+          "description": "类型检查、单测、教材校验、生产构建和本地 E2E 通过，无新增编译/运行错误；旧 PDF 功能不被字帖依赖/路由改动破坏；44 项均有实测状态，不凭历史结果填 pass；本次仍 blocked 的实机/打印等独立列出；区分工作流改造结果与既有全站教材缺口。",
+          "status": "not_run",
+          "checkIds": []
+        },
+        {
+          "id": "evidence",
+          "description": "命令/退出码日志、回归表、当前提交/锁文件版本、44 项结果索引和阻塞清单。",
+          "status": "not_run",
+          "checkIds": []
+        }
+      ],
+      "subcases": [],
+      "observedStatus": "not_run",
+      "status": "not_run",
+      "scope": "included",
+      "exclusion": null,
+      "missingRequirements": [
+        "step-1",
+        "step-2",
+        "step-3",
+        "step-4",
+        "criteria",
+        "evidence"
+      ]
+    }
+  ]
+}

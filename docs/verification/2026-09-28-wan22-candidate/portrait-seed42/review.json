@@ -1,0 +1,14 @@
+{
+  "reviewer": "ai:codex",
+  "notHumanReview": true,
+  "reviewedFrames": 97,
+  "status": "candidate_improved_not_release_pass",
+  "findings": [
+    "No prolonged closed eyes or downward head movement as in LTX baseline.",
+    "Smile develops smoothly; clothing and background retain identity.",
+    "Some head rotation and apparent additional eye closure remain; one blink and fixed head are not strictly met."
+  ],
+  "sampledPeakGpuMiB": 12843,
+  "sampledMinimumAvailableMiB": 12346,
+  "productionEnabled": false
+}

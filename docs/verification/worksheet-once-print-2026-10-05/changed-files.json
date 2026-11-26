@@ -1,0 +1,25 @@
+{
+  "releaseId": "once-print-20261005-123000",
+  "files": [
+    {
+      "path": "assets/WorksheetV2View-n6SQ4m95.js",
+      "bytes": 527920,
+      "sha256": "33cf03b7f70528e63e170f0d8b696e6464972fadcf318d9b8422051feb88c63e"
+    },
+    {
+      "path": "assets/WorksheetV2View-rBRvHdUE.css",
+      "bytes": 13837,
+      "sha256": "2c5ce8eda4fdcc4246b04802575b292ccb012018ae7c466969e8fb3e27025d1c"
+    },
+    {
+      "path": "assets/index-BgZjbVgh.js",
+      "bytes": 159339,
+      "sha256": "5cee1ccc2377d4b4b8f31a490d6364753614c3bafbbcd56f1e8d939b1247f873"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1199,
+      "sha256": "0547a17728864014490891e1e402ba9559c722b1626ee882a05160f3b15033ed"
+    }
+  ]
+}

@@ -222,6 +222,7 @@ const local: App.I18n.Schema = {
     }
   },
   route: {
+    news: '\u6bcf\u65e5\u65b0\u95fb',
     login: '登录',
     403: '无权限',
     404: '页面不存在',

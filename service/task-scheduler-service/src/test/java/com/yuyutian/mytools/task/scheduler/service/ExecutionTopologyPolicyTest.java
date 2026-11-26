@@ -37,6 +37,25 @@ class ExecutionTopologyPolicyTest {
                 Map.of("scriptReleases", Map.of("sample:1.0.0", "not-a-digest"))));
     }
 
+    @Test
+    void newsLabelIsOnlyGrantedToTheConfiguredNodeName() {
+        var news = new ExecutionTopologyService(null, null, new NodeRegistrationPolicyProperties(
+                true, Set.of("news"), Map.of("news.node", "executor-news"), Set.of("runtimes")));
+        assertEquals(Map.of("news.node", "executor-news", "executor.node", "executor-news"),
+                news.authorizedLabels("executor-news", Map.of("news.node", "forged", "executor.node", "forged")));
+        assertEquals(Map.of("executor.node", "executor-other"),
+                news.authorizedLabels("executor-other", Map.of("news.node", "executor-news", "executor.node", "executor-news")));
+        assertEquals(Set.of("news"), news.authorizedClusters(Set.of("news")));
+    }
+
+    @Test
+    void disabledNewsNodeDoesNotGrantAnExecutorTheLabel() {
+        var news = new ExecutionTopologyService(null, null, new NodeRegistrationPolicyProperties(
+                true, Set.of("news"), Map.of("news.node", "absent"), Set.of("runtimes")));
+        assertEquals(Map.of(), news.authorizedLabels("executor-news", Map.of("news.node", "executor-news")));
+        assertEquals(Map.of(), news.authorizedLabels("absent", Map.of("news.node", "absent")));
+    }
+
     private void assertForbidden(Runnable operation) {
         SchedulerException exception = assertThrows(SchedulerException.class, operation::run);
         assertEquals(ErrorCode.NODE_REGISTRATION_FORBIDDEN, exception.errorCode());

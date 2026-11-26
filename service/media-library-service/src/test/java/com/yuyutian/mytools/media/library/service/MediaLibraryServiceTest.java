@@ -1,10 +1,31 @@
 package com.yuyutian.mytools.media.library.service;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.security.MessageDigest;
 import com.yuyutian.mytools.media.library.model.MediaModels.*;import org.junit.jupiter.api.Test;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.test.context.SpringBootTest;import org.springframework.boot.test.mock.mockito.MockBean;import org.springframework.jdbc.core.JdbcTemplate;
 import java.time.Instant;import java.util.*;import static org.assertj.core.api.Assertions.*;import static org.mockito.Mockito.*;
 /** Media Library 领域事务测试。 */ @SpringBootTest class MediaLibraryServiceTest {
  @Autowired private MediaLibraryService service;
  @Autowired private JdbcTemplate jdbc;
+ @Autowired private ObjectMapper mapper;
  @MockBean private MediaTaskSchedulerClient scheduler;
+ @Test void shouldProjectDownloadTagsIdempotentlyAndPreserveAnalysisTags(){
+  UUID asset=UUID.randomUUID();
+  MediaView media=service.consume(new AssetEvent("tag-projection-media",asset,9911L,"DOWNLOAD","tag-download","image.jpg","image/jpeg",10,"a".repeat(64),null,null,null));
+  UUID task=UUID.randomUUID();service.begin(media.id(),new BeginAnalysis("tag-existing",task,asset));
+  service.complete(media.id(),new CompleteAnalysis(task,null,null,List.of(new TagInput("existing",0.8)),List.of()),new TaskExecutionFence(task,"commit_analysis",media.id().toString(),1));
+  DownloadedMediaTags event=new DownloadedMediaTags("tag-projection",9911L,asset,List.of(new TagInput("New",0.9),new TagInput("Existing",0.9)));
+  MediaView first=service.consumeDownloadedTags(event);
+  assertThat(first.tags()).containsExactly("existing","new");
+  assertThat(service.consumeDownloadedTags(event).version()).isEqualTo(first.version());
+  assertThat(service.catalog(9911L,"image/","","new","",1,20,false).items()).singleElement().extracting(MediaView::tags).isEqualTo(List.of("existing","new"));
+  assertThatThrownBy(()->service.consumeDownloadedTags(new DownloadedMediaTags("tag-wrong-owner",9912L,asset,event.tags()))).isInstanceOf(IllegalArgumentException.class);
+  assertThatThrownBy(()->service.consumeDownloadedTags(new DownloadedMediaTags("tag-projection",9911L,asset,List.of(new TagInput("changed",1.0))))).isInstanceOf(IllegalStateException.class);
+ }
+ @Test void shouldRejectTagsForNonDownloadMediaWithoutConsumingEvent(){
+  UUID asset=UUID.randomUUID();service.consume(new AssetEvent("non-download-media",asset,9913L,"MEDIA_SCAN","scan-item","image.jpg","image/jpeg",10,"b".repeat(64),null,null,null));
+  assertThatThrownBy(()->service.consumeDownloadedTags(new DownloadedMediaTags("non-download-tags",9913L,asset,List.of(new TagInput("new",0.9))))).isInstanceOf(IllegalArgumentException.class);
+  assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM media_event_inbox WHERE event_id=?",Integer.class,"non-download-tags")).isZero();
+ }
  @Test void shouldMergeEventCompleteAnalysisAndProtectProgressRevision(){UUID asset=UUID.randomUUID();AssetEvent event=new AssetEvent("event-1",asset,7L,"MEDIA_FILE","42","video.mp4","video/mp4",100,"a".repeat(64),"movies","Movies",null);MediaView media=service.consume(event);assertThat(service.consume(event).id()).isEqualTo(media.id());UUID task=UUID.randomUUID();service.begin(media.id(),new BeginAnalysis("analysis-v1",task,asset));CompleteAnalysis completed=new CompleteAnalysis(task,"summary","description",List.of(new TagInput("Travel",0.9)),List.of(new ArtifactInput(UUID.randomUUID(),"THUMBNAIL","1.0.0")));service.complete(media.id(),completed,new TaskExecutionFence(task,"commit_analysis",media.id().toString(),1));service.complete(media.id(),completed,new TaskExecutionFence(task,"commit_analysis",media.id().toString(),1));assertThatThrownBy(()->service.complete(media.id(),new CompleteAnalysis(task,"different","description",List.of(),List.of()),new TaskExecutionFence(task,"commit_analysis",media.id().toString(),1))).isInstanceOf(IllegalStateException.class);assertThat(service.view(7,media.id()).tags()).containsExactly("travel");ProgressView first=service.progress(7,media.id(),new ProgressRequest(100,1000,false,0,Instant.now()));assertThat(first.revision()).isEqualTo(1);assertThatThrownBy(()->service.progress(7,media.id(),new ProgressRequest(200,1000,false,0,Instant.now()))).isInstanceOf(IllegalStateException.class);}
  @Test void shouldRecordIdempotentAnalysisFailure(){UUID asset=UUID.randomUUID();MediaView media=service.consume(new AssetEvent("failure-event",asset,8L,"MEDIA_FILE","failure","failure.mp4","video/mp4",10,"9".repeat(64),null,null,null));UUID task=UUID.randomUUID();service.begin(media.id(),new BeginAnalysis("analysis-failure",task,asset));FailAnalysis failure=new FailAnalysis(task,"TIMED_OUT","MEDIA_ANALYSIS_TIMEOUT");service.fail(media.id(),failure,new TaskExecutionFence(task,"analysis_timeout",media.id().toString(),2));service.fail(media.id(),failure,new TaskExecutionFence(task,"analysis_timeout",media.id().toString(),2));assertThatThrownBy(()->service.complete(media.id(),new CompleteAnalysis(task,null,null,List.of(),List.of()),new TaskExecutionFence(task,"commit_analysis",media.id().toString(),2))).isInstanceOf(IllegalStateException.class);}
  @Test void shouldRejectStaleAndConflictingAnalysisFences(){UUID asset=UUID.randomUUID();MediaView media=service.consume(new AssetEvent("fence-event",asset,81L,"MEDIA_FILE","fence","fence.mp4","video/mp4",10,"8".repeat(64),null,null,null));UUID task=UUID.randomUUID();service.begin(media.id(),new BeginAnalysis("analysis-fence",task,asset));FailAnalysis failure=new FailAnalysis(task,"FAILED","MEDIA_ANALYSIS_FAILED");service.fail(media.id(),failure,new TaskExecutionFence(task,"analysis_failure",media.id().toString(),5));assertThatThrownBy(()->service.fail(media.id(),failure,new TaskExecutionFence(task,"analysis_failure",media.id().toString(),4))).isInstanceOf(IllegalStateException.class);assertThatThrownBy(()->service.fail(media.id(),failure,new TaskExecutionFence(task,"analysis_cancel",media.id().toString(),5))).isInstanceOf(IllegalStateException.class);assertThat(jdbc.queryForObject("SELECT fencing_token FROM media_analysis WHERE media_item_id=?",Long.class,media.id().toString())).isEqualTo(5L);}
@@ -25,4 +46,54 @@ import java.time.Instant;import java.util.*;import static org.assertj.core.api.A
  @Test void shouldDeleteOnlyOwnerMediaAndKeepDeletionIdempotent(){MediaView media=service.consume(new AssetEvent("delete-a",UUID.randomUUID(),23L,"MEDIA_FILE","delete-a","book.epub","application/epub+zip",10,"3".repeat(64),null,null,null));assertThatThrownBy(()->service.delete(24L,media.id())).isInstanceOf(IllegalArgumentException.class);service.delete(23L,media.id());service.delete(23L,media.id());assertThat(service.list(23L,null,false,null,100).items()).extracting(MediaView::id).doesNotContain(media.id());assertThat(service.list(23L,null,true,null,100).items()).extracting(MediaView::id).contains(media.id());assertThat(service.view(23L,media.id()).status()).isEqualTo("MISSING");}
  @Test void shouldCreateQueryAndCancelOwnerBoundDirectoryScan(){UUID taskId=UUID.randomUUID();when(scheduler.createScan(any(),eq(31L),startsWith("media-scan:"),anyMap())).thenReturn(taskId);when(scheduler.status(taskId)).thenReturn("RUNNING","RUNNING","CANCELLING");StartDirectoryScan request=new StartDirectoryScan("scan-request-1","/media/movies","movies","Movies","months","202608",true,"analysis-v1");OperationView created=service.startDirectoryScan(31L,request);OperationView replayed=service.startDirectoryScan(31L,request);assertThat(replayed.id()).isEqualTo(created.id());assertThatThrownBy(()->service.startDirectoryScan(31L,new StartDirectoryScan("scan-request-1","/media/other","movies","Movies","months","202608",true,"analysis-v1"))).isInstanceOf(IllegalStateException.class);assertThat(service.cancelOperation(created.id(),31L).status()).isEqualTo("CANCELLING");assertThatThrownBy(()->service.operation(created.id(),32L)).isInstanceOf(IllegalArgumentException.class);verify(scheduler,times(1)).createScan(any(),eq(31L),startsWith("media-scan:"),argThat(parameters->parameters.get("rootPath").equals("/media/movies")&&parameters.get("ownerId").equals(31L)&&parameters.get("parentDirectoryName").equals("202608")));verify(scheduler).cancel(taskId);}
  @Test void shouldCreateStorageBackedAnalysisOperation(){UUID asset=UUID.randomUUID();MediaView media=service.consume(new AssetEvent("analysis-operation",asset,41L,"MEDIA_FILE","analysis-operation","video.mp4","video/mp4",123,"a".repeat(64),null,null,null));UUID taskId=UUID.randomUUID();when(scheduler.createAnalysis(any(),startsWith("media-analysis:"),anyMap())).thenReturn(taskId);when(scheduler.status(taskId)).thenReturn("PENDING","RUNNING");StartAnalysis request=new StartAnalysis("analysis-request-1","analysis-v2",8,2.5);OperationView created=service.startAnalysis(media.id(),41L,request);OperationView replayed=service.startAnalysis(media.id(),41L,request);assertThat(created.operationType()).isEqualTo("ANALYSIS");assertThat(replayed.id()).isEqualTo(created.id());verify(scheduler,times(1)).createAnalysis(any(),startsWith("media-analysis:41:"),argThat(parameters->parameters.get("assetRegistryId").equals(asset.toString())&&!parameters.containsKey("sourcePath")&&parameters.get("frameCount").equals(8)));assertThatThrownBy(()->service.startAnalysis(media.id(),42L,request)).isInstanceOf(IllegalArgumentException.class);}
+ @Test void shouldReplayAnalysisOperationAcrossDigestFieldOrders() throws Exception {
+  long ownerId = 9921L;
+  UUID asset = UUID.randomUUID();
+  MediaView media = service.consume(new AssetEvent("preview-digest-media", asset, ownerId,
+          "DOWNLOAD", "preview-digest", "preview.mp4", "video/mp4", 10, "a".repeat(64), null, null, null));
+  UUID taskId = UUID.randomUUID();
+  when(scheduler.createAnalysis(any(), startsWith("media-analysis:"), anyMap())).thenReturn(taskId);
+  when(scheduler.status(taskId)).thenReturn("SUCCEEDED");
+  StartAnalysis request = new StartAnalysis("download-preview:" + media.id(), "download-preview-v1", 1, 0.0);
+  OperationView created = service.startAnalysis(media.id(), ownerId, request);
+  String requestJson = mapper.writeValueAsString(request);
+  String mediaIdJson = mapper.writeValueAsString(media.id());
+  String canonical = "{\"request\":" + requestJson + ",\"mediaId\":" + mediaIdJson + "}";
+  String legacy = "{\"mediaId\":" + mediaIdJson + ",\"request\":" + requestJson + "}";
+  assertThat(jdbc.queryForObject("SELECT request_sha256 FROM media_operation WHERE id=?",
+          String.class, created.id().toString())).isEqualTo(analysisDigest(canonical));
+  assertThat(service.startAnalysis(media.id(), ownerId, request).taskInstanceId()).isEqualTo(taskId);
+
+  // 模拟重启前由旧 JVM 写入的另一种字段顺序。
+  jdbc.update("UPDATE media_operation SET request_sha256=? WHERE id=?", analysisDigest(legacy), created.id().toString());
+  assertThat(service.startAnalysis(media.id(), ownerId, request).status()).isEqualTo("SUCCEEDED");
+  StartAnalysis changed = new StartAnalysis(request.idempotencyKey(), request.analysisVersion(), 2, 0.0);
+  assertThatThrownBy(() -> service.startAnalysis(media.id(), ownerId, changed)).isInstanceOf(IllegalStateException.class);
+  MediaView otherMedia = service.consume(new AssetEvent("preview-digest-other", UUID.randomUUID(), ownerId,
+          "DOWNLOAD", "preview-digest-other", "other.mp4", "video/mp4", 10, "b".repeat(64), null, null, null));
+  assertThatThrownBy(() -> service.startAnalysis(otherMedia.id(), ownerId, request)).isInstanceOf(IllegalStateException.class);
+  verify(scheduler, times(1)).createAnalysis(any(), startsWith("media-analysis:"), anyMap());
+ }
+
+ private String analysisDigest(String json) throws java.security.NoSuchAlgorithmException {
+  return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+          .digest(json.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+ }
+
+ @Test void shouldClassifySmallVideosWithImagesAtHundredMiBBoundary(){
+  long limit=100L*1024*1024;
+  for(long size:new long[]{50L*1024*1024,limit-1,limit,limit+1}){
+   String key="threshold-"+size;
+   service.consume(new AssetEvent(key,UUID.randomUUID(),901L,"DOWNLOAD",key,key+".mp4","video/mp4",size,"e".repeat(64),"threshold-day","20260926",null));
+  }
+  service.consume(new AssetEvent("threshold-image",UUID.randomUUID(),901L,"DOWNLOAD","photo","photo.jpg","image/jpeg",limit+1,"f".repeat(64),"threshold-day","20260926",null));
+  MediaCatalogPage images=service.catalog(901L,"image/","","","",1,100,false);
+  MediaCatalogPage videos=service.catalog(901L,"video/","","","",1,100,false);
+  assertThat(images.total()).isEqualTo(3);
+  assertThat(images.items()).filteredOn(v->v.mimeType().startsWith("video/")).extracting(MediaView::sizeBytes).containsExactlyInAnyOrder(50L*1024*1024,limit-1);
+  assertThat(videos.total()).isEqualTo(2);
+  assertThat(videos.items()).extracting(MediaView::sizeBytes).containsExactlyInAnyOrder(limit,limit+1);
+  assertThat(images.directories()).extracting(MediaDirectoryCount::fileCount).containsExactly(3L);
+  assertThat(videos.directories()).extracting(MediaDirectoryCount::fileCount).containsExactly(2L);
+ }
 }

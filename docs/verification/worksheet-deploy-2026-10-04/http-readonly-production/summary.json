@@ -1,0 +1,18 @@
+{
+  "releaseId": "worksheet-three-step-20261004-003105",
+  "startedAt": "2026-10-03T16:46:14.119767+00:00",
+  "finishedAt": "2026-10-03T16:48:20.390644+00:00",
+  "passed": false,
+  "static": {
+    "total": 225,
+    "passed": 219,
+    "failed": 6
+  },
+  "rootIndexPassed": false,
+  "curriculumPassed": false,
+  "curriculumBooks": 5,
+  "curriculumEntries": 1875,
+  "requestCount": 247,
+  "report": "docs/verification/worksheet-deploy-2026-10-04/http-readonly-production/report.json",
+  "boundary": "Read-only HTTP resource and public curriculum checks; not browser interaction or PDF button download evidence"
+}

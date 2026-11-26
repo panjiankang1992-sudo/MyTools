@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DSH composer keyboard check</title>
+<body>
+  <main id="root">
+    <section data-composer-card>
+      <div contenteditable="true" role="textbox" data-composer-input>Test draft</div>
+      <button class="uV2eYG_add" aria-haspopup="listbox" aria-expanded="false" type="button">Add files or run commands</button>
+      <button aria-haspopup="listbox" type="button" id="other">Other control</button>
+      <ul role="listbox" hidden><li role="option"><button type="button" id="option">File</button></li></ul>
+    </section>
+    <button type="button" id="outside">Outside the composer</button>
+    <output id="result">Pending</output>
+  </main>
+  <script src="../mobile.js"></script>
+  <script>
+    const input = document.querySelector('[data-composer-input]');
+    const add = document.querySelector('.uV2eYG_add');
+    const menu = document.querySelector('[role="listbox"]');
+    const result = document.querySelector('#result');
+    const modesAtFocus = [];
+    let shortcuts = 0;
+    let choices = 0;
+    function stockFocus() {
+      modesAtFocus.push([input.getAttribute('inputmode'), input.getAttribute('virtualkeyboardpolicy')]);
+      input.focus();
+    }
+    add.addEventListener('mousedown', event => { event.preventDefault(); stockFocus(); });
+    add.addEventListener('click', () => {
+      stockFocus();
+      menu.hidden = !menu.hidden;
+      add.setAttribute('aria-expanded', String(!menu.hidden));
+    });
+    input.addEventListener('keydown', event => {
+      if (event.key === 'ArrowDown' && !menu.hidden) shortcuts++;
+    });
+    document.querySelector('#option').addEventListener('click', () => { choices++; menu.hidden = true; });
+    const isMobile = matchMedia('(max-width: 767px), (max-width: 900px) and (max-height: 500px)').matches;
+    function check(condition, explanation) {
+      if (!condition) throw new Error(explanation);
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        add.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 }));
+        add.click();
+        const expected = isMobile ? ['none', 'manual'] : [null, null];
+        check(modesAtFocus.length === 2 && modesAtFocus.every(mode => String(mode) === String(expected)),
+          'Both upstream focus paths must observe the expected keyboard policy');
+        check(document.activeElement === input && !menu.hidden, 'The composer retains focus and the menu opens');
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+        document.querySelector('#option').click();
+        check(shortcuts === 1 && choices === 1, 'Menu keyboard navigation and option selection are preserved');
+        input.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch' }));
+        check(!input.hasAttribute('inputmode') && !input.hasAttribute('virtualkeyboardpolicy'),
+          'Touching the editor restores its normal keyboard behavior');
+        check(input.textContent === 'Test draft', 'The draft remains intact');
+
+        document.querySelector('#outside').focus();
+        input.setAttribute('inputmode', 'text');
+        add.click();
+        check(input.getAttribute('inputmode') === (isMobile ? 'none' : 'text'),
+          'Activation without a pointer also uses the expected keyboard policy');
+        document.querySelector('#outside').focus();
+        check(input.getAttribute('inputmode') === 'text', 'Losing focus restores a pre-existing input mode');
+
+        Object.defineProperty(navigator, 'virtualKeyboard', { configurable: true, value: { boundingRect: { height: 210 } } });
+        input.focus();
+        add.click();
+        check(input.getAttribute('inputmode') === 'text', 'An already-open keyboard remains available');
+        delete navigator.virtualKeyboard;
+
+        document.querySelector('#outside').focus();
+        document.querySelector('#other').click();
+        check(input.getAttribute('inputmode') === 'text', 'Other listbox buttons do not alter the composer');
+        result.textContent = `PASS ${isMobile ? 'mobile' : 'desktop'}`;
+      } catch (error) {
+        result.textContent = `FAIL ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>

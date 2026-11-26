@@ -1,0 +1,38 @@
+{
+  "releaseId": "worksheet-three-step-20261004-003105",
+  "conclusion": "passed_with_documented_cdn_html_injection",
+  "staticNonIndex": {
+    "total": 224,
+    "passed": 224,
+    "failed": 0
+  },
+  "index": {
+    "httpStatus": 200,
+    "mime": "text/html",
+    "rawBytes": 1566,
+    "rawSha256": "cb367142b76cff5d0061b8f32bbaf92093e37fc2c985bcff9c7eaa176f33e44e",
+    "rawEqualsManifest": false,
+    "documentedInjection": "One Cloudflare Insights beacon tag (366 bytes) followed by one LF byte (0a)",
+    "afterRemovingOnlyThisInjectionEqualsManifest": true,
+    "manifestSha256": "e2d399bb6c0da59e922ef54875d712365abfca6aecb2cc893923c451956ebce9"
+  },
+  "curriculum": {
+    "passed": true,
+    "versions": 5,
+    "entries": 2635,
+    "coverageSlots": 20,
+    "checks": [
+      "published identity and hash",
+      "real unit and lesson titles",
+      "all paginated entries and review state",
+      "20-slot coverage"
+    ]
+  },
+  "initialTransportFailures": 6,
+  "originalFailureReport": "../http-readonly-production/report.json",
+  "retryReport": "report.json",
+  "exactIndexEvidence": "index-injection-exact.json",
+  "productionWrites": 0,
+  "browserInteractionVerified": false,
+  "note": "The initial and retry raw hash failures remain intact. This summary records the separate exact proof of the edge transformation; no arbitrary HTML normalization or CDN/server change was used."
+}

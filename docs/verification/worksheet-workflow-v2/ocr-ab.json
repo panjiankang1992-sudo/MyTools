@@ -1,0 +1,357 @@
+{
+  "generatedAt": "2026-10-03T11:52:14.006Z",
+  "purpose": "判定中文模式加载 chi_sim+eng 是否导致汉字区被拉丁化输出（W13 的假设检验）",
+  "engine": {
+    "package": "tesseract.js",
+    "oem": 1,
+    "assetBase": "public/ocr/tesseract-7.0.0-lang-4.0.0-best-int-1"
+  },
+  "fixtures": [
+    {
+      "file": "ocr-fixture-zh.png",
+      "groundTruth": "山水风云春天花朵日月江河森林田野白云小路"
+    },
+    {
+      "file": "ocr-fixture-zh-32px.png",
+      "groundTruth": "山水风云春天花朵日月江河森林田野白云小路"
+    },
+    {
+      "file": "ocr-clear-24px.png",
+      "groundTruth": "山水风云春天花朵日月江河森林田野白云小路"
+    },
+    {
+      "file": "ocr-clear-32px.png",
+      "groundTruth": "山水风云春天花朵日月江河森林田野白云小路"
+    },
+    {
+      "file": "ocr-clear-44px.png",
+      "groundTruth": "山水风云春天花朵日月江河森林田野白云小路"
+    },
+    {
+      "file": "ocr-clear-64px.png",
+      "groundTruth": "山水风云春天花朵日月江河森林田野白云小路"
+    },
+    {
+      "file": "ocr-clear-40px-4per.png",
+      "groundTruth": "山水风云春天花朵日月江河森林田野白云小路"
+    },
+    {
+      "file": "ocr-clear-48px-7per.png",
+      "groundTruth": "山水风云春天花朵日月江河森林田野白云小路"
+    },
+    {
+      "file": "ocr-songti-32px.png",
+      "groundTruth": "山水风云春天花朵日月江河森林田野白云小路"
+    },
+    {
+      "file": "ocr-songti-44px.png",
+      "groundTruth": "山水风云春天花朵日月江河森林田野白云小路"
+    },
+    {
+      "file": "ocr-songti-64px.png",
+      "groundTruth": "山水风云春天花朵日月江河森林田野白云小路"
+    }
+  ],
+  "results": [
+    {
+      "config": "chi_sim+eng（现状）",
+      "languages": "chi_sim+eng",
+      "file": "ocr-fixture-zh.png",
+      "confidence": 85,
+      "hypothesis": "山水风云春天化打日月江河森林田野日云小路",
+      "editDistance": 3,
+      "referenceChars": 20,
+      "cer": 0.15,
+      "latinChars": 0,
+      "hanChars": 20,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim+eng（现状）",
+      "languages": "chi_sim+eng",
+      "file": "ocr-fixture-zh-32px.png",
+      "confidence": 91,
+      "hypothesis": "山水风云春天花采日月江河森林田野白云小路",
+      "editDistance": 1,
+      "referenceChars": 20,
+      "cer": 0.05,
+      "latinChars": 0,
+      "hanChars": 20,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim+eng（现状）",
+      "languages": "chi_sim+eng",
+      "file": "ocr-clear-24px.png",
+      "confidence": 80,
+      "hypothesis": "山水风云春天花采日月江河森林田野和白云小路",
+      "editDistance": 2,
+      "referenceChars": 20,
+      "cer": 0.1,
+      "latinChars": 0,
+      "hanChars": 21,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim+eng（现状）",
+      "languages": "chi_sim+eng",
+      "file": "ocr-clear-32px.png",
+      "confidence": 85,
+      "hypothesis": "山水风云春天人花采日月江河森林田野和白云小路",
+      "editDistance": 3,
+      "referenceChars": 20,
+      "cer": 0.15,
+      "latinChars": 0,
+      "hanChars": 22,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim+eng（现状）",
+      "languages": "chi_sim+eng",
+      "file": "ocr-clear-44px.png",
+      "confidence": 83,
+      "hypothesis": "山水风云春天人花采日月江河森林田野和白云小路",
+      "editDistance": 3,
+      "referenceChars": 20,
+      "cer": 0.15,
+      "latinChars": 0,
+      "hanChars": 22,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim+eng（现状）",
+      "languages": "chi_sim+eng",
+      "file": "ocr-clear-64px.png",
+      "confidence": 80,
+      "hypothesis": "山水风云春天伦打日月江河和森林田野日云小路",
+      "editDistance": 4,
+      "referenceChars": 20,
+      "cer": 0.2,
+      "latinChars": 0,
+      "hanChars": 21,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim+eng（现状）",
+      "languages": "chi_sim+eng",
+      "file": "ocr-clear-40px-4per.png",
+      "confidence": 84,
+      "hypothesis": "山水风云春天人花杀日月江河森林田野白云小路",
+      "editDistance": 2,
+      "referenceChars": 20,
+      "cer": 0.1,
+      "latinChars": 0,
+      "hanChars": 21,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim+eng（现状）",
+      "languages": "chi_sim+eng",
+      "file": "ocr-clear-48px-7per.png",
+      "confidence": 88,
+      "hypothesis": "山水风云春天人花打日月江河森林田野和白云小路",
+      "editDistance": 3,
+      "referenceChars": 20,
+      "cer": 0.15,
+      "latinChars": 0,
+      "hanChars": 22,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim+eng（现状）",
+      "languages": "chi_sim+eng",
+      "file": "ocr-songti-32px.png",
+      "confidence": 83,
+      "hypothesis": "山水风云春天花洒日月江河森林田野白云小路",
+      "editDistance": 1,
+      "referenceChars": 20,
+      "cer": 0.05,
+      "latinChars": 0,
+      "hanChars": 20,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim+eng（现状）",
+      "languages": "chi_sim+eng",
+      "file": "ocr-songti-44px.png",
+      "confidence": 83,
+      "hypothesis": "山水风云春天花丰日月江河森林田野白云小路",
+      "editDistance": 1,
+      "referenceChars": 20,
+      "cer": 0.05,
+      "latinChars": 0,
+      "hanChars": 20,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim+eng（现状）",
+      "languages": "chi_sim+eng",
+      "file": "ocr-songti-64px.png",
+      "confidence": 79,
+      "hypothesis": "山水风云春天人花未日月江河森林田野日云小路",
+      "editDistance": 3,
+      "referenceChars": 20,
+      "cer": 0.15,
+      "latinChars": 0,
+      "hanChars": 21,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim（假设）",
+      "languages": "chi_sim",
+      "file": "ocr-fixture-zh.png",
+      "confidence": 85,
+      "hypothesis": "山水风云春天化打日月江河森林田野日云小路",
+      "editDistance": 3,
+      "referenceChars": 20,
+      "cer": 0.15,
+      "latinChars": 0,
+      "hanChars": 20,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim（假设）",
+      "languages": "chi_sim",
+      "file": "ocr-fixture-zh-32px.png",
+      "confidence": 91,
+      "hypothesis": "山水风云春天花采日月江河森林田野白云小路",
+      "editDistance": 1,
+      "referenceChars": 20,
+      "cer": 0.05,
+      "latinChars": 0,
+      "hanChars": 20,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim（假设）",
+      "languages": "chi_sim",
+      "file": "ocr-clear-24px.png",
+      "confidence": 80,
+      "hypothesis": "山水风云春天花采日月江河森林田野和白云小路",
+      "editDistance": 2,
+      "referenceChars": 20,
+      "cer": 0.1,
+      "latinChars": 0,
+      "hanChars": 21,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim（假设）",
+      "languages": "chi_sim",
+      "file": "ocr-clear-32px.png",
+      "confidence": 85,
+      "hypothesis": "山水风云春天人花采日月江河森林田野和白云小路",
+      "editDistance": 3,
+      "referenceChars": 20,
+      "cer": 0.15,
+      "latinChars": 0,
+      "hanChars": 22,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim（假设）",
+      "languages": "chi_sim",
+      "file": "ocr-clear-44px.png",
+      "confidence": 83,
+      "hypothesis": "山水风云春天人花采日月江河森林田野和白云小路",
+      "editDistance": 3,
+      "referenceChars": 20,
+      "cer": 0.15,
+      "latinChars": 0,
+      "hanChars": 22,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim（假设）",
+      "languages": "chi_sim",
+      "file": "ocr-clear-64px.png",
+      "confidence": 80,
+      "hypothesis": "山水风云春天伦打日月江河和森林田野日云小路",
+      "editDistance": 4,
+      "referenceChars": 20,
+      "cer": 0.2,
+      "latinChars": 0,
+      "hanChars": 21,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim（假设）",
+      "languages": "chi_sim",
+      "file": "ocr-clear-40px-4per.png",
+      "confidence": 84,
+      "hypothesis": "山水风云春天人花杀日月江河森林田野白云小路",
+      "editDistance": 2,
+      "referenceChars": 20,
+      "cer": 0.1,
+      "latinChars": 0,
+      "hanChars": 21,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim（假设）",
+      "languages": "chi_sim",
+      "file": "ocr-clear-48px-7per.png",
+      "confidence": 88,
+      "hypothesis": "山水风云春天人花打日月江河森林田野和白云小路",
+      "editDistance": 3,
+      "referenceChars": 20,
+      "cer": 0.15,
+      "latinChars": 0,
+      "hanChars": 22,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim（假设）",
+      "languages": "chi_sim",
+      "file": "ocr-songti-32px.png",
+      "confidence": 83,
+      "hypothesis": "山水风云春天花洒日月江河森林田野白云小路",
+      "editDistance": 1,
+      "referenceChars": 20,
+      "cer": 0.05,
+      "latinChars": 0,
+      "hanChars": 20,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim（假设）",
+      "languages": "chi_sim",
+      "file": "ocr-songti-44px.png",
+      "confidence": 83,
+      "hypothesis": "山水风云春天花丰日月江河森林田野白云小路",
+      "editDistance": 1,
+      "referenceChars": 20,
+      "cer": 0.05,
+      "latinChars": 0,
+      "hanChars": 20,
+      "latinRatio": 0
+    },
+    {
+      "config": "chi_sim（假设）",
+      "languages": "chi_sim",
+      "file": "ocr-songti-64px.png",
+      "confidence": 79,
+      "hypothesis": "山水风云春天人花未日月江河森林田野日云小路",
+      "editDistance": 3,
+      "referenceChars": 20,
+      "cer": 0.15,
+      "latinChars": 0,
+      "hanChars": 21,
+      "latinRatio": 0
+    }
+  ],
+  "summary": [
+    {
+      "config": "chi_sim+eng（现状）",
+      "averageCer": 0.1182,
+      "averageLatinRatio": 0,
+      "maxCer": 0.2
+    },
+    {
+      "config": "chi_sim（假设）",
+      "averageCer": 0.1182,
+      "averageLatinRatio": 0,
+      "maxCer": 0.2
+    }
+  ]
+}

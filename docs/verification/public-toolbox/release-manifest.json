@@ -1,0 +1,95 @@
+{
+  "generatedAt": "2026-10-03T13:46:19Z",
+  "site": "yuyutian-toolbox",
+  "environment": "production",
+  "note": "生产发布：字帖工作流统一改造（T00—T11）。用户明确授权发布。",
+  "artifacts": {
+    "frontend": {
+      "source": "toolbox-web/dist",
+      "deployedTo": "/opt/yuyutian/toolbox/frontend",
+      "indexSha256": "59868ce744de7cbdded44781b924a85fd61e53897574cb6f7ed5511ccae7d0b9",
+      "buildCommand": "npm --prefix toolbox-web run build:production",
+      "mode": "production",
+      "pdfExecution": "local",
+      "assetsIncluded": [
+        "fonts/NotoSansCJKsc-Regular.otf",
+        "pdfjs/cmaps",
+        "pdfjs/standard_fonts"
+      ],
+      "tests": {
+        "suite": "toolbox-web",
+        "total": 250,
+        "failures": 0
+      }
+    },
+    "backend": {
+      "source": "service/toolbox-service/target/toolbox-service-0.1.0-SNAPSHOT.jar",
+      "deployedTo": "/opt/yuyutian/toolbox/backend/toolbox-service.jar",
+      "sha256": "7806d4d56207c3a6c9bc12ebc46330086c0e09c4b08a06be06f3b6a19cc12a2f",
+      "bytes": 28674232,
+      "buildCommand": "mvn -f service/toolbox-service/pom.xml package -DskipTests",
+      "contextPath": "/public/v1",
+      "port": 23112,
+      "tests": {
+        "suite": "service/toolbox-service",
+        "total": 50,
+        "failures": 0,
+        "errors": 0
+      }
+    },
+    "content": {
+      "source": "toolbox-web/content",
+      "deployedTo": "/opt/yuyutian/toolbox/content",
+      "publishedSha256": "bb5f3e8fa8a1e4db930e208e8a2ef7f19cbe86a611d5a0680ed30998ed796fb3",
+      "requirementsSha256": "3f052950af661cb63224dc814f9703b365b3a44850097c0febf90fe7305c9d00",
+      "catalogVersion": "2026-10-02.1",
+      "publishedEditions": 5,
+      "editions": [
+        "cn-ty-1-1-pep-2024 (318 条, partial)",
+        "cn-ty-2-1-pep-2017 (760 条, partial)",
+        "cn-ty-3-1-pep-2024 (777 条, partial)",
+        "cn-ty-4-1-pep-2024 (640 条, partial)",
+        "en-yl-3-1-yilin-2024 (140 条, partial)"
+      ],
+      "bookSha256": "f5c13bb6d1921798604ed16636501487484fec12843187d8333d386fcb37cc9c"
+    }
+  },
+  "server": {
+    "host": "home-ubuntu",
+    "serviceUnit": "/etc/systemd/system/toolbox-service.service",
+    "envFile": "/opt/yuyutian/toolbox/config/toolbox.env",
+    "logFile": "/opt/yuyutian/logs/toolbox/service.log",
+    "nginxSite": "/etc/nginx/sites-available/toolbox",
+    "listenPorts": [
+      23113,
+      80
+    ],
+    "serverName": "toolbox.yuyutian.top",
+    "database": "toolbox_public"
+  },
+  "database": {
+    "schema": "toolbox_public",
+    "user": "toolbox_public",
+    "migration": "service/toolbox-service/src/main/resources/db/migration/V1__toolbox_public.sql",
+    "rollback": "向后兼容增量迁移；回滚时保留已有数据，不删除用户生成内容。"
+  },
+  "rollback": {
+    "steps": [
+      "sudo systemctl stop toolbox-service",
+      "sudo install -o mytools -g mytools -m 640 <previous-jar> /opt/yuyutian/toolbox/backend/toolbox-service.jar",
+      "sudo cp -a <previous-frontend>/. /opt/yuyutian/toolbox/frontend/",
+      "sudo cp -a <previous-content>/. /opt/yuyutian/toolbox/content/",
+      "sudo systemctl start toolbox-service && sudo systemctl reload nginx"
+    ],
+    "frontendBackup": "部署前保留上一版 dist；nginx 配置备份为 /etc/nginx/sites-available/toolbox.bak-<epoch>",
+    "switchOff": "设置 TOOLBOX_PDF_ENABLED=false 与 TOOLBOX_STATS_ENABLED=false 可分别关闭对应能力，不影响字帖使用。"
+  },
+  "deployedAt": "2026-10-03T13:46:19Z",
+  "verification": {
+    "homepage": "HTTP 200 (https://toolbox.yuyutian.top)",
+    "copybook": "统一流程编辑器渲染、无旧界面",
+    "words": "统一流程编辑器渲染、英文提示",
+    "textbooksApi": "GET /public/v1/textbooks 返回 5 个已发布版本",
+    "endToEnd": "输入→补全读音→逐项确认→选题型→生成成功（1 页 + 导出 PDF）"
+  }
+}

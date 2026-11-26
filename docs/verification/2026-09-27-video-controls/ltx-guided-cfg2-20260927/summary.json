@@ -1,0 +1,24 @@
+{
+  "samples": [
+    {
+      "name": "portrait",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "variant": "guided-cfg2",
+      "seconds": 22.39,
+      "status": "SUCCEEDED"
+    },
+    {
+      "name": "landscape",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "variant": "guided-cfg2",
+      "seconds": 14.23,
+      "status": "SUCCEEDED"
+    }
+  ],
+  "quality": "pending",
+  "productionEnabled": false
+}

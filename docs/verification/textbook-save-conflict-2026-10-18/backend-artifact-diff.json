@@ -1,0 +1,32 @@
+{
+  "changedFiles": [
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/controller/admin/curriculum/AdminTextbookController.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/mapper/admin/AdminTextbookRepository$DraftRef.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/mapper/admin/AdminTextbookRepository$DraftRow.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/mapper/admin/AdminTextbookRepository$TextbookListRow.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/mapper/admin/AdminTextbookRepository$VersionRow.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/mapper/admin/AdminTextbookRepository.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService$ExportPackage.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService$ExportPackageEntry.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService$ExportVersion.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService$ListItem.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService$ListPage.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService$PreviewPayload.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService$PreviewScope.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService$StoredDraft.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService$ValidateResult.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService$VersionSourceSnapshot.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService$VersionSummary.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/PublishedBookDraftConverter.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/TextbookDraftMerger$Conflict.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/TextbookDraftMerger$MergeResult.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/curriculum/TextbookDraftMerger.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/migration/CurriculumFileImporter$ImportOutcome.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/migration/CurriculumFileImporter$ImportReport.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/migration/CurriculumFileImporter$ImportState.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/admin/migration/CurriculumFileImporter.class"
+  ],
+  "migrationUnchanged": true,
+  "dependenciesUnchanged": true
+}

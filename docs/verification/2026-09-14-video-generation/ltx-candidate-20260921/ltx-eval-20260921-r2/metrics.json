@@ -1,0 +1,43 @@
+{
+  "samples": [
+    {
+      "name": "A-cold-white-seed42",
+      "frames": 49,
+      "adjacentMeanAbsoluteDifference": 0.799,
+      "lastVsFirstMAD": 9.259
+    },
+    {
+      "name": "A-cold-white-seed932",
+      "frames": 49,
+      "adjacentMeanAbsoluteDifference": 5.528,
+      "lastVsFirstMAD": 39.054
+    },
+    {
+      "name": "B-warm-generated-seed42",
+      "frames": 49,
+      "adjacentMeanAbsoluteDifference": 1.27,
+      "lastVsFirstMAD": 52.094
+    },
+    {
+      "name": "B-warm-generated-seed932",
+      "frames": 49,
+      "adjacentMeanAbsoluteDifference": 0.533,
+      "lastVsFirstMAD": 9.842
+    },
+    {
+      "name": "C-landscape-seed42",
+      "frames": 49,
+      "adjacentMeanAbsoluteDifference": 0.804,
+      "lastVsFirstMAD": 28.656
+    },
+    {
+      "name": "C-landscape-seed932",
+      "frames": 49,
+      "adjacentMeanAbsoluteDifference": 2.985,
+      "lastVsFirstMAD": 38.595
+    }
+  ],
+  "peakGpuMiB": 11735,
+  "minAvailableMiB": 15629,
+  "resourceSampleIntervalSeconds": 5
+}

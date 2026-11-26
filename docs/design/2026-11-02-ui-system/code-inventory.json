@@ -1,0 +1,72 @@
+[
+  {
+    "file": "app/entry/src/main/ets/features/reader/AdaptationConsentPanel.ets",
+    "rawButtonCalls": 4,
+    "sharedCalls": 0
+  },
+  {
+    "file": "app/entry/src/main/ets/features/reader/ChapterAdaptationPanel.ets",
+    "rawButtonCalls": 6,
+    "sharedCalls": 2
+  },
+  {
+    "file": "app/entry/src/main/ets/features/tools/ToolUi.ets",
+    "rawButtonCalls": 1,
+    "sharedCalls": 0
+  },
+  {
+    "file": "app/entry/src/main/ets/features/tools/QrToolsPage.ets",
+    "rawButtonCalls": 9,
+    "sharedCalls": 0
+  },
+  {
+    "file": "app/entry/src/main/ets/features/tools/ImageGenerationPage.ets",
+    "rawButtonCalls": 24,
+    "sharedCalls": 0
+  },
+  {
+    "file": "app/entry/src/main/ets/features/tools/VideoGenerationPage.ets",
+    "rawButtonCalls": 13,
+    "sharedCalls": 0
+  },
+  {
+    "file": "app/entry/src/main/ets/features/tools/archive/ArchivePage.ets",
+    "rawButtonCalls": 21,
+    "sharedCalls": 0
+  },
+  {
+    "file": "app/entry/src/main/ets/features/tools/pdf/PdfToolsPage.ets",
+    "rawButtonCalls": 7,
+    "sharedCalls": 0
+  },
+  {
+    "file": "app/entry/src/main/ets/features/tools/download/DownloadReplyCard.ets",
+    "rawButtonCalls": 1,
+    "sharedCalls": 0
+  },
+  {
+    "file": "app/entry/src/main/ets/features/tools/download/DownloadToolsPage.ets",
+    "rawButtonCalls": 6,
+    "sharedCalls": 0
+  },
+  {
+    "file": "app/entry/src/main/ets/features/rss/RssHomePage.ets",
+    "rawButtonCalls": 16,
+    "sharedCalls": 0
+  },
+  {
+    "file": "app/entry/src/main/ets/features/rss/RssReaderPage.ets",
+    "rawButtonCalls": 6,
+    "sharedCalls": 0
+  },
+  {
+    "file": "app/entry/src/main/ets/components/AppControls.ets",
+    "rawButtonCalls": 7,
+    "sharedCalls": 0
+  },
+  {
+    "file": "app/entry/src/main/ets/pages/Index.ets",
+    "rawButtonCalls": 187,
+    "sharedCalls": 70
+  }
+]

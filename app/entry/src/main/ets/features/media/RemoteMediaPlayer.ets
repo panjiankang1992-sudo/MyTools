@@ -5,6 +5,7 @@ import backgroundTaskManager from '@ohos.resourceschedule.backgroundTaskManager'
 import avSession from '@ohos.multimedia.avsession';
 import { MediaSeekPolicy } from './MediaSeekPolicy';
 import { MediaOperationRevisionPolicy } from './MediaOperationRevisionPolicy';
+import { RemoteMediaPlaybackUrlPolicy } from './RemoteMediaPlaybackUrlPolicy';
 
 /**
  * 封装远程音视频播放器生命周期。
@@ -20,6 +21,7 @@ export class RemoteMediaPlayer {
   onPlayNext: () => void = (): void => {};
   onPlayPrevious: () => void = (): void => {};
   private pendingStartMs: number = 0;
+  private autoPlayOnPrepared: boolean = true;
   private playbackSpeed: media.PlaybackSpeed = media.PlaybackSpeed.SPEED_FORWARD_1_00_X;
   private loopEnabled: boolean = false;
   private session?: avSession.AVSession;
@@ -34,18 +36,18 @@ export class RemoteMediaPlayer {
   private operationRevision: number = 0;
   private readonly seekPolicy: MediaSeekPolicy = new MediaSeekPolicy();
   private readonly revisionPolicy: MediaOperationRevisionPolicy = new MediaOperationRevisionPolicy();
+  private readonly playbackUrlPolicy: RemoteMediaPlaybackUrlPolicy = new RemoteMediaPlaybackUrlPolicy();
 
   /**
-   * 创建播放器并开始播放 HTTPS 远程媒体。
+   * 创建播放器并开始播放HTTPS媒体或可信局域网的只读票据。
    */
   async open(url: string, startMs: number = 0, context?: common.UIAbilityContext,
-    title: string = 'MyTools远程音频'): Promise<void> {
-    if (!url.startsWith('https://')) {
-      throw new Error('仅允许播放 HTTPS 远程媒体');
-    }
+    title: string = 'MyTools远程音频', autoPlay: boolean = true): Promise<void> {
+    const safeUrl = this.playbackUrlPolicy.url(url);
     const revision = ++this.operationRevision;
     await this.releaseResources();
     if (revision !== this.operationRevision) throw new Error('远程音频打开已取消');
+    this.autoPlayOnPrepared = autoPlay;
     this.pendingStartMs = this.seekPolicy.absolute(startMs, 0) ?? 0;
     this.lastTimeMs = this.pendingStartMs;
     if (context !== undefined) {
@@ -90,7 +92,7 @@ export class RemoteMediaPlayer {
         console.error('Remote media playback failed');
         this.onError('远程音频播放失败，请检查数据源或网络');
       });
-      player.url = url;
+      player.url = safeUrl;
     } catch (error) {
       if (revision === this.operationRevision) await this.releaseResources();
       const message = error instanceof Error ? error.message : '无法创建远程播放器';
@@ -367,7 +369,8 @@ export class RemoteMediaPlayer {
         player.seek(this.pendingStartMs, media.SeekMode.SEEK_CLOSEST);
         this.pendingStartMs = 0;
       }
-      await player.play();
+      // 路由重连可只恢复准备与位置，暂停中的媒体必须等待用户再次播放。
+      if (this.autoPlayOnPrepared) await player.play();
     } catch (error) {
       if (!this.currentPlayerEvent(player, revision)) return;
       console.error('Failed to start remote player');

@@ -1,0 +1,70 @@
+{
+  "resourceVersion": "20261103a",
+  "timestamp": "20261103T015103Z",
+  "backup": "/opt/yuyutian/mytools/config/dsh-web/mobile-backup-20261103T015103Z",
+  "previousFiles": {
+    "mobile.css": null,
+    "mobile.js": null,
+    "dsh-lan.conf": "d6a483adcb28de874fc40ce8896bc1fded91ae66e5db76f99c6a8701a74bc6bb"
+  },
+  "sourceHashes": {
+    "mobile.css": "31625e0e389000f33fc7d290d8ef20734ac1f0eda0697433edeb943ffd56997d",
+    "mobile.js": "e7bbf15492c1300f6b67675e0af7f6bef059e13fa91a534f167515168f7367fe",
+    "dsh-lan.conf": "6e549ab061483cf30d58e53bae6446bf557effaef9b3c6b80534cb4ac2b11861"
+  },
+  "checks": {
+    "mobile.css": {
+      "status": 200,
+      "bytes": 17382,
+      "sha256": "31625e0e389000f33fc7d290d8ef20734ac1f0eda0697433edeb943ffd56997d",
+      "contentType": "text/css",
+      "encoding": null,
+      "cacheControl": "no-cache"
+    },
+    "mobile.cssGzip": {
+      "status": 200,
+      "bytes": 4963,
+      "sha256": "31625e0e389000f33fc7d290d8ef20734ac1f0eda0697433edeb943ffd56997d",
+      "contentType": "text/css",
+      "encoding": "gzip",
+      "cacheControl": "no-cache"
+    },
+    "mobile.js": {
+      "status": 200,
+      "bytes": 8169,
+      "sha256": "e7bbf15492c1300f6b67675e0af7f6bef059e13fa91a534f167515168f7367fe",
+      "contentType": "application/javascript",
+      "encoding": null,
+      "cacheControl": "no-cache"
+    },
+    "mobile.jsGzip": {
+      "status": 200,
+      "bytes": 3061,
+      "sha256": "e7bbf15492c1300f6b67675e0af7f6bef059e13fa91a534f167515168f7367fe",
+      "contentType": "application/javascript",
+      "encoding": "gzip",
+      "cacheControl": "no-cache"
+    },
+    "authProbe0": {
+      "status": 401
+    },
+    "authProbe1": {
+      "status": 403
+    },
+    "authProbe2": {
+      "status": 403
+    },
+    "authProbe3": {
+      "status": 403
+    },
+    "authProbe4": {
+      "status": 401
+    }
+  },
+  "deviceInstallation": false,
+  "productionDeployment": true,
+  "nginxConfigTest": true,
+  "authConfigurationUnchanged": true,
+  "servicesNotRestarted": true,
+  "rollbackUsed": false
+}

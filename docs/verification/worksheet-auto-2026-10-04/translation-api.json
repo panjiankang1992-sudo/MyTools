@@ -1,0 +1,154 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "session-required",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "name": "csrf-required",
+      "status": 403,
+      "passed": true
+    },
+    {
+      "name": "weekdays-both-directions",
+      "items": [
+        {
+          "id": "cn-0",
+          "sourceText": "星期一",
+          "englishText": "Monday",
+          "meaning": "星期一",
+          "status": "translated"
+        },
+        {
+          "id": "cn-1",
+          "sourceText": "星期二",
+          "englishText": "Tuesday",
+          "meaning": "星期二",
+          "status": "translated"
+        },
+        {
+          "id": "cn-2",
+          "sourceText": "星期三",
+          "englishText": "Wednesday",
+          "meaning": "星期三",
+          "status": "translated"
+        },
+        {
+          "id": "cn-3",
+          "sourceText": "星期四",
+          "englishText": "Thursday",
+          "meaning": "星期四",
+          "status": "translated"
+        },
+        {
+          "id": "cn-4",
+          "sourceText": "星期五",
+          "englishText": "Friday",
+          "meaning": "星期五",
+          "status": "translated"
+        },
+        {
+          "id": "cn-5",
+          "sourceText": "星期六",
+          "englishText": "Saturday",
+          "meaning": "星期六",
+          "status": "translated"
+        },
+        {
+          "id": "cn-6",
+          "sourceText": "星期天",
+          "englishText": "Sunday",
+          "meaning": "星期日",
+          "status": "translated"
+        },
+        {
+          "id": "en-0",
+          "sourceText": "Monday",
+          "englishText": "Monday",
+          "meaning": "星期一",
+          "status": "translated"
+        },
+        {
+          "id": "en-1",
+          "sourceText": "Tuesday",
+          "englishText": "Tuesday",
+          "meaning": "星期二",
+          "status": "translated"
+        },
+        {
+          "id": "en-2",
+          "sourceText": "Wednesday",
+          "englishText": "Wednesday",
+          "meaning": "星期三",
+          "status": "translated"
+        },
+        {
+          "id": "en-3",
+          "sourceText": "Thursday",
+          "englishText": "Thursday",
+          "meaning": "星期四",
+          "status": "translated"
+        },
+        {
+          "id": "en-4",
+          "sourceText": "Friday",
+          "englishText": "Friday",
+          "meaning": "星期五",
+          "status": "translated"
+        },
+        {
+          "id": "en-5",
+          "sourceText": "Saturday",
+          "englishText": "Saturday",
+          "meaning": "星期六",
+          "status": "translated"
+        },
+        {
+          "id": "en-6",
+          "sourceText": "Sunday",
+          "englishText": "Sunday",
+          "meaning": "星期日",
+          "status": "translated"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "general-translation-api",
+      "attempts": [
+        {
+          "status": 200,
+          "items": [
+            {
+              "id": "external-en",
+              "sourceText": "butterfly",
+              "englishText": "butterfly",
+              "meaning": "蝴蝶",
+              "status": "translated"
+            },
+            {
+              "id": "external-cn",
+              "sourceText": "蝴蝶",
+              "englishText": "Butterfly",
+              "meaning": "蝴蝶",
+              "status": "translated"
+            }
+          ]
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "mixed-source-not-printed-as-answer",
+      "passed": true
+    },
+    {
+      "name": "input-bound",
+      "status": 413,
+      "passed": true
+    }
+  ],
+  "credentialsRecorded": false
+}

@@ -1,0 +1,1116 @@
+{
+  "date": "2026-10-18",
+  "goalStatus": "ACTIVE",
+  "mysqlVerification": {
+    "summary": {
+      "failed": 0,
+      "skipped": 0,
+      "tests": 6,
+      "containersFailed": 0,
+      "passed": 6,
+      "aborted": 0
+    },
+    "javaVersion": "openjdk version \"21.0.12.1\" 2026-08-18",
+    "java21ExecutableConfirmed": true,
+    "productionServicesActive": {
+      "task-scheduler-service": true,
+      "task-executor-service": true,
+      "messaging-service": true,
+      "mytools-gateway": true
+    },
+    "bundleManifestSha256": "f3a682b31b37b95ddfae6af572bd0ad806421f9a8fa4d45294b422626edcbc9e",
+    "mysqlVersion": "8.4.11-0ubuntu0.26.04.1",
+    "remoteLogSha256": "72aabe4f686c07ca51f3168c90d8f975a851000701facbc3327e4b6d2d8229e1",
+    "bundleFileCount": 468
+  },
+  "localRegression": {
+    "tests": 189,
+    "passed": 179,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 10,
+    "skippedExplanation": "4 optional live-source tests and 6 MySQL tests gated locally; those 6 MySQL tests passed separately on Ubuntu."
+  },
+  "migrationInventories": {
+    "news-digest-service": {
+      "count": 7,
+      "sha256": "5558e30cf5759e4112251e738e31ec8d10336510ecf295b4b4a38d7b5e62346f",
+      "files": [
+        {
+          "path": "service/news-digest-service/db/migrations/V1__create_news_content.sql",
+          "sha256": "c19fed8f0fa61d9d40bf45dee93502d59947b253b6642689551ac5059e9e9c03",
+          "size": 1301
+        },
+        {
+          "path": "service/news-digest-service/db/migrations/V2__add_technical_sources.sql",
+          "sha256": "43d41d1c5209726a032b0b7b756ed9974f9a66b88ea95ea681dd0e1afc5febb0",
+          "size": 1368
+        },
+        {
+          "path": "service/news-digest-service/db/migrations/V3__add_node_regions.sql",
+          "sha256": "9aab7c3109a491ce2859506e2693c41af7c61df1983911154a98aac62c92739b",
+          "size": 927
+        },
+        {
+          "path": "service/news-digest-service/db/migrations/V4__subscriptions_and_task_outbox.sql",
+          "sha256": "45cf23cd912df175c343181872f53f4dca77803223241342a042035d987751cd",
+          "size": 1556
+        },
+        {
+          "path": "service/news-digest-service/db/migrations/V5__source_polling_and_region_jobs.sql",
+          "sha256": "2f1c8f0d4a2ae55dac4de5f88cbc99c5358e79c49dd6f392f20550648347ba82",
+          "size": 1100
+        },
+        {
+          "path": "service/news-digest-service/db/migrations/V6__create_news_delivery_outbox.sql",
+          "sha256": "19ae1e275df5a099a018c8d63324332c77f7af2c71f7528946c7005f4f45ed4f",
+          "size": 1863
+        },
+        {
+          "path": "service/news-digest-service/db/migrations/V7__add_content_retention.sql",
+          "sha256": "eb2714d69d0493514d3a02fb954d6519057ebcdbe852b6be1a6707940007c818",
+          "size": 1221
+        }
+      ]
+    },
+    "messaging-service": {
+      "count": 20,
+      "sha256": "817da15842daa2f866665bfc283869b3eaaf33b262bca007c8a99cb95c0ed621",
+      "files": [
+        {
+          "path": "service/messaging-service/db/migrations/V10__add_email_poll_checkpoint.sql",
+          "sha256": "15a64761b87240a8b2a4294a283483a5ec64ee0a9e4d1f46367deb59c195f719",
+          "size": 264
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V11__add_delivery_execution_fence.sql",
+          "sha256": "e2ba35f7bef8d0c20667ef06c48c6552250a2cb239cf6c1c8a89b17b6698abfd",
+          "size": 556
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V12__add_delivery_shadow_audit.sql",
+          "sha256": "a4400f76171f48354a9cdfb7ad7baa28dfb391f65616d449fb6f0eaa76d5ffff",
+          "size": 510
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V13__bound_inbound_outbox_retries.sql",
+          "sha256": "db240c4a12094f456b4b0ca7f7dfba3577a4eac8bd3faf96f1eea80faa78cd3b",
+          "size": 296
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V14__distinguish_dead_inbound_outbox_events.sql",
+          "sha256": "1ad40f2991d86bf8c250189a60f2ffc669af141a202ad4961c5b2df88faaf67a",
+          "size": 206
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V15__stage_onebot_forward_expansion.sql",
+          "sha256": "d61997ce04fb19b9abd23eb344333df5a55cb51259a62d940d627b3ea11db768",
+          "size": 470
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V16__create_onebot_forward_expansion.sql",
+          "sha256": "dffa689d7efda082e55493067503f2d002ce50f309a5f15ce9ff146ef42c50f0",
+          "size": 714
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V17__claim_inbound_outbox_delivery.sql",
+          "sha256": "af3968184d401a1d92bc06fcaba273059b2713dea1babd41ee8b7e923aa1eff7",
+          "size": 306
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V18__create_verified_outbound.sql",
+          "sha256": "16a6eb92b0d17df50df286c47979e7729fa1cab826110344376d0163c5b02a5f",
+          "size": 1925
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V19__create_outbound_channel_budget.sql",
+          "sha256": "7054b6674416ffd30c67db2642cb98005a224ba87737815feb8877bb8efcbd9a",
+          "size": 114
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V1__create_messaging_schema.sql",
+          "sha256": "b099a057cc5513f0fdbc5f8fd9bf25f797e7dc93a0d393387dfbee0ba0589300",
+          "size": 2479
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V20__add_outbound_retention.sql",
+          "sha256": "4c317a0d9b027d79fa66520b749063c2a085a4dce7a3e413b01da88a99e16c43",
+          "size": 730
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V2__add_inbound_message_parts.sql",
+          "sha256": "d1f2970f3fdcb753aa4e05456106721057e9d99ee5bda778661729c01f12bef7",
+          "size": 706
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V3__add_attachment_download_jobs.sql",
+          "sha256": "a36f6daa650db77012d24f542f9262fd3398cdfc8eca80511e5b1476497d999e",
+          "size": 711
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V4__add_inbound_history_migration_audit.sql",
+          "sha256": "092aeb6dfe4216b7f6608ea40596e7fdf1c4db86dc48887c7288072a8fae9fb6",
+          "size": 567
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V5__add_provider_file_resolution.sql",
+          "sha256": "664a92ced2e9f419da59b9b252d5e9799418d840c1dfd7df9df7a2bc083ca77d",
+          "size": 235
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V6__add_provider_resolution_mode.sql",
+          "sha256": "9a18d1d89c13ee45aba3ad11631291497946220e49b43746cfeab6f60a8848b2",
+          "size": 238
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V7__add_support_feedback.sql",
+          "sha256": "3069106e27f573a37ddddec4c4aa509ab100ff1baf04a170209b669f539c4976",
+          "size": 710
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V8__add_outbound_history_archive.sql",
+          "sha256": "05a8afbac9a25d2110963c09f4b1f52a40c3a689983ec11eb5601ab0c35799d2",
+          "size": 1423
+        },
+        {
+          "path": "service/messaging-service/db/migrations/V9__add_message_reference_data.sql",
+          "sha256": "cc3fce360e415b062bbed575d83317ccc83aa41950b76d660e8592a50cbc1024",
+          "size": 1854
+        }
+      ]
+    },
+    "task-scheduler-service": {
+      "count": 176,
+      "sha256": "467508d41ed3054c053696868817f9f6d8dddae6a2dd247d64e369b4bb561cbe",
+      "files": [
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V100__seed_legacy_storage_location_backfill.sql",
+          "sha256": "451e48569fb84c1b015215b7e6980c54e176069bef6342008f21a580e0de97ee",
+          "size": 1765
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V101__tag_downloaded_assets.sql",
+          "sha256": "c2e15515b7760f101b9bd9ad03bbf6133ecf14f5e578b5e6d27f602ac892720d",
+          "size": 2126
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V102__carry_message_storage_context.sql",
+          "sha256": "5ceca1b7e09dc88d335e49b0ff2798c1a35b74c007d73f4eca5a0613c8054258",
+          "size": 793
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V103__seed_message_url_batch.sql",
+          "sha256": "4fd38b17485a3dce9100d706d057334bdca58e6a9a9e3f9e74daa061a9ee443e",
+          "size": 3189
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V104__seed_download_local_magnet_task.sql",
+          "sha256": "5ee6da0467a04fbd7a27f79f3873656c3eee5600b3c0a6851330c62d37a718f1",
+          "size": 1501
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V105__normalize_magnet_parameter_schemas.sql",
+          "sha256": "91ef1a1df442283320c3b617df3db9b75c6e8e3319d551e0eb0c11825901c61f",
+          "size": 1252
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V106__seed_pikpak_watcher_tasks.sql",
+          "sha256": "922113864b73e5a1fb85e2e4682366b9149f4a645a2014d4452d7e1cd92c0af3",
+          "size": 2549
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V107__seed_local_import_task.sql",
+          "sha256": "3811b1ea5630696245d061afb30a159f0c5e29a388603f449e23f58af941de83",
+          "size": 2721
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V108__add_storage_object_source_index.sql",
+          "sha256": "b334a413e275f89f6c2944374efc298b738d1a2581a6bd71dec825f7fa8f98e1",
+          "size": 1015
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V109__add_message_album_title_text.sql",
+          "sha256": "2d179104bf3cc6e85c3a3670b0b0daa2962b4271ef898acc3a0df4b1f393ef93",
+          "size": 973
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V10__add_cron_schedule_cursor.sql",
+          "sha256": "0c8347f9e85f67ba4af6905ff6ae26eb2e8127485f7441560184982a8f1e85c8",
+          "size": 453
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V110__require_resource_username.sql",
+          "sha256": "76541c53f45d3cef63f7d4200dadcff34c4a34dfcd09b107e42d346b244d8081",
+          "size": 684
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V111__seed_download_x_user_task.sql",
+          "sha256": "e7254086abcad198f4008f5e432fe1b970dd7ac9c9fb0955fc2a1a76197873e3",
+          "size": 2738
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V112__seed_download_x_auth_health.sql",
+          "sha256": "cae504c92da75c544bd4bc80f61f0d17db914e1e1710347d47e407fe256ed49c",
+          "size": 1373
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V113__allow_trusted_x_media_host.sql",
+          "sha256": "0370084d0dc7f603d13e6d51c31df6450220927a6ff5d474eb6ab00881baeed2",
+          "size": 357
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V114__allocate_x_user_source_indexes.sql",
+          "sha256": "bdf05f4318aa9bde9d9938cab9e9d8d859de0c8d576846c8a177e272593d7d7b",
+          "size": 378
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V115__register_downloaded_media.sql",
+          "sha256": "a502099a5beaf36630255f8a0d0a527edf62688dcb45c4a748b001c686b6a060",
+          "size": 1135
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V116__add_idempotent_execution_reports.sql",
+          "sha256": "1a1e7932a4a910bacc2f138ddb3d0fdd22b803880c7c5464db4f0f09752b81b7",
+          "size": 361
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V117__add_execution_fencing_and_lease_audit.sql",
+          "sha256": "2a6442d6544ceb7b5f82c6145240d87f9b989683859e6ee22dac1b8086cb9d40",
+          "size": 328
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V118__add_claim_idempotency_and_availability.sql",
+          "sha256": "400ade4d1b4616839950576a192855026b7a6ed6098974f98cbcdea0177a38d6",
+          "size": 350
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V119__add_execution_target_availability.sql",
+          "sha256": "f0194c119de042d2e57b02b1e44211bcabd56b5b8f3ad8469a5909a8ed0ce6c3",
+          "size": 204
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V11__add_multi_node_execution_targets.sql",
+          "sha256": "05e4c3c7a09234bef789347c11005578434d1a880ed0f95540af3e807058b272",
+          "size": 1120
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V120__add_task_events_and_outbox_delivery.sql",
+          "sha256": "51e40e9d1e0e666919beb66fa9946d2fe1a5e702cf4d9b024ed879c887fc2df7",
+          "size": 1030
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V121__add_executor_node_status_audit.sql",
+          "sha256": "eee388f8af962d29362aa1639b1c28cf432d8a71a12f073061c1ea69dd76e0c9",
+          "size": 373
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V122__add_step_log_index.sql",
+          "sha256": "951946c9ee3ab0eedfb94d37c83b6151f07c4b713e2e5467dd914ae0a980eb3e",
+          "size": 64
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V123__add_bounded_task_cancellation_queue.sql",
+          "sha256": "fcc5bbb5f50548dac12f71bf32485b607b2cb20de3496a97a2a0b68dfd6f1e76",
+          "size": 699
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V124__add_idempotent_task_checkpoints.sql",
+          "sha256": "781bb0564ad76cbbf7cbaee6172bd86cabb859ded34ddf2cfa520c8c64d2f1b9",
+          "size": 1041
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V125__add_execution_compensation_status.sql",
+          "sha256": "089b79d00651afd697d6d8d7d1b49d28c4f0d8bed2ddbcb8c623cbda829659bc",
+          "size": 419
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V126__add_child_aggregation_policy.sql",
+          "sha256": "2b3dcbf954508d3fa26438fec84d1936bf139319c7309855ac3eec12c38b2248",
+          "size": 328
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V127__seed_reader_audiobook_text_projection_task.sql",
+          "sha256": "5c2c9da68617db275b59174f10ccf0a2426559d0a21b7d12ea30c62ac9553511",
+          "size": 1813
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V128__seed_reader_audiobook_synthesis_task.sql",
+          "sha256": "bdcb69bf6617b938e963b3300a05ba5f4f2622ccede9af75d95649f348ca1978",
+          "size": 1827
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V129__seed_reader_managed_ebook_import_task.sql",
+          "sha256": "d57a3725b1853852487043d4b4f12d929fc7cfcac806d798a2030d198f933e17",
+          "size": 3666
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V12__add_task_instance_start_time.sql",
+          "sha256": "966c5926a0ce4252ef395f8461a01a789ca3dbe65f1c2e06728cef79901ae7cf",
+          "size": 144
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V130__seed_reader_audiobook_book_analysis_task.sql",
+          "sha256": "b0d832a0908781b665c77cc3afeace5108a05106501f17539ec09b76c218a7b7",
+          "size": 1975
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V131__seed_reader_audiobook_voice_match_task.sql",
+          "sha256": "b258d51deddf7a4932736700777d24a03085efa99e77679b6d0b211bccd06f5e",
+          "size": 1812
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V132__seed_reader_audiobook_export_task.sql",
+          "sha256": "51aa219e177ae8bc1d389ae38c26a58f7d31f30ed1ce6a9eb527784fe69835e7",
+          "size": 1932
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V133__support_epub_managed_audiobook_import.sql",
+          "sha256": "d44a8a905c5f59e5c9f108869c429c0abddb069818a74e5f1a9bfd520a70b555",
+          "size": 1790
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V134__record_audiobook_projected_character_count.sql",
+          "sha256": "13eac2840119d06cef6e0e2b4ded06409036c1aa719fe18b6c23649387225553",
+          "size": 860
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V135__seed_reader_audiobook_pronunciation_revision_task.sql",
+          "sha256": "2b63aa61561d83f32172de034be2599fb83c7b1d5cb924c0080ea4f62007ef98",
+          "size": 1923
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V136__increase_interactive_download_capacity.sql",
+          "sha256": "8178d0e194e4a677442fda76b274167f03f9f55569fee05a54a638b88002d13c",
+          "size": 294
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V137__add_task_dispatch_deadline.sql",
+          "sha256": "7cc32020ae1d5b548fdc20e009e0667367f7c4706b79f57685b5e943df5207ef",
+          "size": 196
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V138__seed_onebot_relogin_task.sql",
+          "sha256": "5c0c2bba1b9c4ea2cc33e71fa74281d66bfbf34d25c4768f5f0075e0fa66f228",
+          "size": 5030
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V139__tag_storage_object_downloads.sql",
+          "sha256": "828ca7a8dea3ffecba3cd5182fc6bea5f54e03be0d17c35499f46dea92f07d69",
+          "size": 5760
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V13__upgrade_reader_search_to_sharded.sql",
+          "sha256": "4b5c205fb1daa25882c8539cbfcaa25a28c6437761437479b2650a946e940218",
+          "size": 1329
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V140__identify_download_content_type.sql",
+          "sha256": "461120f33f5adcd9b11a984971df78853106c214f5b56d9904f2e36161746e0d",
+          "size": 933
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V141__bound_remote_download_paths.sql",
+          "sha256": "2826fe1d448edb83fd671806ae828cb64341278bf709cf6bf1dd9b8b96a89226",
+          "size": 756
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V142__fix_remote_download_item_identity.sql",
+          "sha256": "d580a859dc684104fa7e6733b3d5667df23fd767e5f8da19e044bd5a12c90f98",
+          "size": 723
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V143__reuse_completed_magnet_results.sql",
+          "sha256": "d69c813db6b71bc9184ea2ffd366d8c4f9f09ad248c3a10939789059a219ccd8",
+          "size": 521
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V144__propagate_remote_media_type.sql",
+          "sha256": "7d6b58acf3c6f4ae1e91e4302b5d17d72d0a6c10a6eaa7dd506af743d6867785",
+          "size": 478
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V145__add_reader_adaptation_dispatch_guard.sql",
+          "sha256": "873288627697ef6ec44d8494f231348896523a48c47df988ef4024860fe7507f",
+          "size": 602
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V146__add_task_execution_authorization.sql",
+          "sha256": "577c4997de16109def1f59e91ad5dbb073f56ac0023111db66a422d981f9a5f3",
+          "size": 2735
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V147__seed_reader_chapter_adaptation_task.sql",
+          "sha256": "2558304259c3c475a8beea20733691a35ba73157ded7865c60e96463883a4d1f",
+          "size": 2136
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V148__upgrade_media_tags_model.sql",
+          "sha256": "3b89660d88ec334073eb55b710dff038c564f9b29924de4b85b698ac7f337196",
+          "size": 527
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V149__prioritize_character_tags.sql",
+          "sha256": "b2c55bfa2df136f86785eb32091839de3aaf836de608583d1f71f1d7cb0fc380",
+          "size": 563
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V14__seed_reader_source_discovery_task.sql",
+          "sha256": "1ecb9df55af2752f4536c13444c598aff907f52d9c879c55ac97c5b184ffa5bf",
+          "size": 1218
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V150__seed_image_generation_task.sql",
+          "sha256": "5ebd4eb01d4c0feb7ff5f3c90e541c8b5d35fe9ca345da75ea33171e1b444ded",
+          "size": 2710
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V151__coordinate_image_and_tagging_gpu.sql",
+          "sha256": "281f424847a5c9b741b9db9cc1d8c77df8eb8c4eccf5985c4ca7c913e761382c",
+          "size": 526
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V152__image_deployment_audit.sql",
+          "sha256": "8246652ace2f698a01f89b743ca8021a0283b3fbe1db42eeb9e014ac73bd5e9c",
+          "size": 303
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V153__image_edit_and_prompt.sql",
+          "sha256": "5905587ce0efb874097f60fbae22897a5bd61306306ee3abf4cd42a25516e163",
+          "size": 681
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V154__structured_image_prompt_result.sql",
+          "sha256": "c71826f230f3a9ed144d4576e982e1b533e921ac5551c147e57673409554adcf",
+          "size": 443
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V155__seed_video_generation_task.sql",
+          "sha256": "c50ac11b0c53c3e26e354388e780b9289c0332de1480aa45cecba98485f6331c",
+          "size": 4155
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V156__video_deployment_audit.sql",
+          "sha256": "5c480a3167e263930c96b76f17850b817e877b5947d9c1bbaa45479989fe6c0f",
+          "size": 303
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V157__pin_video_generate_1_0_1.sql",
+          "sha256": "c9d67b759f881d3f22a1d9d8eb4c95e4b0e01e76f86e680d028d52a8b283e7af",
+          "size": 660
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V158__register_video_result_pad_rects.sql",
+          "sha256": "caf034bd194befaaf4852c83b81c63ae4ce174142bd6caa86043a8b02f7fc527",
+          "size": 1437
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V159__pin_video_generate_1_0_2.sql",
+          "sha256": "9ca58df727e29dea59342c3ad2bbf43f123184eac411145b9ef7dbe6f37fc0d6",
+          "size": 548
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V15__seed_reader_source_health_task.sql",
+          "sha256": "105f86373bde3c24187e8ed33300ee8da868402e959542f2c9ee652a286c14e2",
+          "size": 1192
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V160__pin_video_generate_1_0_3.sql",
+          "sha256": "3b268c8072b8b32886c973c43407e87588bc346bd435bc2eb3e7ca22380f3333",
+          "size": 1940
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V161__restore_download_dispatch_capacity.sql",
+          "sha256": "3c92f125437939046e4a29489eb3212894629743788165e9a4d3d32af3d456be",
+          "size": 477
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V162__reuse_resident_download_tag_model.sql",
+          "sha256": "17adba36babfddff8b457260839a47b2e6f6fd836bd53366d63e2cf305e85e2b",
+          "size": 936
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V163__add_ltx_video_resource.sql",
+          "sha256": "e3fb7031c7f5b81094f2aa85b4a966c45de700c8700a6cb837718dafb9407096",
+          "size": 3498
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V164__fix_ltx_prompt_response.sql",
+          "sha256": "943b1715ca5151aa4da86d895c9c590756c59c436e68e3fce3d6273936716d98",
+          "size": 306
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V165__seed_pdf_tools.sql",
+          "sha256": "f5f10f8126a7090d38b73265ca8b7502c185707f1d978544bf5ab20842e33eae",
+          "size": 1797
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V166__pdf_deployment_audit.sql",
+          "sha256": "1112a63483565a063138b74f6f7e3545571aae10643183d8f88b187a312c6bfe",
+          "size": 298
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V167__upgrade_pdf_linux_runtime.sql",
+          "sha256": "9bb4ecd3850a70f7aab5d51848eaccd01183427e24937e03c6d8d72c220be3df",
+          "size": 295
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V168__raise_small_video_threshold.sql",
+          "sha256": "b2b02e52e826d6d8ce112e00fc63cd32a30364555a24b25d204dc93d32f5143e",
+          "size": 701
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V169__generate_downloaded_video_preview.sql",
+          "sha256": "5ed4841d0c5c993f79974ec7401a55b31cf43dca472448b8347e1290da9d7677",
+          "size": 1012
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V16__seed_reader_ebook_import_task.sql",
+          "sha256": "20eb533ede53d1c247fccf6a853c87e05f8f3f9e6cc247062535d8797885c65e",
+          "size": 1214
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V170__seed_video_preview_task.sql",
+          "sha256": "acbb450d913443b36660c750ae7b6215654e14eafc36e7e44970ff2dd3d639bf",
+          "size": 1531
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V171__project_download_tags_to_media.sql",
+          "sha256": "eca6b3ad585a1199eda1adb1a206b65938da60a6b8395d93fa1812d437f27b82",
+          "size": 484
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V172__carry_streamed_attachment_metadata.sql",
+          "sha256": "0c570b93eb9e850a69a48baa5d6021cacfb3c806e0ca5b7b6def73b68477e319",
+          "size": 942
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V173__seed_news_edition_task.sql",
+          "sha256": "6e74a5fb1ea188d0e75c96f1157e4fc63e48de1a4ef144c986843c731316b17d",
+          "size": 1795
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V174__seed_news_region_task.sql",
+          "sha256": "990f5c038372f398f708dcb33c28132cb87e152e49cfadfd9344ed83e01836d7",
+          "size": 1617
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V175__bound_published_download_file_names.sql",
+          "sha256": "8a533bfb6fdd9bccafaaef63af07414759ce91dfbb1a653bd0bfbc0f68a92f19",
+          "size": 522
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V176__seed_verified_outbound_task.sql",
+          "sha256": "78fc3d36ab4bd64ed2fbf919283213edd8b39a7233102133e47930af7b9aea63",
+          "size": 1649
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V17__seed_reader_metadata_task.sql",
+          "sha256": "87cfc31bcbe73699cede858c97e272f5b73377ed15b86ab8ef71f90e3c67a902",
+          "size": 1811
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V18__seed_reader_catalog_task.sql",
+          "sha256": "b43594539a6a8ec6eeb36e8f6e79aa505b8e37c5b77a497481e9f89297148cad",
+          "size": 1783
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V19__seed_reader_chapter_prefetch_task.sql",
+          "sha256": "08967aec972aa6fdbfe801bc1a60c72331a666ded082461f1b2fd2d500c5836a",
+          "size": 1198
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V1__create_task_schema.sql",
+          "sha256": "a357fb942a920e63f7cc534fab23264254187cd5064fd01f065ba0722779f52b",
+          "size": 5767
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V20__seed_message_email_task.sql",
+          "sha256": "0418c6c39fb0efb79692b7b8f0b7def69ab533b04cf1efe7860daa85f1df1764",
+          "size": 1543
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V21__seed_asset_registration_task.sql",
+          "sha256": "9bb8039cb967a5d2c91f7a58d249509b1da88135158b2ef5fa2b2c6e84865727",
+          "size": 2118
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V22__mirror_download_assets.sql",
+          "sha256": "c289864fcb8463d207fd3675f7446e1206273e59e2abaccc5dc9d84687a056ed",
+          "size": 595
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V23__mirror_media_assets.sql",
+          "sha256": "5b5c350e0533132cc6727709843f3936ea7bb33332bb6fea541a03b3afd8bf39",
+          "size": 910
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V24__seed_drive_index_task.sql",
+          "sha256": "a6f25475ca721fcd7e6d4806fd19a67c3588ea9f24df4fa07a9708ba25d7bc8f",
+          "size": 1349
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V25__add_drive_index_terminal_steps.sql",
+          "sha256": "42dbbf8e5904c7e2c4c11a5dd1466235dd1c9cff41880af10b0ac1a6298e2e74",
+          "size": 977
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V26__seed_drive_account_migration_task.sql",
+          "sha256": "ba7d50391d3eed61d67587ae9c557e8ea21c4136b711da9afb6a859c12df0b20",
+          "size": 1066
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V27__seed_identity_migration_task.sql",
+          "sha256": "3425c7c5d09c110b251665739925cc8a4489ac2a59f4759b3b98a2a01e4fe8f0",
+          "size": 1349
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V28__mirror_media_library_items.sql",
+          "sha256": "d5007ec0ee36f06fcc29a7bbf6f1228f04090503c38112f10fd7e5b3e71a87ce",
+          "size": 509
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V29__record_download_result.sql",
+          "sha256": "14f0605e5a482689bea32e48e6d4e88a89d2348db4a41761c5369d32d737524d",
+          "size": 772
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V2__link_task_definition_cluster.sql",
+          "sha256": "0672c824039427a502733fb2bce80e6350b38541bce239c3771027544719d200",
+          "size": 137
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V30__seed_storage_scan_task.sql",
+          "sha256": "7d1d980f450fd3db3f4b16d43cbac93e9235246c29936120fba7f3294a71cf84",
+          "size": 2080
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V31__seed_storage_provider_migration_task.sql",
+          "sha256": "e1db108229f0259065bd2cee2b2012100dc80595c628181e67b8938bd050eb45",
+          "size": 1084
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V32__seed_drive_reconciliation_task.sql",
+          "sha256": "d7e0b43d99d8042e6a807cbbb4843d2e0ff400132a8ce3393d2c0b8ab6c82d73",
+          "size": 1039
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V33__seed_message_attachment_task.sql",
+          "sha256": "8331bfa26fb309fad6e5b9358e36a36370c7c462f8d75d2b264134b198fe44d8",
+          "size": 1223
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V34__seed_reader_cache_maintenance_task.sql",
+          "sha256": "032d9805e634c78d5fae2ca6d9637f54b3b5c2012207aa767394da624cba8d3a",
+          "size": 1861
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V35__seed_reader_library_rebuild_task.sql",
+          "sha256": "95d580dccdb968cac3092b1011118410308f1e69191fc345bb500d763dc8d183",
+          "size": 1844
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V36__seed_reader_state_migration_task.sql",
+          "sha256": "3f16d4f78e6b27f9422e678889508f6b8edf904c2fe3108cd0816ea569a4dd1e",
+          "size": 1267
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V37__seed_storage_transfer_tasks.sql",
+          "sha256": "f07532739ceb7774896d54ad382dc739ee9674b6a9d497e52bc907f95c781634",
+          "size": 3309
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V38__add_task_node_affinity.sql",
+          "sha256": "4db5c7efc0ffee59a7dc9c5a131fa508750256b11bbb450f83c27d18cb3aee59",
+          "size": 254
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V39__seed_storage_checksum_task.sql",
+          "sha256": "10482f4b4608d6478362141a4feae0f2d16d049fa9b5e49c8d788bfc0d7c1c74",
+          "size": 1815
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V3__add_execution_recovery.sql",
+          "sha256": "2a048861e796a9ed50a39863ca5c731b691dcf843054335306d3081acefb022b",
+          "size": 250
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V40__seed_storage_move_task.sql",
+          "sha256": "604c90ea7cc597fc2cec2cc24ad14b6e82d38af6f6ad285606d1f7633caebb77",
+          "size": 2888
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V41__upgrade_storage_provider_migration_task.sql",
+          "sha256": "397281bf7230185027fdd8a627bb782f088d8dd60dadfdde404c6491cceecb5e",
+          "size": 885
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V42__upgrade_drive_reconciliation_task.sql",
+          "sha256": "baae068d6be09c35d2ecaf28d3d9427990463f9cef3ed22edddb091c2a1ac8ee",
+          "size": 1111
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V43__seed_message_history_migration_task.sql",
+          "sha256": "ca6f661be4852756c74d232527795579558b2d0b9cf92129b016e8c980250fa7",
+          "size": 1593
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V44__seed_asset_reconciliation_task.sql",
+          "sha256": "228c2558bbd58c4b5df0f11da65f32cf8cd2261ab0be5a831d7f940c0b90d56b",
+          "size": 1524
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V45__seed_legacy_asset_mapping_task.sql",
+          "sha256": "716344c88895ec3a7455ce1f999568b7796561016678d8dae6399de90a813b6d",
+          "size": 1714
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V46__seed_legacy_asset_snapshot_task.sql",
+          "sha256": "8d12a3fc51b97c45feff27d93982d643d90cfb1b23e090096cdc8b865ef2fee1",
+          "size": 1534
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V47__seed_media_directory_scan_tasks.sql",
+          "sha256": "666c3ee9b3f832b2452456af6cb956fc9d47920e32ae9030ca0cae8dcd998756",
+          "size": 4322
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V48__complete_media_analysis_pipeline.sql",
+          "sha256": "8cc744d21bb637c4a51a4242d8a4eb732ee6d41114e6182b6352d89db652c106",
+          "size": 4039
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V49__link_media_scan_analysis.sql",
+          "sha256": "bb3cfb979bcb7c1025621556b31b5b691d2a253d5ee0f7c123a545e6984083e6",
+          "size": 2827
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V4__seed_media_tag_task.sql",
+          "sha256": "827b7d1c874d00ca44576b50ca1c39093bba8585ec9780c680718c4be06316c0",
+          "size": 1474
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V50__seed_media_reconciliation_task.sql",
+          "sha256": "4e40d34ceb3c9a3f33fd0ff77796a898b86e6b18c25cb973743fe89f4cf806e7",
+          "size": 1580
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V51__seed_downloadbot_history_migration_task.sql",
+          "sha256": "b15ddebac00623848168507ea57a180051f59c652184147af059c10cb14e3309",
+          "size": 1565
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V52__seed_downloadbot_snapshot_task.sql",
+          "sha256": "67e61279cc93342b49e456dd7df9ab9811ff3a5bb71c1c4d3296332fcef854c5",
+          "size": 1387
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V53__seed_download_reconciliation_task.sql",
+          "sha256": "3b5d4f86091269903ff10477e30e5f9172e60ce088ce06df14cd6e4b25ca4cdb",
+          "size": 1499
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V54__seed_download_storage_task.sql",
+          "sha256": "ca0c820e91df4a1510446e5d0728f2d74cc9a78a4c302da5c374477e01113197",
+          "size": 2239
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V55__seed_download_x_task.sql",
+          "sha256": "4dba562c478a225afa593da10b2a15508c3ddb704ea52320fe58860953981326",
+          "size": 1878
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V56__seed_download_text_task.sql",
+          "sha256": "4501933931c02315cd147ab3010d4544a1de1a727deed8aebe0d3d881ca8baff",
+          "size": 2237
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V57__seed_download_web_archive_task.sql",
+          "sha256": "924b05224a659553682f4aa9832f459e3b934b06fabebffe32f7fe2b7d21d754",
+          "size": 1713
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V58__seed_download_pikpak_task.sql",
+          "sha256": "b680d687774df9bf16dcbe338972941bca5f6943501f2ccad1d0f358f97a2713",
+          "size": 1448
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V59__seed_download_remote_storage_task.sql",
+          "sha256": "ed43ebffae57de01a08ea7fa3d760fcd718a73895aa838cc2b078bb199e98bf2",
+          "size": 2548
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V5__add_media_tag_reconciliation.sql",
+          "sha256": "771849aa8a54f9ae324196423efaf35920c43f7c5796145d191ec50223d6a735",
+          "size": 1863
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V60__upgrade_download_pikpak_task.sql",
+          "sha256": "f65526db301c2cc77b51ba7ec0e0fa5b7f0ac9913e7653470c0b76dde976dbab",
+          "size": 731
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V61__seed_pikpak_account_migration_task.sql",
+          "sha256": "00c73c46b19a309c771d744b9caadbc2ab685286ce26017f0a61f74c1983a158",
+          "size": 1622
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V62__resolve_message_provider_files.sql",
+          "sha256": "9d553ed39744a50b40c680945570b93b05a77f19fd7ba367f9fd82418fc5ddf5",
+          "size": 1172
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V63__seed_message_attachment_stream_task.sql",
+          "sha256": "c8a789bd56c6fa72fefdac4bc0eb37ef7a3111685ec2b92cfba8cc20c1c08e83",
+          "size": 2172
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V64__seed_storage_native_copy_task.sql",
+          "sha256": "b2cf931725de8b911a1fd7af0b7be0a7d6ba5b88c11e9d9bb3a16fddf047922c",
+          "size": 2291
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V65__upgrade_downloadbot_snapshot_task.sql",
+          "sha256": "705a63864ea8ba2f593d0c62507fb8577d192b0375b4627c43fc9cb307cd5690",
+          "size": 652
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V66__reconcile_message_attachment_downloads.sql",
+          "sha256": "0521a49e46911773cca3c5c153ebc7e8620b3edf88bef6639dc263d571cb1e67",
+          "size": 2021
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V67__freeze_message_history_migration.sql",
+          "sha256": "f47df42a98da2995f592f02240f9963bb951ca69478110b9ef3d9f4a89ebd2d1",
+          "size": 747
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V68__freeze_identity_user_migration.sql",
+          "sha256": "7a11a515fd9292ccc88b3a67e7472b4e52e8a53805099c95c27cf733ba6575c0",
+          "size": 1061
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V69__require_legacy_asset_owner.sql",
+          "sha256": "4b38adf77ded5aa5384c77d37524e686a7e7a6c25b0ab67aa347c6f001874d09",
+          "size": 340
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V6__seed_media_processing_tasks.sql",
+          "sha256": "c1b5cda3ebee394a515e627fbed249a36331717409b5c184043fed3817a77bd6",
+          "size": 2234
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V70__seed_legacy_media_migration_task.sql",
+          "sha256": "f512317be3244cf6ec1e8090eb49a303d79dc9eb9d921d9ee22c6fc9076c7602",
+          "size": 1564
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V71__preserve_legacy_media_tags.sql",
+          "sha256": "1e959a476330ab54fa77a2ed8dce1499f2f7343067fd57d94df36a242321fa95",
+          "size": 294
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V72__reconcile_media_sources.sql",
+          "sha256": "99fa51d9ca831ba689192b9f0b1d964ed754dce54f49bebe9ae4000e3f538a7f",
+          "size": 514
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V73__preserve_downloadbot_messages.sql",
+          "sha256": "2ab9e5cb1874c67461a3c20b965ab2da82bf27da608e7e671dad5bf8264961d3",
+          "size": 575
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V74__seed_app_catalog_migration.sql",
+          "sha256": "dd432e12c2a1f75684a89777c5df8ac7792558572d455da7cfa01c4548148983",
+          "size": 1442
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V75__seed_feedback_migration.sql",
+          "sha256": "22d565bb35ae56e85c25fa52e980e7f78db5dec7549f2da18639fe1b508e3912",
+          "size": 1399
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V76__seed_dsh_session_migration.sql",
+          "sha256": "479c88947e83ccaaf77f516ea61151b3516e2a20c61a14366bb40bcf53cd66e9",
+          "size": 1415
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V77__enable_reader_probe_search.sql",
+          "sha256": "359dab85aa6d226f01ff89fb19a722ee2356771732ac2e11c3dff63ec01ff6c6",
+          "size": 1352
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V78__seed_reader_probe_search.sql",
+          "sha256": "0af8e2ceaa42c0801d3ccb69d80593e184d3f1c595791f7e1158b0353f7f3e23",
+          "size": 1638
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V79__seed_native_storage_tree_copy.sql",
+          "sha256": "a829f95440dfd6bea61864fa50aa7c2dd2f626ec16f8ef715801a0289ff0207c",
+          "size": 1882
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V7__seed_reader_search_task.sql",
+          "sha256": "c13ebb54b58ce00d78df1e3ac3c513dce0bb70ac73fab93c5086f9a763ed05de",
+          "size": 1498
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V80__seed_email_poll_task.sql",
+          "sha256": "8f7b82e731513188d5b338319f19bed452163bee1813fc609e6a5609c41c0358",
+          "size": 1044
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V81__seed_storage_delete_tree.sql",
+          "sha256": "4518b85c9c45c875a2fc4d63b225e0cb74a3837831c8f80546d3d87eaff5f44e",
+          "size": 1842
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V82__materialize_media_analysis_input.sql",
+          "sha256": "d8c01957217d0fe1029f9c3f65a52b30311480fc034de34923819821e9edefb6",
+          "size": 1787
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V83__seed_app_catalog_file_migration.sql",
+          "sha256": "df9c86c94f59964eea37c08bc00323d47a92f61eeedef27810205609917347da",
+          "size": 1588
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V84__publish_download_files_to_storage.sql",
+          "sha256": "699a2e57fea7b0aadf27cde74476120da645ee061e66b160b9e739ada5c403e3",
+          "size": 1230
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V85__publish_scanned_media_files.sql",
+          "sha256": "7729ed0abfd752f7dfd63c65ecc0661172cbc8dd018376a278ca68eaf04440b7",
+          "size": 2081
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V86__freeze_drive_account_migration.sql",
+          "sha256": "369592b6ea1257f92ffe3d1e5d01f0296b80d63bb175fae091f7aeeb1fc1e5b9",
+          "size": 943
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V87__reconcile_legacy_asset_migration.sql",
+          "sha256": "ecf1a99540339c32879a89867861c0f90e6175d2617edb73dbd24573d3dc62c6",
+          "size": 373
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V88__freeze_reader_state_migration.sql",
+          "sha256": "576840e58eee7246f2d8c28641b1e58b9124e75ecc7326d802179f7b7aab11d5",
+          "size": 1276
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V89__seed_outbound_history_migration.sql",
+          "sha256": "7619eec86c63cf66e8cca1e3f409daea45c4042b0011a4b6130c61deff1e7289",
+          "size": 1552
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V8__seed_download_http_task.sql",
+          "sha256": "78090addc09435a17730fa53b819c8315035851e2c7576e49c9d1782bfc635db",
+          "size": 1502
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V90__freeze_legacy_media_migration.sql",
+          "sha256": "bfa978082746387953b822f166c691c5322fd00d1129a5759b26cbd7651f359b",
+          "size": 941
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V91__upgrade_app_catalog_migration.sql",
+          "sha256": "27c3b240b26a97960f78298ab050ce1079dad3ffcfa9e2c01ed64c12d7314857",
+          "size": 474
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V92__upgrade_feedback_migration.sql",
+          "sha256": "34a944cb681059cfd61f53ced7ad638567d07f4a535374861689155c30f98d13",
+          "size": 453
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V93__upgrade_dsh_session_migration.sql",
+          "sha256": "a34358aa7bbe9a9102bf3109c4c2ff7e4b5ba23027e80b7e3cd2334c59d5db1e",
+          "size": 461
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V94__seed_executor_acceptance_task.sql",
+          "sha256": "8e8e9e97c35a846735a3c6138be532946dd1f85c6a22d7d248b57b028c06a8a3",
+          "size": 2114
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V95__normalize_terminal_step_kinds.sql",
+          "sha256": "3cf91f4d349ea199ae0182385533b26c810fa1183c2f27eb3898d319926c2639",
+          "size": 331
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V96__define_rebuild_task_contracts.sql",
+          "sha256": "6755261d024c9bbe38deedb0169d50fd76a5ea54a3bd39533933a7bd4245cd87",
+          "size": 1792
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V97__expand_legacy_asset_snapshot_tag_limit.sql",
+          "sha256": "3b05ff5430ed79786e15598107e98edf460276d2145bbd527253cf85c02a058a",
+          "size": 387
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V98__support_absent_legacy_feedback_table.sql",
+          "sha256": "9ec6f3b10e6690c7bb23b1fb9de093fc33203d45975b467a8b58388bf8a63b16",
+          "size": 293
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V99__expand_task_instance_parameters.sql",
+          "sha256": "24bcc81d7ca77a8f23c9219e21e649b54dd56e641edead1095e53d1ec768d976",
+          "size": 157
+        },
+        {
+          "path": "service/task-scheduler-service/src/main/resources/db/migration/V9__seed_media_video_analysis_task.sql",
+          "sha256": "6ce61ae6b3a307318e470d74687b64cdb01d669895114fbf02e6226a65523f69",
+          "size": 1784
+        }
+      ]
+    }
+  },
+  "sourceSha256": {
+    "service/news-digest-service/pom.xml": "a01be7737f7039be5e54d048c03421ee1dab6d21ab557cfb77ae91d877f3130d",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/MySqlCompatibilityTest.java": "ab4638f39d3474a5ed6e621324fb62ad2aab3ec49357aa8f6d109674cd08caa1",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/MySqlCompatibilityLauncher.java": "10b48069fa39a16c4de226ba349bacf2f92e192a00726d3dbf2f3a00c4b2c95b",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/DispatchRepository.java": "3853a48695e85fff5a7f8b0cc63312efd33ea0f35829f3558b978d7e628bb7cb",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/RetentionRepository.java": "af69a5fe791ac11752a9b767b27a364a2c7cd4431d6925736bcab5125bb5cf68"
+  },
+  "limitations": [
+    "Flyway 9.22.3 reports MySQL 8.4 beyond its tested 8.0 version range.",
+    "Fresh schemas and synthetic upgrade fixtures only; no production database copy, online migration, application deployment, source collection, or message delivery was exercised."
+  ],
+  "temporaryMysqlStopped": true,
+  "temporaryDataDirectoryRemoved": true,
+  "productionEnvironmentContentsRead": false,
+  "productionDatabaseAccessed": false,
+  "productionServicesRestarted": false,
+  "messagesSent": false,
+  "postCleanupVerification": {
+    "productionServicesActive": {
+      "messaging-service": true,
+      "mytools-gateway": true,
+      "task-executor-service": true,
+      "task-scheduler-service": true
+    },
+    "temporaryArchiveAbsent": true,
+    "temporaryDataAbsent": true,
+    "temporaryUnits": {
+      "-init": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      },
+      "-test": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      },
+      "database": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      }
+    }
+  },
+  "packageVerification": {
+    "success": true,
+    "testLauncherExcluded": true,
+    "testClassesExcluded": true,
+    "newsJarSha256": "5cb37a7acabd0f62c9ad44325f3f1a61ea3e4ddf56c250ec409543b3ed6094f4"
+  }
+}

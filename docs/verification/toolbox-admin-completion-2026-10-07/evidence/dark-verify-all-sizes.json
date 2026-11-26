@@ -1,0 +1,47 @@
+[
+  {
+    "size": "320x720",
+    "changed": [
+      "headerBg"
+    ],
+    "ok": true,
+    "headerBg": "rgb(255, 255, 255) -> rgb(32, 35, 41)",
+    "button": "切换深色模式"
+  },
+  {
+    "size": "375x812",
+    "changed": [
+      "headerBg"
+    ],
+    "ok": true,
+    "headerBg": "rgb(32, 35, 41) -> rgb(255, 255, 255)",
+    "button": "切换浅色模式"
+  },
+  {
+    "size": "768x1024",
+    "changed": [
+      "headerBg"
+    ],
+    "ok": true,
+    "headerBg": "rgb(255, 255, 255) -> rgb(32, 35, 41)",
+    "button": "切换深色模式"
+  },
+  {
+    "size": "1280x900",
+    "changed": [
+      "headerBg"
+    ],
+    "ok": true,
+    "headerBg": "rgb(32, 35, 41) -> rgb(255, 255, 255)",
+    "button": "切换浅色模式"
+  },
+  {
+    "size": "1440x900",
+    "changed": [
+      "headerBg"
+    ],
+    "ok": true,
+    "headerBg": "rgb(255, 255, 255) -> rgb(32, 35, 41)",
+    "button": "切换深色模式"
+  }
+]

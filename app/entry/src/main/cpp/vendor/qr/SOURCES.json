@@ -1,0 +1,47 @@
+[
+  {
+    "source": "https://raw.githubusercontent.com/dlbeer/quirc/927d680904dc95fdff4cd9d022eb374b438ff8f2/lib/quirc.c",
+    "file": "quirc/quirc.c",
+    "sha256": "0294b6c56f8c021b256c4c153d70483368164c6cf0cce643e1b6be03ed3585c0"
+  },
+  {
+    "source": "https://raw.githubusercontent.com/dlbeer/quirc/927d680904dc95fdff4cd9d022eb374b438ff8f2/lib/identify.c",
+    "file": "quirc/identify.c",
+    "sha256": "ae858d86adcb12db80ad01f6d941cc2247fb5970abf0754f24dca027ede2ba99"
+  },
+  {
+    "source": "https://raw.githubusercontent.com/dlbeer/quirc/927d680904dc95fdff4cd9d022eb374b438ff8f2/lib/decode.c",
+    "file": "quirc/decode.c",
+    "sha256": "d4468c55ecd0d2f905a6813513708005e6d609ef0a3d32a17673313c7552a7c1"
+  },
+  {
+    "source": "https://raw.githubusercontent.com/dlbeer/quirc/927d680904dc95fdff4cd9d022eb374b438ff8f2/lib/version_db.c",
+    "file": "quirc/version_db.c",
+    "sha256": "6764aa2f245085080e1e5cefd9dcd59b9727718a0d4606956e0502a57f5dff30"
+  },
+  {
+    "source": "https://raw.githubusercontent.com/dlbeer/quirc/927d680904dc95fdff4cd9d022eb374b438ff8f2/lib/quirc.h",
+    "file": "quirc/quirc.h",
+    "sha256": "49660ea710add2d6f304a1323f53190f5a2bf34db4dd160d633db0c3f22bfba5"
+  },
+  {
+    "source": "https://raw.githubusercontent.com/dlbeer/quirc/927d680904dc95fdff4cd9d022eb374b438ff8f2/lib/quirc_internal.h",
+    "file": "quirc/quirc_internal.h",
+    "sha256": "e383ed1a0ca70c07b0530d76bfeb6bd5525efda182589f48c978921a9e54676b"
+  },
+  {
+    "source": "https://raw.githubusercontent.com/dlbeer/quirc/927d680904dc95fdff4cd9d022eb374b438ff8f2/LICENSE",
+    "file": "quirc/LICENSE",
+    "sha256": "a70ef3ea032998eead2e2c7573a170a809eae08e3ca134611f707eda5932c8a9"
+  },
+  {
+    "source": "https://raw.githubusercontent.com/nayuki/QR-Code-generator/3c6d0b3cefb4e049dc337e82237c9644399716a8/c/qrcodegen.c",
+    "file": "qrcodegen/qrcodegen.c",
+    "sha256": "6a2b9cc65176f2345dde260c74b6d352627e8a0a6385d086ae0e9c5d0913c70c"
+  },
+  {
+    "source": "https://raw.githubusercontent.com/nayuki/QR-Code-generator/3c6d0b3cefb4e049dc337e82237c9644399716a8/c/qrcodegen.h",
+    "file": "qrcodegen/qrcodegen.h",
+    "sha256": "e82df4bff37d18b5863b9e7486fe6bda1b6cda8c3b9ecebfec473907265cb589"
+  }
+]

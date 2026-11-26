@@ -1,0 +1,139 @@
+{
+  "date": "2026-10-18",
+  "phase": "news-web",
+  "goal": "Authenticated personal news subscription and reading workflow",
+  "unit": {
+    "tests": 13,
+    "passed": 13,
+    "failures": 0
+  },
+  "gateway": {
+    "tests": 23,
+    "failures": 0,
+    "errors": 0,
+    "suites": [
+      {
+        "class": "com.yuyutian.mytools.gateway.web.GatewayRequestFilterTest",
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.gateway.controller.NewsGatewayControllerTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "browser": {
+    "passed": 19,
+    "checks": [
+      "twenty headlines rendered",
+      "only available top-ten details rendered",
+      "missing details kept at original ranks",
+      "trend readiness distinguished from generation readiness",
+      "executable URL blocked",
+      "untrusted markup remains plain text",
+      "historical region preserved",
+      "current region shown separately",
+      "evidence can be expanded",
+      "empty local category does not borrow national stories",
+      "category switching shows actual count",
+      "subscription saved with expected revision",
+      "no client owner or destination fields",
+      "conflict preserves draft",
+      "conflict blocks overwrite",
+      "explicit reload restores editing",
+      "network-loss preview retries same key and cutoff",
+      "cancelled run no longer offers cancellation",
+      "failed refresh keeps last readable history with error"
+    ]
+  },
+  "responsiveAndAuth": [
+    {
+      "width": 390,
+      "scrollWidth": 390,
+      "rank": "nowrap"
+    },
+    {
+      "width": 360,
+      "scrollWidth": 360,
+      "rank": "nowrap"
+    },
+    {
+      "anonymousRedirect": "/login"
+    }
+  ],
+  "typecheck": "PASS",
+  "build": "PASS",
+  "lint": {
+    "newsOxlint": "PASS",
+    "vueEslint": "PASS",
+    "headerEslint": "PASS",
+    "viteConfigOxlint": "PASS"
+  },
+  "sourceFiles": [
+    {
+      "path": "webapp/src/service/api/news.ts",
+      "sha256": "2dd395245a8606cc0eca5a4ea323c527f7bf147aab65edaf867ec3f80291d770"
+    },
+    {
+      "path": "webapp/src/service/api/news.types.ts",
+      "sha256": "05d10d39a053f040ab80fcd360eb5af136dd32419fa845ec94d4180af0e4619e"
+    },
+    {
+      "path": "webapp/src/locales/news.ts",
+      "sha256": "f53ebc83de634327be8d4930757f39a9f8f07c70922a42edd22090c2a5085d28"
+    },
+    {
+      "path": "webapp/src/views/news/index.vue",
+      "sha256": "cf487142bf0d539629bc2a914fddb8c3e144ec1f22aa0610f01ef94bf52c606e"
+    },
+    {
+      "path": "webapp/src/views/news/model.ts",
+      "sha256": "4622f1e991d80481a6bcd4670b29e5563edc1bad41cbaa27d387e215fcf56380"
+    },
+    {
+      "path": "webapp/src/views/news/modules/news-reader.vue",
+      "sha256": "2642bdfccfd785aa9281934594c9d3393f58b766b5b0b18ce8762e1c86647306"
+    },
+    {
+      "path": "webapp/vite.config.ts",
+      "sha256": "1c8be53916c516e1dbb0f83e960cf6ab66ab704377a10ee4dc0546278d15e6da"
+    },
+    {
+      "path": "webapp/tests/news/fixture-server.mjs",
+      "sha256": "214158ff129c65c2dfe7155c99e6f40596edd316c5d4e2d20e47f23b43d119f3"
+    },
+    {
+      "path": "webapp/tests/news/browser-check.js",
+      "sha256": "7ebee26d70248e8fd6d1cc6b1635dedd5b3c958b1c22f6947674715137dd9a8f"
+    },
+    {
+      "path": "webapp/tests/news/model.test.ts",
+      "sha256": "34ff27a7790d29c7baf967c43cce752dbf1a9642a98e6ef241c0473655b89279"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "output/playwright/daily-news/desktop.png",
+      "sha256": "d46980eee3d6089a17a90dbd3393b095d9bdde142e2ab0f985f45383643254a4"
+    },
+    {
+      "path": "output/playwright/daily-news/mobile-reading.png",
+      "sha256": "552d840301cea9c19995621101654fc8e897e473bc33ff6775cb2b6d7de4c093"
+    }
+  ],
+  "limitations": [
+    "Browser checks use a loopback-only fixture server and simulated login, not real production news or credentials",
+    "Gateway owner-isolation and authorization are covered by separate Java regression; no live browser-to-production end-to-end test",
+    "No production deployment, actual MySQL, execution-node or channel-send acceptance",
+    "Existing shared navigation warnings for route.undefined occurred with the default development configuration; no news runtime exception",
+    "Expected HTTP 409, 502 and 503 browser errors were deliberately injected for failure recovery tests",
+    "Node 26 emits a tsx module.register deprecation warning during state tests",
+    "Unknown preview identities are retained only while the page remains mounted; after leaving, use history to check the outcome"
+  ]
+}

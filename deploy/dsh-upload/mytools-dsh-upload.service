@@ -1,0 +1,22 @@
+[Unit]
+Description=MyTools DSH upload relay
+Requires=mytools-dsh-upload.socket
+After=mytools-dsh-upload.socket dsh.service
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/mytools-dsh-upload/server.py --state-dir /var/lib/mytools-dsh-upload
+DynamicUser=yes
+StateDirectory=mytools-dsh-upload
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX AF_INET
+IPAddressDeny=any
+IPAddressAllow=localhost

@@ -1,0 +1,47 @@
+{
+  "latestArtifact": "/Users/pankang/mycode/MyTools/app/build/acceptance/ui-subpages-20261103-simulator-final2-signed.hap",
+  "latestSha256": "35e5495f2287ee0ebc8abe494cfdf4af117319cbd88e6c95128cf84f15a77214",
+  "latestSignature": "passed",
+  "finalInstall": "final2 signature/install/coldstart passed-on-Pura90-emulator; source-filter shape/48vp freshly verified; protected download currently login-gated",
+  "deviceLastInstalled": "app/build/acceptance/ui-subpages-wrap-check-20261103-signed.hap",
+  "warning": "Physical phone still has intermediate narrow-layout diagnostic build. Latest formal HAP is installed on Pura90 emulator; its page geometry acceptance is tracked separately.",
+  "review": "AUDIT.md",
+  "devicePrivateScreens": "/tmp/mytools-ui-device-private",
+  "simulator": {
+    "profile": "Pura90 HarmonyOS 6.1.1 API24",
+    "productionInstallEvidence": "simulator/final2/device-acceptance-20261103T034632Z.json",
+    "privateScreens": "/tmp/mytools-ui-simulator-private",
+    "isolatedProbe": "separate320vp emulator; read-only local fixtures; 7 dynamic action states and 280/320vp narrow download passed; largest system font attempt inconclusive, original settings restored",
+    "previousProductionInstallEvidence": "simulator/final/device-acceptance-20261103T032445Z.json",
+    "dedicatedProbeCleanup": {
+      "originalSystemSettingsRestored": true,
+      "productionHapRestored": "simulator/probe-restored-formal/device-acceptance-20261103T033654Z.json",
+      "profileStopped": "MyToolsUIAudit20261103",
+      "localFixtureServerStopped": true,
+      "mainPura90KeptOnline": true,
+      "restoredArtifactSha256": "9b6a2b252581c9885eb1c2109ca0d24a878cd8d5652401e38b34c872e9f35ef9",
+      "note": "Regular production entry restored before shutdown; not final2 shape-only update"
+    },
+    "accountAndSettings": "latest cold start did not yield a usable logged-in session; account/data reset not performed; Pura90 system font settings not changed",
+    "deliveryPage": "LoginPage (opening protected DownloadToolsPage)",
+    "deliveryPrivateCapture": "/tmp/mytools-ui-simulator-private/26-download-delivery-final2.jpeg"
+  },
+  "uiGeometryEvidence": [
+    "simulator/download-final-geometry.json",
+    "simulator/files-final-geometry.json",
+    "simulator/pdf-text-footer-final-geometry.json",
+    "simulator/rss-group-final-geometry.json",
+    "simulator/book-source-final-geometry.json",
+    "simulator/media-toolbar-final-geometry.json",
+    "simulator/media-tag-clear-final-geometry.json",
+    "simulator/book-source-final2-geometry.json"
+  ],
+  "remainingCoverageLimits": [
+    "largest system font could not be confirmed because actual app text bounds did not enlarge",
+    "paid generation, file processing, password display, data creation/deletion and subscription edits not executed",
+    "PDF parameter sheets, RSS reader footer and password-result rows have source/shared-component coverage, not each separate native result state",
+    "system pickers, DSH webpage and screen reader compliance not fully audited",
+    "final formal HAP verified on emulator; physical phone remains on earlier intermediate package",
+    "final2 protected download not newly measured because current session reached LoginPage;9b6 unchanged-source geometry retained"
+  ]
+}

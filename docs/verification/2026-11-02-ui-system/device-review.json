@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-02",
+  "install": "passed",
+  "initialLaunch": "passed",
+  "deviceUsesPersonalizedSystemFont": true,
+  "issues": [
+    {
+      "id": "placeholder-font",
+      "observed": "Search placeholder inherited personalized system font while other native text used bundled font.",
+      "fix": "Explicit placeholderFont in shared single-line, multiline and search inputs.",
+      "status": "fixed-and-device-verified"
+    },
+    {
+      "id": "group-layout-runtime",
+      "observed": "Opening book detail exited process.",
+      "error": "TypeError: Cannot read property layout of undefined",
+      "location": "AppControls.ets:230 onPlaceChildren",
+      "status": "fixed-and-final-installed-build-verified"
+    }
+  ],
+  "dataSafety": "Navigation, details, management cancel, RSS add form and creation form only; no generation, delete, subscription save or reading progress changes.",
+  "finalInstallEvidence": "device-acceptance-20261102T062205Z.json",
+  "checks": {
+    "detailOpened": true,
+    "pairedButtonsEqualWidthAndHeight": true,
+    "cancelTargetEdge": true,
+    "searchPlaceholderBundledFont": true,
+    "rssAddFormOpened": true,
+    "toolPageOpened": true,
+    "imageCreationFormOpened": true,
+    "emptyPromptGenerateDisabled": true,
+    "processRemainedAliveDuringSmoke": true,
+    "finalPackageDetailOpened": true,
+    "finalPackageRuntimeLayoutErrors": false,
+    "handsOffNavigationIdlePassed": true,
+    "handsOffDetailAndCancelPassed": true
+  },
+  "remaining": [
+    "320-wide/200-percent-font/landscape/screen-reader acceptance not performed.",
+    "No generation/deletion/remote-write acceptance."
+  ],
+  "finalVerificationAt": "2026-11-02T14:42:12.973244+08:00",
+  "controlledVerificationEvidence": [
+    "device-navigation-stability.json",
+    "device-controlled-smoke.json"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "visibleMetadataRows": 2,
+  "tagsBelowPreviews": true,
+  "measurements": [
+    {
+      "tagScroll": {
+        "x": 65,
+        "y": 1560,
+        "width": 527,
+        "height": 143
+      },
+      "card": {
+        "x": 65,
+        "y": 877,
+        "width": 527,
+        "height": 826
+      },
+      "preview": {
+        "x": 65,
+        "y": 877,
+        "width": 527,
+        "height": 501
+      },
+      "tagsBelowPreview": true
+    },
+    {
+      "tagScroll": {
+        "x": 624,
+        "y": 1560,
+        "width": 527,
+        "height": 143
+      },
+      "card": {
+        "x": 624,
+        "y": 877,
+        "width": 527,
+        "height": 826
+      },
+      "preview": {
+        "x": 624,
+        "y": 877,
+        "width": 527,
+        "height": 501
+      },
+      "tagsBelowPreview": true
+    }
+  ],
+  "privateNamesIncluded": false
+}

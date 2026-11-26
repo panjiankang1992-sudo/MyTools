@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-18",
+  "goalStatus": "ACTIVE",
+  "realDeliveryTested": false,
+  "productionDeployed": false,
+  "browserUsesOfflineFixture": true,
+  "stateTests": {
+    "tests": 28,
+    "passed": 28,
+    "failures": 0,
+    "skipped": 0
+  },
+  "browser": {
+    "delivery": {
+      "passed": 19,
+      "script": "webapp/tests/news/delivery-browser-check.js",
+      "resultVariable": "window.__deliveryAcceptance"
+    },
+    "reading": {
+      "passed": 19,
+      "script": "webapp/tests/news/browser-check.js",
+      "resultVariable": "window.__newsAcceptance"
+    },
+    "layoutAndAuthentication": {
+      "passed": 4,
+      "script": "webapp/tests/news/delivery-layout-check.js",
+      "viewportWidths": [
+        1440,
+        390,
+        360
+      ],
+      "resultVariable": "window.__deliveryLayout"
+    }
+  },
+  "typecheck": "passed",
+  "build": "passed",
+  "oxlint": {
+    "warnings": 0,
+    "errors": 0
+  },
+  "vueEslint": {
+    "warnings": 0,
+    "errors": 0
+  },
+  "screenshots": [
+    "output/playwright/daily-news/delivery-desktop.png",
+    "output/playwright/daily-news/delivery-mobile.png"
+  ],
+  "sourceSha256": {
+    "webapp/src/locales/news-delivery.ts": "d9396760a69cdeee7e4fdbd9a85be2fec4fd89749ac321e286ce222144adc4ca",
+    "webapp/src/locales/news.ts": "3c6d2a1b183d198dd656b058aed0cb4dde9058e0256b4611bfd2dfabf60239f3",
+    "webapp/src/service/api/news-delivery.types.ts": "31974ff6b17159d5cef9ec7921d2fa8600081efaf201575a8791c07c65a137b3",
+    "webapp/src/service/api/news.ts": "82fb3d6622f532a87bea7388f0bc6af27ed7fb99df1c29aa369bacf598e3b4c6",
+    "webapp/src/views/news/delivery-model.ts": "9f96c37203f93f754faa23422595f9adcea830af177d4b91579eb75d655dc66e",
+    "webapp/src/views/news/index.vue": "4472d714201b477538c29eb1717676d73c9522446d2eb9449ece1d4a9112e421",
+    "webapp/src/views/news/model.ts": "4622f1e991d80481a6bcd4670b29e5563edc1bad41cbaa27d387e215fcf56380",
+    "webapp/src/views/news/modules/news-delivery-panel.vue": "2c6eecac0e66dfa149b5cc54d0e4c8f7e407a252871c54b5b16bc6ff668b6543",
+    "webapp/src/views/news/modules/news-reader.vue": "2642bdfccfd785aa9281934594c9d3393f58b766b5b0b18ce8762e1c86647306",
+    "webapp/tests/news/README.md": "ae0808ec59cb760a2dd53ce773bbbf9f5935b771b4de73a27786ca9e667c874e",
+    "webapp/tests/news/browser-check.js": "7ebee26d70248e8fd6d1cc6b1635dedd5b3c958b1c22f6947674715137dd9a8f",
+    "webapp/tests/news/delivery-browser-check.js": "a90d9e43ad99a7b4dc239474629e5aa022835c75b565f729b131ebbadac99135",
+    "webapp/tests/news/delivery-fixture.mjs": "42a7a2be7df02f99bfada88506817a563d4ef2fabe210229cc0a8f201f8d192c",
+    "webapp/tests/news/delivery-layout-check.js": "c1f39006aa4bc48f4c9117ac93f0f6edf8e9cfaba965f79198541a7cf229bddc",
+    "webapp/tests/news/delivery-model.test.ts": "6d22c0bb892c74c98d87731a86949b3570f38cbaf4429e1592e7ae97855a1706",
+    "webapp/tests/news/fixture-server.mjs": "4116831f8800acb90f7f9ee37237e0b7977b1cdc2b7318dcf73c14d1a704e9a8",
+    "webapp/tests/news/model.test.ts": "34ff27a7790d29c7baf967c43cce752dbf1a9642a98e6ef241c0473655b89279"
+  }
+}

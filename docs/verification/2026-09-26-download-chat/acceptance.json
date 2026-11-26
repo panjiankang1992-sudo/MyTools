@@ -1,0 +1,159 @@
+{
+  "checks": [
+    "anonymous_rejected",
+    "text_reply_and_idempotency",
+    "chunk_and_complete_idempotency",
+    "cross_owner_rejected"
+  ],
+  "jobs": [
+    {
+      "id": "65f6c044-6e5e-445e-acc7-ff30dc2ab5df",
+      "requestId": "58e3c2b2-c882-4b6e-a565-5712f8ac305c",
+      "kind": "LINKS",
+      "name": "https://example.com/",
+      "result": {
+        "downloadRequestId": "58e3c2b2-c882-4b6e-a565-5712f8ac305c",
+        "status": "SUCCEEDED",
+        "itemCount": 1,
+        "totalBytes": 559,
+        "collectionSha256": "5dafab4c2743b4c0b66d3b1fc598dbbda158848efbd764e3bd57485b2704d97b",
+        "contentSetSha256": "53ced1c98c668ef6dd17ca56b117a7e692bd43b35a717f3ea0565d33155c8b4d",
+        "items": [
+          {
+            "itemId": "message:0:1",
+            "fileName": "download-1.bin",
+            "contentSha256": "ff67a9d764d6a2367a187734e697f6a53217db9a21c101d410a113ca871a299d",
+            "sizeBytes": 559,
+            "storageUri": "storage://managed/owner_806499868612455/other/download-1.bin",
+            "assetId": "6fc9185b-de0c-453b-9316-082b77f2ca3f",
+            "tagStatus": "TAGGED",
+            "tags": [
+              {
+                "name": "binary file",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "download data",
+                "type": "topic",
+                "confidence": 0.85
+              },
+              {
+                "name": "application/octet-stream",
+                "type": "topic",
+                "confidence": 0.75
+              }
+            ]
+          }
+        ],
+        "progressDownloadedBytes": 0,
+        "progressTotalBytes": 0,
+        "progressPercent": 0
+      },
+      "status": "SUCCEEDED",
+      "createdAt": "2026-09-26T07:48:21.512684+00:00"
+    },
+    {
+      "id": "e44cc4ae-4c91-4348-8842-3e0f1ce83b79",
+      "requestId": "d4438c81-b98b-4b83-81e9-837f693c8795",
+      "kind": "MEDIA",
+      "name": "download-chat-fixture.mp4",
+      "result": {
+        "downloadRequestId": "d4438c81-b98b-4b83-81e9-837f693c8795",
+        "status": "SUCCEEDED",
+        "itemCount": 1,
+        "totalBytes": 6327,
+        "collectionSha256": "b0bb24100d6455b128caa538cc6ec760087675abb2e12b4c899f884f5b3e09a2",
+        "contentSetSha256": "18d1aae6a3faa9df23f6a30fc6d7c4e09f72b28be07efd3346faa5e0688743dd",
+        "items": [
+          {
+            "itemId": "e44cc4ae-4c91-4348-8842-3e0f1ce83b79",
+            "fileName": "download-chat-fixture.mp4",
+            "contentSha256": "227e0077a2072728521ecf50577a2771a519c294be6b9f846bb88293ef04a1d4",
+            "sizeBytes": 6327,
+            "storageUri": "storage://managed/owner_806499868612455/media/202609/20260926/download-chat-fixture.mp4",
+            "assetId": "709abea7-72e1-450c-970f-abd5162eab66",
+            "tagStatus": "TAGGED",
+            "tags": [
+              {
+                "name": "山",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "太阳",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "蓝天",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "草地",
+                "type": "topic",
+                "confidence": 0.95
+              }
+            ]
+          }
+        ],
+        "progressDownloadedBytes": 0,
+        "progressTotalBytes": 0,
+        "progressPercent": 0
+      },
+      "status": "SUCCEEDED",
+      "createdAt": "2026-09-26T07:48:21.564723+00:00"
+    }
+  ],
+  "passed": true,
+  "imageFromSimulator": [
+    {
+      "id": "f5d2afc0-96a6-4964-962e-c9de9b7f427b",
+      "requestId": "c6a7f08f-1446-4acf-bad9-c2e004932839",
+      "kind": "MEDIA",
+      "name": "download-chat-fixture.png",
+      "result": {
+        "downloadRequestId": "c6a7f08f-1446-4acf-bad9-c2e004932839",
+        "status": "SUCCEEDED",
+        "itemCount": 1,
+        "totalBytes": 3263,
+        "collectionSha256": "f53b95c3a64115c512498272ba7cc7cd9c4345290f70e643513722fda8302279",
+        "contentSetSha256": "736ff4caee5fb22d14982375188815fb7f947860bc18f32fdb1b6e2d4560c196",
+        "items": [
+          {
+            "itemId": "f5d2afc0-96a6-4964-962e-c9de9b7f427b",
+            "fileName": "download-chat-fixture.png",
+            "contentSha256": "8a77041f127705de71ce568994d20465b77b0ddc0b8a1e7f49a2032a9e08a754",
+            "sizeBytes": 3263,
+            "storageUri": "storage://managed/owner_806499868612455/media/202609/20260926/download-chat-fixture.png",
+            "assetId": "fbede0fb-657a-4f71-984c-3f1d4318299d",
+            "tagStatus": "TAGGED",
+            "tags": [
+              {
+                "name": "山",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "太阳",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "草地",
+                "type": "topic",
+                "confidence": 0.95
+              }
+            ]
+          }
+        ],
+        "progressDownloadedBytes": 0,
+        "progressTotalBytes": 0,
+        "progressPercent": 0
+      },
+      "status": "SUCCEEDED",
+      "createdAt": "2026-09-26T07:45:04.233702+00:00"
+    }
+  ]
+}

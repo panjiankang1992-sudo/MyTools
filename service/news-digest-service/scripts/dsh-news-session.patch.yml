@@ -1,0 +1,4 @@
+# 仅给新闻分析任务启用会话归组，不开放模型工具。
+- insert:
+    - id: news-session-metadata
+      name: ./dsh_news_session.mjs

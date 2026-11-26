@@ -1,0 +1,9 @@
+{
+  "built": true,
+  "artifact": "/Users/pankang/mycode/MyTools/app/build/acceptance/ui-subpages-20261103-final-signed.hap",
+  "sha256": "44fce28c31c31b2d2d47ad6ca6d80090107ad6aa172a75925f51a3a026216bfd",
+  "bytes": 51463395,
+  "composerPlaceholder": "shortened to keep empty editor on one line",
+  "pdfTile": "Markdown title breaks at word boundary",
+  "supersededBy": "accepted-build.json"
+}

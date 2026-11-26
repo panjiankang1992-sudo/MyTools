@@ -1,0 +1,120 @@
+{
+  "localBrowser": {
+    "english": {
+      "sourceAndConfirmColumns": [
+        "meaning",
+        "english"
+      ],
+      "pastedPairs": [
+        [
+          "星期一",
+          "Monday"
+        ],
+        [
+          "放学后",
+          "after school"
+        ],
+        [
+          "冰淇淋",
+          "ice cream"
+        ]
+      ],
+      "backPreservesEditedPair": [
+        "放学以后",
+        "after school"
+      ],
+      "mobile": {
+        "viewport": 390,
+        "scrollWidth": 390
+      }
+    },
+    "chinese": {
+      "sourceAndConfirmColumns": [
+        "text",
+        "pinyin"
+      ],
+      "automaticPinyin": [
+        [
+          "春天",
+          "chūn tiān"
+        ],
+        [
+          "学校",
+          "xué xiào"
+        ],
+        [
+          "花朵",
+          "huā duǒ"
+        ]
+      ],
+      "editAndFirstBackClickPassed": true,
+      "previewContentAfterEdit": [
+        "春天",
+        "校园",
+        "花朵"
+      ],
+      "download": "output/playwright/paired-chinese.pdf",
+      "downloadBytes": 62337
+    },
+    "knownLocalOnlyLimitation": "local API proxy origin rejected anonymous session; automatic translation validated separately on production"
+  },
+  "checks": {
+    "tests": 477,
+    "passed": 477,
+    "typecheck": "pass",
+    "build": "pass"
+  },
+  "release": {
+    "releaseId": "paired-editor-20261004-170000",
+    "indexSha256": "e248148b62d99a303308b79b3bb7598a545f38fbc734ad4585b492c0733b2cbd",
+    "verifiedFrontendFiles": 225,
+    "frontendBackup": "/opt/yuyutian/toolbox/releases/paired-editor-20261004-170000/previous-frontend",
+    "backendChanged": false,
+    "contentChanged": false,
+    "serviceRestarted": false,
+    "originIndex": "pass"
+  },
+  "http": {
+    "changedAssetsPassed": 16,
+    "catalogEditions": 5
+  },
+  "productionBrowser": {
+    "englishAutomaticTranslation": [
+      [
+        "星期一",
+        "Monday"
+      ],
+      [
+        "星期二",
+        "Tuesday"
+      ],
+      [
+        "放学后",
+        "after school"
+      ]
+    ],
+    "chineseAutomaticPinyin": [
+      [
+        "春天",
+        "chūn tiān"
+      ],
+      [
+        "校园",
+        "xiào yuán"
+      ]
+    ],
+    "mobileFirstBackClick": true,
+    "mobileBackAndConfirmEdits": [
+      [
+        "春天",
+        "chūn tiān"
+      ],
+      [
+        "学校",
+        "xué xiào"
+      ]
+    ],
+    "mobileViewportWidth": 390,
+    "mobileDocumentWidth": 390
+  }
+}

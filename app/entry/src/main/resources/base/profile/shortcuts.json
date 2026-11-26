@@ -1,0 +1,20 @@
+{
+  "shortcuts": [
+    {
+      "shortcutId": "vehicle-unlock",
+      "label": "$string:vehicle_shortcut_unlock",
+      "icon": "$media:vehicle_unlock",
+      "visible": true,
+      "wants": [
+        {
+          "bundleName": "com.yuyutian.mytools",
+          "moduleName": "entry",
+          "abilityName": "EntryAbility",
+          "parameters": {
+            "vehicleShortcutAction": "unlock"
+          }
+        }
+      ]
+    }
+  ]
+}

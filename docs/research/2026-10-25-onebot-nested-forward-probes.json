@@ -1,0 +1,409 @@
+{
+  "date": "2026-10-25",
+  "scope": "Local source and synthetic inputs only; no production QQ traffic",
+  "upstream_sources": {
+    "napcat_commit": "3420f0b76d7dc0ac92cde1663f21ea27f61e13bb",
+    "snowluma_tag": "v2.2.0"
+  },
+  "existing_tests": [
+    {
+      "suite": "OneBotInboundAdapterTest",
+      "passed": 27,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "test_nested_and_composite_attachments_are_deduplicated",
+      "passed": 1,
+      "deselected": 48
+    }
+  ],
+  "method": "Invoke current OneBotInboundAdapter and MessagingRepository using the Maven test classpath; H2 in-memory database. Invoke current Python connector methods with synthetic clients.",
+  "fixtures": [
+    {
+      "name": "node_data_content",
+      "message": [
+        {
+          "type": "node",
+          "data": {
+            "user_id": "10001",
+            "nickname": "Alice",
+            "content": [
+              {
+                "type": "text",
+                "data": {
+                  "text": "node-text"
+                }
+              },
+              {
+                "type": "image",
+                "data": {
+                  "file_id": "synthetic-image",
+                  "url": "https://example.invalid/image.png"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "node_data_message",
+      "message": [
+        {
+          "type": "node",
+          "data": {
+            "nickname": "Alice",
+            "message": [
+              {
+                "type": "text",
+                "data": {
+                  "text": "node-message"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "inline_nested_forward",
+      "message": [
+        {
+          "type": "forward",
+          "data": {
+            "id": "outer-inline",
+            "content": [
+              {
+                "user_id": "10001",
+                "message": [
+                  {
+                    "type": "text",
+                    "data": {
+                      "text": "outer-text"
+                    }
+                  },
+                  {
+                    "type": "forward",
+                    "data": {
+                      "id": "inner-view-only",
+                      "content": [
+                        {
+                          "user_id": "10002",
+                          "message": [
+                            {
+                              "type": "text",
+                              "data": {
+                                "text": "inner-text"
+                              }
+                            },
+                            {
+                              "type": "image",
+                              "data": {
+                                "file_id": "synthetic-image",
+                                "url": "https://example.invalid/image.png"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "message_content_aliases",
+      "message": [
+        {
+          "user_id": "10001",
+          "message": [
+            {
+              "type": "text",
+              "data": {
+                "text": "same-text"
+              }
+            }
+          ],
+          "content": [
+            {
+              "type": "text",
+              "data": {
+                "text": "same-text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "nested_string_content",
+      "message": [
+        {
+          "user_id": "10001",
+          "content": "plain-text-inside-forward"
+        }
+      ]
+    },
+    {
+      "name": "json_forward_card",
+      "message": [
+        {
+          "type": "json",
+          "data": {
+            "data": "{\"app\": \"com.tencent.multimsg\", \"meta\": {\"detail\": {\"resid\": \"synthetic-res-id\", \"news\": [{\"text\": \"preview-only\"}]}}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "cq_string_reference",
+      "message": "prefix[CQ:forward,id=synthetic-forward]",
+      "raw": "prefix[CQ:forward,id=synthetic-forward]"
+    },
+    {
+      "name": "envelope_metadata_preservation",
+      "message": [
+        {
+          "sender": {
+            "user_id": "10001",
+            "nickname": "Alice"
+          },
+          "time": 1700000000,
+          "message": [
+            {
+              "type": "text",
+              "data": {
+                "text": "A"
+              }
+            }
+          ]
+        },
+        {
+          "sender": {
+            "user_id": "10002",
+            "nickname": "Bob"
+          },
+          "time": 1700000001,
+          "message": [
+            {
+              "type": "text",
+              "data": {
+                "text": "B"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "case": "node_data_content",
+      "error": "OneBotPayloadInvalidException"
+    },
+    {
+      "case": "node_data_message",
+      "error": "OneBotPayloadInvalidException"
+    },
+    {
+      "case": "inline_nested_forward",
+      "parts": [
+        {
+          "type": "TEXT",
+          "text": "outer-text",
+          "attachmentType": null,
+          "providerFileId": null,
+          "providerAccountKey": null,
+          "sourceUrl": null,
+          "fileName": null,
+          "mimeType": null,
+          "declaredSize": null
+        },
+        {
+          "type": "TEXT",
+          "text": "inner-text",
+          "attachmentType": null,
+          "providerFileId": null,
+          "providerAccountKey": null,
+          "sourceUrl": null,
+          "fileName": null,
+          "mimeType": null,
+          "declaredSize": null
+        },
+        {
+          "type": "ATTACHMENT",
+          "text": null,
+          "attachmentType": "IMAGE",
+          "providerFileId": "synthetic-image",
+          "providerAccountKey": "synthetic-account",
+          "sourceUrl": "https://example.invalid/image.png",
+          "fileName": null,
+          "mimeType": null,
+          "declaredSize": null
+        }
+      ],
+      "forwardIds": [
+        "outer-inline",
+        "inner-view-only"
+      ],
+      "truncated": false
+    },
+    {
+      "case": "message_content_aliases",
+      "parts": [
+        {
+          "type": "TEXT",
+          "text": "same-text",
+          "attachmentType": null,
+          "providerFileId": null,
+          "providerAccountKey": null,
+          "sourceUrl": null,
+          "fileName": null,
+          "mimeType": null,
+          "declaredSize": null
+        },
+        {
+          "type": "TEXT",
+          "text": "same-text",
+          "attachmentType": null,
+          "providerFileId": null,
+          "providerAccountKey": null,
+          "sourceUrl": null,
+          "fileName": null,
+          "mimeType": null,
+          "declaredSize": null
+        }
+      ],
+      "forwardIds": [],
+      "truncated": false
+    },
+    {
+      "case": "nested_string_content",
+      "error": "OneBotPayloadInvalidException"
+    },
+    {
+      "case": "json_forward_card",
+      "error": "OneBotPayloadInvalidException"
+    },
+    {
+      "case": "cq_string_reference",
+      "parts": [
+        {
+          "type": "TEXT",
+          "text": "prefix",
+          "attachmentType": null,
+          "providerFileId": null,
+          "providerAccountKey": null,
+          "sourceUrl": null,
+          "fileName": null,
+          "mimeType": null,
+          "declaredSize": null
+        }
+      ],
+      "forwardIds": [],
+      "truncated": false
+    },
+    {
+      "case": "envelope_metadata_preservation",
+      "parts": [
+        {
+          "type": "TEXT",
+          "text": "A",
+          "attachmentType": null,
+          "providerFileId": null,
+          "providerAccountKey": null,
+          "sourceUrl": null,
+          "fileName": null,
+          "mimeType": null,
+          "declaredSize": null
+        },
+        {
+          "type": "TEXT",
+          "text": "B",
+          "attachmentType": null,
+          "providerFileId": null,
+          "providerAccountKey": null,
+          "sourceUrl": null,
+          "fileName": null,
+          "mimeType": null,
+          "declaredSize": null
+        }
+      ],
+      "forwardIds": [],
+      "truncated": false
+    },
+    {
+      "body": "forward-B\nforward-A",
+      "case": "async_completion_order"
+    },
+    {
+      "body": "same-legitimate-text",
+      "case": "repeated_text_nodes"
+    },
+    {
+      "case": "connector_501_before_slice",
+      "parts": [
+        {
+          "type": "ATTACHMENT",
+          "text": null,
+          "attachmentType": "FILE",
+          "providerFileId": "duplicate-file",
+          "providerAccountKey": "synthetic-account",
+          "sourceUrl": null,
+          "fileName": null,
+          "mimeType": null,
+          "declaredSize": null
+        },
+        {
+          "type": "ATTACHMENT",
+          "text": null,
+          "attachmentType": "FILE",
+          "providerFileId": "only-at-501",
+          "providerAccountKey": "synthetic-account",
+          "sourceUrl": null,
+          "fileName": null,
+          "mimeType": null,
+          "declaredSize": null
+        }
+      ],
+      "forwardIds": [],
+      "truncated": false
+    },
+    {
+      "case": "connector_501_after_slice",
+      "parts": [
+        {
+          "type": "ATTACHMENT",
+          "text": null,
+          "attachmentType": "FILE",
+          "providerFileId": "duplicate-file",
+          "providerAccountKey": "synthetic-account",
+          "sourceUrl": null,
+          "fileName": null,
+          "mimeType": null,
+          "declaredSize": null
+        }
+      ],
+      "forwardIds": [],
+      "truncated": false
+    },
+    {
+      "case": "connector_501_nodes",
+      "input_count": 501,
+      "output_count": 500,
+      "response_keys": [
+        "messages"
+      ]
+    },
+    {
+      "case": "standard_onebot_singular_message",
+      "error": "OneBot get_forward_msg returned no messages"
+    }
+  ],
+  "slice_fixture_description": "First 500 message nodes reference duplicate-file; node 501 references only-at-501. Before slicing two distinct files are parsed. After slicing one file is parsed and truncated remains false."
+}

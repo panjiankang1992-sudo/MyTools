@@ -35,6 +35,12 @@
 - 确认旧执行进程树已经停止，并验证领域服务拒绝旧 fencing token；不得仅延长租约掩盖持续网络故障。
 - 若同一节点持续失租，先排空节点并检查时钟、网络和负载，再由运维明确恢复 ONLINE。
 
+## TaskExecutorProcessLaunchUnavailable
+
+- 确认执行器健康检查中的 `executorProcessLaunch` 状态，并查看近期脚本启动错误与系统 JDK 更新记录。
+- 如果运行中的 JVM 与更新后的 `jspawnhelper` 不匹配，核对执行器的 Java 21 路径和 `-Djdk.lang.Process.launchMechanism=FORK`，待正在执行的任务完成后重启。
+- 探测失败时执行器暂停领取。恢复后确认健康指标为 1，排队任务开始执行，新的脚本步骤能够上报。
+
 ## TaskExecutorJournalUnreadable
 
 - 立即停止该节点领取；节点恢复门禁应使其保持未注册。

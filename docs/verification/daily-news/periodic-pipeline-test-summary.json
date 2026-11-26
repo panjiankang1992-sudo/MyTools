@@ -1,0 +1,292 @@
+{
+  "date": "2026-10-18",
+  "phase": "periodic-pipeline",
+  "jdk": "21.0.11",
+  "python": "3.12.13",
+  "news": {
+    "totals": {
+      "tests": 136,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 4
+    },
+    "suites": [
+      {
+        "class": "com.yuyutian.mytools.news.DigestEngineTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.FeedParserTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.GithubTrendCalculatorTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.LiveFeedSmokeTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      {
+        "class": "com.yuyutian.mytools.news.LiveTechnicalSourcesTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 3
+      },
+      {
+        "class": "com.yuyutian.mytools.news.NewsIntegrationTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.PipelineIntegrationTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.PublicNetworkPolicyTest",
+        "tests": 29,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.RegionIntegrationTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.RestartPersistenceTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.SchedulingIntegrationTest",
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.SubscriptionScheduleTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.TechnicalCollectorsTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.TechnicalMigrationTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.TechnicalPersistenceTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.TokenFilterTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.service.NewsSchedulerClientTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "schedulerFocused": {
+    "totals": {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "class": "com.yuyutian.mytools.task.scheduler.controller.NewsExecutionAuthorizationControllerTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.task.scheduler.controller.NewsTaskMigrationTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.task.scheduler.service.PublicPdfTaskAccessTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "schedulerBroaderRegression": {
+    "status": "NOT_RERUN",
+    "knownPriorBlocker": "V141__bound_remote_download_paths.sql uses MySQL JSON_SET unsupported by H2",
+    "evidence": "2026-10-18-subscription-scheduling.md"
+  },
+  "gateway": {
+    "status": "NOT_RERUN",
+    "reason": "No Gateway changes in this batch; prior results remain in subscription-scheduling report"
+  },
+  "pythonRegionWorker": {
+    "version": "1.1.0",
+    "defaultRun": {
+      "tests": 14,
+      "passed": 13,
+      "failures": 0,
+      "skipped": 1
+    },
+    "officialTestDatabaseRun": {
+      "tests": 14,
+      "passed": 14,
+      "failures": 0,
+      "skipped": 0
+    },
+    "maxminddbVersion": "3.2.0",
+    "testDatabaseSha256": "7ecd1a263834096e3948b459713102ef350412a9f18367b4a88efec018153004",
+    "realNodeLocationVerified": false
+  },
+  "countedTotals": {
+    "passed": 157,
+    "skipped": 4,
+    "failures": 0,
+    "errors": 0,
+    "rule": "News plus focused Scheduler plus official-test-database Python run; no double counting of Python rerun or prior Gateway evidence"
+  },
+  "assembly": {
+    "contentSha256": "ad8bc74304269937620aee830225c2ef4ecec49df7a310dcbe053dfdc502f21f",
+    "output": null,
+    "packageCount": 151,
+    "ready": true
+  },
+  "environmentGate": {
+    "checkedPackageCount": 105,
+    "configuredPackageCount": 97,
+    "missing": {
+      "media_generate_tags": [
+        "TASK_ERROR_FILE"
+      ],
+      "pdf_process": [
+        "PDF_ALLOW_UNSANDBOXED_TEST"
+      ],
+      "reader_analyze_audiobook_book": [
+        "TASK_ERROR_FILE"
+      ],
+      "video_generate": [
+        "IMAGE_COMFY_URL",
+        "TAGGING_MODEL",
+        "TAGGING_SERVICE_URL",
+        "VIDEO_COLOR_MATCH",
+        "VIDEO_COMFY_OUTPUT_DIR",
+        "VIDEO_COMFY_URL",
+        "VIDEO_FILL_BLEND",
+        "VIDEO_GENERATION_ROOT",
+        "VIDEO_GPU_COORDINATION_VALIDATED",
+        "VIDEO_GPU_LOCK_FILE",
+        "VIDEO_INFERENCE_TIMEOUT_SECONDS",
+        "VIDEO_LOCAL_VALIDATED",
+        "VIDEO_MIN_FREE_MIB",
+        "VIDEO_NVIDIA_SMI",
+        "VIDEO_WORKFLOW_INDEX_FILE",
+        "VIDEO_WORKFLOW_INDEX_SHA256"
+      ]
+    },
+    "ready": false
+  },
+  "newsPackageEnvironment": "PASS",
+  "builds": {
+    "news-digest-service": {
+      "status": "PASS",
+      "artifacts": [
+        {
+          "file": "service/news-digest-service/target/news-digest-service-0.1.0-SNAPSHOT.jar",
+          "sha256": "aa0b9698110579b8984bef90eb5c45cf1e7e3c221fedd15a940a4606555016c8"
+        }
+      ]
+    },
+    "task-scheduler-service": {
+      "status": "PASS",
+      "artifacts": [
+        {
+          "file": "service/task-scheduler-service/target/task-scheduler-service-0.1.0-SNAPSHOT.jar",
+          "sha256": "b538388e40afce20f8b94902462908a8616be26ff9f4a8b5a1e6465efc60d811"
+        }
+      ]
+    }
+  },
+  "packageFiles": [
+    {
+      "path": "README.md",
+      "sha256": "f40f118ff051f51c187071e46aeebfb2d76207f07bfd0816de83a98eeabe8a2c"
+    },
+    {
+      "path": "manifest.yaml",
+      "sha256": "232684fca310bda023563e3ed23a473565a46312dd044643f21fe2aab98c3ec6"
+    },
+    {
+      "path": "requirements.txt",
+      "sha256": "107f0b7e1d9b3f2fa5fb6c8e853f12351ce24164c9c55bb0d0093cea7f4e31ae"
+    },
+    {
+      "path": "scripts/main.py",
+      "sha256": "0e0f0fccc46a7667ebe3eb8d205c018b977bc61812b3613b1bf064548ae46573"
+    },
+    {
+      "path": "tests/test_main.py",
+      "sha256": "d59883691cb5936ea4cf0f4d93d1d3e851573bb50d0fbf64ee472394fae777d9"
+    }
+  ],
+  "limitations": [
+    "No production deployment, enabled production timer, or real Scheduler/Executor end-to-end validation",
+    "No real MySQL migration or concurrency validation; H2 migration and restart tests only",
+    "No real node location, local source pack, or continuous seven-day sampling acceptance",
+    "No messages sent; no delivery bindings or subscription UI implemented",
+    "Four opt-in live source tests skipped; no external source probe in this batch",
+    "Global environment gate remains blocked by existing unrelated package configuration gaps",
+    "Existing Flyway/H2 and Mockito dynamic-agent runtime warnings remain; Java compilation passed with News -Xlint:all -Werror"
+  ]
+}

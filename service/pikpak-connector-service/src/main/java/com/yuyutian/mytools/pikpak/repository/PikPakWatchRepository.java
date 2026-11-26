@@ -38,20 +38,23 @@ public class PikPakWatchRepository {
 
     /** 读取账户 watcher。 @param accountId 账户 @return 配置 */
     public Watcher requireWatcher(UUID accountId) {
-        return jdbc.query("SELECT * FROM pikpak_watcher WHERE account_id=?", (rs, row) ->
-            new Watcher(UUID.fromString(rs.getString("account_id")), rs.getString("watch_root"),
-                rs.getString("backup_root"), rs.getBoolean("enabled"), rs.getInt("stable_seconds"),
-                rs.getBoolean("process_existing"), rs.getBoolean("baseline_completed")),
-            accountId.toString()).stream().findFirst()
+        return requireWatcher(accountId, false);
+    }
+
+    /** 在事务内锁定 watcher，串行提交同一账户的扫描和归档。 @param accountId 账户 @return 配置 */
+    public Watcher lockWatcher(UUID accountId) {
+        return requireWatcher(accountId, true);
+    }
+
+    private Watcher requireWatcher(UUID accountId, boolean lock) {
+        String sql = "SELECT * FROM pikpak_watcher WHERE account_id=?" + (lock ? " FOR UPDATE" : "");
+        return jdbc.query(sql, this::mapWatcher, accountId.toString()).stream().findFirst()
             .orElseThrow(() -> new IllegalArgumentException("PIKPAK_WATCHER_NOT_FOUND"));
     }
 
     /** 列出已启用 watcher。 @return 配置 */
     public List<Watcher> enabledWatchers() {
-        return jdbc.query("SELECT * FROM pikpak_watcher WHERE enabled=TRUE ORDER BY account_id", (rs, row) ->
-            new Watcher(UUID.fromString(rs.getString("account_id")), rs.getString("watch_root"),
-                rs.getString("backup_root"), true, rs.getInt("stable_seconds"),
-                rs.getBoolean("process_existing"), rs.getBoolean("baseline_completed")));
+        return jdbc.query("SELECT * FROM pikpak_watcher WHERE enabled=TRUE ORDER BY account_id", this::mapWatcher);
     }
 
     /** 读取明确忽略的历史批次路径。 @param accountId 账户 @return 路径 */
@@ -114,6 +117,12 @@ public class PikPakWatchRepository {
         return jdbc.query("SELECT remote_file_id,relative_path,size_bytes,modified_at FROM pikpak_watch_item WHERE batch_id=? ORDER BY relative_path",
             (rs, row) -> new RemoteItem(rs.getString(1), rs.getString(2), rs.getLong(3), rs.getString(4)),
             batchId.toString());
+    }
+
+    private Watcher mapWatcher(ResultSet rs, int row) throws SQLException {
+        return new Watcher(UUID.fromString(rs.getString("account_id")), rs.getString("watch_root"),
+            rs.getString("backup_root"), rs.getBoolean("enabled"), rs.getInt("stable_seconds"),
+            rs.getBoolean("process_existing"), rs.getBoolean("baseline_completed"));
     }
 
     private WatchBatch mapBatch(ResultSet rs, int row) throws SQLException {

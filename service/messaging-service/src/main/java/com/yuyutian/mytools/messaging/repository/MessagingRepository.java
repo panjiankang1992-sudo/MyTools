@@ -391,7 +391,7 @@ public class MessagingRepository {
      */
     public Optional<InboundMessageView> findInbound(UUID id) {
         return jdbcTemplate.query("SELECT * FROM inbound_message WHERE id = ?", (resultSet, rowNumber) ->
-                mapInbound(resultSet), id.toString()).stream().findFirst();
+                mapInbound(resultSet), id.toString()).stream().findFirst().map(this::loadInboundDetails);
     }
 
     /**
@@ -415,7 +415,7 @@ public class MessagingRepository {
                 : jdbcTemplate.query("SELECT * FROM inbound_message WHERE owner_id=? AND (received_at<? OR (received_at=? AND id<?)) ORDER BY received_at DESC,id DESC LIMIT ?",
                     (resultSet, rowNumber) -> mapInbound(resultSet), ownerId, Timestamp.from(afterTime),
                     Timestamp.from(afterTime), afterId.toString(), limit + 1);
-        List<InboundMessageView> page = values.stream().limit(limit).toList();
+        List<InboundMessageView> page = values.stream().limit(limit).map(this::loadInboundDetails).toList();
         UUID next = values.size() > limit && !page.isEmpty() ? page.getLast().id() : null;
         return new InboundMessagePage(page, next);
     }
@@ -1203,7 +1203,7 @@ public class MessagingRepository {
         return jdbcTemplate.query("""
                 SELECT * FROM inbound_message WHERE owner_id = ? AND channel_type = ? AND external_message_id = ?
                 """, (resultSet, rowNumber) -> mapInbound(resultSet), ownerId, type.name(), externalId)
-                .stream().findFirst();
+                .stream().findFirst().map(this::loadInboundDetails);
     }
 
     private InboundMessageView mapInbound(java.sql.ResultSet resultSet) throws java.sql.SQLException {
@@ -1214,7 +1214,15 @@ public class MessagingRepository {
                 resultSet.getString("sender_ref"), resultSet.getString("subject_text"),
                 resultSet.getString("body_text"), resultSet.getTimestamp("received_at").toInstant(),
                 resultSet.getTimestamp("created_at").toInstant(),
-                findInboundParts(messageId), isPreAcknowledged(messageId));
+                List.of(), false);
+    }
+
+    private InboundMessageView loadInboundDetails(InboundMessageView message) {
+        // 主查询归还连接后再加载分段与回执，避免并发请求各持一个连接等待第二个连接。
+        return new InboundMessageView(message.id(), message.ownerId(), message.channelType(),
+                message.externalMessageId(), message.conversationKey(), message.sender(), message.subject(),
+                message.body(), message.receivedAt(), message.createdAt(),
+                findInboundParts(message.id()), isPreAcknowledged(message.id()));
     }
 
     private boolean isPreAcknowledged(UUID messageId) {

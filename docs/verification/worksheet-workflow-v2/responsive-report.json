@@ -1,0 +1,118 @@
+{
+  "generatedAt": "2026-10-03",
+  "requirement": "契约 §1.2：布局宽度覆盖 320/360/390/430/768/1280/1440 CSS px",
+  "method": "真实 Chrome，DeviceMetricsOverride 逐个宽度测量 documentElement.scrollWidth 与 clientWidth；并遍历全部元素找最右边界",
+  "emptyState": {
+    "/#/worksheet-v2": [
+      {
+        "width": 320,
+        "scrollWidth": 320,
+        "clientWidth": 320,
+        "overflow": false
+      },
+      {
+        "width": 360,
+        "scrollWidth": 360,
+        "clientWidth": 360,
+        "overflow": false
+      },
+      {
+        "width": 390,
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "overflow": false
+      },
+      {
+        "width": 430,
+        "scrollWidth": 430,
+        "clientWidth": 430,
+        "overflow": false
+      },
+      {
+        "width": 768,
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "overflow": false
+      },
+      {
+        "width": 1280,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "overflow": false
+      },
+      {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "overflow": false
+      }
+    ],
+    "/#/worksheet-v2/english": "同上，7 个宽度全部无横向溢出"
+  },
+  "afterGenerate": [
+    {
+      "width": 320,
+      "overflow": false,
+      "hasArtifact": true,
+      "canvas": true
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "hasArtifact": true,
+      "canvas": true
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "hasArtifact": true,
+      "canvas": true
+    }
+  ],
+  "conclusion": "7 个契约宽度在空状态与生成预览后都无横向溢出；最右边界恰好等于视口宽度，说明没有元素越界。",
+  "notCovered": [
+    "真实移动设备上的相册选图、软键盘遮挡、设备下载与系统打印未测（阻塞 B4，需要实机）",
+    "200% 缩放为等效近似，未在真实浏览器缩放设置下复核"
+  ],
+  "landscapeAndZoom": {
+    "method": "手机横屏用 DeviceMetricsOverride 设定横屏尺寸；桌面 200% 缩放用「视口宽度减半」等效近似（真实浏览器缩放还会按比例缩放字号，本近似只覆盖布局宽度）",
+    "rows": [
+      {
+        "case": "手机横屏 iPhone 14 (844×390)",
+        "overflow": false
+      },
+      {
+        "case": "手机横屏 小屏 (740×360)",
+        "overflow": false
+      },
+      {
+        "case": "桌面 1440 @200%（等效 720 CSS px）",
+        "overflow": false
+      },
+      {
+        "case": "桌面 1280 @200%（等效 640 CSS px）",
+        "overflow": false
+      }
+    ],
+    "routes": [
+      "/#/worksheet-v2",
+      "/#/worksheet-v2/english"
+    ],
+    "conclusion": "两个路由在四个场景下都无横向溢出，最右边界恰好等于视口宽度。",
+    "caveat": "200% 缩放为等效近似，不是真实浏览器缩放；真实缩放下的字号与媒体查询行为需实机复核。"
+  },
+  "ocrPrivacyObservation": {
+    "generatedAt": "2026-10-03",
+    "method": "CDP Target.setAutoAttach(flatten) 附加到 worker 会话并开启 Network",
+    "workerTargetUrl": "blob:http://127.0.0.1:4173/<uuid>（同域）",
+    "workerRequests": [
+      "GET /ocr/tesseract-7.0.0-lang-4.0.0-best-int-1/worker.min.js",
+      "GET /ocr/tesseract-7.0.0-lang-4.0.0-best-int-1/tesseract-core-relaxedsimd-lstm.wasm.js",
+      "GET /ocr/tesseract-7.0.0-lang-4.0.0-best-int-1/chi_sim.traineddata.gz",
+      "GET /ocr/tesseract-7.0.0-lang-4.0.0-best-int-1/eng.traineddata.gz"
+    ],
+    "externalRequests": 0,
+    "requestsWithBody": 0,
+    "conclusion": "资源全部从同域固定版本路径按需加载；无站外请求；无任何带请求体的请求，即图像与识别原文未离开浏览器。"
+  }
+}

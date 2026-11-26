@@ -1,0 +1,66 @@
+{
+  "checkedAt": "2026-11-02T15:31:51.632101+08:00",
+  "selectors": [
+    {
+      "selector": "directory",
+      "card": {
+        "x": 0,
+        "y": 745,
+        "width": 1216,
+        "height": 1853
+      },
+      "clearTarget": {
+        "x": 956,
+        "y": 771,
+        "width": 157,
+        "height": 143
+      },
+      "clearText": {
+        "x": 982,
+        "y": 807,
+        "width": 105,
+        "height": 72
+      },
+      "closeTarget": {
+        "x": 52,
+        "y": 771,
+        "width": 157,
+        "height": 143
+      },
+      "clearEnabled": false,
+      "insideCard": true
+    },
+    {
+      "selector": "tag",
+      "card": {
+        "x": 0,
+        "y": 745,
+        "width": 1216,
+        "height": 1853
+      },
+      "clearTarget": {
+        "x": 956,
+        "y": 771,
+        "width": 157,
+        "height": 143
+      },
+      "clearText": {
+        "x": 982,
+        "y": 807,
+        "width": 105,
+        "height": 72
+      },
+      "closeTarget": {
+        "x": 52,
+        "y": 771,
+        "width": 157,
+        "height": 143
+      },
+      "clearEnabled": false,
+      "insideCard": true
+    }
+  ],
+  "closeReturnedToMedia": true,
+  "runtimeLayoutErrorsObserved": false,
+  "dataMutation": "None: selectors only opened and closed; no delete or save."
+}

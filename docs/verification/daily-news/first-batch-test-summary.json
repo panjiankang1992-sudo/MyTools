@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-18",
+  "jdk": "21.0.11",
+  "services": {
+    "news-digest-service": {
+      "suites": [
+        {
+          "name": "com.yuyutian.mytools.news.DigestEngineTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.yuyutian.mytools.news.FeedParserTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.yuyutian.mytools.news.LiveFeedSmokeTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "1"
+        },
+        {
+          "name": "com.yuyutian.mytools.news.NewsIntegrationTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.yuyutian.mytools.news.PublicNetworkPolicyTest",
+          "tests": "29",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.yuyutian.mytools.news.RestartPersistenceTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.yuyutian.mytools.news.TokenFilterTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ],
+      "total": {
+        "tests": 56,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    "mytools-gateway": {
+      "suites": [
+        {
+          "name": "com.yuyutian.mytools.gateway.controller.NewsGatewayControllerTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "com.yuyutian.mytools.gateway.web.GatewayRequestFilterTest",
+          "tests": "16",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ],
+      "total": {
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  },
+  "liveProbe": {
+    "status": "PASSED",
+    "test": "LiveFeedSmokeTest",
+    "endpoint": "https://www.chinanews.com.cn/rss/world.xml",
+    "databaseWritten": false,
+    "messagesSent": false
+  },
+  "mysqlVerified": false,
+  "deployed": false,
+  "compile": "PASSED",
+  "package": "PASSED"
+}

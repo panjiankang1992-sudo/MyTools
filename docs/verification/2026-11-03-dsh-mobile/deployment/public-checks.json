@@ -1,0 +1,70 @@
+{
+  "mobile.css": {
+    "passed": true,
+    "attempts": [
+      {
+        "status": 200,
+        "duration": 25.010433,
+        "curlExitCode": 28,
+        "bytesTransferred": 2011,
+        "cache-control": "max-age=14400",
+        "content-encoding": "gzip",
+        "cf-cache-status": "REVALIDATED",
+        "passed": false
+      },
+      {
+        "status": 200,
+        "duration": 8.168785,
+        "curlExitCode": 0,
+        "bytesTransferred": 4963,
+        "cache-control": "max-age=14400",
+        "content-encoding": "gzip",
+        "cf-cache-status": "REVALIDATED",
+        "sha256": "31625e0e389000f33fc7d290d8ef20734ac1f0eda0697433edeb943ffd56997d",
+        "passed": true
+      }
+    ]
+  },
+  "mobile.js": {
+    "passed": true,
+    "attempts": [
+      {
+        "status": 200,
+        "duration": 2.846836,
+        "curlExitCode": 0,
+        "bytesTransferred": 3061,
+        "cache-control": "max-age=14400",
+        "content-encoding": "gzip",
+        "cf-cache-status": "REVALIDATED",
+        "sha256": "e7bbf15492c1300f6b67675e0af7f6bef059e13fa91a534f167515168f7367fe",
+        "passed": true
+      }
+    ]
+  },
+  "anonymousRoot": {
+    "passed": true,
+    "attempts": [
+      {
+        "status": 401,
+        "duration": 1.04355,
+        "curlExitCode": 0,
+        "bytesTransferred": 306,
+        "cf-cache-status": "DYNAMIC",
+        "passed": true
+      }
+    ]
+  },
+  "invalidTicket": {
+    "passed": true,
+    "attempts": [
+      {
+        "status": 401,
+        "duration": 4.14258,
+        "curlExitCode": 0,
+        "bytesTransferred": 64,
+        "cf-cache-status": "DYNAMIC",
+        "passed": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "samples": [
+    {
+      "name": "A-cold-white-seed42",
+      "seed": 42,
+      "frames": 49,
+      "elapsedSeconds": 9.33,
+      "status": "SUCCEEDED",
+      "promptId": "125f0874-5a53-4f6c-9f68-2704b0ff9536"
+    },
+    {
+      "name": "A-cold-white-seed932",
+      "seed": 932,
+      "frames": 49,
+      "elapsedSeconds": 6.21,
+      "status": "SUCCEEDED",
+      "promptId": "3848743b-8910-4192-94fb-1a74c5ccd48e"
+    },
+    {
+      "name": "B-warm-generated-seed42",
+      "seed": 42,
+      "frames": 49,
+      "elapsedSeconds": 6.22,
+      "status": "SUCCEEDED",
+      "promptId": "b75076a4-0774-40d6-81bd-730e2f9e5cb9"
+    },
+    {
+      "name": "B-warm-generated-seed932",
+      "seed": 932,
+      "frames": 49,
+      "elapsedSeconds": 6.2,
+      "status": "SUCCEEDED",
+      "promptId": "3965b100-c7b1-4ba3-a409-dd929fd050a7"
+    },
+    {
+      "name": "C-landscape-seed42",
+      "seed": 42,
+      "frames": 49,
+      "elapsedSeconds": 6.23,
+      "status": "SUCCEEDED",
+      "promptId": "fc43f9d5-168e-4305-a592-4feb39317ad9"
+    },
+    {
+      "name": "C-landscape-seed932",
+      "seed": 932,
+      "frames": 49,
+      "elapsedSeconds": 6.23,
+      "status": "SUCCEEDED",
+      "promptId": "df196251-1f7a-4f02-bc6b-7a9772145ebe"
+    }
+  ],
+  "qualityVerdict": "pending"
+}

@@ -1,0 +1,152 @@
+{
+  "site": "https://toolbox.yuyutian.top",
+  "releaseId": "simple-textbook-20261018-160439",
+  "verifiedPublicAssets": 29,
+  "checks": [
+    {
+      "path": "index.html",
+      "sha256": "118068330477c342b85568e06c5ae25530b4661b36683033c3e9703e8173a3fa",
+      "matched": true
+    },
+    {
+      "path": "assets/index-C4on8S59.js",
+      "sha256": "dc394204170ba6c920ee3b2681c295dfb7784805f107f18b82b8cad10d56a2c5",
+      "matched": true
+    },
+    {
+      "path": "assets/_plugin-vue_export-helper-DZACK9Hz.js",
+      "sha256": "64bacb751e58739c1cb6e54bac6c86dd7ab7813b6da06c554824806026e359df",
+      "matched": true
+    },
+    {
+      "path": "assets/preload-helper-BJ2zoBc3.js",
+      "sha256": "0c88c6aaef07b19239a2eac9faef82584f9e733114f85dc190e98dcea60b1753",
+      "matched": true
+    },
+    {
+      "path": "assets/light-B6IrvdZ5.js",
+      "sha256": "58419a6c7d414463998fd70066594c23b76f08eb0504ecf9105a3991d16e81b8",
+      "matched": true
+    },
+    {
+      "path": "assets/tools-wga2qzak.js",
+      "sha256": "85d791e546d8f87f9d0d79d4c6dab49ec24990c3a1cb3816c6c6c6ff4c6acce6",
+      "matched": true
+    },
+    {
+      "path": "assets/ChevronRight-CMBug_WC.js",
+      "sha256": "ad28e9a3a9637af408a11de199ceef7587ebacbac93a1f76e8e099b106a94f72",
+      "matched": true
+    },
+    {
+      "path": "assets/light-Blko4qDV.js",
+      "sha256": "d212e9fecbd8346ddafbb689d8025e294ccf201f0645d02f1be4390cc270b542",
+      "matched": true
+    },
+    {
+      "path": "assets/keysOf-B3UD6v4E.js",
+      "sha256": "24bcdc0307d2fb7a7da7eb03553a3ac8fcf70c0cd3d4fba6b30548c0d2e0c201",
+      "matched": true
+    },
+    {
+      "path": "assets/light-BmrNhWvU.js",
+      "sha256": "72e0508e24f081ec2eb6d3f396697c3d245aeba192bc8a7171a88870c5248ee6",
+      "matched": true
+    },
+    {
+      "path": "assets/light-CxzyHKy7.js",
+      "sha256": "6e96e22387cc550c1cf42a36c7780bc010f656922bacd334ac8f4ac2549fe48d",
+      "matched": true
+    },
+    {
+      "path": "assets/icons-BakijIUB.js",
+      "sha256": "bf33c3b74bdf2080aa0202569bd027b2689522cc51c49d0e8c7e5a82588db8b2",
+      "matched": true
+    },
+    {
+      "path": "assets/FormItem-DlyeyNp7.js",
+      "sha256": "93e36a08c7a6eca9d0c7adb4cdf3aa6a47ebb358dcc1aec34f0aa36bc9a24136",
+      "matched": true
+    },
+    {
+      "path": "assets/get-slot-DYxzrXPU.js",
+      "sha256": "60c4599ade1a8ad7bfe720b7cb8183f7048ee38136b4eb3ee92624ed93e6abd2",
+      "matched": true
+    },
+    {
+      "path": "assets/Space-BIsTorLj.js",
+      "sha256": "b1a98d6fe494df7d667b3eba61be71301722523aea04527d5e2078441ec4874a",
+      "matched": true
+    },
+    {
+      "path": "assets/light-BcsFSAoa.js",
+      "sha256": "2d809d40a6b94b262351c3abd64951554be134d00a4c734c27d7d47fa634528c",
+      "matched": true
+    },
+    {
+      "path": "assets/light-CpAc_rpY.js",
+      "sha256": "05eee0d4c75e3e653f912482838e91169df9018ee895e8820ec8f70da2ce277e",
+      "matched": true
+    },
+    {
+      "path": "assets/admin-api-2unerjQJ.js",
+      "sha256": "7152e6beaede664f87bcb209d8e15f24990ab31634056709d8034b4c23b8605b",
+      "matched": true
+    },
+    {
+      "path": "assets/admin-auth-DgNE0tBz.js",
+      "sha256": "cd7f3b36dbd23ab3a34f3a1c33bd9ee081a2324db89c8683c89729ecdf2b9008",
+      "matched": true
+    },
+    {
+      "path": "assets/vue-router-DHkRdp-E.js",
+      "sha256": "f6f05a6aa200c90846b2173e17558cfd2ab42cd26e93727e098f90cfef5420fe",
+      "matched": true
+    },
+    {
+      "path": "assets/public-api-C_f8n11F.js",
+      "sha256": "09ccc7dd44e76114f256ce381fcb65c32df77902d83a65b493149a887b02f7ce",
+      "matched": true
+    },
+    {
+      "path": "assets/analytics-MTbJkKYR.js",
+      "sha256": "292a0471a5e87286581050a22cbafdaa7f39f9e344232a5a4cca4814bccfe9cc",
+      "matched": true
+    },
+    {
+      "path": "assets/index-QtqOhdek.css",
+      "sha256": "d89090c83718dcff4094ee958475ddd4bf562d87665ed64dd82f136d8e6bc4bc",
+      "matched": true
+    },
+    {
+      "path": "assets/TextbookEntryView-CY_PAzrS.css",
+      "sha256": "29c4d2238cd1941f481ffcf140ac52290497506c943f71109fe667d9eb789a9d",
+      "matched": true
+    },
+    {
+      "path": "assets/TextbookEntryView-PiiaHXPa.js",
+      "sha256": "00c787053a7cef27f9d3458af682b9b0585ea7297d95e22b8dea00a213332b9e",
+      "matched": true
+    },
+    {
+      "path": "assets/TextbookListView-C7WQGK-Y.js",
+      "sha256": "077268b93b8fb42e4c3cff87ba15200eed7654005e2d0e2592e4a7916f967a95",
+      "matched": true
+    },
+    {
+      "path": "assets/TextbookListView-ThjDlQHg.css",
+      "sha256": "bcc7ce024ad915da593ee8c1c985075747429e90e6ebad65ca711eb04283626f",
+      "matched": true
+    },
+    {
+      "path": "assets/WorksheetPairedEditor-9HHWl3LW.css",
+      "sha256": "c2322aad6fe89c15e59faf1de7e23323590803c69210f601a2fc1217dd6775a8",
+      "matched": true
+    },
+    {
+      "path": "assets/WorksheetPairedEditor-CZGLooEa.js",
+      "sha256": "5096864e278db9ea49272638dc8c00a925146e098cc3b603069246ce0bc5c106",
+      "matched": true
+    }
+  ]
+}

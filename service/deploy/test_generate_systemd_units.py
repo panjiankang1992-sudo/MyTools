@@ -21,6 +21,14 @@ class GenerateSystemdUnitsTest(unittest.TestCase):
     def setUp(self) -> None:
         self.manifest = generator.load_manifest(Path(__file__).with_name("services.json"))
 
+    def test_news_unit_is_included_without_default_startup(self) -> None:
+        news = next(entry for entry in self.manifest["services"] if entry["name"] == "news-digest-service")
+        self.assertEqual(23350, news["port"])
+        self.assertEqual("mytools_news", news["schema"])
+        self.assertFalse(news["defaultEnabled"])
+        self.assertIn("mytools-messaging-service.service", generator.service_unit(news, self.manifest["deploymentRoot"], self.manifest["logRoot"]))
+        self.assertNotIn("mytools-news-digest-service.service", generator.target_unit(self.manifest["services"] + self.manifest["statelessServices"]))
+
     def test_generates_one_unit_per_service(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             generated = generator.generate(self.manifest, Path(directory))

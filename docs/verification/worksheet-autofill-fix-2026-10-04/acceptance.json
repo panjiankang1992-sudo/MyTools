@@ -1,0 +1,92 @@
+{
+  "releaseId": "autofill-fix-20261004-175000",
+  "tests": {
+    "frontend": 513,
+    "backend": 162,
+    "failures": 0,
+    "skipped": 0,
+    "typecheck": "passed",
+    "productionBuild": "passed"
+  },
+  "behavior": [
+    "All three sources automatically fill missing fields; textbook content remains authoritative when populated.",
+    "Chinese characters generate pinyin locally; missing English or Chinese use the existing translation service.",
+    "Image/custom source editors begin on idle or blur without a completion button.",
+    "Generated-field provenance persists across source, confirmation and draft round trips; edits invalidate only stale generated values.",
+    "Leaving cached views cancels source requests and rejects late responses; returning resumes missing fields.",
+    "Translation fallback accepts only exact-source, correct-direction candidates scoring at least .99 when the primary result is invalid."
+  ],
+  "priorBrowserEvidence": "../worksheet-autofill-2026-10-04/browser-custom-textbook.json",
+  "limitations": [
+    "Automatic translation is a candidate, not a claim to reproduce the original textbook wording.",
+    "OCR can still confuse week and Weak; free/up have context-sensitive meanings."
+  ],
+  "finalProductionAcceptance": "passed with documented OCR and translation accuracy limitations",
+  "browser": {
+    "entryAsset": "/assets/index-LdAF13fB.js",
+    "customSource": {
+      "input": [
+        "星期一"
+      ],
+      "automatic": [
+        "Monday"
+      ],
+      "requiredNextToFill": false
+    },
+    "roundTrip": {
+      "steps": [
+        "source",
+        "confirmation",
+        "source"
+      ],
+      "changedInput": "星期二",
+      "automatic": "Tuesday",
+      "passed": true
+    },
+    "manualProtection": {
+      "pair": [
+        "周二",
+        "Tue."
+      ],
+      "retainedInConfirmation": true
+    },
+    "mobile": {
+      "viewport": 390,
+      "documentWidth": 390,
+      "horizontalOverflow": false,
+      "screenshot": "output/playwright/autofill-final-mobile.png"
+    },
+    "textbookEnglish": {
+      "initialPair": [
+        "哈啰，你好",
+        "hello"
+      ],
+      "action": "Cleared English and blurred, without completion action",
+      "completedPair": [
+        "哈啰，你好",
+        "hello"
+      ],
+      "screenshot": "output/playwright/autofill-final-english-textbook.png"
+    },
+    "textbookChinese": {
+      "initialPair": [
+        "天",
+        "tiān"
+      ],
+      "action": "Cleared pinyin and blurred, without completion action",
+      "completedPair": [
+        "天",
+        "tiān"
+      ],
+      "screenshot": "output/playwright/autofill-final-chinese-textbook.png"
+    },
+    "image": "browser-image.json"
+  },
+  "production": {
+    "resources": true,
+    "translationApi": true,
+    "imagePairCount": 23,
+    "imageMissingFieldsFilled": 10,
+    "existingOcrMeaningsRetained": 13
+  }
+}

@@ -1,0 +1,12 @@
+[Unit]
+Description=MyTools personal illustrated daily news
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/workspace/news-personal
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=NEWS_CONTENT_PYTHON=%h/workspace/news-personal/venvs/content-1.2.0/bin/python
+ExecStart=/usr/bin/python3 %h/workspace/news-personal/runtimes/1.5.1/scripts/personal_daily.py %h/workspace/news-personal/personal.json run --send --publish
+TimeoutStartSec=120min
+UMask=0077

@@ -1,0 +1,16 @@
+{
+  "sha256": "6aee19c07c68e8cdce1e444a961b794652df255f8995b12a8e5c492e7031e8d7",
+  "build": "passed",
+  "checks": [
+    "authorized_api_policy_tests_passed",
+    "undefined_null_empty_204_response_passed",
+    "empty_200_rejected",
+    "open_video_directory_refresh_passed",
+    "removed_directory_returns_to_list_passed",
+    "production_download_media_projection_succeeded",
+    "production_video_catalog_contains_download"
+  ],
+  "userMediaDeletedByAgent": false,
+  "simulatorInstallAndLaunch": "passed",
+  "physicalDeviceInstall": "blocked_device_disconnected"
+}

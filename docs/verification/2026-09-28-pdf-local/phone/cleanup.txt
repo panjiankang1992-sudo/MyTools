@@ -1,0 +1,2 @@
+PASS Removed and verified absent: 9 test jobs, 7 task-matched cache files, 5 dedicated Download fixtures, 14 device screenshots and one layout file.
+Other application data and user files preserved.

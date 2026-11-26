@@ -1,0 +1,282 @@
+[
+  {
+    "name": "00-product-seed42",
+    "jobId": "dc720316-361e-487b-a22d-02375d2dc9d4",
+    "taskId": "09c72165-1951-48ec-8386-f58b5fc64f67",
+    "status": "SUCCEEDED",
+    "elapsedSeconds": 18.08,
+    "result": {
+      "frames": 49,
+      "fps": 16,
+      "width": 640,
+      "height": 640,
+      "durationMs": 3063,
+      "workflowRevision": "video-ltx-2b-i2v-v1",
+      "controlSha256": "5383ec9b359b53517bbc582be548879b9f45dc8a1e3d1b8fa15491abc82be46f",
+      "outputSha256": "5afec3b959b4851b9e7abd904b281fda396533e348993a5e50d92c3371687c99",
+      "coverSha256": "b1730f9387288a5cb0091d24e0dd2a26bcf35dad71277be212810f611db83557",
+      "promptId": "a8a69e24-f7d8-4236-9763-295fcbaaf199",
+      "inferenceMillis": 15249,
+      "effectivePrompt": "A close-up of a red teapot and fresh strawberries on a white plate, set on a wooden table by a window with a potted plant in the background. The scene features warm natural light from the window, highlighting the glossy red teapot and vibrant red strawberries against soft green foliage. Camera slowly pushes forward smoothly, keeping the teapot, strawberries, and plate stationary while maintaining their original colors and lighting.",
+      "promptRevision": "ltx-caption-translate-v2",
+      "nativeWidth": 640,
+      "nativeHeight": 640,
+      "resourcePeak": {
+        "gpuPeakMiB": 11554,
+        "memoryAvailableMiB": 15309
+      }
+    }
+  },
+  {
+    "name": "01-product-seed932",
+    "jobId": "2ae9997a-6df1-4d5c-9bbc-bd2d52b42cba",
+    "taskId": "a3873bdf-c9ce-4f4e-a8fe-d36adc740d7e",
+    "status": "SUCCEEDED",
+    "elapsedSeconds": 18.07,
+    "result": {
+      "frames": 49,
+      "fps": 16,
+      "width": 640,
+      "height": 640,
+      "durationMs": 3063,
+      "workflowRevision": "video-ltx-2b-i2v-v1",
+      "controlSha256": "5383ec9b359b53517bbc582be548879b9f45dc8a1e3d1b8fa15491abc82be46f",
+      "outputSha256": "664ddd6e61ddc22ccc0c3e189c56b26682a165971b8596e9add8e6c465a180e5",
+      "coverSha256": "b42f0b84211276bd0ad7c382fdbc0aa0a5c201214df584947d765725b344445a",
+      "promptId": "f4bc1757-f38e-4c62-9612-1b51e0fdc8e8",
+      "inferenceMillis": 15214,
+      "effectivePrompt": "A close-up of a red teapot and fresh strawberries on a white plate, set on a wooden table by a window with a potted plant in the background. The scene features warm natural light from the window, highlighting the glossy red teapot and vibrant red strawberries against soft green foliage. Camera slowly pushes forward smoothly, keeping the teapot, strawberries, and plate stationary while maintaining their original colors and lighting.",
+      "promptRevision": "ltx-caption-translate-v2",
+      "nativeWidth": 640,
+      "nativeHeight": 640,
+      "resourcePeak": {
+        "gpuPeakMiB": 11554,
+        "memoryAvailableMiB": 15372
+      }
+    }
+  },
+  {
+    "name": "02-portrait-seed42",
+    "jobId": "eb2504da-6295-44a0-b619-d10b9b14e94e",
+    "taskId": "c56484a3-c9f0-4665-b73a-2015cc14a73c",
+    "status": "SUCCEEDED",
+    "elapsedSeconds": 18.06,
+    "result": {
+      "frames": 49,
+      "fps": 16,
+      "width": 640,
+      "height": 640,
+      "durationMs": 3063,
+      "workflowRevision": "video-ltx-2b-i2v-v1",
+      "controlSha256": "6035cad323864b9514095cf112ac91176dbc2a1a61eaf064453e1b0cb44a811c",
+      "outputSha256": "2e01e7127b75291477ea075da0688b28d03fd61b7be6b6f7f37ca26c536d6b9c",
+      "coverSha256": "3af182432618b583e1c7505034f72c8323fdc3854e65effb56638ea7eaa7ed02",
+      "promptId": "e0fd13db-5b24-4870-8c76-60b206702bfb",
+      "inferenceMillis": 15035,
+      "effectivePrompt": "A woman in a beige trench coat over a black turtleneck stands on a rainy alleyway with traditional houses and greenery. Soft, diffused light from an overcast sky illuminates the scene. She blinks naturally and smiles gently while keeping her head steady. The camera remains fixed, capturing her unchanged appearance, outfit, and background.",
+      "promptRevision": "ltx-caption-translate-v2",
+      "nativeWidth": 640,
+      "nativeHeight": 640,
+      "resourcePeak": {
+        "gpuPeakMiB": 11554,
+        "memoryAvailableMiB": 15313
+      }
+    }
+  },
+  {
+    "name": "03-portrait-seed932",
+    "jobId": "46a5d195-691a-4026-9236-05554817cfeb",
+    "taskId": "f04acb72-5a37-4e76-8e12-07af10d96dac",
+    "status": "SUCCEEDED",
+    "elapsedSeconds": 18.06,
+    "result": {
+      "frames": 49,
+      "fps": 16,
+      "width": 640,
+      "height": 640,
+      "durationMs": 3063,
+      "workflowRevision": "video-ltx-2b-i2v-v1",
+      "controlSha256": "6035cad323864b9514095cf112ac91176dbc2a1a61eaf064453e1b0cb44a811c",
+      "outputSha256": "379373ea983977eed2a45376e48602cb74347a98d3960006c6c847974d2b0246",
+      "coverSha256": "821397d231cc53ba07051206ed95b1c506fca562877d48dfb283517309944975",
+      "promptId": "8ce0fa1e-44cb-462e-b939-81d7da2e8ef4",
+      "inferenceMillis": 14982,
+      "effectivePrompt": "A woman in a beige trench coat over a black turtleneck stands on a rainy alleyway with traditional houses and greenery. Soft, diffused light from an overcast sky illuminates the scene. She blinks naturally and smiles gently while keeping her head steady. The camera remains fixed, capturing her unchanged appearance, outfit, and background.",
+      "promptRevision": "ltx-caption-translate-v2",
+      "nativeWidth": 640,
+      "nativeHeight": 640,
+      "resourcePeak": {
+        "gpuPeakMiB": 11554,
+        "memoryAvailableMiB": 15298
+      }
+    }
+  },
+  {
+    "name": "04-landscape-seed42",
+    "jobId": "c7b55b45-fb85-497d-aae0-7733bcc7a1b9",
+    "taskId": "57f846db-b937-4af3-a740-1d9a94ab2672",
+    "status": "SUCCEEDED",
+    "elapsedSeconds": 18.07,
+    "result": {
+      "frames": 49,
+      "fps": 16,
+      "width": 640,
+      "height": 640,
+      "durationMs": 3063,
+      "workflowRevision": "video-ltx-2b-i2v-v1",
+      "controlSha256": "e625508acee0f61f1391872e9f159123a49a2272ebee6ecc15df6053352da66d",
+      "outputSha256": "1dfc4ba81e31759a8bf1a421ae4f1b5610258b7ed863f8d0b5022dec25f5b761",
+      "coverSha256": "0db991787fcf12e923d60dd4df70af39e0bf20abee85d260a42cf21b767e72e5",
+      "promptId": "ca5a04c2-7d72-48b2-92a5-21ad6047c590",
+      "inferenceMillis": 14668,
+      "effectivePrompt": "A serene mountain lake at sunset with snow-capped peaks reflecting perfectly in the calm water, surrounded by rocky terrain and soft pink-orange sky. The camera remains fixed as gentle ripples disturb the water's surface, maintaining the reflection of the mountains, snow, and warm sunset hues without altering the scene.",
+      "promptRevision": "ltx-caption-translate-v2",
+      "nativeWidth": 640,
+      "nativeHeight": 448,
+      "resourcePeak": {
+        "gpuPeakMiB": 11554,
+        "memoryAvailableMiB": 15223
+      }
+    }
+  },
+  {
+    "name": "05-landscape-seed932",
+    "jobId": "645dbab9-bf34-4748-97c8-867da32d6256",
+    "taskId": "4bfcbcbc-f9ac-468d-82a5-b9923466eb7c",
+    "status": "SUCCEEDED",
+    "elapsedSeconds": 18.06,
+    "result": {
+      "frames": 49,
+      "fps": 16,
+      "width": 640,
+      "height": 640,
+      "durationMs": 3063,
+      "workflowRevision": "video-ltx-2b-i2v-v1",
+      "controlSha256": "e625508acee0f61f1391872e9f159123a49a2272ebee6ecc15df6053352da66d",
+      "outputSha256": "174535f14d54f0275df67861cbb2640f6cd05eb779bb760672ee848ae6db5d11",
+      "coverSha256": "2c1baec8185f552bff46e052c7f21c49a32e6e66e757011fcc687cb6ca8af4b6",
+      "promptId": "3913e60b-65d1-4c4a-a66c-ae480004bcc4",
+      "inferenceMillis": 14716,
+      "effectivePrompt": "A serene mountain lake at sunset with snow-capped peaks reflecting perfectly in the calm water, surrounded by rocky terrain and soft pink-orange sky. The camera remains fixed as gentle ripples disturb the water's surface, maintaining the reflection of the mountains, snow, and warm sunset hues without altering the scene.",
+      "promptRevision": "ltx-caption-translate-v2",
+      "nativeWidth": 640,
+      "nativeHeight": 448,
+      "resourcePeak": {
+        "gpuPeakMiB": 11554,
+        "memoryAvailableMiB": 15329
+      }
+    }
+  },
+  {
+    "name": "06-product-seed42",
+    "jobId": "30347fe6-880a-4b3a-b2a4-be925fb54d76",
+    "taskId": "0e9a2b19-4125-4def-ba12-662922c9e533",
+    "status": "SUCCEEDED",
+    "elapsedSeconds": 18.06,
+    "result": {
+      "frames": 49,
+      "fps": 16,
+      "width": 640,
+      "height": 640,
+      "durationMs": 3063,
+      "workflowRevision": "video-ltx-2b-i2v-v1",
+      "controlSha256": "5383ec9b359b53517bbc582be548879b9f45dc8a1e3d1b8fa15491abc82be46f",
+      "outputSha256": "5afec3b959b4851b9e7abd904b281fda396533e348993a5e50d92c3371687c99",
+      "coverSha256": "b1730f9387288a5cb0091d24e0dd2a26bcf35dad71277be212810f611db83557",
+      "promptId": "2e4cccaf-ad8c-4d6f-bfea-a1a6a00663fd",
+      "inferenceMillis": 15135,
+      "effectivePrompt": "A close-up of a red teapot and fresh strawberries on a white plate, set on a wooden table by a window with a potted plant in the background. The scene features warm natural light from the window, highlighting the glossy red teapot and vibrant red strawberries against soft green foliage. Camera slowly pushes forward smoothly, keeping the teapot, strawberries, and plate stationary while maintaining their original colors and lighting.",
+      "promptRevision": "ltx-caption-translate-v2",
+      "nativeWidth": 640,
+      "nativeHeight": 640,
+      "resourcePeak": {
+        "gpuPeakMiB": 11554,
+        "memoryAvailableMiB": 15167
+      }
+    }
+  },
+  {
+    "name": "07-product-seed932",
+    "jobId": "65129ec0-73aa-4907-85d8-3aac52ffb9fa",
+    "taskId": "e23634fc-3b76-4ddc-9e18-31ff945603b0",
+    "status": "SUCCEEDED",
+    "elapsedSeconds": 18.06,
+    "result": {
+      "frames": 49,
+      "fps": 16,
+      "width": 640,
+      "height": 640,
+      "durationMs": 3063,
+      "workflowRevision": "video-ltx-2b-i2v-v1",
+      "controlSha256": "5383ec9b359b53517bbc582be548879b9f45dc8a1e3d1b8fa15491abc82be46f",
+      "outputSha256": "664ddd6e61ddc22ccc0c3e189c56b26682a165971b8596e9add8e6c465a180e5",
+      "coverSha256": "b42f0b84211276bd0ad7c382fdbc0aa0a5c201214df584947d765725b344445a",
+      "promptId": "93c2d1b6-e51e-4e14-9cf5-cf0cae3f0307",
+      "inferenceMillis": 15179,
+      "effectivePrompt": "A close-up of a red teapot and fresh strawberries on a white plate, set on a wooden table by a window with a potted plant in the background. The scene features warm natural light from the window, highlighting the glossy red teapot and vibrant red strawberries against soft green foliage. Camera slowly pushes forward smoothly, keeping the teapot, strawberries, and plate stationary while maintaining their original colors and lighting.",
+      "promptRevision": "ltx-caption-translate-v2",
+      "nativeWidth": 640,
+      "nativeHeight": 640,
+      "resourcePeak": {
+        "gpuPeakMiB": 11554,
+        "memoryAvailableMiB": 15228
+      }
+    }
+  },
+  {
+    "name": "08-portrait-seed42",
+    "jobId": "5a3f949e-cd75-4dca-8bed-5b09a30ac2ac",
+    "taskId": "4ae1f7f9-a639-4193-89d8-ca3f1b8d7b27",
+    "status": "SUCCEEDED",
+    "elapsedSeconds": 18.06,
+    "result": {
+      "frames": 49,
+      "fps": 16,
+      "width": 640,
+      "height": 640,
+      "durationMs": 3063,
+      "workflowRevision": "video-ltx-2b-i2v-v1",
+      "controlSha256": "6035cad323864b9514095cf112ac91176dbc2a1a61eaf064453e1b0cb44a811c",
+      "outputSha256": "2e01e7127b75291477ea075da0688b28d03fd61b7be6b6f7f37ca26c536d6b9c",
+      "coverSha256": "3af182432618b583e1c7505034f72c8323fdc3854e65effb56638ea7eaa7ed02",
+      "promptId": "da7ad54b-abd2-4637-af94-5a276deb40f2",
+      "inferenceMillis": 15028,
+      "effectivePrompt": "A woman in a beige trench coat over a black turtleneck stands on a rainy alleyway with traditional houses and greenery. Soft, diffused light from an overcast sky illuminates the scene. She blinks naturally and smiles gently while keeping her head steady. The camera remains fixed, capturing her unchanged appearance, outfit, and background.",
+      "promptRevision": "ltx-caption-translate-v2",
+      "nativeWidth": 640,
+      "nativeHeight": 640,
+      "resourcePeak": {
+        "gpuPeakMiB": 11554,
+        "memoryAvailableMiB": 15202
+      }
+    }
+  },
+  {
+    "name": "09-portrait-seed932",
+    "jobId": "1597088e-4752-46aa-b273-8f20701dd42d",
+    "taskId": "3dd2cee6-6445-4923-8809-9bb0cfa4c60d",
+    "status": "SUCCEEDED",
+    "elapsedSeconds": 18.06,
+    "result": {
+      "frames": 49,
+      "fps": 16,
+      "width": 640,
+      "height": 640,
+      "durationMs": 3063,
+      "workflowRevision": "video-ltx-2b-i2v-v1",
+      "controlSha256": "6035cad323864b9514095cf112ac91176dbc2a1a61eaf064453e1b0cb44a811c",
+      "outputSha256": "379373ea983977eed2a45376e48602cb74347a98d3960006c6c847974d2b0246",
+      "coverSha256": "821397d231cc53ba07051206ed95b1c506fca562877d48dfb283517309944975",
+      "promptId": "cfe71cc1-4555-4f67-ae1a-7e139dd353c5",
+      "inferenceMillis": 15138,
+      "effectivePrompt": "A woman in a beige trench coat over a black turtleneck stands on a rainy alleyway with traditional houses and greenery. Soft, diffused light from an overcast sky illuminates the scene. She blinks naturally and smiles gently while keeping her head steady. The camera remains fixed, capturing her unchanged appearance, outfit, and background.",
+      "promptRevision": "ltx-caption-translate-v2",
+      "nativeWidth": 640,
+      "nativeHeight": 640,
+      "resourcePeak": {
+        "gpuPeakMiB": 11554,
+        "memoryAvailableMiB": 15187
+      }
+    }
+  }
+]

@@ -1,0 +1,59 @@
+"""Tests for download result callback construction."""
+
+import importlib.util
+import json
+from pathlib import Path
+import unittest
+
+SCRIPT = Path(__file__).parents[1] / "scripts" / "main.py"
+SPEC = importlib.util.spec_from_file_location("download_record_result", SCRIPT)
+MODULE = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(MODULE)
+
+
+class DownloadRecordResultTest(unittest.TestCase):
+    """Validate result propagation without physical path disclosure."""
+
+    def test_combines_step_outputs(self):
+        """The callback carries verified identity and a logical storage URI."""
+        context = {"parameters": {"sourceIndex": 3},
+                   "stepOutputs": {"download_asset": {"itemId": "i1", "fileName": "a.bin",
+                    "contentSha256": "a" * 64, "sizeBytes": 7, "relativePath": "r/a.bin"},
+                    "register_asset": {"assetId": "asset-1"}}}
+        payload = MODULE.build_payload(context)
+        self.assertEqual("asset-1", payload["assetId"])
+        self.assertEqual(3, payload["sourceIndex"])
+        self.assertEqual("download://executor/r/a.bin", payload["storageUri"])
+        self.assertNotIn("sourcePath", json.dumps(payload))
+
+    def test_preserves_storage_gateway_uri(self):
+        """Managed imports retain their gateway URI instead of fabricating a local URI."""
+        context = {"stepOutputs": {"download_asset": {"itemId": "i2", "fileName": "b.bin",
+                    "contentSha256": "b" * 64, "sizeBytes": 8,
+                    "storageUri": "storage://downloads/r/b.bin"},
+                    "register_asset": {"assetId": "asset-2"}}}
+        self.assertEqual("storage://downloads/r/b.bin", MODULE.build_payload(context)["storageUri"])
+
+    def test_prefers_durable_publish_output(self):
+        """A publication step replaces the executor-local compatibility URI."""
+        context = {"stepOutputs": {"download_asset": {"itemId": "i3", "fileName": "c.bin",
+                    "contentSha256": "c" * 64, "sizeBytes": 8, "relativePath": "r/c.bin"},
+                    "publish_asset": {"itemId": "i3", "fileName": "c.bin",
+                    "contentSha256": "c" * 64, "sizeBytes": 8,
+                    "storageUri": "storage://downloads/r/c.bin"},
+                    "register_asset": {"assetId": "asset-3"}}}
+        self.assertEqual("storage://downloads/r/c.bin", MODULE.build_payload(context)["storageUri"])
+
+    def test_combines_remote_storage_step_outputs(self):
+        """Remote storage tasks use their explicit step names."""
+        context = {"stepOutputs": {"download_remote_asset": {"itemId": "i4", "fileName": "d.bin",
+                    "contentSha256": "d" * 64, "sizeBytes": 9,
+                    "storageUri": "storage://managed/r/d.bin"},
+                    "register_remote_asset": {"assetId": "asset-4"}}}
+        payload = MODULE.build_payload(context)
+        self.assertEqual("asset-4", payload["assetId"])
+        self.assertEqual("storage://managed/r/d.bin", payload["storageUri"])
+
+
+if __name__ == "__main__":
+    unittest.main()

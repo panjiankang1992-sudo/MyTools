@@ -28,6 +28,8 @@ declare namespace Env {
     readonly VITE_ICON_LOCAL_PREFIX: 'icon-local';
     /** backend service base url */
     readonly VITE_SERVICE_BASE_URL: string;
+    /** 新闻开发代理的 Gateway 地址，不包含内部服务令牌。 */
+    readonly VITE_NEWS_GATEWAY_URL?: string;
     /**
      * success code of backend service
      *

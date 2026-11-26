@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-03",
+  "scope": "launcher-unlock-icon-design",
+  "asset": "192x192 RGBA PNG",
+  "label": "unlock_vehicle",
+  "build": "passed",
+  "new_warnings": 0,
+  "physical_install": "passed",
+  "physical_menu": "passed",
+  "physical_navigation": "passed",
+  "final_screen": "launcher_shortcut_menu",
+  "emulator_install": "passed",
+  "production_entry": "pages/Index",
+  "hap_sha256": "69ffa599ad542ee7dea76fea439352fe32ac6dfc59acd7c3088becfb1c8cec2f",
+  "vehicle_commands_sent": false
+}

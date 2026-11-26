@@ -1,0 +1,53 @@
+{
+  "oldVersionUnchanged": true,
+  "entryIdsAndBaseTextMeaningPreserved": true,
+  "edition": "en-yl-3-1-yilin-2024",
+  "version": "1.0.1",
+  "entries": 140,
+  "units": [
+    {
+      "title": "Unit 1 Hello!",
+      "entries": 13
+    },
+    {
+      "title": "Unit 2 What's your name?",
+      "entries": 11
+    },
+    {
+      "title": "Unit 3 Are you Su Hai?",
+      "entries": 17
+    },
+    {
+      "title": "Unit 4 This is my friend",
+      "entries": 9
+    },
+    {
+      "title": "Unit 5 She's my mother",
+      "entries": 18
+    },
+    {
+      "title": "Unit 6 Is he your grandpa?",
+      "entries": 12
+    },
+    {
+      "title": "Unit 7 Happy Birthday!",
+      "entries": 31
+    },
+    {
+      "title": "Unit 8 I can do this for you",
+      "entries": 18
+    },
+    {
+      "title": "专有名词（附录）",
+      "entries": 11
+    }
+  ],
+  "sourcePages": [
+    78,
+    79,
+    80,
+    82
+  ],
+  "nonCoreAnnotations": 13,
+  "sourceAnnotations": 18
+}

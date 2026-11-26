@@ -62,6 +62,14 @@ def inspect_package(manifest_path: Path) -> dict[str, object]:
     entrypoint = version_root / entrypoint_relative
     if entrypoint.is_symlink() or not entrypoint.is_file():
         raise ValueError(f"Package entrypoint is missing or symbolic: {manifest_path}")
+    required_files = version_root / "required-files.txt"
+    if required_files.is_file():
+        for relative in required_files.read_text(encoding="utf-8").splitlines():
+            item = Path(relative.strip())
+            if not relative.strip() or relative.startswith("#"):
+                continue
+            if item.is_absolute() or ".." in item.parts or not (version_root / item).is_file():
+                raise ValueError(f"Required built package file is missing or unsafe: {name}/{version}/{relative}; run its build_package.py first")
     files: list[dict[str, object]] = []
     for path in sorted(version_root.rglob("*"), key=lambda item: item.relative_to(version_root).as_posix()):
         if path.is_symlink():

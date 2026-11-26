@@ -1,0 +1,20 @@
+{
+  "nativeVersion": "20261103-v4",
+  "webResourceVersion": "20261103a",
+  "nativeInstalled": true,
+  "coldStartVerified": true,
+  "devicePageChecks": "interrupted-device-disconnected",
+  "fullLoginFlowVerified": false,
+  "productionWebChanged": false,
+  "loadMonitorTests": "passed",
+  "indexIntegrationTests": "passed",
+  "compileArkTS": "passed",
+  "buildWarning": "pre-existing READ_PASTEBOARD declaration warning in DownloadToolsPage.ets:78",
+  "deviceEvidence": "device-acceptance-20261103T021740Z.json",
+  "sourceHashes": {
+    "app/entry/src/main/ets/features/dsh/DshWebLoadMonitor.ets": "219ef0d95f256d711d69eb61f71c855c0d3f887aaa62a7a55b0e157dd5e26682",
+    "app/entry/src/main/ets/pages/Index.ets": "266bef3459800e4852273f2a5d7b4841eee57c38c3933be4f680a6c66579e29c",
+    "app/entry/src/main/resources/base/element/string.json": "8d0d61d25aba6323d3a1b22e8a505fcd3a8c15444abb392eeeddd4a959bd1499",
+    "app/tests/dsh_web_load_monitor_test.cjs": "2e32b5b07e2faa4ec496f66d6db5f6d170964114e3aadb6824440f8f7b00aa7b"
+  }
+}

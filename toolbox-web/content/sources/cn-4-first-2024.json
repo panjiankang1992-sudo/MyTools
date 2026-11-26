@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "sourceId": "smartedu-ebook-cn-4-first-2024",
+      "kind": "officialEbook",
+      "title": "义务教育教科书·语文四年级上册（2022 课标修订版，2026 年秋季启用）电子教材",
+      "publisher": "人民教育出版社",
+      "url": "https://r1-ndr.ykt.cbern.com.cn/edu_product/esp/assets/5cd7e623-5c38-4602-871a-3fba8a551db2.pkg/1111111111111_%E4%B9%89%E5%8A%A1%E6%95%99%E8%82%B2%E6%95%99%E7%A7%91%E4%B9%A6%E2%80%A2%E8%AF%AD%E6%96%87_%E5%9B%9B%E5%B9%B4%E7%BA%A7_%E4%B8%8A%E5%86%8C_%E4%BA%BA%E6%B0%91%E6%95%99%E8%82%B2%E5%87%BA%E7%89%88%E7%A4%BE%E4%B8%89%E7%A7%91%E5%8A%9E.pdf",
+      "accessBasis": "publicEbookWithTextLayer",
+      "verifiedAt": "2026-10-02",
+      "reconciliation": {
+        "totalEntries": 640,
+        "recognition": 265,
+        "writing": 250,
+        "vocabulary": 220,
+        "printedFootnotes": "识字表 265 = 250 生字 + 15 个蓝色多音字复现；写字表 250；词语表 220，三者与课本页脚自报数字完全一致",
+        "crossCheck": "420 条 character 行对 pypinyin 412 一致，8 条差异全部为本课语境多音字（薄 bó／降 xiáng／佛 fó／率 shuài／着 zhuó／吁 yū／露 lòu／削 xiāo）；另抽样 29 字对汉典全部包含 CSV 取值",
+        "result": "三类清单数量与教材自印数字完全一致"
+      },
+      "knownGaps": [
+        "无词句积累（expression）条目：语文园地四字词语与名句课本不印拼音，整类舍弃而非臆造",
+        "课本只为识字表印拼音；写字表独有的 155 字读音来自词语表注音、低年级官方课本、汉典与第三方课课贴，再可靠也不是本册自印",
+        "一／二／三年级下册官方 PDF 被平台拒绝（403／401），部分外部读音无法升级为课本自印"
+      ],
+      "reviewedBy": "cross-source-verification",
+      "reviewNotes": "版本判定：平台四年级上册只有 2022 课标修订版一个正课版本；地方媒体 2026-09 报道描述的新目录（新增第六单元、移除《走月亮》）与该 PDF 目录完全吻合。网络流传的多数「部编版四上生字表」属旧版，未采用。"
+    }
+  ]
+}

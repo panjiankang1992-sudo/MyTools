@@ -1,0 +1,277 @@
+{
+  "generatedAt": "2026-10-03T11:32:37.761Z",
+  "font": {
+    "file": "public/fonts/NotoSansCJKsc-Regular.otf",
+    "fontkit": "@pdf-lib/fontkit",
+    "unitsPerEm": 1000
+  },
+  "mmToPt": 2.834645669291339,
+  "numberWidths": {
+    "1.": 3.444775,
+    "10.": 5.2069,
+    "expected1": 3.444775,
+    "expected10": 5.2069
+  },
+  "layoutDefaults": {
+    "pageWidthMm": 210,
+    "pageHeightMm": 297,
+    "marginMm": 15,
+    "headerMm": 22,
+    "footerMm": 10,
+    "density": "compact",
+    "gridMm": 12,
+    "itemGapMm": 2.5,
+    "rowGapMm": 3,
+    "pinyinCellMinMm": 16,
+    "fourLineGapMm": 3,
+    "numberFontPt": 9,
+    "pinyinFontPt": 10,
+    "promptFontPt": 14,
+    "englishCellMinMm": 40
+  },
+  "fourLineHeightMm": 9,
+  "cases": [
+    {
+      "label": "米字格单字 12mm 短读音",
+      "itemGapMm": 2.5,
+      "gridMm": 12,
+      "firstCellPitchMm": 12,
+      "firstRowCount": 10,
+      "firstRowWidthMm": 178.7099,
+      "contentWidthMm": 180,
+      "pageCount": 1,
+      "blocked": false,
+      "notices": [],
+      "firstRowItemWidthsMm": [
+        15.4448,
+        15.4448,
+        15.4448,
+        15.4448,
+        15.4448,
+        15.4448,
+        15.4448,
+        15.4448,
+        15.4448,
+        17.2069
+      ],
+      "targetCount": 10,
+      "targetWidthMm": 178.71,
+      "rule": "equal"
+    },
+    {
+      "label": "米字格双字 12mm",
+      "itemGapMm": 2.5,
+      "gridMm": 12,
+      "firstCellPitchMm": 12,
+      "firstRowCount": 6,
+      "firstRowWidthMm": 177.1686,
+      "contentWidthMm": 180,
+      "pageCount": 1,
+      "blocked": false,
+      "notices": [],
+      "firstRowItemWidthsMm": [
+        27.4448,
+        27.4448,
+        27.4448,
+        27.4448,
+        27.4448,
+        27.4448
+      ],
+      "targetCount": 6,
+      "targetWidthMm": 177.17,
+      "rule": "equal"
+    },
+    {
+      "label": "拼音字帖单字",
+      "itemGapMm": 2.5,
+      "gridMm": 12,
+      "firstCellPitchMm": 16,
+      "firstRowCount": 8,
+      "firstRowWidthMm": 173.0582,
+      "contentWidthMm": 180,
+      "pageCount": 1,
+      "blocked": false,
+      "notices": [],
+      "firstRowItemWidthsMm": [
+        19.4448,
+        19.4448,
+        19.4448,
+        19.4448,
+        19.4448,
+        19.4448,
+        19.4448,
+        19.4448
+      ],
+      "targetCount": 8,
+      "targetWidthMm": 173.06,
+      "rule": "atLeast"
+    },
+    {
+      "label": "米字格单字 3mm 项间距",
+      "itemGapMm": 3,
+      "gridMm": 12,
+      "firstCellPitchMm": 12,
+      "firstRowCount": 9,
+      "firstRowWidthMm": 163.003,
+      "contentWidthMm": 180,
+      "pageCount": 1,
+      "blocked": false,
+      "notices": [],
+      "firstRowItemWidthsMm": [
+        15.4448,
+        15.4448,
+        15.4448,
+        15.4448,
+        15.4448,
+        15.4448,
+        15.4448,
+        15.4448,
+        15.4448
+      ],
+      "targetCount": 10,
+      "targetWidthMm": null,
+      "rule": "belowTarget"
+    },
+    {
+      "label": "米字格单字 10mm 格距",
+      "itemGapMm": 2.5,
+      "gridMm": 10,
+      "firstCellPitchMm": 10,
+      "firstRowCount": 11,
+      "firstRowWidthMm": 176.4168,
+      "contentWidthMm": 180,
+      "pageCount": 1,
+      "blocked": false,
+      "notices": [],
+      "firstRowItemWidthsMm": [
+        13.4448,
+        13.4448,
+        13.4448,
+        13.4448,
+        13.4448,
+        13.4448,
+        13.4448,
+        13.4448,
+        13.4448,
+        15.2069,
+        15.2069
+      ],
+      "targetCount": null,
+      "targetWidthMm": null,
+      "rule": "report"
+    },
+    {
+      "label": "米字格单字 14mm 格距",
+      "itemGapMm": 2.5,
+      "gridMm": 14,
+      "firstCellPitchMm": 14,
+      "firstRowCount": 9,
+      "firstRowWidthMm": 177.003,
+      "contentWidthMm": 180,
+      "pageCount": 1,
+      "blocked": false,
+      "notices": [],
+      "firstRowItemWidthsMm": [
+        17.4448,
+        17.4448,
+        17.4448,
+        17.4448,
+        17.4448,
+        17.4448,
+        17.4448,
+        17.4448,
+        17.4448
+      ],
+      "targetCount": null,
+      "targetWidthMm": null,
+      "rule": "report"
+    },
+    {
+      "label": "米字格长音节 shuāng/chuāng",
+      "itemGapMm": 2.5,
+      "gridMm": 12,
+      "firstCellPitchMm": 13.061472,
+      "firstRowCount": 2,
+      "firstRowWidthMm": 35.6607,
+      "contentWidthMm": 180,
+      "pageCount": 1,
+      "blocked": false,
+      "notices": [],
+      "firstRowItemWidthsMm": [
+        16.5062,
+        16.6544
+      ],
+      "targetCount": null,
+      "targetWidthMm": null,
+      "rule": "report"
+    },
+    {
+      "label": "三位题号",
+      "itemGapMm": 2.5,
+      "gridMm": 12,
+      "firstCellPitchMm": 12,
+      "firstRowCount": 8,
+      "firstRowWidthMm": 169.2522,
+      "contentWidthMm": 180,
+      "pageCount": 1,
+      "blocked": false,
+      "notices": [],
+      "firstRowItemWidthsMm": [
+        18.969,
+        18.969,
+        18.969,
+        18.969,
+        18.969,
+        18.969,
+        18.969,
+        18.969
+      ],
+      "targetCount": null,
+      "targetWidthMm": null,
+      "rule": "report"
+    }
+  ],
+  "verdicts": [
+    {
+      "label": "米字格单字 12mm 短读音",
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "label": "米字格双字 12mm",
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "label": "拼音字帖单字",
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "label": "米字格单字 3mm 项间距",
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "label": "米字格单字 10mm 格距",
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "label": "米字格单字 14mm 格距",
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "label": "米字格长音节 shuāng/chuāng",
+      "pass": true,
+      "reason": ""
+    },
+    {
+      "label": "三位题号",
+      "pass": true,
+      "reason": ""
+    }
+  ],
+  "passed": true
+}

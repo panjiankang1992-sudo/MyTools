@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * 回收超过任务总超时时间但尚未被节点执行的队列目标。
+ * 回收已开始执行且超过任务总超时的重试或多节点目标。
  */
 @Service
 public class TaskDeadlineService {
@@ -21,7 +21,6 @@ public class TaskDeadlineService {
     private final MultiNodeTaskAggregationService multiNodeTaskAggregationService;
     private final TaskEventService taskEventService;
     private final ChildTaskAggregationService childTaskAggregationService;
-    private final DispatchDeadlineProperties dispatchDeadlineProperties;
     private final TaskExecutionAuthorizationService executionAuthorizationService;
 
     /**
@@ -31,7 +30,7 @@ public class TaskDeadlineService {
      * @param multiNodeTaskAggregationService 多节点聚合服务
      * @param taskEventService 任务事件服务
      * @param childTaskAggregationService 父子任务聚合服务
-     * @param dispatchDeadlineProperties 首次派发截止配置
+     * @param dispatchDeadlineProperties 兼容旧配置，排队等待不再过期。
      */
     public TaskDeadlineService(JdbcTemplate jdbcTemplate,
                                MultiNodeTaskAggregationService multiNodeTaskAggregationService,
@@ -43,12 +42,11 @@ public class TaskDeadlineService {
         this.multiNodeTaskAggregationService = multiNodeTaskAggregationService;
         this.taskEventService = taskEventService;
         this.childTaskAggregationService = childTaskAggregationService;
-        this.dispatchDeadlineProperties = dispatchDeadlineProperties;
         this.executionAuthorizationService = executionAuthorizationService;
     }
 
     /**
-     * 周期回收超过总超时的排队任务与多节点目标。
+     * 周期回收已启动且超过总超时的重试任务与多节点目标。
      */
     @Scheduled(fixedDelayString = "${task.scheduler.deadline-scan-delay-ms:1000}")
     @Transactional
@@ -64,7 +62,8 @@ public class TaskDeadlineService {
      */
     @Transactional
     public int expireDeadlines(Instant now) {
-        int expired = expireUnclaimedTasks(now);
+        // 尚未开始执行的任务始终留在队列，仅处理已经开始执行的总期限。
+        int expired = 0;
         List<DeadlineCandidate> candidates = jdbcTemplate.query("""
                 SELECT ti.id, ti.status, ti.started_at, td.timeout_seconds, td.execution_mode
                 FROM task_instance ti
@@ -109,55 +108,8 @@ public class TaskDeadlineService {
         return expired;
     }
 
-    private int expireUnclaimedTasks(Instant now) {
-        List<DispatchDeadlineCandidate> candidates = jdbcTemplate.query("""
-                SELECT id, created_at, dispatch_deadline_at
-                FROM task_instance
-                WHERE status = 'QUEUED' AND started_at IS NULL
-                  AND (dispatch_deadline_at IS NULL OR dispatch_deadline_at <= ?)
-                ORDER BY COALESCE(dispatch_deadline_at, created_at), id
-                LIMIT 1000
-                """, (resultSet, rowNumber) -> new DispatchDeadlineCandidate(
-                UUID.fromString(resultSet.getString("id")),
-                resultSet.getTimestamp("created_at").toInstant(),
-                resultSet.getTimestamp("dispatch_deadline_at") == null ? null
-                        : resultSet.getTimestamp("dispatch_deadline_at").toInstant()), Timestamp.from(now));
-        int expired = 0;
-        for (DispatchDeadlineCandidate candidate : candidates) {
-            Instant deadline = candidate.deadlineAt();
-            if (deadline == null) {
-                // 滚动升级期间旧版创建的空值先持久化截止时间，再允许新版领取。
-                deadline = candidate.createdAt().plusSeconds(dispatchDeadlineProperties.queueTimeoutSeconds());
-                jdbcTemplate.update("""
-                        UPDATE task_instance SET dispatch_deadline_at = ?, updated_at = ?
-                        WHERE id = ? AND status = 'QUEUED' AND started_at IS NULL
-                          AND dispatch_deadline_at IS NULL
-                        """, Timestamp.from(deadline), Timestamp.from(now), candidate.id().toString());
-            }
-            if (deadline.isAfter(now)) {
-                continue;
-            }
-            // 与首次 claim 使用互斥的状态与时间条件，保证只有一侧能成功。
-            int updated = jdbcTemplate.update("""
-                    UPDATE task_instance SET status = 'TIMED_OUT', progress = 0, updated_at = ?
-                    WHERE id = ? AND status = 'QUEUED' AND started_at IS NULL
-                      AND dispatch_deadline_at IS NOT NULL AND dispatch_deadline_at <= ?
-                    """, Timestamp.from(now), candidate.id().toString(), Timestamp.from(now));
-            if (updated == 1) {
-                executionAuthorizationService.revokeTask(candidate.id());
-                taskEventService.appendTransition(candidate.id(), "QUEUED", "TIMED_OUT", "dispatch-deadline",
-                        "TASK_DISPATCH_DEADLINE_EXCEEDED", 0, now);
-                childTaskAggregationService.aggregateParentChain(candidate.id(), now);
-                expired++;
-            }
-        }
-        return expired;
-    }
-
     private record DeadlineCandidate(UUID id, String status, Instant startedAt, long timeoutSeconds,
                                      String executionMode) {
     }
 
-    private record DispatchDeadlineCandidate(UUID id, Instant createdAt, Instant deadlineAt) {
-    }
 }

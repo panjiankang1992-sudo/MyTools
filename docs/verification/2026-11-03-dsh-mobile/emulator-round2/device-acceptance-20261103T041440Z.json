@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1",
+  "generatedAt": "2026-11-03T04:14:40Z",
+  "bundleName": "com.yuyutian.mytools",
+  "abilityName": "EntryAbility",
+  "hapSha256": "a0708af29c92f9928bf568aca1d67dbdb0fc8d029c55124a0b70bacdcf2dc144",
+  "targetSha256": "6460677a198b1872315bae7231fb6131092f3569882742677a6ee620177b668b",
+  "checks": {
+    "signature": "passed",
+    "install": "passed",
+    "coldStart": "passed",
+    "processObserved": "passed"
+  },
+  "result": "passed"
+}

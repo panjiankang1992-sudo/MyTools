@@ -297,11 +297,13 @@ export class RemoteMediaResponseNormalizer {
     const expectedRemotePath = `/api/app/v1/media/tickets/${ticket}`;
     const expectedLocalPath = `/api/app/v1/local-media/tickets/${ticket}`;
     if (ticket === undefined || !/^[a-f0-9]{32}$/.test(ticket) ||
-      (streamPath !== expectedRemotePath && streamPath !== expectedLocalPath) || !Number.isFinite(expiresAt) ||
+      (streamPath !== expectedRemotePath && streamPath !== expectedLocalPath &&
+        !(sourceType === 'MYTOOLS_LIBRARY' && (streamPath === expectedRemotePath + '/mobile.mp4' ||
+          streamPath === expectedRemotePath + '/master.m3u8'))) || !Number.isFinite(expiresAt) ||
       expiresAt < now - 5 * 60 * 1000 || expiresAt > now + 24 * 60 * 60 * 1000) {
       throw new Error('服务端远程播放票据格式无效');
     }
-    return { url: `${baseUrl}${streamPath}`, ticket, expiresAt, sourceType, supportsRange: true };
+    return { url: `${baseUrl}${streamPath}`, ticket, expiresAt, sourceType, supportsRange: !streamPath.endsWith('/master.m3u8') };
   }
 
   /**

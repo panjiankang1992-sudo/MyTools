@@ -62,7 +62,7 @@ printf '%s\n' "$login_page" | grep -Fq "Text('MyTools 云服务')" || {
   echo 'login page must identify the fixed MyTools cloud service' >&2
   exit 1
 }
-printf '%s\n' "$login_page" | grep -Fq ".accessibilityDescription('重新检查固定MyTools云服务连接')" || {
+printf '%s\n' "$login_page" | grep -Fq "description: '重新检查固定MyTools云服务连接'" || {
   echo 'fixed service health retry must expose its effect' >&2
   exit 1
 }

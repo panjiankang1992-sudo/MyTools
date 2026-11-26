@@ -1,0 +1,47 @@
+{
+  "environment": "production without API mocks",
+  "cases": [
+    {
+      "name": "english-only",
+      "selectedTemplate": "中文释义练习",
+      "incompatibleDisabled": true,
+      "pdfDownloaded": true,
+      "answerDisabled": true,
+      "backwardNavigationPreserved": true
+    },
+    {
+      "name": "meaning-only",
+      "selectedTemplate": "英语默写",
+      "incompatibleDisabled": true,
+      "pdfDownloaded": true,
+      "answerDisabled": true,
+      "backwardNavigationPreserved": true
+    },
+    {
+      "name": "pinyin-only",
+      "selectedTemplate": "汉字字帖",
+      "incompatibleDisabled": true,
+      "pdfDownloaded": true,
+      "answerDisabled": true,
+      "backwardNavigationPreserved": true
+    },
+    {
+      "name": "hanzi-only",
+      "selectedTemplate": "拼音字帖",
+      "incompatibleDisabled": true,
+      "pdfDownloaded": true,
+      "answerDisabled": true,
+      "backwardNavigationPreserved": true
+    }
+  ],
+  "firstMeaning": "星期一",
+  "automaticTranslationRequests": 1,
+  "manualClearsPreserved": true,
+  "mobile": {
+    "viewport": 390,
+    "document": 390,
+    "spareRow": true,
+    "incompatibleRowsBlocked": true,
+    "sharedSideFixAccepted": true
+  }
+}

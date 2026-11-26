@@ -1,0 +1,125 @@
+{
+  "batch": 19,
+  "goalStatus": "ACTIVE",
+  "scope": "Messaging v2 finite admission and cancellation reserve",
+  "local": {
+    "messaging-service": {
+      "tests": 143,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 143
+    },
+    "news-digest-service": {
+      "tests": 232,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 22,
+      "passed": 210
+    }
+  },
+  "deploymentPython": {
+    "tests": 38,
+    "passed": 38
+  },
+  "isolatedMySql": {
+    "summary": {
+      "aborted": 0,
+      "containersFailed": 0,
+      "failed": 0,
+      "passed": 18,
+      "skipped": 0,
+      "tests": 18
+    },
+    "databaseVersion": "8.4.11-0ubuntu0.26.04.1",
+    "bundle": {
+      "archiveSha256": "39dc2f587a47d7f08f0526cd263ca6a115dd42022a8662924e801fcc7d39f132",
+      "files": 682,
+      "libraryFiles": 98,
+      "manifestSha256": "9eddeaad388bf21c82877275ad0529bdd725b38ae283a833f1d2c1e66ef82510"
+    }
+  },
+  "release": {
+    "releasePath": "/tmp/mytools-news-release-20261018-b19-verified",
+    "manifestSha256": "429e4f10a198529e06abcf728eb27b373e177672cf35cf3abab21e77231dcdc8",
+    "inspection": {
+      "releaseFilesValid": true,
+      "inventoryMode": "exact_source",
+      "fileCount": 733,
+      "packageCount": 153,
+      "requiredJarCount": 5,
+      "pinnedMigrationRuntimeVerified": true,
+      "runtimeAcceptance": false
+    },
+    "packagedCliHelpsDoNotMutateInventory": true,
+    "messagingJarSha256": "83d396b290cf7b5f0e4fdd6415df37eeccd06c1214e78c8e915f80416672330f"
+  },
+  "cleanup": {
+    "rootRemoved": true,
+    "archiveRemoved": true,
+    "units": {
+      "database": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      },
+      "-test": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      },
+      "-init": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      }
+    },
+    "existingServices": {
+      "task-scheduler-service": "active",
+      "task-executor-service": "active",
+      "messaging-service": "active",
+      "mytools-gateway": "active"
+    },
+    "localPrivateSessionRemoved": true
+  },
+  "distinctPassed": 409,
+  "remainingSkipped": {
+    "optionalLiveSourceTests": 4
+  },
+  "historicalMigrations": {
+    "files": 205,
+    "unchanged": true
+  },
+  "sourceSha256": {
+    "service/messaging-service/db/migrations/V21__reserve_outbound_capacity.sql": "3511c71d2aea797df49104951516a1939e2ed39212a38b75f3dd3e6bfc73acad",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/config/OutboundCapacityProperties.java": "a0246317d4c723e4f6b0acac7eb0339eea2f66e854c7e3fcf1b3777beac5fb68",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/repository/OutboundCapacityRepository.java": "1fb6b9daa957278fd068942acd96d76a9e15364a6f32887531369062aa5a9ed7",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/repository/OutboundRepository.java": "a93483d6545f55ade2df7fc32d2762971629d2ba40042e43bf2cc1c1bbfb67ad",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/service/OutboundService.java": "f87ca207b26323c590182f20f9b10b756c304a2dde5402dd53dd663d88a26499",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/service/OutboundRetentionService.java": "e1303bfe98c55addf39e31309b86905b58a3e63ab8bbe57abbebefe60df47a82",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/model/ErrorCode.java": "0bda711872deaf935ed2260a54c7402fd30dbf3730a76fb924b9305139f29e4d",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/controller/MessagingExceptionHandler.java": "b58afc027287d105c196c69ec0bcf327a787d44b7d4837b322411db07f16cd50",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/MessagingServiceApplication.java": "8837eceed565867e6233afd16a8845a1fcd94633f2cc8ca3ccbbf00bfb00c796",
+    "service/messaging-service/src/main/resources/application.yml": "57b72061e280283523527ded13ed493ded70c1d4d4dc89af1f666e68c5c26e16",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundCapacityTest.java": "b747a7fa35049fe23f39f6f9ef9b596f6f16afaa2f747cc11ec0c1ed678a2fc2",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundCapacityMigrationTest.java": "6e7bde957bf7f56fb8d55b53490c4e48ce42829ea3a7f7f8ce7b0be055c27754",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundCapacityDatabaseScenarios.java": "ea2187d05c1896de7c44ac0f6c7e70f57caa5d02be05586c394d417e33953c5a",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundRetentionTest.java": "4295084c2181ae46aa7a6ab891523c24e067c82048552f6c52af75c231892213",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundRetentionUpgradeTest.java": "d0355067f748a98fe5ded2fc57c8f2ea6c413a120cba17c7e99a6a524b771010",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundServiceTest.java": "b05dcf138a8b6a13809476ee44a5dc6c33737ca2899b586e391e7af7f7b7d104",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/controller/OutboundControllerTest.java": "075193c85840e15038dc7b72f23109d40621e07270547b969127fb8fcd991a10",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/MySqlCompatibilityTest.java": "f053491ae2d14f19fdf1af10926032bb49e97b6114caa53d922514c0027a3d17",
+    "service/deploy/create_service_env.py": "3d0b1a537e430250145b9393aa88567a7fc1926ba6a0742ee75fb18bf2c3c578",
+    "service/deploy/news_deployment_config.py": "bbd3b290a4321d9f0a864a30a6bd3f75b9b4b68713cf16c8b1c5c159f88354b1",
+    "service/deploy/env.example": "67be3945527d8e10ae0c2556ad8b5f9ee87b434e21c8f324b8c5b8716afb6a87",
+    "service/deploy/verify_news_deployment.py": "1f414e316f709d459e8cf6abba9497b5266aaac7fa8cf4e8c7f68f5840bef5ae",
+    "service/contracts/messaging-outbound-v2.md": "780437b4daf674240282ee7569de159d21aea87e09a0364ae54daf2c52c9f347",
+    "service/messaging-service/README.md": "a9c0042a93fabb9640aadaf35f531dec5fa01c34f15f293130d664996c82db65",
+    "docs/runbooks/daily-news-retention-operations.md": "a94af4b890241a78ad6bb787d387d6820153ef6e64be24cfc2ced10333852be7",
+    "docs/runbooks/daily-news-release.md": "4530416ac434fa2d1c1caae9869761d92629740bd09d3e98073da9ede8f37601"
+  },
+  "limits": [
+    "Admission limits are global; no per-owner fairness or physical database quota is claimed.",
+    "Existing UNKNOWN/SENDING evidence stays charged; identity rows are never automatically removed.",
+    "Both normal and cancellation reserves are finite. Unknown-key cancellation returns 503 if its own reserve is full.",
+    "Only Messaging JAR was rebuilt; other Java artifacts were reused.",
+    "No production deployment, real provider delivery, successful executor IP geolocation, seven-day shadow run or live monitoring validation was performed."
+  ]
+}

@@ -4,6 +4,7 @@ import http from '@ohos.net.http';
 import { SourceUrlPolicy } from './SourceUrlPolicy';
 import util from '@ohos.util';
 import { DownloadCancellationToken } from './DownloadCancellationToken';
+import { AuthSessionManager } from '../../features/auth/AuthSessionManager';
 
 interface CoverFormat {
   extension: string;
@@ -55,6 +56,25 @@ export class SafeRemoteCoverCache {
       return await task;
     } finally {
       this.active.delete(activeKey);
+    }
+  }
+
+  /** 将当前会话可信业务来源的封面缓存到本地，只向活动 API 入口发送访问令牌。 */
+  async cacheBusinessCover(context: common.UIAbilityContext, resourceUrl: string, authManager: AuthSessionManager,
+    cancellation?: DownloadCancellationToken): Promise<string> {
+    if (cancellation?.isCancelled()) throw new Error('业务封面加载已取消');
+    const token = await authManager.validAccessToken();
+    // 刷新令牌可能改变路由，取得令牌后才解析实际资源来源。
+    const url = authManager.resolveBusinessResourceUrl(resourceUrl);
+    const baseUrl = authManager.activeBusinessBaseUrl();
+    if (!this.isTrustedBusinessResourceUrl(url, baseUrl)) throw new Error('业务封面地址不属于当前可信 API 入口');
+    this.activeOwnedCount++;
+    try {
+      return await this.download(context, url, { 'Authorization': `Bearer ${token}` }, 'remote-cover-cache',
+        SafeRemoteCoverCache.MAX_BYTES, SafeRemoteCoverCache.MAX_FILES,
+        SafeRemoteCoverCache.MAX_TOTAL_BYTES, '业务封面', cancellation, baseUrl);
+    } finally {
+      this.activeOwnedCount--;
     }
   }
 
@@ -134,9 +154,11 @@ export class SafeRemoteCoverCache {
 
   private async download(context: common.UIAbilityContext, url: string,
     requestHeaders: Record<string, string> | undefined, directoryName: string, maxBytes: number, maxFiles: number,
-    maxTotalBytes: number, label: string, cancellation?: DownloadCancellationToken): Promise<string> {
+    maxTotalBytes: number, label: string, cancellation?: DownloadCancellationToken,
+    trustedBusinessBaseUrl: string = ''): Promise<string> {
     if (cancellation?.isCancelled()) throw new Error(`${label}加载已取消`);
-    await this.urlPolicy.assertSafe(url);
+    // 仅专用业务封面可使用已验证的同源 API，普通书源和漫画继续执行公网地址检查。
+    if (!this.isTrustedBusinessResourceUrl(url, trustedBusinessBaseUrl)) await this.urlPolicy.assertSafe(url);
     if (cancellation?.isCancelled()) throw new Error(`${label}加载已取消`);
     const directory = `${context.cacheDir}/${directoryName}`;
     try {
@@ -254,6 +276,11 @@ export class SafeRemoteCoverCache {
       } catch (_) {
       }
     }
+  }
+
+  private isTrustedBusinessResourceUrl(url: string, baseUrl: string): boolean {
+    return baseUrl.length > 0 && url.startsWith(`${baseUrl}/api/`) &&
+      !/[\u0000-\u001F\u007F]/.test(url) && !url.includes('\\');
   }
 
   private detectFormat(bytes: number[], contentType: string, label: string): CoverFormat {

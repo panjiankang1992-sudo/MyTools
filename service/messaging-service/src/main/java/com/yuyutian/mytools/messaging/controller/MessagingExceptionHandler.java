@@ -30,6 +30,24 @@ import java.util.Map;
 @RestControllerAdvice
 public class MessagingExceptionHandler {
 
+    /** 转换新版投递错误，任何响应都不包含地址、令牌或远端正文。 */
+    @ExceptionHandler(com.yuyutian.mytools.messaging.service.OutboundException.class)
+    public ResponseEntity<Map<String, String>> outbound(com.yuyutian.mytools.messaging.service.OutboundException exception) {
+        ErrorCode code = exception.code();
+        HttpStatus status = switch (code) {
+            case INTERNAL_UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;
+            case DESTINATION_NOT_FOUND, OUTBOUND_NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case OUTBOUND_CONTENT_EXPIRED -> HttpStatus.GONE;
+            case OUTBOUND_CONFLICT, OUTBOUND_LEASE_INVALID -> HttpStatus.CONFLICT;
+            case OUTBOUND_RETENTION_FAILED, OUTBOUND_CAPACITY_INVALID -> HttpStatus.INTERNAL_SERVER_ERROR;
+            case OUTBOUND_DISABLED, OUTBOUND_RETENTION_DISABLED, OUTBOUND_CAPACITY_EXCEEDED -> HttpStatus.SERVICE_UNAVAILABLE;
+            case CHANNEL_UNAVAILABLE -> HttpStatus.UNPROCESSABLE_ENTITY;
+            default -> HttpStatus.BAD_REQUEST;
+        };
+        return ResponseEntity.status(status).header("Cache-Control", "no-store, private")
+                .body(Map.of("code", code.code(), "message", code.message()));
+    }
+
     /**
      * 转换投递不存在异常。
      */

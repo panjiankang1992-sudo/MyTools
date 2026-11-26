@@ -1,0 +1,261 @@
+{
+  "date": "2026-10-19",
+  "scope": "PREPARED_ONLY",
+  "deployedSchedulerHistory": {
+    "appliedCount": 173,
+    "appliedThrough": 172,
+    "additionalApplied": [
+      175
+    ],
+    "missingNewsMigrations": [
+      173,
+      174,
+      176,
+      177
+    ],
+    "newsTaskCount": 0
+  },
+  "identity": {
+    "uniqueActiveEmailMatch": true,
+    "productionBindingCreated": false
+  },
+  "databasePrerequisite": {
+    "administratorConfigured": false,
+    "configuredAdminKeys": [],
+    "rootServiceCredentialsAvailable": false,
+    "newsDatabaseConfigured": false
+  },
+  "schedulerAccountPrivileges": {
+    "canCreateNewsDatabase": false,
+    "canCreateNewsAccount": false
+  },
+  "environment": {
+    "missingKeyCount": 65,
+    "changed": false
+  },
+  "tests": {
+    "scopedScheduler": {
+      "passed": 24,
+      "failed": 0
+    },
+    "realMySqlMissingVersionPath": {
+      "aborted": 0,
+      "containersFailed": 0,
+      "failed": 0,
+      "passed": 1,
+      "skipped": 0,
+      "tests": 1
+    },
+    "deltaBootLibraryStorage": {
+      "passed": 1,
+      "failed": 0
+    },
+    "gatewayIsolatedStartup": true,
+    "webProductionBuild": true,
+    "webFiles": 158,
+    "nginxIsolatedSyntax": true,
+    "messagingLegacyNormalizedBytecodeEqual": true
+  },
+  "isolatedDatabaseCleanup": {
+    "remoteDataRemoved": true,
+    "localCredentialsRemoved": true
+  },
+  "preparedRelease": {
+    "runtimeActivated": false,
+    "activeSymlinkChanged": false,
+    "artifacts": {
+      "messaging-service": {
+        "jarSha256": "aaa1257f9809e111c2b87c34e44aed1027fec7b3d5dd13f22c0d5fa6bdf58754",
+        "loaderSmokeExit": 0,
+        "nestedLibrariesStored": true
+      },
+      "mytools-gateway": {
+        "jarSha256": "e5624c786f6a818ef5207cbf3cb2000f8a5e67c77c674357fa8a34cd5bf87aa8",
+        "loaderSmokeExit": 0,
+        "nestedLibrariesStored": true
+      },
+      "news-digest-service": {
+        "jarSha256": "e5ee8f9d9265053a9234d8a6b0b82c0ed3f3e06460389d09a0338f0e07c3e359",
+        "loaderSmokeExit": 0,
+        "nestedLibrariesStored": true
+      },
+      "task-executor-service": {
+        "jarSha256": "c193974e010cb13aef059bf8c87266dae2377e60fa75a334534814c5dcc7e813",
+        "loaderSmokeExit": 0,
+        "nestedLibrariesStored": true
+      },
+      "task-scheduler-service": {
+        "jarSha256": "3dda9f055dfddf3474bd889c8e214906787495f92d3d035cd234cfeb2322985c",
+        "loaderSmokeExit": 0,
+        "nestedLibrariesStored": true
+      }
+    },
+    "directory": "/opt/yuyutian/mytools/releases/news-personal-20261019-prepared-v2"
+  },
+  "production": {
+    "existingUnitsChanged": false,
+    "newsDeployed": false,
+    "dailyScheduleEnabled": false,
+    "messagesSent": 0
+  },
+  "sourceSha256": {
+    "service/deploy/assemble_release_delta.py": "94dbc64a342e5225e123eb4179281e130aa433c123db2d39792f0c537144bdde",
+    "service/deploy/test_assemble_release_delta.py": "7104d723bdd13c36605d2e07ef0a8b67fbb1056256ab8828c3455a3fb362581c",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/MySqlCompatibilityTest.java": "167cee704273d9cc218e424f5267b2021689ffdf685dca0130a7771ed33bd5fc",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/MySqlCompatibilityLauncher.java": "80fdc7615224b0ca3df4aabe246b06d279e1f2412a1e25d379cf0c69ff556e1d",
+    "deploy/nginx/news-api.inc": "f524d022c222e274eaad573e7fb7640b90cf2d713dac3d5a63ed94344b9a3b93"
+  },
+  "previousPreparedRelease": {
+    "archiveSha256": "78c60fbd12447729d66520de1c3290377a494324d18fce55ef412bc2db381bae",
+    "artifacts": {
+      "news-digest-service": {
+        "jarSha256": "e5ee8f9d9265053a9234d8a6b0b82c0ed3f3e06460389d09a0338f0e07c3e359",
+        "loaderSmokeExit": 0,
+        "nestedLibrariesStored": true
+      },
+      "task-scheduler-service": {
+        "jarSha256": "041b3ac04d67eb95fc002fb6803ef04df4de3046984310b82118ee02ef1df6ec",
+        "loaderSmokeExit": 0,
+        "nestedLibrariesStored": true
+      },
+      "messaging-service": {
+        "jarSha256": "aaa1257f9809e111c2b87c34e44aed1027fec7b3d5dd13f22c0d5fa6bdf58754",
+        "loaderSmokeExit": 0,
+        "nestedLibrariesStored": true
+      },
+      "mytools-gateway": {
+        "jarSha256": "e5624c786f6a818ef5207cbf3cb2000f8a5e67c77c674357fa8a34cd5bf87aa8",
+        "loaderSmokeExit": 0,
+        "nestedLibrariesStored": true
+      },
+      "task-executor-service": {
+        "jarSha256": "d79aa895221409d0186a6adf308927066405d37dfac7317e699bcc08e85fc52f",
+        "loaderSmokeExit": 0,
+        "nestedLibrariesStored": true
+      }
+    },
+    "runtimeActivated": false,
+    "activeSymlinkChanged": false,
+    "directory": "/opt/yuyutian/mytools/releases/news-personal-20261019-prepared-v1"
+  },
+  "configuration": {
+    "task-scheduler-service": {
+      "changedPackagedKeys": [
+        "task.node-registration.allowed-cluster-names",
+        "task.node-registration.trusted-labels.[news.node]",
+        "task.security.business-clients.news-digest-service"
+      ],
+      "previousClusters": [
+        "asset",
+        "download",
+        "download-orchestration",
+        "drive",
+        "identity",
+        "image-generation",
+        "media",
+        "messaging",
+        "pdf-processing",
+        "reader",
+        "reader-adaptation",
+        "reader-probe-orchestration",
+        "storage",
+        "video-generation"
+      ],
+      "preparedClusters": [
+        "asset",
+        "download",
+        "download-orchestration",
+        "drive",
+        "identity",
+        "image-generation",
+        "media",
+        "messaging",
+        "pdf-processing",
+        "reader",
+        "reader-adaptation",
+        "reader-probe-orchestration",
+        "storage",
+        "video-generation",
+        "news"
+      ],
+      "overlaySha256": "2cff422184ea797f5398b1147b7b59cf2ff2ebce05583922c93198557120abf2"
+    },
+    "task-executor-service": {
+      "changedPackagedKeys": [
+        "executor.cluster-names",
+        "executor.labels.news.node",
+        "executor.script-environments.message_send_channel_message.MESSAGING_OUTBOUND_WORKER_TOKEN",
+        "executor.script-environments.message_send_channel_message.MESSAGING_SERVICE_URL",
+        "executor.script-environments.news_generate_edition.NEWS_JOB_TOKEN",
+        "executor.script-environments.news_generate_edition.NEWS_SERVICE_URL",
+        "executor.script-environments.news_resolve_region.NEWS_JOB_TOKEN",
+        "executor.script-environments.news_resolve_region.NEWS_REGION_ADDRESS_FAMILY",
+        "executor.script-environments.news_resolve_region.NEWS_REGION_FINGERPRINT_KEY",
+        "executor.script-environments.news_resolve_region.NEWS_REGION_MAXMIND_ACCOUNT",
+        "executor.script-environments.news_resolve_region.NEWS_REGION_MAXMIND_HOST",
+        "executor.script-environments.news_resolve_region.NEWS_REGION_MAXMIND_LICENSE",
+        "executor.script-environments.news_resolve_region.NEWS_REGION_MMDB_PATH",
+        "executor.script-environments.news_resolve_region.NEWS_REGION_PROVIDER",
+        "executor.script-environments.news_resolve_region.NEWS_REGION_PROXY_URL",
+        "executor.script-environments.news_resolve_region.NEWS_REGION_REPORT_TOKEN",
+        "executor.script-environments.news_resolve_region.NEWS_SERVICE_URL"
+      ],
+      "previousClusters": [
+        "asset",
+        "download",
+        "download-orchestration",
+        "drive",
+        "identity",
+        "image-generation",
+        "media",
+        "messaging",
+        "reader",
+        "reader-probe-orchestration",
+        "storage",
+        "video-generation"
+      ],
+      "preparedClusters": [
+        "asset",
+        "download",
+        "download-orchestration",
+        "drive",
+        "identity",
+        "image-generation",
+        "media",
+        "messaging",
+        "reader",
+        "reader-probe-orchestration",
+        "storage",
+        "video-generation",
+        "news"
+      ],
+      "overlaySha256": "e02679e4e126ed5a0681358c914d560a02105c7f5afacacbe58cc0e76f859d2c"
+    }
+  },
+  "webEntry": {
+    "legacyFrontendPort": 23111,
+    "listeningAtInspection": false,
+    "newWebDeployed": false,
+    "nginxReloaded": false,
+    "emailDependsOnFrontend": false
+  },
+  "blockedAudit": {
+    "consecutiveGoalTurns": 3,
+    "previousTurnClassification": "PROGRESS",
+    "currentTurnClassification": "NO_PROGRESS_CONFIRMED_BLOCKER",
+    "reason": "NEWS_DATABASE_INITIALIZATION_CONFIGURATION_MISSING",
+    "recheck": {
+      "administratorKeysConfigured": [],
+      "newsUserConfigured": false,
+      "newsPasswordConfigured": false,
+      "schedulerConnectionSucceeded": true,
+      "canCreateNewsDatabase": false,
+      "canCreateNewsAccount": false,
+      "newsServiceLoadState": "not-found",
+      "newsServiceActiveState": "inactive",
+      "preparedV2Present": true
+    },
+    "requiredInput": "SERVER_DATABASE_ADMIN_CONFIG_PATH_OR_PROVISIONED_NEWS_DATABASE_CONFIG_PATH",
+    "goalStatus": "BLOCKED"
+  }
+}

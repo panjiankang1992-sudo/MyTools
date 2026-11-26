@@ -1,0 +1,14 @@
+{
+  "releaseId": "local-textbook-20261018-174010",
+  "status": "deployed",
+  "backendSha256": "34f76d2ae27d39bbc9d2f505b4ed5dd10a9798563bf2e421e5e82c58b78eb98c",
+  "indexSha256": "c3aabf2cfafe77f86b8f23346dad8b5b7db3a5eab5acc91d0aff815655bcb51b",
+  "frontendFilesVerified": 259,
+  "backupDirectory": "/opt/yuyutian/toolbox/releases/local-textbook-20261018-174010",
+  "frontendBackup": "/opt/yuyutian/toolbox/releases/local-textbook-20261018-174010/candidate-frontend",
+  "databaseBackup": "database-before.sql",
+  "contentModified": false,
+  "configurationModified": false,
+  "startedAt": 1792316511.0302646,
+  "finishedAt": 1792316511.0910914
+}

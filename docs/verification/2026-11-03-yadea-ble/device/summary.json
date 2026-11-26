@@ -1,0 +1,163 @@
+{
+  "generatedAt": "2026-11-03T15:34:30+08:00",
+  "deviceType": "physical phone",
+  "deviceModel": "BRA-AL00",
+  "system": "OpenHarmony-7.0.0.111",
+  "finalHapSha256": "7ecfb3a02b97828e56920ece7565b83b2fe343b80ac9f7e599c24779bb8fd55c",
+  "finalPackageEntry": "pages/Index",
+  "installChecks": {
+    "signature": "passed",
+    "install": "passed",
+    "coldStart": "passed",
+    "processObserved": "passed"
+  },
+  "functionalEntry": "temporary acceptance entry using the production VehiclePage; no backend session",
+  "permission": "denial verified, then granted for device discovery in system settings",
+  "scan": {
+    "initial": {
+      "scanning": true,
+      "stopAvailable": true,
+      "scanAvailable": false,
+      "unconnected": false,
+      "bluetoothOff": false,
+      "scanError": false,
+      "displayedDeviceCount": 3,
+      "pairedRowCount": 0,
+      "paused": false,
+      "authNotCompleted": false,
+      "elapsedSeconds": 1.04
+    },
+    "afterDeadline": {
+      "scanning": false,
+      "stopAvailable": false,
+      "scanAvailable": true,
+      "unconnected": true,
+      "bluetoothOff": false,
+      "scanError": false,
+      "displayedDeviceCount": 3,
+      "pairedRowCount": 0,
+      "paused": false,
+      "authNotCompleted": false,
+      "elapsedSeconds": 15.3
+    }
+  },
+  "stopAndPaired": {
+    "manualStop": {
+      "started": {
+        "scanning": true,
+        "stopAvailable": true,
+        "scanAvailable": false,
+        "unconnected": false,
+        "bluetoothOff": false,
+        "scanError": false,
+        "displayedDeviceCount": 3,
+        "pairedRowCount": 0,
+        "paused": false,
+        "authNotCompleted": false
+      },
+      "stopped": {
+        "scanning": false,
+        "stopAvailable": false,
+        "scanAvailable": true,
+        "unconnected": true,
+        "bluetoothOff": false,
+        "scanError": false,
+        "displayedDeviceCount": 3,
+        "pairedRowCount": 0,
+        "paused": false,
+        "authNotCompleted": false
+      },
+      "afterWait": {
+        "scanning": false,
+        "stopAvailable": false,
+        "scanAvailable": true,
+        "unconnected": true,
+        "bluetoothOff": false,
+        "scanError": false,
+        "displayedDeviceCount": 3,
+        "pairedRowCount": 0,
+        "paused": false,
+        "authNotCompleted": false
+      }
+    },
+    "paired": {
+      "scanning": false,
+      "stopAvailable": false,
+      "scanAvailable": true,
+      "unconnected": true,
+      "bluetoothOff": false,
+      "scanError": false,
+      "displayedDeviceCount": 3,
+      "pairedRowCount": 2,
+      "paused": false,
+      "authNotCompleted": false
+    }
+  },
+  "background": {
+    "beforeBackground": {
+      "scanning": true,
+      "stopAvailable": true,
+      "scanAvailable": false,
+      "unconnected": false,
+      "bluetoothOff": false,
+      "scanError": false,
+      "displayedDeviceCount": 3,
+      "pairedRowCount": 2,
+      "paused": false,
+      "authNotCompleted": false
+    },
+    "resumed": {
+      "scanning": false,
+      "stopAvailable": false,
+      "scanAvailable": true,
+      "unconnected": true,
+      "bluetoothOff": false,
+      "scanError": false,
+      "displayedDeviceCount": 0,
+      "pairedRowCount": 0,
+      "paused": true,
+      "authNotCompleted": false
+    }
+  },
+  "capabilityNotices": {
+    "authUnverified": true,
+    "vehicleLocationUnavailable": true
+  },
+  "leavePage": {
+    "beforeLeave": {
+      "scanning": true,
+      "stopAvailable": true,
+      "scanAvailable": false,
+      "unconnected": false,
+      "bluetoothOff": false,
+      "scanError": false,
+      "displayedDeviceCount": 3,
+      "pairedRowCount": 0,
+      "paused": false,
+      "authNotCompleted": false
+    },
+    "afterLeave": {
+      "scanning": false,
+      "stopAvailable": false,
+      "scanAvailable": false,
+      "unconnected": false,
+      "bluetoothOff": false,
+      "scanError": false,
+      "displayedDeviceCount": 0,
+      "pairedRowCount": 0,
+      "paused": false,
+      "authNotCompleted": false
+    },
+    "processAlive": true
+  },
+  "vehicleConnection": "not tested; vehicle unavailable as specified by user",
+  "gattConnectionAttempts": 0,
+  "vehicleControlCommands": 0,
+  "privateData": "no device names, addresses, account identifiers, credentials, or screenshots retained here",
+  "finalNormalEntry": {
+    "toolEntryVisible": true,
+    "vehiclePageOpened": false,
+    "loginRequired": true,
+    "testEntryPresent": false
+  }
+}

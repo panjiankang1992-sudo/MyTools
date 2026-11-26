@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "required": [
+    "deliveryId",
+    "status"
+  ],
+  "properties": {
+    "deliveryId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "status": {
+      "enum": [
+        "PROVIDER_ACCEPTED",
+        "FAILED",
+        "UNKNOWN",
+        "CANCELLED",
+        "EXPIRED"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

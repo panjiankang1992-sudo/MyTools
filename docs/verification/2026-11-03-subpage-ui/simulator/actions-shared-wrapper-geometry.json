@@ -1,0 +1,52 @@
+{
+  "result": "passed",
+  "scope": "isolated component rendering; not production-account workflow",
+  "hapSha256": "c38c8bcb8a7fe0588f871ba2c60eccf055f69bb2c15a15eb67617e52708266b0",
+  "emulator": "separate HarmonyOS 6.1.1 API24 320vp test emulator",
+  "panelWidthVp": 280,
+  "scalePxPerVp": 3,
+  "construction": "three direct custom AppGroupedButton roots; single-token ForEach inside AppEqualActionRow",
+  "controls": [
+    {
+      "label": "上传",
+      "bounds": [
+        84,
+        877,
+        332,
+        1105
+      ],
+      "widthPx": 248,
+      "heightPx": 228
+    },
+    {
+      "label": "新建文件夹换行校验",
+      "bounds": [
+        356,
+        877,
+        604,
+        1105
+      ],
+      "widthPx": 248,
+      "heightPx": 228
+    },
+    {
+      "label": "刷新",
+      "bounds": [
+        628,
+        877,
+        876,
+        1105
+      ],
+      "widthPx": 248,
+      "heightPx": 228
+    }
+  ],
+  "heightVp": 76,
+  "sourceLayout": "/tmp/mytools-ui-probe-private/04-actions-shared-wrapper.json",
+  "sourceScreenshot": "/tmp/mytools-ui-probe-private/04-actions-shared-wrapper.jpeg",
+  "notClaimed": [
+    "production final HAP verification",
+    "system font scale coverage",
+    "business workflow results"
+  ]
+}

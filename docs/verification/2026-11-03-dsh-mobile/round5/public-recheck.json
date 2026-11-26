@@ -1,0 +1,16 @@
+{
+  "mobile.css": {
+    "status": 200,
+    "seconds": 5.675353,
+    "exitCode": 0,
+    "sha256": "31625e0e389000f33fc7d290d8ef20734ac1f0eda0697433edeb943ffd56997d",
+    "matchesSource": true
+  },
+  "mobile.js": {
+    "status": 200,
+    "seconds": 17.60427,
+    "exitCode": 0,
+    "sha256": "e7bbf15492c1300f6b67675e0af7f6bef059e13fa91a534f167515168f7367fe",
+    "matchesSource": true
+  }
+}

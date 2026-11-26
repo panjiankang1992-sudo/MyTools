@@ -1,0 +1,13 @@
+{
+  "passed": {
+    "/admin/textbooks/new": true,
+    "/admin/textbooks/:editionId/edit": true,
+    "/admin/textbooks/:editionId/advanced": true,
+    "root_asset_urls": true,
+    "api_public_same_origin": true,
+    "api_admin_same_origin": true
+  },
+  "fileCount": 259,
+  "totalBytes": 48125969,
+  "indexSha256": "118068330477c342b85568e06c5ae25530b4661b36683033c3e9703e8173a3fa"
+}

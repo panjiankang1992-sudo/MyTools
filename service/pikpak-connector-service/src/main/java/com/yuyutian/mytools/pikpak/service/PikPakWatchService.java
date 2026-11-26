@@ -1,5 +1,7 @@
 package com.yuyutian.mytools.pikpak.service;
 
+import static com.yuyutian.mytools.pikpak.common.ErrorCode.RCLONE_FAILURE;
+import static com.yuyutian.mytools.pikpak.common.ErrorCode.WATCHER_CONFIGURATION_CHANGED;
 import static com.yuyutian.mytools.pikpak.model.PikPakModels.*;
 
 import com.yuyutian.mytools.pikpak.repository.PikPakRepository;
@@ -17,31 +19,37 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /** PikPak 固定目录扫描、稳定观察与归档状态机。 */
 @Service
 public class PikPakWatchService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PikPakWatchService.class);
+
     private final PikPakRepository accounts;
     private final PikPakWatchRepository watches;
     private final RclonePikPakClient connector;
+    private final TransactionTemplate transactions;
     private final boolean enabled;
     private final Clock clock;
 
-    /** 创建服务。 @param accounts 账户仓储 @param watches watcher 仓储 @param connector rclone 客户端 @param enabled 总开关 */
+    /** 创建服务。 @param accounts 账户仓储 @param watches watcher 仓储 @param connector rclone 客户端 @param transactions 事务模板 @param enabled 总开关 */
     @Autowired
     public PikPakWatchService(PikPakRepository accounts, PikPakWatchRepository watches,
-            RclonePikPakClient connector, @Value("${pikpak.enabled:false}") boolean enabled) {
-        this(accounts, watches, connector, enabled, Clock.systemUTC());
+            RclonePikPakClient connector, TransactionTemplate transactions,
+            @Value("${pikpak.enabled:false}") boolean enabled) {
+        this(accounts, watches, connector, transactions, enabled, Clock.systemUTC());
     }
 
     PikPakWatchService(PikPakRepository accounts, PikPakWatchRepository watches,
-            RclonePikPakClient connector, boolean enabled, Clock clock) {
+            RclonePikPakClient connector, TransactionTemplate transactions, boolean enabled, Clock clock) {
         this.accounts = accounts; this.watches = watches; this.connector = connector;
-        this.enabled = enabled; this.clock = clock;
+        this.transactions = transactions; this.enabled = enabled; this.clock = clock;
     }
 
     /** 登记固定目录 watcher。 @param request 请求 @return 配置 */
@@ -54,7 +62,6 @@ public class PikPakWatchService {
     }
 
     /** 扫描一次并返回达到稳定窗口的批次。 @param accountId 账户 @return 稳定批次 */
-    @Transactional
     public WatchScanView scan(UUID accountId) {
         requireEnabled();
         Account account = accounts.requireAccount(accountId);
@@ -62,6 +69,16 @@ public class PikPakWatchService {
         if (!account.enabled() || !watcher.enabled()) throw new IllegalStateException("PIKPAK_WATCHER_DISABLED");
         Map<String, List<RemoteItem>> groups = group(connector.listWatchRoot(account.remoteKey(), watcher.watchRoot(),
             watches.baselinedPaths(accountId)));
+        // 远端列表读取完毕后再开事务，定时和单账户入口都原子提交批次及文件快照。
+        return transactions.execute(status -> saveScan(account, watcher, groups));
+    }
+
+    private WatchScanView saveScan(Account account, Watcher watcher, Map<String, List<RemoteItem>> groups) {
+        UUID accountId = account.id();
+        // 归档和重新配置可能发生在远端读取期间，提交前锁定并校验当前配置。
+        if (!watches.lockWatcher(accountId).equals(watcher)) {
+            throw new IllegalStateException(WATCHER_CONFIGURATION_CHANGED.code());
+        }
         List<WatchBatchView> ready = new ArrayList<>();
         Instant now = clock.instant();
         boolean baseline = !watcher.processExisting() && !watcher.baselineCompleted();
@@ -69,6 +86,10 @@ public class PikPakWatchService {
             String signature = signature(entry.getValue());
             WatchBatch batch = watches.find(accountId, entry.getKey()).orElseGet(() ->
                 watches.insert(accountId, entry.getKey(), signature, now, baseline));
+            // 正在归档的源目录可能只剩部分文件，保持已发布快照和移动任务检查点。
+            if ("MOVING".equals(batch.phase())) {
+                continue;
+            }
             if ("PIKPAK_WATCH_BASELINED".equals(batch.errorCode()) && signature.equals(batch.signature())) {
                 continue;
             }
@@ -78,8 +99,8 @@ public class PikPakWatchService {
                 watches.replaceItems(batch.id(), entry.getValue());
             } else if ("OBSERVING".equals(batch.phase())
                     && !now.isBefore(batch.stableSince().plusSeconds(watcher.stableSeconds()))) {
-                watches.replaceItems(batch.id(), entry.getValue());
                 batch = watches.transition(batch, signature, batch.stableSince(), "READY", null, null);
+                watches.replaceItems(batch.id(), entry.getValue());
             }
             if ("READY".equals(batch.phase())) ready.add(view(batch, account, watcher));
         }
@@ -87,19 +108,46 @@ public class PikPakWatchService {
         return new WatchScanView(accountId, List.copyOf(ready));
     }
 
-    /** 扫描全部启用 watcher。 @return 各账户稳定批次 */
+    /** 扫描全部启用 watcher。 @return 成功扫描的账户及其稳定批次 */
     public List<WatchScanView> scanAll() {
         requireEnabled();
-        return watches.enabledWatchers().stream().map(watcher -> scan(watcher.accountId())).toList();
+        List<WatchScanView> scans = new ArrayList<>();
+        IllegalStateException firstRemoteFailure = null;
+        for (Watcher watcher : watches.enabledWatchers()) {
+            try {
+                scans.add(scan(watcher.accountId()));
+            } catch (IllegalStateException failure) {
+                // 仅隔离已知的远端错误，继续传播取消信号和本地状态异常。
+                if (!RCLONE_FAILURE.code().equals(failure.getMessage()) || Thread.currentThread().isInterrupted()) {
+                    throw failure;
+                }
+                // 日志只记录内部账户标识和稳定错误码，不回显远端响应或路径。
+                LOGGER.warn("PikPak watcher scan failed: accountId={}, errorCode={}",
+                    watcher.accountId(), RCLONE_FAILURE.code());
+                if (firstRemoteFailure == null) {
+                    firstRemoteFailure = failure;
+                }
+            }
+        }
+        // 全部远端扫描失败时保留失败结果；无启用监听器时返回空列表。
+        if (scans.isEmpty() && firstRemoteFailure != null) {
+            throw firstRemoteFailure;
+        }
+        return List.copyOf(scans);
     }
 
     /** 下载成功后推进远端批次归档。 @param batchId 批次 @return 状态 */
-    @Transactional
     public WatchBatchView archive(UUID batchId) {
         requireEnabled();
+        UUID accountId = watches.requireBatch(batchId).accountId();
+        return transactions.execute(status -> archiveBatch(batchId, accountId));
+    }
+
+    private WatchBatchView archiveBatch(UUID batchId, UUID accountId) {
+        Watcher watcher = watches.lockWatcher(accountId);
+        // 锁定后重读批次，防止并发归档重复提交移动。
         WatchBatch batch = watches.requireBatch(batchId);
-        Account account = accounts.requireAccount(batch.accountId());
-        Watcher watcher = watches.requireWatcher(batch.accountId());
+        Account account = accounts.requireAccount(accountId);
         if ("READY".equals(batch.phase())) {
             List<RemoteItem> items = watches.items(batch.id());
             String batchPath = batch.batchPath();

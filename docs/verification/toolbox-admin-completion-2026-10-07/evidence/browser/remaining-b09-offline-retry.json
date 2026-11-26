@@ -1,0 +1,207 @@
+{
+  "name": "remaining-b09-offline-retry",
+  "at": "2026-10-06T21:59:28.504Z",
+  "results": [
+    {
+      "label": "基线：修订/保存于 文案",
+      "ok": true,
+      "informational": true,
+      "detail": "\"修订 2\""
+    },
+    {
+      "label": "相位A：界面如实显示失败",
+      "ok": true,
+      "detail": "[\"操作失败：网络连接失败。当前编辑内容仍保留在本页，请检查网络后重试。 当前编辑内容仍保留在本页。\"]"
+    },
+    {
+      "label": "相位A：**没有**谎报成功（页面没有「已保存」提示）",
+      "ok": true,
+      "detail": "[\"操作失败：网络连接失败。当前编辑内容仍保留在本页，请检查网络后重试。 当前编辑内容仍保留在本页。\"]"
+    },
+    {
+      "label": "相位A：保存时间戳没有前进（savedAt 不变）",
+      "ok": true,
+      "detail": "\"修订 2\" → \"修订 2\""
+    },
+    {
+      "label": "相位A：服务端草稿**一个字节都没变**（内容与修订号都未动）",
+      "ok": true,
+      "detail": "revision 2 → 2，条目=[\"山\",\"水\"]"
+    },
+    {
+      "label": "相位A：被拦下的写请求",
+      "ok": true,
+      "informational": true,
+      "detail": "{\"idempotencyKey\":\"save-1791323925730-mwqtjea0\",\"ifMatch\":\"\\\"draft-2\\\"\",\"payloadHasMark\":true}"
+    },
+    {
+      "label": "相位A：CDP 拦截动作",
+      "ok": true,
+      "informational": true,
+      "detail": "[{\"stage\":\"Request\",\"action\":\"fail\",\"key\":null,\"ifMatch\":null}]"
+    },
+    {
+      "label": "相位B：合成 click 点到「保存草稿」",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "相位B：重试的写请求被服务端接受（200）",
+      "ok": true,
+      "detail": "{\"status\":200,\"revision\":\"2 → 3\"}"
+    },
+    {
+      "label": "相位B：内容写入且只出现一次（不产生重复条目）",
+      "ok": true,
+      "detail": "[\"row-1:山断网80gwy\",\"row-2:水\"]"
+    },
+    {
+      "label": "相位B：条目标识与顺序不变",
+      "ok": true,
+      "detail": "[\"row-1\",\"row-2\"]"
+    },
+    {
+      "label": "相位B：教材总数不变（不产生重复草稿）",
+      "ok": true,
+      "detail": "total 61 → 61"
+    },
+    {
+      "label": "实测（新发现缺陷）：重试成功后静置 6.5 秒，修订号变化",
+      "ok": true,
+      "informational": true,
+      "detail": "3 → 3（多出 0 次自动保存；详见 remaining-b09b-autosave-loop.mjs）"
+    },
+    {
+      "label": "相位B：重试用的幂等键 vs 失败那次的键",
+      "ok": true,
+      "informational": true,
+      "detail": "{\"failedKey\":\"save-1791323925730-mwqtjea0\",\"retriedKey\":\"save-1791323925730-mwqtjea0\",\"reused\":true}"
+    },
+    {
+      "label": "相位C：服务器其实已经写入（响应丢在路上，客户端却看到失败）",
+      "ok": true,
+      "detail": "revision 3（本次写之前实测） → 4（响应被丢弃之后），条目=[\"山丢响应80gwy\",\"水\"]"
+    },
+    {
+      "label": "相位C：界面看到的是失败（不谎报成功）",
+      "ok": true,
+      "detail": "[\"操作失败：网络连接失败。当前编辑内容仍保留在本页，请检查网络后重试。 当前编辑内容仍保留在本页。\"]"
+    },
+    {
+      "label": "相位C：被丢响应的那次写请求",
+      "ok": true,
+      "informational": true,
+      "detail": "{\"idempotencyKey\":\"save-1791323934728-nci6mx3a\",\"ifMatch\":\"\\\"draft-3\\\"\"}"
+    },
+    {
+      "label": "相位C：同键重放第一次的响应",
+      "ok": true,
+      "informational": true,
+      "detail": "{\"status\":200,\"body\":\"{\\\"code\\\":\\\"OK\\\",\\\"data\\\":{\\\"revision\\\":4},\\\"requestId\\\":\\\"aa5f3766-25b7-4418-ae3e-28c1e6dab1ce\\\"}\"}"
+    },
+    {
+      "label": "相位C：同键重放第二次的响应",
+      "ok": true,
+      "informational": true,
+      "detail": "{\"status\":200,\"body\":\"{\\\"code\\\":\\\"OK\\\",\\\"data\\\":{\\\"revision\\\":4},\\\"requestId\\\":\\\"6d2fc054-d580-4acd-ba81-8bb963b702b5\\\"}\"}"
+    },
+    {
+      "label": "相位C：同键重放返回 200 且**返回被丢响应那次的修订号**",
+      "ok": true,
+      "detail": "{\"replay\":\"{\\\"code\\\":\\\"OK\\\",\\\"data\\\":{\\\"revision\\\":4},\\\"requestId\\\":\\\"aa5f3766-25b7-4418-ae3e-28c1e6dab1ce\\\"}\",\"lostRevision\":4}"
+    },
+    {
+      "label": "相位C：**两次**同键重放返回同一个修订号（回执被复用、没有再写一次）",
+      "ok": true,
+      "detail": "{\"first\":4,\"second\":4}"
+    },
+    {
+      "label": "相位C：重放返回的修订号不超过当时服务端修订号（没有新写入）",
+      "ok": true,
+      "detail": "4 <= 4"
+    },
+    {
+      "label": "相位C：内容没有第二份（同一条内容只出现一次）",
+      "ok": true,
+      "detail": "[\"row-1:山丢响应80gwy\",\"row-2:水\"]"
+    },
+    {
+      "label": "相位C：条目标识与顺序仍然不变",
+      "ok": true,
+      "detail": "[\"row-1\",\"row-2\"]"
+    },
+    {
+      "label": "草稿修订号轨迹（每个相位边界实测一次）",
+      "ok": true,
+      "informational": true,
+      "detail": "[{\"at\":\"基线（建册后）\",\"revision\":2},{\"at\":\"相位A：断网写被拦下之后\",\"revision\":2},{\"at\":\"相位B：重试成功后\",\"revision\":3},{\"at\":\"相位B：静置 6.5 秒（自动保存循环自己推进）\",\"revision\":3,\"autoSavesDuringQuiet\":0},{\"at\":\"相位C：触发丢响应写之前（本断言的锚点）\",\"revision\":3},{\"at\":\"相位C：丢响应写之后\",\"revision\":4},{\"at\":\"相位C：同键重放两次之后\",\"revision\":4}]"
+    },
+    {
+      "label": "实测：丢响应后再点一次「保存草稿」的结果",
+      "ok": true,
+      "informational": true,
+      "detail": "{\"alerts\":[\"草稿已保存。\"],\"conflictAppeared\":false,\"lostKey\":\"save-1791323934728-nci6mx3a\",\"resaveKeys\":[\"save-1791323934728-nci6mx3a\"],\"revision\":\"4 → 4\"}"
+    },
+    {
+      "label": "实测：丢响应后再点「保存草稿」不会**用新键多写一次**（要么 409 冲突面板，要么同键重发被回执接住）",
+      "ok": true,
+      "detail": "{\"conflictAppeared\":false,\"resaveSameKey\":true,\"revision\":\"4 → 4\"}"
+    },
+    {
+      "label": "相位D：合成 click 点到「确认内容」",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "相位D：合成 click 点到「保存草稿」",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "实测（同一缺陷的延伸）：切到首页卸载编辑器后草稿写请求是否停下",
+      "ok": true,
+      "informational": true,
+      "detail": "{\"quiet\":false,\"writesBefore\":7,\"writesAfter\":8}"
+    },
+    {
+      "label": "相位D：草稿已可发布（服务端校验通过）",
+      "ok": true,
+      "detail": "[]"
+    },
+    {
+      "label": "相位D：两次发布响应",
+      "ok": true,
+      "informational": true,
+      "detail": "{\"first\":{\"editionId\":\"e2e-b09-80gwy\",\"contentVersion\":\"1.0.0\",\"versionId\":\"e2e-b09-80gwy@1.0.0\",\"contentSha256\":\"4cce42eae5c87b69c75fda5632570aaea07eaba028ef474185e3fccd0fcb8db5\",\"snapshotReloaded\":true,\"catalogVersion\":\"catalog-33\",\"catalogEpoch\":\"32\"},\"second\":{\"editionId\":\"e2e-b09-80gwy\",\"contentVersion\":\"1.0.0\",\"versionId\":\"e2e-b09-80gwy@1.0.0\",\"contentSha256\":\"4cce42eae5c87b69c75fda5632570aaea07eaba028ef474185e3fccd0fcb8db5\",\"snapshotReloaded\":true,\"catalogVersion\":\"catalog-33\",\"catalogEpoch\":\"32\"}}"
+    },
+    {
+      "label": "相位D：第一次发布成功",
+      "ok": true,
+      "detail": "200 {\"code\":\"OK\",\"data\":{\"editionId\":\"e2e-b09-80gwy\",\"contentVersion\":\"1.0.0\",\"versionId\":\"e2e-b09-80gwy@1.0.0\",\"contentSha256\":\"4cce42eae5c87b69c75fda5632570aaea07eaba028ef474185e3fccd0fcb8db5\",\"snapshot"
+    },
+    {
+      "label": "相位D：同键第二次发布返回同一个版本号（复用回执）",
+      "ok": true,
+      "detail": "{\"first\":\"1.0.0\",\"second\":\"1.0.0\"}"
+    },
+    {
+      "label": "相位D：版本记录只有一条（不产生重复版本）",
+      "ok": true,
+      "detail": "[{\"editionId\":\"e2e-b09-80gwy\",\"contentVersion\":\"1.0.0\",\"contentSha256\":\"4cce42eae5c87b69c75fda5632570aaea07eaba028ef474185e3fccd0fcb8db5\",\"byteLength\":1546,\"publishedBy\":\"local-admin-1001\",\"publishedAt\":1791323968000,\"hasSourceSnapshot\":true,\"sourceSnapshotSha256\":\"0f801ac0512de0ed5a2f68b2470e30f38d0c0413733af2453141c7900f4a135f\",\"changeNote\":\"B09 幂等验收 80gwy\"}]"
+    },
+    {
+      "label": "实测：两次发布之间草稿修订号",
+      "ok": true,
+      "informational": true,
+      "detail": "{\"beforePublish\":6,\"afterFirstPublish\":7,\"now\":7}"
+    },
+    {
+      "label": "相位D：第二次发布返回的版本三要素与第一次完全一致（回执被复用）",
+      "ok": true,
+      "detail": "{\"first\":{\"editionId\":\"e2e-b09-80gwy\",\"contentVersion\":\"1.0.0\",\"versionId\":\"e2e-b09-80gwy@1.0.0\",\"contentSha256\":\"4cce42eae5c87b69c75fda5632570aaea07eaba028ef474185e3fccd0fcb8db5\",\"snapshotReloaded\":true,\"catalogVersion\":\"catalog-33\",\"catalogEpoch\":\"32\"},\"second\":{\"editionId\":\"e2e-b09-80gwy\",\"contentVersion\":\"1.0.0\",\"versionId\":\"e2e-b09-80gwy@1.0.0\",\"contentSha256\":\"4cce42eae5c87b69c75fda5632570aaea07eaba028ef474185e3fccd0fcb8db5\",\"snapshotReloaded\":true,\"catalogVersion\":\"catalog-33\",\"catalogEpoch\":\"32\"}}"
+    }
+  ],
+  "editionId": "e2e-b09-80gwy",
+  "markA": "断网80gwy",
+  "markB": "丢响应80gwy"
+}

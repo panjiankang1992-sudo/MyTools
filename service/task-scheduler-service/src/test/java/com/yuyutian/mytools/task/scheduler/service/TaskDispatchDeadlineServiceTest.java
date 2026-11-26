@@ -1,6 +1,8 @@
 package com.yuyutian.mytools.task.scheduler.service;
 
 import com.yuyutian.mytools.task.scheduler.model.ClaimTaskRequest;
+import com.yuyutian.mytools.task.scheduler.model.CompleteExecutionRequest;
+import com.yuyutian.mytools.task.scheduler.model.CreateChildTaskRequest;
 import com.yuyutian.mytools.task.scheduler.model.CreateExecutionClusterRequest;
 import com.yuyutian.mytools.task.scheduler.model.CreateTaskDefinitionRequest;
 import com.yuyutian.mytools.task.scheduler.model.CreateTaskRequest;
@@ -15,6 +17,7 @@ import com.yuyutian.mytools.task.scheduler.model.TaskType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Timestamp;
@@ -29,10 +32,11 @@ import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
+@Import(QueueDispatchTestSchema.class)
 class TaskDispatchDeadlineServiceTest {
 
     @Autowired
@@ -56,64 +60,52 @@ class TaskDispatchDeadlineServiceTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private TaskScriptApiService scriptApiService;
+
+    @Autowired
+    private TaskCancellationPropagationService cancellationPropagationService;
+
     @Test
-    void shouldPersistAndExpireUnclaimedTaskWithoutExecutor() {
+    void shouldKeepNewUnclaimedTaskQueuedWithoutDeadline() {
         TestTask testTask = createTask(120, Map.of());
-        Timestamp persistedDeadline = jdbcTemplate.queryForObject(
+        assertNull(jdbcTemplate.queryForObject(
                 "SELECT dispatch_deadline_at FROM task_instance WHERE id = ?",
-                Timestamp.class, testTask.task().id().toString());
-        assertNotNull(persistedDeadline);
-        assertTrue(persistedDeadline.toInstant().isAfter(testTask.task().createdAt()));
-
-        Instant now = Instant.now();
-        jdbcTemplate.update("UPDATE task_instance SET dispatch_deadline_at = ? WHERE id = ?",
-                Timestamp.from(now.minusSeconds(1)), testTask.task().id().toString());
-
-        assertTrue(taskDeadlineService.expireDeadlines(now) >= 1);
-        assertEquals(TaskStatus.TIMED_OUT, taskInstanceService.get(testTask.task().id()).status());
+                Timestamp.class, testTask.task().id().toString()));
+        taskDeadlineService.expireDeadlines(Instant.now().plusSeconds(30L * 86400));
+        assertEquals(TaskStatus.QUEUED, taskInstanceService.get(testTask.task().id()).status());
         assertEquals(0, countExecutions(testTask.task().id()));
-        assertEquals(1, jdbcTemplate.queryForObject("""
-                SELECT COUNT(*) FROM task_outbox
-                WHERE aggregate_id = ? AND event_type = 'TaskTimedOut'
+        assertEquals(0, jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM task_outbox WHERE aggregate_id = ? AND event_type = 'TaskTimedOut'
                 """, Integer.class, testTask.task().id().toString()));
     }
 
     @Test
-    void shouldBackfillAndExpireLegacyUnclaimedTask() {
+    void shouldClaimLegacyTaskEvenWhenItsStoredQueueDeadlineIsExpired() {
         TestTask testTask = createTask(120, Map.of());
-        Instant now = Instant.now();
-        Instant legacyCreatedAt = now.minusSeconds(301);
-        jdbcTemplate.update("""
-                UPDATE task_instance
-                SET created_at = ?, dispatch_deadline_at = NULL
-                WHERE id = ?
-                """, Timestamp.from(legacyCreatedAt), testTask.task().id().toString());
-
-        assertTrue(taskDeadlineService.expireDeadlines(now) >= 1);
-
-        Timestamp deadline = jdbcTemplate.queryForObject(
-                "SELECT dispatch_deadline_at FROM task_instance WHERE id = ?",
-                Timestamp.class, testTask.task().id().toString());
-        assertNotNull(deadline);
-        assertEquals(legacyCreatedAt.plusSeconds(300).toEpochMilli(), deadline.toInstant().toEpochMilli());
-        assertEquals(TaskStatus.TIMED_OUT, taskInstanceService.get(testTask.task().id()).status());
+        Instant old = Instant.now().minusSeconds(30L * 86400);
+        jdbcTemplate.update("UPDATE task_instance SET created_at = ?, dispatch_deadline_at = ? WHERE id = ?",
+                Timestamp.from(old), Timestamp.from(old.plusSeconds(300)), testTask.task().id().toString());
+        taskDeadlineService.expireDeadlines(Instant.now());
+        assertEquals(TaskStatus.QUEUED, taskInstanceService.get(testTask.task().id()).status());
+        UUID instanceId = UUID.randomUUID();
+        var node = executionTopologyService.registerNode(new RegisterExecutorNodeRequest(
+                "legacy-queue-node-" + testTask.suffix(), instanceId.toString(), Map.of(), Map.of(),
+                1, Set.of(testTask.clusterName())));
+        assertEquals(testTask.task().id(), taskDispatchService.claim(
+                new ClaimTaskRequest(node.id(), instanceId, 60)).orElseThrow().taskInstanceId());
     }
 
     @Test
-    void shouldExpireTaskWhenAvailableExecutorDoesNotMatchLabels() {
+    void shouldKeepWaitingForMatchingLabelsWithoutExpiring() {
         TestTask testTask = createTask(120, Map.of("zone", "required"));
         UUID instanceId = UUID.randomUUID();
         var node = executionTopologyService.registerNode(new RegisterExecutorNodeRequest(
                 "dispatch-label-node-" + testTask.suffix(), instanceId.toString(), Map.of(),
                 Map.of("zone", "other"), 1, Set.of(testTask.clusterName())));
-
         assertTrue(taskDispatchService.claim(new ClaimTaskRequest(node.id(), instanceId, 60)).isEmpty());
-        Instant now = Instant.now();
-        jdbcTemplate.update("UPDATE task_instance SET dispatch_deadline_at = ? WHERE id = ?",
-                Timestamp.from(now.minusSeconds(1)), testTask.task().id().toString());
-
-        assertTrue(taskDeadlineService.expireDeadlines(now) >= 1);
-        assertEquals(TaskStatus.TIMED_OUT, taskInstanceService.get(testTask.task().id()).status());
+        taskDeadlineService.expireDeadlines(Instant.now().plusSeconds(30L * 86400));
+        assertEquals(TaskStatus.QUEUED, taskInstanceService.get(testTask.task().id()).status());
     }
 
     @Test
@@ -130,6 +122,9 @@ class TaskDispatchDeadlineServiceTest {
                 "dispatch-paged-node-" + matchingTask.suffix(), instanceId.toString(), Map.of(),
                 Map.of("zone", "matching"), 1, Set.of(matchingTask.clusterName())));
 
+        // 多节点与单节点都必须接受遗留的过期排队字段。
+        jdbcTemplate.update("UPDATE task_instance SET dispatch_deadline_at = ? WHERE id = ?",
+                Timestamp.from(Instant.now().minusSeconds(86400)), matchingTask.task().id().toString());
         var claimed = taskDispatchService.claim(
                 new ClaimTaskRequest(node.id(), instanceId, 60)).orElseThrow();
 
@@ -151,6 +146,9 @@ class TaskDispatchDeadlineServiceTest {
                 "dispatch-paged-multi-node-" + matchingTask.suffix(), instanceId.toString(), Map.of(),
                 Map.of("zone", "matching"), 1, Set.of(matchingTask.clusterName())));
 
+        // 多节点与单节点都必须接受遗留的过期排队字段。
+        jdbcTemplate.update("UPDATE task_instance SET dispatch_deadline_at = ? WHERE id = ?",
+                Timestamp.from(Instant.now().minusSeconds(86400)), matchingTask.task().id().toString());
         var claimed = taskDispatchService.claim(
                 new ClaimTaskRequest(node.id(), instanceId, 60)).orElseThrow();
 
@@ -158,7 +156,7 @@ class TaskDispatchDeadlineServiceTest {
     }
 
     @Test
-    void shouldAllowOnlyClaimOrDispatchDeadlineToWin() throws Exception {
+    void shouldAllowClaimWhileQueueAgeScanRuns() throws Exception {
         TestTask testTask = createTask(120, Map.of());
         UUID instanceId = UUID.randomUUID();
         var node = executionTopologyService.registerNode(new RegisterExecutorNodeRequest(
@@ -185,7 +183,7 @@ class TaskDispatchDeadlineServiceTest {
         }
 
         TaskStatus status = taskInstanceService.get(testTask.task().id()).status();
-        assertTrue(status == TaskStatus.RUNNING || status == TaskStatus.TIMED_OUT);
+        assertEquals(TaskStatus.RUNNING, status);
         assertEquals(status == TaskStatus.RUNNING, claimed.isPresent());
         assertEquals(status == TaskStatus.RUNNING ? 1 : 0, countExecutions(testTask.task().id()));
         assertFalse(status == TaskStatus.TIMED_OUT && claimed.isPresent());
@@ -198,7 +196,7 @@ class TaskDispatchDeadlineServiceTest {
         var node = executionTopologyService.registerNode(new RegisterExecutorNodeRequest(
                 "dispatch-normal-node-" + testTask.suffix(), instanceId.toString(), Map.of(), Map.of(),
                 1, Set.of(testTask.clusterName())));
-        Instant shortQueueDeadline = Instant.now().plusSeconds(5);
+        Instant shortQueueDeadline = Instant.now().minusSeconds(86400);
         jdbcTemplate.update("UPDATE task_instance SET dispatch_deadline_at = ? WHERE id = ?",
                 Timestamp.from(shortQueueDeadline), testTask.task().id().toString());
 
@@ -209,6 +207,60 @@ class TaskDispatchDeadlineServiceTest {
         assertTrue(claimed.deadlineAt().isAfter(beforeClaim.plusSeconds(3590)));
         taskDeadlineService.expireDeadlines(shortQueueDeadline.plusSeconds(1));
         assertEquals(TaskStatus.RUNNING, taskInstanceService.get(testTask.task().id()).status());
+    }
+
+    @Test
+    void shouldStillExpireRetryAfterExecutionAlreadyStarted() {
+        TestTask testTask = createTask(120, Map.of());
+        Instant now = Instant.now();
+        // 重试重新排队仍属于已启动的同一次执行预算，不能无限延长执行期限。
+        jdbcTemplate.update("UPDATE task_instance SET started_at = ? WHERE id = ?",
+                Timestamp.from(now.minusSeconds(121)), testTask.task().id().toString());
+        taskDeadlineService.expireDeadlines(now);
+        assertEquals(TaskStatus.TIMED_OUT, taskInstanceService.get(testTask.task().id()).status());
+    }
+
+    @Test
+    void shouldAllowCancellingAnOldQueuedTask() {
+        TestTask testTask = createTask(120, Map.of());
+        jdbcTemplate.update("UPDATE task_instance SET created_at = ? WHERE id = ?",
+                Timestamp.from(Instant.now().minusSeconds(30L * 86400)), testTask.task().id().toString());
+        taskInstanceService.cancel(testTask.task().id());
+        assertEquals(TaskStatus.CANCELLED, taskInstanceService.get(testTask.task().id()).status());
+    }
+
+    @Test
+    void shouldCancelActiveDownloadChildrenAfterBatchExecutionTimesOut() {
+        String suffix = UUID.randomUUID().toString();
+        String batchName = "download_message_url_batch";
+        String clusterName = jdbcTemplate.queryForObject("""
+                SELECT cluster.name FROM execution_cluster cluster
+                JOIN task_definition definition ON definition.cluster_id = cluster.id
+                WHERE definition.name = ?
+                """, String.class, batchName);
+        UUID nodeInstanceId = UUID.randomUUID();
+        var node = executionTopologyService.registerNode(new RegisterExecutorNodeRequest(
+                "download-timeout-" + suffix, nodeInstanceId.toString(), Map.of(), Map.of(), 12,
+                Set.of(clusterName)));
+        var parent = taskInstanceService.create(new CreateTaskRequest(batchName, "download-timeout:" + suffix,
+                "DOWNLOAD_REQUEST", suffix, null, 99,
+                Map.of("downloadRequestId", suffix, "ownerId", 7, "messageBatchId", suffix,
+                        "receivedAt", Instant.now().toString(),
+                        "items", List.of(Map.of("url", "https://example.com/a.jpg", "fileName", "a.jpg")))));
+        var parentExecution = taskDispatchService.claim(new ClaimTaskRequest(node.id(), nodeInstanceId, 60)).orElseThrow();
+        assertEquals(parent.id(), parentExecution.taskInstanceId());
+        var child = scriptApiService.createChild(parentExecution.executionId(), new CreateChildTaskRequest(
+                parentExecution.leaseToken(), "download_resolve_x_url", "download-timeout-child:" + suffix,
+                "DOWNLOAD_REQUEST", suffix, 50, Map.of("url", "https://x.com/example/status/123",
+                "resolveOnly", true), Map.of()));
+        var complete = new CompleteExecutionRequest(parentExecution.leaseToken(), TaskStatus.TIMED_OUT);
+
+        taskDispatchService.complete(parentExecution.executionId(), complete);
+        taskDispatchService.complete(parentExecution.executionId(), complete);
+        cancellationPropagationService.processPendingBatch();
+
+        assertEquals(TaskStatus.TIMED_OUT, taskInstanceService.get(parent.id()).status());
+        assertEquals(TaskStatus.CANCELLED, taskInstanceService.get(child.id()).status());
     }
 
     private TestTask createTask(long executionTimeoutSeconds, Map<String, Object> requiredLabels) {

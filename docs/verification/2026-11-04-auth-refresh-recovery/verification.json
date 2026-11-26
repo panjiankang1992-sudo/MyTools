@@ -1,0 +1,30 @@
+{
+  "installedOnDevice": true,
+  "sha256": "2bf1664675ab26a69fce3aa9b712b4966a3a346807d2ffa6baa03430fe5dbdcc",
+  "artifact": "/Users/pankang/mycode/MyTools/output/auth-refresh-recovery-20261104/MyTools-auth-refresh-recovery-signed.hap",
+  "build": "passed",
+  "nativeColdStart": "passed_two_process_restarts",
+  "nativeRestoreObserved": "STORED",
+  "unitTests": {
+    "identity-service": {
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "mytools-gateway": {
+      "tests": 200,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "app": {
+      "endpointTransport": 38,
+      "endpointRouter": 42,
+      "authNormalization": "passed",
+      "authRevisionPolicy": "passed"
+    }
+  },
+  "nativeSameAccountRestored": true,
+  "nativeColdStartCycles": 2
+}

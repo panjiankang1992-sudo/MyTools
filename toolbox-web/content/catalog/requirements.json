@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-02T00:00:00Z",
+  "note": "20 个必需槽位。status=missing 表示尚未取得可用来源并完成人工校对，不得用示例数据顶替。",
+  "slots": [
+    { "slotId": "chinese-1-first", "subject": "chinese", "grade": 1, "semester": "first", "publisher": "人民教育出版社", "series": "统编语文", "status": "missing", "editionId": null },
+    { "slotId": "chinese-1-second", "subject": "chinese", "grade": 1, "semester": "second", "publisher": "人民教育出版社", "series": "统编语文", "status": "missing", "editionId": null },
+    { "slotId": "chinese-2-first", "subject": "chinese", "grade": 2, "semester": "first", "publisher": "人民教育出版社", "series": "统编语文", "status": "missing", "editionId": null },
+    { "slotId": "chinese-2-second", "subject": "chinese", "grade": 2, "semester": "second", "publisher": "人民教育出版社", "series": "统编语文", "status": "missing", "editionId": null },
+    { "slotId": "chinese-3-first", "subject": "chinese", "grade": 3, "semester": "first", "publisher": "人民教育出版社", "series": "统编语文", "status": "missing", "editionId": null },
+    { "slotId": "chinese-3-second", "subject": "chinese", "grade": 3, "semester": "second", "publisher": "人民教育出版社", "series": "统编语文", "status": "missing", "editionId": null },
+    { "slotId": "chinese-4-first", "subject": "chinese", "grade": 4, "semester": "first", "publisher": "人民教育出版社", "series": "统编语文", "status": "missing", "editionId": null },
+    { "slotId": "chinese-4-second", "subject": "chinese", "grade": 4, "semester": "second", "publisher": "人民教育出版社", "series": "统编语文", "status": "missing", "editionId": null },
+    { "slotId": "chinese-5-first", "subject": "chinese", "grade": 5, "semester": "first", "publisher": "人民教育出版社", "series": "统编语文", "status": "missing", "editionId": null },
+    { "slotId": "chinese-5-second", "subject": "chinese", "grade": 5, "semester": "second", "publisher": "人民教育出版社", "series": "统编语文", "status": "missing", "editionId": null },
+    { "slotId": "chinese-6-first", "subject": "chinese", "grade": 6, "semester": "first", "publisher": "人民教育出版社", "series": "统编语文", "status": "missing", "editionId": null },
+    { "slotId": "chinese-6-second", "subject": "chinese", "grade": 6, "semester": "second", "publisher": "人民教育出版社", "series": "统编语文", "status": "missing", "editionId": null },
+    { "slotId": "english-3-first", "subject": "english", "grade": 3, "semester": "first", "publisher": "译林出版社", "series": "译林版英语", "status": "missing", "editionId": null },
+    { "slotId": "english-3-second", "subject": "english", "grade": 3, "semester": "second", "publisher": "译林出版社", "series": "译林版英语", "status": "missing", "editionId": null },
+    { "slotId": "english-4-first", "subject": "english", "grade": 4, "semester": "first", "publisher": "译林出版社", "series": "译林版英语", "status": "missing", "editionId": null },
+    { "slotId": "english-4-second", "subject": "english", "grade": 4, "semester": "second", "publisher": "译林出版社", "series": "译林版英语", "status": "missing", "editionId": null },
+    { "slotId": "english-5-first", "subject": "english", "grade": 5, "semester": "first", "publisher": "译林出版社", "series": "译林版英语", "status": "missing", "editionId": null },
+    { "slotId": "english-5-second", "subject": "english", "grade": 5, "semester": "second", "publisher": "译林出版社", "series": "译林版英语", "status": "missing", "editionId": null },
+    { "slotId": "english-6-first", "subject": "english", "grade": 6, "semester": "first", "publisher": "译林出版社", "series": "译林版英语", "status": "missing", "editionId": null },
+    { "slotId": "english-6-second", "subject": "english", "grade": 6, "semester": "second", "publisher": "译林出版社", "series": "译林版英语", "status": "missing", "editionId": null }
+  ]
+}

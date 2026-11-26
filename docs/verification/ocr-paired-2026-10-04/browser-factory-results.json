@@ -1,0 +1,167 @@
+{
+  "done": true,
+  "results": [
+    {
+      "file": "20261004-141232.jpg",
+      "durationMs": 2205,
+      "result": {
+        "data": {
+          "text": "flancina Js, sess\nfesson JPR, — BREF\nwok #5 (39) E&, &\n‘tomorrow BAX, EHX\niee you t Ba\n",
+          "candidateText": "dancing\nlesson\nwalk\ndog\ntomorrow\nfree\nSee you tomorrow!",
+          "entries": [
+            {
+              "text": "dancing",
+              "meaning": "",
+              "confidence": 95
+            },
+            {
+              "text": "lesson",
+              "meaning": "",
+              "confidence": 88
+            },
+            {
+              "text": "walk",
+              "meaning": "",
+              "confidence": 96
+            },
+            {
+              "text": "dog",
+              "meaning": "狗",
+              "confidence": 61
+            },
+            {
+              "text": "tomorrow",
+              "meaning": "明天，在明天",
+              "confidence": 91
+            },
+            {
+              "text": "free",
+              "meaning": "",
+              "confidence": 96
+            },
+            {
+              "text": "See you tomorrow!",
+              "meaning": "",
+              "confidence": 96
+            }
+          ],
+          "confidence": 86
+        }
+      }
+    },
+    {
+      "file": "20261004-141249.jpg",
+      "durationMs": 3207.800000011921,
+      "result": {
+        "data": {
+          "text": ")) a eae. Ad\n) 。 fssg 7B, BY 5\nonga \" 曙 - (24)\n)  Tuesda 星期 二 (24)\n) Wednesday 星期 三 (24)\n) Thursday 星期 四 (24)\nFriday EHH (24)\nSaturday 星期 六 (24)\n)  punday 星期 天 (24)\nwhen 什么 时 候 (26)\n) every 每 一 个 ， 每 个 (26)\n) AE (Sati ) (26)\nDis ps) ti 1 (26)\n)  joday 在 今天 26).\n) What doyisit today?\n) SRE? (26)\n) cinema 电影 院 | (28)\n) after school 放学 后 (28)\n本 :\n",
+          "candidateText": "Weak\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday\nwhen\nevery\nat\nup\ntoday\nWhat day is it today?\ncinema\nafter school",
+          "entries": [
+            {
+              "text": "Weak",
+              "meaning": "",
+              "confidence": 66
+            },
+            {
+              "text": "Monday",
+              "meaning": "",
+              "confidence": 85
+            },
+            {
+              "text": "Tuesday",
+              "meaning": "星期二",
+              "confidence": 65
+            },
+            {
+              "text": "Wednesday",
+              "meaning": "星期三",
+              "confidence": 87
+            },
+            {
+              "text": "Thursday",
+              "meaning": "星期四",
+              "confidence": 94
+            },
+            {
+              "text": "Friday",
+              "meaning": "星期五",
+              "confidence": 82
+            },
+            {
+              "text": "Saturday",
+              "meaning": "星期六",
+              "confidence": 92
+            },
+            {
+              "text": "Sunday",
+              "meaning": "星期天",
+              "confidence": 92
+            },
+            {
+              "text": "when",
+              "meaning": "什么时候",
+              "confidence": 90
+            },
+            {
+              "text": "every",
+              "meaning": "每一个，每个",
+              "confidence": 92
+            },
+            {
+              "text": "at",
+              "meaning": "",
+              "confidence": 96
+            },
+            {
+              "text": "up",
+              "meaning": "",
+              "confidence": 96
+            },
+            {
+              "text": "today",
+              "meaning": "在今天",
+              "confidence": 96
+            },
+            {
+              "text": "What day is it today?",
+              "meaning": "",
+              "confidence": 95.52941176470588
+            },
+            {
+              "text": "cinema",
+              "meaning": "电影院",
+              "confidence": 92
+            },
+            {
+              "text": "after school",
+              "meaning": "放学后",
+              "confidence": 95
+            }
+          ],
+          "confidence": 66
+        }
+      }
+    }
+  ],
+  "verification": {
+    "runtime": "Real Chromium browser controlled by playwright-cli",
+    "entry": "createOcrWorker(eng+chi_sim) after encodeWorksheetImage(originalFile,0,null)",
+    "english": {
+      "expected": 23,
+      "extracted": 23,
+      "exactMatch": 22,
+      "mismatch": [
+        {
+          "expected": "week",
+          "actual": "Weak"
+        }
+      ]
+    },
+    "meaning": {
+      "nonempty": 13,
+      "empty": 10,
+      "nonemptyManuallyCheckedCorrect": 13
+    },
+    "important": "Empty meanings remain empty for review or separate automatic translation; actual textbook OCR did not extract every Chinese meaning."
+  }
+}

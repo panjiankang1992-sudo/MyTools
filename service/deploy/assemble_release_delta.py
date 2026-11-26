@@ -60,7 +60,9 @@ def assemble_one(entry, apps):
                 if directory in expected_dirs and directory not in directories:
                     directories.add(directory)
                     output.writestr(directory, b'')
-            output.writestr(name, (entry / 'members' / name).read_bytes())
+            # Boot 的嵌套依赖必须原样存储；压缩新升级的依赖会导致加载器启动失败。
+            compression = zipfile.ZIP_STORED if name.startswith('BOOT-INF/lib/') and name.endswith('.jar') else zipfile.ZIP_DEFLATED
+            output.writestr(name, (entry / 'members' / name).read_bytes(), compress_type=compression)
     # 逐成员校验：成员集合必须完全一致，且每个成员的解压内容摘要必须匹配。
     with zipfile.ZipFile(temporary) as archive:
         actual = {name: hashlib.sha256(archive.read(name)).hexdigest()

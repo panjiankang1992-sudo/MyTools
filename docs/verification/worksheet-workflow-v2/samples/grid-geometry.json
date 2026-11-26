@@ -1,0 +1,282 @@
+{
+  "generatedAt": "2026-10-03T11:32:37.870Z",
+  "files": [
+    {
+      "file": "page-chinese-dictation-student.pdf",
+      "gridWidthCheck": {
+        "configuredMm": 12,
+        "sampleImpliedMm": [
+          12
+        ],
+        "maxErrorPt": 0
+      },
+      "lineClusters": [
+        {
+          "lines": 1,
+          "gapsPt": []
+        },
+        {
+          "lines": 1,
+          "gapsPt": []
+        },
+        {
+          "lines": 1,
+          "gapsPt": []
+        },
+        {
+          "lines": 1,
+          "gapsPt": []
+        }
+      ],
+      "fourLineAreas": 0,
+      "singleLines": 4,
+      "segmentCount": 85,
+      "kinds": {
+        "horizontal": 25,
+        "vertical": 36,
+        "diagonal": 24
+      },
+      "diagonalDirections": {
+        "down-right": 12,
+        "up-right": 12
+      },
+      "diagonalPairBalanced": true,
+      "hasDiagonals": true,
+      "minX": 0,
+      "maxX": 552.7559055118111,
+      "firstCell": {
+        "total": 0,
+        "frame": 0,
+        "center": 0,
+        "diagonal": 0,
+        "diagonals": []
+      }
+    },
+    {
+      "file": "page-chinese-pinyin-student.pdf",
+      "gridWidthCheck": null,
+      "lineClusters": [
+        {
+          "lines": 4,
+          "gapsPt": [
+            8.5,
+            8.51,
+            8.5
+          ]
+        },
+        {
+          "lines": 4,
+          "gapsPt": [
+            8.5,
+            8.5,
+            8.51
+          ]
+        },
+        {
+          "lines": 1,
+          "gapsPt": []
+        }
+      ],
+      "fourLineAreas": 2,
+      "singleLines": 1,
+      "segmentCount": 49,
+      "kinds": {
+        "horizontal": 49
+      },
+      "diagonalDirections": {},
+      "diagonalPairBalanced": true,
+      "hasDiagonals": false,
+      "minX": 42.51968503937008,
+      "maxX": 552.7559055118111,
+      "firstCell": {
+        "total": 0,
+        "frame": 0,
+        "center": 0,
+        "diagonal": 0,
+        "diagonals": []
+      }
+    },
+    {
+      "file": "page-english-dictation-student.pdf",
+      "gridWidthCheck": null,
+      "lineClusters": [
+        {
+          "lines": 4,
+          "gapsPt": [
+            8.5,
+            8.51,
+            8.5
+          ]
+        },
+        {
+          "lines": 4,
+          "gapsPt": [
+            8.5,
+            8.5,
+            8.51
+          ]
+        },
+        {
+          "lines": 1,
+          "gapsPt": []
+        }
+      ],
+      "fourLineAreas": 2,
+      "singleLines": 1,
+      "segmentCount": 25,
+      "kinds": {
+        "horizontal": 25
+      },
+      "diagonalDirections": {},
+      "diagonalPairBalanced": true,
+      "hasDiagonals": false,
+      "minX": 42.51968503937008,
+      "maxX": 552.7559055118111,
+      "firstCell": {
+        "total": 0,
+        "frame": 0,
+        "center": 0,
+        "diagonal": 0,
+        "diagonals": []
+      }
+    },
+    {
+      "file": "page-english-meaning-student.pdf",
+      "gridWidthCheck": null,
+      "lineClusters": [
+        {
+          "lines": 1,
+          "gapsPt": []
+        },
+        {
+          "lines": 1,
+          "gapsPt": []
+        },
+        {
+          "lines": 1,
+          "gapsPt": []
+        }
+      ],
+      "fourLineAreas": 0,
+      "singleLines": 3,
+      "segmentCount": 7,
+      "kinds": {
+        "horizontal": 7
+      },
+      "diagonalDirections": {},
+      "diagonalPairBalanced": true,
+      "hasDiagonals": false,
+      "minX": 42.51968503937008,
+      "maxX": 552.7559055118111,
+      "firstCell": {
+        "total": 0,
+        "frame": 0,
+        "center": 0,
+        "diagonal": 0,
+        "diagonals": []
+      }
+    },
+    {
+      "file": "page-mi-grid-10mm.pdf",
+      "gridWidthCheck": {
+        "configuredMm": 10,
+        "sampleImpliedMm": [
+          10
+        ],
+        "maxErrorPt": 0
+      },
+      "lineClusters": [
+        {
+          "lines": 1,
+          "gapsPt": []
+        },
+        {
+          "lines": 1,
+          "gapsPt": []
+        },
+        {
+          "lines": 1,
+          "gapsPt": []
+        },
+        {
+          "lines": 1,
+          "gapsPt": []
+        }
+      ],
+      "fourLineAreas": 0,
+      "singleLines": 4,
+      "segmentCount": 85,
+      "kinds": {
+        "horizontal": 25,
+        "vertical": 36,
+        "diagonal": 24
+      },
+      "diagonalDirections": {
+        "down-right": 12,
+        "up-right": 12
+      },
+      "diagonalPairBalanced": true,
+      "hasDiagonals": true,
+      "minX": 0,
+      "maxX": 552.7559055118111,
+      "firstCell": {
+        "total": 0,
+        "frame": 0,
+        "center": 0,
+        "diagonal": 0,
+        "diagonals": []
+      }
+    },
+    {
+      "file": "page-mi-grid-14mm.pdf",
+      "gridWidthCheck": {
+        "configuredMm": 14,
+        "sampleImpliedMm": [
+          14
+        ],
+        "maxErrorPt": 0
+      },
+      "lineClusters": [
+        {
+          "lines": 1,
+          "gapsPt": []
+        },
+        {
+          "lines": 1,
+          "gapsPt": []
+        },
+        {
+          "lines": 1,
+          "gapsPt": []
+        },
+        {
+          "lines": 1,
+          "gapsPt": []
+        }
+      ],
+      "fourLineAreas": 0,
+      "singleLines": 4,
+      "segmentCount": 85,
+      "kinds": {
+        "horizontal": 25,
+        "vertical": 36,
+        "diagonal": 24
+      },
+      "diagonalDirections": {
+        "down-right": 12,
+        "up-right": 12
+      },
+      "diagonalPairBalanced": true,
+      "hasDiagonals": true,
+      "minX": 0,
+      "maxX": 552.7559055118111,
+      "firstCell": {
+        "total": 0,
+        "frame": 0,
+        "center": 0,
+        "diagonal": 0,
+        "diagonals": []
+      }
+    }
+  ]
+}

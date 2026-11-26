@@ -1,0 +1,227 @@
+{
+  "date": "2026-10-18",
+  "java": "21.0.11",
+  "python": "3.12.13",
+  "services": {
+    "news-digest-service": {
+      "suites": [
+        {
+          "name": "com.yuyutian.mytools.news.DigestEngineTest",
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "com.yuyutian.mytools.news.FeedParserTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "com.yuyutian.mytools.news.GithubTrendCalculatorTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "com.yuyutian.mytools.news.LiveFeedSmokeTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 1
+        },
+        {
+          "name": "com.yuyutian.mytools.news.LiveTechnicalSourcesTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 3
+        },
+        {
+          "name": "com.yuyutian.mytools.news.NewsIntegrationTest",
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "com.yuyutian.mytools.news.PublicNetworkPolicyTest",
+          "tests": 29,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "com.yuyutian.mytools.news.RegionIntegrationTest",
+          "tests": 12,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "com.yuyutian.mytools.news.RestartPersistenceTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "com.yuyutian.mytools.news.TechnicalCollectorsTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "com.yuyutian.mytools.news.TechnicalMigrationTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "com.yuyutian.mytools.news.TechnicalPersistenceTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "com.yuyutian.mytools.news.TokenFilterTest",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "total": {
+        "tests": 97,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 4
+      }
+    },
+    "mytools-gateway": {
+      "suites": [
+        {
+          "name": "com.yuyutian.mytools.gateway.controller.NewsGatewayControllerTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "com.yuyutian.mytools.gateway.web.GatewayRequestFilterTest",
+          "tests": 16,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "total": {
+        "tests": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  },
+  "pythonDefault": {
+    "tests": 11,
+    "passed": 10,
+    "skipped": 1
+  },
+  "pythonWithOfficialMmdb": {
+    "tests": 11,
+    "passed": 11,
+    "skipped": 0,
+    "maxminddbVersion": "3.2.0",
+    "fixtureSha256": "7ecd1a263834096e3948b459713102ef350412a9f18367b4a88efec018153004",
+    "fixtureIsProductionGeolocation": false
+  },
+  "packageAssembly": {
+    "ready": true,
+    "packageCount": 149,
+    "newsPackage": {
+      "name": "news_resolve_region",
+      "version": "1.0.0",
+      "entrypoint": "scripts/main.py",
+      "files": [
+        {
+          "path": "README.md",
+          "sizeBytes": 4628,
+          "sha256": "dc8bff2b8e967053bef7ee899196d827394c00b9461f4d4c81b9df12ba4fab2e"
+        },
+        {
+          "path": "manifest.yaml",
+          "sizeBytes": 186,
+          "sha256": "89bfc46a4ce566083883c283a57fba94ddb3e9be279e4fd46c0edc7f63e162da"
+        },
+        {
+          "path": "requirements.txt",
+          "sizeBytes": 17,
+          "sha256": "107f0b7e1d9b3f2fa5fb6c8e853f12351ce24164c9c55bb0d0093cea7f4e31ae"
+        },
+        {
+          "path": "scripts/main.py",
+          "sizeBytes": 11594,
+          "sha256": "7effaff4b36629f4897de314e39298ffdd684a18fe658bfaaccb9c53a5f537e4"
+        }
+      ]
+    }
+  },
+  "environmentContract": {
+    "newsPackageReady": true,
+    "global": {
+      "ready": false,
+      "checkedPackageCount": 104,
+      "configuredPackageCount": 96,
+      "missing": {
+        "media_generate_tags": [
+          "TASK_ERROR_FILE"
+        ],
+        "pdf_process": [
+          "PDF_ALLOW_UNSANDBOXED_TEST"
+        ],
+        "reader_analyze_audiobook_book": [
+          "TASK_ERROR_FILE"
+        ],
+        "video_generate": [
+          "IMAGE_COMFY_URL",
+          "TAGGING_MODEL",
+          "TAGGING_SERVICE_URL",
+          "VIDEO_COLOR_MATCH",
+          "VIDEO_COMFY_OUTPUT_DIR",
+          "VIDEO_COMFY_URL",
+          "VIDEO_FILL_BLEND",
+          "VIDEO_GENERATION_ROOT",
+          "VIDEO_GPU_COORDINATION_VALIDATED",
+          "VIDEO_GPU_LOCK_FILE",
+          "VIDEO_INFERENCE_TIMEOUT_SECONDS",
+          "VIDEO_LOCAL_VALIDATED",
+          "VIDEO_MIN_FREE_MIB",
+          "VIDEO_NVIDIA_SMI",
+          "VIDEO_WORKFLOW_INDEX_FILE",
+          "VIDEO_WORKFLOW_INDEX_SHA256"
+        ]
+      }
+    }
+  },
+  "localEgressProbe": {
+    "vantagePoint": "local-development-host",
+    "family": "IPV4",
+    "publicAddressValidated": false,
+    "addressPersisted": false,
+    "geolocationVerified": false
+  },
+  "executorGeolocationVerified": false,
+  "mysqlVerified": false,
+  "deployed": false,
+  "messagesSent": false,
+  "compile": "PASSED",
+  "package": "PASSED",
+  "jarSha256": "a7ca2429b51a52c1f54c4b409e8a8f2972ff1a3fae3f46d333cb55113e55c9f3"
+}

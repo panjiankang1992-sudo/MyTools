@@ -1,0 +1,139 @@
+{
+  "name": "remaining-a09-account-switch",
+  "at": "2026-10-06T21:35:38.576Z",
+  "results": [
+    {
+      "label": "服务端草稿（A 的私稿不在这里）",
+      "ok": true,
+      "informational": true,
+      "detail": "[\"row-1:山\",\"row-2:水\"]"
+    },
+    {
+      "label": "匿名状态：没有编辑器实例，且落在非管理路由（守卫带 redirect 回来）",
+      "ok": true,
+      "detail": "{\"inBodyText\":false,\"inInputs\":false,\"editors\":0,\"hash\":\"#/?redirect=/admin/textbooks/e2e-a09-76n3d/edit\",\"path\":\"/\",\"adminName\":\"\",\"loginEntry\":true}"
+    },
+    {
+      "label": "合成 click 点到「管理员登录」",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "A：合成输入账号",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "A：合成输入密码",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "A：合成 click 点到「登录」",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "A 的私稿确实在编辑器里（换账号前的前提成立）",
+      "ok": true,
+      "detail": "{\"inBodyText\":true,\"inInputs\":true,\"editors\":1,\"hash\":\"#/admin/textbooks/e2e-a09-76n3d/edit\",\"path\":\"/admin/textbooks/e2e-a09-76n3d/edit\",\"adminName\":\"管理员 · local-admin\",\"loginEntry\":false}"
+    },
+    {
+      "label": "A 的私稿**没有**落库（被拦掉的保存没有写进服务端）",
+      "ok": true,
+      "detail": "[\"山\",\"水\"]"
+    },
+    {
+      "label": "退出入口：派发 mouseenter/click 到 .admin-name",
+      "ok": true,
+      "informational": true,
+      "detail": "true"
+    },
+    {
+      "label": "真实退出：点到「退出管理员模式」",
+      "ok": true,
+      "detail": "logoutClicked=true"
+    },
+    {
+      "label": "退出点击后的即时观察",
+      "ok": true,
+      "informational": true,
+      "detail": "{\"inBodyText\":false,\"inInputs\":false,\"editors\":0,\"hash\":\"#/\",\"path\":\"/\",\"adminName\":\"\",\"loginEntry\":true}"
+    },
+    {
+      "label": "退出后编辑器实例已卸载（管理页不在 KeepAlive 里）",
+      "ok": true,
+      "detail": "{\"inBodyText\":false,\"inInputs\":false,\"editors\":0,\"hash\":\"#/\",\"path\":\"/\",\"adminName\":\"\",\"loginEntry\":true}"
+    },
+    {
+      "label": "退出后右上角不再显示账号",
+      "ok": true,
+      "detail": "\"\""
+    },
+    {
+      "label": "A09-①：退出后**离开了管理路由**（没有停在编辑页）",
+      "ok": true,
+      "detail": "{\"inBodyText\":false,\"inInputs\":false,\"editors\":0,\"hash\":\"#/\",\"path\":\"/\",\"adminName\":\"\",\"loginEntry\":true}"
+    },
+    {
+      "label": "A09-②：退出后 A 的私稿在 DOM 与所有输入框里都找不到",
+      "ok": true,
+      "detail": "{\"inBodyText\":false,\"inInputs\":false,\"editors\":0,\"hash\":\"#/\",\"path\":\"/\",\"adminName\":\"\",\"loginEntry\":true}"
+    },
+    {
+      "label": "合成 click 点到「管理员登录」（B）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "B：合成输入账号",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "B：合成输入密码",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "B：合成 click 点到「登录」",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "B：浏览器会话确实是第二个账号（不是 A）",
+      "ok": true,
+      "detail": "{\"username\":\"local-admin-2\",\"userId\":\"local-admin-1002\"}"
+    },
+    {
+      "label": "B09/A09-③：B 进入编辑页时**重新挂载并重新加载**（观察到新的 GET /draft）",
+      "ok": true,
+      "detail": "draftLoads 1 → 2"
+    },
+    {
+      "label": "A09-④：B 看不到 A 的私稿（DOM 与输入框都没有）",
+      "ok": true,
+      "detail": "{\"inBodyText\":false,\"inInputs\":false,\"editors\":1,\"hash\":\"#/admin/textbooks/e2e-a09-76n3d/edit\",\"path\":\"/admin/textbooks/e2e-a09-76n3d/edit\",\"adminName\":\"管理员 · local-admin-2\",\"loginEntry\":false}"
+    },
+    {
+      "label": "A09-⑤：B 看到的内容逐条等于服务端草稿",
+      "ok": true,
+      "detail": "[{\"rowId\":\"row-1\",\"text\":\"山\"},{\"rowId\":\"row-2\",\"text\":\"水\"}] vs [\"row-1:山\",\"row-2:水\"]"
+    },
+    {
+      "label": "A09-⑥：页面修订号就是服务端修订号（不是缓存实例的旧状态）",
+      "ok": true,
+      "detail": "\"修订 2\" vs 服务端 2"
+    },
+    {
+      "label": "A 首次加载次数 / B 重新加载后次数",
+      "ok": true,
+      "informational": true,
+      "detail": "{\"aLoads\":1,\"loadsBeforeB\":1,\"afterB\":2}"
+    }
+  ],
+  "editionId": "e2e-a09-76n3d",
+  "mark": "A私稿76n3d",
+  "accountA": "local-admin",
+  "accountB": "local-admin-2"
+}

@@ -33,7 +33,8 @@ def request_document(request: DownloadRequest) -> dict:
 def create_handler(service: DownloadRequestService,
                    repository: DownloadRequestRepository,
                    internal_token: str,
-                   migration_service: LegacyHistoryMigrationService | None = None) -> type[BaseHTTPRequestHandler]:
+                   migration_service: LegacyHistoryMigrationService | None = None,
+                   app_tools=None) -> type[BaseHTTPRequestHandler]:
     """Create a request handler bound to application dependencies."""
 
     class DownloadRequestHandler(BaseHTTPRequestHandler):
@@ -47,6 +48,9 @@ def create_handler(service: DownloadRequestService,
                 return
             if not self._authorized():
                 self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
+                return
+            if path.startswith("/internal/v1/app-download-tools/"):
+                self._app_tool(path)
                 return
             internal_prefix = "/internal/v1/download-requests/"
             if path.startswith(internal_prefix):
@@ -103,6 +107,9 @@ def create_handler(service: DownloadRequestService,
                 self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
                 return
             path = urlparse(self.path).path
+            if path.startswith("/internal/v1/app-download-tools/"):
+                self._app_tool(path)
+                return
             prefix = "/api/v1/download-requests/"
             internal_prefix = "/internal/v1/download-requests/"
             if path == "/internal/v1/migrations/downloadbot-history/batches":
@@ -211,6 +218,65 @@ def create_handler(service: DownloadRequestService,
                 self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "download orchestration unavailable"})
                 return
             self._json(HTTPStatus.ACCEPTED, request_document(result))
+
+        def do_PUT(self) -> None:  # noqa: N802
+            """接收 APP 有界二进制上传块。"""
+            if not self._authorized():
+                self._json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
+                return
+            self._app_tool(urlparse(self.path).path)
+
+        def _app_tool(self, path):
+            """仅允许可信 Gateway 提供主体，用户无法指定托管文件来源。"""
+            if app_tools is None:
+                self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error":"tools_unavailable"})
+                return
+            try:
+                import re
+                owner=int(self.headers.get('X-Owner-Id','0'))
+                username=self.headers.get('X-Resource-Username','')
+                if owner<=0 or not re.fullmatch(r'[A-Za-z0-9._-]{1,128}',username):
+                    raise ValueError('invalid_principal')
+                if not re.fullmatch(r'[A-Za-z0-9_]{1,64}',username):
+                    username=f'owner_{owner}'
+                route=path.removeprefix('/internal/v1/app-download-tools/').split('/')
+                result=None
+                if self.command=='GET' and route==['history']:
+                    query = parse_qs(urlparse(self.path).query, keep_blank_values=True, max_num_fields=16)
+                    if 'limit' in query or 'before' in query:
+                        limits, cursors = query.get('limit', []), query.get('before', [])
+                        if len(limits) != 1 or not re.fullmatch(r'[1-9][0-9]?', limits[0]) or len(cursors) > 1:
+                            raise ValueError('invalid_history_query')
+                        result = app_tools.history_page(owner, int(limits[0]), cursors[0] if cursors else None)
+                    else:
+                        # 未请求分页的旧版 APP 继续接收数组。
+                        result = app_tools.history(owner)
+                elif self.command=='POST' and route==['messages']:
+                    result=app_tools.links(owner,username,self._read_json())
+                elif self.command=='POST' and route==['uploads']:
+                    result=app_tools.upload(owner,username,self._read_json())
+                elif len(route)==2 and route[0]=='messages' and self.command=='GET':
+                    result=app_tools.detail(owner,route[1])
+                elif len(route)==3 and route[0]=='messages' and route[2]=='cancel' and self.command=='POST':
+                    result=app_tools.cancel(owner,route[1])
+                elif len(route)==3 and route[0]=='uploads' and route[2]=='complete' and self.command=='POST':
+                    result=app_tools.complete(owner,route[1])
+                elif len(route)==3 and route[0]=='uploads' and route[2]=='content' and self.command=='PUT':
+                    length=int(self.headers.get('Content-Length','0'))
+                    if not 0<length<=1048576: raise ValueError('invalid_chunk_length')
+                    data=self.rfile.read(length)
+                    if len(data)!=length: raise ValueError('truncated_chunk')
+                    result=app_tools.chunk(owner,route[1],int(self.headers.get('X-Upload-Offset','-1')),data)
+                else:
+                    self._json(HTTPStatus.NOT_FOUND, {'error':'route_not_found'})
+                    return
+                self._json(HTTPStatus.OK,result)
+            except KeyError:
+                self._json(HTTPStatus.NOT_FOUND, {'error':'not_found'})
+            except (ValueError,TypeError):
+                self._json(HTTPStatus.BAD_REQUEST, {'error':'invalid_tool_request'})
+            except Exception:
+                self._json(HTTPStatus.SERVICE_UNAVAILABLE, {'error':'tool_processing_unavailable'})
 
         def _read_json(self) -> dict:
             length = int(self.headers.get("Content-Length", "0"))

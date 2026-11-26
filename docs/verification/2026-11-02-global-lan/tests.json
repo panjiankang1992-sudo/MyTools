@@ -1,0 +1,41 @@
+{
+  "result": "passed",
+  "checks": {
+    "endpointRouter": {
+      "cases": 37,
+      "result": "passed"
+    },
+    "businessEndpointTransport": {
+      "cases": 29,
+      "result": "passed"
+    },
+    "businessApiEndpointRouting": "passed",
+    "playbackEndpointSwitch": {
+      "cases": 10,
+      "result": "passed"
+    },
+    "remoteMediaPlaybackUrlPolicy": "passed",
+    "trustedLanEndpointPolicy": "passed",
+    "dshWebAuthPolicy": "passed",
+    "readerPersistentCache": "passed",
+    "readerOpenPerformance": "passed",
+    "gatewayJUnit": {
+      "cases": 197,
+      "failures": 0,
+      "errors": 0
+    },
+    "deploymentTools": {
+      "cases": 18,
+      "result": "passed"
+    },
+    "diffWhitespace": "passed",
+    "businessCoverCache": {
+      "cases": 28,
+      "result": "passed"
+    }
+  },
+  "limitations": [
+    "Existing auth-operation-revision and audiobook full scripts contain stale UI text assertions; new behavioral suites validate the changed authentication and audiobook paths.",
+    "Real device is unavailable; final HAP installation and authenticated device LAN/public switching remain pending."
+  ]
+}

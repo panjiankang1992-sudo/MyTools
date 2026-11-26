@@ -1,0 +1,32 @@
+[
+  {
+    "name": "high-resolution.jpg",
+    "inputBytes": 750631,
+    "outputBytes": 58655,
+    "width": 2048,
+    "height": 1536,
+    "format": "PNG",
+    "originalUnchanged": true,
+    "passthroughIdentical": false
+  },
+  {
+    "name": "over-five.png",
+    "inputBytes": 12600274,
+    "outputBytes": 4661336,
+    "width": 1152,
+    "height": 1152,
+    "format": "PNG",
+    "originalUnchanged": true,
+    "passthroughIdentical": false
+  },
+  {
+    "name": "over-one.png",
+    "inputBytes": 1923432,
+    "outputBytes": 1923432,
+    "width": 800,
+    "height": 800,
+    "format": "PNG",
+    "originalUnchanged": true,
+    "passthroughIdentical": true
+  }
+]

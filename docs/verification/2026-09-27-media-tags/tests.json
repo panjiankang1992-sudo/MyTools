@@ -1,0 +1,37 @@
+[
+  {
+    "name": "com.yuyutian.mytools.media.library.controller.MediaAnalysisFenceControllerTest",
+    "tests": "1",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.yuyutian.mytools.media.library.service.MediaThumbnailConnectionTest",
+    "tests": "1",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.yuyutian.mytools.media.library.service.MediaTaskSchedulerClientTest",
+    "tests": "2",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.yuyutian.mytools.media.library.service.MediaLibraryServiceTest",
+    "tests": "23",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.yuyutian.mytools.media.library.service.LegacyMediaContentServicePathTest",
+    "tests": "3",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  }
+]

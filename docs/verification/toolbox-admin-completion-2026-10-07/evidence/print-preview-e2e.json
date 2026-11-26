@@ -1,0 +1,17 @@
+{
+  "results": [
+    {
+      "label": "能找到并点击「打印预览」按钮",
+      "ok": false,
+      "extra": "结果=null"
+    },
+    {
+      "label": "打印预览**真的开出了新窗口**",
+      "ok": false,
+      "extra": "新窗口=[]"
+    }
+  ],
+  "targets": [
+    "http://127.0.0.1:4173/#/admin/textbooks/local-acceptance-2026-10-07/edit"
+  ]
+}

@@ -1,0 +1,303 @@
+{
+  "results": [
+    {
+      "tag": "round1",
+      "editionId": "cn-ty-2-1-pep-2017",
+      "changes": {
+        "textEdit": {
+          "entryId": "cn-ty-2-1-pep-2017-0001",
+          "before": "两",
+          "after": "两个",
+          "pinyinBefore": "liǎng",
+          "pinyinAfter": "liǎng gè"
+        },
+        "listTypeEdit": {
+          "entryId": "cn-ty-2-1-pep-2017-0011",
+          "before": [
+            "recognition"
+          ],
+          "after": [
+            "expression",
+            "recognition"
+          ]
+        },
+        "addedEntryId": "roundtrip-new-2-1",
+        "addedEntryUnit": "cn-ty-2-1-pep-2017-u08",
+        "addedEntryLesson": "cn-ty-2-1-pep-2017-u08-l04",
+        "sourceNoteBefore": "",
+        "sourceNoteAfter": "来源：nmg-smartedu-cn-2-first（迁移自内容包 2026-10-04.1）"
+      },
+      "baseRevision": 1,
+      "saveStatus": 200,
+      "saveBody": {
+        "code": "OK",
+        "data": {
+          "revision": 2
+        },
+        "requestId": "b0fd6f9d-0645-4932-85c7-01b578d9da44"
+      },
+      "revisionAfterSave": 2,
+      "validateStatus": 403,
+      "validateBody": {
+        "code": "TOOLBOX_ADMIN_003",
+        "messageKey": "admin.csrf.invalid",
+        "details": {
+          "reason": "csrfMismatch"
+        },
+        "requestId": "6b7fce56-ebae-434d-a4dd-f4a85004d4cc"
+      },
+      "publishStatus": 200,
+      "publishBody": {
+        "code": "OK",
+        "data": {
+          "editionId": "cn-ty-2-1-pep-2017",
+          "contentVersion": "1.0.3",
+          "versionId": "cn-ty-2-1-pep-2017@1.0.3",
+          "contentSha256": "daf97d35520076d4bccc94c74b40e119267a5266013d5fbbbdf167dab3962bb1",
+          "snapshotReloaded": true,
+          "catalogVersion": "catalog-2",
+          "catalogEpoch": "1"
+        },
+        "requestId": "6463425f-cbfb-4f94-89a5-c647891ef769"
+      },
+      "newContentVersion": "1.0.3",
+      "newVersionId": "cn-ty-2-1-pep-2017@1.0.3",
+      "newContentSha256": "daf97d35520076d4bccc94c74b40e119267a5266013d5fbbbdf167dab3962bb1",
+      "snapshotReloaded": true,
+      "downloadStatus": 200,
+      "downloadedFile": "roundtrip-book-cn-ty-2-1-pep-2017-1.0.3.json",
+      "downloadedSha256": "daf97d35520076d4bccc94c74b40e119267a5266013d5fbbbdf167dab3962bb1",
+      "downloadedHashMatchesPublish": true,
+      "downloadHeaderSha256": "daf97d35520076d4bccc94c74b40e119267a5266013d5fbbbdf167dab3962bb1"
+    },
+    {
+      "tag": "round1-as-is",
+      "editionId": "cn-ty-3-1-pep-2024",
+      "changes": {
+        "textEdit": {
+          "entryId": "cn-ty-3-1-pep-2024-0001",
+          "before": "绒",
+          "after": "绒毛",
+          "pinyinBefore": "róng",
+          "pinyinAfter": "róng máo"
+        },
+        "listTypeEdit": {
+          "entryId": "cn-ty-3-1-pep-2024-0011",
+          "before": [
+            "recognition"
+          ],
+          "after": [
+            "expression",
+            "recognition"
+          ]
+        },
+        "addedEntryId": "roundtrip-new-3-1",
+        "addedEntryUnit": "cn-ty-3-1-pep-2024-u08",
+        "addedEntryLesson": "cn-ty-3-1-pep-2024-u08-l05",
+        "sourceNoteBefore": "",
+        "sourceNoteAfter": "来源：smartedu-ebook-cn-3-first-2024（迁移自内容包 2026-10-04.1）"
+      },
+      "baseRevision": 1,
+      "saveStatus": 200,
+      "saveBody": {
+        "code": "OK",
+        "data": {
+          "revision": 2
+        },
+        "requestId": "6796a679-bc1a-4d29-946e-bb2279622eeb"
+      },
+      "revisionAfterSave": 2,
+      "validateStatus": 403,
+      "validateBody": {
+        "code": "TOOLBOX_ADMIN_003",
+        "messageKey": "admin.csrf.invalid",
+        "details": {
+          "reason": "csrfMismatch"
+        },
+        "requestId": "e1a4aa09-6007-4d52-bf29-de72335e89d4"
+      },
+      "publishStatus": 422,
+      "publishBody": {
+        "code": "TOOLBOX_ADMIN_005",
+        "messageKey": "admin.publish.invalid",
+        "details": {
+          "issues": 1
+        },
+        "requestId": "73d4383e-b7f7-469f-af0b-cd8b69c12a8f"
+      }
+    },
+    {
+      "tag": "round1",
+      "editionId": "cn-ty-3-1-pep-2024",
+      "changes": {
+        "editionLabelFix": {
+          "before": "2024 年版（2022 课标修订版，��",
+          "after": "2024 年版（2022 课标修订版，江苏）"
+        }
+      },
+      "baseRevision": 2,
+      "saveStatus": 200,
+      "saveBody": {
+        "code": "OK",
+        "data": {
+          "revision": 3
+        },
+        "requestId": "4d0b12a7-00f5-4bcc-9f41-8aa3a16b946b"
+      },
+      "revisionAfterSave": 3,
+      "validateStatus": 403,
+      "validateBody": {
+        "code": "TOOLBOX_ADMIN_003",
+        "messageKey": "admin.csrf.invalid",
+        "details": {
+          "reason": "csrfMismatch"
+        },
+        "requestId": "d516f009-fc1e-415e-a84f-a97326758530"
+      },
+      "publishStatus": 200,
+      "publishBody": {
+        "code": "OK",
+        "data": {
+          "editionId": "cn-ty-3-1-pep-2024",
+          "contentVersion": "1.0.1",
+          "versionId": "cn-ty-3-1-pep-2024@1.0.1",
+          "contentSha256": "6466208d77380ff24ad81c952cf65e591b515d5cb1b5e461b74b771350e59881",
+          "snapshotReloaded": true,
+          "catalogVersion": "catalog-3",
+          "catalogEpoch": "2"
+        },
+        "requestId": "246cdfd2-7730-4b63-993d-de907d88c891"
+      },
+      "newContentVersion": "1.0.1",
+      "newVersionId": "cn-ty-3-1-pep-2024@1.0.1",
+      "newContentSha256": "6466208d77380ff24ad81c952cf65e591b515d5cb1b5e461b74b771350e59881",
+      "snapshotReloaded": true,
+      "downloadStatus": 200,
+      "downloadedFile": "roundtrip-book-cn-ty-3-1-pep-2024-1.0.1.json",
+      "downloadedSha256": "6466208d77380ff24ad81c952cf65e591b515d5cb1b5e461b74b771350e59881",
+      "downloadedHashMatchesPublish": true,
+      "downloadHeaderSha256": "6466208d77380ff24ad81c952cf65e591b515d5cb1b5e461b74b771350e59881"
+    },
+    {
+      "tag": "round1",
+      "editionId": "en-yl-3-1-yilin-2024",
+      "changes": {
+        "textEdit": {
+          "entryId": "en-yl-3-1-yilin-2024-0001",
+          "before": "hello",
+          "after": "hi",
+          "meaningBefore": "哈啰，你好",
+          "meaningAfter": "嗨，你好"
+        },
+        "listTypeEdit": {
+          "entryId": "en-yl-3-1-yilin-2024-0011",
+          "before": [
+            "vocabulary"
+          ],
+          "after": [
+            "expression",
+            "vocabulary"
+          ]
+        },
+        "addedEntryId": "roundtrip-new-en-3-1",
+        "addedEntryUnit": "en-yl-3-1-yilin-2024-appendix-proper-nouns",
+        "addedEntryLesson": null,
+        "sourceNoteBefore": "",
+        "sourceNoteAfter": "来源：yilin-en-3-first-2024（迁移自内容包 2026-10-04.1）"
+      },
+      "baseRevision": 1,
+      "saveStatus": 200,
+      "saveBody": {
+        "code": "OK",
+        "data": {
+          "revision": 2
+        },
+        "requestId": "1c155c5c-06b3-4cfd-bb18-51dcc22220a0"
+      },
+      "revisionAfterSave": 2,
+      "validateStatus": 403,
+      "validateBody": {
+        "code": "TOOLBOX_ADMIN_003",
+        "messageKey": "admin.csrf.invalid",
+        "details": {
+          "reason": "csrfMismatch"
+        },
+        "requestId": "8678e9d4-d440-4445-9561-4b4905a0d369"
+      },
+      "publishStatus": 200,
+      "publishBody": {
+        "code": "OK",
+        "data": {
+          "editionId": "en-yl-3-1-yilin-2024",
+          "contentVersion": "1.0.2",
+          "versionId": "en-yl-3-1-yilin-2024@1.0.2",
+          "contentSha256": "2bb2e25676ed3bf5d351573a4abc6696cac2b62944167067d0e032dd81bef086",
+          "snapshotReloaded": true,
+          "catalogVersion": "catalog-4",
+          "catalogEpoch": "3"
+        },
+        "requestId": "d3c13cc4-4830-429b-a423-434d87137abe"
+      },
+      "newContentVersion": "1.0.2",
+      "newVersionId": "en-yl-3-1-yilin-2024@1.0.2",
+      "newContentSha256": "2bb2e25676ed3bf5d351573a4abc6696cac2b62944167067d0e032dd81bef086",
+      "snapshotReloaded": true,
+      "downloadStatus": 200,
+      "downloadedFile": "roundtrip-book-en-yl-3-1-yilin-2024-1.0.2.json",
+      "downloadedSha256": "2bb2e25676ed3bf5d351573a4abc6696cac2b62944167067d0e032dd81bef086",
+      "downloadedHashMatchesPublish": true,
+      "downloadHeaderSha256": "2bb2e25676ed3bf5d351573a4abc6696cac2b62944167067d0e032dd81bef086"
+    },
+    {
+      "tag": "round2",
+      "editionId": "en-yl-3-1-yilin-2024",
+      "changes": {
+        "deletedRowId": "roundtrip-new-en-3-1",
+        "entriesBefore": 141,
+        "entriesAfter": 140
+      },
+      "baseRevision": 3,
+      "saveStatus": 200,
+      "saveBody": {
+        "code": "OK",
+        "data": {
+          "revision": 4
+        },
+        "requestId": "a64d9d3a-c195-45fd-b067-66678ca79e8a"
+      },
+      "revisionAfterSave": 4,
+      "validateStatus": 403,
+      "validateBody": {
+        "code": "TOOLBOX_ADMIN_003",
+        "messageKey": "admin.csrf.invalid",
+        "details": {
+          "reason": "csrfMismatch"
+        },
+        "requestId": "0b915881-36b5-4e19-a72c-2d17bbb9f4a2"
+      },
+      "publishStatus": 200,
+      "publishBody": {
+        "code": "OK",
+        "data": {
+          "editionId": "en-yl-3-1-yilin-2024",
+          "contentVersion": "1.0.3",
+          "versionId": "en-yl-3-1-yilin-2024@1.0.3",
+          "contentSha256": "4d19348879c114cfa0da7650f7ab6cc5afd3b4d12a48b87ae9433580d3db09d1",
+          "snapshotReloaded": true,
+          "catalogVersion": "catalog-5",
+          "catalogEpoch": "4"
+        },
+        "requestId": "814704d4-bc84-4e42-bd39-d2a7d3e259a8"
+      },
+      "newContentVersion": "1.0.3",
+      "newVersionId": "en-yl-3-1-yilin-2024@1.0.3",
+      "newContentSha256": "4d19348879c114cfa0da7650f7ab6cc5afd3b4d12a48b87ae9433580d3db09d1",
+      "snapshotReloaded": true,
+      "downloadStatus": 200,
+      "downloadedFile": "roundtrip-book-en-yl-3-1-yilin-2024-1.0.3.json",
+      "downloadedSha256": "4d19348879c114cfa0da7650f7ab6cc5afd3b4d12a48b87ae9433580d3db09d1",
+      "downloadedHashMatchesPublish": true,
+      "downloadHeaderSha256": "4d19348879c114cfa0da7650f7ab6cc5afd3b4d12a48b87ae9433580d3db09d1"
+    }
+  ]
+}

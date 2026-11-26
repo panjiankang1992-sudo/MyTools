@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-04",
+  "installedArtifactSha256": "9073368f167135f2ff5d9dd4295eef1830778c682c5488ce0ee71e5eda0c5dc7",
+  "installation": "in-place; user data retained",
+  "initialListGestures": 0,
+  "initialPrefetchedItems": 24,
+  "fullscreenForwardSwipes": 8,
+  "fullscreenItems": 36,
+  "listScrollGestures": 5,
+  "listItemsAfterScroll": 48,
+  "visibleLoadingPlaceholdersAfterScroll": 0,
+  "states": {
+    "final-start": {
+      "mode": "公网",
+      "sequence": null,
+      "images": 8,
+      "errors": 0,
+      "toolHeader": true,
+      "galleryHeader": false
+    },
+    "final-buffered": {
+      "mode": "公网",
+      "sequence": null,
+      "images": 6,
+      "errors": 0,
+      "toolHeader": false,
+      "galleryHeader": true
+    },
+    "final-viewer-open": {
+      "mode": null,
+      "sequence": "1 / 24",
+      "images": 0,
+      "errors": 0,
+      "toolHeader": false,
+      "galleryHeader": false
+    },
+    "final-viewer-swipes": {
+      "mode": null,
+      "sequence": "9 / 36",
+      "images": 0,
+      "errors": 0,
+      "toolHeader": false,
+      "galleryHeader": false
+    },
+    "final-return": {
+      "mode": "IPv6 直连",
+      "sequence": null,
+      "images": 6,
+      "errors": 0,
+      "toolHeader": false,
+      "galleryHeader": true
+    },
+    "final-list-scrolled": {
+      "mode": "IPv6 直连",
+      "sequence": null,
+      "images": 6,
+      "errors": 0,
+      "toolHeader": false,
+      "galleryHeader": true
+    }
+  }
+}

@@ -5,11 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 import java.util.concurrent.*;
 import static org.assertj.core.api.Assertions.*;
 /** Identity 会话生命周期测试。 */
 @SpringBootTest
+@ActiveProfiles("test")
 class IdentityServiceTest {
  @Autowired private IdentityService service; @Autowired private BCryptPasswordEncoder encoder; @Autowired private JdbcTemplate jdbc;
  @Test void shouldRotateRefreshTokenAndRevokeAccessImmediately(){

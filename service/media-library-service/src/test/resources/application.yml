@@ -5,3 +5,5 @@ spring:
     password:
   flyway.locations: classpath:db/migration
 media-library.internal-token: test-token
+
+media-library.preview-warm-enabled: false

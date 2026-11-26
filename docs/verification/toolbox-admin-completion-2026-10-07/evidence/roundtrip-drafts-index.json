@@ -1,0 +1,87 @@
+{
+  "drafts": [
+    {
+      "editionId": "cn-ty-1-1-pep-2024",
+      "status": 200,
+      "file": "roundtrip-draft-cn-ty-1-1-pep-2024.json",
+      "revision": 1,
+      "baseContentVersion": "cn-ty-1-1-pep-2024@1.0.2",
+      "entries": 318,
+      "entriesWithPreserved": 318
+    },
+    {
+      "editionId": "cn-ty-2-1-pep-2017",
+      "status": 200,
+      "file": "roundtrip-draft-cn-ty-2-1-pep-2017.json",
+      "revision": 3,
+      "baseContentVersion": "cn-ty-2-1-pep-2017@1.0.3",
+      "entries": 761,
+      "entriesWithPreserved": 760
+    },
+    {
+      "editionId": "cn-ty-3-1-pep-2024",
+      "status": 200,
+      "file": "roundtrip-draft-cn-ty-3-1-pep-2024.json",
+      "revision": 6,
+      "baseContentVersion": "cn-ty-3-1-pep-2024@1.0.1",
+      "entries": 778,
+      "entriesWithPreserved": 777
+    },
+    {
+      "editionId": "cn-ty-4-1-pep-2024",
+      "status": 200,
+      "file": "roundtrip-draft-cn-ty-4-1-pep-2024.json",
+      "revision": 1,
+      "baseContentVersion": "cn-ty-4-1-pep-2024@1.0.0",
+      "entries": 640,
+      "entriesWithPreserved": 640
+    },
+    {
+      "editionId": "en-yl-3-1-yilin-2024",
+      "status": 200,
+      "file": "roundtrip-draft-en-yl-3-1-yilin-2024.json",
+      "revision": 5,
+      "baseContentVersion": "en-yl-3-1-yilin-2024@1.0.3",
+      "entries": 140,
+      "entriesWithPreserved": 140
+    }
+  ],
+  "callLog": [
+    {
+      "method": "GET",
+      "path": "/admin/v1/auth/csrf",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/v1/auth/login",
+      "status": 200,
+      "requestBodyBytes": 53
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/textbooks/cn-ty-1-1-pep-2024/draft",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/textbooks/cn-ty-2-1-pep-2017/draft",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/textbooks/cn-ty-3-1-pep-2024/draft",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/textbooks/cn-ty-4-1-pep-2024/draft",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/textbooks/en-yl-3-1-yilin-2024/draft",
+      "status": 200
+    }
+  ]
+}

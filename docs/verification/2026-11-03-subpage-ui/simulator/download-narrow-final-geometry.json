@@ -1,0 +1,128 @@
+{
+  "result": "passed",
+  "hapSha256": "6ca7771fef900418612ffda005d093bfbbbd26880e522f1226e68cca81a8ac66",
+  "productionSourceHash": "38685805502d8cb7c04a68ce6b916e96c54da8f6a5f699d982085bcb7b12ef48",
+  "copiedSourceHash": "38685805502d8cb7c04a68ce6b916e96c54da8f6a5f699d982085bcb7b12ef48",
+  "productionSourceIdentical": true,
+  "scope": "unchanged production DownloadToolsPage in isolated native fixture app; no messages sent or clipboard action",
+  "systemFontScale": "default; narrow panels do not simulate large font",
+  "scalePxPerVp": 3,
+  "cases": [
+    {
+      "panelWidthVp": 280,
+      "controls": [
+        {
+          "type": "Button",
+          "label": "",
+          "bounds": [
+            108,
+            1576,
+            252,
+            1720
+          ],
+          "widthPx": 144,
+          "heightPx": 144
+        },
+        {
+          "type": "TextArea",
+          "label": "",
+          "bounds": [
+            276,
+            1576,
+            852,
+            1720
+          ],
+          "widthPx": 576,
+          "heightPx": 144
+        },
+        {
+          "type": "PasteButton",
+          "label": "粘贴",
+          "bounds": [
+            455,
+            1744,
+            647,
+            1888
+          ],
+          "widthPx": 192,
+          "heightPx": 144
+        },
+        {
+          "type": "Button",
+          "label": "发送",
+          "bounds": [
+            671,
+            1744,
+            852,
+            1888
+          ],
+          "widthPx": 181,
+          "heightPx": 144
+        }
+      ],
+      "rows": 2,
+      "heightVp": 48,
+      "equalHeightWithinEachRow": true,
+      "result": "passed",
+      "sourceLayout": "/tmp/mytools-ui-probe-private/19-download-280-final.json"
+    },
+    {
+      "panelWidthVp": 320,
+      "controls": [
+        {
+          "type": "Button",
+          "label": "",
+          "bounds": [
+            48,
+            1576,
+            192,
+            1720
+          ],
+          "widthPx": 144,
+          "heightPx": 144
+        },
+        {
+          "type": "TextArea",
+          "label": "",
+          "bounds": [
+            216,
+            1576,
+            912,
+            1720
+          ],
+          "widthPx": 696,
+          "heightPx": 144
+        },
+        {
+          "type": "PasteButton",
+          "label": "粘贴",
+          "bounds": [
+            515,
+            1744,
+            707,
+            1888
+          ],
+          "widthPx": 192,
+          "heightPx": 144
+        },
+        {
+          "type": "Button",
+          "label": "发送",
+          "bounds": [
+            731,
+            1744,
+            912,
+            1888
+          ],
+          "widthPx": 181,
+          "heightPx": 144
+        }
+      ],
+      "rows": 2,
+      "heightVp": 48,
+      "equalHeightWithinEachRow": true,
+      "result": "passed",
+      "sourceLayout": "/tmp/mytools-ui-probe-private/20-download-320-final.json"
+    }
+  ]
+}

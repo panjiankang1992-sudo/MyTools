@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-18",
+  "goalStatus": "ACTIVE",
+  "tests": {
+    "passed": 35,
+    "failures": 0,
+    "skipped": 0,
+    "suites": {
+      "NewsConfigurationTest": 9,
+      "PrepareNewsEnvironmentTest": 7,
+      "VerifyNewsDeploymentTest": 9,
+      "NewsOperationsTest": 6,
+      "AssembleReleaseTest": 4
+    }
+  },
+  "release": {
+    "releaseId": "news-validation-20261018-b13-verified",
+    "localValidationArtifact": "/private/tmp/mytools-news-release-20261018-b13-verified",
+    "javaServiceCount": 18,
+    "pythonServiceCount": 7,
+    "fileCount": 732,
+    "manifestSha256": "4edf2cd72d1ad629a1ebcba96f3557853a1c20f5f47f49c4a5571aaa76a7b663",
+    "packageCount": 153,
+    "packageContentSha256": "e984331d9f2cdc7b2d361d06b99766563fdb62ae1d004aed231959b3cfe8c271",
+    "requiredJarCount": 5,
+    "javaBuild": "All 18 services packaged with Java 21 and -DskipTests; final reassembly reused these unchanged jars. This is not full-repository test acceptance.",
+    "relevantJars": [
+      {
+        "path": "apps/messaging-service.jar",
+        "sha256": "df67adb691ae7e5a3464124a6a6a070029d8c8935d11e8fccb435d8a3eba76ab",
+        "size": 29831529
+      },
+      {
+        "path": "apps/mytools-gateway.jar",
+        "sha256": "67da755419ee74aa65369d4ed15d2760ae4a87621d5538ac7fad2b69f84e9cc7",
+        "size": 24220444
+      },
+      {
+        "path": "apps/news-digest-service.jar",
+        "sha256": "f98c4ab29ca80df127de83f7c35b40b89b421ce8c94b50225cc9a6729e32c5ba",
+        "size": 31449344
+      },
+      {
+        "path": "apps/task-executor-service.jar",
+        "sha256": "cb7407db918edd566f3e0560fffc49aa95b6c86fe3a93c4daf1d5b2db72d8880",
+        "size": 38474335
+      },
+      {
+        "path": "apps/task-scheduler-service.jar",
+        "sha256": "d7ebd0d02103edbc5101c837c5c067c1c3147943a388e8ff7f46f1763282cf9d",
+        "size": 32783937
+      }
+    ]
+  },
+  "packagedCliChecks": {
+    "previewPreservesOriginal": true,
+    "applyPreservesOriginalLines": true,
+    "replayDoesNotRotateSecrets": true,
+    "stagedAndExactInventoryPass": true,
+    "noBytecodeCacheCreated": true
+  },
+  "ubuntuReadOnlyInventory": {
+    "currentReleasePresent": true,
+    "dockerAccessible": true,
+    "mysqlImages": [],
+    "newsJarPresent": false,
+    "privateEnvironmentPresent": true,
+    "privilegedReadSucceeded": true,
+    "productionChanges": false,
+    "python312Present": false,
+    "units": {
+      "messaging-service": {
+        "active": true,
+        "installed": true,
+        "nonRoot": true,
+        "standardEnvironmentFile": true,
+        "workingDirectoryInDeployment": true,
+        "environmentFileCount": 1
+      },
+      "mytools-gateway": {
+        "active": true,
+        "installed": true,
+        "nonRoot": true,
+        "standardEnvironmentFile": true,
+        "workingDirectoryInDeployment": true,
+        "environmentFileCount": 5
+      },
+      "news-digest-service": {
+        "active": false,
+        "installed": false,
+        "nonRoot": false,
+        "standardEnvironmentFile": false,
+        "workingDirectoryInDeployment": false
+      },
+      "task-executor-service": {
+        "active": true,
+        "installed": true,
+        "nonRoot": true,
+        "standardEnvironmentFile": true,
+        "workingDirectoryInDeployment": true,
+        "environmentFileCount": 10
+      },
+      "task-scheduler-service": {
+        "active": true,
+        "installed": true,
+        "nonRoot": true,
+        "standardEnvironmentFile": true,
+        "workingDirectoryInDeployment": true,
+        "environmentFileCount": 8
+      }
+    },
+    "environmentContentsRead": false
+  },
+  "sourceSha256": {
+    "service/deploy/news_deployment_config.py": "ce3fe7c4709012f07bd199558829962d2ba0d38c790fb176441ccabf778e0e17",
+    "service/deploy/prepare_news_environment.py": "7087284bd5ed10f6ff66d410bf05d67dcd00f960d8f049db476f91f2f0eb9bf7",
+    "service/deploy/verify_news_deployment.py": "519f5c09ba334ebdfb98e0542811d0cd48923b5e9f4229a344c8f7a1830a5f6f",
+    "service/deploy/assemble_release.py": "eff13a7ad52318479ab03f3d94b2177aacca38c0f5e874be618401fdeb68692b",
+    "service/deploy/test_news_deployment_config.py": "23c10e553f49d4970bb8f7df5cd04c7ddcfd9c6ea3d39f93104fc7ffc1754d0a",
+    "service/deploy/test_prepare_news_environment.py": "5a571f9ff81866362d444ac190c87e2a4300538a772adbf812b63dafa3ed4534",
+    "service/deploy/test_verify_news_deployment.py": "c1360f2c6ac97e7648565a5eecacfeffbb823849a19fe6e4615e61f11c711d68",
+    "service/deploy/test_assemble_release.py": "d0595bb268c32dd116c73190dec588a584e4763cbfdade16b5421437a5ae23a6"
+  },
+  "realAccountUsedForSmoke": false,
+  "liveAcceptance": false,
+  "installationExecuted": false,
+  "productionChanges": false
+}

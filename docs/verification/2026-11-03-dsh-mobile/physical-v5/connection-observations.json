@@ -1,0 +1,27 @@
+[
+  {
+    "epoch": 1793686097,
+    "loading": false,
+    "retry": true,
+    "nativeMessages": [
+      "DSH",
+      "暂时无法打开 DSH，请检查网络或稍后重试。",
+      "暂时无法打开 DSH，请检查网络或稍后重试。"
+    ],
+    "webControls": []
+  },
+  {
+    "epoch": 1793686269,
+    "loading": false,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ],
+    "webControls": [
+      {
+        "label": "打开侧边栏",
+        "bounds": "[26,120][169,263]"
+      }
+    ]
+  }
+]

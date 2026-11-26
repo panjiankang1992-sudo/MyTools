@@ -1,0 +1,1 @@
+{"attempt": 1, "failure": "Replacement and rollback JAR ownership was not preserved; mode 0640 denied service access.", "recovery": "Restored root:mytools ownership on old JAR and backup; old backend health UP; original frontend retained.", "preservedFailedRelease": "/opt/yuyutian/toolbox/releases/worksheet-auto-20261004-144500.failed-1", "resolved": true}

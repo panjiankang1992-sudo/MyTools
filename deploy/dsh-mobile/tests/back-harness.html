@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DSH mobile navigation validation</title>
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; font: 14px system-ui; }
+  iframe { display: block; width: 100%; height: calc(100% - 44px); border: 0; }
+  footer { height: 44px; display: flex; align-items: center; gap: 12px; background: #eef2f6; padding: 0 8px; }
+  button { height: 36px; }
+</style>
+<iframe title="DSH preview" src="/"></iframe>
+<footer><button id="back">Test system back</button><output id="result">Ready</output></footer>
+<script>
+  // 只在同源本机预览中使用，不发布到生产；按下时调用以保留子页面焦点。
+  var consumed = false;
+  function back() {
+    var action = document.querySelector("iframe").contentWindow.mytoolsDshMobileBack;
+    document.getElementById("result").textContent = typeof action !== "function" ? "Not ready" :
+      (action() ? "Layer handled" : "Root page");
+  }
+  document.getElementById("back").onpointerdown = function (event) {
+    event.preventDefault(); consumed = true; back();
+  };
+  document.getElementById("back").onclick = function () {
+    if (consumed) { consumed = false; return; }
+    back();
+  };
+</script>
+</html>

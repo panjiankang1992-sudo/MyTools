@@ -1,0 +1,142 @@
+{
+  "generatedAt": "2026-10-03T09:02:32.236Z",
+  "entryPoint": "src/lib/worksheet.ts#generateWorksheet（与页面「导出 PDF」同一路径）",
+  "fontSource": "public/fonts/NotoSansCJKsc-Regular.otf（通过本地 fetch 垫片提供）",
+  "fixture": [
+    [
+      "一",
+      "yī"
+    ],
+    [
+      "二",
+      "èr"
+    ],
+    [
+      "三",
+      "sān"
+    ],
+    [
+      "四",
+      "sì"
+    ],
+    [
+      "五",
+      "wǔ"
+    ],
+    [
+      "六",
+      "liù"
+    ],
+    [
+      "七",
+      "qī"
+    ],
+    [
+      "八",
+      "bā"
+    ],
+    [
+      "九",
+      "jiǔ"
+    ],
+    [
+      "十",
+      "shí"
+    ],
+    [
+      "山",
+      "shān"
+    ],
+    [
+      "水",
+      "shuǐ"
+    ]
+  ],
+  "results": [
+    {
+      "file": "page-chinese-dictation-student.pdf",
+      "mode": "chinese-dictation",
+      "answer": false,
+      "pageCount": 1,
+      "reloadedPageCount": 1,
+      "bytes": 64751,
+      "widthPt": 595.2756,
+      "heightPt": 841.8898,
+      "widthErrorPt": 0,
+      "heightErrorPt": 0
+    },
+    {
+      "file": "page-chinese-dictation-answer.pdf",
+      "mode": "chinese-dictation",
+      "answer": true,
+      "pageCount": 1,
+      "reloadedPageCount": 1,
+      "bytes": 64122,
+      "widthPt": 595.2756,
+      "heightPt": 841.8898,
+      "widthErrorPt": 0,
+      "heightErrorPt": 0
+    },
+    {
+      "file": "page-chinese-pinyin-student.pdf",
+      "mode": "chinese-pinyin",
+      "answer": false,
+      "pageCount": 1,
+      "reloadedPageCount": 1,
+      "bytes": 63822,
+      "widthPt": 595.2756,
+      "heightPt": 841.8898,
+      "widthErrorPt": 0,
+      "heightErrorPt": 0
+    },
+    {
+      "file": "page-english-dictation-student.pdf",
+      "mode": "english-dictation",
+      "answer": false,
+      "pageCount": 1,
+      "reloadedPageCount": 1,
+      "bytes": 63847,
+      "widthPt": 595.2756,
+      "heightPt": 841.8898,
+      "widthErrorPt": 0,
+      "heightErrorPt": 0
+    },
+    {
+      "file": "page-english-meaning-student.pdf",
+      "mode": "english-meaning",
+      "answer": false,
+      "pageCount": 1,
+      "reloadedPageCount": 1,
+      "bytes": 62548,
+      "widthPt": 595.2756,
+      "heightPt": 841.8898,
+      "widthErrorPt": 0,
+      "heightErrorPt": 0
+    },
+    {
+      "file": "page-mi-grid-10mm.pdf",
+      "mode": "chinese-dictation",
+      "answer": false,
+      "pageCount": 1,
+      "reloadedPageCount": 1,
+      "bytes": 64770,
+      "widthPt": 595.2756,
+      "heightPt": 841.8898,
+      "widthErrorPt": 0,
+      "heightErrorPt": 0
+    },
+    {
+      "file": "page-mi-grid-14mm.pdf",
+      "mode": "chinese-dictation",
+      "answer": false,
+      "pageCount": 1,
+      "reloadedPageCount": 1,
+      "bytes": 64751,
+      "widthPt": 595.2756,
+      "heightPt": 841.8898,
+      "widthErrorPt": 0,
+      "heightErrorPt": 0
+    }
+  ],
+  "maxGeometryErrorPt": 0
+}

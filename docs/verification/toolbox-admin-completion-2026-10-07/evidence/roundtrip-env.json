@@ -1,0 +1,49 @@
+{
+  "base": "http://127.0.0.1:23201",
+  "database": "toolbox_roundtrip",
+  "mysqlContainer": "toolbox-mysql-test",
+  "contentRoot": "/Users/pankang/mycode/MyTools/toolbox-web/content",
+  "serviceRoot": "/tmp/toolbox-roundtrip-20261007/svc",
+  "sourceDigests": {
+    "src/main/java/com/yuyutian/mytools/toolbox/service/admin/curriculum/CurriculumPublisher.java": {
+      "sha256": "7e1e35a204267763fee4fdb8ba505a6737fdb85e90effe861ed22c6907d938c1",
+      "bytes": 23165
+    },
+    "src/main/java/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService.java": {
+      "sha256": "0afa4a5ab27107a1fbc1d1e26ef8cfd326c8bc24a5490122326dac2ae4e78042",
+      "bytes": 57798
+    },
+    "src/main/java/com/yuyutian/mytools/toolbox/service/admin/curriculum/DraftToBookMapper.java": {
+      "sha256": "b578597d6266024dd1b5e2ef501c990ab5016fec843082f36f61847439d09e2b",
+      "bytes": 18724
+    },
+    "src/main/java/com/yuyutian/mytools/toolbox/service/admin/migration/CurriculumFileImporter.java": {
+      "sha256": "cfb5be5bce3cebcd485c14420ac04023d8465483502a1466ce6c6f8aec182ddf",
+      "bytes": 14487
+    },
+    "src/main/java/com/yuyutian/mytools/toolbox/service/admin/migration/AdminCurriculumImportService.java": {
+      "sha256": "c72f3a92dcc3628c48b8f95805cb968ae315bb57f3df40732a7cf26de606f66b",
+      "bytes": 7578
+    },
+    "src/main/java/com/yuyutian/mytools/toolbox/service/admin/validation/CurriculumValidator.java": {
+      "sha256": "faa4fc4c273b0a0d469e8b7aa5470f3a114b75d8eb7a0ecf8055d731516f4850",
+      "bytes": 20130
+    },
+    "src/main/java/com/yuyutian/mytools/toolbox/mapper/admin/AdminTextbookRepository.java": {
+      "sha256": "39069e5d590730866ee6b83b41928903e1179985dd4de8533b7366b0e789fe48",
+      "bytes": 43530
+    },
+    "src/main/java/com/yuyutian/mytools/toolbox/controller/admin/curriculum/AdminTextbookController.java": {
+      "sha256": "532e7d37ddbe6fa987bcf5fcccabf1b9f307fca66d96846cf12de63da2e4876a",
+      "bytes": 15151
+    },
+    "src/main/java/com/yuyutian/mytools/toolbox/controller/admin/curriculum/AdminCurriculumController.java": {
+      "sha256": "df2e0535514d6a7292fa74d94a7ffe547cad668b70aa1550e0fc68174f4d4b46",
+      "bytes": 12003
+    }
+  },
+  "manifestCatalogVersion": "2026-10-04.1",
+  "mysqlVersion": [
+    "8.4.11"
+  ]
+}

@@ -1,10 +1,14 @@
+import { HomeChannelOrigin } from '../connectivity/HomeChannelOrigin';
 import { http } from '@kit.NetworkKit';
+import { BusinessError } from '@ohos.base';
+import deviceInfo from '@ohos.deviceInfo';
 import util from '@ohos.util';
 import url from '@ohos.url';
 import { AuthEnvelope, AuthSession, LoginRequest } from './AuthModels';
 import { AuthNetworkResponsePolicy } from './AuthNetworkResponsePolicy';
 import { AuthResponseNormalizer } from './AuthResponseNormalizer';
 import { TrustedLanEndpointPolicy } from '../connectivity/TrustedLanEndpointPolicy';
+import { BusinessResponseError, BusinessTransportError } from '../../shared/network/BusinessTransportError';
 
 interface HttpResult {
   status: number;
@@ -19,6 +23,7 @@ interface IdentityLoginRequest {
 
 interface IdentityRefreshRequest {
   refreshToken: string;
+  rotationId?: string;
 }
 
 /**
@@ -79,9 +84,19 @@ export class AuthApi {
     }
   }
 
+  /** 已批准的 IPv6 业务来源显式选择地址族，旧系统继续使用原生默认值。 */
+  static directAddressFamily(baseUrl: string, publicBaseUrl: string): http.AddressFamily | undefined {
+    if (!baseUrl.startsWith('https://') || baseUrl === publicBaseUrl) return undefined;
+    if (deviceInfo.sdkApiVersion >= 15) {
+      return http.AddressFamily.ONLY_V6;
+    }
+    return undefined;
+  }
+
   /** 校验业务请求地址，公网使用HTTPS，局域网仅允许固定端口的私网IPv4。 */
   static normalizeBusinessBaseUrl(value: string): string {
     const trimmed = value.trim();
+    if (HomeChannelOrigin.owns(trimmed)) return trimmed;
     if (trimmed.startsWith('https://')) return AuthApi.normalizeBaseUrl(trimmed);
     return new TrustedLanEndpointPolicy().normalize(trimmed);
   }
@@ -143,9 +158,10 @@ export class AuthApi {
   /**
    * 使用刷新令牌获取新的访问令牌。
    */
-  async refresh(session: AuthSession): Promise<AuthSession> {
-    const refreshRequest: IdentityRefreshRequest = { refreshToken: session.refreshToken };
-    const result = await this.post('/api/app/v1/identity/refresh', refreshRequest);
+  async refresh(session: AuthSession, businessBaseUrl?: string): Promise<AuthSession> {
+    const refreshRequest: IdentityRefreshRequest = { refreshToken: session.refreshToken,
+      rotationId: session.refreshOperationId };
+    const result = await this.post('/api/app/v1/identity/refresh', refreshRequest, undefined, businessBaseUrl);
     if (result.status < 200 || result.status >= 300 || result.envelope.data === undefined) {
       const responseMessage = typeof result.envelope.message === 'string' ? result.envelope.message : '';
       const message = responseMessage.length > 0 ? responseMessage : '会话刷新失败';
@@ -158,8 +174,8 @@ export class AuthApi {
   /**
    * 通知服务端注销当前访问令牌。
    */
-  async logout(accessToken: string): Promise<void> {
-    await this.post('/api/app/v1/identity/logout', undefined, accessToken);
+  async logout(accessToken: string, businessBaseUrl?: string): Promise<void> {
+    await this.post('/api/app/v1/identity/logout', undefined, accessToken, businessBaseUrl);
   }
 
   /**
@@ -206,11 +222,14 @@ export class AuthApi {
     }
   }
 
-  private async post(path: string, body?: Object, bearerToken?: string): Promise<HttpResult> {
+  private async post(path: string, body?: Object, bearerToken?: string,
+    businessBaseUrl?: string): Promise<HttpResult> {
+    const startedAt = Date.now();
     if (this.baseUrl.length === 0) {
       throw new Error('请先设置 MyTools 服务地址');
     }
     const request = http.createHttp();
+    const requestBaseUrl = businessBaseUrl === undefined ? this.baseUrl : AuthApi.normalizeBusinessBaseUrl(businessBaseUrl);
     const headers: Record<string, string> = {
       'Accept': 'application/json',
       'Content-Type': 'application/json; charset=utf-8'
@@ -223,27 +242,36 @@ export class AuthApi {
     const serializedBytes = new util.TextEncoder().encodeInto(serialized).length;
     this.networkPolicy.requestBody(serializedBytes);
     let responseError = '';
+    let networkPending = false;
     try {
       request.on('headersReceive', (responseHeaders: Object) => {
         responseError = this.networkPolicy.headerError(responseHeaders, 1024 * 1024);
         if (responseError.length > 0) request.destroy();
       });
-      const response = await request.request(`${this.baseUrl}${path}`, {
+      networkPending = true;
+      const response = await request.request(`${requestBaseUrl}${path}`, {
+        addressFamily: AuthApi.directAddressFamily(requestBaseUrl, this.baseUrl),
         method: http.RequestMethod.POST,
         header: headers,
         extraData: serialized,
         connectTimeout: 10000,
         readTimeout: 15000
       });
+      networkPending = false;
       if (responseError.length > 0) throw new Error(responseError);
       const text = typeof response.result === 'string' ? response.result : `${response.result}`;
       const bytes = new util.TextEncoder().encodeInto(text).length;
       const envelope = this.networkPolicy.envelope(text, bytes);
       return { status: response.responseCode, envelope: envelope };
     } catch (error) {
-      if (responseError.length > 0) throw new Error(responseError);
+      const nativeCode = (error as BusinessError)?.code;
+      const operation = path.endsWith('/refresh') ? 'REFRESH' : path.endsWith('/logout') ? 'LOGOUT' : 'LOGIN';
+      console.info(`Auth request failure: operation=${operation}, route=${requestBaseUrl === this.baseUrl ? 'PUBLIC' : 'DIRECT'}, ` +
+        `code=${Number.isFinite(nativeCode) ? nativeCode : 0}, pending=${networkPending}, elapsed=${Date.now() - startedAt}`);
+      if (responseError.length > 0) throw new BusinessResponseError(requestBaseUrl, responseError);
       const message = error instanceof Error ? error.message : '网络请求失败';
-      throw new Error(message);
+      if (networkPending) throw new BusinessTransportError(requestBaseUrl, message);
+      throw new BusinessResponseError(requestBaseUrl, message);
     } finally {
       request.off('headersReceive');
       request.destroy();

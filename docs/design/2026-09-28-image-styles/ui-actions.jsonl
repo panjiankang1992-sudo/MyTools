@@ -1,0 +1,59 @@
+{"op": "tap", "text": "工具"}
+{"op": "tap", "text": "图片生成"}
+{"op": "tap", "text": "挑选风格"}
+{"op": "shot", "name": "library"}
+{"op": "input", "type": "TextInput", "value": "留白"}
+{"op": "assert", "text": "2 种风格"}
+{"op": "dump"}
+{"op": "tap", "text": "极简"}
+{"op": "assert", "text": "风格详情"}
+{"op": "tap", "text": "应用风格"}
+{"op": "assert", "text": "极简"}
+{"op": "tap", "text": "挑选风格"}
+{"op": "tap", "text": "摄影", "type": "Button"}
+{"op": "assert", "text": "4 种风格"}
+{"op": "tap", "text": "胶片"}
+{"op": "key", "value": "Back"}
+{"op": "assert", "text": "极简"}
+{"op": "tap", "text": "挑选风格"}
+{"op": "input", "type": "TextInput", "value": "no_matching_style_928"}
+{"op": "assert", "text": "没有找到匹配风格，试试其他关键词或分类。"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "清除风格"}
+{"op": "assert", "text": "保持原意"}
+{"op": "tap", "text": "挑选风格"}
+{"op": "tap", "text": "新建风格"}
+{"op": "assert", "text": "保存并使用", "enabled": "false"}
+{"op": "assert", "text": "编辑我的风格"}
+{"op": "shot", "name": "editor"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "挑选风格"}
+{"op": "tap", "text": "水彩"}
+{"op": "tap", "text": "复制到我的风格"}
+{"op": "assert", "text": "编辑我的风格"}
+{"op": "assert", "text": "保存并使用"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "工具"}
+{"op": "tap", "text": "图片生成"}
+{"op": "shot", "name": "composer"}
+{"op": "tap", "text": "挑选风格"}
+{"op": "assert", "text": "24 种风格"}
+{"op": "shot", "name": "library"}
+{"op": "tap", "text": "摄影"}
+{"op": "assert", "text": "4 种风格"}
+{"op": "shot", "name": "photography"}
+{"op": "tap", "text": "胶片"}
+{"op": "shot", "name": "detail"}
+{"op": "tap", "text": "查看合成提示词"}
+{"op": "assert", "text": "收起提示词预览"}
+{"op": "tap", "text": "应用风格"}
+{"op": "assert", "text": "清除风格"}
+{"op": "shot", "name": "applied"}
+{"op": "tap", "text": "挑选风格"}
+{"op": "tap", "text": "新建风格"}
+{"op": "assert", "text": "保存并使用", "enabled": "false"}
+{"op": "shot", "name": "editor"}
+{"op": "key", "value": "Back"}
+{"op": "assert", "text": "清除风格"}
+{"op": "tap", "text": "清除风格"}
+{"op": "assert", "text": "保持原意"}

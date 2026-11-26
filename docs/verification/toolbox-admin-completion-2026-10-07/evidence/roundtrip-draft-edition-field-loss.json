@@ -1,0 +1,57 @@
+[
+  {
+    "editionId": "cn-ty-1-1-pep-2024",
+    "bookRegionCodes": [
+      "jiangsu"
+    ],
+    "draftRegionCodes": null,
+    "bookCurriculumYear": null,
+    "draftCurriculumYear": null,
+    "bookIsbn": null,
+    "draftIsbn": null
+  },
+  {
+    "editionId": "cn-ty-2-1-pep-2017",
+    "bookRegionCodes": [
+      "jiangsu"
+    ],
+    "draftRegionCodes": null,
+    "bookCurriculumYear": null,
+    "draftCurriculumYear": null,
+    "bookIsbn": null,
+    "draftIsbn": null
+  },
+  {
+    "editionId": "cn-ty-3-1-pep-2024",
+    "bookRegionCodes": [
+      "jiangsu"
+    ],
+    "draftRegionCodes": null,
+    "bookCurriculumYear": null,
+    "draftCurriculumYear": null,
+    "bookIsbn": null,
+    "draftIsbn": null
+  },
+  {
+    "editionId": "cn-ty-4-1-pep-2024",
+    "bookRegionCodes": [
+      "jiangsu"
+    ],
+    "draftRegionCodes": null,
+    "bookCurriculumYear": null,
+    "draftCurriculumYear": null,
+    "bookIsbn": null,
+    "draftIsbn": null
+  },
+  {
+    "editionId": "en-yl-3-1-yilin-2024",
+    "bookRegionCodes": [
+      "jiangsu"
+    ],
+    "draftRegionCodes": null,
+    "bookCurriculumYear": null,
+    "draftCurriculumYear": null,
+    "bookIsbn": "9787575300377",
+    "draftIsbn": null
+  }
+]

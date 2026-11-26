@@ -1,0 +1,331 @@
+{
+  "date": "2026-10-18",
+  "goalStatus": "ACTIVE",
+  "realDeliveryTested": false,
+  "realMysqlTested": false,
+  "messaging": {
+    "totals": {
+      "tests": 113,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "suite": "com.yuyutian.mytools.messaging.controller.InboundOutboxOperationsControllerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.controller.MessagingExceptionHandlerTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.controller.OutboundControllerTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.provider.OutboundProviderTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.provider.QqInboundReplyProviderTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.provider.TelegramInboundReplyProviderTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.repository.EmailPollCheckpointRepositoryTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.repository.InboundConnectionPoolTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.repository.MessagingOutboxClaimMigrationTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.repository.MessagingOutboxRetryRepositoryTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.AutomationOutboxRelayTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.DeliveryServiceTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.DeliveryShadowServiceTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.DownloadIngestionClientTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.EmailAttachmentContentServiceTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.EmailIngressServiceTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.InboundHistoryMigrationServiceTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.InboundOutboxHealthIndicatorTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.InboundReplyServiceTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.OneBotAcceptanceOutboxRelayTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.OneBotInboundAdapterTest",
+        "tests": 27,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.OutboundHistoryMigrationServiceTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.OutboundSecurityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.OutboundServiceTest",
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.ProviderFileResolverClientTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.ReferenceDataMigrationServiceTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.SupportFeedbackMigrationServiceTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.messaging.service.TaskSchedulerClientTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "scheduler": {
+    "totals": {
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "suite": "com.yuyutian.mytools.task.scheduler.config.InternalTokenFilterTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.task.scheduler.controller.MessageOutboundExecutionControllerTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.task.scheduler.controller.MessageOutboundTaskMigrationTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.task.scheduler.controller.NewsExecutionAuthorizationControllerTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.yuyutian.mytools.task.scheduler.controller.NewsTaskMigrationTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "python": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "packageAssembly": {
+    "ready": true,
+    "packageCount": 153
+  },
+  "environmentGate": {
+    "checkedPackageCount": 106,
+    "configuredPackageCount": 98,
+    "missing": {
+      "media_generate_tags": [
+        "TASK_ERROR_FILE"
+      ],
+      "pdf_process": [
+        "PDF_ALLOW_UNSANDBOXED_TEST"
+      ],
+      "reader_analyze_audiobook_book": [
+        "TASK_ERROR_FILE"
+      ],
+      "video_generate": [
+        "IMAGE_COMFY_URL",
+        "TAGGING_MODEL",
+        "TAGGING_SERVICE_URL",
+        "VIDEO_COLOR_MATCH",
+        "VIDEO_COMFY_OUTPUT_DIR",
+        "VIDEO_COMFY_URL",
+        "VIDEO_FILL_BLEND",
+        "VIDEO_GENERATION_ROOT",
+        "VIDEO_GPU_COORDINATION_VALIDATED",
+        "VIDEO_GPU_LOCK_FILE",
+        "VIDEO_INFERENCE_TIMEOUT_SECONDS",
+        "VIDEO_LOCAL_VALIDATED",
+        "VIDEO_MIN_FREE_MIB",
+        "VIDEO_NVIDIA_SMI",
+        "VIDEO_WORKFLOW_INDEX_FILE",
+        "VIDEO_WORKFLOW_INDEX_SHA256"
+      ]
+    },
+    "ready": false
+  },
+  "sourceSha256": {
+    "service/messaging-service/db/migrations/V18__create_verified_outbound.sql": "16a6eb92b0d17df50df286c47979e7729fa1cab826110344376d0163c5b02a5f",
+    "service/messaging-service/packages/message_send_channel_message/1.0.0/manifest.yaml": "3eb99694bbc7847a748f725ded298847df739a989067b57117fe4c29b3d91170",
+    "service/messaging-service/packages/message_send_channel_message/1.0.0/scripts/main.py": "6c042f310c81808e2bcb8c3223f6e2a464fe9d66c541788531c3a159ae54b2fe",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/config/OutboundProperties.java": "ef93f5c6695530c9a9564cc69fa9782117ba57b55e627adea14b90507077d009",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/controller/OutboundController.java": "cd486647312431dcd413e6d38503c6852b2fb3c905b58cdc9cbc52db658148f4",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/controller/OutboundHistoryMigrationController.java": "5e3ebc0bfcd89ed2bcdd7b7d945fad3dcc7e5762223873b8cd9a3b63cfcd0a98",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/controller/OutboundInputExceptionHandler.java": "ffc7586a3e381f33946ca83b11318ecb94e698a8460e46333754aa3dbd6dd686",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/model/OutboundModels.java": "729716abdcbb858033ab355fec860a88a19802323381537e9355c92b28c8d2b2",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/provider/OutboundProvider.java": "7647570988f155fa22e16e0b26e3047f8fc873639ead14e767ea40053f5a46c2",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/repository/OutboundHistoryRepository.java": "7a0e1a9f1b2093419ad3fcebbfc402cfe3b9e918f6be9ce794e82b55140770a1",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/repository/OutboundRepository.java": "6f13a0ecc3cc45f4618c50b05c2e48ac1576146f207d4f49567fa8f8f11bd644",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/service/OutboundException.java": "d440ac600df11743ed7a06578a36bacbf509049bd54eaafacbdaadfab05b0110",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/service/OutboundHistoryMigrationService.java": "546d7da0483076111dd9b77b2e6875a1bd6d27e0bda0b3759e84d933c6c0e6fd",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/service/OutboundSchedulerClient.java": "f35682ce51d6e54238fc4c73df45ca23343a4797bfc6be0a5304513a43acf499",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/service/OutboundService.java": "59bf4a045246388d883de265a11976629453e9fc831243ccc335c2e7920fde85",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/utils/outbound/LimitedResponseBody.java": "007991d505a8b0772aa980a829e6f50865d8d3a51e1f361aa7cae14a85f59e49",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/utils/outbound/OutboundSecurity.java": "7e9e6fa6733bd97e9ce15fdf087fc09994d5a85d380248ee26b2a7fd3343b903",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/controller/OutboundControllerTest.java": "7671a8a1074e46efced55311c764c7bf6f4059e96275d77b9d38e14b465dadd8",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/provider/OutboundProviderTest.java": "4d9981996bb3347721b3742e8237fdded60cbf502ca68226bc7505aea1d2a816",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundHistoryMigrationServiceTest.java": "3c71ef6978cbb529a4e9a324486df4438c381e9db8a66a356876d702a5315153",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundSecurityTest.java": "0c26f99c6d49d51d5e64bb562a3c3bb8418b0eaf90885dda66ac950f00b6c60b",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundServiceTest.java": "71db8bf770fe5150b3517f2a9a079993ebe38f37192563a59728c1924b8053fa",
+    "service/messaging-service/tests/test_channel_worker.py": "9750466e11edc131b54e2cc448bc23256956821b025130453b1d7ea031642a9c",
+    "service/task-scheduler-service/src/main/java/com/yuyutian/mytools/task/scheduler/controller/MessageOutboundExecutionController.java": "122f90eb1e8d57382d3e88ede21bca07afa2324265199e67e9d0ef96d754afd4",
+    "service/task-scheduler-service/src/main/java/com/yuyutian/mytools/task/scheduler/service/MessageOutboundTaskAccess.java": "c9e5683c9f870671684a586dac21606ed833f0195c47303809a69699bdc47e01",
+    "service/task-scheduler-service/src/main/resources/db/migration/V176__seed_verified_outbound_task.sql": "78fc3d36ab4bd64ed2fbf919283213edd8b39a7233102133e47930af7b9aea63",
+    "service/task-scheduler-service/src/test/java/com/yuyutian/mytools/task/scheduler/controller/MessageOutboundExecutionControllerTest.java": "8e37ee557f0bfd406bfffeb2583182c30616d62f54a52c161685c805a9e2f05e",
+    "service/task-scheduler-service/src/test/java/com/yuyutian/mytools/task/scheduler/controller/MessageOutboundTaskMigrationTest.java": "3af0f4f4e4bdd92a88fd95b4dbe3eb48175412e8487a1feb5d35271698a17e5e"
+  }
+}

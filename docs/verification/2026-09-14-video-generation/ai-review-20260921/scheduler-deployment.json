@@ -1,0 +1,20 @@
+{
+  "release": "video-gpu-admission-20260921-v1",
+  "previousJar": "/opt/yuyutian/mytools/releases/video-production-20260919-v4/apps/task-scheduler-service.jar",
+  "jar": "/opt/yuyutian/mytools/releases/video-gpu-admission-20260921-v1/apps/task-scheduler-service.jar",
+  "sha256": "a7e77795659c1cab7aae614375a702fea87b196adbbaa45237d746cf0aeeeed1",
+  "activeTasksBefore": 0,
+  "deployed": true,
+  "health": "UP",
+  "services": {
+    "task-scheduler-service": "active",
+    "task-executor-service": "active",
+    "mytools-gateway": "active",
+    "video-generation-service": "active",
+    "image-generation-service": "active",
+    "video-comfy": "active",
+    "image-comfy": "active"
+  },
+  "executorOnline": true,
+  "enabledVideoModes": []
+}

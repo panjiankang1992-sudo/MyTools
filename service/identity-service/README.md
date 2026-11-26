@@ -17,6 +17,14 @@ Gateway 已提供默认关闭的 `/api/app/v1/identity/login`、`/refresh` 和 `
 
 Java 21 / Spring Boot
 
+## APP 登录有效期
+
+访问令牌默认保留 15 分钟，APP 会自动刷新。刷新会话默认保留 30 天（`IDENTITY_REFRESH_SECONDS=2592000`），每次成功刷新后从当次刷新时间重新计算 30 天，已有更长的期限不会被缩短。仍有效的旧 7 天会话会在下次刷新时自动续期；已过期或已撤销的会话需要重新登录。主动退出、账号停用或凭据版本变化仍会使会话失效。
+
+部署时须核对进程是否设置了 `IDENTITY_REFRESH_SECONDS` 覆盖值；只修改默认配置不会覆盖已有环境变量。会话期限与刷新令牌摘要在同一次数据库更新中持久化，服务重启不会丢失期限。
+
+验证：`mvn -f service/identity-service/pom.xml test`。测试使用 `test` profile 配置内存数据库，并复用正式配置中的默认会话期限。
+
 ## 服务职责
 
 用户、角色、会话、认证与验证码业务。

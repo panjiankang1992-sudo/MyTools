@@ -1,0 +1,144 @@
+{
+  "date": "2026-10-19",
+  "preview": {
+    "observedAt": "2026-10-18T17:10:03.397158Z",
+    "sources": [
+      {
+        "skipped": 0,
+        "inserted": 30,
+        "source": "github-discovery-personal",
+        "status": "FRESH"
+      },
+      {
+        "skipped": 0,
+        "inserted": 30,
+        "source": "hacker-news-top-personal",
+        "status": "FRESH"
+      },
+      {
+        "skipped": 0,
+        "inserted": 30,
+        "source": "dev-weekly-personal",
+        "status": "FRESH"
+      },
+      {
+        "skipped": 0,
+        "inserted": 30,
+        "source": "chinanews-world-personal",
+        "status": "FRESH"
+      },
+      {
+        "skipped": 0,
+        "inserted": 30,
+        "source": "chinanews-china-personal",
+        "status": "FRESH"
+      },
+      {
+        "skipped": 0,
+        "inserted": 29,
+        "source": "bbc-world-personal",
+        "status": "FRESH"
+      },
+      {
+        "skipped": 0,
+        "inserted": 12,
+        "source": "chinanews-jiangsu-personal",
+        "status": "FRESH"
+      }
+    ],
+    "sections": {
+      "TECH": {
+        "gaps": [
+          "DETAIL_SHORTFALL",
+          "GITHUB_TREND_WARMING_UP"
+        ],
+        "details": 4,
+        "headlines": 20
+      },
+      "WORLD": {
+        "gaps": [],
+        "details": 10,
+        "headlines": 20
+      },
+      "DOMESTIC": {
+        "gaps": [],
+        "details": 10,
+        "headlines": 20
+      },
+      "LOCAL": {
+        "gaps": [
+          "HEADLINE_SHORTFALL",
+          "DETAIL_SHORTFALL",
+          "REGION_PROVINCE_FALLBACK"
+        ],
+        "details": 4,
+        "headlines": 4
+      }
+    },
+    "parts": 1,
+    "region": "PROVINCE_FALLBACK",
+    "regionCode": "CN-JS",
+    "realSources": true,
+    "productionDatabase": false,
+    "messagesSent": false
+  },
+  "htmlChecks": {
+    "headlines": 64,
+    "details": 28,
+    "githubCandidates": 5,
+    "httpsLinks": 65,
+    "provinceLabelVerified": true
+  },
+  "regionProbe": {
+    "provider": "IPWHOIS",
+    "country": "CN",
+    "subdivision": "JS",
+    "returnedCity": "Nanjing",
+    "rawIpStored": false,
+    "schedulerLeaseExercised": false,
+    "scope": "EXECUTOR_HOST_NETWORK_DIAGNOSTIC"
+  },
+  "tests": {
+    "news": {
+      "passed": 243,
+      "skipped": 29,
+      "failed": 0
+    },
+    "regionPackage": {
+      "passed": 15,
+      "skipped": 1,
+      "failed": 0
+    },
+    "deploymentTools": {
+      "passed": 44,
+      "skipped": 0,
+      "failed": 0
+    },
+    "schedulerMigration": {
+      "passed": 1,
+      "skipped": 0,
+      "failed": 0
+    }
+  },
+  "builds": {
+    "news": "SUCCESS",
+    "scheduler": "SUCCESS",
+    "regionPackageManifest": "SUCCESS",
+    "fullReleaseReassembled": false
+  },
+  "production": {
+    "newsDeployed": false,
+    "dailyScheduleEnabled": false,
+    "messagesSentThisRun": 0,
+    "recipientTestSmtpAcceptedPreviously": 2,
+    "inboxDeliveryConfirmed": false
+  },
+  "sourceSha256": {
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/DigestEngine.java": "430addabbfaf1e4b8ae967263b7462a30a43c9735df415866dd8a7f4c59d89ba",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/ArticleExcerptReader.java": "d8367932cec07d26c05a3eee39c3756b885b9ffcfd2712faf2335c326e5d4d3c",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/JiangsuNewsParser.java": "bbee2dbfc55c2d3d5740196e531a36fb5164056fdc36af9c2e0a38c25895b564",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/NewsDeliveryRenderer.java": "67b2544caef625c5caa492f6f41afc6f5c8592bf3cac8a258d14f460f36ca0a4",
+    "service/news-digest-service/packages/news_resolve_region/1.2.0/scripts/main.py": "94067246c070f9baf921dab90e0ca3cd2a020d12b6bc1e193a645ea2a618e540",
+    "service/task-scheduler-service/src/main/resources/db/migration/V177__upgrade_news_region_provider.sql": "d47d53c1dfef5e726e1a92822f8eedd9ae8da7997768617f0c5a388d64f8213c"
+  }
+}

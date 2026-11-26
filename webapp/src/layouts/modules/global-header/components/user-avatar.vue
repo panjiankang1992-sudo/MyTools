@@ -91,7 +91,7 @@ function handleDropdown(key: DropdownKey) {
   </NButton>
   <NDropdown v-else placement="bottom" trigger="click" :options="options" @select="handleDropdown">
     <div>
-      <ButtonIcon>
+      <ButtonIcon :aria-label="displayName">
         <NAvatar
           v-if="avatarSrc"
           class="mr-8px"
@@ -103,10 +103,15 @@ function handleDropdown(key: DropdownKey) {
         <NAvatar v-else class="mr-8px" round :size="28">
           {{ displayName.charAt(0).toUpperCase() }}
         </NAvatar>
-        <span class="text-16px font-medium">{{ displayName }}</span>
+        <span class="user-display-name text-16px font-medium">{{ displayName }}</span>
       </ButtonIcon>
     </div>
   </NDropdown>
 </template>
 
-<style scoped></style>
+<style scoped>
+/* 手机顶部保留头像与可访问名称，长昵称不挤出视口。 */
+@media (max-width: 600px) {
+  .user-display-name { display: none; }
+}
+</style>

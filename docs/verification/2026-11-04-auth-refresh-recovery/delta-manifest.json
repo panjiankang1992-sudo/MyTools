@@ -1,0 +1,20 @@
+{
+  "identity-service": {
+    "baseSha256": "c6fc1ab1f6041265c69b84c8781adc4910e25f3e2315e44fb559f144a1044a7c",
+    "members": {
+      "BOOT-INF/classes/com/yuyutian/mytools/identity/service/IdentityService.class": "1ae1b43f12609c9a46bd29ae479369d8504d4c58fa9eb499c10b9782d0a8b970",
+      "BOOT-INF/classes/com/yuyutian/mytools/identity/repository/IdentityRepository.class": "048dd0a19935bcaeac6f9e8ca37bd421e21ae4b6be2be7ee16e564389ad0f402",
+      "BOOT-INF/classes/com/yuyutian/mytools/identity/model/IdentityModels$RefreshRequest.class": "959142a64cb91338b81a0b396e965bb3e3c53a186549bb21bde327436fefccd6",
+      "BOOT-INF/classes/com/yuyutian/mytools/identity/model/IdentityModels$RefreshReceipt.class": "1d3f3dcbd7eee9cb8ab33d9370f2bc824de693397d02791f9212df80c5e0b3de",
+      "BOOT-INF/classes/com/yuyutian/mytools/identity/model/IdentityModels.class": "d1aa53f7c67d6483c9a429e928708aa9c67adf91654f032a34cb33cc170e342b",
+      "BOOT-INF/classes/db/migration/V3__add_refresh_rotation_receipt.sql": "da20c397d235110468b16a5f231a51009b781734cb06290a771e8a15af0c92a4"
+    }
+  },
+  "mytools-gateway": {
+    "baseSha256": "2ea7887975d6dca22f258ed7e554a72b72c59ef1547341e998002ea6a243c3b4",
+    "members": {
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/service/IdentityGatewayClient.class": "3b4caab6997d3cff531d50c966dd28377865d94f076c02faa575db0fc564a7b1",
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/model/IdentityGatewayModels$RefreshRequest.class": "b7c6ae22e00a61c55cb0b2d3dc6d35aa7b0479882956be59260d94c2c4c5d6cd"
+    }
+  }
+}

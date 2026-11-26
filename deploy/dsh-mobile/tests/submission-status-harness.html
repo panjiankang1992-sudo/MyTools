@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DSH submission status checks</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../mobile.css">
+  <style>
+    body { margin: 0; font: 16px/1.5 system-ui, sans-serif; }
+    main { padding: 16px; }
+    .transcript { display: flex; flex-direction: column; align-items: flex-end; }
+    .queue-row { display: flex; align-items: center; gap: 10px; }
+    .queue-row strong { min-width: 0; overflow-wrap: anywhere; }
+  </style>
+  <script>
+    const timers = new Map();
+    const realTimeout = window.setTimeout.bind(window);
+    const realClear = window.clearTimeout.bind(window);
+    let nextTimer = -1;
+    // 只替换等待确认的定时器，真实 MutationObserver 和页面事件保持运行。
+    window.setTimeout = (callback, delay, ...args) => {
+      if (delay !== 20000) return realTimeout(callback, delay, ...args);
+      const id = nextTimer--;
+      timers.set(id, callback);
+      return id;
+    };
+    window.clearTimeout = id => {
+      if (!timers.delete(id)) realClear(id);
+    };
+  </script>
+  <script defer src="../mobile.js"></script>
+</head>
+<body>
+<main id="root">
+  <h1>DSH submission status checks</h1>
+  <section class="transcript">
+    <div id="echo" data-submission-echo><p>Pending message</p></div>
+    <div id="durable"><p>Durable message</p></div>
+  </section>
+  <output id="result">Running</output>
+</main>
+<script>
+  const selector = '[data-mytools-submission-status]';
+  const waitForObserver = () => new Promise(resolve => realTimeout(resolve, 0));
+  function check(condition, message) {
+    if (!condition) throw new Error(message);
+  }
+  async function run() {
+    const root = document.getElementById('root');
+    const echo = document.getElementById('echo');
+    const durable = document.getElementById('durable');
+    const label = echo.querySelector(selector);
+    check(label?.textContent === '\u7b49\u5f85\u670d\u52a1\u7aef\u786e\u8ba4', 'Pending label missing');
+    check(label.getAttribute('role') === 'status' && label.getAttribute('aria-atomic') === 'true', 'Status is not accessible');
+    check(!durable.querySelector(selector) && timers.size === 1, 'Durable message received pending status');
+
+    // 上游替换原容器内容时恢复标签，并沿用已启动的计时器。
+    const [echoTimer] = timers.keys();
+    echo.replaceChildren(document.createTextNode('Updated pending message'));
+    await waitForObserver();
+    check(echo.querySelector(selector) === label && timers.has(echoTimer), 'Echo update restarted its timer');
+    const elapsed = timers.get(echoTimer);
+    timers.delete(echoTimer);
+    elapsed();
+    check(label.textContent === '\u5c1a\u672a\u6536\u5230\u670d\u52a1\u7aef\u786e\u8ba4', 'Slow echo status is not neutral');
+
+    const list = document.createElement('ul');
+    list.innerHTML = '<li class="queue-row" data-submission-echo><span aria-hidden="true">+</span><strong>Queued message</strong></li>';
+    root.insertBefore(list, document.getElementById('result'));
+    await waitForObserver();
+    const queueEcho = list.firstElementChild;
+    const queueLabel = queueEcho.querySelector(selector);
+    const queueText = queueEcho.querySelector('strong');
+    check(queueLabel?.getBoundingClientRect().top >= queueText.getBoundingClientRect().bottom, 'Queue label displaces content');
+    check(timers.size === 1, 'Added queue echo received duplicate timers');
+
+    // 标记撤销、整个容器卸载及迟到回调都不能留下状态或标记成功。
+    const queuedTimeout = timers.values().next().value;
+    queueEcho.removeAttribute('data-submission-echo');
+    await waitForObserver();
+    check(!queueEcho.querySelector(selector) && timers.size === 0, 'Confirmation marker removal leaked status');
+    queuedTimeout();
+    check(!queueEcho.querySelector(selector), 'Expired timeout relabeled a durable row');
+
+    queueEcho.setAttribute('data-submission-echo', '');
+    await waitForObserver();
+    check(queueEcho.querySelector(selector) && timers.size === 1, 'Attribute-only echo was not observed');
+    list.remove();
+    echo.remove();
+    await waitForObserver();
+    check(!queueEcho.querySelector(selector) && !root.querySelector(selector) && timers.size === 0, 'Removed subtree leaked status');
+  }
+  window.addEventListener('load', async () => {
+    const result = document.getElementById('result');
+    try {
+      await run();
+      result.dataset.result = 'pass';
+      result.textContent = 'PASS: pending, slow, durable row, queue layout, stale timers';
+    } catch (error) {
+      result.dataset.result = 'fail';
+      result.textContent = error.message;
+    }
+  });
+</script>
+</body>
+</html>

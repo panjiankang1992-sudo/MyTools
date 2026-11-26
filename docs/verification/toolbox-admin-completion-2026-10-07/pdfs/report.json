@@ -1,0 +1,74 @@
+[
+  {
+    "mode": "chinese-dictation",
+    "answer": false,
+    "file": "chinese-dictation-4p.pdf",
+    "entries": 320,
+    "pageCount": 4,
+    "bytes": 99235,
+    "page0": "595x842pt"
+  },
+  {
+    "mode": "chinese-dictation",
+    "answer": true,
+    "file": "chinese-dictation-answer-4p.pdf",
+    "entries": 320,
+    "pageCount": 4,
+    "bytes": 152267,
+    "page0": "595x842pt"
+  },
+  {
+    "mode": "chinese-pinyin",
+    "answer": false,
+    "file": "chinese-pinyin-4p.pdf",
+    "entries": 320,
+    "pageCount": 4,
+    "bytes": 162533,
+    "page0": "595x842pt"
+  },
+  {
+    "mode": "chinese-pinyin",
+    "answer": true,
+    "file": "chinese-pinyin-answer-4p.pdf",
+    "entries": 320,
+    "pageCount": 4,
+    "bytes": 148357,
+    "page0": "595x842pt"
+  },
+  {
+    "mode": "english-dictation",
+    "answer": false,
+    "file": "english-dictation-3p.pdf",
+    "entries": 100,
+    "pageCount": 3,
+    "bytes": 103318,
+    "page0": "595x842pt"
+  },
+  {
+    "mode": "english-dictation",
+    "answer": true,
+    "file": "english-dictation-answer-3p.pdf",
+    "entries": 100,
+    "pageCount": 3,
+    "bytes": 104089,
+    "page0": "595x842pt"
+  },
+  {
+    "mode": "english-meaning",
+    "answer": false,
+    "file": "english-meaning-3p.pdf",
+    "entries": 100,
+    "pageCount": 3,
+    "bytes": 70273,
+    "page0": "595x842pt"
+  },
+  {
+    "mode": "english-meaning",
+    "answer": true,
+    "file": "english-meaning-answer-3p.pdf",
+    "entries": 100,
+    "pageCount": 3,
+    "bytes": 104520,
+    "page0": "595x842pt"
+  }
+]

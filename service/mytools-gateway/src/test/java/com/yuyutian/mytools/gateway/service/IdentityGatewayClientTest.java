@@ -23,6 +23,18 @@ import static org.springframework.http.HttpMethod.POST;
 
 class IdentityGatewayClientTest {
     @Test
+    void shouldForwardRefreshOperationForLostResponseRecovery() {
+        RestTemplate restTemplate = new RestTemplate();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
+        String operation = "01010101-0101-4101-8101-010101010101";
+        server.expect(requestTo("http://identity/api/v1/identity/refresh"))
+                .andExpect(content().json("{\"refreshToken\":\"refresh\",\"rotationId\":\"" + operation + "\"}", true))
+                .andRespond(withSuccess("{\"accessToken\":\"access\",\"refreshToken\":\"next\"}", MediaType.APPLICATION_JSON));
+        new IdentityGatewayClient(restTemplate, properties()).refresh(new RefreshRequest("refresh", operation), "correlation");
+        server.verify();
+    }
+
+    @Test
     void shouldRebuildLoginPayloadAndForwardCorrelationOnly() {
         RestTemplate restTemplate = new RestTemplate();
         MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();

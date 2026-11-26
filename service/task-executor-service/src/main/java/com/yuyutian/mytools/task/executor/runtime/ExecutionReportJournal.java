@@ -48,6 +48,7 @@ public class ExecutionReportJournal implements AutoCloseable {
     private static final String PENDING = "PENDING";
     private static final String ACKNOWLEDGED = "ACKNOWLEDGED";
     private static final String DIAGNOSTIC = "DIAGNOSTIC";
+    private static final String FENCED = "FENCED";
 
     private final ObjectMapper objectMapper;
     private final Path journalRoot;
@@ -286,6 +287,7 @@ public class ExecutionReportJournal implements AutoCloseable {
             throw io("Execution report SQLite WAL integrity check failed", exception);
         }
         validatePayloads();
+        recoverLostLeaseReports();
         if (count("SELECT COUNT(*) FROM journal_report WHERE state = 'DIAGNOSTIC'") > 0
                 || !jsonFiles(diagnosticRoot).isEmpty()) {
             throw new IOException("Execution journal contains reports requiring manual diagnosis");
@@ -302,6 +304,7 @@ public class ExecutionReportJournal implements AutoCloseable {
         int pending = 0;
         int acknowledged = 0;
         int diagnostic = 0;
+        int fenced = 0;
         Instant earliestRetryAt = null;
         Map<String, Integer> diagnosticErrorCodes = new LinkedHashMap<>();
         try (Connection connection = connection(); Statement statement = connection.createStatement();
@@ -319,6 +322,7 @@ public class ExecutionReportJournal implements AutoCloseable {
                     }
                     case ACKNOWLEDGED -> acknowledged = count;
                     case DIAGNOSTIC -> diagnostic = count;
+                    case FENCED -> fenced = count;
                     default -> throw new IOException("Execution journal contains an unsupported report state");
                 }
             }
@@ -338,7 +342,7 @@ public class ExecutionReportJournal implements AutoCloseable {
             throw new IOException("Failed to parse execution report Journal status", exception);
         }
         return new JournalStatus(pending, acknowledged, diagnostic, earliestRetryAt,
-                Map.copyOf(diagnosticErrorCodes));
+                Map.copyOf(diagnosticErrorCodes), fenced);
     }
 
     /**
@@ -476,6 +480,11 @@ public class ExecutionReportJournal implements AutoCloseable {
                         throw new IOException("Execution report journal contains an unsupported event type");
                     }
                 } catch (SchedulerClientException exception) {
+                    // 明确失去租约的报告保留为隔离审计，旧执行不能再阻止节点领取新任务。
+                    if (exception.statusCode() == 409 && "EXECUTION_LEASE_LOST".equals(exception.errorCode())) {
+                        fenceReport(report);
+                        continue;
+                    }
                     if (!exception.retryable()) {
                         // Scheduler 的幂等记录可能刚由并发请求提交；REPORT_CONFLICT 先做一次有界重放，
                         // 语义一致时下一次会返回 replayed，真实冲突仍会在第二次进入人工诊断。
@@ -712,14 +721,15 @@ public class ExecutionReportJournal implements AutoCloseable {
                 (execution_id, payload_json, state, work_directory_state, final_status, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?)
                 ON CONFLICT(execution_id) DO UPDATE SET
-                  state = CASE WHEN journal_execution.state = 'COMPLETION_ACKNOWLEDGED'
+                  state = CASE WHEN journal_execution.state IN ('COMPLETION_ACKNOWLEDGED', 'LEASE_LOST')
                     THEN journal_execution.state ELSE excluded.state END,
                   work_directory_state = CASE WHEN journal_execution.work_directory_state = 'DELETED'
                     THEN journal_execution.work_directory_state ELSE excluded.work_directory_state END,
                   final_status = COALESCE(journal_execution.final_status, excluded.final_status),
                   updated_at = excluded.updated_at,
-                  payload_json = CASE WHEN journal_execution.state = 'COMPLETION_ACKNOWLEDGED'
-                    AND excluded.state = 'CLAIMED' THEN journal_execution.payload_json ELSE excluded.payload_json END
+                  payload_json = CASE WHEN journal_execution.state = 'LEASE_LOST'
+                    OR journal_execution.state = 'COMPLETION_ACKNOWLEDGED' AND excluded.state = 'CLAIMED'
+                    THEN journal_execution.payload_json ELSE excluded.payload_json END
                 """)) {
             bind(statement, execution.task().executionId().toString(), write(execution), execution.state(),
                     execution.workDirectoryState(), execution.finalStatus(), execution.updatedAt().toString());
@@ -792,6 +802,59 @@ public class ExecutionReportJournal implements AutoCloseable {
                 report.id().toString());
     }
 
+    private void recoverLostLeaseReports() throws IOException {
+        List<PendingReport> reports = new ArrayList<>();
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("""
+                SELECT payload_json FROM journal_report
+                WHERE state = 'DIAGNOSTIC' AND status_code = 409 AND error_code = 'EXECUTION_LEASE_LOST'
+                """); ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                reports.add(read(resultSet.getString(1), PendingReport.class));
+            }
+        } catch (SQLException exception) {
+            throw io("Failed to read lost execution lease reports", exception);
+        }
+        for (PendingReport report : reports) {
+            // 兼容旧版本已持久化的明确失租响应，其他诊断记录继续保留人工处理。
+            fenceReport(report);
+        }
+    }
+
+    private void fenceReport(PendingReport report) throws IOException {
+        Instant now = Instant.now();
+        String executionPayload = write(new ActiveExecution(report.task(), "LEASE_LOST", "RETAINED", null, now));
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement reportUpdate = connection.prepareStatement("""
+                    UPDATE journal_report SET state = 'FENCED', status_code = 409,
+                      error_code = 'EXECUTION_LEASE_LOST', next_attempt_at = NULL, updated_at = ?
+                    WHERE id = ? AND state IN ('PENDING', 'DIAGNOSTIC')
+                    """); PreparedStatement executionUpdate = connection.prepareStatement("""
+                    INSERT INTO journal_execution
+                    (execution_id, payload_json, state, work_directory_state, final_status, updated_at)
+                    VALUES (?, ?, 'LEASE_LOST', 'RETAINED', NULL, ?)
+                    ON CONFLICT(execution_id) DO UPDATE SET
+                      state = CASE WHEN journal_execution.state = 'CLAIMED'
+                        THEN 'LEASE_LOST' ELSE journal_execution.state END,
+                      payload_json = CASE WHEN journal_execution.state = 'CLAIMED'
+                        THEN excluded.payload_json ELSE journal_execution.payload_json END,
+                      updated_at = excluded.updated_at
+                    """)) {
+                bind(reportUpdate, now.toString(), report.id().toString());
+                reportUpdate.executeUpdate();
+                bind(executionUpdate, report.task().executionId().toString(), executionPayload, now.toString());
+                executionUpdate.executeUpdate();
+                // 报告与执行状态一起持久化，重启时不会再次给失租执行合成完成报告。
+                connection.commit();
+            } catch (SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
+        } catch (SQLException exception) {
+            throw io("Failed to retain fenced execution report", exception);
+        }
+    }
+
     private record PendingReportState(PendingReport report, int retryCount, Instant nextAttemptAt) {
     }
 
@@ -803,9 +866,15 @@ public class ExecutionReportJournal implements AutoCloseable {
      * @param diagnosticReports 人工诊断上报数量
      * @param earliestRetryAt 最早下次重试时间
      * @param diagnosticErrorCodes 诊断错误码计数
+     * @param fencedReports 已被调度器明确拒绝旧租约的报告数量
      */
     public record JournalStatus(int pendingReports, int acknowledgedReports, int diagnosticReports,
-                                Instant earliestRetryAt, Map<String, Integer> diagnosticErrorCodes) {
+                                Instant earliestRetryAt, Map<String, Integer> diagnosticErrorCodes, int fencedReports) {
+        /** 保留既有调用方创建不含失租报告计数的摘要能力。 */
+        public JournalStatus(int pendingReports, int acknowledgedReports, int diagnosticReports,
+                             Instant earliestRetryAt, Map<String, Integer> diagnosticErrorCodes) {
+            this(pendingReports, acknowledgedReports, diagnosticReports, earliestRetryAt, diagnosticErrorCodes, 0);
+        }
     }
 
     /**

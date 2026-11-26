@@ -1,0 +1,136 @@
+{
+  "result": "code-regressions-default-production-layout-and-isolated-narrow-dynamic-checks-passed",
+  "checks": {
+    "equalActionRow": {
+      "cases": 406,
+      "type": "actual-method measurements with mock Measurable nodes; not a native renderer"
+    },
+    "fieldControls": {
+      "cases": 185,
+      "type": "state and measurement regression"
+    },
+    "uiActionContracts": "passed",
+    "uiDesignPolicy": "passed",
+    "indexControlAlignment": "passed",
+    "bookSourceLayoutPolicy": "passed",
+    "downloadClipboard": {
+      "cases": 15,
+      "result": "passed"
+    },
+    "rss": "passed",
+    "chapterAdaptation": {
+      "cases": 37,
+      "result": "passed"
+    },
+    "archiveTool": "passed by scoped worker",
+    "archivePassword": {
+      "cases": 6,
+      "result": "passed by scoped worker"
+    },
+    "imageReference": {
+      "cases": 18,
+      "result": "passed by scoped worker"
+    },
+    "diffWhitespace": "passed"
+  },
+  "native": {
+    "downloadDefaultSingleLine": {
+      "controls": 4,
+      "heightPx": 156,
+      "heightVp": 48,
+      "result": "passed"
+    },
+    "finalEqualActionRow": {
+      "result": "passed-default-production-native",
+      "files": {
+        "controls": 3,
+        "heightPx": 154,
+        "heightVp": 44,
+        "evidence": "simulator/files-final-geometry.json"
+      },
+      "pdfTextFooter": {
+        "controls": 2,
+        "heightPx": 154,
+        "heightVp": 44,
+        "generationEnabled": false,
+        "evidence": "simulator/pdf-text-footer-final-geometry.json"
+      }
+    },
+    "device": "physical phone disconnected; Pura90 emulator connected; latest final2 protected download navigation reaches login",
+    "simulatorDownloadDefaultSingleLine": {
+      "controls": 4,
+      "heightPx": 168,
+      "heightVp": 48,
+      "result": "passed",
+      "evidence": "simulator/download-final-geometry.json",
+      "hapSha256": "9b6a2b252581c9885eb1c2109ca0d24a878cd8d5652401e38b34c872e9f35ef9"
+    },
+    "simulatorRssGroupDefault": {
+      "inputHeightPx": 169,
+      "buttonHeightPx": 168,
+      "differencePx": 1,
+      "result": "passed-with-pixel-rounding",
+      "hapSha256": "9b6a2b252581c9885eb1c2109ca0d24a878cd8d5652401e38b34c872e9f35ef9",
+      "evidence": "simulator/rss-group-final-geometry.json"
+    },
+    "simulatorInstall": {
+      "hapSha256": "35e5495f2287ee0ebc8abe494cfdf4af117319cbd88e6c95128cf84f15a77214",
+      "checks": "signature, install, cold start and process observed; UI checks recorded separately",
+      "evidence": "simulator/final2/device-acceptance-20261103T034632Z.json"
+    },
+    "isolatedSharedWrapper": {
+      "result": "passed-static-native-geometry",
+      "controls": 3,
+      "heightPx": 228,
+      "heightVp": 76,
+      "panelWidthVp": 280,
+      "evidence": "simulator/actions-shared-wrapper-geometry.json",
+      "remaining": "system large-font checks are tracked separately",
+      "dynamicEvidence": "simulator/actions-dynamic-geometry.json",
+      "dynamicCases": 7
+    },
+    "narrowDownload280": {
+      "result": "passed-after-responsive-fix",
+      "panelWidthsVp": [
+        280,
+        320
+      ],
+      "rows": 2,
+      "controlHeightVp": 48,
+      "productionSourceHash": "38685805502d8cb7c04a68ce6b916e96c54da8f6a5f699d982085bcb7b12ef48",
+      "evidence": "simulator/download-narrow-final-geometry.json"
+    },
+    "systemFontScaleAttempt": {
+      "result": "inconclusive",
+      "settingsRestored": true,
+      "evidence": "simulator/system-font-scale-attempt.json"
+    },
+    "bookSourceSearchFilter": {
+      "heightVp": 48,
+      "result": "passed-final2-height-and-shape",
+      "evidence": "simulator/book-source-final2-geometry.json"
+    },
+    "mediaToolbar": {
+      "heightVp": 48,
+      "order": "directory,tag,search",
+      "result": "passed-controls-only",
+      "evidence": "simulator/media-toolbar-final-geometry.json"
+    },
+    "mediaTagPickerClear": {
+      "result": "passed-no-overflow",
+      "evidence": "simulator/media-tag-clear-final-geometry.json"
+    },
+    "final2ChangeScope": "Only BookSourceManageFilter native ButtonType.Normal. Prior9b6 native geometry preserved with original SHA for unchanged components; source height/shape fresh pass, download attempt login-gated.",
+    "final2DeliveryState": {
+      "result": "login-gated",
+      "evidence": "simulator/delivery-final2-state.json"
+    }
+  },
+  "notClaimed": [
+    "all system font scales on a real device",
+    "all business result states",
+    "screen reader compliance",
+    "system font scale coverage from narrow-panel-only tests",
+    "largest system font pass when actual app text enlargement was not observed"
+  ]
+}

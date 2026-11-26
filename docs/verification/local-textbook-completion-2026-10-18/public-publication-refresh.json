@@ -1,0 +1,24 @@
+{
+  "contentVersion": "1.0.5",
+  "publishedAt": null,
+  "checks": [
+    {
+      "text": "Labour",
+      "matchesPublishedMeaning": true
+    },
+    {
+      "text": "sports ground",
+      "matchesPublishedMeaning": true
+    },
+    {
+      "text": "swimming",
+      "matchesPublishedMeaning": true
+    },
+    {
+      "text": "clothes",
+      "matchesPublishedMeaning": true
+    }
+  ],
+  "passed": true,
+  "textbookWrites": false
+}

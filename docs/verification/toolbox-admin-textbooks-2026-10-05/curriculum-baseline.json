@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-05T06:00:04.018Z",
+  "purpose": "步骤 1 只读数据盘点：迁移前基线，用于迁移后对账（原 bytes、ID、计数、哈希）。",
+  "readOnly": true,
+  "catalog": {
+    "publishedSha256": "107460ab893b7cbee890c3667807d534e5deaa7cdd96485a190c1b60b571f3cf",
+    "requirementsSha256": "3f052950af661cb63224dc814f9703b365b3a44850097c0febf90fe7305c9d00",
+    "catalogVersion": "2026-10-04.1",
+    "editionCount": 5,
+    "requirementSlotCount": 20,
+    "sourceRecordFiles": [
+      "catalog-sources.json",
+      "cn-1-first-2024.json",
+      "cn-2-first-2017.json",
+      "cn-3-first-2024.json",
+      "cn-4-first-2024.json",
+      "en-3-first-2024.json"
+    ]
+  },
+  "totals": {
+    "editions": 5,
+    "entries": 2635,
+    "units": 41,
+    "lessons": 130
+  },
+  "editions": [
+    {
+      "editionId": "cn-ty-1-1-pep-2024",
+      "contentVersion": "1.0.2",
+      "path": "content/textbooks/cn-ty-1-1-pep-2024/1.0.2/book.json",
+      "bytes": 289494,
+      "sha256": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527",
+      "declaredContentSha256": "",
+      "manifestContentSha256": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527",
+      "counts": {
+        "units": 8,
+        "lessons": 38,
+        "entries": 318,
+        "entriesWithoutLesson": 0
+      },
+      "listTypes": {
+        "recognition": 284,
+        "writing": 100
+      },
+      "idSamples": {
+        "unitIds": [
+          "cn-ty-1-1-pep-2024-u01",
+          "cn-ty-1-1-pep-2024-u02"
+        ],
+        "lessonIds": [
+          "cn-ty-1-1-pep-2024-u01-l01",
+          "cn-ty-1-1-pep-2024-u01-l02"
+        ],
+        "entryIds": [
+          "cn-ty-1-1-pep-2024-0001",
+          "cn-ty-1-1-pep-2024-0002",
+          "cn-ty-1-1-pep-2024-0003"
+        ]
+      },
+      "firstEntryId": "cn-ty-1-1-pep-2024-0001",
+      "lastEntryId": "cn-ty-1-1-pep-2024-0318"
+    },
+    {
+      "editionId": "cn-ty-2-1-pep-2017",
+      "contentVersion": "1.0.2",
+      "path": "content/textbooks/cn-ty-2-1-pep-2017/1.0.2/book.json",
+      "bytes": 693200,
+      "sha256": "1d14e1fd6d3c819dfa5a74b00de26d9476e04e7f9d5e5780a97dff71914f8778",
+      "declaredContentSha256": "",
+      "manifestContentSha256": "1d14e1fd6d3c819dfa5a74b00de26d9476e04e7f9d5e5780a97dff71914f8778",
+      "counts": {
+        "units": 8,
+        "lessons": 31,
+        "entries": 760,
+        "entriesWithoutLesson": 0
+      },
+      "listTypes": {
+        "writing": 245,
+        "recognition": 285,
+        "vocabulary": 230
+      },
+      "idSamples": {
+        "unitIds": [
+          "cn-ty-2-1-pep-2017-u01",
+          "cn-ty-2-1-pep-2017-u02"
+        ],
+        "lessonIds": [
+          "cn-ty-2-1-pep-2017-u01-l01",
+          "cn-ty-2-1-pep-2017-u01-l02"
+        ],
+        "entryIds": [
+          "cn-ty-2-1-pep-2017-0001",
+          "cn-ty-2-1-pep-2017-0002",
+          "cn-ty-2-1-pep-2017-0003"
+        ]
+      },
+      "firstEntryId": "cn-ty-2-1-pep-2017-0001",
+      "lastEntryId": "cn-ty-2-1-pep-2017-0760"
+    },
+    {
+      "editionId": "cn-ty-3-1-pep-2024",
+      "contentVersion": "1.0.0",
+      "path": "content/textbooks/cn-ty-3-1-pep-2024/1.0.0/book.json",
+      "bytes": 716239,
+      "sha256": "49abe27d8b49e50b99af599726d0374b13071b47f4447538fcaab65b74fd7cdf",
+      "declaredContentSha256": "",
+      "manifestContentSha256": "49abe27d8b49e50b99af599726d0374b13071b47f4447538fcaab65b74fd7cdf",
+      "counts": {
+        "units": 8,
+        "lessons": 30,
+        "entries": 777,
+        "entriesWithoutLesson": 0
+      },
+      "listTypes": {
+        "recognition": 277,
+        "writing": 250,
+        "vocabulary": 250
+      },
+      "idSamples": {
+        "unitIds": [
+          "cn-ty-3-1-pep-2024-u01",
+          "cn-ty-3-1-pep-2024-u02"
+        ],
+        "lessonIds": [
+          "cn-ty-3-1-pep-2024-u01-l01",
+          "cn-ty-3-1-pep-2024-u01-l02"
+        ],
+        "entryIds": [
+          "cn-ty-3-1-pep-2024-0001",
+          "cn-ty-3-1-pep-2024-0002",
+          "cn-ty-3-1-pep-2024-0003"
+        ]
+      },
+      "firstEntryId": "cn-ty-3-1-pep-2024-0001",
+      "lastEntryId": "cn-ty-3-1-pep-2024-0777"
+    },
+    {
+      "editionId": "cn-ty-4-1-pep-2024",
+      "contentVersion": "1.0.0",
+      "path": "content/textbooks/cn-ty-4-1-pep-2024/1.0.0/book.json",
+      "bytes": 595122,
+      "sha256": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295",
+      "declaredContentSha256": "",
+      "manifestContentSha256": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295",
+      "counts": {
+        "units": 8,
+        "lessons": 31,
+        "entries": 640,
+        "entriesWithoutLesson": 0
+      },
+      "listTypes": {
+        "recognition": 265,
+        "writing": 250,
+        "vocabulary": 220
+      },
+      "idSamples": {
+        "unitIds": [
+          "cn-ty-4-1-pep-2024-u01",
+          "cn-ty-4-1-pep-2024-u02"
+        ],
+        "lessonIds": [
+          "cn-ty-4-1-pep-2024-u01-l01",
+          "cn-ty-4-1-pep-2024-u01-l02"
+        ],
+        "entryIds": [
+          "cn-ty-4-1-pep-2024-0001",
+          "cn-ty-4-1-pep-2024-0002",
+          "cn-ty-4-1-pep-2024-0003"
+        ]
+      },
+      "firstEntryId": "cn-ty-4-1-pep-2024-0001",
+      "lastEntryId": "cn-ty-4-1-pep-2024-0640"
+    },
+    {
+      "editionId": "en-yl-3-1-yilin-2024",
+      "contentVersion": "1.0.1",
+      "path": "content/textbooks/en-yl-3-1-yilin-2024/1.0.1/book.json",
+      "bytes": 117917,
+      "sha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4",
+      "declaredContentSha256": "",
+      "manifestContentSha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4",
+      "counts": {
+        "units": 9,
+        "lessons": 0,
+        "entries": 140,
+        "entriesWithoutLesson": 140
+      },
+      "listTypes": {
+        "vocabulary": 140
+      },
+      "idSamples": {
+        "unitIds": [
+          "en-yl-3-1-yilin-2024-u01",
+          "en-yl-3-1-yilin-2024-u02"
+        ],
+        "lessonIds": [],
+        "entryIds": [
+          "en-yl-3-1-yilin-2024-0001",
+          "en-yl-3-1-yilin-2024-0002",
+          "en-yl-3-1-yilin-2024-0003"
+        ]
+      },
+      "firstEntryId": "en-yl-3-1-yilin-2024-0001",
+      "lastEntryId": "en-yl-3-1-yilin-2024-0140"
+    }
+  ]
+}

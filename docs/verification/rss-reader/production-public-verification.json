@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "checks": [
+    "both_public_prefixes_authenticated_and_polling_enabled",
+    "real_identity_and_rss_reads",
+    "public_post_discovers_real_feed"
+  ],
+  "testSessionRevoked": true
+}

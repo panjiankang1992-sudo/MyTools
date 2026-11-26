@@ -74,3 +74,17 @@ python3 mcp/mytools_messaging_mcp.py --env-file /path/to/messaging-mcp.env
 - 使用 NapCat 生产副本联调 `onebot-connector-service`；继续扩展 Telegram provider adapter。所有 Connector 必须实现 `PUBLIC_URL/STREAM` 契约及相同的字节上限。
 - 迁移已有能力时保留旧实现和功能开关。
 - 在对账与回归通过前不得切换权威数据或生产流量。
+
+## Verified outbound v2
+
+Daily-news delivery uses a separate, default-disabled v2 API. Destinations are administrator-verified, owner-scoped and encrypted; legacy v1 email delivery remains unchanged. The new provider attempt model distinguishes `PROVIDER_ACCEPTED`, `FAILED` and `UNKNOWN`, and never automatically resends UNKNOWN.
+
+See [the v2 contract](../contracts/messaging-outbound-v2.md) for roles, binding, hash calculation, cancellation, reconciliation, retry, migration and activation. Scheduler task `message_send_channel_message@1.0.0` is seeded disabled in V176. No real recipient is configured by this change. QQ scheduled push is unavailable under the current official platform documentation; no active QQ adapter is enabled.
+
+
+## Outbound capacity (V21)
+
+New v2 destinations and messages use transactionally reserved, finite global row/payload limits. Unknown-key cancellation has a separate finite reserve and stores a non-sendable identity hash without content. Known-message cancellation, execution, retry and reconciliation continue at capacity. Retention releases only body bytes; identity keys remain reserved. Admin retention status includes a read-only ledger audit. Stop old writers before V21, and retain V21-aware binaries for rollback. See [outbound contract](../contracts/messaging-outbound-v2.md#capacity-admission-v21-batch-19) for defaults, errors and exclusions.
+
+
+V22 新增可选且不可变的 `contentExpiresAt`、仅凭冻结摘要取消的 `cancel-by-identity` 接口，以及独立于发送/普通保留开关的每分钟正文截止清理。到期停止新发送和重试，清除正文及其字节额度，保留 UNKNOWN/SENDING 和尝试审计；已开始的提供方调用仍可完成。老记录没有被追加期限。接入方式和 V22 回退边界见[出站协议](../contracts/messaging-outbound-v2.md)。News 来源期限传播尚未接入，不能据此声称端到端到期控制已完成。

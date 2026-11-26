@@ -60,7 +60,7 @@ public class IdentityGatewayClient {
      * @return 新令牌对
      */
     public TokenPair refresh(RefreshRequest request, String correlationId) {
-        return post("/api/v1/identity/refresh", new RefreshRequest(request.refreshToken()), correlationId);
+        return post("/api/v1/identity/refresh", new RefreshRequest(request.refreshToken(), request.rotationId()), correlationId);
     }
 
     /**

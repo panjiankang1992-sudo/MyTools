@@ -1,0 +1,1164 @@
+{
+  "windowBeijing": "2026-10-28 to current",
+  "requestCount": 143,
+  "requestStatus": {
+    "SUCCEEDED": 136,
+    "FAILED": 6,
+    "CANCELLED": 1
+  },
+  "taskCount": 382,
+  "stepCount": 2205,
+  "stepTimingMethod": "Sequential report interval estimate including process startup, retry gaps and report overhead; first step starts at execution claim",
+  "zeroRecordedStepDurations": 2205,
+  "requestToTaskStoredClockOffset": {
+    "n": 143,
+    "p50s": 28800.011,
+    "p90s": 28800.014,
+    "p95s": 28800.015,
+    "maxs": 28800.039,
+    "sumSeconds": 4118401.696
+  },
+  "requestElapsed": {
+    "MESSAGE_ATTACHMENT": {
+      "n": 109,
+      "p50s": 1646.888,
+      "p90s": 2888.825,
+      "p95s": 3096.0,
+      "maxs": 3313.623,
+      "sumSeconds": 190578.41
+    },
+    "MESSAGE_URL_BATCH": {
+      "n": 25,
+      "p50s": 191.31,
+      "p90s": 603.862,
+      "p95s": 1128.365,
+      "maxs": 1946.987,
+      "sumSeconds": 7749.977
+    },
+    "HTTP_ASSET": {
+      "n": 2,
+      "p50s": 64.429,
+      "p90s": 92.933,
+      "p95s": 96.497,
+      "maxs": 100.06,
+      "sumSeconds": 128.859
+    }
+  },
+  "lastFileReadyAfterTaskStart": {
+    "MESSAGE_ATTACHMENT": {
+      "n": 109,
+      "p50s": 3.577,
+      "p90s": 5.174,
+      "p95s": 6.617,
+      "maxs": 11.637,
+      "sumSeconds": 425.466
+    },
+    "MESSAGE_URL_BATCH": {
+      "n": 25,
+      "p50s": 5.525,
+      "p90s": 21.134,
+      "p95s": 843.361,
+      "maxs": 1935.697,
+      "sumSeconds": 3199.242
+    },
+    "HTTP_ASSET": {
+      "n": 2,
+      "p50s": 4.981,
+      "p90s": 7.515,
+      "p95s": 7.832,
+      "maxs": 8.149,
+      "sumSeconds": 9.961
+    }
+  },
+  "taskCompletionAfterLastFileReady": {
+    "MESSAGE_ATTACHMENT": {
+      "n": 109,
+      "p50s": 152.987,
+      "p90s": 278.683,
+      "p95s": 287.665,
+      "maxs": 300.645,
+      "sumSeconds": 20000.531
+    },
+    "MESSAGE_URL_BATCH": {
+      "n": 25,
+      "p50s": 46.929,
+      "p90s": 214.24,
+      "p95s": 258.425,
+      "maxs": 286.212,
+      "sumSeconds": 2137.93
+    },
+    "HTTP_ASSET": {
+      "n": 2,
+      "p50s": 59.084,
+      "p90s": 89.992,
+      "p95s": 93.855,
+      "maxs": 97.719,
+      "sumSeconds": 118.169
+    }
+  },
+  "requestBytes": {
+    "MESSAGE_ATTACHMENT": {
+      "n": 109,
+      "p50Bytes": 118928.0,
+      "p95Bytes": 242364.0,
+      "maxBytes": 2794761.0,
+      "totalBytes": 21506405.0
+    },
+    "MESSAGE_URL_BATCH": {
+      "n": 25,
+      "p50Bytes": 870440.0,
+      "p95Bytes": 13532353.0,
+      "maxBytes": 21811643.0,
+      "totalBytes": 76297864.0
+    },
+    "HTTP_ASSET": {
+      "n": 2,
+      "p50Bytes": 27219.5,
+      "p95Bytes": 41733.35,
+      "maxBytes": 43346.0,
+      "totalBytes": 54439.0
+    }
+  },
+  "queueByTask": {
+    "download_http_asset": {
+      "n": 139,
+      "p50s": 0.169,
+      "p90s": 0.306,
+      "p95s": 1.14,
+      "maxs": 7.72,
+      "sumSeconds": 52.635
+    },
+    "download_x_auth_health": {
+      "n": 30,
+      "p50s": 0.137,
+      "p90s": 0.265,
+      "p95s": 0.275,
+      "maxs": 0.287,
+      "sumSeconds": 4.323
+    },
+    "download_message_attachment": {
+      "n": 109,
+      "p50s": 1490.105,
+      "p90s": 2729.662,
+      "p95s": 2947.803,
+      "maxs": 3167.088,
+      "sumSeconds": 170151.182
+    },
+    "download_message_url_batch": {
+      "n": 31,
+      "p50s": 99.709,
+      "p90s": 218.125,
+      "p95s": 384.601,
+      "maxs": 411.322,
+      "sumSeconds": 3343.869
+    },
+    "download_resolve_x_url": {
+      "n": 21,
+      "p50s": 0.238,
+      "p90s": 0.248,
+      "p95s": 0.251,
+      "maxs": 0.294,
+      "sumSeconds": 5.064
+    },
+    "download_x_post": {
+      "n": 43,
+      "p50s": 388.025,
+      "p90s": 1824.378,
+      "p95s": 1836.25,
+      "maxs": 1847.541,
+      "sumSeconds": 29999.544
+    },
+    "download_x_user": {
+      "n": 8,
+      "p50s": 0.245,
+      "p90s": 0.264,
+      "p95s": 0.269,
+      "maxs": 0.274,
+      "sumSeconds": 1.983
+    }
+  },
+  "taskElapsedIncludingChildren": {
+    "download_http_asset": {
+      "n": 139,
+      "p50s": 48.756,
+      "p90s": 177.793,
+      "p95s": 191.484,
+      "maxs": 708.517,
+      "sumSeconds": 10904.338
+    },
+    "download_x_auth_health": {
+      "n": 30,
+      "p50s": 3.166,
+      "p90s": 6.62,
+      "p95s": 17.37,
+      "maxs": 18.751,
+      "sumSeconds": 145.121
+    },
+    "download_message_attachment": {
+      "n": 109,
+      "p50s": 156.025,
+      "p90s": 282.754,
+      "p95s": 291.553,
+      "maxs": 307.342,
+      "sumSeconds": 20425.997
+    },
+    "download_message_url_batch": {
+      "n": 25,
+      "p50s": 61.187,
+      "p90s": 282.456,
+      "p95s": 1046.025,
+      "maxs": 1941.072,
+      "sumSeconds": 5337.172
+    },
+    "download_resolve_x_url": {
+      "n": 21,
+      "p50s": 2.082,
+      "p90s": 9.2,
+      "p95s": 9.362,
+      "maxs": 9.683,
+      "sumSeconds": 84.299
+    },
+    "download_x_post": {
+      "n": 43,
+      "p50s": 11.729,
+      "p90s": 187.909,
+      "p95s": 194.893,
+      "maxs": 719.06,
+      "sumSeconds": 3338.596
+    },
+    "download_x_user": {
+      "n": 2,
+      "p50s": 1587.34,
+      "p90s": 1869.982,
+      "p95s": 1905.312,
+      "maxs": 1940.642,
+      "sumSeconds": 3174.68
+    }
+  },
+  "firstChildStartupIncludingParsing": {
+    "download_message_url_batch": {
+      "n": 31,
+      "p50s": 0.055,
+      "p90s": 0.074,
+      "p95s": 0.083,
+      "maxs": 0.089,
+      "sumSeconds": 1.804
+    },
+    "download_x_post": {
+      "n": 43,
+      "p50s": 1.688,
+      "p90s": 1.913,
+      "p95s": 1.966,
+      "maxs": 2.125,
+      "sumSeconds": 74.693
+    },
+    "download_x_user": {
+      "n": 2,
+      "p50s": 2.612,
+      "p90s": 2.79,
+      "p95s": 2.812,
+      "maxs": 2.834,
+      "sumSeconds": 5.223
+    }
+  },
+  "stepDurations": {
+    "download_asset": {
+      "n": 250,
+      "p50s": 1.718,
+      "p90s": 3.518,
+      "p95s": 7.895,
+      "maxs": 11.325,
+      "sumSeconds": 617.623
+    },
+    "publish_asset": {
+      "n": 250,
+      "p50s": 0.111,
+      "p90s": 1.475,
+      "p95s": 1.725,
+      "maxs": 6.149,
+      "sumSeconds": 120.341
+    },
+    "register_asset": {
+      "n": 250,
+      "p50s": 0.08,
+      "p90s": 0.113,
+      "p95s": 0.123,
+      "maxs": 0.17,
+      "sumSeconds": 21.212
+    },
+    "register_media_item": {
+      "n": 250,
+      "p50s": 0.073,
+      "p90s": 0.1,
+      "p95s": 0.105,
+      "maxs": 0.126,
+      "sumSeconds": 19.595
+    },
+    "record_result": {
+      "n": 250,
+      "p50s": 0.082,
+      "p90s": 0.11,
+      "p95s": 0.114,
+      "maxs": 0.315,
+      "sumSeconds": 22.178
+    },
+    "generate_tags": {
+      "n": 230,
+      "p50s": 91.803,
+      "p90s": 158.138,
+      "p95s": 165.683,
+      "maxs": 178.306,
+      "sumSeconds": 20446.675
+    },
+    "record_tags": {
+      "n": 248,
+      "p50s": 0.093,
+      "p90s": 0.152,
+      "p95s": 0.169,
+      "maxs": 0.221,
+      "sumSeconds": 25.442
+    },
+    "check_x_auth": {
+      "n": 30,
+      "p50s": 3.157,
+      "p90s": 6.611,
+      "p95s": 17.361,
+      "maxs": 18.743,
+      "sumSeconds": 144.862
+    },
+    "generate_thumbnail": {
+      "n": 136,
+      "p50s": 0.112,
+      "p90s": 0.244,
+      "p95s": 0.329,
+      "maxs": 0.398,
+      "sumSeconds": 18.91
+    },
+    "orchestrate_message_urls": {
+      "n": 25,
+      "p50s": 57.183,
+      "p90s": 256.268,
+      "p95s": 287.007,
+      "maxs": 1234.627,
+      "sumSeconds": 3395.926
+    },
+    "resolve_x_post": {
+      "n": 43,
+      "p50s": 11.717,
+      "p90s": 187.126,
+      "p95s": 191.863,
+      "maxs": 195.377,
+      "sumSeconds": 2668.021
+    },
+    "resolve_x_url": {
+      "n": 21,
+      "p50s": 2.073,
+      "p90s": 9.193,
+      "p95s": 9.354,
+      "maxs": 9.678,
+      "sumSeconds": 84.134
+    },
+    "resolve_x_user": {
+      "n": 2,
+      "p50s": 715.463,
+      "p90s": 1130.306,
+      "p95s": 1182.162,
+      "maxs": 1234.017,
+      "sumSeconds": 1430.926
+    }
+  },
+  "stepDurationsByPhase": {
+    "historical": {
+      "download_asset": {
+        "n": 146,
+        "p50s": 2.48,
+        "p90s": 7.746,
+        "p95s": 8.246,
+        "maxs": 11.325,
+        "sumSeconds": 463.456
+      },
+      "publish_asset": {
+        "n": 146,
+        "p50s": 0.23,
+        "p90s": 1.609,
+        "p95s": 1.917,
+        "maxs": 6.149,
+        "sumSeconds": 97.884
+      },
+      "register_asset": {
+        "n": 146,
+        "p50s": 0.095,
+        "p90s": 0.121,
+        "p95s": 0.126,
+        "maxs": 0.17,
+        "sumSeconds": 13.656
+      },
+      "register_media_item": {
+        "n": 146,
+        "p50s": 0.083,
+        "p90s": 0.105,
+        "p95s": 0.11,
+        "maxs": 0.126,
+        "sumSeconds": 12.444
+      },
+      "record_result": {
+        "n": 146,
+        "p50s": 0.095,
+        "p90s": 0.113,
+        "p95s": 0.125,
+        "maxs": 0.315,
+        "sumSeconds": 13.994
+      },
+      "generate_tags": {
+        "n": 128,
+        "p50s": 137.407,
+        "p90s": 164.88,
+        "p95s": 170.336,
+        "maxs": 178.306,
+        "sumSeconds": 15762.185
+      },
+      "record_tags": {
+        "n": 146,
+        "p50s": 0.1,
+        "p90s": 0.151,
+        "p95s": 0.169,
+        "maxs": 0.221,
+        "sumSeconds": 15.805
+      },
+      "check_x_auth": {
+        "n": 30,
+        "p50s": 3.157,
+        "p90s": 6.611,
+        "p95s": 17.361,
+        "maxs": 18.743,
+        "sumSeconds": 144.862
+      },
+      "orchestrate_message_urls": {
+        "n": 23,
+        "p50s": 57.183,
+        "p90s": 223.325,
+        "p95s": 265.636,
+        "maxs": 291.569,
+        "sumSeconds": 2161.234
+      },
+      "resolve_x_url": {
+        "n": 21,
+        "p50s": 2.073,
+        "p90s": 9.193,
+        "p95s": 9.354,
+        "maxs": 9.678,
+        "sumSeconds": 84.134
+      },
+      "generate_thumbnail": {
+        "n": 32,
+        "p50s": 0.124,
+        "p90s": 0.181,
+        "p95s": 0.269,
+        "maxs": 0.384,
+        "sumSeconds": 4.592
+      }
+    },
+    "gpu": {
+      "download_asset": {
+        "n": 52,
+        "p50s": 1.505,
+        "p90s": 1.693,
+        "p95s": 1.718,
+        "maxs": 1.751,
+        "sumSeconds": 78.161
+      },
+      "publish_asset": {
+        "n": 52,
+        "p50s": 0.075,
+        "p90s": 0.419,
+        "p95s": 0.452,
+        "maxs": 0.6,
+        "sumSeconds": 7.598
+      },
+      "register_asset": {
+        "n": 52,
+        "p50s": 0.067,
+        "p90s": 0.077,
+        "p95s": 0.082,
+        "maxs": 0.088,
+        "sumSeconds": 3.572
+      },
+      "register_media_item": {
+        "n": 52,
+        "p50s": 0.066,
+        "p90s": 0.079,
+        "p95s": 0.083,
+        "maxs": 0.095,
+        "sumSeconds": 3.521
+      },
+      "record_result": {
+        "n": 52,
+        "p50s": 0.076,
+        "p90s": 0.085,
+        "p95s": 0.087,
+        "maxs": 0.089,
+        "sumSeconds": 3.977
+      },
+      "generate_thumbnail": {
+        "n": 52,
+        "p50s": 0.107,
+        "p90s": 0.125,
+        "p95s": 0.128,
+        "maxs": 0.252,
+        "sumSeconds": 5.786
+      },
+      "generate_tags": {
+        "n": 52,
+        "p50s": 4.782,
+        "p90s": 40.618,
+        "p95s": 46.854,
+        "maxs": 52.416,
+        "sumSeconds": 501.7
+      },
+      "record_tags": {
+        "n": 52,
+        "p50s": 0.081,
+        "p90s": 0.088,
+        "p95s": 0.093,
+        "maxs": 0.101,
+        "sumSeconds": 4.267
+      },
+      "resolve_x_post": {
+        "n": 29,
+        "p50s": 9.797,
+        "p90s": 14.26,
+        "p95s": 35.649,
+        "maxs": 58.051,
+        "sumSeconds": 371.308
+      },
+      "resolve_x_user": {
+        "n": 1,
+        "p50s": 196.908,
+        "p90s": 196.908,
+        "p95s": 196.908,
+        "maxs": 196.908,
+        "sumSeconds": 196.908
+      },
+      "orchestrate_message_urls": {
+        "n": 1,
+        "p50s": 0.066,
+        "p90s": 0.066,
+        "p95s": 0.066,
+        "maxs": 0.066,
+        "sumSeconds": 0.066
+      }
+    },
+    "cpu_incident": {
+      "download_asset": {
+        "n": 52,
+        "p50s": 1.457,
+        "p90s": 1.677,
+        "p95s": 1.798,
+        "maxs": 1.942,
+        "sumSeconds": 76.005
+      },
+      "publish_asset": {
+        "n": 52,
+        "p50s": 0.087,
+        "p90s": 0.549,
+        "p95s": 1.04,
+        "maxs": 2.422,
+        "sumSeconds": 14.859
+      },
+      "register_asset": {
+        "n": 52,
+        "p50s": 0.072,
+        "p90s": 0.092,
+        "p95s": 0.102,
+        "maxs": 0.151,
+        "sumSeconds": 3.984
+      },
+      "register_media_item": {
+        "n": 52,
+        "p50s": 0.067,
+        "p90s": 0.081,
+        "p95s": 0.09,
+        "maxs": 0.098,
+        "sumSeconds": 3.63
+      },
+      "record_result": {
+        "n": 52,
+        "p50s": 0.078,
+        "p90s": 0.096,
+        "p95s": 0.102,
+        "maxs": 0.109,
+        "sumSeconds": 4.206
+      },
+      "generate_thumbnail": {
+        "n": 52,
+        "p50s": 0.112,
+        "p90s": 0.32,
+        "p95s": 0.382,
+        "maxs": 0.398,
+        "sumSeconds": 8.531
+      },
+      "generate_tags": {
+        "n": 50,
+        "p50s": 86.868,
+        "p90s": 137.652,
+        "p95s": 142.064,
+        "maxs": 146.215,
+        "sumSeconds": 4182.789
+      },
+      "record_tags": {
+        "n": 50,
+        "p50s": 0.091,
+        "p90s": 0.166,
+        "p95s": 0.174,
+        "maxs": 0.208,
+        "sumSeconds": 5.369
+      },
+      "resolve_x_post": {
+        "n": 14,
+        "p50s": 183.213,
+        "p90s": 194.303,
+        "p95s": 195.241,
+        "maxs": 195.377,
+        "sumSeconds": 2296.713
+      },
+      "resolve_x_user": {
+        "n": 1,
+        "p50s": 1234.017,
+        "p90s": 1234.017,
+        "p95s": 1234.017,
+        "maxs": 1234.017,
+        "sumSeconds": 1234.017
+      },
+      "orchestrate_message_urls": {
+        "n": 1,
+        "p50s": 1234.627,
+        "p90s": 1234.627,
+        "p95s": 1234.627,
+        "maxs": 1234.627,
+        "sumSeconds": 1234.627
+      }
+    }
+  },
+  "stepErrors": [
+    {
+      "step": "generate_thumbnail",
+      "code": "TASK_INPUT_INVALID",
+      "n": 104
+    },
+    {
+      "step": "generate_tags",
+      "code": "REMOTE_NETWORK_FAILURE",
+      "n": 65
+    },
+    {
+      "step": "orchestrate_message_urls",
+      "code": "SCRIPT_EXIT_NON_ZERO",
+      "n": 6
+    },
+    {
+      "step": "generate_thumbnail",
+      "code": "SCRIPT_EXIT_NON_ZERO",
+      "n": 20
+    },
+    {
+      "step": "generate_tags",
+      "code": "MEDIA_TAGGING_PROVIDER_RESPONSE_INVALID",
+      "n": 1
+    },
+    {
+      "step": "generate_tags",
+      "code": "TASK_CANCELLED",
+      "n": 2
+    },
+    {
+      "step": "download_asset",
+      "code": "REMOTE_NETWORK_FAILURE",
+      "n": 2
+    },
+    {
+      "step": "resolve_x_user",
+      "code": "SCRIPT_EXIT_NON_ZERO",
+      "n": 4
+    },
+    {
+      "step": "resolve_x_user",
+      "code": "REMOTE_NETWORK_FAILURE",
+      "n": 1
+    },
+    {
+      "step": "generate_tags",
+      "code": "STEP_TIMEOUT",
+      "n": 4
+    },
+    {
+      "step": "resolve_x_user",
+      "code": "REMOTE_SERVICE_UNAVAILABLE",
+      "n": 8
+    },
+    {
+      "step": "resolve_x_post",
+      "code": "REMOTE_NETWORK_FAILURE",
+      "n": 1
+    },
+    {
+      "step": "resolve_x_post",
+      "code": "TASK_CANCELLED",
+      "n": 1
+    },
+    {
+      "step": "orchestrate_message_urls",
+      "code": "REMOTE_NETWORK_FAILURE",
+      "n": 1
+    }
+  ],
+  "slowestRequests": [
+    {
+      "id": "d8d0764c-4c56-4823-ad3c-0e9f5fb7f894",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 3313.623,
+      "files": 1,
+      "bytes": 123663,
+      "afterLastFileSeconds": 138.741,
+      "createdBeijing": "2026-11-03 01:51:16.054391",
+      "finishedBeijing": "2026-11-03 02:46:29.677631"
+    },
+    {
+      "id": "cc216bcc-6d8d-4c57-aefc-96c98df1ba7f",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 3264.525,
+      "files": 1,
+      "bytes": 118556,
+      "afterLastFileSeconds": 143.528,
+      "createdBeijing": "2026-11-03 01:51:15.232745",
+      "finishedBeijing": "2026-11-03 02:45:39.757572"
+    },
+    {
+      "id": "e7cc7901-36d5-43b0-a325-f2417aaf9814",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 3262.726,
+      "files": 1,
+      "bytes": 136608,
+      "afterLastFileSeconds": 240.563,
+      "createdBeijing": "2026-11-03 01:51:13.698176",
+      "finishedBeijing": "2026-11-03 02:45:36.424520"
+    },
+    {
+      "id": "0a9747c8-ae07-4acd-808b-25cffcdbfef1",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 3214.967,
+      "files": 1,
+      "bytes": 138870,
+      "afterLastFileSeconds": 145.955,
+      "createdBeijing": "2026-11-03 01:51:14.432246",
+      "finishedBeijing": "2026-11-03 02:44:49.399149"
+    },
+    {
+      "id": "2ac21e53-6d77-4aba-a38c-f8773e2c4dcf",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 3164.779,
+      "files": 1,
+      "bytes": 90742,
+      "afterLastFileSeconds": 156.943,
+      "createdBeijing": "2026-11-03 01:51:13.247696",
+      "finishedBeijing": "2026-11-03 02:43:58.026603"
+    },
+    {
+      "id": "5d7bc98f-44e2-4e0b-977f-f174fc7a05b8",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 3115.833,
+      "files": 1,
+      "bytes": 90605,
+      "afterLastFileSeconds": 144.759,
+      "createdBeijing": "2026-11-03 01:51:12.738046",
+      "finishedBeijing": "2026-11-03 02:43:08.571313"
+    },
+    {
+      "id": "cb7fbe0b-4820-4775-ba82-c1c0a950fa60",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 3066.25,
+      "files": 1,
+      "bytes": 113539,
+      "afterLastFileSeconds": 145.641,
+      "createdBeijing": "2026-11-03 01:51:12.683166",
+      "finishedBeijing": "2026-11-03 02:42:18.933441"
+    },
+    {
+      "id": "2be3d312-013f-45de-b25a-7d1db0b7ed6a",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 3018.29,
+      "files": 1,
+      "bytes": 117967,
+      "afterLastFileSeconds": 151.967,
+      "createdBeijing": "2026-11-03 01:51:12.211669",
+      "finishedBeijing": "2026-11-03 02:41:30.501406"
+    },
+    {
+      "id": "d3de9cba-fcd0-4824-91cc-4db6c7631da1",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 3010.536,
+      "files": 1,
+      "bytes": 149029,
+      "afterLastFileSeconds": 240.541,
+      "createdBeijing": "2026-11-03 01:51:05.423870",
+      "finishedBeijing": "2026-11-03 02:41:15.959688"
+    },
+    {
+      "id": "292a67ba-66bd-4f2f-97eb-078492d8acb7",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 2965.591,
+      "files": 1,
+      "bytes": 111583,
+      "afterLastFileSeconds": 149.26,
+      "createdBeijing": "2026-11-03 01:51:12.110963",
+      "finishedBeijing": "2026-11-03 02:40:37.701762"
+    },
+    {
+      "id": "c7472a5b-7ebc-40eb-90a5-60e06b82ef0b",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 2920.506,
+      "files": 1,
+      "bytes": 138888,
+      "afterLastFileSeconds": 158.629,
+      "createdBeijing": "2026-11-03 01:51:05.003158",
+      "finishedBeijing": "2026-11-03 02:39:45.509589"
+    },
+    {
+      "id": "61e6bbbe-2579-4be0-b96d-ccf418a37258",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 2880.905,
+      "files": 1,
+      "bytes": 89771,
+      "afterLastFileSeconds": 277.235,
+      "createdBeijing": "2026-11-03 02:02:37.627807",
+      "finishedBeijing": "2026-11-03 02:50:38.532846"
+    },
+    {
+      "id": "7c722bf0-c5fd-4c54-a465-aac1cd5e13a7",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 2866.41,
+      "files": 1,
+      "bytes": 169058,
+      "afterLastFileSeconds": 141.007,
+      "createdBeijing": "2026-11-03 01:51:04.891044",
+      "finishedBeijing": "2026-11-03 02:38:51.301111"
+    },
+    {
+      "id": "34ac3c52-541e-46ac-b958-705634b44b2e",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 2854.494,
+      "files": 1,
+      "bytes": 114171,
+      "afterLastFileSeconds": 145.112,
+      "createdBeijing": "2026-11-03 01:59:46.609043",
+      "finishedBeijing": "2026-11-03 02:47:21.103295"
+    },
+    {
+      "id": "54e28cc5-15d2-40a4-8866-e72396aaeea9",
+      "kind": "MESSAGE_ATTACHMENT",
+      "source": "MESSAGE_ATTACHMENT",
+      "elapsedSeconds": 2818.598,
+      "files": 1,
+      "bytes": 168860,
+      "afterLastFileSeconds": 148.107,
+      "createdBeijing": "2026-11-03 01:51:04.480066",
+      "finishedBeijing": "2026-11-03 02:38:03.078451"
+    }
+  ],
+  "definitions": [
+    {
+      "name": "download_http_asset",
+      "max_concurrency": 8,
+      "cluster_name": "download",
+      "cluster_limit": 8
+    },
+    {
+      "name": "download_migrate_legacy_history",
+      "max_concurrency": 1,
+      "cluster_name": "asset",
+      "cluster_limit": 8
+    },
+    {
+      "name": "downloadbot_capture_snapshot",
+      "max_concurrency": 1,
+      "cluster_name": "asset",
+      "cluster_limit": 8
+    },
+    {
+      "name": "download_reconcile_legacy_result",
+      "max_concurrency": 4,
+      "cluster_name": "asset",
+      "cluster_limit": 8
+    },
+    {
+      "name": "download_storage_object",
+      "max_concurrency": 4,
+      "cluster_name": "download",
+      "cluster_limit": 8
+    },
+    {
+      "name": "download_x_post",
+      "max_concurrency": 2,
+      "cluster_name": "download-orchestration",
+      "cluster_limit": 4
+    },
+    {
+      "name": "download_publish_text",
+      "max_concurrency": 4,
+      "cluster_name": "download",
+      "cluster_limit": 8
+    },
+    {
+      "name": "download_web_archive",
+      "max_concurrency": 2,
+      "cluster_name": "download-orchestration",
+      "cluster_limit": 4
+    },
+    {
+      "name": "download_pikpak_magnet",
+      "max_concurrency": 2,
+      "cluster_name": "download-orchestration",
+      "cluster_limit": 4
+    },
+    {
+      "name": "download_remote_storage_object",
+      "max_concurrency": 4,
+      "cluster_name": "download",
+      "cluster_limit": 8
+    },
+    {
+      "name": "download_message_attachment",
+      "max_concurrency": 4,
+      "cluster_name": "download",
+      "cluster_limit": 8
+    },
+    {
+      "name": "download_local_magnet",
+      "max_concurrency": 2,
+      "cluster_name": "download",
+      "cluster_limit": 8
+    },
+    {
+      "name": "download_local_import",
+      "max_concurrency": 2,
+      "cluster_name": "download",
+      "cluster_limit": 8
+    },
+    {
+      "name": "download_pikpak_watch_batch",
+      "max_concurrency": 2,
+      "cluster_name": "download-orchestration",
+      "cluster_limit": 4
+    },
+    {
+      "name": "download_resolve_x_url",
+      "max_concurrency": 3,
+      "cluster_name": "download-orchestration",
+      "cluster_limit": 4
+    },
+    {
+      "name": "download_message_url_batch",
+      "max_concurrency": 1,
+      "cluster_name": "download-orchestration",
+      "cluster_limit": 4
+    },
+    {
+      "name": "download_x_user",
+      "max_concurrency": 1,
+      "cluster_name": "download-orchestration",
+      "cluster_limit": 4
+    },
+    {
+      "name": "download_x_auth_health",
+      "max_concurrency": 1,
+      "cluster_name": "download-orchestration",
+      "cluster_limit": 4
+    }
+  ],
+  "steps": [
+    {
+      "task": "download_http_asset",
+      "step": "download_asset",
+      "script_package": "download_http_asset",
+      "script_version": "1.0.0",
+      "sequence_number": 10,
+      "max_attempts": 3,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_http_asset",
+      "step": "publish_asset",
+      "script_package": "download_publish_file",
+      "script_version": "1.2.1",
+      "sequence_number": 15,
+      "max_attempts": 3,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_http_asset",
+      "step": "register_asset",
+      "script_package": "asset_register_content",
+      "script_version": "1.1.0",
+      "sequence_number": 20,
+      "max_attempts": 3,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_http_asset",
+      "step": "register_media_item",
+      "script_package": "media_register_downloaded_item",
+      "script_version": "1.1.0",
+      "sequence_number": 25,
+      "max_attempts": 3,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_http_asset",
+      "step": "record_result",
+      "script_package": "download_record_result",
+      "script_version": "1.0.0",
+      "sequence_number": 30,
+      "max_attempts": 3,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_http_asset",
+      "step": "generate_thumbnail",
+      "script_package": "media_generate_thumbnail",
+      "script_version": "1.0.0",
+      "sequence_number": 35,
+      "max_attempts": 2,
+      "failure_policy": "IGNORE"
+    },
+    {
+      "task": "download_http_asset",
+      "step": "generate_tags",
+      "script_package": "media_generate_tags",
+      "script_version": "1.4.1",
+      "sequence_number": 40,
+      "max_attempts": 2,
+      "failure_policy": "IGNORE"
+    },
+    {
+      "task": "download_http_asset",
+      "step": "record_tags",
+      "script_package": "download_record_tags",
+      "script_version": "1.1.0",
+      "sequence_number": 50,
+      "max_attempts": 3,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_message_attachment",
+      "step": "download_asset",
+      "script_package": "download_message_attachment",
+      "script_version": "1.0.0",
+      "sequence_number": 10,
+      "max_attempts": 3,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_message_attachment",
+      "step": "publish_asset",
+      "script_package": "download_publish_file",
+      "script_version": "1.2.1",
+      "sequence_number": 15,
+      "max_attempts": 3,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_message_attachment",
+      "step": "register_asset",
+      "script_package": "asset_register_content",
+      "script_version": "1.1.0",
+      "sequence_number": 20,
+      "max_attempts": 3,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_message_attachment",
+      "step": "register_media_item",
+      "script_package": "media_register_downloaded_item",
+      "script_version": "1.1.0",
+      "sequence_number": 25,
+      "max_attempts": 3,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_message_attachment",
+      "step": "record_result",
+      "script_package": "download_record_result",
+      "script_version": "1.0.0",
+      "sequence_number": 30,
+      "max_attempts": 3,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_message_attachment",
+      "step": "generate_thumbnail",
+      "script_package": "media_generate_thumbnail",
+      "script_version": "1.0.0",
+      "sequence_number": 35,
+      "max_attempts": 2,
+      "failure_policy": "IGNORE"
+    },
+    {
+      "task": "download_message_attachment",
+      "step": "generate_tags",
+      "script_package": "media_generate_tags",
+      "script_version": "1.4.1",
+      "sequence_number": 40,
+      "max_attempts": 2,
+      "failure_policy": "IGNORE"
+    },
+    {
+      "task": "download_message_attachment",
+      "step": "record_tags",
+      "script_package": "download_record_tags",
+      "script_version": "1.1.0",
+      "sequence_number": 50,
+      "max_attempts": 3,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_message_url_batch",
+      "step": "orchestrate_message_urls",
+      "script_package": "download_message_url_batch",
+      "script_version": "1.0.0",
+      "sequence_number": 10,
+      "max_attempts": 1,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_x_post",
+      "step": "resolve_x_post",
+      "script_package": "download_resolve_x_post",
+      "script_version": "1.0.0",
+      "sequence_number": 10,
+      "max_attempts": 2,
+      "failure_policy": "FAIL_TASK"
+    },
+    {
+      "task": "download_x_user",
+      "step": "resolve_x_user",
+      "script_package": "download_resolve_x_user",
+      "script_version": "1.1.1",
+      "sequence_number": 10,
+      "max_attempts": 2,
+      "failure_policy": "FAIL_TASK"
+    }
+  ]
+}

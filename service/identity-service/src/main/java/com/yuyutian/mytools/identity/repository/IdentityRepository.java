@@ -40,9 +40,47 @@ public class IdentityRepository {
    Timestamp.from(record.issuedAt()),Timestamp.from(record.refreshExpiresAt()),null,null,Timestamp.from(record.issuedAt()));}
  /** 按刷新摘要查询会话。 @param hash 摘要 @return 会话 */ public Optional<SessionRecord> sessionByRefresh(String hash){return session("refresh_token_sha256",hash);}
  /** 按标识查询会话。 @param id 标识 @return 会话 */ public Optional<SessionRecord> session(UUID id){return session("id",id.toString());}
- /** 原子轮换刷新摘要。 @param id 会话 @param oldHash 旧摘要 @param newHash 新摘要 @param version 新版本 @param now 时间 @return 是否成功 */
- public boolean rotate(UUID id,String oldHash,String newHash,long version,Instant now){return jdbc.update("UPDATE identity_session SET refresh_token_sha256=?,version=?,last_seen_at=? WHERE id=? AND refresh_token_sha256=? AND revoked_at IS NULL",
-   newHash,version,Timestamp.from(now),id.toString(),oldHash)==1;}
+ /**
+  * 原子轮换刷新摘要并持久化新的会话期限。
+  * @param id 会话标识。
+  * @param oldHash 旧摘要。
+  * @param newHash 新摘要。
+  * @param version 新版本。
+  * @param now 刷新时间。
+  * @param refreshExpiresAt 新的刷新到期时间。
+  * @return 是否成功。
+  */
+ public boolean rotate(UUID id,String oldHash,String newHash,long version,Instant now,Instant refreshExpiresAt){
+  // 仅允许尚未撤销、未过期且摘要未被其他请求轮换的会话续期。
+  return jdbc.update("UPDATE identity_session SET refresh_token_sha256=?,version=?,last_seen_at=?,refresh_expires_at=? WHERE id=? AND refresh_token_sha256=? AND revoked_at IS NULL AND refresh_expires_at>?",
+   newHash,version,Timestamp.from(now),Timestamp.from(refreshExpiresAt),id.toString(),oldHash,Timestamp.from(now))==1;
+ }
+ /** 定位当前或上次轮换令牌所属的会话。 @param hash 令牌摘要。 @return 会话标识。 */
+ public Optional<UUID> refreshSessionId(String hash) {
+  return jdbc.query("SELECT id FROM identity_session WHERE refresh_token_sha256=? UNION SELECT session_id FROM identity_refresh_receipt WHERE previous_token_sha256=?",
+    (rs,row)->UUID.fromString(rs.getString(1)),hash,hash).stream().findFirst();
+ }
+ /** 锁定会话后读取最新状态，串行化并发轮换。 @param id 会话标识。 @return 会话。 */
+ public SessionRecord lockSession(UUID id) {
+  return jdbc.query("SELECT * FROM identity_session WHERE id=? FOR UPDATE",(rs,row)->new SessionRecord(
+    UUID.fromString(rs.getString("id")),rs.getLong("user_id"),rs.getString("device_id"),rs.getString("refresh_token_sha256"),
+    rs.getLong("version"),rs.getLong("credential_version"),rs.getTimestamp("issued_at").toInstant(),
+    rs.getTimestamp("refresh_expires_at").toInstant(),rs.getTimestamp("revoked_at")==null?null:rs.getTimestamp("revoked_at").toInstant()),
+    id.toString()).stream().findFirst().orElseThrow(()->new SecurityException("identity session is unavailable"));
+ }
+ /** 读取锁定会话的最近一次回执。 @param id 会话标识。 @return 回执。 */
+ public Optional<RefreshReceipt> refreshReceipt(UUID id) {
+  return jdbc.query("SELECT * FROM identity_refresh_receipt WHERE session_id=? FOR UPDATE",(rs,row)->new RefreshReceipt(
+    UUID.fromString(rs.getString("session_id")),rs.getString("previous_token_sha256"),rs.getString("rotation_id_sha256"),
+    rs.getLong("rotated_version")),id.toString()).stream().findFirst();
+ }
+ /** 原子替换最近一次回执，旧客户端轮换时清除恢复材料。 @param id 会话标识。 @param receipt 新回执或空值。 @param now 当前时间。 */
+ public void replaceRefreshReceipt(UUID id,RefreshReceipt receipt,Instant now) {
+  jdbc.update("DELETE FROM identity_refresh_receipt WHERE session_id=?",id.toString());
+  // 每个会话最多保留一条回执，后续成功轮换立即淘汰旧操作。
+  if(receipt!=null)jdbc.update("INSERT INTO identity_refresh_receipt VALUES (?,?,?,?,?)",id.toString(),
+    receipt.previousHash(),receipt.rotationHash(),receipt.version(),Timestamp.from(now));
+ }
  /** 撤销会话。 @param id 会话 @param reason 原因 */ public void revoke(UUID id,String reason){jdbc.update("UPDATE identity_session SET revoked_at=COALESCE(revoked_at,?),revoke_reason=COALESCE(revoke_reason,?) WHERE id=?",Timestamp.from(Instant.now()),reason,id.toString());}
  /** 查询用户会话。 @param userId 用户 @return 会话 */ public List<SessionView> sessions(long userId){return jdbc.query("SELECT id,device_id,issued_at,refresh_expires_at,revoked_at,last_seen_at FROM identity_session WHERE user_id=? ORDER BY issued_at DESC",(rs,row)->{Instant now=Instant.now();Instant expires=rs.getTimestamp("refresh_expires_at").toInstant();String status=rs.getTimestamp("revoked_at")!=null?"INVALID":(expires.isAfter(now)?"ACTIVE":"EXPIRED");return new SessionView(UUID.fromString(rs.getString("id")),rs.getString("device_id"),status,rs.getTimestamp("issued_at").toInstant(),expires,rs.getTimestamp("last_seen_at").toInstant());},userId);}
  /** 查询登录锁定截止时间。 @param keyHash 身份摘要 @return 截止时间 */ public Optional<Instant> lockedUntil(String keyHash){return jdbc.query("SELECT locked_until FROM identity_login_attempt WHERE identity_key_sha256=?",(rs,row)->rs.getTimestamp(1)==null?null:rs.getTimestamp(1).toInstant(),keyHash).stream().filter(Objects::nonNull).findFirst();}

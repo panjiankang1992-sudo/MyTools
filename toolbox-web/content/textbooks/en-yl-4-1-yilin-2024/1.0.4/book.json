@@ -1,0 +1,4770 @@
+{
+  "edition": {
+    "editionId": "en-yl-4-1-yilin-2024",
+    "subject": "english",
+    "grade": 4,
+    "semester": "first",
+    "regionCodes": [
+      "jiangsu"
+    ],
+    "publisher": "译林出版社",
+    "series": "译林版英语",
+    "editionLabel": "2024 年版（2022 课标修订版）",
+    "curriculumYear": null,
+    "isbn": null,
+    "sourceIds": [
+      "yilin-en-4-first-2024"
+    ],
+    "schemaVersion": 1,
+    "contentVersion": "1.0.4",
+    "contentSha256": "",
+    "reviewStatus": "published",
+    "coverageStatus": "partial",
+    "missingScopes": [
+      "**条目已按用户指示置为 reviewed**：用户明确\"先录入，有误差我编辑修改即可\"，故不再逐条拦截；但**未与纸质教材逐条核对**，勘误请在管理端编辑器内修改后重新发布。",
+      "本册按 Word lists I 原印单元表收录 8 个单元的全部条目；未收录 Word lists II（字母序重排）、Word lists III（专有名词）与课文正文、Project、Learning tips。",
+      "ISBN 未取得：图像只含 Word lists 页，缺版权页，故 isbn 留空而不推测。",
+      "图像只显示 Unit 1—Unit 8 的单元号与词条，**未显示单元标题**，故单元标题一律记为 \"Unit N\"，不作推测。",
+      "同一词在不同单元有不同义项时分别收录（如 in、early），不合并。"
+    ],
+    "verifiedAt": "2026-10-07T00:00:00Z",
+    "publishedAt": null,
+    "availableEntryCount": 156,
+    "expectedEntryCount": 156
+  },
+  "units": [
+    {
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "order": 1,
+      "title": "Unit 1"
+    },
+    {
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "order": 2,
+      "title": "Unit 2"
+    },
+    {
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "order": 3,
+      "title": "Unit 3"
+    },
+    {
+      "unitId": "en-yl-4-1-yilin-2024-u04",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "order": 4,
+      "title": "Unit 4"
+    },
+    {
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "order": 5,
+      "title": "Unit 5"
+    },
+    {
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "order": 6,
+      "title": "Unit 6"
+    },
+    {
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "order": 7,
+      "title": "Unit 7"
+    },
+    {
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "order": 8,
+      "title": "Unit 8"
+    }
+  ],
+  "lessons": [],
+  "entries": [
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0001",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 0,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "subject",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "学科，科目",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-1",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 1; original order 1",
+          "page": 8
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0002",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 1,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Chinese",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "语文（课）；中国的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-2",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 2; original order 2",
+          "page": 8
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0003",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 2,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "English",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "英语（课）；英语的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-3",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 3; original order 3",
+          "page": 8
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0004",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 3,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Maths",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "数学（课）",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-4",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [
+        "math"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 4; original order 4",
+          "page": 8
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0005",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 4,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "PE",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "体育（课）",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-5",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 5; original order 5",
+          "page": 8
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0006",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 5,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Art",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "美术（课）",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-6",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 6; original order 6",
+          "page": 8
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0007",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 6,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Science",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "科学（课）",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-7",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 7; original order 7",
+          "page": 8
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0008",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 7,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "IT",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "信息科技（课）",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-8",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 8; original order 8",
+          "page": 9
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0009",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 8,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Music",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "音乐（课）",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-9",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 9; original order 9",
+          "page": 9
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0010",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 9,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "best",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "最，最高程度地",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-10",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 10; original order 10",
+          "page": 10
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0011",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 10,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "also",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "也",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-11",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 11; original order 11",
+          "page": 10
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0012",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 11,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "It's time for …",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "是……的时候了。",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-12",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 12; original order 12",
+          "page": 10
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0013",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 12,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "mouse",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "鼠标；老鼠",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-13",
+      "context": "教材标注：pl. mice。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 13; original order 13",
+          "page": 10
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0014",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 13,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Welcome back to …",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "欢迎回到……",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-14",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 14; original order 14",
+          "page": 12
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0015",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 14,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "new",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "新的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-15",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 15; original order 15",
+          "page": 12
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0016",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 15,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "timetable",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "课程表；时间表",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-16",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 16; original order 16",
+          "page": 12
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0017",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 16,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "be good at",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "擅长",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-17",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 17; original order 17",
+          "page": 13
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0018",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 17,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "number",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "数字",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-18",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 18; original order 18",
+          "page": 13
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0019",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 18,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "interesting",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "有趣的，有吸引力的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-19",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 19; original order 19",
+          "page": 13
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0020",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 19,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "learn about",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "学习",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-20",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 20; original order 20",
+          "page": 13
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0021",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 20,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "culture",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "文化，文明",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-21",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 21; original order 21",
+          "page": 13
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0022",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 21,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "read",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "阅读",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-22",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 22; original order 22",
+          "page": 13
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0023",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 22,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "story",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "故事",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-23",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 23; original order 23",
+          "page": 13
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0024",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 23,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "all",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "全部，都",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-24",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 24; original order 24",
+          "page": 13
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0025",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 24,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "playground",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "操场",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-25",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 25; original order 25",
+          "page": 13
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0026",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 25,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "day",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "一天，一日",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-26",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 1; original order 1",
+          "page": 16
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0027",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 26,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "get up",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "起床",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-27",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 2; original order 2",
+          "page": 16
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0028",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 27,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "wash",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "洗",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-28",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 3; original order 3",
+          "page": 16
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0029",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 28,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "face",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "脸，面孔",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-29",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 4; original order 4",
+          "page": 16
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0030",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 29,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "have lessons",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "上课",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-30",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 5; original order 5",
+          "page": 16
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0031",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 30,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "have",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "吃，喝",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-31",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 6; original order 6",
+          "page": 16
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0032",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 31,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "dinner",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "正餐（常指晚餐）",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-32",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 7; original order 7",
+          "page": 16
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0033",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 32,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "breakfast",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "早餐，早饭",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-33",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 8; original order 8",
+          "page": 17
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0034",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 33,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "lunch",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "午餐，午饭",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-34",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 9; original order 9",
+          "page": 17
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0035",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 34,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "go to bed",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "上床睡觉",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-35",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 10; original order 10",
+          "page": 17
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0036",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 35,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "o'clock",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "（表示整点）……点钟",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-36",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 11; original order 11",
+          "page": 18
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0037",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 36,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "early",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "早的，早",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-37",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 12; original order 12",
+          "page": 18
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0038",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 37,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "thirty",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "三十",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-38",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 13; original order 13",
+          "page": 18
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0039",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 38,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "first",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "首先，第一",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-39",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 14; original order 14",
+          "page": 18
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0040",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 39,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "hurry up",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "快点",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-40",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 15; original order 15",
+          "page": 18
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0041",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 40,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "What time is it?",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "几点了？",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-41",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 16; original order 16",
+          "page": 18
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0042",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 41,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "I'm coming!",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "我来了！",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-42",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 17; original order 17",
+          "page": 18
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0043",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 42,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "twenty",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "二十",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-43",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 18; original order 18",
+          "page": 20
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0044",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 43,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Come on!",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "赶快！加把劲！",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-44",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 19; original order 19",
+          "page": 20
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0045",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 44,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "class",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "课，上课",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-45",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 20; original order 20",
+          "page": 20
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0046",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 45,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "eleven",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "十一",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-46",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 21; original order 21",
+          "page": 20
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0047",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 46,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "sport",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "体育运动",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-47",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 22; original order 22",
+          "page": 21
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0048",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 47,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "fifteen",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "十五",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-48",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 23; original order 23",
+          "page": 21
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0049",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 48,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "It's time to …",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "到了……的时间了。",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-49",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 24; original order 24",
+          "page": 21
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0050",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 49,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "bed",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "床",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-50",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 25; original order 25",
+          "page": 21
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0051",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u02",
+      "lessonId": null,
+      "order": 50,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Good night!",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "晚安！",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-51",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 2; item 26; original order 26",
+          "page": 21
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0052",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 51,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "week",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "周，星期",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-52",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 1; original order 1",
+          "page": 24
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0053",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 52,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Sunday",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "星期天",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-53",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 2; original order 2",
+          "page": 24
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0054",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 53,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Monday",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "星期一",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-54",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 3; original order 3",
+          "page": 24
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0055",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 54,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Tuesday",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "星期二",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-55",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 4; original order 4",
+          "page": 24
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0056",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 55,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Wednesday",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "星期三",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-56",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 5; original order 5",
+          "page": 24
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0057",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 56,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Thursday",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "星期四",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-57",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 6; original order 6",
+          "page": 24
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0058",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 57,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Friday",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "星期五",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-58",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 7; original order 7",
+          "page": 24
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0059",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 58,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Saturday",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "星期六",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-59",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 8; original order 8",
+          "page": 24
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0060",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 59,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "up",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "起床",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-60",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 9; original order 9",
+          "page": 26
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0061",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 60,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "so",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "（表示程度）这么，那么",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-61",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 10; original order 10",
+          "page": 26
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0062",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 61,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "early",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "提早，提前",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-62",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 11; original order 11",
+          "page": 26
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0063",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 62,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "when",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "什么时候",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-63",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 12; original order 12",
+          "page": 26
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0064",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 63,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "every",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "每一个，每个",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-64",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 13; original order 13",
+          "page": 26
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0065",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 64,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "at",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "在（某时间）",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-65",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 14; original order 14",
+          "page": 26
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0066",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 65,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "today",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "在今天",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-66",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 15; original order 15",
+          "page": 26
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0067",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 66,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "What day is it today?",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "今天星期几？",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-67",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 16; original order 16",
+          "page": 26
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0068",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 67,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "cinema",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "电影院",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-68",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 17; original order 17",
+          "page": 28
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0069",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 68,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "after school",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "放学后",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-69",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 18; original order 18",
+          "page": 28
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0070",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 69,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "dancing",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "跳舞，舞蹈",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-70",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 19; original order 19",
+          "page": 28
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0071",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 70,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "lesson",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "一节课，一课时",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-71",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 20; original order 20",
+          "page": 28
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0072",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 71,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "walk",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "牵着（动物）走，遛",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-72",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 21; original order 21",
+          "page": 29
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0073",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 72,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "dog",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "狗",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-73",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 22; original order 22",
+          "page": 29
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0074",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 73,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "tomorrow",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "明天；在明天",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-74",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 23; original order 23",
+          "page": 29
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0075",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 74,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "free",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "空闲的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-75",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 24; original order 24",
+          "page": 29
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0076",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u03",
+      "lessonId": null,
+      "order": 75,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "See you tomorrow!",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "明天见！",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-76",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 3; item 25; original order 25",
+          "page": 29
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0077",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u04",
+      "lessonId": null,
+      "order": 76,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "play",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "打（球），踢（球）",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-77",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 4; item 1; original order 1",
+          "page": 32
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0078",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u04",
+      "lessonId": null,
+      "order": 77,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "football",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "足球运动；足球",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-78",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 4; item 2; original order 2",
+          "page": 32
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0079",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u04",
+      "lessonId": null,
+      "order": 78,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "ping-pong",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "乒乓球运动",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-79",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 4; item 3; original order 3",
+          "page": 32
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0080",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u04",
+      "lessonId": null,
+      "order": 79,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "basketball",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "篮球运动；篮球",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-80",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 4; item 4; original order 4",
+          "page": 33
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0081",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u04",
+      "lessonId": null,
+      "order": 80,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "great",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "非常的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-81",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 4; item 5; original order 5",
+          "page": 34
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0082",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u04",
+      "lessonId": null,
+      "order": 81,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "well",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "好",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-82",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 4; item 6; original order 6",
+          "page": 36
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0083",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u04",
+      "lessonId": null,
+      "order": 82,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Have a go!",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "试一试！",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-83",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 4; item 7; original order 7",
+          "page": 37
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0084",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u04",
+      "lessonId": null,
+      "order": 83,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "oops",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "哎哟",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-84",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 4; item 8; original order 8",
+          "page": 37
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0085",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u04",
+      "lessonId": null,
+      "order": 84,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "try",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "试",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-85",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 4; item 9; original order 9",
+          "page": 37
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0086",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u04",
+      "lessonId": null,
+      "order": 85,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Well played!",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "好球！",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-86",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 4; item 10; original order 10",
+          "page": 37
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0087",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 86,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "different",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "不同的，有区别的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-87",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 1; original order 1",
+          "page": 42
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0088",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 87,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "same",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "相同的，同一的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-88",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 2; original order 2",
+          "page": 42
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0089",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 88,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "hair",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "头发",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-89",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 3; original order 3",
+          "page": 42
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0090",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 89,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "eye",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "眼睛",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-90",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 4; original order 4",
+          "page": 42
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0091",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 90,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "ear",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "耳朵",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-91",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 5; original order 5",
+          "page": 42
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0092",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 91,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "nose",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "鼻子",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-92",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 6; original order 6",
+          "page": 42
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0093",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 92,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "mouth",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "嘴，口",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-93",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 7; original order 7",
+          "page": 42
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0094",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 93,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "arm",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "手臂",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-94",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 8; original order 8",
+          "page": 42
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0095",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 94,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "leg",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "腿",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-95",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 9; original order 9",
+          "page": 42
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0096",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 95,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "robot",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "机器人",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-96",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 10; original order 10",
+          "page": 44
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0097",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 96,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "his",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "他的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-97",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 11; original order 11",
+          "page": 44
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0098",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 97,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "tall",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "高的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-98",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 12; original order 12",
+          "page": 44
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0099",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 98,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "doll",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "玩具娃娃",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-99",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 13; original order 13",
+          "page": 46
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0100",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 99,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "her",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "她的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-100",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 14; original order 14",
+          "page": 46
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0101",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 100,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "small",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "小的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-101",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 15; original order 15",
+          "page": 46
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0102",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 101,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "bring",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "带来",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-102",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 16; original order 16",
+          "page": 47
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0103",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 102,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "lots of",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "大量，许多",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-103",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 17; original order 17",
+          "page": 47
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0104",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 103,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "puppet",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "玩偶，木偶",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-104",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 18; original order 18",
+          "page": 47
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0105",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u05",
+      "lessonId": null,
+      "order": 104,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "show",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "表演，演出",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-105",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 5; item 19; original order 19",
+          "page": 47
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0106",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 105,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "weather",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "天气，气象",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-106",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 1; original order 1",
+          "page": 50
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0107",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 106,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "cloudy",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "多云的，阴天的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-107",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 2; original order 2",
+          "page": 50
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0108",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 107,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "sunny",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "晴朗的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-108",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 3; original order 3",
+          "page": 50
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0109",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 108,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "cool",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "凉的，凉爽的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-109",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 4; original order 4",
+          "page": 50
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0110",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 109,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "rainy",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "阴雨的，多雨的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-110",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 5; original order 5",
+          "page": 50
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0111",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 110,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "hot",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "温度高的，热的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-111",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 6; original order 6",
+          "page": 50
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0112",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 111,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "windy",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "多风的，风大的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-112",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 7; original order 7",
+          "page": 50
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0113",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 112,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "warm",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "温暖的，暖和的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-113",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 8; original order 8",
+          "page": 50
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0114",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 113,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "save … for a rainy day",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "未雨绸缪",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-114",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 9; original order 9",
+          "page": 52
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0115",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 114,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "money",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "钱",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-115",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 10; original order 10",
+          "page": 52
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0116",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 115,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "What's the weather like today?",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "今天天气怎么样？",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-116",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 11; original order 11",
+          "page": 52
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0117",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 116,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "park",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "公园",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-117",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 12; original order 12",
+          "page": 54
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0118",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 117,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "meet",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "（与……）会面，集合",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-118",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 13; original order 13",
+          "page": 54
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0119",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 118,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "fly a kite",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "放风筝",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-119",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 14; original order 14",
+          "page": 54
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0120",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 119,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "worry",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "担心，担忧",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-120",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 15; original order 15",
+          "page": 55
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0121",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 120,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "umbrella",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "伞，雨伞",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-121",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 16; original order 16",
+          "page": 55
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0122",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u06",
+      "lessonId": null,
+      "order": 121,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "there",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "到那里，在那里",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-122",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 6; item 17; original order 17",
+          "page": 55
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0123",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 122,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "season",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "季节",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-123",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 1; original order 1",
+          "page": 58
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0124",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 123,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "spring",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "春天，春季",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-124",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 2; original order 2",
+          "page": 58
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0125",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 124,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "go boating",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "去划船",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-125",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 3; original order 3",
+          "page": 58
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0126",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 125,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "winter",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "冬天，冬季",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-126",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 4; original order 4",
+          "page": 58
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0127",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 126,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "go skating",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "去溜冰，去滑冰",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-127",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 5; original order 5",
+          "page": 58
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0128",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 127,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "summer",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "夏天，夏季",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-128",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 6; original order 6",
+          "page": 59
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0129",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 128,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "ice cream",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "冰淇淋",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-129",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 7; original order 7",
+          "page": 59
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0130",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 129,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "go swimming",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "去游泳",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-130",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 8; original order 8",
+          "page": 59
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0131",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 130,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "autumn",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "秋天，秋季",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-131",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 9; original order 9",
+          "page": 59
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0132",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 131,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "go climbing",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "去爬山",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-132",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 10; original order 10",
+          "page": 59
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0133",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 132,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "cold",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "寒冷的，冷的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-133",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 11; original order 11",
+          "page": 60
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0134",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 133,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "bird",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "鸟",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-134",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 12; original order 12",
+          "page": 60
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0135",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 134,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "back",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "回原处",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-135",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 13; original order 13",
+          "page": 60
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0136",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 135,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "in",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "在（某段时间）内",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-136",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 14; original order 14",
+          "page": 62
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0137",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 136,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "year",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "年",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-137",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 15; original order 15",
+          "page": 62
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0138",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 137,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "plant",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "栽种，种植",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-138",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 16; original order 16",
+          "page": 62
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0139",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 138,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "pick",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "采，摘",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-139",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 17; original order 17",
+          "page": 63
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0140",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u07",
+      "lessonId": null,
+      "order": 139,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "snow",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "雪，积雪",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-140",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 7; item 18; original order 18",
+          "page": 63
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0141",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 140,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "holiday",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "假日，假期",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-141",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 1; original order 1",
+          "page": 66
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0142",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 141,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "clothes",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "衣服",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-142",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 2; original order 2",
+          "page": 66
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0143",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 142,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "cap",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "（尤指有帽舌的）便帽",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-143",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 3; original order 3",
+          "page": 66
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0144",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 143,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "coat",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "外套，外衣",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-144",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 4; original order 4",
+          "page": 66
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0145",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 144,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "skirt",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "半身裙",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-145",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 5; original order 5",
+          "page": 66
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0146",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 145,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "trousers",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "裤子",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-146",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 6; original order 6",
+          "page": 66
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0147",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 146,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "dress",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "连衣裙",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-147",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 7; original order 7",
+          "page": 66
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0148",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 147,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "shirt",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "（男式）衬衫",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-148",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 8; original order 8",
+          "page": 66
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0149",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 148,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "whose",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "谁的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-149",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 9; original order 9",
+          "page": 68
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0150",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 149,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "look",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "看来好像，显得",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-150",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 10; original order 10",
+          "page": 68
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0151",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 150,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "in",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "穿着，戴着",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-151",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 11; original order 11",
+          "page": 68
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0152",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 151,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "sunglasses",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "太阳镜，墨镜",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-152",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 12; original order 12",
+          "page": 68
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0153",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 152,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "why",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "为什么",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-153",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 13; original order 13",
+          "page": 68
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0154",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 153,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "wear",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "穿，戴",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-154",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 14; original order 14",
+          "page": 68
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0155",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 154,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "because",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "因为",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-155",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 15; original order 15",
+          "page": 68
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0156",
+      "entryVersion": "1.0.4",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 155,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "bright",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "聪明的；明亮的",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-156",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 16; original order 16",
+          "page": 68
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    }
+  ]
+}

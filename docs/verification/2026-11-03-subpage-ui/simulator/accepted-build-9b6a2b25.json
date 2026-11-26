@@ -1,0 +1,30 @@
+{
+  "built": true,
+  "buildDurationSeconds": 12,
+  "signature": "passed",
+  "artifact": "/Users/pankang/mycode/MyTools/app/build/acceptance/ui-subpages-20261103-simulator-final-signed.hap",
+  "sha256": "9b6a2b252581c9885eb1c2109ca0d24a878cd8d5652401e38b34c872e9f35ef9",
+  "etsSnapshotSha256": "9b8b87642b24448d6a2b6debeec767d58ee8666efbf9936e11c130df6b430125",
+  "stringsSha256": "8d0d61d25aba6323d3a1b22e8a505fcd3a8c15444abb392eeeddd4a959bd1499",
+  "sourceSnapshotTiming": "immediately after successful build; all source workers finished before build",
+  "sourceStableBeforeAfterBuildComparison": "not asserted; snapshot taken after build",
+  "deviceInstall": "passed-on-Pura90-emulator",
+  "installEvidence": "simulator/final/device-acceptance-20261103T032445Z.json",
+  "geometry": {
+    "download": "formal HAP verified 4 x 168px = 48vp; simulator/download-final-geometry.json",
+    "equalActionRow": "formal HAP file actions 3 x 154px=44vp, PDF footer 2 x 154px=44vp; all expected buttons mounted",
+    "rssGroup": "final formal HAP input169px/create168px,1px rounding; simulator/rss-group-final-geometry.json",
+    "bookSource": "final formal HAP search/filter168px=48vp; simulator/book-source-final-geometry.json",
+    "mediaToolbar": "directory/tag/search168px=48vp; simulator/media-toolbar-final-geometry.json",
+    "mediaTagClear": "Clear visible plate/hit area/label all contained within sheet header; simulator/media-tag-clear-final-geometry.json"
+  },
+  "knownWarning": "Existing system PasteButton clipboard permission warning; no new restricted permission.",
+  "previousBuildRecord": "simulator/accepted-build-fc67c79f.json",
+  "sourceStableSincePostBuildSnapshot": true,
+  "deliveryVerification": {
+    "frozenArtifactSha256Matches": true,
+    "etsSnapshotMatchesPostBuildSnapshot": true,
+    "note": "delivery comparison is against the immediately-after-build snapshot, not a pre-build snapshot"
+  },
+  "supersededBy": "../accepted-build.json"
+}

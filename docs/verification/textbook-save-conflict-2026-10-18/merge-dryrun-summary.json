@@ -1,0 +1,22 @@
+{
+  "conflictCount" : 0,
+  "entryCount" : 157,
+  "publishable" : true,
+  "validationIssues" : [ ],
+  "uniqueEntryIds" : true,
+  "uniqueRowIds" : true,
+  "correctRowIdentityMappings" : true,
+  "regionCodes" : [ "jiangsu" ],
+  "sourceIdCount" : 1,
+  "sourceRefs" : 157,
+  "mappedEntryCount" : 157,
+  "uniqueMappedEntryIds" : true,
+  "correctedWordCounts" : {
+    "swimming" : 1,
+    "so" : 1,
+    "hard" : 1,
+    "It's OK." : 1
+  },
+  "retainsOriginalMeaning" : true,
+  "publishedIdentityAndOrderUnchanged" : true
+}

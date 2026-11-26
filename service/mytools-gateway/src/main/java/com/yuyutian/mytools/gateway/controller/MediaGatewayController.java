@@ -135,11 +135,12 @@ public class MediaGatewayController {
         client.delete(principal.userId(), mediaId, correlation(request));
     }
 
-    /** 读取图片原文件作为图库缩略图。 */
+    /** 读取有限尺寸预览。 @param mediaId 媒体标识。 @param edge 最长边。 @param request 请求。 @param response 响应。 */
     @GetMapping("/items/{mediaId}/thumbnail")
-    public void thumbnail(@PathVariable UUID mediaId, HttpServletRequest request, HttpServletResponse response) {
+    public void thumbnail(@PathVariable UUID mediaId, @RequestParam(defaultValue = "512") int edge,
+                          HttpServletRequest request, HttpServletResponse response) {
         GatewayPrincipal principal = requireEnabled(request);
-        client.stream(principal.userId(), mediaId, true, null, response, correlation(request));
+        client.streamPreview(principal.userId(), mediaId, edge, response, correlation(request));
     }
 
     /** 读取认证媒体原文件。 */
@@ -154,11 +155,27 @@ public class MediaGatewayController {
     public Map<String, Object> playTicket(@PathVariable UUID mediaId, HttpServletRequest request) {
         GatewayPrincipal principal = requireEnabled(request);
         // 签发前读取一次媒体，确保租户确实拥有目标资源。
-        client.view(principal.userId(), mediaId, correlation(request));
+        var media = client.view(principal.userId(), mediaId, correlation(request));
+        String suffix = "";
+        if ("1".equals(request.getParameter("adaptive")) && media != null && media.mimeType().startsWith("video/") &&
+                media.sizeBytes() >= 100L * 1024 * 1024) {
+            suffix = client.adaptiveEntry(principal.userId(), mediaId, correlation(request));
+        }
         var ticket = tickets.issue(principal.userId(), mediaId);
         return Map.of("ticket", ticket.token(),
-                "streamPath", "/api/app/v1/media/tickets/" + ticket.token(),
+                "streamPath", "/api/app/v1/media/tickets/" + ticket.token() + suffix,
                 "expiresAt", ticket.expiresAt().toString());
+    }
+
+    /** 每次读取清单、播放副本或片段都重新验证票据。 */
+    @GetMapping("/tickets/{ticket}/{name}")
+    public void part(@PathVariable String ticket, @PathVariable String name, HttpServletRequest request,
+                     HttpServletResponse response) {
+        if (!properties.mediaRouteEnabled()) throw new GatewayRouteDisabledException();
+        if (!name.matches("mobile\\.mp4|master\\.m3u8|v[0-9]{1,4}(?:\\.m3u8|-[0-9]{5}\\.ts)"))
+            throw new com.yuyutian.mytools.gateway.service.GatewayNotFoundException();
+        var value = tickets.require(ticket);
+        client.streamPart(value.ownerId(), value.mediaId(), name, request.getHeader("Range"), response, correlation(request));
     }
 
     /** 使用短期票据流式播放媒体。 */

@@ -1,7 +1,9 @@
 package com.yuyutian.mytools.pikpak.service;
 
+import static com.yuyutian.mytools.pikpak.common.ErrorCode.RCLONE_FAILURE;
 import static com.yuyutian.mytools.pikpak.model.PikPakModels.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 import com.yuyutian.mytools.pikpak.repository.PikPakRepository;
@@ -14,6 +16,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.SimpleTransactionStatus;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /** PikPak watcher 稳定观察与归档状态机测试。 */
 class PikPakWatchServiceTest {
@@ -38,6 +43,68 @@ class PikPakWatchServiceTest {
         assertThat(result.batches()).hasSize(1);
         assertThat(result.batches().getFirst().items().getFirst().storagePath()).isEqualTo("watch/album/a.mp4");
         verify(fixture.watches).replaceItems(fixture.batchId, items);
+    }
+
+    /** 首个账户远端失败时，仍返回另一账户可下载的批次。 */
+    @Test
+    void shouldReturnHealthyWatcherBatchesAfterRemoteFailure() {
+        Fixture fixture = new Fixture();
+        Watcher second = fixture.withSecondWatcher();
+        List<RemoteItem> items = List.of(new RemoteItem("file-1", "album/a.mp4", 7, "time"));
+        WatchBatch ready = new WatchBatch(fixture.batchId, second.accountId(), "album",
+            fixture.signature(items), fixture.now.minusSeconds(121), "READY", null, null, 1);
+        when(fixture.connector.listWatchRoot("pikpak", "watch", Set.of()))
+            .thenThrow(new IllegalStateException(RCLONE_FAILURE.code()));
+        when(fixture.connector.listWatchRoot("pikpak-other", "inbox", Set.of())).thenReturn(items);
+        when(fixture.watches.find(second.accountId(), "album")).thenReturn(Optional.of(ready));
+        when(fixture.watches.items(fixture.batchId)).thenReturn(items);
+
+        List<WatchScanView> result = fixture.service.scanAll();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().accountId()).isEqualTo(second.accountId());
+        assertThat(result.getFirst().batches()).extracting(WatchBatchView::id).containsExactly(fixture.batchId);
+    }
+
+    /** 所有账户均远端失败时，保留失败并确认已尝试后续账户。 */
+    @Test
+    void shouldFailWhenEveryWatcherRemoteFails() {
+        Fixture fixture = new Fixture();
+        fixture.withSecondWatcher();
+        IllegalStateException firstFailure = new IllegalStateException(RCLONE_FAILURE.code());
+        when(fixture.connector.listWatchRoot("pikpak", "watch", Set.of())).thenThrow(firstFailure);
+        when(fixture.connector.listWatchRoot("pikpak-other", "inbox", Set.of()))
+            .thenThrow(new IllegalStateException(RCLONE_FAILURE.code()));
+
+        assertThatThrownBy(fixture.service::scanAll).isSameAs(firstFailure);
+        verify(fixture.connector).listWatchRoot("pikpak-other", "inbox", Set.of());
+    }
+
+    /** 仓储异常不转换为远端失败，避免隐藏本地数据问题。 */
+    @Test
+    void shouldPropagateUnexpectedWatcherFailure() {
+        Fixture fixture = new Fixture();
+        fixture.withSecondWatcher();
+        IllegalStateException localFailure = new IllegalStateException();
+        when(fixture.watches.baselinedPaths(fixture.accountId)).thenThrow(localFailure);
+
+        assertThatThrownBy(fixture.service::scanAll).isSameAs(localFailure);
+        verifyNoInteractions(fixture.connector);
+    }
+
+    /** 归档中的目录出现部分文件时保持原检查点。 */
+    @Test
+    void shouldPreserveMovingBatchWhenRemoteSnapshotChanges() {
+        Fixture fixture = new Fixture();
+        WatchBatch moving = new WatchBatch(fixture.batchId, fixture.accountId, "album", "original",
+            fixture.now.minusSeconds(121), "MOVING", 91L, null, 3);
+        when(fixture.connector.listWatchRoot("pikpak", "watch", Set.of()))
+            .thenReturn(List.of(new RemoteItem("remaining", "album/a.mp4", 7, "time")));
+        when(fixture.watches.find(fixture.accountId, "album")).thenReturn(Optional.of(moving));
+
+        assertThat(fixture.service.scan(fixture.accountId).batches()).isEmpty();
+        verify(fixture.watches, never()).transition(any(), anyString(), any(), anyString(), any(), any());
+        verify(fixture.watches, never()).replaceItems(any(), anyList());
     }
 
     /** 目录批次只在下载成功请求后启动异步移动。 */
@@ -76,8 +143,23 @@ class PikPakWatchServiceTest {
         private Fixture() {
             when(accounts.requireAccount(accountId)).thenReturn(account);
             when(watches.requireWatcher(accountId)).thenReturn(watcher);
-            service = new PikPakWatchService(accounts, watches, connector, true,
+            when(watches.lockWatcher(accountId)).thenReturn(watcher);
+            PlatformTransactionManager manager = mock(PlatformTransactionManager.class);
+            when(manager.getTransaction(any())).thenAnswer(invocation -> new SimpleTransactionStatus());
+            service = new PikPakWatchService(accounts, watches, connector, new TransactionTemplate(manager), true,
                 Clock.fixed(now, ZoneOffset.UTC));
+        }
+
+        private Watcher withSecondWatcher() {
+            UUID otherId = UUID.randomUUID();
+            Account other = new Account(otherId, "other", UUID.randomUUID(), "secret://other",
+                "pikpak-other", "offline", "ready", true, 120);
+            Watcher second = new Watcher(otherId, "inbox", "backup", true, 120, true, true);
+            when(accounts.requireAccount(otherId)).thenReturn(other);
+            when(watches.requireWatcher(otherId)).thenReturn(second);
+            when(watches.lockWatcher(otherId)).thenReturn(second);
+            when(watches.enabledWatchers()).thenReturn(List.of(watcher, second));
+            return second;
         }
 
         private String signature(List<RemoteItem> items) {

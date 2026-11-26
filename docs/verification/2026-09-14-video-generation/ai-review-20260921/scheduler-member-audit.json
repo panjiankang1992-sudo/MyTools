@@ -1,0 +1,27 @@
+{
+  "previousSha256": "a8a0289f1355d02b54e1f203683391e484fcc0f7c8b6efca4a37b8235707ce04",
+  "changed": [
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/repository/TaskInstanceRepository.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$CapacityDefinition.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$OrchestrationStep.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$TaskCapacityRequirement.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$ExecutionIdentity.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$OrchestrationReservation.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$ExecutionState.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$TaskScope.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$PlacementCandidate.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$ExistingClaim.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$CapacityDecision.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$ExecutionTarget.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$EligibleNode.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$PlacementCursor.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$ExecutionCapacity.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$StepReport.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/service/TaskDispatchService$NodeClaimState.class"
+  ],
+  "added": [
+    "BOOT-INF/classes/com/yuyutian/mytools/task/scheduler/repository/GpuTaskRepository.class"
+  ],
+  "removed": []
+}

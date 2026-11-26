@@ -1,0 +1,265 @@
+/* DSH 0.2.1-rc.2 的布局兼容层；语义选择器优先，构建类名集中保留。 */
+html,body,#root{width:100%;max-width:100%;height:100%;overflow:hidden}
+html{-webkit-text-size-adjust:100%}
+
+/* 临时消息只显示确认状态，队列标签单独占行，避免挤压草稿文字与附件。 */
+[data-submission-echo] > [data-mytools-submission-status] {
+  display: block; max-width: 100%; color: var(--dsw-alias-label-secondary, #6b7280);
+  font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; user-select: none;
+}
+[data-submission-echo] > [data-mytools-submission-status="unconfirmed"] { font-weight: 600; }
+li[data-submission-echo]:has(> [data-mytools-submission-status]) { flex-wrap: wrap; row-gap: 2px; }
+li[data-submission-echo] > [data-mytools-submission-status] { flex-basis: 100%; }
+
+@media (max-width: 767px), (max-width: 900px) and (max-height: 500px) {
+
+.wSkVaW_root *{box-sizing:border-box;min-width:0}
+.pI_x6G_frame{grid-template-columns:0 minmax(0,1fr) 0!important}
+.pI_x6G_sidebarCol{overflow:visible;width:0!important;min-width:0!important}
+.pI_x6G_sidebarCol:has(.hHd-Xa_root:not(.hHd-Xa_collapsed)){position:fixed;z-index:30;top:0;bottom:0;left:0;width:min(82vw,320px)!important;box-shadow:12px 0 28px rgba(0,0,0,.18)}
+.hHd-Xa_root.hHd-Xa_collapsed{position:fixed;z-index:31;top:8px;left:8px;width:40px!important;height:40px!important;padding:0!important;overflow:visible;background:transparent!important}
+.hHd-Xa_collapsed .hHd-Xa_logoRow{width:40px;height:40px;margin:0!important}
+.hHd-Xa_collapsed .hHd-Xa_toggle{width:40px!important;height:40px!important;min-width:40px!important;padding:0!important;border-radius:12px;background:rgba(255,255,255,.94);box-shadow:0 2px 10px rgba(0,0,0,.14)}
+.hHd-Xa_collapsed .hHd-Xa_newSession,.hHd-Xa_collapsed .hHd-Xa_regionArea,.hHd-Xa_collapsed .hHd-Xa_footArea{display:none!important}
+.hHd-Xa_collapsed .hHd-Xa_toggle .hHd-Xa_panelIcon{display:inline!important}
+.hHd-Xa_collapsed .hHd-Xa_toggle .hHd-Xa_railFish{display:none!important}
+.hHd-Xa_collapsed .hHd-Xa_toggle .hHd-Xa_railMark{display:none!important}
+.pXSMma_headline{font-size:22px;line-height:28px}
+.uV2eYG_card{font-size:14px;line-height:21px}
+.wSkVaW_header{padding-left:56px!important;padding-right:8px}
+.wSkVaW_headerUtilities{margin-left:4px}
+.Md3f7G_scroll{padding-left:10px;padding-right:10px;font-size:14px}
+.p-xYUq_actions{max-width:100%;gap:5px;overflow:hidden}
+.p-xYUq_action{flex:none;min-width:26px}
+.p-xYUq_timeStart,.p-xYUq_timeEnd{min-width:0;text-overflow:ellipsis;overflow:hidden}
+.p-xYUq_timeStart{padding-right:5px}
+.p-xYUq_timeEnd{padding-left:5px}
+.uV2eYG_root{padding-left:6px;padding-right:6px}
+.uV2eYG_card{gap:6px}
+
+.uV2eYG_tools{flex:0 1 auto;gap:3px}
+.uV2eYG_modes{flex:none;gap:2px;overflow:visible}
+.uV2eYG_add{flex:none;min-width:26px}
+
+.Sh0Q9G_trigger{max-width:48px;min-height:32px;padding-left:4px;padding-right:2px;font-size:11px;gap:2px}
+
+.uV2eYG_select{width:48px;max-width:48px;padding-left:3px;padding-right:16px;font-size:11px}
+.wSkVaW_heroWorkspaceRow{padding-left:6px}
+
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  /* 手机字号、触控和浮层统一使用可视窗口，兼容软键盘缩小视口。 */
+  [role="dialog"], dialog[open] { pointer-events: auto !important; }
+  [inert] { pointer-events: none !important; }
+  [role="dialog"] { box-sizing: border-box; min-width: 0 !important; max-width: calc(100vw - 24px) !important; max-height: calc(var(--mytools-view-height, 100dvh) - 24px) !important; overflow: auto; overscroll-behavior: contain; }
+  [role="dialog"] :is(input, textarea, select) { box-sizing: border-box; min-width: 0; max-width: 100%; font-size: 16px !important; }
+  [role="dialog"] :is(button, [role="button"]):not([role="switch"]) { min-height: 44px !important; }
+  [role="dialog"] button[aria-label] { min-width: 44px; }
+  [role="dialog"] :is(p, label) { overflow-wrap: anywhere; }
+  [role="menu"], [role="listbox"] { max-width: calc(100vw - 24px) !important; max-height: calc(var(--mytools-view-height, 100dvh) - 48px) !important; overflow-y: auto; }
+  [role="menuitem"], [role="option"] { min-height: 44px !important; box-sizing: border-box; }
+  .hHd-Xa_collapsed [aria-label="全局面板"], .hHd-Xa_collapsed [aria-label="Global panels"] { display: none !important; }
+  .hHd-Xa_collapsed .hHd-Xa_toggle { min-width: 44px !important; width: 44px !important; height: 44px !important; }
+  .hHd-Xa_root:not(.hHd-Xa_collapsed) { height: var(--mytools-view-height, 100dvh); }
+  .hHd-Xa_root:not(.hHd-Xa_collapsed) :is(button, [role="treeitem"]) { min-height: 44px; }
+  /* 触屏没有悬停态，保留会话及工作区的更多菜单入口。 */
+  .hHd-Xa_root .YDXeBa_rowActions { display: inline-flex; gap: 0; min-height: 44px; }
+  .hHd-Xa_root .YDXeBa_rowActions .YDXeBa_iconButton { min-width: 44px; min-height: 44px; }
+  .hHd-Xa_root .YDXeBa_sessionRow .YDXeBa_rowActions > div { display: none !important; }
+  .hHd-Xa_root .YDXeBa_searchResultRow .YDXeBa_rowActions > div { display: none !important; }
+
+  .uV2eYG_card { padding: 8px; }
+  .uV2eYG_add { min-width: 40px; min-height: 44px; }
+
+  /* 统计栏保留完整主读数。辅助读数仍可在各统计按钮的详情中查看。 */
+  .uV2eYG_root > .uV2eYG_dock[data-composer-dock] {
+    width: 100%; min-height: 0; padding: 2px 4px 0; flex-wrap: wrap; gap: 2px 8px;
+    justify-content: center;
+  }
+  .uV2eYG_root > .uV2eYG_dock[data-composer-dock]:empty { padding: 0; }
+  [data-composer-dock] :is([data-composer-stat], .JObwrW_root) { flex: 0 0 auto; max-width: 100%; }
+  [data-composer-dock] :is(.bOPqQW_pill, .JObwrW_trigger) {
+    min-height: 32px; max-width: 100%; padding: 2px 4px; gap: 4px; line-height: max(16px, 1.25em);
+  }
+  [data-composer-dock] .bOPqQW_label,
+  [data-composer-dock] button[data-mytools-stat-primary]::after {
+    min-width: 0; white-space: normal; overflow: visible; overflow-wrap: anywhere; text-overflow: clip;
+  }
+  [data-composer-dock] button[data-mytools-stat-primary] > .bOPqQW_label { display: none; }
+  [data-composer-dock] button[data-mytools-stat-primary]::after { content: attr(data-mytools-stat-primary); }
+
+  .Sh0Q9G_trigger { min-height: 44px; }
+  /* 设置使用完整页面：固定标题、自适应分类、独立滚动的单栏内容。 */
+  [data-shortcut-modal="settings"] {
+    position: fixed !important; top: var(--mytools-view-top, 0px) !important; left: 0 !important;
+    width: 100vw !important; max-width: 100vw !important; height: var(--mytools-view-height, 100dvh) !important;
+    max-height: var(--mytools-view-height, 100dvh) !important; margin: 0 !important; transform: none !important;
+    border-radius: 0 !important; border: 0; display: flex !important; flex-direction: column; overflow: hidden;
+  }
+  [data-shortcut-modal="settings"] > nav { width: 100%; flex: none; box-sizing: border-box; padding: 12px 16px 8px; border-right: 0; }
+  [data-shortcut-modal="settings"] .VOzbGW_navTitle { display: flex; align-items: center; height: 44px; padding: 0; margin: 0 0 12px; font-size: 20px; }
+  [data-shortcut-modal="settings"] .VOzbGW_navList { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  [data-shortcut-modal="settings"] .VOzbGW_navCell { width: 100%; padding: 10px 12px; gap: 8px; border-radius: 12px; font-size: 14px; }
+  [data-shortcut-modal="settings"] .VOzbGW_navCell[aria-current="true"] { box-shadow: inset 0 0 0 1px var(--dsw-alias-border-standard, #dfe3e8); font-weight: 600; }
+  [data-shortcut-modal="settings"] .VOzbGW_content { width: 100% !important; min-height: 0; flex: 1; }
+  [data-shortcut-modal="settings"] .VOzbGW_header { position: absolute; top: 12px; right: 12px; height: 44px; padding: 0; background: transparent; }
+  [data-shortcut-modal="settings"] .VOzbGW_actions { gap: 6px; }
+  [data-shortcut-modal="settings"] .VOzbGW_close { width: 44px; height: 44px; }
+  [data-shortcut-modal="settings"] .VOzbGW_options { flex: 1; min-height: 0; padding: 8px 20px 24px !important; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scroll-padding-block: 20px; }
+  [data-shortcut-modal="settings"] .VOzbGW_options > *, .VOzbGW_options [data-slot] { min-width: 0; max-width: 100%; }
+  [data-shortcut-modal="settings"] .VOzbGW_options :is(.oY77xG_row, .hVGvvW_row, .bVCLcG_row, ._2XZxNq_row, .T1PP_q_row, .nhfO0a_setting) { flex-wrap: wrap; gap: 12px; align-items: center; padding-block: 18px; }
+  [data-shortcut-modal="settings"] .VOzbGW_options :is(.oY77xG_rowText, .hVGvvW_rowText, .bVCLcG_rowText, ._2XZxNq_rowText, .T1PP_q_rowText, .nhfO0a_settingText) { flex: 1 1 170px; min-width: 0; }
+  [data-shortcut-modal="settings"] .VOzbGW_options :is(.oY77xG_selector, .hVGvvW_selector, ._2XZxNq_selector, .T1PP_q_selector) { white-space: nowrap; min-width: 110px; font-size: 14px; padding-inline: 12px; }
+  [data-shortcut-modal="settings"] .VOzbGW_options :is(.Pt1bsG_row, .gi5gtW_row) { gap: 16px; padding-block: 18px; }
+  [data-shortcut-modal="settings"] .VOzbGW_options button[role="switch"] { flex-shrink: 0; min-height: 24px; min-width: 44px; margin-block: 10px; }
+  [data-shortcut-modal="settings"] ._8HJdBW_cubeRow { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  [data-shortcut-modal="settings"] ._8HJdBW_themeCube { width: 100% !important; min-width: 0; height: 84px; padding: 12px 4px; gap: 8px; justify-content: center; white-space: nowrap; line-height: 20px; }
+  [data-shortcut-modal="settings"] ._8HJdBW_themeCube > svg { flex: none; width: 20px; height: 20px; }
+  /* 账号操作使用链接元素，补齐与按钮一致的触控高度。 */
+  [data-shortcut-modal="settings"] .LcmJYa_linkButton { box-sizing: border-box; min-height: 44px; }
+  [data-shortcut-modal="settings"] .bVCLcG_arrows { display: flex; flex-direction: row; }
+  [data-shortcut-modal="settings"] .bVCLcG_arrow { min-width: 36px; }
+  /* 登录采用下方操作面板，说明与按钮完整可见，不缩小文字。 */
+  [role="dialog"]._76YFJG_dialog { position: fixed; left: 12px; top: auto; bottom: max(12px, env(safe-area-inset-bottom)); width: calc(100vw - 24px); transform: none; border-radius: 22px; }
+  ._76YFJG_close { width: 44px; height: 44px; }
+  ._76YFJG_actions > button { width: 100%; min-height: 48px; font-size: 15px; border-radius: 12px; }
+
+  [data-shortcut-modal="settings"] .bVCLcG_stepper { width: auto; height: 44px; padding: 0 6px; gap: 4px; }
+  [data-shortcut-modal="settings"] .bVCLcG_value { min-width: 26px; padding: 0; }
+  [data-shortcut-modal="settings"] .bVCLcG_arrows { position: static; transform: none; width: auto; height: 44px; gap: 4px; flex-direction: row; }
+  [data-shortcut-modal="settings"] .bVCLcG_arrow { width: 36px; height: 44px; }
+  [data-shortcut-modal="settings"] .zGbnIq_input { height: 44px; width: 100%; }
+  [data-shortcut-modal="settings"] .zGbnIq_addCard { padding: 12px; }
+  [data-shortcut-modal="settings"] .zGbnIq_editorActions { position: sticky; bottom: -24px; padding: 12px 0; background: var(--dsw-alias-background-primary, #fff); display: flex; gap: 12px; }
+  [data-shortcut-modal="settings"] .zGbnIq_editorActions > button { flex: 1; min-height: 48px; }
+  [role="dialog"]._76YFJG_dialog ._76YFJG_actions { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 4px 20px 20px; }
+  [role="dialog"]._76YFJG_dialog ._76YFJG_header { padding: 16px 16px 8px; }
+  [role="dialog"]._76YFJG_dialog ._76YFJG_description { margin: 0; padding: 0 20px 16px; font-size: 15px; line-height: 24px; }
+  [role="dialog"]._76YFJG_dialog ._76YFJG_primaryButton { grid-row: 1; }
+  [role="dialog"]._76YFJG_dialog ._76YFJG_title { font-size: 20px; line-height: 28px; }
+
+  [data-shortcut-modal="settings"] .bVCLcG_arrows { opacity: 1; }
+  [data-shortcut-modal="settings"] [role="tablist"] { max-width: 100%; overflow-x: auto; }
+  [data-shortcut-modal="settings"] [role="tab"] { flex-shrink: 0; }
+
+  /* 全局插件、插件详情和自动化页面为固定菜单按钮留出顶部空间。 */
+  .X_2TxG_page, .X_2TxG_detail, .t-XoWW_listPane { padding-top: 64px !important; }
+  .X_2TxG_detail :is(input, select, textarea), .t-XoWW_page :is(input, select, textarea) { min-height: 44px; font-size: 16px; max-width: 100%; }
+  .X_2TxG_detail button:not([role="switch"]), .X_2TxG_toolbar button, .t-XoWW_page button { min-height: 44px; }
+  /* 开关保持上游横向比例，外层留足手指点击空间。 */
+  .X_2TxG_detail button[role="switch"] { flex-shrink: 0; margin-block: 10px; }
+  /* 组件说明占满一行，状态和开关另起一行，避免长标识挤成窄列。 */
+  .X_2TxG_detail .X_2TxG_rowLine { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 8px 12px; align-items: start; }
+  .X_2TxG_detail .X_2TxG_rowIcon { grid-row: 1; grid-column: 1; }
+  .X_2TxG_detail .X_2TxG_rowMain { grid-row: 1; grid-column: 2 / -1; min-width: 0; overflow-wrap: anywhere; }
+  .X_2TxG_detail .X_2TxG_rowState { grid-row: 2; grid-column: 2; align-self: center; }
+  .X_2TxG_detail .X_2TxG_rowLine > [role="switch"] { grid-row: 2; grid-column: 3; margin-block: 8px; }
+  .X_2TxG_crumb { min-height: 44px; }
+
+  .X_2TxG_page .X_2TxG_detail, .X_2TxG_page .X_2TxG_detailTop { padding-top: 0 !important; }
+
+  /* 默认保留单行，停止和发送同时出现时各自占位，语音展开时使用剩余宽度。 */
+  .wSkVaW_root .uV2eYG_row {
+    display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+    padding: 4px 0 0;
+  }
+  .wSkVaW_header button[aria-label] { min-width: 44px; min-height: 44px; }
+  .wSkVaW_root .uV2eYG_tools { flex: none; gap: 2px; }
+  .wSkVaW_root .uV2eYG_trailing { flex: 1 1 0; min-width: 0; flex-wrap: wrap; justify-content: flex-end; gap: 4px; margin-left: 0; }
+  .wSkVaW_root .uV2eYG_standardControls { flex: 1 1 0; min-width: 0; gap: 4px; }
+  .wSkVaW_root .uV2eYG_standardControls:not([hidden]):has(._7KE1Ra_trigger) { min-width: 52px; }
+  .wSkVaW_root .uV2eYG_standardControls > div { flex: 1; min-width: 0; }
+  .wSkVaW_root ._7KE1Ra_root { width: 100%; max-width: none; }
+  .wSkVaW_root ._7KE1Ra_trigger { width: 100%; max-width: none; min-height: 44px; padding: 6px 4px; gap: 4px; font-size: 12px; line-height: 20px; border-radius: 10px; box-shadow: none; }
+  .wSkVaW_root ._7KE1Ra_triggerLabel { display: block; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+  .wSkVaW_root ._7KE1Ra_triggerLabel [data-slot="conversation.input.model.label"] > span { display: inline; }
+  .wSkVaW_root ._7KE1Ra_triggerEffort { display: block; flex: none; font-size: 11px; color: var(--dsw-alias-label-primary, #111827); }
+  .wSkVaW_root .uV2eYG_activityExpanded { flex: 1; min-width: 0; }
+  .wSkVaW_root .uV2eYG_activity button, .wSkVaW_root .uV2eYG_modes button { min-width: 44px; min-height: 44px; }
+  .wSkVaW_root .uV2eYG_primary { flex: none; width: 44px; height: 44px; transform: none; }
+  .wSkVaW_root .uV2eYG_add, .wSkVaW_root .Sh0Q9G_trigger { min-width: 44px; min-height: 44px; }
+
+  /* 文件和指令共用上游菜单，触屏可滚动，短视口下名称和分组仍可读。 */
+  [data-composer-overlay] [data-trigger-menu] [role="listbox"] {
+    max-height: max(88px, calc(var(--mytools-view-height, 100dvh) - 104px)) !important;
+    min-height: 0; overscroll-behavior-y: contain;
+  }
+  [data-composer-overlay] [data-trigger-menu] [role="option"] { flex-shrink: 0; gap: 8px; }
+  [data-composer-overlay] ._3e4SsG_itemName { max-width: 60%; font-size: 14px; }
+  [data-composer-overlay] ._3e4SsG_drill { width: 28px; height: 28px; }
+
+  /* 附件条保留上游的预览、进度、重试与移除，移除热区不覆盖预览或文件名。 */
+  [data-composer-card] ._54WpYG_rail { margin-bottom: 0; padding: 2px 4px; }
+  [data-composer-card] .JVDQca_rail { gap: 6px; overscroll-behavior-x: contain; }
+  [data-composer-card] .JVDQca_arrow { width: 44px; height: 44px; }
+  [data-composer-card] ._54WpYG_imageItem { display: flex; align-items: center; width: auto; }
+  [data-composer-card] ._54WpYG_thumbnail { flex: none; }
+  [data-composer-card] .gSkjMW_card { width: min(224px, calc(100vw - 72px)); padding-right: 46px; }
+  [data-composer-card] .gSkjMW_name { padding-right: 0; }
+  [data-composer-card] .gSkjMW_retry { min-height: 44px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  [data-composer-card] :is(._54WpYG_remove, .gSkjMW_remove) {
+    width: 44px; height: 44px; opacity: 1; top: 10px; right: 0;
+    color: var(--dsw-alias-label-secondary, #475569); background: transparent;
+  }
+  [data-composer-card] ._54WpYG_remove { position: static; flex: none; }
+  [data-composer-card] .gSkjMW_removeFailed { color: var(--dsw-alias-state-error-primary, #d54941); }
+  [data-composer-card] :is(._54WpYG_remove, .gSkjMW_remove, .gSkjMW_retry):focus-visible {
+    outline: 2px solid currentColor; outline-offset: -2px;
+  }
+
+  [role="menuitemradio"], [role="menuitemcheckbox"] { min-height: 44px !important; box-sizing: border-box; }
+  ._tabStrip_6nhg2_237 { height: auto !important; min-height: 100px; padding-block: 4px; flex-wrap: wrap; }
+  /* 标签与工具分行，长文件名仍可横向浏览，不挤掉关闭和新建入口。 */
+  ._tabStrip_6nhg2_237 > ._stripTabs_6nhg2_257 { flex: 1 1 100%; width: 100%; min-height: 44px; }
+  ._tabStrip_6nhg2_237 button { min-width: 44px; min-height: 44px; }
+  ._tabStrip_6nhg2_237 [role="tab"] { min-height: 44px; }
+  /* 不按禁用状态隐藏分屏控件，避免宽度测量反复切换导致面板崩溃。 */
+  ._stripChrome_6nhg2_296 { flex-shrink: 0; min-height: 44px; }
+  ._tabHostHeader_6nhg2_177 { flex-shrink: 0; }
+  /* 横屏也完整呈现工作面板，避免只有窄列并遮住会话发送按钮。 */
+  [data-sidebar-right-panel][data-sidebar-right-open] { width: 100vw !important; }
+  body:has([data-sidebar-right-panel][data-sidebar-right-open]) .hHd-Xa_collapsed { visibility: hidden; pointer-events: none; }
+  .k-1LKG_row { min-height: 44px; }
+  .dhJKeW_header { min-height: 48px; flex-shrink: 0; }
+  .dhJKeW_header button, .k-1LKG_header button { min-width: 44px; min-height: 44px; flex-shrink: 0; }
+  .pI_x6G_overlayLayer input { min-height: 44px; font-size: 16px; }
+  [role="dialog"] :is(button, input, textarea, select):focus-visible,
+  ._tabStrip_6nhg2_237 button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+}
+/* 辅助按键仅用于手机终端，桌面继续使用物理键盘。 */
+[data-mytools-terminal-keys] { display: none; }
+@media (max-width: 767px), (max-width: 900px) and (max-height: 500px) {
+  [data-mytools-terminal-keys] {
+    display: flex; flex: none; gap: 4px; min-height: 48px; box-sizing: border-box;
+    overflow-x: auto; overscroll-behavior-inline: contain; padding: 4px 8px max(4px, env(safe-area-inset-bottom));
+    background: var(--dsw-alias-background-primary, #fff); border-top: 1px solid var(--dsw-alias-border-standard, #e5e7eb);
+  }
+  [data-mytools-terminal-keys] button {
+    flex: none; min-width: 44px; height: 44px; padding: 0 10px; border-radius: 8px;
+    border: 1px solid var(--dsw-alias-border-standard, #e5e7eb); background: transparent;
+    color: var(--dsw-alias-label-primary, #111827); font: 13px ui-monospace, monospace; touch-action: manipulation;
+  }
+  [data-mytools-terminal-keys] button:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
+  /* 缩放条在手机上可直接找到，最后一屏内容留出空间，避免被浮层盖住。 */
+  [data-document-zoom-controls] { opacity: 1 !important; pointer-events: auto !important; transform: translateX(-50%) !important; width: max-content; max-width: calc(100% - 16px); }
+  [data-document-zoom-controls] button { flex-shrink: 0; min-width: 44px; min-height: 44px; font-size: 14px; white-space: nowrap; }
+  [data-document-zoom-controls] .lyqg2a_percent { min-width: 72px; }
+  .rIfSMq_frame .rIfSMq_scrollport { box-sizing: border-box; padding-bottom: 76px; scroll-padding-bottom: 76px; }
+  .HyIruq_frame { min-height: 0; }
+}
+/* 横屏宽度足够时恢复单行标签栏，给文件和终端留出纵向空间。 */
+@media (min-width: 600px) and (max-width: 900px) and (max-height: 500px) {
+  ._tabStrip_6nhg2_237 { min-height: 52px; flex-wrap: nowrap; }
+  ._tabStrip_6nhg2_237 > ._stripTabs_6nhg2_257 { flex: 1 1 auto; width: auto; }
+}
+/* 横屏和键盘压缩时把分类排成单行，优先让出表单空间。 */
+@media (max-width: 900px) and (max-height: 500px) {
+  /* 短屏弹窗整页滚动，长说明不能把输入字段挤成只有一条边框。 */
+  [role="dialog"]._dialog_o6lrb_33:not([data-shortcut-modal="settings"]) { display: block; overflow-y: auto; }
+  [role="dialog"]._dialog_o6lrb_33:not([data-shortcut-modal="settings"]) > ._content_o6lrb_63 { max-height: none; overflow: visible; }
+  [data-shortcut-modal="settings"] > nav { padding: 4px 12px 4px; gap: 4px; }
+  [data-shortcut-modal="settings"] .VOzbGW_navTitle { margin: 0; }
+  [data-shortcut-modal="settings"] .VOzbGW_header { top: 4px; }
+  [data-shortcut-modal="settings"] .VOzbGW_navList { display: flex; flex-direction: row; overflow-x: auto; }
+  [data-shortcut-modal="settings"] .VOzbGW_navCell { width: auto; flex-shrink: 0; }
+}

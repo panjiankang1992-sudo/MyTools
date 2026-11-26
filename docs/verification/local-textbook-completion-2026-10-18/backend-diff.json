@@ -1,0 +1,20 @@
+{
+  "added": [
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/curriculum/CurriculumCatalog$DictionaryBook.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/curriculum/CurriculumCatalog$DictionarySnapshot.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/translation/TranslationDictionary$Index.class"
+  ],
+  "removed": [],
+  "changed": [
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/model/TranslationRequest$Item.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/model/TranslationRequest.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/model/TranslationResult$Item.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/model/TranslationResult.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/curriculum/CatalogSnapshot.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/curriculum/CurriculumCatalog$StoredVersion.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/curriculum/CurriculumCatalog.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/translation/TranslationDictionary.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/translation/TranslationService$Cached.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/translation/TranslationService.class"
+  ]
+}

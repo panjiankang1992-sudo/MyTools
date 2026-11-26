@@ -58,3 +58,8 @@ rejects(() => normalizer.normalizeStored(Object.assign({}, session, { expiresAt:
   'Stored stale expiry rejection');
 
 console.log('Auth response normalizer tests passed');
+
+const intent = { ...session, refreshOperationId: '01010101-0101-4101-8101-010101010101' };
+equal(normalizer.normalizeStored(intent, now).refreshOperationId, intent.refreshOperationId, 'Persist refresh intent');
+equal(normalizer.normalizeRefresh(validData(), intent, now).refreshOperationId, undefined, 'Clear completed intent');
+rejects(() => normalizer.normalizeStored({ ...session, refreshOperationId: 'invalid' }, now), 'Reject malformed intent');

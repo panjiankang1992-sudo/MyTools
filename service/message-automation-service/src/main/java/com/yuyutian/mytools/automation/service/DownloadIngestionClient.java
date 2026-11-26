@@ -233,7 +233,9 @@ public class DownloadIngestionClient {
                         tag.path("confidence").asDouble()));
             }
             items.add(new DownloadItem(item.path("fileName").asText(), item.path("tagStatus").asText("PENDING"),
-                    List.copyOf(tags)));
+                    List.copyOf(tags), item.path("sizeBytes").isIntegralNumber()
+                            && item.path("sizeBytes").canConvertToLong()
+                            && item.path("sizeBytes").asLong() >= 0 ? item.path("sizeBytes").asLong() : null));
         }
         return new DownloadSummary(requestId, response.path("status").asText(),
                 response.path("progressPercent").asInt(0), response.path("progressDownloadedBytes").asLong(0),
@@ -288,7 +290,11 @@ public class DownloadIngestionClient {
     }
 
     /** 单个下载文件的通知快照。 */
-    public record DownloadItem(String fileName, String tagStatus, List<DownloadTag> tags) {
+    public record DownloadItem(String fileName, String tagStatus, List<DownloadTag> tags, Long sizeBytes) {
+        /** 兼容没有真实大小的失败或旧版通知快照。 @param fileName 文件名。 @param tagStatus 标签状态。 @param tags 标签。 */
+        public DownloadItem(String fileName, String tagStatus, List<DownloadTag> tags) {
+            this(fileName, tagStatus, tags, null);
+        }
     }
 
     /** 单个自动标签的通知快照。 */

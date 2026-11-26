@@ -1,0 +1,42 @@
+{
+  "reviewer": "ai:codex",
+  "notHumanReview": true,
+  "method": "Visual inspection of all 49 chronological frames per sample using contact sheets; not real-time playback or official VBench scores.",
+  "scope": "development_candidate_only",
+  "productionApproved": false,
+  "passed": 6,
+  "total": 6,
+  "verdict": "candidate_promising_requires_independent_acceptance",
+  "samples": [
+    {
+      "name": "A-cold-white-seed42",
+      "verdict": "limited_pass",
+      "observation": "Cup and saucer retained; moderate camera movement and minor framing wobble, no added hand."
+    },
+    {
+      "name": "A-cold-white-seed932",
+      "verdict": "limited_pass",
+      "observation": "Clear forward push, preserved cup and saucer; no extra subject."
+    },
+    {
+      "name": "B-warm-generated-seed42",
+      "verdict": "limited_pass",
+      "observation": "Teapot retained, gentle camera motion; background edge enters as viewpoint changes."
+    },
+    {
+      "name": "B-warm-generated-seed932",
+      "verdict": "limited_pass",
+      "observation": "Stable product and colors, subtle camera movement."
+    },
+    {
+      "name": "C-landscape-seed42",
+      "verdict": "limited_pass",
+      "observation": "Mountain structure and sunset retained, forward movement; ripples less clear."
+    },
+    {
+      "name": "C-landscape-seed932",
+      "verdict": "limited_pass",
+      "observation": "Preserved mountains and sky with clearly evolving lake ripples."
+    }
+  ]
+}

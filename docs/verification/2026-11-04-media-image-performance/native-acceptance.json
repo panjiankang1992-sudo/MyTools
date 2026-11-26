@@ -1,0 +1,103 @@
+{
+  "date": "2026-11-04",
+  "installedArtifactSha256": "7f7c86f91e498edfd3841108bcbef782a8e0a2bed4012f0794f5c2eff94b9d82",
+  "inPlaceInstallation": true,
+  "authenticatedGalleryAccessibleAfterProcessRestart": true,
+  "defaultToolsVerified": true,
+  "verticalSwipes": 7,
+  "states": {
+    "after-ready": {
+      "connectionMode": "公网",
+      "sequence": null,
+      "visibleGalleryImages": 8,
+      "errorCount": 0,
+      "toolsHeader": true
+    },
+    "after-gallery2": {
+      "connectionMode": "IPv6 直连",
+      "sequence": null,
+      "visibleGalleryImages": 6,
+      "errorCount": 0,
+      "toolsHeader": false
+    },
+    "after-open": {
+      "connectionMode": null,
+      "sequence": "1 / 6",
+      "visibleGalleryImages": 0,
+      "errorCount": 0,
+      "toolsHeader": false
+    },
+    "after-swipe3": {
+      "connectionMode": null,
+      "sequence": "4 / 6",
+      "visibleGalleryImages": 0,
+      "errorCount": 0,
+      "toolsHeader": false
+    },
+    "after-swipe7": {
+      "connectionMode": null,
+      "sequence": "4 / 6",
+      "visibleGalleryImages": 0,
+      "errorCount": 0,
+      "toolsHeader": false
+    },
+    "after-return": {
+      "connectionMode": "IPv6 直连",
+      "sequence": null,
+      "visibleGalleryImages": 6,
+      "errorCount": 0,
+      "toolsHeader": false
+    },
+    "after-scrolled": {
+      "connectionMode": "IPv6 直连",
+      "sequence": null,
+      "visibleGalleryImages": 5,
+      "errorCount": 0,
+      "toolsHeader": false
+    }
+  },
+  "timings": [
+    {
+      "sequence": 1,
+      "descriptorMs": 1,
+      "firstImageCompleteAfterDescriptorMs": 100
+    },
+    {
+      "sequence": 2,
+      "descriptorMs": 1,
+      "firstImageCompleteAfterDescriptorMs": 7
+    },
+    {
+      "sequence": 3,
+      "descriptorMs": 0,
+      "firstImageCompleteAfterDescriptorMs": 5
+    },
+    {
+      "sequence": 4,
+      "descriptorMs": 1,
+      "firstImageCompleteAfterDescriptorMs": 7
+    },
+    {
+      "sequence": 5,
+      "descriptorMs": 1,
+      "firstImageCompleteAfterDescriptorMs": 6
+    },
+    {
+      "sequence": 6,
+      "descriptorMs": 1,
+      "firstImageCompleteAfterDescriptorMs": 4
+    },
+    {
+      "sequence": 7,
+      "descriptorMs": 0,
+      "firstImageCompleteAfterDescriptorMs": 3
+    },
+    {
+      "sequence": 8,
+      "descriptorMs": 1,
+      "firstImageCompleteAfterDescriptorMs": 4
+    }
+  ],
+  "measurementScope": "Descriptor resolution and first Image.onComplete callback; not gesture frame rate or uncached network latency.",
+  "networkObservation": "Initial IPv6 selection fell back to PUBLIC once, then returned to IPv6; gallery and viewer checks completed after IPv6 recovery."
+}

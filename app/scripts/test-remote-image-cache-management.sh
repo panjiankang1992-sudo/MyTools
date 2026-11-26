@@ -19,5 +19,5 @@ grep -Fq 'this.mediaThumbnailCache.clear(context)' "$PAGE"
 grep -Fq 'this.mediaThumbnailEntries = []' "$PAGE"
 grep -Fq "this.ProfileInfoRow('书源漫画页'" "$PAGE"
 grep -Fq "this.ProfileInfoRow('媒体缩略图'" "$PAGE"
-grep -Fq "Button('清理全部远程图片缓存')" "$PAGE"
+grep -Fq "AppDangerPillButton({ label: '清理全部远程图片缓存'" "$PAGE"
 echo 'Remote image cache management integration tests passed'

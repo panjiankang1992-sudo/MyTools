@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["requestId", "itemId", "fileName", "storageUri", "sizeBytes", "contentSha256"],
+  "properties": {
+    "requestId": {"type": "string", "format": "uuid"},
+    "itemId": {"type": "string"},
+    "fileName": {"type": "string"},
+    "storageUri": {"type": "string", "pattern": "^storage://"},
+    "sizeBytes": {"type": "integer", "minimum": 0},
+    "contentSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}

@@ -1,8 +1,12 @@
 import { AppTheme } from '../../theme/AppTheme';
+import { ToolConfirmDialog, ToolEmptyState } from './ToolUi';
+import { AppButton, AppGroupedButton, AppEqualActionRow, AppTextAction, AppIconButton, AppFilterChip, AppSegmentItem, AppSearchField, AppGlassTextInput, AppGlassTextArea } from '../../components/AppControls';
 import { common } from '@kit.AbilityKit';
 import picker from '@ohos.file.picker';
 import fs from '@ohos.file.fs';
 import util from '@ohos.util';
+import window from '@ohos.window';
+import { ImageReferencePreparation } from './ImageReferencePreparation';
 import { AuthSessionManager } from '../auth/AuthSessionManager';
 import { ImageGenerationApi, ImageModel, ImageJob, ImageRequest, GeneratedImage, ImageStyle, ImageStyleWrite } from './ImageGenerationApi';
 
@@ -19,6 +23,12 @@ export struct ImageGenerationPage {
   @State chosenStyle: ImageStyle | undefined = undefined;
   @State styleGroup: string = 'BUILTIN';
   @State stylePanel: boolean = false;
+  @State styleSearch: string = '';
+  @State styleCategory: string = 'ALL';
+  @State styleDraft: ImageStyle | undefined = undefined;
+  @State styleDetail: boolean = false;
+  @State styleLoading: boolean = false;
+  @State stylePromptVisible: boolean = false;
   @State styleEditor: boolean = false;
   @State styleName: string = '';
   @State styleTemplate: string = '{prompt}. ';
@@ -32,6 +42,9 @@ export struct ImageGenerationPage {
   @State prompt: string = '';
   @State seedText: string = '';
   @State models: ImageModel[] = [];
+  @State catalogLoading: boolean = true;
+  @State catalogFailed: boolean = false;
+  private catalogRead: boolean = false;
   @State modelId: string = 'krea2-local';
   @State mode: string = 'TEXT_TO_IMAGE';
   @State imageSize: string = '1024x1024';
@@ -53,6 +66,11 @@ export struct ImageGenerationPage {
   @State viewerWidth: number = 0;
   @State viewerHeight: number = 0;
   @State viewerAspect: number = 1;
+  @State overlayTopInset: number = 0;
+  @State overlayBottomInset: number = 0;
+  private overlayWindow: window.Window | undefined = undefined;
+  private overlayWatchSequence: number = 0;
+  private overlayAvoidAreaChanged: (data: window.AvoidAreaOptions) => void = () => this.readOverlayInsets();
   private pinchStart: number = 1;
   private panStartX: number = 0;
   private panStartY: number = 0;
@@ -61,9 +79,28 @@ export struct ImageGenerationPage {
   private refreshSequence: number = 0;
   private refreshMessage: string = '';
   private pending: ImageRequest | undefined = undefined;
+  @State confirmationTitle: string = '';
+  @State confirmationMessage: string = '';
+  @State confirmationLabel: string = '';
+  @State confirmationDangerous: boolean = false;
+  private confirmationAction: () => void = () => {};
+  private confirmationController: CustomDialogController = new CustomDialogController({
+    builder: ToolConfirmDialog({ title: this.confirmationTitle, message: this.confirmationMessage,
+      confirmLabel: this.confirmationLabel, cancelLabel: $r('app.string.image_style_cancel'),
+      dangerous: this.confirmationDangerous, confirmed: () => this.finishConfirmation() }),
+    autoCancel: true, alignment: DialogAlignment.Center, customStyle: true
+  });
 
-  aboutToAppear(): void { this.refresh(); }
+  /** 进入页面时读取当前账号的创作能力与作品。 */
+  aboutToAppear(): void { this.watchOverlayInsets(); this.refresh(); }
+  /** 离开页面时释放当前会话的轮询和媒体缓存。 */
   aboutToDisappear(): void {
+    this.confirmationController.close(); this.confirmationAction = () => {};
+    this.overlayWatchSequence++;
+    if (this.overlayWindow !== undefined) {
+      try { this.overlayWindow.off('avoidAreaChange', this.overlayAvoidAreaChanged); } catch (_) {}
+      this.overlayWindow = undefined;
+    }
     this.viewerVisible = false; this.viewerUri = ';';
     this.revision++;
     if (this.timer !== -1) clearTimeout(this.timer);
@@ -72,12 +109,38 @@ export struct ImageGenerationPage {
   }
   private resetAccount(): void {
     this.aboutToDisappear();
+    this.styleSearch = ''; this.styleCategory = 'ALL'; this.styleDraft = undefined; this.styleDetail = false; this.styleLoading = false;
     this.styles = []; this.chosenStyle = undefined; this.styleSourceJobId = undefined;
     this.styleEditor = false; this.stylePanel = false; this.styleName = ''; this.styleTemplate = '{prompt}. ';
     this.styleEditingId = ''; this.styleEditingVersion = 0; this.styleCreateId = ''; this.styleMessage = ''; this.styleBusy = false;
     this.prompt = ''; this.seedText = ''; this.references = []; this.jobs = []; this.models = [];
+    this.catalogLoading = true; this.catalogFailed = false; this.catalogRead = false;
     this.pending = undefined; this.busy = false; this.page = 0; this.message = ''; this.refreshMessage = '';
+    this.watchOverlayInsets();
     this.refresh();
+  }
+  private async watchOverlayInsets(): Promise<void> {
+    const revision = this.revision;
+    const context = this.getUIContext().getHostContext();
+    if (context === undefined || this.overlayWindow !== undefined) return;
+    const sequence = ++this.overlayWatchSequence;
+    try {
+      const current = await window.getLastWindow(context);
+      if (revision !== this.revision || sequence !== this.overlayWatchSequence) return;
+      this.overlayWindow = current; this.readOverlayInsets();
+      current.on('avoidAreaChange', this.overlayAvoidAreaChanged);
+    } catch (_) {}
+  }
+  private readOverlayInsets(): void {
+    if (this.overlayWindow === undefined) return;
+    try {
+      const system = this.overlayWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+      const cutout = this.overlayWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_CUTOUT);
+      const navigation = this.overlayWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
+      // 全屏弹层按真实安全区留白，旋转屏幕或切换导航方式后同步更新。
+      this.overlayTopInset = this.getUIContext().px2vp(Math.max(system.topRect.height, cutout.topRect.height));
+      this.overlayBottomInset = this.getUIContext().px2vp(Math.max(system.bottomRect.height, navigation.bottomRect.height));
+    } catch (_) {}
   }
   private imageLabel(resource: Resource): string {
     try { return this.getUIContext().getHostContext()?.resourceManager.getStringSync(resource.id) ?? ''; }
@@ -102,12 +165,15 @@ export struct ImageGenerationPage {
     const revision = this.revision;
     const sequence = ++this.refreshSequence;
     if (this.timer !== -1) clearTimeout(this.timer);
+    // 首次读取与后台刷新区分，已有作品不会因刷新闪空。
+    this.catalogLoading = !this.catalogRead;
     try {
       const api = this.api();
       const models = await api.models();
       const jobs = await api.works(this.page);
       if (revision !== this.revision || sequence !== this.refreshSequence) return;
       this.models = models; this.jobs = jobs;
+      this.catalogFailed = false;
       // 连接恢复时只清除网络错误，不覆盖上传或保存的操作反馈。
       if (this.refreshMessage.length > 0 && this.message === this.refreshMessage) this.message = '';
       this.refreshMessage = '';
@@ -121,9 +187,14 @@ export struct ImageGenerationPage {
       if (revision === this.revision && sequence === this.refreshSequence) {
         this.message = '图片服务暂不可用，请稍后刷新；不会自动切换模型。';
         this.refreshMessage = this.message;
+        this.catalogFailed = true;
       }
     } finally {
-      if (revision === this.revision && sequence === this.refreshSequence) this.timer = setTimeout(() => this.refresh(), 5000);
+      if (revision === this.revision && sequence === this.refreshSequence) {
+        this.catalogLoading = false;
+        this.catalogRead = true;
+        this.timer = setTimeout(() => this.refresh(), 5000);
+      }
     }
   }
   private clearPreviews(): void {
@@ -158,17 +229,16 @@ export struct ImageGenerationPage {
       if (revision !== this.revision || selected.length === 0) return;
       const file = fs.openSync(selected[0], fs.OpenMode.READ_ONLY);
       let encoded: string = '';
+      let resized: boolean = false;
       try {
-        const length = fs.statSync(file.fd).size;
-        if (length <= 0 || length > 1024 * 1024) throw new Error('底稿请使用不超过 1 MB 的 PNG 或 JPEG');
-        const buffer = new ArrayBuffer(length);
-        const read = fs.readSync(file.fd, buffer);
-        if (read !== length) throw new Error('底稿读取不完整');
-        encoded = new util.Base64Helper().encodeToStringSync(new Uint8Array(buffer));
+        const prepared = await ImageReferencePreparation.prepare(file.fd);
+        if (revision !== this.revision) return;
+        resized = prepared.resized;
+        encoded = new util.Base64Helper().encodeToStringSync(new Uint8Array(prepared.bytes));
       } finally { fs.closeSync(file); }
       const id = await this.api().upload(encoded);
       if (revision !== this.revision) return;
-      this.references = this.references.concat([id]).slice(0, this.selected()?.maxReferences ?? 1); this.pending = undefined; this.message = '已添加底稿';
+      this.references = this.references.concat([id]).slice(0, this.selected()?.maxReferences ?? 1); this.pending = undefined; this.message = resized ? '已添加底稿，已自动适配生成尺寸，原图不变' : '已添加底稿';
     } catch (error) {
       if (revision === this.revision) this.message = error instanceof Error ? error.message : '底稿上传失败';
     } finally { if (revision === this.revision) this.busy = false; }
@@ -188,14 +258,14 @@ export struct ImageGenerationPage {
   }
   private async loadStyles(): Promise<void> {
     const revision = this.revision;
-    const sequence = ++this.styleLoadSequence;
+    const sequence = ++this.styleLoadSequence; this.styleLoading = true;
     try {
       const styles = await this.api().styles();
       if (revision !== this.revision || sequence !== this.styleLoadSequence) return;
       this.styles = styles; this.styleMessage = '';
     } catch (_) {
       if (revision === this.revision && sequence === this.styleLoadSequence) this.styleMessage = this.imageLabel($r('app.string.image_style_load_failed'));
-    }
+    } finally { if (revision === this.revision && sequence === this.styleLoadSequence) this.styleLoading = false; }
   }
   private chooseStyle(style: ImageStyle | undefined): void {
     if (this.busy || this.styleBusy) return;
@@ -208,7 +278,7 @@ export struct ImageGenerationPage {
     this.styleCreateId = util.generateRandomUUID();
     this.styleName = style === undefined ? '' : this.styleLabel(style);
     this.styleTemplate = style?.promptTemplate ?? '{prompt}. ';
-    this.styleMessage = ''; this.styleEditor = true; this.stylePanel = true;
+    this.styleMessage = ''; this.styleEditor = true; this.stylePanel = true; this.styleDetail = false;
   }
   private validStyleTemplate(): boolean {
     const parts = this.styleTemplate.split('{prompt}');
@@ -222,35 +292,47 @@ export struct ImageGenerationPage {
     const body: ImageStyleWrite = { name: this.styleName.trim(), promptTemplate: this.styleTemplate.trim() };
     if (this.styleEditingVersion > 0) body.expectedVersion = this.styleEditingVersion;
     const id = this.styleEditingId.length > 0 ? this.styleEditingId : this.styleCreateId;
-    this.styleBusy = true; this.styleLoadSequence++;
+    this.styleBusy = true; this.styleLoading = false; this.styleLoadSequence++;
     try {
       const style = await this.api().saveStyle(id, body);
       if (revision !== this.revision) return;
       this.styles = this.styles.filter((item: ImageStyle) => item.id !== style.id).concat([style]);
       this.chosenStyle = style; this.styleSourceJobId = undefined; this.pending = undefined;
-      this.styleEditor = false; this.styleGroup = 'USER'; this.styleMessage = this.imageLabel($r('app.string.image_style_saved'));
+      this.styleEditor = false; this.stylePanel = false; this.styleDraft = style; this.styleCategory = 'USER'; this.styleGroup = 'USER'; this.styleMessage = this.imageLabel($r('app.string.image_style_saved'));
     } catch (_) {
       if (revision === this.revision) this.styleMessage = this.imageLabel($r('app.string.image_style_save_failed'));
     } finally { if (revision === this.revision) this.styleBusy = false; }
   }
   private confirmDeleteStyle(style: ImageStyle): void {
+    this.confirmChange(this.imageLabel($r('app.string.image_style_delete')),
+      this.imageLabel($r('app.string.image_style_delete_notice')),
+      this.imageLabel($r('app.string.image_style_delete')), true, () => this.deleteStyle(style));
+  }
+  private confirmChange(title: string, message: string, label: string, dangerous: boolean,
+    action: () => void): void {
+    if (this.busy || this.styleBusy) return;
     const revision = this.revision;
-    this.getUIContext().showAlertDialog({ title: this.imageLabel($r('app.string.image_style_delete')),
-      message: this.imageLabel($r('app.string.image_style_delete_notice')),
-      primaryButton: { value: this.imageLabel($r('app.string.image_style_cancel')), action: () => {} },
-      secondaryButton: { value: this.imageLabel($r('app.string.image_style_delete')), action: () => {
-        if (revision === this.revision) this.deleteStyle(style);
-      } } });
+    this.confirmationTitle = title; this.confirmationMessage = message;
+    this.confirmationLabel = label; this.confirmationDangerous = dangerous;
+    // 账号或页面已切换时，旧确认不会改写新的创作输入。
+    this.confirmationAction = () => { if (revision === this.revision && !this.busy && !this.styleBusy) action(); };
+    this.confirmationController.open();
+  }
+  private finishConfirmation(): void {
+    const action = this.confirmationAction;
+    // 先清空待执行动作，连续激活确认也只会执行一次。
+    this.confirmationAction = () => {};
+    action();
   }
   private async deleteStyle(style: ImageStyle): Promise<void> {
     if (this.styleBusy || this.busy) return;
-    const revision = this.revision; this.styleBusy = true; this.styleLoadSequence++;
+    const revision = this.revision; this.styleBusy = true; this.styleLoading = false; this.styleLoadSequence++;
     try {
       await this.api().deleteStyle(style.id);
       if (revision !== this.revision) return;
       this.styles = this.styles.filter((item: ImageStyle) => item.id !== style.id);
       if (this.chosenStyle?.id === style.id) { this.chosenStyle = undefined; this.styleSourceJobId = undefined; this.pending = undefined; }
-      this.styleMessage = this.imageLabel($r('app.string.image_style_deleted'));
+      this.styleDraft = this.chosenStyle; this.styleDetail = false; this.styleMessage = this.imageLabel($r('app.string.image_style_deleted'));
     } catch (_) {
       if (revision === this.revision) this.styleMessage = this.imageLabel($r('app.string.image_style_save_failed'));
     } finally { if (revision === this.revision) this.styleBusy = false; }
@@ -305,10 +387,9 @@ export struct ImageGenerationPage {
   private selectMode(mode: string): void {
     if (this.mode === mode) return;
     if (mode === 'TEXT_TO_IMAGE' && this.references.length > 0) {
-      this.getUIContext().showAlertDialog({ title: '切换创作方式', message: '文字生成不会使用底稿，切换后将清除当前底稿。',
-        primaryButton: { value: '取消', action: () => {} }, secondaryButton: { value: '切换', action: () => {
+      this.confirmChange('切换创作方式', '文字生成不会使用底稿，切换后将清除当前底稿。', '切换', false, () => {
           this.mode = mode; this.references = []; this.pending = undefined;
-        } } });
+        });
     } else {
       this.mode = mode;
       if (mode === 'IMAGE_TO_IMAGE' || mode === 'IMAGE_TO_PROMPT') this.references = this.references.slice(0, 1);
@@ -321,10 +402,9 @@ export struct ImageGenerationPage {
       !model.sizes.includes(this.imageSize) || !model.counts.includes(this.count) ||
       (model.location !== 'LOCAL' && this.seedText.length > 0);
     if (changes) {
-      this.getUIContext().showAlertDialog({ title: '切换生成模型',
-        message: '目标模型不支持部分当前参数。切换后会调整尺寸和数量，清除不支持的底稿或种子；文字描述会保留。',
-        primaryButton: { value: '取消', action: () => {} },
-        secondaryButton: { value: '切换', action: () => this.applyModel(model) } });
+      this.confirmChange('切换生成模型',
+        '目标模型不支持部分当前参数。切换后会调整尺寸和数量，清除不支持的底稿或种子；文字描述会保留。',
+        '切换', false, () => this.applyModel(model));
     } else { this.applyModel(model); }
   }
   private applyModel(model: ImageModel): void {
@@ -378,156 +458,284 @@ export struct ImageGenerationPage {
     this.seedText = `${job.request.seed}`; this.pending = undefined; this.tab = 'create';
   }
   @Builder
-  private QuietButton(label: string, action: () => void) {
-    Button(label).type(ButtonType.Normal).height(36).fontSize(12).fontWeight(FontWeight.Medium)
-      .fontColor(AppTheme.textSecondary).backgroundColor(AppTheme.surfaceTint).borderRadius(10)
-      .padding({ left: 14, right: 14 }).onClick(action)
+  private QuietButton(label: ResourceStr, action: () => void) {
+    AppTextAction({ label: label, action: action })
   }
   @Builder
   private ReferenceUploadButton() {
-    Button() {
-      Row({ space: 4 }) {
-        Text($r('app.string.image_reference_upload')).fontSize(12)
-        Text(`${this.references.length}`).fontSize(12)
-        Text($r('app.string.image_reference_limit')).fontSize(12)
-      }
-    }.type(ButtonType.Normal).height(36).fontColor(AppTheme.textSecondary)
-      .backgroundColor(AppTheme.surfaceTint).borderRadius(10).padding({ left: 14, right: 14 })
-      .onClick(() => this.upload())
+    AppButton({
+      label: `${this.imageLabel($r('app.string.image_reference_upload'))} ${this.references.length} ${this.imageLabel($r('app.string.image_reference_limit'))}`,
+      variant: 'secondary', available: !this.busy,
+      action: () => this.upload()
+    })
   }
   @Builder
   private Choice(label: string, value: string, group: string) {
     // 在构建器内直接读取状态，避免传入布尔快照后选中样式不再刷新。
-    Button(label).type(ButtonType.Normal).height(36).layoutWeight(1).fontSize(13)
-      .fontWeight(FontWeight.Medium)
-      .fontColor((group === 'size' ? this.imageSize === value : group === 'count' ? this.count === Number(value) : this.mode === value) ? AppTheme.primary : AppTheme.textSecondary)
-      .backgroundColor((group === 'size' ? this.imageSize === value : group === 'count' ? this.count === Number(value) : this.mode === value) ? AppTheme.accentSoft : AppTheme.background)
-      .borderRadius(10)
-      .border({ width: 1, radius: 10,
-        color: (group === 'size' ? this.imageSize === value : group === 'count' ? this.count === Number(value) : this.mode === value) ? AppTheme.primary : Color.Transparent })
-      .onClick(() => {
+    AppFilterChip({ label: label, available: !this.busy,
+      selected: group === 'size' ? this.imageSize === value : group === 'count' ? this.count === Number(value) : this.mode === value,
+      action: () => {
         if (group === 'size') { this.imageSize = value; this.pending = undefined; }
         else if (group === 'count') { this.count = Number(value); this.pending = undefined; }
         else { this.selectMode(value); }
-      })
+      }
+    }).margin({ right: 8 })
+  }
+  private openStyleLibrary(): void {
+    if (this.busy || this.styleBusy) return;
+    this.styleDraft = this.chosenStyle; this.styleSearch = ''; this.styleCategory = 'ALL';
+    this.styleDetail = false; this.styleEditor = false; this.stylePromptVisible = false;
+    this.styleMessage = ''; this.stylePanel = true; this.loadStyles();
+  }
+  private styleFamily(style: ImageStyle): string {
+    if (style.origin !== 'BUILTIN') return 'USER';
+    if (['photographic', 'analog-film', 'cinematic', 'food-photo'].includes(style.id)) return 'PHOTO';
+    if (['watercolor', 'impressionist', 'pointillism', 'surrealist'].includes(style.id)) return 'PAINT';
+    if (['anime', 'comic', 'line-art', 'digital-art', 'fantasy', 'pixel'].includes(style.id)) return 'ILLUSTRATION';
+    if (['isometric', 'low-poly', 'clay', 'origami', 'paper-cut'].includes(style.id)) return 'CRAFT';
+    return 'DESIGN';
+  }
+  private familyLabel(value: string): string {
+    try { return this.getUIContext().getHostContext()?.resourceManager.getStringByNameSync(`image_style_category_${value.toLowerCase()}`) ?? value; }
+    catch (_) { return value; }
+  }
+  private styleDescription(style: ImageStyle): string {
+    if (style.origin !== 'BUILTIN') return this.imageLabel($r('app.string.image_style_custom_description'));
+    try { return this.getUIContext().getHostContext()?.resourceManager.getStringByNameSync(`image_style_desc_${style.id.replace(/-/g, '_')}`) ?? this.familyLabel(this.styleFamily(style)); }
+    catch (_) { return this.familyLabel(this.styleFamily(style)); }
+  }
+  private styleIcon(style?: ImageStyle): Resource {
+    if (!style) return $r('sys.symbol.circle');
+    const family = this.styleFamily(style);
+    return family === 'PHOTO' ? $r('sys.symbol.camera') : family === 'ILLUSTRATION' ? $r('sys.symbol.picture') :
+      family === 'USER' ? $r('sys.symbol.person') : family === 'CRAFT' ? $r('sys.symbol.doc_text') : $r('sys.symbol.paintbrush');
+  }
+  private filteredStyles(): ImageStyle[] {
+    const query = this.styleSearch.trim().toLowerCase();
+    return this.styles.filter((style: ImageStyle) =>
+      (this.styleCategory === 'ALL' || this.styleFamily(style) === this.styleCategory) &&
+      (query.length === 0 || `${this.styleLabel(style)} ${style.name} ${this.styleDescription(style)}`.toLowerCase().includes(query)));
+  }
+  private styleCompatible(style: ImageStyle): boolean {
+    return style.compatibleModels.includes(this.modelId) && style.modes.includes(this.mode);
+  }
+  private closeStyleLibrary(): void {
+    if (this.styleBusy) return;
+    if (this.styleEditor) { this.styleEditor = false; }
+    else if (this.styleDetail) { this.styleDetail = false; this.stylePromptVisible = false; }
+    else { this.stylePanel = false; }
   }
   @Builder
   private StyleControls() {
-    Column({ space: 10 }) {
+    Column({ space: 12 }) {
       Row() {
-        Text($r('app.string.image_style_title')).fontSize(14).fontWeight(FontWeight.Medium).layoutWeight(1)
-        Button(this.chosenStyle === undefined ? this.imageLabel($r('app.string.image_style_none')) : this.styleLabel(this.chosenStyle))
-          .fontSize(13).fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft)
-          .onClick(() => { this.stylePanel = !this.stylePanel; if (this.stylePanel) this.loadStyles(); })
+        Text($r('app.string.image_style_title')).fontFamily(AppTheme.fontMedium).fontSize(14).fontWeight(500).layoutWeight(1)
+        Text($r('app.string.image_style_optional')).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary)
       }.width('100%')
-      if (this.chosenStyle !== undefined) {
-        Text(`${this.styleLabel(this.chosenStyle)} · v${this.chosenStyle.version}`).fontSize(12).fontColor(AppTheme.textSecondary)
-        Text(this.combinedPrompt()).fontSize(12).fontColor(AppTheme.textSecondary).maxLines(5).copyOption(CopyOptions.InApp)
-        Text(`${this.combinedPrompt().length} / 4000`).fontSize(11).fontColor(AppTheme.textTertiary)
+      Button({ type: ButtonType.Normal }) {
+        Row({ space: 12 }) {
+          SymbolGlyph(this.styleIcon(this.chosenStyle)).fontSize(24).fontColor([AppTheme.primary])
+          Column({ space: 5 }) {
+            Text(this.chosenStyle ? this.styleLabel(this.chosenStyle) : $r('app.string.image_style_natural')).fontFamily(AppTheme.fontMedium).fontSize(16).fontWeight(500).fontColor(AppTheme.ink)
+            Text(this.chosenStyle ? this.styleDescription(this.chosenStyle) : $r('app.string.image_style_natural_hint')).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary).maxLines(2)
+          }.layoutWeight(1).alignItems(HorizontalAlign.Start)
+          Text($r('app.string.image_style_change')).fontFamily(AppTheme.fontFamily).fontSize(16).fontColor(AppTheme.primary)
+          SymbolGlyph($r('sys.symbol.chevron_right')).fontSize(18).fontColor([AppTheme.primary])
+        }.width('100%')
+      }.width('100%').padding(14).backgroundColor(AppTheme.accentSoft).borderRadius(14)
+        .enabled(!this.busy && !this.styleBusy).onClick(() => this.openStyleLibrary())
+        .accessibilityText(this.imageLabel($r('app.string.image_style_change')))
+      if (this.chosenStyle) {
+        Row() {
+          Text($r('app.string.image_style_applied_hint')).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary).layoutWeight(1)
+          AppTextAction({ label: $r('app.string.image_style_clear'), available: !this.busy && !this.styleBusy,
+            action: () => this.chooseStyle(undefined) })
+        }.width('100%')
       }
-      if (this.stylePanel) {
-        Row({ space: 6 }) {
-          this.QuietButton(this.imageLabel($r('app.string.image_style_none')), () => this.chooseStyle(undefined))
-          this.QuietButton(this.imageLabel($r('app.string.image_style_builtin')), () => { this.styleGroup = 'BUILTIN'; })
-          this.QuietButton(this.imageLabel($r('app.string.image_style_mine')), () => { this.styleGroup = 'USER'; })
-        }
-        Row({ space: 6 }) {
-          this.QuietButton(this.imageLabel($r('app.string.image_style_new')), () => this.editStyle())
-          this.QuietButton(this.imageLabel($r('app.string.image_style_refresh')), () => this.loadStyles())
-        }
-        Scroll() {
-          Column({ space: 8 }) {
-            ForEach(this.styles.filter((item: ImageStyle) => item.origin === this.styleGroup), (style: ImageStyle) => {
-              Column({ space: 6 }) {
-                Button(`${this.styleLabel(style)} · v${style.version}`).fontSize(13).width('100%')
-                  .fontColor(this.chosenStyle?.id === style.id && this.chosenStyle?.version === style.version ? AppTheme.primary : AppTheme.ink)
-                  .backgroundColor(AppTheme.surfaceTint).onClick(() => this.chooseStyle(style))
-                Row({ space: 6 }) {
-                  this.QuietButton(this.imageLabel($r('app.string.image_style_copy')), () => this.editStyle(style, true))
-                  if (style.origin === 'USER') {
-                    this.QuietButton(this.imageLabel($r('app.string.image_style_edit')), () => this.editStyle(style))
-                    this.QuietButton(this.imageLabel($r('app.string.image_style_delete')), () => this.confirmDeleteStyle(style))
-                  }
-                }
-              }.width('100%')
-            }, (style: ImageStyle) => `${style.id}-${style.version}`)
-          }.width('100%')
-        }.height(220).width('100%')
-        if (this.styleEditor) {
-          Text($r('app.string.image_style_editor_help')).fontSize(12).fontColor(AppTheme.textSecondary)
-          TextInput({ text: this.styleName, placeholder: this.imageLabel($r('app.string.image_style_name')) })
-            .maxLength(80).onChange((value: string) => { this.styleName = value; })
-          TextArea({ text: this.styleTemplate }).height(110).maxLength(2000)
-            .onChange((value: string) => { this.styleTemplate = value; })
-          Text(this.styleTemplate.split('{prompt}').join(this.prompt.trim() || this.imageLabel($r('app.string.image_style_sample'))))
-            .fontSize(12).fontColor(AppTheme.textSecondary).copyOption(CopyOptions.InApp)
-          Row({ space: 8 }) {
-            Button($r('app.string.image_style_save')).enabled(this.validStyleTemplate()).onClick(() => this.saveStyle())
-            this.QuietButton(this.imageLabel($r('app.string.image_style_cancel')), () => { this.styleEditor = false; })
+    }.width('100%').padding(16).backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius).alignItems(HorizontalAlign.Start)
+  }
+  @Builder
+  private StyleTile(style: ImageStyle) {
+    Button({ type: ButtonType.Normal }) {
+      Column({ space: 8 }) {
+        Row() {
+          SymbolGlyph(this.styleIcon(style)).fontSize(22).fontColor([AppTheme.primary])
+          Blank()
+          if (this.styleDraft?.id === style.id) {
+            SymbolGlyph($r('sys.symbol.checkmark_circle_fill')).fontSize(18).fontColor([AppTheme.primary])
           }
+        }.width('100%')
+        Text(this.styleLabel(style)).fontFamily(AppTheme.fontMedium).fontSize(16).fontWeight(500).fontColor(AppTheme.ink).maxLines(2).width('100%')
+        Text(this.styleDescription(style)).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary).maxLines(2).width('100%')
+      }.alignItems(HorizontalAlign.Start).width('100%')
+    }.width('100%').constraintSize({ minHeight: 156 }).padding(12).borderRadius(16)
+      .backgroundColor(this.styleDraft?.id === style.id ? AppTheme.accentSoft : AppTheme.surface)
+      .border({ width: this.styleDraft?.id === style.id ? 2 : 1, radius: 16, color: this.styleDraft?.id === style.id ? AppTheme.primary : AppTheme.divider })
+      .enabled(!this.styleBusy)
+      .onClick(() => { this.styleDraft = style; this.styleDetail = true; this.stylePromptVisible = false; this.styleMessage = ''; })
+      .accessibilityText(`${this.styleLabel(style)} ${this.styleDescription(style)}`)
+  }
+  @Builder
+  private StyleLibrary() {
+    Column({ space: 16 }) {
+      Row({ space: 12 }) {
+        AppIconButton({ icon: $r('sys.symbol.chevron_left'), available: !this.styleBusy,
+          description: this.imageLabel($r('app.string.image_style_back')), action: () => this.closeStyleLibrary() })
+        Text(this.styleEditor ? $r('app.string.image_style_edit_title') : this.styleDetail ? $r('app.string.image_style_detail_title') : $r('app.string.image_style_library')).fontFamily(AppTheme.fontSemibold)
+          .fontSize(20).lineHeight(28).fontWeight(600).fontColor(AppTheme.ink).layoutWeight(1)
+        if (!this.styleDetail && !this.styleEditor) {
+          AppTextAction({ label: $r('app.string.image_style_new'), action: () => this.editStyle() })
         }
-        if (this.styleMessage.length > 0) {
-          Text(this.styleMessage).fontSize(12).fontColor(AppTheme.textSecondary)
-        }
+      }.width('100%')
+      if (this.styleEditor) {
+        Scroll() { Column({ space: 16 }) {
+          Text($r('app.string.image_style_editor_help')).fontFamily(AppTheme.fontFamily).fontSize(13).fontColor(AppTheme.textSecondary)
+          Text($r('app.string.image_style_name')).fontFamily(AppTheme.fontMedium).fontSize(14).fontWeight(500)
+          AppGlassTextInput({ value: this.styleName, placeholder: this.imageLabel($r('app.string.image_style_name')),
+            limit: 80, available: !this.styleBusy, valueChanged: (value: string) => this.styleName = value })
+          Text($r('app.string.image_style_template_label')).fontFamily(AppTheme.fontMedium).fontSize(14).fontWeight(500)
+          AppGlassTextArea({ value: this.styleTemplate, areaHeight: 180, limit: 2000, available: !this.styleBusy,
+            valueChanged: (value: string) => this.styleTemplate = value })
+          Text($r('app.string.image_style_prompt_preview')).fontFamily(AppTheme.fontMedium).fontSize(14).fontWeight(500)
+          Text(this.styleTemplate.split('{prompt}').join(this.prompt.trim() || this.imageLabel($r('app.string.image_style_sample')))).fontFamily(AppTheme.fontFamily)
+            .fontSize(13).fontColor(AppTheme.textSecondary).copyOption(CopyOptions.InApp)
+        }.alignItems(HorizontalAlign.Start).width('100%').padding(16).backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius).enabled(!this.styleBusy) }.layoutWeight(1).width('100%').align(Alignment.TopStart)
+      } else if (this.styleDetail && this.styleDraft) {
+        Scroll() { Column({ space: 20 }) {
+          Column({ space: 14 }) {
+            SymbolGlyph(this.styleIcon(this.styleDraft)).fontSize(40).fontColor([AppTheme.primary])
+            Text(this.styleLabel(this.styleDraft)).fontFamily(AppTheme.fontSemibold).fontSize(26).fontWeight(600).fontColor(AppTheme.ink)
+            Text(this.styleDescription(this.styleDraft)).fontFamily(AppTheme.fontFamily).fontSize(15).fontColor(AppTheme.textSecondary).textAlign(TextAlign.Center)
+            Text(this.familyLabel(this.styleFamily(this.styleDraft))).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.primary).padding(8).backgroundColor(AppTheme.accentSoft).borderRadius(10)
+          }.padding(28).width('100%').backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius)
+          Text($r('app.string.image_style_detail_hint')).fontFamily(AppTheme.fontFamily).fontSize(13).fontColor(AppTheme.textSecondary)
+          if (!this.styleCompatible(this.styleDraft)) { Text($r('app.string.image_style_incompatible')).fontFamily(AppTheme.fontFamily).fontSize(13).fontColor(AppTheme.danger) }
+          AppButton({ label: this.stylePromptVisible ? $r('app.string.image_style_hide_prompt') : $r('app.string.image_style_prompt_preview'),
+            variant: 'secondary', action: () => this.stylePromptVisible = !this.stylePromptVisible })
+          if (this.stylePromptVisible) {
+            Text(this.styleDraft.promptTemplate.split('{prompt}').join(this.prompt.trim() || this.imageLabel($r('app.string.image_style_sample')))).fontFamily(AppTheme.fontFamily)
+              .fontSize(13).fontColor(AppTheme.textSecondary).copyOption(CopyOptions.InApp).width('100%').padding(16).backgroundColor(AppTheme.surface).borderRadius(14)
+          }
+          Flex({ wrap: FlexWrap.Wrap }) {
+            AppTextAction({ label: $r('app.string.image_style_copy_mine'), available: !this.styleBusy,
+              action: () => this.editStyle(this.styleDraft, true) }).margin({ right: 8 })
+            if (this.styleDraft.origin === 'USER') {
+              AppTextAction({ label: $r('app.string.image_style_edit'), available: !this.styleBusy,
+                action: () => this.editStyle(this.styleDraft) }).margin({ right: 8 })
+              AppButton({ label: $r('app.string.image_style_delete'), variant: 'danger', available: !this.styleBusy,
+                action: () => { if (this.styleDraft) this.confirmDeleteStyle(this.styleDraft); } })
+            }
+          }.width('100%').enabled(!this.styleBusy)
+          Text(`v${this.styleDraft.version}`).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary)
+        }.alignItems(HorizontalAlign.Start).width('100%') }.layoutWeight(1).width('100%').align(Alignment.TopStart)
+      } else {
+        AppSearchField({ value: this.styleSearch, placeholder: this.imageLabel($r('app.string.image_style_search')),
+          valueChanged: (value: string) => this.styleSearch = value, cleared: () => this.styleSearch = '' })
+        Scroll() { Row({ space: 8 }) {
+          ForEach(['ALL', 'PHOTO', 'PAINT', 'ILLUSTRATION', 'CRAFT', 'DESIGN', 'USER'], (category: string) => {
+            AppFilterChip({ label: this.familyLabel(category), selected: this.styleCategory === category,
+              action: () => this.styleCategory = category })
+          })
+        } }.scrollable(ScrollDirection.Horizontal).scrollBar(BarState.Off).width('100%')
+        Row() {
+          Text(`${this.filteredStyles().length} ${this.imageLabel($r('app.string.image_style_count_unit'))}`).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary).layoutWeight(1)
+          AppTextAction({ label: $r('app.string.image_style_refresh'), available: !this.styleLoading,
+            loading: this.styleLoading, action: () => this.loadStyles() })
+        }.width('100%')
+        Scroll() { Column({ space: 12 }) {
+          if (this.styleSearch.length === 0 && this.styleCategory === 'ALL') {
+            Button({ type: ButtonType.Normal }) { Row({ space: 12 }) {
+              SymbolGlyph($r('sys.symbol.circle')).fontSize(22).fontColor([AppTheme.primary])
+              Column({ space: 4 }) { Text($r('app.string.image_style_natural')).fontFamily(AppTheme.fontMedium).fontSize(14).fontWeight(500);Text($r('app.string.image_style_natural_hint')).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary) }.layoutWeight(1).alignItems(HorizontalAlign.Start)
+              if (!this.styleDraft) { SymbolGlyph($r('sys.symbol.checkmark_circle_fill')).fontSize(20).fontColor([AppTheme.primary]) }
+            }.width('100%') }.padding(16).width('100%').backgroundColor(this.styleDraft ? AppTheme.surface : AppTheme.accentSoft).fontColor(AppTheme.ink).borderRadius(16)
+              .enabled(!this.styleBusy).onClick(() => this.styleDraft = undefined)
+          }
+          if (this.styleLoading && this.styles.length === 0) { LoadingProgress().width(36).height(36) }
+          Flex({ wrap: FlexWrap.Wrap }) {
+            ForEach(this.filteredStyles(), (style: ImageStyle) => { Column() { this.StyleTile(style) }.width('50%').padding(4) }, (style: ImageStyle) => `${style.id}-${style.version}`)
+          }.width('100%')
+          if (!this.styleLoading && this.filteredStyles().length === 0) {
+            Text(this.styleCategory === 'USER' && !this.styleSearch ? $r('app.string.image_style_empty_mine') : $r('app.string.image_style_empty_search')).fontFamily(AppTheme.fontFamily).fontSize(14).fontColor(AppTheme.textSecondary).padding({ top: 24, bottom: 24 })
+          }
+        }.width('100%') }.layoutWeight(1).width('100%').scrollBar(BarState.Off).align(Alignment.TopStart)
       }
-    }.width('100%').padding(16).backgroundColor(AppTheme.surface).borderRadius(20)
-      .alignItems(HorizontalAlign.Start).enabled(!this.busy && !this.styleBusy)
+      if (this.styleMessage) { Text(this.styleMessage).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary).width('100%') }
+      Column({ space: 10 }) {
+        if (!this.styleEditor) {
+          Row({ space: 8 }) { Text($r('app.string.image_style_candidate')).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary).flexShrink(0);Text(this.styleDraft ? this.styleLabel(this.styleDraft) : $r('app.string.image_style_natural')).fontFamily(AppTheme.fontMedium).fontSize(14).fontWeight(500).fontColor(AppTheme.primary).layoutWeight(1).maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis }).textAlign(TextAlign.End) }.width('100%')
+        }
+        AppButton({ label: this.styleBusy ? $r('app.string.image_style_saving') : this.styleEditor ? $r('app.string.image_style_save') : $r('app.string.image_style_apply'),
+          loading: this.styleBusy, fullWidth: true,
+          available: !this.styleBusy && (this.styleEditor ? this.validStyleTemplate() : !this.styleDraft || this.styleCompatible(this.styleDraft)),
+          action: () => { if (this.styleEditor) { this.saveStyle(); } else {
+            // 未改变候选时保留历史作品的风格版本来源。
+            if (this.styleDraft?.id !== this.chosenStyle?.id || this.styleDraft?.version !== this.chosenStyle?.version) this.chooseStyle(this.styleDraft);
+            this.stylePanel = false;
+          } } })
+      }.padding({ top: 12 }).width('100%')
+    }.width('100%').height('100%')
+      .padding({ top: this.overlayTopInset + 12, left: 20, right: 20, bottom: this.overlayBottomInset + 16 })
+      .backgroundColor(AppTheme.background)
   }
   @Builder
   private Composer() {
     Column({ space: 10 }) {
       Column({ space: 4 }) {
-        Text('让想象，成为画面').fontSize(24).fontWeight(FontWeight.Bold).fontColor(AppTheme.ink)
-        Text('从一句描述开始，创作属于你的影像。').fontSize(13).fontColor(AppTheme.textSecondary)
+        Text('让想象，成为画面').fontFamily(AppTheme.fontSemibold).fontSize(26).lineHeight(34).fontWeight(600).fontColor(AppTheme.ink)
+        Text('从一句描述开始，创作属于你的影像。').fontFamily(AppTheme.fontFamily).fontSize(15).lineHeight(24).fontColor(AppTheme.textSecondary)
       }.width('100%').alignItems(HorizontalAlign.Start).padding({ top: 8, bottom: 4 })
       if (this.mode !== 'IMAGE_TO_PROMPT') {
       Column({ space: 12 }) {
         Row() {
-          Text('画面描述').fontSize(14).fontWeight(FontWeight.Medium).layoutWeight(1)
-          Text(`${this.prompt.length} / 4000`).fontSize(10).fontColor(AppTheme.textTertiary)
+          Text('画面描述').fontFamily(AppTheme.fontMedium).fontSize(14).fontWeight(500).layoutWeight(1)
+          Text(`${this.prompt.length} / 4000`).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary)
         }.width('100%')
-        TextArea({ text: this.prompt, placeholder: '想画什么？\n描述人物形象、动作、场景与光线…' })
-          .height(76).fontSize(15).fontColor(AppTheme.ink).backgroundColor(Color.Transparent)
-          .padding(0).maxLength(4000).enabled(!this.busy)
-          .onChange((value: string) => { this.prompt = value; this.pending = undefined; })
+        AppGlassTextArea({ value: this.prompt, placeholder: '想画什么？\n描述人物形象、动作、场景与光线…',
+          areaHeight: 156, limit: 4000, available: !this.busy,
+          valueChanged: (value: string) => { this.prompt = value; this.pending = undefined; } })
         Row() {
-          Text('主体 · 风格 · 构图 · 光线').fontSize(11).fontColor(AppTheme.textTertiary).layoutWeight(1)
+          Text('主体 · 风格 · 构图 · 光线').fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary).layoutWeight(1)
           if (this.prompt.length > 0) {
-            Text('清空').fontSize(12).fontColor(AppTheme.textSecondary).padding(8).enabled(!this.busy)
-              .onClick(() => { this.prompt = ''; this.pending = undefined; })
+            AppTextAction({ label: '清空', available: !this.busy,
+              action: () => { this.prompt = ''; this.pending = undefined; } })
           }
         }.width('100%')
-      }.padding(16).width('100%').backgroundColor(AppTheme.surface).borderRadius(20)
+      }.padding(16).width('100%').backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius)
         .border({ width: 1, color: AppTheme.divider })
       }
       if (this.styleEnabled()) { this.StyleControls() }
       Column({ space: 10 }) {
         Row() {
-          Text('生成模型').fontSize(14).fontWeight(FontWeight.Medium).layoutWeight(1)
-          Text(this.showModels ? '收起' : '切换模型').fontSize(12).fontColor(AppTheme.primary)
-            .padding({ left: 12, top: 5, bottom: 5 }).onClick(() => this.showModels = !this.showModels)
+          Text('生成模型').fontFamily(AppTheme.fontMedium).fontSize(14).fontWeight(500).layoutWeight(1)
+          AppTextAction({ label: this.showModels ? '收起' : '切换模型', available: !this.busy,
+            action: () => this.showModels = !this.showModels })
         }.width('100%')
         ForEach(this.showModels ? this.models : this.models.filter((model: ImageModel) => model.id === this.modelId), (model: ImageModel) => {
+          Button({ type: ButtonType.Normal }) {
           Row({ space: 12 }) {
             SymbolGlyph($r('sys.symbol.picture')).fontSize(21)
               .fontColor([this.modelId === model.id ? AppTheme.primary : AppTheme.textTertiary])
             Column({ space: 3 }) {
-              Text(model.id === 'vision-local' ? this.imageLabel($r('app.string.image_mode_prompt')) : model.name).fontSize(14).fontWeight(FontWeight.Medium).fontColor(AppTheme.ink)
-              Text(`${model.location === 'LOCAL' ? '本地运行' : '远端服务'} · ${model.status === 'READY' ? '已就绪' : '暂不可用'}`)
-                .fontSize(11).fontColor(AppTheme.textSecondary)
+              Text(model.id === 'vision-local' ? this.imageLabel($r('app.string.image_mode_prompt')) : model.name).fontFamily(AppTheme.fontMedium).fontSize(16).fontWeight(500).fontColor(AppTheme.ink)
+              Text(`${model.location === 'LOCAL' ? '本地运行' : '远端服务'} · ${model.status === 'READY' ? '已就绪' : '暂不可用'}`).fontFamily(AppTheme.fontFamily)
+                .fontSize(12).fontColor(AppTheme.textSecondary)
             }.layoutWeight(1).alignItems(HorizontalAlign.Start)
             if (this.modelId === model.id) {
               SymbolGlyph($r('sys.symbol.checkmark_circle_fill')).fontSize(18).fontColor([AppTheme.primary])
             }
-          }.width('100%').padding(14).borderRadius(14).backgroundColor(AppTheme.surface)
+          }.width('100%')
+          }.width('100%').constraintSize({ minHeight: 64 }).padding(14).borderRadius(12).backgroundColor(AppTheme.surface)
             .border({ width: 1, color: this.modelId === model.id ? AppTheme.primary : AppTheme.divider })
             .enabled(!this.busy).onClick(() => { this.selectModel(model); this.showModels = false; })
+            .accessibilityText(`选择图片模型：${model.name}`)
+            .accessibilityDescription(this.modelId === model.id ? '已选择' : '未选择')
         }, (model: ImageModel) => `${model.id}:${model.status}`)
       }.width('100%')
       if (this.ready()) {
         Column({ space: 10 }) {
           if ((this.selected()?.modes.length ?? 0) > 1) {
-            Row({ space: 8 }) {
+            Flex({ wrap: FlexWrap.Wrap }) {
               ForEach(this.selected()?.modes ?? [], (mode: string) => {
                 this.Choice(mode === 'TEXT_TO_IMAGE' ? '文字生成' : mode === 'IMAGE_TO_IMAGE' ? this.imageLabel($r('app.string.image_mode_edit')) : mode === 'IMAGE_TO_PROMPT' ? this.imageLabel($r('app.string.image_mode_prompt')) : '风格参考', mode, 'mode')
               })
@@ -541,44 +749,48 @@ export struct ImageGenerationPage {
           }
           if (this.mode !== 'IMAGE_TO_PROMPT') {
           Row() {
-            Text('画面尺寸').fontSize(13).fontWeight(FontWeight.Medium).layoutWeight(1)
-            Text(this.imageSize.replace('x', ' × ')).fontSize(10).fontColor(AppTheme.textTertiary)
+            Text('画面尺寸').fontFamily(AppTheme.fontMedium).fontSize(14).lineHeight(20).fontWeight(500).layoutWeight(1)
+            Text(this.imageSize.replace('x', ' × ')).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary)
           }.width('100%')
-          Row({ space: 8 }) {
+          Flex({ wrap: FlexWrap.Wrap }) {
             ForEach(this.selected()?.sizes ?? [], (size: string) => {
               this.Choice(size === '1024x1024' ? '方形' : size === '832x1216' ? '竖版' : size === '1216x832' ? '横版' : size,
                 size, 'size')
             })
           }.width('100%')
-          Row({ space: 10 }) {
-            Text('生成数量').fontSize(13).fontWeight(FontWeight.Medium).layoutWeight(1)
-            Row({ space: 6 }) {
+          Column({ space: 4 }) {
+            Text('生成数量').fontFamily(AppTheme.fontMedium).fontSize(14).lineHeight(20).fontWeight(500)
+            Flex({ wrap: FlexWrap.Wrap }) {
               ForEach(this.selected()?.counts ?? [], (count: number) => {
                 this.Choice(`${count} 张`, `${count}`, 'count')
               })
-            }.width('68%')
-          }.width('100%')
+            }.width('100%')
+          }.width('100%').alignItems(HorizontalAlign.Start)
           if (this.selected()?.location === 'LOCAL') {
+            Button({ type: ButtonType.Normal }) {
             Row() {
-              Text('高级设置').fontSize(12).fontColor(AppTheme.textSecondary).layoutWeight(1)
-              Text(this.showAdvanced ? '收起' : this.seedText.length > 0 ? '固定种子' : '随机种子').fontSize(11).fontColor(AppTheme.textTertiary)
-              SymbolGlyph($r('sys.symbol.chevron_right')).fontSize(10).fontColor([AppTheme.textTertiary]).margin({ left: 6 })
-            }.width('100%').height(30).onClick(() => this.showAdvanced = !this.showAdvanced)
+              Text('高级设置').fontFamily(AppTheme.fontMedium).fontSize(16).fontWeight(500)
+                .lineHeight(24).fontColor(AppTheme.textSecondary).layoutWeight(1)
+              Text(this.showAdvanced ? '收起' : this.seedText.length > 0 ? '固定种子' : '随机种子').fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary)
+              SymbolGlyph($r('sys.symbol.chevron_right')).fontSize(18).fontColor([AppTheme.textTertiary]).margin({ left: 6 })
+            }.width('100%')
+            }.width('100%').constraintSize({ minHeight: 48 }).padding(0).backgroundColor(Color.Transparent)
+              .borderRadius(10).onClick(() => this.showAdvanced = !this.showAdvanced)
+              .accessibilityText('高级设置').accessibilityDescription(this.showAdvanced ? '已展开' : '已折叠')
             if (this.showAdvanced) {
-              TextInput({ text: this.seedText, placeholder: '种子留空，每次探索新画面' }).height(40).fontSize(12)
-                .backgroundColor(AppTheme.background).type(InputType.Number).maxLength(10)
-                .onChange((value: string) => { this.seedText = value; this.pending = undefined; })
+              AppGlassTextInput({ value: this.seedText, label: '随机种子（可选）', placeholder: '留空，每次探索新画面',
+                inputType: InputType.Number, limit: 10, available: !this.busy,
+                valueChanged: (value: string) => { this.seedText = value; this.pending = undefined; } })
             }
           }
           }
-        }.width('100%').padding(12).borderRadius(18).backgroundColor(AppTheme.surface).enabled(!this.busy)
+        }.width('100%').padding(12).borderRadius(AppTheme.cardRadius).backgroundColor(AppTheme.surface).enabled(!this.busy)
       }
-      Button(this.busy ? '正在提交…' : this.ready() ? (this.mode === 'IMAGE_TO_PROMPT' ? this.imageLabel($r('app.string.image_extract_prompt')) : '生成图片') : this.models.length === 0 ? '正在连接图片服务…' : '当前模型暂不可用').type(ButtonType.Normal)
-        .width('100%').height(50).fontSize(16).fontWeight(FontWeight.Medium).fontColor(Color.White)
-        .backgroundColor(AppTheme.primary).borderRadius(14)
-        .enabled(this.ready() && !this.busy && (this.mode === 'IMAGE_TO_PROMPT' || this.prompt.trim().length > 0) && (this.mode === 'TEXT_TO_IMAGE' || this.references.length > 0))
-        .onClick(() => this.generate())
-      Text('生成后可在「我的作品」查看进度和保存图片').fontSize(11).fontColor(AppTheme.textTertiary)
+      AppButton({ label: this.busy ? '正在提交…' : this.ready() ? (this.mode === 'IMAGE_TO_PROMPT' ? this.imageLabel($r('app.string.image_extract_prompt')) : '生成图片') : this.models.length === 0 ? (this.catalogLoading ? '正在连接图片服务…' : this.catalogFailed ? '连接失败，请刷新' : '暂无可用图片模型') : '当前模型暂不可用',
+        fullWidth: true, loading: this.busy,
+        available: this.ready() && !this.busy && (this.mode === 'IMAGE_TO_PROMPT' || this.prompt.trim().length > 0) && (this.mode === 'TEXT_TO_IMAGE' || this.references.length > 0),
+        action: () => this.generate() })
+      Text('生成后可在「我的作品」查看进度和保存图片').fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary)
     }.width('100%').alignItems(HorizontalAlign.Start)
   }
   private openViewer(job: ImageJob, item: GeneratedImage): void {
@@ -604,13 +816,11 @@ export struct ImageGenerationPage {
   private FullscreenViewer() {
     Column() {
       Row() {
-        Button('关闭').height(40).fontSize(14).fontColor(Color.White).backgroundColor('#292929')
-          .onClick(() => this.viewerVisible = false)
+        AppTextAction({ label: '关闭', darkMode: true, action: () => this.viewerVisible = false })
         Blank()
-        Text(`${Math.round(this.viewerScale * 100)}%`).fontSize(13).fontColor('#C4C4C4')
-        Button('复位').height(40).fontSize(14).fontColor(Color.White).backgroundColor('#292929')
-          .margin({ left: 14 }).onClick(() => this.resetViewer())
-      }.width('100%').padding({ left: 16, right: 16, top: 48, bottom: 12 })
+        Text(`${Math.round(this.viewerScale * 100)}%`).fontFamily(AppTheme.fontFamily).fontSize(13).fontColor('#C4C4C4')
+        AppTextAction({ label: '复位', darkMode: true, action: () => this.resetViewer() }).margin({ left: 14 })
+      }.width('100%').padding({ left: 20, right: 20, top: this.overlayTopInset + 12, bottom: 12 })
       Stack() {
         Image(this.viewerUri).width('100%').height('100%').objectFit(ImageFit.Contain)
           .interpolation(ImageInterpolation.High)
@@ -636,23 +846,33 @@ export struct ImageGenerationPage {
               this.viewerX = this.panStartX + event.offsetX; this.viewerY = this.panStartY + event.offsetY; this.constrainViewer();
             })
         ))
-      Text('双指缩放 · 双击放大 · 拖动查看').fontSize(12).fontColor('#A0A0A0').padding(18)
+      Text('双指缩放 · 双击放大 · 拖动查看').fontFamily(AppTheme.fontFamily).fontSize(12).fontColor('#A0A0A0')
+        .padding({ left: 20, right: 20, top: 16, bottom: this.overlayBottomInset + 16 })
     }.width('100%').height('100%').backgroundColor('#101010')
   }
   @Builder
   private Works() {
     Column({ space: 18 }) {
       Row() {
-        Text('每一次想象，都值得收藏').fontSize(13).fontColor(AppTheme.textSecondary).layoutWeight(1)
-        Text(`第 ${this.page + 1} 页`).fontSize(11).fontColor(AppTheme.textTertiary)
+        Text('每一次想象，都值得收藏').fontFamily(AppTheme.fontFamily).fontSize(13).fontColor(AppTheme.textSecondary).layoutWeight(1)
+        Text(`第 ${this.page + 1} 页`).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary)
       }.width('100%')
-      if (this.jobs.length === 0) {
+      if (this.jobs.length === 0 && this.catalogLoading) {
+        Column({ space: 12 }) {
+          LoadingProgress().width(28).height(28).color(AppTheme.primary)
+          Text('正在加载图片作品…').fontFamily(AppTheme.fontFamily).fontSize(15).fontColor(AppTheme.textSecondary)
+        }.width('100%').padding(32)
+      } else if (this.jobs.length === 0 && this.catalogFailed) {
+        ToolEmptyState({ icon: $r('sys.symbol.picture'), title: '作品暂时无法加载',
+          description: '已保留当前页码，请稍后重试。' })
+        AppTextAction({ label: '重新加载', action: () => this.refresh() })
+      } else if (this.jobs.length === 0) {
         Column({ space: 12 }) {
           SymbolGlyph($r('sys.symbol.picture')).fontSize(36).fontColor([AppTheme.primary])
-          Text('你的第一幅作品，从这里开始').fontSize(16).fontWeight(FontWeight.Medium)
-          Text('写下想法，让画面慢慢浮现。').fontSize(13).fontColor(AppTheme.textSecondary)
+          Text('你的第一幅作品，从这里开始').fontFamily(AppTheme.fontMedium).fontSize(16).fontWeight(500)
+          Text('写下想法，让画面慢慢浮现。').fontFamily(AppTheme.fontFamily).fontSize(13).fontColor(AppTheme.textSecondary)
           this.QuietButton('开始创作', () => this.tab = 'create')
-        }.width('100%').padding({ top: 60, bottom: 60 }).backgroundColor(AppTheme.surface).borderRadius(20)
+        }.width('100%').padding({ top: 60, bottom: 60 }).backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius)
       }
       ForEach(this.jobs, (job: ImageJob) => {
         Column({ space: 0 }) {
@@ -662,76 +882,83 @@ export struct ImageGenerationPage {
                 .backgroundColor('#E8ECE9').accessibilityText('点击全屏查看作品')
                 .onClick(() => this.openViewer(job, item))
             }
-            Row({ space: 8 }) {
-              Text(`${item.index + 1} / ${job.result.images?.length ?? 0}`).fontSize(11).fontColor(AppTheme.textTertiary).layoutWeight(1)
-              this.QuietButton('保存图片', () => this.save(job, item))
+            Flex({ wrap: FlexWrap.Wrap, alignItems: ItemAlign.Center }) {
+              Text(`${item.index + 1} / ${job.result.images?.length ?? 0}`).fontFamily(AppTheme.fontFamily).fontSize(12)
+                .fontColor(AppTheme.textTertiary).margin({ right: 8 })
+              AppTextAction({ label: '保存图片', action: () => this.save(job, item) }).margin({ right: 8 })
               if (this.models.some((model: ImageModel) => model.status === 'READY' && (model.modes.includes('IMAGE_TO_IMAGE') || model.modes.includes('STYLE_REFERENCE')))) {
-                this.QuietButton('用作底稿', () => this.useReference(job, item))
+                AppTextAction({ label: '用作底稿', action: () => this.useReference(job, item) }).margin({ right: 8 })
               }
             }.width('100%').padding({ left: 14, right: 14, top: 10 })
           }, (item: GeneratedImage) => `${job.id}-${item.index}`)
           Column({ space: 10 }) {
-            Row() {
-              Text(this.status(job.status)).fontSize(11).fontWeight(FontWeight.Medium)
+            Flex({ wrap: FlexWrap.Wrap, alignItems: ItemAlign.Center }) {
+              Text(this.status(job.status)).fontFamily(AppTheme.fontMedium).fontSize(12).fontWeight(500)
                 .fontColor(this.active(job) || job.status === 'SUCCEEDED' ? AppTheme.primary : AppTheme.textSecondary)
                 .backgroundColor(AppTheme.accentSoft).borderRadius(6).padding({ left: 8, right: 8, top: 4, bottom: 4 })
-              Blank()
-              if (job.status === 'QUEUED' || job.status === 'RUNNING') { this.QuietButton('取消', () => this.cancel(job)) }
-              this.QuietButton('再次创作', () => this.reuseParameters(job))
+                .margin({ right: 8 })
+              if (job.status === 'QUEUED' || job.status === 'RUNNING') {
+                AppTextAction({ label: '取消', action: () => this.cancel(job) }).margin({ right: 8 })
+              }
+              AppTextAction({ label: '再次创作', action: () => this.reuseParameters(job) }).margin({ right: 8 })
             }.width('100%')
             if (job.result.prompt) {
-              Text(job.result.prompt).fontSize(14).lineHeight(21).fontColor(AppTheme.ink).width('100%').copyOption(CopyOptions.InApp)
+              Text(job.result.prompt).fontFamily(AppTheme.fontFamily).fontSize(15).lineHeight(24).fontColor(AppTheme.ink).width('100%').copyOption(CopyOptions.InApp)
               this.QuietButton(this.imageLabel($r('app.string.image_use_prompt')), () => this.useExtractedPrompt(job))
-              Text(this.imageLabel($r('app.string.image_prompt_notice'))).fontSize(11).fontColor(AppTheme.textSecondary)
+              Text(this.imageLabel($r('app.string.image_prompt_notice'))).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary)
             }
             if (job.request.styleSnapshot !== undefined) {
-              Text(`${this.styleLabel(job.request.styleSnapshot)} · v${job.request.styleSnapshot.version}`).fontSize(12).fontColor(AppTheme.primary)
+              Text(`${this.styleLabel(job.request.styleSnapshot)} · v${job.request.styleSnapshot.version}`).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.primary)
             }
-            Text(job.request.prompt).fontSize(14).lineHeight(21).fontColor(AppTheme.ink).maxLines(3)
+            Text(job.request.prompt).fontFamily(AppTheme.fontFamily).fontSize(15).lineHeight(24).fontColor(AppTheme.ink).maxLines(3)
               .textOverflow({ overflow: TextOverflow.Ellipsis }).width('100%')
-            Text(`${this.modelName(job.request.resourceId)} · ${job.request.size.replace('x', ' × ')} · ${job.request.count} 张`)
-              .fontSize(10).fontColor(AppTheme.textTertiary).width('100%')
+            Text(`${this.modelName(job.request.resourceId)} · ${job.request.size.replace('x', ' × ')} · ${job.request.count} 张`).fontFamily(AppTheme.fontFamily)
+              .fontSize(12).fontColor(AppTheme.textTertiary).width('100%')
             if (job.result.unconfirmed === true) {
-              Text('结果尚未确认，请先核对，避免重复生成。远端请求可能已经计费。').fontSize(12).fontColor(AppTheme.textSecondary)
+              Text('结果尚未确认，请先核对，避免重复生成。远端请求可能已经计费。').fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary)
             }
-            Text(this.elapsedLabel(job)).width('100%').textAlign(TextAlign.End).fontSize(11)
+            Text(this.elapsedLabel(job)).fontFamily(AppTheme.fontFamily).width('100%').textAlign(TextAlign.End).fontSize(12)
               .fontColor(AppTheme.textSecondary).accessibilityText(`${this.elapsedLabel(job)}，包含排队、生成和保存`)
           }.padding(14).width('100%').alignItems(HorizontalAlign.Start)
-        }.width('100%').borderRadius(20).clip(true).backgroundColor(AppTheme.surface)
+        }.width('100%').borderRadius(AppTheme.cardRadius).clip(true).backgroundColor(AppTheme.surface)
           .border({ width: 1, color: AppTheme.divider })
       }, (job: ImageJob) => `${job.id}:${job.status}:${job.errorCode}:${job.result.images?.length ?? 0}:${job.result.unconfirmed ?? false}:${job.elapsedMillis ?? -1}`)
-      Row({ space: 16 }) {
-        Button('上一页').height(36).fontSize(12).backgroundColor(AppTheme.surface).fontColor(AppTheme.textSecondary)
-          .enabled(this.page > 0).onClick(() => { this.page--; this.clearPreviews(); this.refresh(); })
-        Text(`${this.page + 1}`).fontSize(12).fontColor(AppTheme.textTertiary)
-        Button('下一页').height(36).fontSize(12).backgroundColor(AppTheme.surface).fontColor(AppTheme.textSecondary)
-          .enabled(this.jobs.length === 20).onClick(() => { this.page++; this.clearPreviews(); this.refresh(); })
-      }.width('100%').justifyContent(FlexAlign.Center)
+      AppEqualActionRow() {
+        AppGroupedButton({ label: '上一页', variant: 'text', fullWidth: true, available: this.page > 0,
+          action: () => { this.page--; this.clearPreviews(); this.refresh(); } })
+        Column() {
+          Text(`${this.page + 1}`).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary)
+            .constraintSize({ maxWidth: 92 }).maxLines(1)
+            .textOverflow({ overflow: TextOverflow.Ellipsis }).textAlign(TextAlign.Center)
+        }.justifyContent(FlexAlign.Center).alignItems(HorizontalAlign.Center)
+        AppGroupedButton({ label: '下一页', variant: 'text', fullWidth: true, available: this.jobs.length === 20,
+          action: () => { this.page++; this.clearPreviews(); this.refresh(); } })
+      }
     }.width('100%')
   }
+  @Builder
+  private ActiveOverlay() {
+    if (this.stylePanel) { this.StyleLibrary() } else { this.FullscreenViewer() }
+  }
+  /** 构建图片创作、作品与全屏查看页面。 */
   build() {
     Column({ space: 14 }) {
       Row({ space: 12 }) {
-        Button() {
-          SymbolGlyph($r('sys.symbol.chevron_left')).fontSize(18).fontColor([AppTheme.ink])
-        }.width(36).height(36).backgroundColor(AppTheme.surface).borderRadius(12).accessibilityText('返回').onClick(() => this.onBack())
-        Text('图片工作台').fontSize(20).fontWeight(FontWeight.Bold).fontColor(AppTheme.ink).layoutWeight(1)
+        AppIconButton({ icon: $r('sys.symbol.chevron_left'), description: '返回', action: () => this.onBack() })
+        Text('图片工作台').fontFamily(AppTheme.fontSemibold).fontSize(20).fontWeight(600).fontColor(AppTheme.ink).layoutWeight(1)
         this.QuietButton('刷新', () => this.refresh())
       }.width('100%')
       Row({ space: 4 }) {
-        Button('创作').type(ButtonType.Normal).layoutWeight(1).height(40).fontSize(14).fontWeight(FontWeight.Medium)
-          .fontColor(this.tab === 'create' ? AppTheme.ink : AppTheme.textSecondary)
-          .backgroundColor(this.tab === 'create' ? AppTheme.surface : Color.Transparent).borderRadius(11).onClick(() => this.tab = 'create')
-        Button('我的作品').type(ButtonType.Normal).layoutWeight(1).height(40).fontSize(14).fontWeight(FontWeight.Medium)
-          .fontColor(this.tab === 'works' ? AppTheme.ink : AppTheme.textSecondary)
-          .backgroundColor(this.tab === 'works' ? AppTheme.surface : Color.Transparent).borderRadius(11).onClick(() => this.tab = 'works')
-      }.width('100%').padding(4).backgroundColor('#E5EBE7').borderRadius(14)
+        AppSegmentItem({ label: '创作', selected: this.tab === 'create', action: () => this.tab = 'create' }).layoutWeight(1)
+        AppSegmentItem({ label: '我的作品', selected: this.tab === 'works', action: () => this.tab = 'works' }).layoutWeight(1)
+      }.width('100%').backgroundColor(AppTheme.surfaceTint).borderRadius(12)
       if (this.tab === 'create') { this.Composer() } else { this.Works() }
       if (this.message.length > 0) {
-        Text(this.message).fontSize(12).fontColor(AppTheme.textSecondary).width('100%').padding(12)
+        Text(this.message).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary).width('100%').padding(12)
           .backgroundColor(AppTheme.accentSoft).borderRadius(12)
       }
     }.width('100%').padding({ top: 4, bottom: 16 }).alignItems(HorizontalAlign.Start)
-      .bindContentCover($$this.viewerVisible, this.FullscreenViewer(), { modalTransition: ModalTransition.NONE })
+      .bindContentCover(this.stylePanel || this.viewerVisible, this.ActiveOverlay(), { modalTransition: ModalTransition.NONE,
+        onDisappear: () => { this.stylePanel = false; this.viewerVisible = false; } })
   }
 }

@@ -1,0 +1,167 @@
+{
+  "target": "http://127.0.0.1:4173",
+  "edition": "local-acceptance-2026-10-07",
+  "history": {
+    "withSnapshot": [
+      "1.0.0",
+      "1.0.1",
+      "1.0.2"
+    ],
+    "withoutSnapshot": [],
+    "status": 200
+  },
+  "dom": {
+    "rowVersions": [
+      "1.0.2",
+      "1.0.1",
+      "1.0.0"
+    ],
+    "repairEntries": [],
+    "snapshotToggles": [
+      "1.0.2",
+      "1.0.1",
+      "1.0.0"
+    ],
+    "rowSnapshotFlags": [
+      {
+        "version": "1.0.2",
+        "flag": "true"
+      },
+      {
+        "version": "1.0.1",
+        "flag": "true"
+      },
+      {
+        "version": "1.0.0",
+        "flag": "true"
+      }
+    ],
+    "controlLabels": [
+      "下载该版本原始字节",
+      "查看来源快照",
+      "下载该版本原始字节",
+      "查看来源快照",
+      "下载该版本原始字节",
+      "查看来源快照"
+    ],
+    "text": "该册的全部已发布版本，按发布时间倒序。本抽屉是只读的：不提供恢复旧版、下架或回滚。 1.0.2 2026/10/7 02:51:24（1791312684000） 发布人：local-admin-1001 修改摘要 未记录 原始字节 1668 字节 来源快照 有（SHA-256 da8f825a33fef06f8696ef2b2c261ce9ed99f2bdffc766cb505bd8b19f91037c） 下载该版本原始字节 查看来源快照 1.0.1 2026/10/7 02:51:24（1791312684000） 发布人：local-admin-1001 修改摘要 未记录 原始字节 1668 字节 来源快照 有（SHA-256 933dc5353b1ea6f8e977a32e1cadc0832dc831e9e9f888fffd98199caf9b2fee） 下载该版本原始字节 查看来源快照 1.0.0 2026/10/7 01:27:24（1791307644000） 发布人：local-admin-1001 修改摘要 未记录 原始字节 1668 字节 来源快照 有（SHA-256 2483ffcd2139eb8bd2332781a6809b69f04711a64da48148bfe638d41e11ac9a） 下载该版本原始字节 查看来源快照 修改摘要：后端当前不返回该字段"
+  },
+  "contract": {
+    "tokenPresent": true,
+    "missingBasis": {
+      "version": "1.0.0",
+      "status": 422,
+      "code": "TOOLBOX_ADMIN_005",
+      "details": {
+        "reason": "repairBasisRequired"
+      }
+    },
+    "existing": {
+      "version": "1.0.0",
+      "status": 200,
+      "body": {
+        "code": "OK",
+        "data": {
+          "editionId": "local-acceptance-2026-10-07",
+          "contentVersion": "1.0.0",
+          "applied": false,
+          "overwroteOriginal": false,
+          "reason": "snapshotAlreadyPresent",
+          "snapshot": {
+            "json": "{\"snapshotSchemaVersion\":1,\"snapshot\":{\"capturedAt\":\"2026-10-06T17:27:24.447468Z\",\"capturedBy\":\"local-admin-1001\",\"operationId\":\"publish:local-acceptance-2026-10-07@1.0.0\",\"origin\":\"publish\",\"repairBasis\":null},\"version\":{\"editionId\":\"local-acceptance-2026-10-07\",\"contentVersion\":\"1.0.0\",\"versionId\":\"local-acceptance-2026-10-07@1.0.0\",\"contentSha256\":\"5b0e355f0988e438e31b5a531532f4157bcafe1872ac413c1d02e3620c855c4f\"},\"manifestBaseline\":{\"present\":false,\"missingReason\":\"noPublishedBaseline\",\"catalogVersion\":null,\"schemaVersion\":null,\"relativePath\":null,\"fileSha256\":null,\"byteLength\":0,\"fileUtf8Text\":null,\"declaredEdition\":{}},\"sources\":[{\"sourceId\":\"manual-10ea863a310d55c9\",\"missing\":false,\"missingReason\":null,\"origin\":\"manual\",\"missingFields\":[\"publisher\",\"isbn\",\"editionLabel\",\"url\",\"locator\",\"locators\",\"accessBasis\",\"verifiedAt\",\"reviewedBy\",\"reviewNotes\",\"revisionReviews\",\"evidence\",\"knownGaps\",\"purpose\",\"notes\",\"contentSha256\",\"crossChecks\",\"reconciliation\"],\"record\":{\"kind\":\"manualNote\",\"sourceId\":\"manual-10ea863a310d55c9\",\"title\":\"本地验收用样例来源，第 1 页\"}}],\"files\":[],\"entryLocators\":[{\"entryId\":\"local-acceptance-2026-10-07-e0001\",\"sourceRefs\":[]},{\"entryId\":\"local-acceptance-2026-10-07-e0002\",\"sourceRefs\":[]}],\"missing\":[\"manifestBaseline\",\"referencedSourceIds\",\"sourcesDirectory\"]}",
+            "sha256": "2483ffcd2139eb8bd2332781a6809b69f04711a64da48148bfe638d41e11ac9a"
+          }
+        },
+        "requestId": "bf327253-6f58-4965-8e22-56380c3f4f69"
+      }
+    }
+  },
+  "results": [
+    {
+      "name": "进入管理编辑页（注入会话 Cookie 后直达）",
+      "ok": true,
+      "detail": "编辑页渲染=true"
+    },
+    {
+      "name": "找到并点击「版本记录」触发按钮",
+      "ok": true,
+      "detail": "触发按钮=true"
+    },
+    {
+      "name": "版本记录抽屉已打开",
+      "ok": true,
+      "detail": "打开=true"
+    },
+    {
+      "name": "页面会话可读到该册历史（对照数据源）",
+      "ok": true,
+      "detail": "HTTP 200 code=OK 版本数=3"
+    },
+    {
+      "name": "补录入口恰好只出现在\"没有来源快照\"的版本上（有快照的版本不显示，事后不可修改）",
+      "ok": true,
+      "detail": "DOM 入口=[] 后端无快照=[]"
+    },
+    {
+      "name": "每行的 hasSourceSnapshot 标记与后端一致（对照不是空集）",
+      "ok": true,
+      "detail": "行数=3/3 标记=[{\"version\":\"1.0.2\",\"flag\":\"true\"},{\"version\":\"1.0.1\",\"flag\":\"true\"},{\"version\":\"1.0.0\",\"flag\":\"true\"}]"
+    },
+    {
+      "name": "抽屉控件里没有覆盖／恢复／回滚／下架／删除（本界面不提供覆盖路径）",
+      "ok": true,
+      "detail": "违禁控件=[] 全部控件=[\"下载该版本原始字节\",\"查看来源快照\",\"下载该版本原始字节\",\"查看来源快照\",\"下载该版本原始字节\",\"查看来源快照\"]"
+    },
+    {
+      "name": "页面会话持有可用的管理 CSRF 令牌",
+      "ok": true,
+      "detail": "token=true"
+    },
+    {
+      "name": "缺 basis 的补录请求被后端拒绝（422）——界面\"依据必填\"与后端一致",
+      "ok": true,
+      "detail": "{\"version\":\"1.0.0\",\"status\":422,\"code\":\"TOOLBOX_ADMIN_005\",\"details\":{\"reason\":\"repairBasisRequired\"}}"
+    },
+    {
+      "name": "对已有快照的版本补录：applied=false、overwroteOriginal=false、reason=snapshotAlreadyPresent（不写库）",
+      "ok": true,
+      "detail": "{\"version\":\"1.0.0\",\"status\":200,\"body\":{\"code\":\"OK\",\"data\":{\"editionId\":\"local-acceptance-2026-10-07\",\"contentVersion\":\"1.0.0\",\"applied\":false,\"overwroteOriginal\":false,\"reason\":\"snapshotAlreadyPresent\",\"snapshot\":{\"json\":\"{\\\"snapshotSchemaVersion\\\":1,\\\"snapshot\\\":{\\\"capturedAt\\\":\\\"2026-10-06T17:27:24.447468Z\\\",\\\"capturedBy\\\":\\\"local-admin-1001\\\",\\\"operationId\\\":\\\"publish:local-acceptance-2026-10-07@1.0.0\\\",\\\"origin\\\":\\\"publish\\\",\\\"repairBasis\\\":null},\\\"version\\\":{\\\"editionId\\\":\\\"local-acceptance-2026-10-07\\\",\\\"contentVersion\\\":\\\"1.0.0\\\",\\\"versionId\\\":\\\"local-acceptance-2026-10-07@1.0.0\\\",\\\"contentSha256\\\":\\\"5b0e355f0988e438e31b5a531532f4157bcafe1872ac413c1d02e3620c855c4f\\\"},\\\"manifestBaseline\\\":{\\\"present\\\":false,\\\"missingReason\\\":\\\"noPublishedBaseline\\\",\\\"catalogVersion\\\":null,\\\"schemaVersion\\\":null,\\\"relativePath\\\":null,\\\"fileSha256\\\":null,\\\"byteLength\\\":0,\\\"fileUtf8Text\\\":null,\\\"declaredEdition\\\":{}},\\\"sources\\\":[{\\\"sourceId\\\":\\\"manual-10ea863a310d55c9\\\",\\\"missing\\\":false,\\\"missingReason\\\":null,\\\"origin\\\":\\\"manual\\\",\\\"missingFields\\\":[\\\"publisher\\\",\\\"isbn\\\",\\\"editionLabel\\\",\\\"url\\\",\\\"locator\\\",\\\"locators\\\",\\\"accessBasis\\\",\\\"verifiedAt\\\",\\\"reviewedBy\\\",\\\"reviewNotes\\\",\\\"revisionReviews\\\",\\\"evidence\\\",\\\"knownGaps\\\",\\\"purpose\\\",\\\"notes\\\",\\\"contentSha256\\\",\\\"crossChecks\\\",\\\"reconciliation\\\"],\\\"record\\\":{\\\"kind\\\":\\\"manualNote\\\",\\\"sourceId\\\":\\\"manual-10ea863a310d55c9\\\",\\\"title\\\":\\\"本地验收用样例来源，第 1 页\\\"}}],\\\"files\\\":[],\\\"entryLocators\\\":[{\\\"entryId\\\":\\\"local-acceptance-2026-10-07-e0001\\\",\\\"sourceRefs\\\":[]},{\\\"entryId\\\":\\\"local-acceptance-2026-10-07-e0002\\\",\\\"sourceRefs\\\":[]}],\\\"missing\\\":[\\\"manifestBaseline\\\",\\\"referencedSourceIds\\\",\\\"sourcesDirectory\\\"]}\",\"sha256\":\"2483ffcd2139eb8bd2332781a6809b69f04711a64da48148bfe638d41e11ac9a\"}},\"requestId\":\"bf327253-6f58-4965-8e22-56380c3f4f69\"}}"
+    },
+    {
+      "name": "期间无渲染进程异常",
+      "ok": true,
+      "detail": "pageErrors=[]"
+    },
+    {
+      "name": "期间无非预期异常响应（4xx/5xx）",
+      "ok": true,
+      "detail": "badResponses=[]"
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedRequests": [],
+  "badResponses": [
+    "422 http://127.0.0.1:4173/admin/v1/curriculum/versions/local-acceptance-2026-10-07/1.0.0/repair-source-snapshot?basis="
+  ],
+  "transcript": [
+    "PASS 进入管理编辑页（注入会话 Cookie 后直达） —— 编辑页渲染=true",
+    "PASS 找到并点击「版本记录」触发按钮 —— 触发按钮=true",
+    "PASS 版本记录抽屉已打开 —— 打开=true",
+    "PASS 页面会话可读到该册历史（对照数据源） —— HTTP 200 code=OK 版本数=3",
+    "  后端报告：有快照=[\"1.0.0\",\"1.0.1\",\"1.0.2\"]；无快照=[]",
+    "  ⚠ 本册没有\"无来源快照\"的版本：补录入口的**出现**分支在本次真实数据下未被触发，仅组件测试覆盖（不写库、不制造快照）。",
+    "  抽屉行=[\"1.0.2\",\"1.0.1\",\"1.0.0\"]",
+    "  补录入口=[] 快照开关=[\"1.0.2\",\"1.0.1\",\"1.0.0\"]",
+    "  抽屉文本：该册的全部已发布版本，按发布时间倒序。本抽屉是只读的：不提供恢复旧版、下架或回滚。 1.0.2 2026/10/7 02:51:24（1791312684000） 发布人：local-admin-1001 修改摘要 未记录 原始字节 1668 字节 来源快照 有（SHA-256 da8f825a33fef06f8696ef2b2c261ce9ed99f2bdffc766cb505bd8b19f91037c） 下载该版本原始字节 查看来源快照 1.0.1 2026/10/7 02:51:24（1791312684000） 发布人：local-admin-1001 修改摘要 未记录 原始字节 1668 字节 来源快照 有（SHA-256 933dc5353b1ea6f8e977a32e1cadc0832dc831e9e9f888fffd98199caf9b2fee） 下载该版本原始字节 查看来源快照 1.0.0 2026/10/7 01:27:24（1791307644000） 发布人：local-admin-1001 修改摘要 未记录 原始字节 1668 字节 来源快照 有（SHA-256 2483ffcd2139eb8bd2332781a6809b69f04711a64da48148bfe638d41e11ac9a） 下载该版本原始字节 查看来源快照 修改摘要：后端当前不返回该字段",
+    "PASS 补录入口恰好只出现在\"没有来源快照\"的版本上（有快照的版本不显示，事后不可修改） —— DOM 入口=[] 后端无快照=[]",
+    "PASS 每行的 hasSourceSnapshot 标记与后端一致（对照不是空集） —— 行数=3/3 标记=[{\"version\":\"1.0.2\",\"flag\":\"true\"},{\"version\":\"1.0.1\",\"flag\":\"true\"},{\"version\":\"1.0.0\",\"flag\":\"true\"}]",
+    "PASS 抽屉控件里没有覆盖／恢复／回滚／下架／删除（本界面不提供覆盖路径） —— 违禁控件=[] 全部控件=[\"下载该版本原始字节\",\"查看来源快照\",\"下载该版本原始字节\",\"查看来源快照\",\"下载该版本原始字节\",\"查看来源快照\"]",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/source-snapshot-repair-drawer.png",
+    "PASS 页面会话持有可用的管理 CSRF 令牌 —— token=true",
+    "PASS 缺 basis 的补录请求被后端拒绝（422）——界面\"依据必填\"与后端一致 —— {\"version\":\"1.0.0\",\"status\":422,\"code\":\"TOOLBOX_ADMIN_005\",\"details\":{\"reason\":\"repairBasisRequired\"}}",
+    "PASS 对已有快照的版本补录：applied=false、overwroteOriginal=false、reason=snapshotAlreadyPresent（不写库） —— {\"version\":\"1.0.0\",\"status\":200,\"body\":{\"code\":\"OK\",\"data\":{\"editionId\":\"local-acceptance-2026-10-07\",\"contentVersion\":\"1.0.0\",\"applied\":false,\"overwroteOriginal\":false,\"reason\":\"snapshotAlreadyPresent\",\"snapshot\":{\"json\":\"{\\\"snapshotSchemaVersion\\\":1,\\\"snapshot\\\":{\\\"capturedAt\\\":\\\"2026-10-06T17:27:24.447468Z\\\",\\\"capturedBy\\\":\\\"local-admin-1001\\\",\\\"operationId\\\":\\\"publish:local-acceptance-2026-10-07@1.0.0\\\",\\\"origin\\\":\\\"publish\\\",\\\"repairBasis\\\":null},\\\"version\\\":{\\\"editionId\\\":\\\"local-acceptance-2026-10-07\\\",\\\"contentVersion\\\":\\\"1.0.0\\\",\\\"versionId\\\":\\\"local-acceptance-2026-10-07@1.0.0\\\",\\\"contentSha256\\\":\\\"5b0e355f0988e438e31b5a531532f4157bcafe1872ac413c1d02e3620c855c4f\\\"},\\\"manifestBaseline\\\":{\\\"present\\\":false,\\\"missingReason\\\":\\\"noPublishedBaseline\\\",\\\"catalogVersion\\\":null,\\\"schemaVersion\\\":null,\\\"relativePath\\\":null,\\\"fileSha256\\\":null,\\\"byteLength\\\":0,\\\"fileUtf8Text\\\":null,\\\"declaredEdition\\\":{}},\\\"sources\\\":[{\\\"sourceId\\\":\\\"manual-10ea863a310d55c9\\\",\\\"missing\\\":false,\\\"missingReason\\\":null,\\\"origin\\\":\\\"manual\\\",\\\"missingFields\\\":[\\\"publisher\\\",\\\"isbn\\\",\\\"editionLabel\\\",\\\"url\\\",\\\"locator\\\",\\\"locators\\\",\\\"accessBasis\\\",\\\"verifiedAt\\\",\\\"reviewedBy\\\",\\\"reviewNotes\\\",\\\"revisionReviews\\\",\\\"evidence\\\",\\\"knownGaps\\\",\\\"purpose\\\",\\\"notes\\\",\\\"contentSha256\\\",\\\"crossChecks\\\",\\\"reconciliation\\\"],\\\"record\\\":{\\\"kind\\\":\\\"manualNote\\\",\\\"sourceId\\\":\\\"manual-10ea863a310d55c9\\\",\\\"title\\\":\\\"本地验收用样例来源，第 1 页\\\"}}],\\\"files\\\":[],\\\"entryLocators\\\":[{\\\"entryId\\\":\\\"local-acceptance-2026-10-07-e0001\\\",\\\"sourceRefs\\\":[]},{\\\"entryId\\\":\\\"local-acceptance-2026-10-07-e0002\\\",\\\"sourceRefs\\\":[]}],\\\"missing\\\":[\\\"manifestBaseline\\\",\\\"referencedSourceIds\\\",\\\"sourcesDirectory\\\"]}\",\"sha256\":\"2483ffcd2139eb8bd2332781a6809b69f04711a64da48148bfe638d41e11ac9a\"}},\"requestId\":\"bf327253-6f58-4965-8e22-56380c3f4f69\"}}",
+    "PASS 期间无渲染进程异常 —— pageErrors=[]",
+    "PASS 期间无非预期异常响应（4xx/5xx） —— badResponses=[]"
+  ]
+}

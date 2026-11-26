@@ -3,6 +3,7 @@ package com.yuyutian.mytools.automation.repository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.yuyutian.mytools.automation.model.AutomationRuleRecord;
 import com.yuyutian.mytools.automation.model.AutomationActionView;
 import com.yuyutian.mytools.automation.model.AutomationRunView;
@@ -33,6 +34,7 @@ public class AutomationRepository {
     private static final long MAXIMUM_RECONCILIATION_RETRY_DELAY_SECONDS = 60L;
     private static final long COMPLETION_CLAIM_LEASE_SECONDS = 300L;
     private static final int MAXIMUM_COMPLETION_CLAIM_BATCH_SIZE = 4;
+    private static final String COMPLETION_DELIVERY_PAGES = "deliveryPages";
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper;
 
@@ -89,7 +91,7 @@ public class AutomationRepository {
      */
     public Optional<AutomationRunView> findRun(UUID messageId) {
         return jdbcTemplate.query("SELECT * FROM automation_run WHERE inbound_message_id = ?",
-                (resultSet, rowNumber) -> mapRun(resultSet), messageId.toString()).stream().findFirst();
+                (resultSet, rowNumber) -> mapRun(resultSet), messageId.toString()).stream().findFirst().map(this::loadRunActions);
     }
 
     /**
@@ -97,7 +99,7 @@ public class AutomationRepository {
      */
     public Optional<AutomationRunView> findRunById(UUID runId) {
         return jdbcTemplate.query("SELECT * FROM automation_run WHERE id = ?",
-                (resultSet, rowNumber) -> mapRun(resultSet), runId.toString()).stream().findFirst();
+                (resultSet, rowNumber) -> mapRun(resultSet), runId.toString()).stream().findFirst().map(this::loadRunActions);
     }
 
     /**
@@ -661,7 +663,7 @@ public class AutomationRepository {
 
     private Optional<AutomationRunView> findRunForUpdate(UUID messageId) {
         return jdbcTemplate.query("SELECT * FROM automation_run WHERE inbound_message_id = ? FOR UPDATE",
-                (resultSet, rowNumber) -> mapRun(resultSet), messageId.toString()).stream().findFirst();
+                (resultSet, rowNumber) -> mapRun(resultSet), messageId.toString()).stream().findFirst().map(this::loadRunActions);
     }
 
     /**
@@ -1021,6 +1023,67 @@ public class AutomationRepository {
     }
 
     /**
+     * 读取首次投递前已持久化的完成回执。
+     *
+     * @param eventId 事件标识
+     * @return 固定内容，历史事件在首次持久化前为空
+     */
+    public Optional<List<String>> findOutboxDeliveryPages(UUID eventId) {
+        return jdbcTemplate.query("""
+                SELECT payload_json FROM automation_outbox WHERE id = ?
+                """, (resultSet, rowNumber) -> completionPayload(resultSet.getString(1)),
+                eventId.toString()).stream().findFirst()
+                .filter(payload -> payload.has(COMPLETION_DELIVERY_PAGES))
+                .map(payload -> readList(payload.get(COMPLETION_DELIVERY_PAGES).toString()))
+                .map(List::copyOf);
+    }
+
+    /**
+     * 在首次回复前固定分页文本，保证跨租约的重试仍使用相同正文。
+     *
+     * @param eventId 事件标识
+     * @param claimToken 当前租约标识
+     * @param pages 已渲染的分页文本
+     * @return 是否持有租约并成功保存
+     */
+    @Transactional
+    public boolean saveOutboxDeliveryPages(UUID eventId, String claimToken, List<String> pages) {
+        Optional<ObjectNode> payload = jdbcTemplate.query("""
+                SELECT payload_json FROM automation_outbox
+                WHERE id = ? AND published_at IS NULL AND dead_at IS NULL
+                  AND claimed_by = ? AND claim_until > ?
+                FOR UPDATE
+                """, (resultSet, rowNumber) -> completionPayload(resultSet.getString(1)),
+                eventId.toString(), claimToken, Timestamp.from(Instant.now())).stream().findFirst();
+        if (payload.isEmpty() || payload.get().has(COMPLETION_DELIVERY_PAGES)) {
+            return false;
+        }
+        // 保留既有业务事件字段，仅添加不可变的发送文本。
+        ObjectNode snapshot = payload.get();
+        snapshot.set(COMPLETION_DELIVERY_PAGES, objectMapper.valueToTree(pages));
+        return jdbcTemplate.update("""
+                UPDATE automation_outbox SET payload_json = ?
+                WHERE id = ? AND published_at IS NULL AND dead_at IS NULL
+                  AND claimed_by = ? AND claim_until > ?
+                """, writeJson(snapshot), eventId.toString(), claimToken, Timestamp.from(Instant.now())) == 1;
+    }
+
+    private ObjectNode completionPayload(String value) {
+        try {
+            JsonNode node = objectMapper.readTree(value);
+            if (node != null && node.isTextual()) {
+                node = objectMapper.readTree(node.asText());
+            }
+            if (node instanceof ObjectNode payload) {
+                return payload;
+            }
+        } catch (JsonProcessingException exception) {
+            throw new IllegalArgumentException("Stored completion payload is invalid", exception);
+        }
+        throw new IllegalArgumentException("Stored completion payload is invalid");
+    }
+
+    /**
      * 在下游仍持有同一幂等投递租约时，无损延后当前完成事件。
      *
      * @param eventId 事件标识
@@ -1210,6 +1273,24 @@ public class AutomationRepository {
                 """, eventId.toString()) == 1;
     }
 
+    /**
+     * 判断完成事件是否属于已审计的重新执行，避免新结果复用旧失败回执的幂等身份。
+     *
+     * @param runId 自动化运行标识。
+     * @param eventId 本次完成事件标识。
+     * @return 是否需要使用本次完成事件作为回执身份。
+     */
+    public boolean isRecoveredCompletion(UUID runId, UUID eventId) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM automation_outbox audit
+                JOIN automation_outbox completed ON completed.id = ? AND completed.aggregate_id = audit.aggregate_id
+                WHERE audit.aggregate_id = ? AND audit.event_type = 'AutomationRunRecoveryRecorded'
+                  AND completed.event_type = 'AutomationRunCompleted'
+                  AND completed.created_at >= audit.created_at
+                """, Integer.class, eventId.toString(), runId.toString());
+        return count != null && count > 0;
+    }
+
     private String normalizeOutboxError(String errorType) {
         String normalized = errorType == null ? "" : errorType.strip();
         if (normalized.isEmpty() || !normalized.matches("[A-Za-z][A-Za-z0-9_.-]*")) {
@@ -1276,7 +1357,14 @@ public class AutomationRepository {
                 resultSet.getInt("action_count"), readList(resultSet.getString("action_refs_json")),
                 resultSet.getString("error_code"), resultSet.getTimestamp("created_at").toInstant(),
                 resultSet.getTimestamp("updated_at").toInstant(),
-                findActions(UUID.fromString(resultSet.getString("id"))));
+                List.of());
+    }
+
+    private AutomationRunView loadRunActions(AutomationRunView run) {
+        // 先归还主查询连接，再读取动作，避免并发对账占满池后等待额外连接。
+        return new AutomationRunView(run.id(), run.messageId(), run.ruleId(), run.ruleVersion(),
+                run.status(), run.actionCount(), run.actionRefs(), run.errorCode(),
+                run.createdAt(), run.updatedAt(), findActions(run.id()));
     }
 
     private Optional<AutomationActionView> findAction(UUID runId, int sequence) {

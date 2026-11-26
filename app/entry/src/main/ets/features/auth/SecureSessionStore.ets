@@ -27,7 +27,8 @@ export class SecureSessionStore {
     await this.removeIfPresent(this.legacyAlias);
     if (baseUrl.length < 9 || baseUrl.length > 2048 || !baseUrl.startsWith('https://') ||
       /[\u0000-\u001F\u007F]/.test(baseUrl)) throw new Error('安全会话服务地址无效');
-    const payload: BoundAuthSession = { baseUrl, session: this.normalizer.normalizeStored(session, Date.now(), false) };
+    // 访问令牌已过期时仍需先持久化续期意图，刷新有效性由服务端独立判断。
+    const payload: BoundAuthSession = { baseUrl, session: this.normalizer.normalizeStored(session) };
     const secret = new util.TextEncoder().encodeInto(JSON.stringify(payload));
     if (secret.length > 64 * 1024) throw new Error('安全会话超过64 KB限制');
     const query: asset.AssetMap = new Map();

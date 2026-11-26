@@ -1,0 +1,9 @@
+{
+  "totalChecks": 98,
+  "build": "success",
+  "buildWarnings": false,
+  "simulatorInstalled": true,
+  "physicalDeviceTested": false,
+  "hapSha256": "9d1e0333ff738d46e6c7aadc63cb4303e32dbb69671a4cf8545f7944ed6c59c0",
+  "temporaryTestFilesCleaned": true
+}

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """首帧模式的验收窗口：多素材 × 多种子跑真实任务，量测补边是否仍是中性灰。
 
-窗口动作与 `deploy_video_generation.py verify` 一致：暂停含 GPU 步骤的任务定义、排空在途任务、
-只打开候选模式（网关路由保持关闭，用户提交不进来），结束时无论成败都恢复原状。
+窗口内暂停 GPU 竞争任务；忙时拒绝开始，新生产任务入队时取消本测试并恢复。
+不修改生产能力开关，异常与正常结束都恢复容量和图片服务。
 
 与 verify 的区别是覆盖多张素材与多个种子：补边缺陷曾经"白底素材通过、暖色素材失败"，
 所以验收必须跨素材，不能只靠一张。
@@ -21,6 +21,8 @@ from pathlib import Path
 import subprocess
 import sys
 import time
+
+from video_acceptance_window import active_competitors, window, write_state
 
 DEPLOY = Path(__file__).resolve().parent / 'deploy_video_generation.py'
 SEEDS = (42, 932)
@@ -118,12 +120,28 @@ def motion(video):
     return round(sum(abs(a - b) for a, b in zip(first, middle)) / len(first), 4)
 
 
+def wait_window_job(deploy, job_id, definitions):
+    """轮询期间让生产任务优先，异常由窗口恢复器取消本测试作业。"""
+    deadline = time.monotonic() + 2400
+    while time.monotonic() < deadline:
+        if active_competitors(deploy, definitions):
+            raise RuntimeError('production_gpu_task_arrived')
+        code, result, _ = deploy.request(23341, '/internal/v1/videos/jobs/' + job_id)
+        if code == 200 and result.get('status') in ('SUCCEEDED', 'FAILED', 'CANCELLED', 'TIMED_OUT', 'PARTIAL_SUCCESS'):
+            return result
+        time.sleep(10)
+    raise RuntimeError('job_timeout')
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('--subjects', nargs='+', required=True,
                         help='素材路径:标签，例如 /tmp/a.png:冷白底')
     parser.add_argument('--output', required=True, help='证据目录')
+    parser.add_argument('--count', type=int, help='连续串行任务数；循环使用素材与种子。')
     parsed = parser.parse_args()
+    if parsed.count is not None and not 1 <= parsed.count <= 30:
+        parser.error('count must be between 1 and 30')
     subjects = []
     for item in parsed.subjects:
         # 允许 path:标签:slug 三段；slug 必须是 ASCII——它要进幂等键与文件名，
@@ -141,97 +159,81 @@ def main() -> int:
     output = Path(parsed.output)
     output.mkdir(parents=True, exist_ok=True)
 
-    # 窗口：暂停 GPU 竞争者并排空，随后只打开首帧模式。
-    with deploy.task_connection() as db, db.cursor() as cursor:
-        cursor.execute('SELECT DISTINCT td.id, td.name, td.max_concurrency FROM task_definition td '
-                       'JOIN task_step_definition ts ON ts.task_definition_id=td.id '
-                       'WHERE ts.script_package IN (%s,%s) FOR UPDATE', deploy.GPU_PACKAGES)
-        definitions = [{'id': row[0], 'name': row[1], 'capacity': row[2]} for row in cursor.fetchall()]
-        for row in definitions:
-            cursor.execute('UPDATE task_definition SET max_concurrency=0 WHERE id=%s', (row['id'],))
-        db.commit()
-        ids = [row['id'] for row in definitions]
-        placeholders = ','.join(['%s'] * len(ids))
-        deadline = time.monotonic() + 900
-        while time.monotonic() < deadline:
-            with db.cursor() as check:
-                check.execute(f'SELECT COUNT(*) FROM task_instance WHERE task_definition_id IN ({placeholders}) '
-                              "AND status IN ('RUNNING','CANCELLING','QUEUED')", ids)
-                if check.fetchone()[0] == 0:
-                    break
-            time.sleep(5)
-        else:
-            raise SystemExit('production_gpu_tasks_active')
+    # 只复验已经开放的模式；客观测试不会改写人工验收或生产能力开关。
+    if deploy.values(deploy.ENV).get('VIDEO_FIRST_FRAME_VALIDATED') != 'true':
+        raise SystemExit('first_frame_not_enabled')
+    cases = [(subject, seed) for subject in subjects for seed in SEEDS]
+    if parsed.count is not None:
+        cases = [cases[index % len(cases)] for index in range(parsed.count)]
     samples = []
     objective_ok = False
-    try:
-        deploy.set_mode_flags(['FIRST_FRAME'])
-        for subject in subjects:
+    state_path = output / 'window.json'
+    with window(deploy, state_path) as state:
+        for case_index, (subject, seed) in enumerate(cases):
+            if active_competitors(deploy, state['definitions']):
+                raise RuntimeError('production_gpu_task_arrived')
             payload = subject['path'].read_bytes()
-            for seed in SEEDS:
-                # 上传是原始字节接口（deploy.request 只发 JSON），这里单独用 urllib。
-                import urllib.request
-                token = deploy.values(deploy.ENV)['VIDEO_GENERATION_INTERNAL_TOKEN']
-                request = urllib.request.Request(
-                    'http://127.0.0.1:23341/internal/v1/videos/uploads/image', data=payload,
-                    headers={'Authorization': 'Bearer ' + token, 'X-Owner-Id': '1',
-                             'Content-Type': 'image/png'}, method='POST')
-                with urllib.request.urlopen(request, timeout=180) as reply:
-                    upload_id = json.loads(reply.read())['id']
-                code, job, _ = deploy.request(23341, '/internal/v1/videos/jobs', 'POST', {
-                    'resourceId': 'wan-vace-1.3b-local', 'mode': 'FIRST_FRAME', 'prompt': PROMPT,
-                    'inputs': [{'uploadId': upload_id, 'role': 'FIRST_FRAME'}],
-                    'output': {'size': '832x480', 'frames': 49, 'fps': 16}, 'seed': seed,
-                    'idempotencyKey': f"accept-{subject['slug']}-{seed}-{int(time.time())}"})
-                if code != 200:
-                    samples.append({'subject': subject['label'], 'seed': seed, 'status': 'CREATE_FAILED',
-                                    'detail': json.dumps(job)[:300]})
-                    # 失败也要落盘并打印：否则窗口跑完只剩一句"全失败"，无从查因。
-                    (output / 'acceptance.json').write_text(
-                        json.dumps({'samples': samples}, ensure_ascii=False, indent=2) + '\n')
-                    print(f"[create-failed] {subject['label']} seed={seed} code={code} "
-                          f"{json.dumps(job, ensure_ascii=False)[:200]}", flush=True)
-                    continue
-                result = deploy.wait_job(job['id'])
-                entry = {'subject': subject['label'], 'seed': seed, 'jobId': job['id'],
-                         'status': result['status'], 'errorCode': result.get('errorCode'),
-                         'elapsedMillis': result.get('elapsedMillis'),
-                         'result': result.get('result')}
-                if result['status'] == 'SUCCEEDED':
-                    code, video, _ = deploy.request(23341, '/internal/v1/videos/jobs/' + job['id'] + '/video')
-                    target = output / f"{subject['slug']}-seed{seed}.mp4"
-                    target.write_bytes(video)
-                    entry['video'] = str(target)
-                    entry['edges'] = deploy.edge_profile(target, SAMPLED_FRAMES)
-                    entry['motion'] = motion(target)
-                    entry['contentDrift'] = content_drift(target, SAMPLED_FRAMES)
-                    for index in SAMPLED_FRAMES:
-                        frame_png(target, index, output / f"{subject['slug']}-seed{seed}-f{index:02d}.png")
-                samples.append(entry)
+            # 上传是原始字节接口（deploy.request 只发 JSON），这里单独用 urllib。
+            import urllib.request
+            token = deploy.values(deploy.ENV)['VIDEO_GENERATION_INTERNAL_TOKEN']
+            request = urllib.request.Request(
+                'http://127.0.0.1:23341/internal/v1/videos/uploads/image', data=payload,
+                headers={'Authorization': 'Bearer ' + token, 'X-Owner-Id': '1',
+                         'Content-Type': 'image/png'}, method='POST')
+            with urllib.request.urlopen(request, timeout=180) as reply:
+                upload_id = json.loads(reply.read())['id']
+            code, job, _ = deploy.request(23341, '/internal/v1/videos/jobs', 'POST', {
+                'resourceId': 'wan-vace-1.3b-local', 'mode': 'FIRST_FRAME', 'prompt': PROMPT,
+                'inputs': [{'uploadId': upload_id, 'role': 'FIRST_FRAME'}],
+                'output': {'size': '832x480', 'frames': 49, 'fps': 16}, 'seed': seed,
+                'idempotencyKey': f"accept-{subject['slug']}-{seed}-{case_index}-{int(time.time())}"})
+            if code != 200:
+                samples.append({'subject': subject['label'], 'seed': seed, 'status': 'CREATE_FAILED',
+                                'detail': json.dumps(job)[:300]})
+                # 失败也要落盘并打印：否则窗口跑完只剩一句"全失败"，无从查因。
                 (output / 'acceptance.json').write_text(
                     json.dumps({'samples': samples}, ensure_ascii=False, indent=2) + '\n')
-                print(f"[{'ok' if entry['status'] == 'SUCCEEDED' else entry['status']}] {subject['label']} "
-                      f"seed={seed} job={entry['jobId']} motion={entry.get('motion')} "
-                      f"cast={json.dumps((entry.get('contentDrift') or {}).get('maxAbsCast'), ensure_ascii=False)} "
-                      f"edges={json.dumps(entry.get('edges', []), ensure_ascii=False)[:160]}",
-                      flush=True)
+                print(f"[create-failed] {subject['label']} seed={seed} code={code} "
+                      f"{json.dumps(job, ensure_ascii=False)[:200]}", flush=True)
+                raise RuntimeError('acceptance_create_failed')
+            state['jobId'] = job['id']
+            write_state(state_path, state)
+            result = wait_window_job(deploy, job['id'], state['definitions'])
+            entry = {'subject': subject['label'], 'seed': seed, 'jobId': job['id'],
+                     'status': result['status'], 'errorCode': result.get('errorCode'),
+                     'elapsedMillis': result.get('elapsedMillis'),
+                     'result': result.get('result')}
+            if result['status'] == 'SUCCEEDED':
+                code, video, _ = deploy.request(23341, '/internal/v1/videos/jobs/' + job['id'] + '/video')
+                if code != 200 or not isinstance(video, bytes):
+                    raise RuntimeError('video_download_failed')
+                target = output / f"{case_index:02d}-{subject['slug']}-seed{seed}.mp4"
+                target.write_bytes(video)
+                entry['video'] = str(target)
+                entry['edges'] = deploy.edge_profile(target, SAMPLED_FRAMES)
+                entry['motion'] = motion(target)
+                entry['contentDrift'] = content_drift(target, SAMPLED_FRAMES)
+                for index in SAMPLED_FRAMES:
+                    frame_png(target, index, output / f"{case_index:02d}-{subject['slug']}-seed{seed}-f{index:02d}.png")
+            state['jobId'] = None
+            write_state(state_path, state)
+            samples.append(entry)
+            (output / 'acceptance.json').write_text(
+                json.dumps({'samples': samples}, ensure_ascii=False, indent=2) + '\n')
+            print(f"[{'ok' if entry['status'] == 'SUCCEEDED' else entry['status']}] {subject['label']} "
+                  f"seed={seed} job={entry['jobId']} motion={entry.get('motion')} "
+                  f"cast={json.dumps((entry.get('contentDrift') or {}).get('maxAbsCast'), ensure_ascii=False)} "
+                  f"edges={json.dumps(entry.get('edges', []), ensure_ascii=False)[:160]}",
+                  flush=True)
         # 客观判据：全部成功、且每条的补边都是中性灰。
         # 客观判据：全部成功、补边中性灰、内容区色偏在限内、运动量在"sane 区间"（不是静止也不是乱跳）。
-        objective_ok = (len(samples) == len(subjects) * len(SEEDS)
+        objective_ok = (len(samples) == len(cases)
                         and all(item.get('status') == 'SUCCEEDED' for item in samples)
                         and all(edges_are_neutral(deploy, item.get('edges') or []) for item in samples)
                         and all((item.get('contentDrift') or {}).get('maxAbsCast', 999) <= CONTENT_CAST_LIMIT
                                 for item in samples)
                         and all(MOTION_FLOOR <= (item.get('motion') or 0) <= MOTION_CEILING for item in samples))
-    finally:
-        # 收尾：恢复容量；模式开关按客观判据决定——全绿才继续开放，否则关掉等人工处理。
-        with deploy.task_connection() as db, db.cursor() as cursor:
-            for row in definitions:
-                cursor.execute('UPDATE task_definition SET max_concurrency=%s WHERE id=%s AND max_concurrency=0',
-                               (row['capacity'], row['id']))
-            db.commit()
-        deploy.set_mode_flags(['FIRST_FRAME'] if objective_ok else [])
-    summary = {'samples': len(samples),
+    summary = {'samples': len(samples), 'requestedCount': len(cases), 'humanReview': 'pending',
                'succeeded': sum(1 for item in samples if item.get('status') == 'SUCCEEDED'),
                'edgesNeutral': all(edges_are_neutral(deploy, item['edges'])
                                    for item in samples if item.get('edges')),
@@ -242,7 +244,7 @@ def main() -> int:
                'output': str(output)}
     (output / 'summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n')
     print(json.dumps(summary, ensure_ascii=False))
-    return 0
+    return 0 if objective_ok else 1
 
 
 if __name__ == '__main__':

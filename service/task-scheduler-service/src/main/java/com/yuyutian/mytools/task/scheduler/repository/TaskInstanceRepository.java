@@ -25,20 +25,20 @@ public class TaskInstanceRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final JsonColumnMapper jsonColumnMapper;
-    private final DispatchDeadlineProperties dispatchDeadlineProperties;
 
     /**
      * 创建任务实例仓储。
      *
+     * @param gpuTaskRepository 兼容旧依赖注入，排队不再设置截止时间。
      * @param jdbcTemplate JDBC 模板
      * @param jsonColumnMapper JSON 转换器
-     * @param dispatchDeadlineProperties 首次派发截止配置
+     * @param dispatchDeadlineProperties 兼容旧配置，不再限制排队时间。
      */
     public TaskInstanceRepository(JdbcTemplate jdbcTemplate, JsonColumnMapper jsonColumnMapper,
+                                  GpuTaskRepository gpuTaskRepository,
                                   DispatchDeadlineProperties dispatchDeadlineProperties) {
         this.jdbcTemplate = jdbcTemplate;
         this.jsonColumnMapper = jsonColumnMapper;
-        this.dispatchDeadlineProperties = dispatchDeadlineProperties;
     }
 
     /**
@@ -51,6 +51,7 @@ public class TaskInstanceRepository {
     public TaskInstanceView insert(CreateTaskRequest request, TaskDefinitionView definition) {
         UUID id = UUID.randomUUID();
         Instant now = Instant.now();
+        // 排队等待没有截止时间，执行期限在首次领取时独立计算。
         jdbcTemplate.update("""
                 INSERT INTO task_instance (
                     id, task_definition_id, task_definition_version, task_name, idempotency_key,
@@ -63,7 +64,7 @@ public class TaskInstanceRepository {
                 request.businessId(), request.priority(), jsonColumnMapper.write(request.parameters()),
                 jsonColumnMapper.write(request.requiredNodeLabels() == null ? Map.of() : request.requiredNodeLabels()),
                 TaskStatus.QUEUED.name(), 0,
-                Timestamp.from(now.plusSeconds(dispatchDeadlineProperties.queueTimeoutSeconds())),
+                null,
                 Timestamp.from(now), Timestamp.from(now));
         return findById(id).orElseThrow();
     }

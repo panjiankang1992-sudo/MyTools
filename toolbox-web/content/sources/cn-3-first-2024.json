@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "sourceId": "smartedu-ebook-cn-3-first-2024",
+      "kind": "officialEbook",
+      "title": "义务教育教科书·语文三年级上册（2022 课标修订版）电子教材",
+      "publisher": "人民教育出版社",
+      "isbn": "9787107397547",
+      "url": "https://r1-ndr.ykt.cbern.com.cn/edu_product/esp/assets/837f368e-fd4e-404a-ae3f-342d75bc0227.pkg/9787107397547_%E4%B9%89%E5%8A%A1%E6%95%99%E8%82%B2%E6%95%99%E7%A7%91%E4%B9%A6%E2%80%A2%E8%AF%AD%E6%96%87_%E4%B8%89%E5%B9%B4%E7%BA%A7_%E4%B8%8A%E5%86%8C_%E4%BA%BA%E6%B0%91%E6%95%99%E8%82%B2%E5%87%BA%E7%89%88%E7%A4%BE%E4%B8%89%E7%A7%91%E5%8A%9E.pdf",
+      "accessBasis": "publicEbookWithTextLayer",
+      "verifiedAt": "2026-10-02",
+      "reconciliation": {
+        "totalEntries": 777,
+        "recognition": 277,
+        "writing": 250,
+        "vocabulary": 250,
+        "printedFootnotes": "教材印「共 250 个生字」「共 250 个字」「共 250 个词」；识字表 277 = 250 生字 + 27 个蓝色多音字复现",
+        "crossCheck": "抽取 109 个带调读音与 6 份独立出版的 2025—26／2026—27 学年课件逐字比对，109 条全部一致、0 分歧；第 1 课识字表与写字表成员完全吻合",
+        "result": "三类清单数量与教材自印数字完全一致"
+      },
+      "knownGaps": [
+        "无词句积累（expression）条目：三年级日积月累以文言为主，多音字无法可靠定音，整类舍弃而非臆造",
+        "识字表中 27 个蓝色「已学多音字」没有单独标记（颜色不在文字层里）",
+        "250 个会写字中有 153 个课本未印读音，读音来自 Unihan 等外部来源，非教材自印",
+        "「指甲」「起来」的轻声写法存在合理分歧，已在来源文档逐条记录"
+      ],
+      "reviewedBy": "cross-source-verification",
+      "reviewNotes": "版本判定：教育部替换计划中三年级自 2025 年秋季启用修订版；平台记录 online_time=2025-09-05；其 26 课目录与「统编版(2024)三年级上册」公开目录一致。2018 版已排除。"
+    }
+  ]
+}

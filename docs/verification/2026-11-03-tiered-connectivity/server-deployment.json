@@ -1,0 +1,20 @@
+{
+  "baseSha256": "ddf62e05eac5970193797ea538ccaddfc3f2776df1ed9b0c5bf497822e8e7a7d",
+  "deltaSha256": "f93ac058592bb50e0b05194a46513b50149b63c9d548cc8c1a3617f1288b01b6",
+  "sha256": "2ea7887975d6dca22f258ed7e554a72b72c59ef1547341e998002ea6a243c3b4",
+  "replacedEntries": [
+    "BOOT-INF/classes/com/yuyutian/mytools/gateway/model/ConnectivityModels$Bootstrap.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/gateway/service/ConnectivityService$Probe.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/gateway/service/ConnectivityService.class"
+  ],
+  "gatewayHealthy": true,
+  "directOrigin": "https://direct6.yuyutian.top:8443",
+  "dropIn": "/etc/systemd/system/mytools-mytools-gateway.service.d/zzzzzzzzzz-ipv6-direct-20261103.conf",
+  "release": "/opt/yuyutian/mytools/releases/ipv6-direct-20261103-v1",
+  "ipv6Port": 8443,
+  "cellularAnonymousHttpsVerified": true,
+  "jsonCompressionEnabled": true,
+  "temporaryDiagnosticsRemoved": true,
+  "ddnsEnabled": true,
+  "certbotTimerEnabled": true
+}

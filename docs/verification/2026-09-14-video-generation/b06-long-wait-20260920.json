@@ -1,0 +1,8 @@
+{
+  "scope": "local real file-lock contention; no GPU inference",
+  "module": "service/image-generation-service/packages/image_generate/1.1.2/scripts/gpu_lease.py",
+  "holdSeconds": 130.0,
+  "waitSeconds": 120.01,
+  "outcome": "GPU_BUSY",
+  "B06LongWaitPassed": false
+}

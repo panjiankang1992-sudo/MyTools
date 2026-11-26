@@ -1,0 +1,11 @@
+name: news_generate_weekly
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities: []
+parameters:
+  required:
+    - jobId
+limits:
+  timeoutSeconds: 7100
+  maxOutputBytes: 65536

@@ -1,0 +1,104 @@
+{
+  "rows": [
+    {
+      "id": "7b47be05-2b7c-4a08-ae3e-d8d57ee5ae7b",
+      "requestId": "8e411c5e-93e9-4f08-92d1-d078cf5a6d6f"
+    },
+    {
+      "id": "084a4beb-68c2-46a1-92d7-1717d3c81552",
+      "requestId": "2d725e70-6cdb-4f9f-ada9-aa5542e11d6e"
+    },
+    {
+      "id": "4f452ccb-ad33-489c-9f70-8234d07f943c",
+      "requestId": "74e95b22-69f0-47ef-836a-9fba73caadc9"
+    },
+    {
+      "id": "50977980-d265-4a16-8c96-ce6ec460295a",
+      "requestId": "120833fd-cc76-4c8c-8a13-2cea704c3d75"
+    }
+  ],
+  "checks": [
+    "chunk_and_complete_idempotency",
+    "owner_isolation",
+    "core_success_while_consumer_paused",
+    "durable_jobs_survive_restart_and_complete"
+  ],
+  "core": [
+    {
+      "id": "120833fd-cc76-4c8c-8a13-2cea704c3d75",
+      "status": "SUCCEEDED",
+      "seconds": 2.3966
+    },
+    {
+      "id": "2d725e70-6cdb-4f9f-ada9-aa5542e11d6e",
+      "status": "SUCCEEDED",
+      "seconds": 2.2574
+    },
+    {
+      "id": "74e95b22-69f0-47ef-836a-9fba73caadc9",
+      "status": "SUCCEEDED",
+      "seconds": 2.1972
+    },
+    {
+      "id": "8e411c5e-93e9-4f08-92d1-d078cf5a6d6f",
+      "status": "SUCCEEDED",
+      "seconds": 2.1223
+    }
+  ],
+  "background": [
+    {
+      "kind": "RECONCILE",
+      "state": "SUCCEEDED",
+      "count": 4
+    },
+    {
+      "kind": "ENRICHMENT",
+      "state": "PENDING",
+      "count": 4
+    }
+  ],
+  "tags": [
+    {
+      "tag_status": "PENDING",
+      "count": 4
+    }
+  ],
+  "app": [
+    {
+      "status": "SUCCEEDED",
+      "postProcessingStatus": "PENDING"
+    },
+    {
+      "status": "SUCCEEDED",
+      "postProcessingStatus": "PENDING"
+    },
+    {
+      "status": "SUCCEEDED",
+      "postProcessingStatus": "PENDING"
+    },
+    {
+      "status": "SUCCEEDED",
+      "postProcessingStatus": "PENDING"
+    }
+  ],
+  "afterRestart": {
+    "jobs": [
+      {
+        "state": "SUCCEEDED",
+        "count": 4
+      }
+    ],
+    "tags": [
+      {
+        "tag_status": "TAGGED",
+        "count": 4
+      }
+    ],
+    "core": [
+      {
+        "status": "SUCCEEDED",
+        "count": 4
+      }
+    ]
+  }
+}

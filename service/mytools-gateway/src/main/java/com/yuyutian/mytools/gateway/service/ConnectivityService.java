@@ -5,6 +5,7 @@ import com.yuyutian.mytools.gateway.model.ConnectivityModels.Challenge;
 import com.yuyutian.mytools.gateway.model.ConnectivityModels.ChallengeRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import jakarta.annotation.PostConstruct;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -23,6 +24,7 @@ import java.util.Collections;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
+import java.net.URI;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -33,12 +35,43 @@ public class ConnectivityService {
     private static final Duration PROBE_TTL = Duration.ofMinutes(10);
     private static final int MAXIMUM_PROBES = 4096;
     private static final String HMAC_ALGORITHM = "HmacSHA256";
+    // 新入口经本机代理访问同一个 Gateway，避免误连仍在运行的旧单体。
+    private static final int LAN_GATEWAY_PORT = 23201;
 
     private final SecureRandom random = new SecureRandom();
     private final Clock clock = Clock.systemUTC();
     private final Map<String, Probe> probes = new ConcurrentHashMap<>();
     private final String instanceId;
     private final String apiVersion;
+    @Value("${gateway.connectivity.ipv6-direct-origins:}")
+    private String configuredDirectOrigins = "";
+    private List<String> directOrigins = List.of();
+
+    /** 启动时校验直连入口，禁止错误配置扩散至客户端。 */
+    @PostConstruct
+    void validateDirectOrigins() {
+        if (configuredDirectOrigins.isBlank()) {
+            directOrigins = List.of();
+            return;
+        }
+        List<String> values = new ArrayList<>();
+        for (String raw : configuredDirectOrigins.split(",", -1)) {
+            URI origin = URI.create(raw.trim());
+            String host = origin.getHost();
+            if (!"https".equals(origin.getScheme()) || host == null
+                    || !host.matches("(?i)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z][a-z0-9-]{1,62}")
+                    || origin.getRawUserInfo() != null || origin.getRawQuery() != null
+                    || origin.getRawFragment() != null || !origin.getRawPath().isEmpty()
+                    || origin.getPort() == 0 || origin.getPort() > 65535) {
+                throw new IllegalArgumentException("Invalid IPv6 direct origin configuration");
+            }
+            values.add(origin.toASCIIString());
+        }
+        if (values.size() > 4) {
+            throw new IllegalArgumentException("Too many IPv6 direct origins");
+        }
+        directOrigins = values.stream().distinct().toList();
+    }
 
     /**
      * 创建局域网探测服务。
@@ -71,9 +104,10 @@ public class ConnectivityService {
         String probeId = HexFormat.of().formatHex(identifier);
         long expiresAt = clock.millis() + PROBE_TTL.toMillis();
         probes.put(probeId, new Probe(userId, proofKey, expiresAt));
-        return new Bootstrap(instanceId, "_mytools._tcp.local", apiVersion, probeId,
+        return new Bootstrap(instanceId, "_mytools-gateway._tcp.local", apiVersion, probeId,
                 Base64.getUrlEncoder().withoutPadding().encodeToString(proofKey), expiresAt,
-                localIpv4Addresses());
+                localIpv4Addresses(), LAN_GATEWAY_PORT, directOrigins,
+                clock.millis() + Duration.ofDays(7).toMillis());
     }
 
     /**
@@ -124,8 +158,8 @@ public class ConnectivityService {
                     continue;
                 }
                 for (InetAddress address : Collections.list(network.getInetAddresses())) {
-                    if (address instanceof Inet4Address && !address.isLoopbackAddress()
-                            && !address.isLinkLocalAddress()) {
+                    // 只导出 RFC1918 IPv4，避免公网或 IPv6 网卡导致客户端拒绝整份发现材料。
+                    if (isLanAddress(address)) {
                         addresses.add(address.getHostAddress());
                     }
                 }
@@ -134,6 +168,11 @@ public class ConnectivityService {
         } catch (SocketException exception) {
             return List.of();
         }
+    }
+
+    /** 判断网卡地址是否属于客户端允许发现的 RFC1918 IPv4。 */
+    static boolean isLanAddress(InetAddress address) {
+        return address instanceof Inet4Address && address.isSiteLocalAddress();
     }
 
     private record Probe(long userId, byte[] proofKey, long expiresAt) implements Comparable<Probe> {

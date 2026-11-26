@@ -180,4 +180,15 @@ class VideoCapabilityTest {
   assertThat(modes.get("MASKED_EDIT").maxInputs()).isEqualTo(2);
   assertThat(VideoCapability.SIZES).isEqualTo(List.of("832x480"));
  }
+ /** LTX 独立门禁不能开启旧模型，尺寸和修订按资源隔离。 */
+ @Test
+ void ltxValidationDoesNotEnableVace() {
+  VideoCapability catalog = capability("video.local-validated", "video.gpu-coordination-validated",
+   "video.ltx-first-frame-validated");
+  assertThat(catalog.require(VideoCapability.LTX_RESOURCE_ID, "FIRST_FRAME").validated()).isTrue();
+  assertThat(catalog.model(VideoCapability.LTX_RESOURCE_ID).sizes()).containsExactly("640x640");
+  assertThat(catalog.workflowRevision(VideoCapability.LTX_RESOURCE_ID)).isEqualTo("video-ltx-2b-i2v-v1");
+  assertCode(ErrorCode.VIDEO_002, () -> catalog.require(RESOURCE_ID, "FIRST_FRAME"));
+  assertCode(ErrorCode.VIDEO_002, () -> catalog.require(VideoCapability.LTX_RESOURCE_ID, "TEXT_TO_VIDEO"));
+ }
 }

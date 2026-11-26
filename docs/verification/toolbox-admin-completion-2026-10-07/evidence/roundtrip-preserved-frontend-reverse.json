@@ -1,0 +1,914 @@
+{
+  "files": [
+    "/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/evidence/roundtrip-draftpristine-cn-ty-2-1-pep-2017.json",
+    "/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/evidence/roundtrip-draftpristine-en-yl-3-1-yilin-2024.json"
+  ],
+  "pass": false,
+  "results": [
+    {
+      "label": "pristine-cn-ty-2-1-pep-2017",
+      "subject": "chinese",
+      "entries": 760,
+      "cases": {
+        "identityRoundTrip": {
+          "compared": 760,
+          "tally": {
+            "preserved": 760
+          },
+          "mismatches": [
+            {
+              "kind": "field",
+              "index": 0,
+              "rowId": "cn-ty-2-1-pep-2017-0001",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "两",
+                    "syllable": "liǎng"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-1",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 2",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 1,
+              "rowId": "cn-ty-2-1-pep-2017-0002",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "就",
+                    "syllable": "jiù"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-2",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 3",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 2,
+              "rowId": "cn-ty-2-1-pep-2017-0003",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "哪",
+                    "syllable": "nǎ"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-3",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 4",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 3,
+              "rowId": "cn-ty-2-1-pep-2017-0004",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "宽",
+                    "syllable": "kuān"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-4",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 5",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 4,
+              "rowId": "cn-ty-2-1-pep-2017-0005",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "顶",
+                    "syllable": "dǐng"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-5",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 6",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 5,
+              "rowId": "cn-ty-2-1-pep-2017-0006",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "肚",
+                    "syllable": "dù"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-6",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 7",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 6,
+              "rowId": "cn-ty-2-1-pep-2017-0007",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "皮",
+                    "syllable": "pí"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-7",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 8",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 7,
+              "rowId": "cn-ty-2-1-pep-2017-0008",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "孩",
+                    "syllable": "hái"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-8",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 9",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 8,
+              "rowId": "cn-ty-2-1-pep-2017-0009",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "跳",
+                    "syllable": "tiào"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-9",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 10",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 9,
+              "rowId": "cn-ty-2-1-pep-2017-0010",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "塘",
+                    "syllable": "táng"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-10",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 11",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "recognition"
+                ]
+              }
+            }
+          ]
+        },
+        "singleRowEdit": {
+          "compared": 760,
+          "tally": {
+            "preserved": 760
+          },
+          "mismatches": [
+            {
+              "kind": "field",
+              "index": 1,
+              "rowId": "cn-ty-2-1-pep-2017-0002",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "就",
+                    "syllable": "jiù"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-2",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 3",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 2,
+              "rowId": "cn-ty-2-1-pep-2017-0003",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "哪",
+                    "syllable": "nǎ"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-3",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 4",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 3,
+              "rowId": "cn-ty-2-1-pep-2017-0004",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "宽",
+                    "syllable": "kuān"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-4",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 5",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 4,
+              "rowId": "cn-ty-2-1-pep-2017-0005",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "顶",
+                    "syllable": "dǐng"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-5",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 6",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 5,
+              "rowId": "cn-ty-2-1-pep-2017-0006",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [
+                  {
+                    "grapheme": "肚",
+                    "syllable": "dù"
+                  }
+                ],
+                "senseId": "cn-ty-2-1-pep-2017-6",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "nmg-smartedu-cn-2-first",
+                    "locator": "row 7",
+                    "page": null
+                  }
+                ],
+                "form": "character",
+                "entryVersion": "1.0.2",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "writing"
+                ]
+              }
+            }
+          ],
+          "targetIndex": 0,
+          "targetRowId": "cn-ty-2-1-pep-2017-0001",
+          "mismatchesOnUntouchedRows": 9,
+          "editedRow": {
+            "before": {
+              "text": "两",
+              "pinyin": "liǎng",
+              "meaning": ""
+            },
+            "after": {
+              "text": "两试",
+              "pinyin": "liǎng shì",
+              "meaning": ""
+            }
+          }
+        }
+      },
+      "pass": false
+    },
+    {
+      "label": "pristine-en-yl-3-1-yilin-2024",
+      "subject": "english",
+      "entries": 140,
+      "cases": {
+        "identityRoundTrip": {
+          "compared": 140,
+          "tally": {
+            "preserved": 140
+          },
+          "mismatches": [
+            {
+              "kind": "field",
+              "index": 0,
+              "rowId": "en-yl-3-1-yilin-2024-0001",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-1",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 1; original order 1",
+                    "page": 78
+                  }
+                ],
+                "form": "word",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 1,
+              "rowId": "en-yl-3-1-yilin-2024-0002",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-2",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 2; original order 2",
+                    "page": 78
+                  }
+                ],
+                "form": "word",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 2,
+              "rowId": "en-yl-3-1-yilin-2024-0003",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-3",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 3; original order 3",
+                    "page": 78
+                  }
+                ],
+                "form": "phrase",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 3,
+              "rowId": "en-yl-3-1-yilin-2024-0004",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-4",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 4; original order 4",
+                    "page": 78
+                  }
+                ],
+                "form": "word",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 4,
+              "rowId": "en-yl-3-1-yilin-2024-0005",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-5",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 5; original order 5",
+                    "page": 78
+                  }
+                ],
+                "form": "word",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 5,
+              "rowId": "en-yl-3-1-yilin-2024-0006",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-6",
+                "context": "教材标注：*（非单元核心词）。",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 6; original order 6",
+                    "page": 78
+                  }
+                ],
+                "form": "word",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 6,
+              "rowId": "en-yl-3-1-yilin-2024-0007",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-7",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 7; original order 7",
+                    "page": 78
+                  }
+                ],
+                "form": "word",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 7,
+              "rowId": "en-yl-3-1-yilin-2024-0008",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-8",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 8; original order 8",
+                    "page": 78
+                  }
+                ],
+                "form": "word",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 8,
+              "rowId": "en-yl-3-1-yilin-2024-0009",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-9",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 9; original order 9",
+                    "page": 78
+                  }
+                ],
+                "form": "word",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 9,
+              "rowId": "en-yl-3-1-yilin-2024-0010",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-10",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 10; original order 10",
+                    "page": 78
+                  }
+                ],
+                "form": "phrase",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            }
+          ]
+        },
+        "singleRowEdit": {
+          "compared": 140,
+          "tally": {
+            "preserved": 140
+          },
+          "mismatches": [
+            {
+              "kind": "field",
+              "index": 1,
+              "rowId": "en-yl-3-1-yilin-2024-0002",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-2",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 2; original order 2",
+                    "page": 78
+                  }
+                ],
+                "form": "word",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 2,
+              "rowId": "en-yl-3-1-yilin-2024-0003",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-3",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 3; original order 3",
+                    "page": 78
+                  }
+                ],
+                "form": "phrase",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 3,
+              "rowId": "en-yl-3-1-yilin-2024-0004",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-4",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 4; original order 4",
+                    "page": 78
+                  }
+                ],
+                "form": "word",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 4,
+              "rowId": "en-yl-3-1-yilin-2024-0005",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-5",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 5; original order 5",
+                    "page": 78
+                  }
+                ],
+                "form": "word",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            },
+            {
+              "kind": "field",
+              "index": 5,
+              "rowId": "en-yl-3-1-yilin-2024-0006",
+              "field": "preserved",
+              "before": {
+                "pinyinSegments": [],
+                "senseId": "en-yl-3-1-yilin-2024-6",
+                "context": "教材标注：*（非单元核心词）。",
+                "acceptableAnswers": [],
+                "sourceRefs": [
+                  {
+                    "sourceId": "yilin-en-3-first-2024",
+                    "locator": "Word lists I; Unit 1; item 6; original order 6",
+                    "page": 78
+                  }
+                ],
+                "form": "word",
+                "entryVersion": "1.0.1",
+                "reviewStatus": "reviewed",
+                "blockingIssues": [],
+                "listTypes": [
+                  "vocabulary"
+                ]
+              }
+            }
+          ],
+          "targetIndex": 0,
+          "targetRowId": "en-yl-3-1-yilin-2024-0001",
+          "mismatchesOnUntouchedRows": 9,
+          "editedRow": {
+            "before": {
+              "text": "hello",
+              "pinyin": "",
+              "meaning": "哈啰，你好"
+            },
+            "after": {
+              "text": "helloq",
+              "pinyin": "",
+              "meaning": "哈啰，你好"
+            }
+          }
+        }
+      },
+      "pass": false
+    }
+  ]
+}

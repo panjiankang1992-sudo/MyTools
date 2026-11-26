@@ -6,3 +6,6 @@ local.properties
 build-profile.json5
 *.hap
 *.app
+
+# Local signing profiles must not be committed.
+.local-signing/

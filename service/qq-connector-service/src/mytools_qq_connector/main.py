@@ -12,6 +12,7 @@ from aiohttp import web
 
 from .client import QQConnector
 from .config import Config
+from .reference_store import MessageReferenceStore
 from .inbound_wal import InboundEventWal, InboundWalError, InboundWalStateError
 from .login_wal import LoginCommandWal, LoginWalError, LoginWalStateError
 from .outbound_wal import (OutboundTextWal, OutboundWalConflictError,
@@ -127,9 +128,11 @@ async def run() -> None:
     outbound_wal = OutboundTextWal(
         config.outbound_wal_path, max_records=config.outbound_max_records,
         max_attempts=config.outbound_max_attempts)
+    reference_store = MessageReferenceStore(
+        config.reference_store_path or config.inbound_wal_path + ".references.sqlite3")
     session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=None, connect=30,
                                                                    sock_read=None))
-    connector = QQConnector(config, session, login_wal, inbound_wal)
+    connector = QQConnector(config, session, login_wal, inbound_wal, reference_store)
     health = web.Application(client_max_size=64 * 1024)
 
     async def health_status(_request: web.Request) -> web.Response:

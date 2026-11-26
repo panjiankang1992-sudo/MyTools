@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -79,7 +79,7 @@ class TaskExecutionAuthorizationServiceTest {
     @Autowired private JsonColumnMapper json;
     @Autowired private PlatformTransactionManager transactions;
     @Autowired private MockMvc mvc;
-    @MockBean private WorkloadAssertionSigner signer;
+    @MockitoBean private WorkloadAssertionSigner signer;
     private KeyPair key;
     private UUID adaptation;
     private UUID task;

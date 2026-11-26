@@ -137,9 +137,41 @@ public class MediaGatewayClient {
      */
     public void stream(long ownerId, UUID mediaId, boolean thumbnail, String range, HttpServletResponse response,
                        String correlationId) {
+        String url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/media/items/" + mediaId
+                + "/content").queryParam("ownerId", ownerId).queryParam("thumbnail", thumbnail).toUriString();
+        streamUrl(url, range, response, correlationId);
+    }
+
+    /** 转发有限尺寸图片预览。 @param ownerId 所有者。 @param mediaId 媒体标识。 @param edge 最长边。 @param response 响应。 @param correlationId 关联标识。 */
+    public void streamPreview(long ownerId, UUID mediaId, int edge, HttpServletResponse response, String correlationId) {
+        if (edge != 512 && edge != 2048) throw new GatewayBadRequestException();
+        String url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/media/items/" + mediaId + "/preview")
+                .queryParam("ownerId", ownerId).queryParam("edge", edge).toUriString();
+        streamUrl(url, null, response, correlationId);
+    }
+
+    /** 为主动请求移动播放版本的客户端查询可用入口。 */
+    public String adaptiveEntry(long owner, UUID id, String correlationId) {
+        String url = root() + "/internal/v1/media/items/" + id + "/adaptive?ownerId=" + owner;
         try {
-            String url = UriComponentsBuilder.fromHttpUrl(root() + "/internal/v1/media/items/" + mediaId
-                    + "/content").queryParam("ownerId", ownerId).queryParam("thumbnail", thumbnail).toUriString();
+            var result = exchange(url, HttpMethod.POST, null, java.util.Map.class, correlationId);
+            Object entry = result.get("entry");
+            if ("mobile.mp4".equals(entry) || "master.m3u8".equals(entry)) return "/" + entry;
+        } catch (GatewayDownstreamException | GatewayBadRequestException | GatewayNotFoundException ignored) {
+            // 混合版本部署或转换服务暂不可用时仍签发原片票据。
+        }
+        return "";
+    }
+
+    /** 将票据已绑定的媒体标识转为内部播放副本请求。 */
+    public void streamPart(long owner, UUID id, String name, String range, HttpServletResponse response, String correlationId) {
+        String url = root() + "/internal/v1/media/items/" + id + "/adaptive/" + name + "?ownerId=" + owner;
+        response.setHeader("Cache-Control", "private, no-store");
+        streamUrl(url, range, response, correlationId);
+    }
+
+    private void streamUrl(String url, String range, HttpServletResponse response, String correlationId) {
+        try {
             HttpURLConnection connection = (HttpURLConnection) URI.create(url).toURL().openConnection();
             connection.setRequestProperty("Authorization", "Bearer " + properties.mediaToken());
             connection.setRequestProperty("X-Correlation-Id", correlationId);
@@ -155,6 +187,7 @@ public class MediaGatewayClient {
             copyHeader(connection, response, "Content-Length");
             copyHeader(connection, response, "Content-Range");
             copyHeader(connection, response, "Accept-Ranges");
+            copyHeader(connection, response, "Cache-Control");
             if (status < 200 || status >= 300) {
                 connection.disconnect();
                 return;

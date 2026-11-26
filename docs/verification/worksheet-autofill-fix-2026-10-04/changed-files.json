@@ -1,0 +1,25 @@
+{
+  "releaseId": "autofill-fix-20261004-175000",
+  "files": [
+    {
+      "path": "assets/WorksheetV2View-C1EiyqhX.css",
+      "bytes": 13837,
+      "sha256": "2dc840d402bba31fddd7fe9b4989d49b3802daf5e7d3317710ec7cb49ea0b05f"
+    },
+    {
+      "path": "assets/WorksheetV2View-Dt9wzHYd.js",
+      "bytes": 524092,
+      "sha256": "2b01355351cc730899daa7545644c0d111047055f58aa132185b35813047bf7d"
+    },
+    {
+      "path": "assets/index-LdAF13fB.js",
+      "bytes": 159339,
+      "sha256": "ee501794fea69055ce3e31c5837bfb3cebab6ef0b9462f90e498ab925c11a06c"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1199,
+      "sha256": "4dd4885727cdc8a48235406748c8fd961260b6d4f79fd833652d252c2a063a40"
+    }
+  ]
+}

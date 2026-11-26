@@ -1,0 +1,13 @@
+{
+  "jarSha256": "64ae3cb1549840b4669995e48c89d10a73553e34b363032da1353936b7aa992a",
+  "changedEntries": [
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/translation/MyMemoryTranslationClient$LimitedBodySubscriber.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/toolbox/service/translation/MyMemoryTranslationClient.class"
+  ],
+  "tests": {
+    "tests": 162,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

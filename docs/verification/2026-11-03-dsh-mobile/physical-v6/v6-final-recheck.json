@@ -1,0 +1,184 @@
+[
+  {
+    "seconds": 3.1,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 6.2,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 9.0,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 12.1,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 15.0,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 17.9,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 21.0,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 24.1,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 27.2,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 30.3,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 33.4,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 36.5,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 39.7,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 42.7,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 45.8,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 48.8,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 51.9,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 54.9,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 58.1,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 61.2,
+    "ready": false,
+    "loading": false,
+    "retry": true,
+    "nativeMessages": [
+      "DSH",
+      "暂时无法打开 DSH，请检查网络或稍后重试。",
+      "DSH 加载超过 60 秒，请检查网络后重新连接。"
+    ]
+  }
+]

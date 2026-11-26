@@ -1,0 +1,1150 @@
+[
+  {
+    "seconds": 4,
+    "event": "request",
+    "path": "/_mytools/connect",
+    "type": "Document"
+  },
+  {
+    "seconds": 8,
+    "event": "request",
+    "path": "/",
+    "type": "Document"
+  },
+  {
+    "seconds": 9,
+    "event": "response",
+    "path": "/",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 9,
+    "event": "request",
+    "path": "/plugins/",
+    "type": "Script"
+  },
+  {
+    "seconds": 9,
+    "event": "request",
+    "path": "/plugins/",
+    "type": "Script"
+  },
+  {
+    "seconds": 9,
+    "event": "request",
+    "path": "/plugins/",
+    "type": "Script"
+  },
+  {
+    "seconds": 9,
+    "event": "request",
+    "path": "/assets/index-CN7NIWNw.js",
+    "type": "Script"
+  },
+  {
+    "seconds": 9,
+    "event": "request",
+    "path": "/assets/vendor-DcuzkuQH.js",
+    "type": "Script"
+  },
+  {
+    "seconds": 9,
+    "event": "request",
+    "path": "/assets/vendor-DV2921Zo.css",
+    "type": "Stylesheet"
+  },
+  {
+    "seconds": 9,
+    "event": "request",
+    "path": "/assets/index-BxpfOGf3.css",
+    "type": "Stylesheet"
+  },
+  {
+    "seconds": 9,
+    "event": "request",
+    "path": "/_mytools/mobile.css",
+    "type": "Stylesheet"
+  },
+  {
+    "seconds": 9,
+    "event": "request",
+    "path": "/_mytools/mobile.js",
+    "type": "Script"
+  },
+  {
+    "seconds": 9,
+    "event": "request",
+    "path": "/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092",
+    "type": "Script"
+  },
+  {
+    "seconds": 9,
+    "event": "response",
+    "path": "/assets/vendor-DV2921Zo.css",
+    "status": 200,
+    "protocol": "h3",
+    "fromDiskCache": true
+  },
+  {
+    "seconds": 9,
+    "event": "response",
+    "path": "/assets/index-BxpfOGf3.css",
+    "status": 200,
+    "protocol": "h3",
+    "fromDiskCache": true
+  },
+  {
+    "seconds": 9,
+    "event": "response",
+    "path": "/_mytools/mobile.css",
+    "status": 200,
+    "protocol": "h3",
+    "fromDiskCache": true
+  },
+  {
+    "seconds": 9,
+    "event": "response",
+    "path": "/_mytools/mobile.js",
+    "status": 200,
+    "protocol": "h3",
+    "fromDiskCache": true
+  },
+  {
+    "seconds": 9,
+    "event": "response",
+    "path": "/plugins/",
+    "status": 200,
+    "protocol": "h3",
+    "fromDiskCache": true
+  },
+  {
+    "seconds": 9,
+    "event": "response",
+    "path": "/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": true
+  },
+  {
+    "seconds": 10,
+    "event": "state",
+    "data": {
+      "origin": "https://dsh-app.yuyutian.top",
+      "path": "/",
+      "ready": "interactive",
+      "bodyChildren": 4,
+      "rootChildren": 0,
+      "sidebar": false,
+      "mobileBack": "function",
+      "scriptPaths": [
+        "inline",
+        "/plugins/",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "/assets/index-CN7NIWNw.js",
+        "/_mytools/mobile.js",
+        "inline",
+        "inline",
+        "/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092"
+      ],
+      "resources": [
+        {
+          "path": "/assets/vendor-DV2921Zo.css",
+          "duration": 18,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/assets/index-BxpfOGf3.css",
+          "duration": 21,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/_mytools/mobile.css",
+          "duration": 19,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/_mytools/mobile.js",
+          "duration": 22,
+          "bytes": 0,
+          "protocol": "h3"
+        }
+      ]
+    }
+  },
+  {
+    "seconds": 12,
+    "event": "response",
+    "path": "/plugins/",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 13,
+    "event": "response",
+    "path": "/assets/index-CN7NIWNw.js",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 14,
+    "event": "response",
+    "path": "/assets/vendor-DcuzkuQH.js",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 16,
+    "event": "response",
+    "path": "/plugins/",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 16,
+    "event": "request",
+    "path": "/plugins/dsh-dafeiyu/config",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 16,
+    "event": "request",
+    "path": "/api/settings/describe",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 16,
+    "event": "request",
+    "path": "/api/dynamicCordisRunner/syncInspectManifest",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 16,
+    "event": "request",
+    "path": "/api/credentials/describe",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 16,
+    "event": "request",
+    "path": "/api/dynamicCordisRunner/inventory",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 16,
+    "event": "request",
+    "path": "/open-in-app/apps",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 16,
+    "event": "request",
+    "path": "/api/session/modelCatalog",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 16,
+    "event": "request",
+    "path": "/plugins/events",
+    "type": "EventSource"
+  },
+  {
+    "seconds": 16,
+    "event": "request",
+    "path": "/api/agentPresets/list",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 16,
+    "event": "request",
+    "path": "/cdn-cgi/rum",
+    "type": "XHR"
+  },
+  {
+    "seconds": 16,
+    "event": "request",
+    "path": "/manifest.webmanifest",
+    "type": "Manifest"
+  },
+  {
+    "seconds": 16,
+    "event": "request",
+    "path": "/favicon.svg",
+    "type": "Other"
+  },
+  {
+    "seconds": 16,
+    "event": "request",
+    "path": "/favicon.svg",
+    "type": "Other"
+  },
+  {
+    "seconds": 17,
+    "event": "response",
+    "path": "/api/settings/describe",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 17,
+    "event": "response",
+    "path": "/plugins/dsh-dafeiyu/config",
+    "status": 403,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 17,
+    "event": "request",
+    "path": "/api/credentials/describe",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 17,
+    "event": "request",
+    "path": "/api/credentials/describe",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 17,
+    "event": "request",
+    "path": "/api/credentials/describe",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 17,
+    "event": "response",
+    "path": "/cdn-cgi/rum",
+    "status": 204,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 17,
+    "event": "response",
+    "path": "/api/dynamicCordisRunner/syncInspectManifest",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 17,
+    "event": "response",
+    "path": "/api/dynamicCordisRunner/inventory",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 17,
+    "event": "response",
+    "path": "/api/credentials/describe",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 17,
+    "event": "response",
+    "path": "/open-in-app/apps",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 17,
+    "event": "response",
+    "path": "/plugins/events",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 17,
+    "event": "response",
+    "path": "/api/session/modelCatalog",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 17,
+    "event": "response",
+    "path": "/api/agentPresets/list",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 17,
+    "event": "response",
+    "path": "/favicon.svg",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 17,
+    "event": "response",
+    "path": "/favicon.svg",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 18,
+    "event": "response",
+    "path": "/api/credentials/describe",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 18,
+    "event": "response",
+    "path": "/api/credentials/describe",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 18,
+    "event": "response",
+    "path": "/api/credentials/describe",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 20,
+    "event": "state",
+    "data": {
+      "origin": "https://dsh-app.yuyutian.top",
+      "path": "/",
+      "ready": "complete",
+      "bodyChildren": 4,
+      "rootChildren": 1,
+      "sidebar": true,
+      "mobileBack": "function",
+      "scriptPaths": [
+        "inline",
+        "/plugins/",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "/assets/index-CN7NIWNw.js",
+        "/_mytools/mobile.js",
+        "inline",
+        "inline",
+        "/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092"
+      ],
+      "resources": [
+        {
+          "path": "/assets/vendor-DV2921Zo.css",
+          "duration": 18,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/assets/index-BxpfOGf3.css",
+          "duration": 21,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/assets/index-CN7NIWNw.js",
+          "duration": 4618,
+          "bytes": 286421,
+          "protocol": "h2"
+        },
+        {
+          "path": "/assets/vendor-DcuzkuQH.js",
+          "duration": 4957,
+          "bytes": 181301,
+          "protocol": "h2"
+        },
+        {
+          "path": "/_mytools/mobile.css",
+          "duration": 19,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/_mytools/mobile.js",
+          "duration": 22,
+          "bytes": 0,
+          "protocol": "h3"
+        }
+      ]
+    }
+  },
+  {
+    "seconds": 21,
+    "event": "request",
+    "path": "/favicon.svg",
+    "type": "Other"
+  },
+  {
+    "seconds": 21,
+    "event": "response",
+    "path": "/favicon.svg",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": true
+  },
+  {
+    "seconds": 30,
+    "event": "state",
+    "data": {
+      "origin": "https://dsh-app.yuyutian.top",
+      "path": "/",
+      "ready": "complete",
+      "bodyChildren": 4,
+      "rootChildren": 1,
+      "sidebar": true,
+      "mobileBack": "function",
+      "scriptPaths": [
+        "inline",
+        "/plugins/",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "/assets/index-CN7NIWNw.js",
+        "/_mytools/mobile.js",
+        "inline",
+        "inline",
+        "/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092"
+      ],
+      "resources": [
+        {
+          "path": "/assets/vendor-DV2921Zo.css",
+          "duration": 18,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/assets/index-BxpfOGf3.css",
+          "duration": 21,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/assets/index-CN7NIWNw.js",
+          "duration": 4618,
+          "bytes": 286421,
+          "protocol": "h2"
+        },
+        {
+          "path": "/assets/vendor-DcuzkuQH.js",
+          "duration": 4957,
+          "bytes": 181301,
+          "protocol": "h2"
+        },
+        {
+          "path": "/_mytools/mobile.css",
+          "duration": 19,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/_mytools/mobile.js",
+          "duration": 22,
+          "bytes": 0,
+          "protocol": "h3"
+        }
+      ]
+    }
+  },
+  {
+    "seconds": 35,
+    "event": "request",
+    "path": "/api/session/list",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 35,
+    "event": "request",
+    "path": "/api/permissionPresets/catalog",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 35,
+    "event": "request",
+    "path": "/api/dynamicCordisRunner/inventory",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 35,
+    "event": "request",
+    "path": "/api/agentPresets/list",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 35,
+    "event": "request",
+    "path": "/api/agentPresets/list",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 35,
+    "event": "request",
+    "path": "/api/session/modelCatalog",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 35,
+    "event": "request",
+    "path": "/api/settings/describe",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 35,
+    "event": "request",
+    "path": "/api/dynamicCordisRunner/syncInspectManifest",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 35,
+    "event": "response",
+    "path": "/api/permissionPresets/catalog",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 35,
+    "event": "response",
+    "path": "/api/agentPresets/list",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 36,
+    "event": "request",
+    "path": "/api/account/getUnnotifiedBonuses",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 36,
+    "event": "request",
+    "path": "/api/session/initializeDefaultModel",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 36,
+    "event": "request",
+    "path": "/api/account/getProfile",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 36,
+    "event": "request",
+    "path": "/api/account/getBalance",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 36,
+    "event": "response",
+    "path": "/api/session/modelCatalog",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 36,
+    "event": "response",
+    "path": "/api/dynamicCordisRunner/inventory",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 36,
+    "event": "response",
+    "path": "/api/agentPresets/list",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 36,
+    "event": "response",
+    "path": "/api/settings/describe",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 36,
+    "event": "response",
+    "path": "/api/dynamicCordisRunner/syncInspectManifest",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 36,
+    "event": "request",
+    "path": "/api/credentials/describe",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 36,
+    "event": "request",
+    "path": "/api/credentials/describe",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 36,
+    "event": "request",
+    "path": "/api/credentials/describe",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 36,
+    "event": "response",
+    "path": "/api/session/list",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 36,
+    "event": "request",
+    "path": "/api/agentPresets/list",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 36,
+    "event": "request",
+    "path": "/api/schedule/list",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 36,
+    "event": "response",
+    "path": "/api/session/initializeDefaultModel",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 37,
+    "event": "response",
+    "path": "/api/account/getUnnotifiedBonuses",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 37,
+    "event": "response",
+    "path": "/api/account/getBalance",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 37,
+    "event": "response",
+    "path": "/api/credentials/describe",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 37,
+    "event": "response",
+    "path": "/api/credentials/describe",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 37,
+    "event": "response",
+    "path": "/api/account/getProfile",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 37,
+    "event": "request",
+    "path": "/user-avatar/QZrEbl_SlhRetzyi4wd2dXdE",
+    "type": "Image"
+  },
+  {
+    "seconds": 37,
+    "event": "response",
+    "path": "/api/credentials/describe",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 37,
+    "event": "response",
+    "path": "/api/agentPresets/list",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 37,
+    "event": "response",
+    "path": "/user-avatar/QZrEbl_SlhRetzyi4wd2dXdE",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 37,
+    "event": "response",
+    "path": "/api/schedule/list",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 39,
+    "event": "request",
+    "path": "/api/commands/list",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 39,
+    "event": "request",
+    "path": "/api/skills/list",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 39,
+    "event": "response",
+    "path": "/api/commands/list",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 39,
+    "event": "response",
+    "path": "/api/skills/list",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 40,
+    "event": "state",
+    "data": {
+      "origin": "https://dsh-app.yuyutian.top",
+      "path": "/",
+      "ready": "complete",
+      "bodyChildren": 4,
+      "rootChildren": 1,
+      "sidebar": true,
+      "mobileBack": "function",
+      "scriptPaths": [
+        "inline",
+        "/plugins/",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "/assets/index-CN7NIWNw.js",
+        "/_mytools/mobile.js",
+        "inline",
+        "inline",
+        "/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092"
+      ],
+      "resources": [
+        {
+          "path": "/assets/vendor-DV2921Zo.css",
+          "duration": 18,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/assets/index-BxpfOGf3.css",
+          "duration": 21,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/assets/index-CN7NIWNw.js",
+          "duration": 4618,
+          "bytes": 286421,
+          "protocol": "h2"
+        },
+        {
+          "path": "/assets/vendor-DcuzkuQH.js",
+          "duration": 4957,
+          "bytes": 181301,
+          "protocol": "h2"
+        },
+        {
+          "path": "/_mytools/mobile.css",
+          "duration": 19,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/_mytools/mobile.js",
+          "duration": 22,
+          "bytes": 0,
+          "protocol": "h3"
+        }
+      ]
+    }
+  },
+  {
+    "seconds": 46,
+    "event": "failed",
+    "path": "/manifest.webmanifest",
+    "error": "net::ERR_TIMED_OUT",
+    "canceled": false
+  },
+  {
+    "seconds": 50,
+    "event": "request",
+    "path": "/api/schedule/catalog",
+    "type": "Fetch"
+  },
+  {
+    "seconds": 50,
+    "event": "state",
+    "data": {
+      "origin": "https://dsh-app.yuyutian.top",
+      "path": "/",
+      "ready": "complete",
+      "bodyChildren": 4,
+      "rootChildren": 1,
+      "sidebar": true,
+      "mobileBack": "function",
+      "scriptPaths": [
+        "inline",
+        "/plugins/",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "/assets/index-CN7NIWNw.js",
+        "/_mytools/mobile.js",
+        "inline",
+        "inline",
+        "/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092"
+      ],
+      "resources": [
+        {
+          "path": "/assets/vendor-DV2921Zo.css",
+          "duration": 18,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/assets/index-BxpfOGf3.css",
+          "duration": 21,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/assets/index-CN7NIWNw.js",
+          "duration": 4618,
+          "bytes": 286421,
+          "protocol": "h2"
+        },
+        {
+          "path": "/assets/vendor-DcuzkuQH.js",
+          "duration": 4957,
+          "bytes": 181301,
+          "protocol": "h2"
+        },
+        {
+          "path": "/_mytools/mobile.css",
+          "duration": 19,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/_mytools/mobile.js",
+          "duration": 22,
+          "bytes": 0,
+          "protocol": "h3"
+        }
+      ]
+    }
+  },
+  {
+    "seconds": 51,
+    "event": "response",
+    "path": "/api/schedule/catalog",
+    "status": 200,
+    "protocol": "h2",
+    "fromDiskCache": false
+  },
+  {
+    "seconds": 60,
+    "event": "state",
+    "data": {
+      "origin": "https://dsh-app.yuyutian.top",
+      "path": "/",
+      "ready": "complete",
+      "bodyChildren": 6,
+      "rootChildren": 1,
+      "sidebar": true,
+      "mobileBack": "function",
+      "scriptPaths": [
+        "inline",
+        "/plugins/",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "/assets/index-CN7NIWNw.js",
+        "/_mytools/mobile.js",
+        "inline",
+        "inline",
+        "/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092"
+      ],
+      "resources": [
+        {
+          "path": "/assets/vendor-DV2921Zo.css",
+          "duration": 18,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/assets/index-BxpfOGf3.css",
+          "duration": 21,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/assets/index-CN7NIWNw.js",
+          "duration": 4618,
+          "bytes": 286421,
+          "protocol": "h2"
+        },
+        {
+          "path": "/assets/vendor-DcuzkuQH.js",
+          "duration": 4957,
+          "bytes": 181301,
+          "protocol": "h2"
+        },
+        {
+          "path": "/_mytools/mobile.css",
+          "duration": 19,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/_mytools/mobile.js",
+          "duration": 22,
+          "bytes": 0,
+          "protocol": "h3"
+        }
+      ]
+    }
+  },
+  {
+    "seconds": 70,
+    "event": "state",
+    "data": {
+      "origin": "https://dsh-app.yuyutian.top",
+      "path": "/",
+      "ready": "complete",
+      "bodyChildren": 6,
+      "rootChildren": 1,
+      "sidebar": true,
+      "mobileBack": "function",
+      "scriptPaths": [
+        "inline",
+        "/plugins/",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "inline",
+        "/assets/index-CN7NIWNw.js",
+        "/_mytools/mobile.js",
+        "inline",
+        "inline",
+        "/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092"
+      ],
+      "resources": [
+        {
+          "path": "/assets/vendor-DV2921Zo.css",
+          "duration": 18,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/assets/index-BxpfOGf3.css",
+          "duration": 21,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/assets/index-CN7NIWNw.js",
+          "duration": 4618,
+          "bytes": 286421,
+          "protocol": "h2"
+        },
+        {
+          "path": "/assets/vendor-DcuzkuQH.js",
+          "duration": 4957,
+          "bytes": 181301,
+          "protocol": "h2"
+        },
+        {
+          "path": "/_mytools/mobile.css",
+          "duration": 19,
+          "bytes": 0,
+          "protocol": "h3"
+        },
+        {
+          "path": "/_mytools/mobile.js",
+          "duration": 22,
+          "bytes": 0,
+          "protocol": "h3"
+        }
+      ]
+    }
+  }
+]

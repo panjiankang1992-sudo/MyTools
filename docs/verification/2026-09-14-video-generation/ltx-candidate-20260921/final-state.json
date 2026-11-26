@@ -1,0 +1,20 @@
+{
+  "services": {
+    "task-scheduler-service": "active",
+    "task-executor-service": "active",
+    "mytools-gateway": "active",
+    "video-generation-service": "active",
+    "image-generation-service": "active",
+    "video-comfy": "active",
+    "image-comfy": "active"
+  },
+  "executorOnline": true,
+  "enabledVideoModes": [],
+  "restored": {
+    "r1": true,
+    "r2": true,
+    "r3": true
+  },
+  "schedulerJar": "/opt/yuyutian/mytools/releases/qq-tag-reuse-20260921-v4/apps/task-scheduler-service.jar",
+  "gpu": "764 MiB, 0 %"
+}

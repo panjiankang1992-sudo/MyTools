@@ -1,0 +1,120 @@
+:root { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; color: #1f2937; background: #f7fafc; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input, textarea, select { font: inherit; }
+a { color: inherit; text-decoration: none; }
+button, a, input { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible { outline: 2px solid #646cff; outline-offset: 3px; }
+.toolbox-app { --surface: #fff; --canvas: #f7fafc; --ink: #192331; --muted: #7a8597; --border: #e7ecf2; --soft-primary: #eef0ff; min-height: 100dvh; background: var(--canvas); color: var(--ink); }
+.toolbox-app.is-dark { --surface: #202329; --canvas: #15171d; --ink: #e5e7ee; --muted: #a1aabb; --border: #343843; --soft-primary: #303357; }
+.site-sidebar { width: 220px; position: fixed; inset: 0 auto 0 0; border-right: 1px solid var(--border); padding: 0 14px; background: var(--surface); z-index: 20; display: flex; flex-direction: column; }
+.site-brand { display: flex; min-height: 90px; align-items: center; font-size: 20px; font-weight: 750; letter-spacing: -.4px; padding: 0 10px; white-space: nowrap; }
+.site-sidebar .n-menu { margin-top: 9px; }
+.site-sidebar .n-menu-item { margin-bottom: 9px; }
+.sidebar-footer { margin: auto 8px 26px; color: var(--muted); font-size: 13px; }
+.site-workspace { margin-left: 220px; min-width: 0; }
+.site-header { height: 66px; padding: 0 26px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 15; }
+.header-title { font-size: 22px; font-weight: 700; margin: 0; flex-shrink: 0; }
+.header-actions { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+.tool-search { width: 228px; }
+.header-primary { min-height: 38px; }
+.mobile-menu, .mobile-brand { display: none !important; }
+.page-content { padding: 28px; max-width: 1680px; margin-inline: auto; }
+.page-intro { margin-bottom: 22px; }
+.page-intro h2 { margin: 0 0 8px; font-size: 28px; font-weight: 700; letter-spacing: -.5px; }
+.page-intro p { color: var(--muted); margin: 0; font-size: 14px; }
+.drawer-footer { color: #7a8597; margin: 36px 18px; font-size: 13px; }
+.n-card { background: var(--surface); }
+/* 自定义工作区使用深色主题变量，组件表单继续由 Naive UI 管理。 */
+.toolbox-app.is-dark .worksheet-page :is(.settings-pane, .entries-pane, .preview-toolbar, .preview-options, .desktop-primary-actions, .mobile-actions) { background: var(--surface); border-color: var(--border); }
+.toolbox-app.is-dark .worksheet-page :is(.settings-section, .entry-row, .entry-footer, .output-toolbar) { border-color: var(--border); }
+.toolbox-app.is-dark .worksheet-page :is(.page-heading h1, h2, .mode-label, .entry-content strong) { color: var(--ink); }
+.toolbox-app.is-dark .worksheet-page :is(.page-heading p, .privacy-badge, .privacy-badge .n-icon, .n-form-item-label, .selection-row > span, .mode-hint, .paper-format, .paper-format span:last-child, .preview-title, .page-controls, .preview-options > span, .preview-footer, .output-toolbar p, .entry-batch > span, .entry-content > span, .field-note, .seed-row, .entry-footer, .no-matches, .page-privacy, .mobile-preview-heading p) { color: var(--muted); }
+.toolbox-app.is-dark .worksheet-page .sample-notice { background: #332d22; border-color: #514733; color: #e2cda7; }
+.toolbox-app.is-dark .worksheet-page :is(.paper-format, .paper-viewport) { background: var(--canvas); }
+.toolbox-app.is-dark .worksheet-page :is(.step-number, .tab-count, .entry-row.selected) { background: var(--soft-primary); }
+.toolbox-app.is-dark .worksheet-page :is(.step-number, .tab-count, .entry-content small) { color: #b1b5ff; }
+.toolbox-app.is-dark .worksheet-page .ready-state .n-icon { color: #82cbb3; }
+.toolbox-app.is-dark .worksheet-page :is(.settings-scroll, .entry-list) { scrollbar-color: #596171 transparent; }
+.toolbox-app.is-dark .worksheet-page .desktop-primary-actions { box-shadow: 0 -4px 12px #00000018; }
+.toolbox-app.is-dark .worksheet-page .paper-overlay { background: #202329ed; color: var(--ink); }
+.toolbox-app.is-dark .worksheet-page .paper-overlay strong { color: var(--ink); }
+.toolbox-app.is-dark .worksheet-page .paper-overlay > span { color: var(--muted); }
+/* 纸张不跟随界面反色，确保预览与实际打印一致。 */
+.toolbox-app.is-dark .worksheet-page .paper-sheet { background: #fff; color: #1f2937; box-shadow: 0 3px 16px #00000040; }
+
+/* 首页彩色图标与排名使用深色底和可读的前景色。 */
+.toolbox-app.is-dark .home-page .blue { background: #23324b; color: #91b5ff; }
+.toolbox-app.is-dark .home-page .green { background: #1f3b32; color: #73d8b3; }
+.toolbox-app.is-dark .home-page .purple { background: #332e4c; color: #b8a7ff; }
+.toolbox-app.is-dark .home-page .orange { background: #433324; color: #ffc080; }
+.toolbox-app.is-dark .home-page :is(.red, .rank-0) { background: #452b34; color: #ff9aa6; }
+.toolbox-app.is-dark .home-page .rank-1 { background: #433324; color: #ffc080; }
+.toolbox-app.is-dark .home-page .rank-2 { background: #413923; color: #efd17d; }
+.toolbox-app.is-dark .home-page .rank-row:hover .rank-name { color: #b1b5ff; }
+
+/* PDF 自定义状态与示意图沿用深色表面，文档画布保留原内容。 */
+.toolbox-app.is-dark .pdf-page :is(.local-tag, .tool-icon, .tool-card.active .tool-icon, .step, .cut-diagram, .document-illustration span, .output-row) { color: #b1b5ff; }
+.toolbox-app.is-dark .pdf-page .tool-card.active .active-dot { background: #b1b5ff; }
+.toolbox-app.is-dark .pdf-page :is(.drop-zone, .cut-diagram) { border-color: #626986; }
+.toolbox-app.is-dark .pdf-page .drop-zone { color: #b1b5ff; }
+.toolbox-app.is-dark .pdf-page .drop-zone.dragging { border-color: #b1b5ff; }
+.toolbox-app.is-dark .pdf-page .document-illustration div { background: #626986; }
+.toolbox-app.is-dark .pdf-page .preview-loading { background: #202329ed; }
+@media (min-width: 768px) and (max-width: 1279px) {
+  .site-sidebar { width: 64px; padding-inline: 4px; }
+  .site-brand, .sidebar-footer { display: none; }
+  .site-sidebar .n-menu { margin-top: 14px; }
+  .site-sidebar .n-menu-item-content { padding-left: 16px !important; }
+  .site-sidebar .n-menu-item-content-header { display: none; }
+  .site-workspace { margin-left: 64px; }
+  .page-content { padding: 20px; }
+}
+@media (max-width: 767px) {
+  .site-sidebar { display: none; }
+  .site-workspace { margin-left: 0; }
+  .site-header { padding: 0 12px; gap: 8px; height: 60px; }
+  /* 设计第 176 行要求移动端命中区 44px。
+     实测（2026-10-07，375×812）：这里是 40×44 —— 高够、**宽差 4px**，
+     而且 `.n-button { min-height: 40px }` 也让所有按钮差 4px。
+     把这两处抬到 44px，移动端即可达标。 */
+  .mobile-menu { display: inline-flex !important; width: 44px; height: 44px; flex-shrink: 0; }
+  .mobile-brand { display: inline !important; font-size: 17px; font-weight: 700; white-space: nowrap; }
+  .header-title { display: none; }
+  .header-actions { gap: 0; }
+  .admin-account { display: none; }
+  .header-primary, .tool-search { display: none !important; }
+  .page-content { padding: 18px 14px max(24px, env(safe-area-inset-bottom)); }
+  .page-intro h2 { font-size: 24px; }
+  .page-intro p { font-size: 13px; line-height: 1.7; }
+  .n-button { min-height: 44px; }
+  .n-input__input-el, .n-input__textarea-el { font-size: 16px !important; }
+  .mobile-drawer { max-width: calc(100vw - 36px); }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* 触控可达性：所有图标操作在窄屏与触控设备上的实际点击区域不小于 44 × 44 px。 */
+@media (pointer: coarse), (max-width: 1279px) {
+  .n-button.n-button--circle-type,
+  .n-button.n-button--circle,
+  .n-button.quaternary.n-button--circle-type { min-width: 44px; min-height: 44px; }
+  .rank-row, .entry-row .n-checkbox, .kind-options .n-checkbox, .mode-options .n-radio { min-height: 44px; }
+  .rank-row .n-checkbox-box, .kind-options .n-checkbox-box { flex-shrink: 0; }
+}
+
+/* 键盘可达性：自定义按钮、树节点与可滚动设置区都有可见焦点。 */
+.n-button:focus-visible, .n-checkbox:focus-visible, .n-radio:focus-visible,
+button:focus-visible, [tabindex]:focus-visible { outline: 2px solid #646cff; outline-offset: 2px; }
+.n-tree.n-tree--block-line .n-tree-node:not(.n-tree-node--disabled) .n-tree-node-content:focus-visible { outline: 2px solid #646cff; outline-offset: -2px; }
+
+/* 防止整页横向溢出：纸张与预览容器自行滚动，正文列允许收缩。 */
+html, body { max-width: 100%; overflow-x: clip; }
+.toolbox-app { min-width: 320px; }
+.page-content, .site-workspace { min-width: 0; }
+img, canvas, svg { max-width: 100%; }
+
+/* 表单字号不小于 16px，避免移动端聚焦时自动放大。 */
+@media (max-width: 767px) {
+  .n-input__input-el, .n-input__textarea-el, .n-base-selection-label, .n-input-number-input { font-size: 16px; }
+  .header-actions .n-button { min-width: 44px; min-height: 44px; }
+}

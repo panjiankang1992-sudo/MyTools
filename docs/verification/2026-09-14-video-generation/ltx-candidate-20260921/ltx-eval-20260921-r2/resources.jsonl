@@ -1,0 +1,9 @@
+{"time": 1789990752.2387466, "gpu": "631, 0", "availableKiB": 16348496, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=158194348\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=155266234"}
+{"time": 1789990757.2562852, "gpu": "10807, 100", "availableKiB": 16386908, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=158216625\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=155288494"}
+{"time": 1789990762.2745485, "gpu": "11735, 100", "availableKiB": 16035780, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=158226357\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=155298227"}
+{"time": 1789990767.2907662, "gpu": "11415, 0", "availableKiB": 16041752, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=158226357\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=155298227"}
+{"time": 1789990772.308605, "gpu": "11415, 0", "availableKiB": 16048176, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=158226796\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=155298665"}
+{"time": 1789990777.3271616, "gpu": "11415, 5", "availableKiB": 16010104, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=158232637\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=155304506"}
+{"time": 1789990782.346942, "gpu": "11735, 99", "availableKiB": 16247956, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=158233091\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=155304960"}
+{"time": 1789990787.36623, "gpu": "11735, 100", "availableKiB": 16016504, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=158237934\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=155309802"}
+{"time": 1789990792.3820424, "gpu": "11415, 0", "availableKiB": 16004756, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=158237934\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=155309802"}

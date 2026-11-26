@@ -1,0 +1,175 @@
+{
+  "reviewer": "ai:codex",
+  "notHumanReview": true,
+  "reviewedFrames": 873,
+  "productionEnabled": false,
+  "status": "candidate_partial_improvement",
+  "findings": {
+    "portrait-seed42": "No prolonged eye closure or bowed head. Smile develops. Some head motion and more than one apparent blink remain.",
+    "portrait-seed932": "Identity and background remain stable; smile is clear. Multiple apparent blinks and slight head motion remain.",
+    "product-seed932": "Enlargement is present; do not classify simple lateral screen displacement as proof of incorrect forward camera movement. Framing and fine-detail preservation require playback review.",
+    "landscape-seed932": "Local mountain shape changes and highlight movement visible at full resolution; whole-camera horizontal pan is not established by the central affine fit.",
+    "product-seed42": "Clear forward enlargement of teapot and plate; subject and colors retained. Framing changes and fine-detail changes visible; limited candidate improvement.",
+    "landscape-seed42": "Mountain shape and sky/lighting shift while the requested scene should remain unchanged. Water reflection motion is visible but not isolated to ripples.",
+    "text-product-seed42": "Steam clearly moves, but the vessel is open-topped rather than a clearly formed teapot with a spout. Plain dark background develops extra bright shapes. Not an exact semantic pass.",
+    "text-portrait-seed42": "Adult woman waves her right hand, lowers it, and smiles. Main action and plain backdrop are recognizable. Exact count and timing are not certified by contact sheets.",
+    "text-landscape-seed42": "Leaves and branch move in a gentle breeze; subject and garden backdrop are recognizable. Precise fixed-camera behavior still needs full-speed review."
+  },
+  "limitations": [
+    "All 873 frames reviewed through contact sheets; selected full-resolution frames reviewed. This is not completed repeated full-speed playback.",
+    "Six first-frame outputs and three text-only outputs generated directly in ComfyUI; App end-to-end and continuous stability tests remain.",
+    "Text-only second seed is not yet tested.",
+    "Video editing and multi-reference generation are not implemented by this candidate graph."
+  ],
+  "runs": [
+    {
+      "run": "portrait-seed42",
+      "samples": [
+        {
+          "name": "portrait",
+          "frames": 97,
+          "fps": 24,
+          "seed": 42,
+          "model": "wan22",
+          "variant": "baseline",
+          "promptStyle": "original",
+          "seconds": 195.02,
+          "status": "SUCCEEDED"
+        }
+      ],
+      "restored": true,
+      "sampledPeakGpuMiB": 12843,
+      "sampledMinimumAvailableMiB": 12346
+    },
+    {
+      "run": "three-seed932",
+      "samples": [
+        {
+          "name": "product",
+          "frames": 97,
+          "fps": 24,
+          "seed": 932,
+          "model": "wan22",
+          "variant": "baseline",
+          "promptStyle": "original",
+          "seconds": 194.99,
+          "status": "SUCCEEDED"
+        },
+        {
+          "name": "portrait",
+          "frames": 97,
+          "fps": 24,
+          "seed": 932,
+          "model": "wan22",
+          "variant": "baseline",
+          "promptStyle": "original",
+          "seconds": 176.89,
+          "status": "SUCCEEDED"
+        },
+        {
+          "name": "landscape",
+          "frames": 97,
+          "fps": 24,
+          "seed": 932,
+          "model": "wan22",
+          "variant": "baseline",
+          "promptStyle": "original",
+          "seconds": 120.71,
+          "status": "SUCCEEDED"
+        }
+      ],
+      "restored": true,
+      "sampledPeakGpuMiB": 13755,
+      "sampledMinimumAvailableMiB": 12214
+    },
+    {
+      "run": "product-seed42",
+      "samples": [
+        {
+          "name": "product",
+          "frames": 97,
+          "fps": 24,
+          "seed": 42,
+          "model": "wan22",
+          "inputMode": "first-frame",
+          "variant": "baseline",
+          "promptStyle": "original",
+          "seconds": 195.01,
+          "status": "SUCCEEDED"
+        }
+      ],
+      "restored": true,
+      "sampledPeakGpuMiB": 12843,
+      "sampledMinimumAvailableMiB": 12255
+    },
+    {
+      "run": "landscape-seed42",
+      "samples": [
+        {
+          "name": "landscape",
+          "frames": 97,
+          "fps": 24,
+          "seed": 42,
+          "model": "wan22",
+          "inputMode": "first-frame",
+          "variant": "baseline",
+          "promptStyle": "original",
+          "seconds": 138.82,
+          "status": "SUCCEEDED"
+        }
+      ],
+      "restored": true,
+      "sampledPeakGpuMiB": 12539,
+      "sampledMinimumAvailableMiB": 12262
+    },
+    {
+      "run": "text-seed42",
+      "samples": [
+        {
+          "name": "product",
+          "frames": 97,
+          "fps": 24,
+          "seed": 42,
+          "model": "wan22",
+          "inputMode": "text",
+          "variant": "baseline",
+          "promptStyle": "original",
+          "seconds": 191.04,
+          "status": "SUCCEEDED"
+        },
+        {
+          "name": "portrait",
+          "frames": 97,
+          "fps": 24,
+          "seed": 42,
+          "model": "wan22",
+          "inputMode": "text",
+          "variant": "baseline",
+          "promptStyle": "original",
+          "seconds": 172.93,
+          "status": "SUCCEEDED"
+        },
+        {
+          "name": "landscape",
+          "frames": 97,
+          "fps": 24,
+          "seed": 42,
+          "model": "wan22",
+          "inputMode": "text",
+          "variant": "baseline",
+          "promptStyle": "original",
+          "seconds": 118.67,
+          "status": "SUCCEEDED"
+        }
+      ],
+      "restored": true,
+      "sampledPeakGpuMiB": 13435,
+      "sampledMinimumAvailableMiB": 11257
+    }
+  ],
+  "corrections": {
+    "previousProductAssessment": "Thumbnail displacement alone did not establish sideways camera travel. Full-resolution frames show enlargement compatible with forward movement; the old strong conclusion is withdrawn.",
+    "previousLandscapeAssessment": "Full-resolution frames show local mountain/background shape changes. The central 2D fit does not support attributing all change to a horizontal camera pan. Fixed-scene fidelity remains insufficient."
+  },
+  "textGraphNoImageInputVerified": true
+}

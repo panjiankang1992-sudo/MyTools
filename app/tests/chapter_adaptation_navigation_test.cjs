@@ -11,10 +11,13 @@ const raw = fs.readFileSync(file, 'utf8');
 const source = (raw.slice(0, raw.indexOf('  @Builder')) +
   raw.slice(raw.indexOf('  private footerLabel()'), raw.indexOf('  @Builder\n  private Footer()')))
   .replace(/^import[\s\S]*?;\n/gm, '').replace('@Component', '')
-  .replace('export struct', 'class').replace(/@State /g, '') + '\n}\nglobalThis.Panel = ChapterAdaptationPanel;';
+  .replace('export struct', 'class').replace(/@State /g, '')
+  .replace(/@Prop\s+|@Watch\('[^']+'\)\s+/g, '') + '\n}\nglobalThis.Panel = ChapterAdaptationPanel;';
 class Token { cancel() { this.cancelled = true; } isCancelled() { return !!this.cancelled; } }
 const context = vm.createContext({ ChapterAdaptationPolicy, DownloadCancellationToken: Token,
-  AuthSessionManager: class {}, util: { generateRandomUUID: () => 'fixture' }, Date, setTimeout, clearTimeout,
+  AuthSessionManager: class {}, ChapterAdaptationApi: class {
+    constructor(baseUrl) { this.baseUrl = baseUrl; }
+  }, util: { generateRandomUUID: () => 'fixture' }, Date, setTimeout, clearTimeout,
   $r: value => value });
 vm.runInContext(ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText, context);
 const chapter = { chapterId: 'id-12', index: 12, title: 'Chapter 12', eligible: true };
@@ -121,4 +124,20 @@ test('closing adaptation restores the previous keyboard mode only once', () => {
   value.endView(); value.endView();
   assert.deepEqual(restored, [0]);
   assert.ok(raw.includes('setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE)'));
+});
+
+
+test('endpoint updates replace the API without losing the pending operation or lifecycle', () => {
+  const value = panel();
+  const pending = { idempotencyKey: 'same-key', intent: 'Keep the outcome.' };
+  const cancellation = value.cancellation;
+  value.pending = pending; value.uncertain = true; value.page = 'DETAIL';
+  value.baseUrl = 'http://192.168.1.2:23201'; value.endpointChanged();
+  assert.equal(value.api.baseUrl, value.baseUrl);
+  assert.equal(value.pending, pending); assert.equal(value.uncertain, true);
+  assert.equal(value.cancellation, cancellation); assert.equal(value.page, 'DETAIL');
+  assert.match(raw, /@Prop @Watch\('endpointChanged'\) baseUrl/);
+  value.endView(); const api = value.api;
+  value.baseUrl = 'https://mytools.example'; value.endpointChanged();
+  assert.equal(value.api, api);
 });

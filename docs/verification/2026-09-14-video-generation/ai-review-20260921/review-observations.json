@@ -1,0 +1,94 @@
+{
+  "reviewer": "ai:codex",
+  "notHumanReview": true,
+  "source": "user authorized AI acceptance on 2026-09-21",
+  "method": "Decoded all 49 frames for each of 16 videos; visually inspected all chronological contact sheets; no real-time playback claim; custom metrics, not official VBench scores",
+  "formalSamples": [
+    {
+      "role": "acceptance",
+      "sample_id": "A-cold-white-seed42",
+      "video": "p0-reaccept-20260920/A-cold-white-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "instructionFollowing": 3,
+      "subjectPreservation": 4,
+      "temporalCoherence": 3,
+      "editLocality": "N/A",
+      "artifacts": 4,
+      "severeFlag": "FALSE",
+      "notes": "主体与背景保持；可见轻微视角变化，运动幅度有限。"
+    },
+    {
+      "role": "acceptance",
+      "sample_id": "A-cold-white-seed932",
+      "video": "p0-reaccept-20260920/A-cold-white-seed932.mp4",
+      "mode": "FIRST_FRAME",
+      "instructionFollowing": 1,
+      "subjectPreservation": 2,
+      "temporalCoherence": 2,
+      "editLocality": "N/A",
+      "artifacts": 2,
+      "severeFlag": "TRUE",
+      "notes": "第 4 帧起杯子和背景出现青红分区；均值不能反映区域变色。"
+    },
+    {
+      "role": "acceptance",
+      "sample_id": "B-warm-generated-seed42",
+      "video": "p0-reaccept-20260920/B-warm-generated-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "instructionFollowing": 1,
+      "subjectPreservation": 2,
+      "temporalCoherence": 2,
+      "editLocality": "N/A",
+      "artifacts": 2,
+      "severeFlag": "TRUE",
+      "notes": "第 1 帧起茶壶变黄绿，背景出现彩虹渐变，违背保持颜色指令。"
+    },
+    {
+      "role": "acceptance",
+      "sample_id": "B-warm-generated-seed932",
+      "video": "p0-reaccept-20260920/B-warm-generated-seed932.mp4",
+      "mode": "FIRST_FRAME",
+      "instructionFollowing": 1,
+      "subjectPreservation": 2,
+      "temporalCoherence": 2,
+      "editLocality": "N/A",
+      "artifacts": 2,
+      "severeFlag": "TRUE",
+      "notes": "第 1 帧起茶壶变黄绿，背景出现彩虹渐变，违背保持颜色指令。"
+    },
+    {
+      "role": "acceptance",
+      "sample_id": "C-landscape-seed42",
+      "video": "p0-reaccept-20260920/C-landscape-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "instructionFollowing": 3,
+      "subjectPreservation": 4,
+      "temporalCoherence": 3,
+      "editLocality": "N/A",
+      "artifacts": 4,
+      "severeFlag": "FALSE",
+      "notes": "主体与背景保持；可见轻微视角变化，运动幅度有限。"
+    },
+    {
+      "role": "acceptance",
+      "sample_id": "C-landscape-seed932",
+      "video": "p0-reaccept-20260920/C-landscape-seed932.mp4",
+      "mode": "FIRST_FRAME",
+      "instructionFollowing": 3,
+      "subjectPreservation": 4,
+      "temporalCoherence": 3,
+      "editLocality": "N/A",
+      "artifacts": 4,
+      "severeFlag": "FALSE",
+      "notes": "主体与背景保持；可见轻微视角变化，运动幅度有限。"
+    }
+  ],
+  "stabilityObservations": {
+    "serviceSuccess": 10,
+    "severeColourFailures": [
+      "01-A-product-seed932",
+      "07-A-product-seed932"
+    ],
+    "otherSamples": "Small motion; no severe identity changes visible in contact sheets. This does not establish arbitrary action-following."
+  }
+}

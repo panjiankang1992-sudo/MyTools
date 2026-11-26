@@ -1,0 +1,440 @@
+{
+  "ce03d7a4": {
+    "requestCounts": [
+      {
+        "path": "/api/remote.mux",
+        "status": 401,
+        "count": 68
+      }
+    ],
+    "websocketResults": [
+      {
+        "time": "14:06:09",
+        "status": 401
+      },
+      {
+        "time": "14:06:20",
+        "status": 401
+      },
+      {
+        "time": "14:06:36",
+        "status": 401
+      },
+      {
+        "time": "14:06:46",
+        "status": 401
+      },
+      {
+        "time": "14:07:26",
+        "status": 401
+      },
+      {
+        "time": "14:07:33",
+        "status": 401
+      },
+      {
+        "time": "14:07:43",
+        "status": 401
+      },
+      {
+        "time": "14:07:52",
+        "status": 401
+      },
+      {
+        "time": "14:08:05",
+        "status": 401
+      },
+      {
+        "time": "14:08:20",
+        "status": 401
+      },
+      {
+        "time": "14:08:30",
+        "status": 401
+      },
+      {
+        "time": "14:08:46",
+        "status": 401
+      },
+      {
+        "time": "14:09:03",
+        "status": 401
+      },
+      {
+        "time": "14:09:15",
+        "status": 401
+      },
+      {
+        "time": "14:09:32",
+        "status": 401
+      },
+      {
+        "time": "14:09:43",
+        "status": 401
+      },
+      {
+        "time": "14:09:51",
+        "status": 401
+      },
+      {
+        "time": "14:10:00",
+        "status": 401
+      },
+      {
+        "time": "14:10:15",
+        "status": 401
+      },
+      {
+        "time": "14:10:23",
+        "status": 401
+      },
+      {
+        "time": "14:10:35",
+        "status": 401
+      },
+      {
+        "time": "14:10:51",
+        "status": 401
+      },
+      {
+        "time": "14:11:10",
+        "status": 401
+      },
+      {
+        "time": "14:11:18",
+        "status": 401
+      },
+      {
+        "time": "14:11:28",
+        "status": 401
+      },
+      {
+        "time": "14:11:40",
+        "status": 401
+      },
+      {
+        "time": "14:11:57",
+        "status": 401
+      },
+      {
+        "time": "14:12:24",
+        "status": 401
+      },
+      {
+        "time": "14:12:32",
+        "status": 401
+      },
+      {
+        "time": "14:12:43",
+        "status": 401
+      },
+      {
+        "time": "14:12:52",
+        "status": 401
+      },
+      {
+        "time": "14:13:14",
+        "status": 401
+      },
+      {
+        "time": "14:13:26",
+        "status": 401
+      },
+      {
+        "time": "14:13:48",
+        "status": 401
+      },
+      {
+        "time": "14:13:59",
+        "status": 401
+      },
+      {
+        "time": "14:14:10",
+        "status": 401
+      },
+      {
+        "time": "14:14:29",
+        "status": 401
+      },
+      {
+        "time": "14:14:43",
+        "status": 401
+      },
+      {
+        "time": "14:15:03",
+        "status": 401
+      },
+      {
+        "time": "14:15:17",
+        "status": 401
+      },
+      {
+        "time": "14:15:25",
+        "status": 401
+      },
+      {
+        "time": "14:15:35",
+        "status": 401
+      },
+      {
+        "time": "14:15:45",
+        "status": 401
+      },
+      {
+        "time": "14:16:07",
+        "status": 401
+      },
+      {
+        "time": "14:16:18",
+        "status": 401
+      },
+      {
+        "time": "14:16:28",
+        "status": 401
+      },
+      {
+        "time": "14:16:36",
+        "status": 401
+      },
+      {
+        "time": "14:16:49",
+        "status": 401
+      },
+      {
+        "time": "14:17:08",
+        "status": 401
+      },
+      {
+        "time": "14:17:18",
+        "status": 401
+      },
+      {
+        "time": "14:17:28",
+        "status": 401
+      },
+      {
+        "time": "14:17:38",
+        "status": 401
+      },
+      {
+        "time": "14:18:06",
+        "status": 401
+      },
+      {
+        "time": "14:18:15",
+        "status": 401
+      },
+      {
+        "time": "14:18:28",
+        "status": 401
+      },
+      {
+        "time": "14:18:51",
+        "status": 401
+      },
+      {
+        "time": "14:19:00",
+        "status": 401
+      },
+      {
+        "time": "14:19:14",
+        "status": 401
+      },
+      {
+        "time": "14:19:26",
+        "status": 401
+      },
+      {
+        "time": "14:19:34",
+        "status": 401
+      },
+      {
+        "time": "14:19:41",
+        "status": 401
+      },
+      {
+        "time": "14:19:51",
+        "status": 401
+      },
+      {
+        "time": "14:20:07",
+        "status": 401
+      },
+      {
+        "time": "14:20:20",
+        "status": 401
+      },
+      {
+        "time": "14:20:27",
+        "status": 401
+      },
+      {
+        "time": "14:20:37",
+        "status": 401
+      },
+      {
+        "time": "14:20:44",
+        "status": 401
+      },
+      {
+        "time": "14:21:15",
+        "status": 401
+      }
+    ]
+  },
+  "578fff41": {
+    "requestCounts": [
+      {
+        "path": "/",
+        "status": 200,
+        "count": 2
+      },
+      {
+        "path": "/manifest.webmanifest",
+        "status": 401,
+        "count": 2
+      },
+      {
+        "path": "/plugins/<bundle>",
+        "status": 403,
+        "count": 2
+      },
+      {
+        "path": "/api/settings/describe",
+        "status": 200,
+        "count": 7
+      },
+      {
+        "path": "/api/dynamicCordisRunner/syncInspectManifest",
+        "status": 200,
+        "count": 7
+      },
+      {
+        "path": "/open-in-app/apps",
+        "status": 200,
+        "count": 2
+      },
+      {
+        "path": "/api/credentials/describe",
+        "status": 200,
+        "count": 25
+      },
+      {
+        "path": "/api/dynamicCordisRunner/inventory",
+        "status": 200,
+        "count": 7
+      },
+      {
+        "path": "/api/session/modelCatalog",
+        "status": 200,
+        "count": 9
+      },
+      {
+        "path": "/api/agentPresets/list",
+        "status": 200,
+        "count": 16
+      },
+      {
+        "path": "/api/remote.mux",
+        "status": 101,
+        "count": 6
+      },
+      {
+        "path": "/api/session/initializeDefaultModel",
+        "status": 200,
+        "count": 2
+      },
+      {
+        "path": "/api/account/getProfile",
+        "status": 200,
+        "count": 6
+      },
+      {
+        "path": "/api/account/getUnnotifiedBonuses",
+        "status": 200,
+        "count": 6
+      },
+      {
+        "path": "/api/account/getBalance",
+        "status": 200,
+        "count": 6
+      },
+      {
+        "path": "/api/session/list",
+        "status": 200,
+        "count": 5
+      },
+      {
+        "path": "/api/permissionPresets/catalog",
+        "status": 200,
+        "count": 5
+      },
+      {
+        "path": "/api/schedule/list",
+        "status": 200,
+        "count": 5
+      },
+      {
+        "path": "/api/schedule/catalog",
+        "status": 200,
+        "count": 3
+      },
+      {
+        "path": "/api/commands/list",
+        "status": 200,
+        "count": 5
+      },
+      {
+        "path": "/api/llm/listConfigurableProviders",
+        "status": 200,
+        "count": 2
+      },
+      {
+        "path": "/api/llm/listProviders",
+        "status": 200,
+        "count": 2
+      },
+      {
+        "path": "/api/pluginInventory/list",
+        "status": 200,
+        "count": 2
+      },
+      {
+        "path": "/plugins/<bundle>",
+        "status": 200,
+        "count": 4
+      },
+      {
+        "path": "/api/skills/list",
+        "status": 200,
+        "count": 1
+      }
+    ],
+    "websocketResults": [
+      {
+        "time": "14:11:10",
+        "status": 101
+      },
+      {
+        "time": "14:11:26",
+        "status": 101
+      },
+      {
+        "time": "14:12:34",
+        "status": 101
+      },
+      {
+        "time": "14:13:03",
+        "status": 101
+      },
+      {
+        "time": "14:13:14",
+        "status": 101
+      },
+      {
+        "time": "14:16:58",
+        "status": 101
+      }
+    ]
+  }
+}

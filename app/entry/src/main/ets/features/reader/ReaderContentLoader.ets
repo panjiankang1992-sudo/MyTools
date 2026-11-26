@@ -9,6 +9,8 @@ import { RemoteBookDownloadPolicy, RemoteBookHeaderResult, RemoteBookPayloadKind
 import { TextPayloadPolicy } from './TextPayloadPolicy';
 import { ReaderTextMetadataPolicy } from './ReaderTextMetadataPolicy';
 import { ReaderShelfFileCache } from './ReaderShelfFileCache';
+import { ReaderTextDocumentCache } from './ReaderTextDocumentCache';
+import { ReaderPreparedDocumentCache } from './ReaderPreparedDocumentCache';
 
 interface DecodedText {
   text: string;
@@ -64,7 +66,9 @@ export interface IndexedTextSearchHit {
 export class ReaderContentLoader {
   readonly shelfFileCache: ReaderShelfFileCache = new ReaderShelfFileCache();
   documentCacheScope: string = '';
-  private static textDocumentCache: Map<string, string> = new Map();
+  onDownloadProgress: (received: number, total: number) => void = () => {};
+  onParsing: () => void = () => {};
+  private static readonly textDocumentCache: ReaderTextDocumentCache = new ReaderTextDocumentCache();
 
   /** 账号切换时清除解析快照，快照不引用临时解包目录。 */
   static clearTextDocumentCache(): void { ReaderContentLoader.textDocumentCache.clear(); }
@@ -94,6 +98,8 @@ export class ReaderContentLoader {
   private static readonly MAX_EPUB_MANIFEST_ITEMS: number = 5000;
   private static readonly MAX_EPUB_SPINE_ITEMS: number = 1000;
   private activeDirectory: string = '';
+  private readonly preparedCache: ReaderPreparedDocumentCache = new ReaderPreparedDocumentCache();
+  private openedSource: string = '';
   private searchIndexDirectory: string = '';
   private extractedBytes: number = 0;
   private readonly mobiReader: MobiReaderNative = new MobiReaderNative();
@@ -119,6 +125,12 @@ export class ReaderContentLoader {
    */
   async loadLocalText(context: common.UIAbilityContext, uri: string): Promise<ReaderDocument> {
     try {
+      const prepared = await this.preparedCache.read(this.shelfFileCache.path());
+      if (prepared !== undefined) {
+        this.searchIndexDirectory = `${context.filesDir}/reader-search-index`;
+        return prepared;
+      }
+      this.onParsing();
       const stat = fs.statSync(uri);
       if (stat.size === 0 || stat.size > ReaderContentLoader.MAX_LARGE_TEXT_BYTES) {
         throw new Error('TXT为空或超过500 MB');
@@ -126,25 +138,19 @@ export class ReaderContentLoader {
       if (stat.size > ReaderContentLoader.MAX_TEXT_BYTES) {
         const cachePath = this.prepareWorkspace(context, 'txt');
         await this.copyLocalBookFile(uri, cachePath, stat.size, 'TXT');
-        return await this.indexLargeText(cachePath, stat.size, context);
+        return await this.persistPrepared(await this.indexLargeText(cachePath, stat.size, context), cachePath);
       }
       const documentKey = JSON.stringify([this.documentCacheScope, uri, stat.size, stat.mtime]);
       const cachedDocument = ReaderContentLoader.textDocumentCache.get(documentKey);
-      if (cachedDocument !== undefined) return JSON.parse(cachedDocument) as ReaderDocument;
+      if (cachedDocument !== undefined) return this.persistPrepared(cachedDocument, uri);
       const file = fs.openSync(uri, fs.OpenMode.READ_ONLY);
       try {
         const buffer = new ArrayBuffer(stat.size);
         const readBytes = fs.readSync(file.fd, buffer);
         if (readBytes !== stat.size) throw new Error('TXT读取长度不完整');
         const document = this.parseTextBytes(new Uint8Array(buffer));
-        const serialized = JSON.stringify(document);
-        if (serialized.length <= 2 * 1024 * 1024) {
-          ReaderContentLoader.textDocumentCache.set(documentKey, serialized);
-          if (ReaderContentLoader.textDocumentCache.size > 4) {
-            ReaderContentLoader.textDocumentCache.delete(Array.from(ReaderContentLoader.textDocumentCache.keys())[0]);
-          }
-        }
-        return document;
+        ReaderContentLoader.textDocumentCache.put(documentKey, document);
+        return await this.persistPrepared(document, uri);
       } finally {
         fs.closeSync(file);
       }
@@ -164,10 +170,22 @@ export class ReaderContentLoader {
     const size = this.isMyToolsTicketUrl(url) ?
       await this.downloadTicketTextRanges(url, cachePath, requestHeaders) :
       await this.downloadTextStream(url, cachePath, requestHeaders);
+    this.onParsing();
     const document = size > ReaderContentLoader.MAX_TEXT_BYTES ?
       await this.indexLargeText(cachePath, size, context) : this.loadTextFile(cachePath, size);
-    this.shelfFileCache.save(cachePath);
-    return document;
+    const prepared = await this.persistPrepared(document, cachePath);
+    const savedPath = this.shelfFileCache.path();
+    if (savedPath.length > 0 && size <= ReaderContentLoader.MAX_TEXT_BYTES) {
+      // 首次下载的解析结果直接绑定持久副本，第二次打开无需再解码整本书。
+      try {
+        const stat = fs.statSync(savedPath);
+        ReaderContentLoader.textDocumentCache.put(JSON.stringify([
+          this.documentCacheScope, savedPath, stat.size, stat.mtime]), document);
+      } catch (_) {
+        // 系统可能同时回收缓存；加速副本消失不能遮挡已经解析完成的正文。
+      }
+    }
+    return prepared;
   }
 
   /**
@@ -253,6 +271,7 @@ export class ReaderContentLoader {
 
   private async downloadTextStream(url: string, path: string,
     requestHeaders?: Record<string, string>): Promise<number> {
+    this.onDownloadProgress(0, 0);
     const safeUrl = this.remoteDownloadPolicy.url(url);
     const headers = this.remoteDownloadPolicy.requestHeaders(requestHeaders);
     let request: http.HttpRequest | undefined = undefined;
@@ -288,6 +307,7 @@ export class ReaderContentLoader {
           request?.destroy();
           return;
         }
+        this.onDownloadProgress(received, declaredLength ?? 0);
         const bytes = new Uint8Array(buffer);
         for (let index = 0; index < bytes.length; index++) {
           receivedHash = Math.imul((receivedHash ^ bytes[index]) >>> 0, 16777619);
@@ -334,6 +354,7 @@ export class ReaderContentLoader {
 
   private async downloadTicketTextRanges(url: string, path: string,
     requestHeaders?: Record<string, string>): Promise<number> {
+    this.onDownloadProgress(0, 0);
     const safeUrl = this.remoteDownloadPolicy.url(url);
     const baseHeaders = this.remoteDownloadPolicy.requestHeaders(requestHeaders);
     let file: fs.File | undefined = undefined;
@@ -380,6 +401,7 @@ export class ReaderContentLoader {
             receivedHash = Math.imul((receivedHash ^ bytes[index]) >>> 0, 16777619);
           }
           received += buffer.byteLength;
+          this.onDownloadProgress(received, totalSize);
           await new Promise<void>((resolve: () => void) => setTimeout(resolve, 0));
         } finally {
           request.destroy();
@@ -508,6 +530,7 @@ export class ReaderContentLoader {
   private async downloadBinaryStream(url: string, path: string, maxBytes: number, label: string,
     kind: RemoteBookPayloadKind,
     requestHeaders?: Record<string, string>): Promise<number> {
+    this.onDownloadProgress(0, 0);
     const safeUrl = this.remoteDownloadPolicy.url(url);
     const headers = this.remoteDownloadPolicy.requestHeaders(requestHeaders);
     let request: http.HttpRequest | undefined = undefined;
@@ -542,6 +565,7 @@ export class ReaderContentLoader {
           request?.destroy();
           return;
         }
+        this.onDownloadProgress(received, declaredLength ?? 0);
         const bytes = new Uint8Array(buffer);
         for (let index = 0; index < bytes.length; index++) {
           receivedHash = Math.imul((receivedHash ^ bytes[index]) >>> 0, 16777619);
@@ -727,7 +751,11 @@ export class ReaderContentLoader {
   /** 校验按需章节引用，拒绝路径替换、数值溢出、未知编码和缓存截断。 */
   private validateTextChunkReference(reference: TextChunkReference): void {
     const maximumLength = ReaderContentLoader.TEXT_CHUNK_BYTES + 16384;
-    if (this.activeDirectory.length === 0 || reference.path !== `${this.activeDirectory}/book.txt` ||
+    // 索引只允许当前临时文件或本书经过校验的持久副本，不能引用任意私有路径。
+    const persistent = this.shelfFileCache.path();
+    const ownedPath = (this.activeDirectory.length > 0 && reference.path === `${this.activeDirectory}/book.txt`) ||
+      (persistent.length > 0 && reference.path === `${persistent}.prepared-v1/book.txt`);
+    if (!ownedPath ||
       !Number.isSafeInteger(reference.fileSize) || reference.fileSize <= ReaderContentLoader.MAX_TEXT_BYTES ||
       reference.fileSize > ReaderContentLoader.MAX_LARGE_TEXT_BYTES || !Number.isSafeInteger(reference.offset) ||
       reference.offset < 0 || !Number.isSafeInteger(reference.length) || reference.length <= 0 ||
@@ -1070,12 +1098,14 @@ export class ReaderContentLoader {
   async loadLocalArchive(context: common.UIAbilityContext, uri: string,
     format: string): Promise<ReaderDocument> {
     try {
+      const prepared = await this.preparedCache.read(this.shelfFileCache.path());
+      if (prepared !== undefined) return prepared;
       const stat = fs.statSync(uri);
       if (stat.size > ReaderContentLoader.MAX_ARCHIVE_BYTES) throw new Error('图书容器不能超过100 MB');
       const archivePath = this.prepareWorkspace(context, format);
       await this.copyLocalBookFile(uri, archivePath, stat.size, format.toUpperCase());
       this.validatePayloadSignature(archivePath, stat.size, 'archive');
-      return this.extractAndParse(archivePath, format);
+      return await this.persistPrepared(await this.extractAndParse(archivePath, format), archivePath);
     } catch (error) {
       if (error instanceof Error) throw error;
       throw new Error('本地图书容器读取失败');
@@ -1093,15 +1123,13 @@ export class ReaderContentLoader {
     try {
       if (cachePath.length > 0 && this.validRemoteArchiveCache(cachePath, format)) {
         const document = await this.extractAndParse(cachePath, format);
-        this.shelfFileCache.save(cachePath);
-        return document;
+        return await this.persistPrepared(document, cachePath);
       }
       await this.downloadBinaryStream(url, archivePath, ReaderContentLoader.MAX_ARCHIVE_BYTES, '远程图书',
         'archive', requestHeaders);
       const persistedPath = cachePath.length > 0 ? this.persistRemoteArchiveCache(archivePath, cachePath) : '';
       const document = await this.extractAndParse(persistedPath.length > 0 ? persistedPath : archivePath, format);
-      this.shelfFileCache.save(archivePath);
-      return document;
+      return await this.persistPrepared(document, archivePath);
     } catch (error) {
       if (error instanceof Error) throw error;
       throw new Error('远程图书容器读取失败');
@@ -1178,10 +1206,15 @@ export class ReaderContentLoader {
       if (stat.size === 0 || stat.size > ReaderContentLoader.MAX_ARCHIVE_BYTES) {
         throw new Error('PDF为空或超过100 MB');
       }
+      if (uri === this.shelfFileCache.path()) {
+        this.validatePayloadSignature(uri, stat.size, 'pdf');
+        return uri;
+      }
       const path = this.prepareWorkspace(context, 'pdf');
       await this.copyLocalBookFile(uri, path, stat.size, 'PDF');
       this.validatePayloadSignature(path, stat.size, 'pdf');
-      return path;
+      this.openedSource = path;
+      return this.shelfFileCache.save(path) || path;
     } catch (error) {
       if (error instanceof Error) throw error;
       throw new Error('本地PDF读取失败');
@@ -1197,8 +1230,8 @@ export class ReaderContentLoader {
     try {
       await this.downloadBinaryStream(url, path, ReaderContentLoader.MAX_ARCHIVE_BYTES, '远程PDF', 'pdf',
         requestHeaders);
-      this.shelfFileCache.save(path);
-      return path;
+      this.openedSource = path;
+      return this.shelfFileCache.save(path) || path;
     } catch (error) {
       if (error instanceof Error) throw error;
       throw new Error('远程PDF读取失败');
@@ -1210,6 +1243,8 @@ export class ReaderContentLoader {
    */
   async loadLocalMobi(context: common.UIAbilityContext, uri: string, format: string): Promise<ReaderDocument> {
     try {
+      const prepared = await this.preparedCache.read(this.shelfFileCache.path());
+      if (prepared !== undefined) return prepared;
       const stat = fs.statSync(uri);
       if (stat.size === 0 || stat.size > ReaderContentLoader.MAX_ARCHIVE_BYTES) {
         throw new Error('MOBI为空或超过100 MB');
@@ -1217,7 +1252,8 @@ export class ReaderContentLoader {
       const path = this.prepareWorkspace(context, format);
       await this.copyLocalBookFile(uri, path, stat.size, format.toUpperCase());
       this.validatePayloadSignature(path, stat.size, 'mobi');
-      return this.mobiReader.parse(path, `${this.activeDirectory}/resources`);
+      this.onParsing();
+      return await this.persistPrepared(this.mobiReader.parse(path, `${this.activeDirectory}/resources`), path);
     } catch (error) {
       if (error instanceof Error) throw error;
       throw new Error('本地MOBI读取失败');
@@ -1233,9 +1269,9 @@ export class ReaderContentLoader {
     try {
       await this.downloadBinaryStream(url, path, ReaderContentLoader.MAX_ARCHIVE_BYTES, '远程MOBI', 'mobi',
         requestHeaders);
+      this.onParsing();
       const document = this.mobiReader.parse(path, `${this.activeDirectory}/resources`);
-      this.shelfFileCache.save(path);
-      return document;
+      return await this.persistPrepared(document, path);
     } catch (error) {
       if (error instanceof Error) throw error;
       throw new Error('远程MOBI读取失败');
@@ -1252,6 +1288,25 @@ export class ReaderContentLoader {
     this.cleanupDirectory();
   }
 
+  /** 试读后加入书架时保留已下载文件，不重新发起网络请求。 */
+  async retainOpenedBook(): Promise<boolean> {
+    return this.openedSource.length > 0 && this.shelfFileCache.save(this.openedSource).length > 0;
+  }
+
+  /** 成功解析后保存持久文件和解析快照，缓存失败仍返回可读正文。 */
+  private async persistPrepared(document: ReaderDocument, source: string): Promise<ReaderDocument> {
+    this.assertNotCancelled();
+    this.openedSource = source;
+    const target = this.shelfFileCache.save(source);
+    if (!target) return document;
+    const prepared = await this.preparedCache.save(target, document, this.activeDirectory, (): boolean => this.cancelled);
+    this.assertNotCancelled();
+    this.openedSource = target;
+    // 工作区被原子移入持久目录后，关闭阅读器只清理剩余的临时工作区。
+    try { if (this.activeDirectory && !fs.accessSync(this.activeDirectory)) this.activeDirectory = ''; } catch (_) {}
+    return prepared;
+  }
+
   private cleanupDirectory(): void {
     this.extractedFilePaths.clear();
     if (this.activeDirectory.length === 0) return;
@@ -1266,7 +1321,7 @@ export class ReaderContentLoader {
     try {
       this.cleanupDirectory();
       this.cancelled = false;
-      this.activeDirectory = `${context.cacheDir}/reader-${Date.now()}`;
+      this.activeDirectory = `${context.cacheDir}/reader-${util.generateRandomUUID(true)}`;
       fs.mkdirSync(this.activeDirectory, true);
       return `${this.activeDirectory}/book.${format}`;
     } catch (error) {
@@ -1280,6 +1335,7 @@ export class ReaderContentLoader {
 
   private async extractAndParse(archivePath: string, format: string): Promise<ReaderDocument> {
     try {
+      this.onParsing();
       const archiveManifest = this.inspectZipArchive(archivePath, format);
       const outputDirectory = `${this.activeDirectory}/content`;
       fs.mkdirSync(outputDirectory, true);

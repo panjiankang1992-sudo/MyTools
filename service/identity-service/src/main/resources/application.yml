@@ -14,4 +14,4 @@ identity:
   jwt-secret: ${IDENTITY_JWT_SECRET:}
   issuer: ${IDENTITY_JWT_ISSUER:mytools-identity}
   access-seconds: ${IDENTITY_ACCESS_SECONDS:900}
-  refresh-seconds: ${IDENTITY_REFRESH_SECONDS:604800}
+  refresh-seconds: ${IDENTITY_REFRESH_SECONDS:2592000}

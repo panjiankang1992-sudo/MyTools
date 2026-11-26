@@ -1,0 +1,9 @@
+IMPORTED_RAW_BYTES_IDENTICAL=true
+IMPORTED_DRAFT: subject=null; grade=0; entries=null; base=null
+IMPORTED_CATALOG: file=2026-10-04.1; database=catalog-1
+DRAFT_LIST: all=1; subjectChinese=0
+INVALID_DRAFT_SAVED: revision=3; missingUnitPersisted=missing-unit
+RECEIPT_FAILURE_TYPE=BusinessException
+REVISION_AFTER_FAILED_RECEIPT=4
+RECEIPT_EXISTS=false
+IDENTICAL_RETRY_ERROR=TOOLBOX_ADMIN_004

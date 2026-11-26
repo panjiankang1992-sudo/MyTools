@@ -1,0 +1,101 @@
+{
+  "jobs": [
+    {
+      "id": "d50fad48-1773-4fe3-b7eb-44cbd3a060eb",
+      "status": "CANCELLED",
+      "errorCode": "",
+      "request": {
+        "resourceId": "ltx-video-2b-local",
+        "mode": "FIRST_FRAME",
+        "prompt": "A red teapot stays still as the camera slowly moves forward.",
+        "inputs": [
+          {
+            "uploadId": "ca0b5aa3-f90d-41d8-8647-be6409b93c85",
+            "role": "FIRST_FRAME"
+          }
+        ],
+        "output": {
+          "size": "640x640",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 1495707315,
+        "idempotencyKey": "b506e6da-ee36-43c8-9dd2-00473097bd90"
+      },
+      "_owner": "acceptance-a"
+    },
+    {
+      "id": "67fc4c95-ce57-442e-a3ec-39f66b5f59d3",
+      "status": "QUEUED",
+      "errorCode": "",
+      "request": {
+        "resourceId": "ltx-video-2b-local",
+        "mode": "FIRST_FRAME",
+        "prompt": "A red teapot stays still as the camera slowly moves forward.",
+        "inputs": [
+          {
+            "uploadId": "ca0b5aa3-f90d-41d8-8647-be6409b93c85",
+            "role": "FIRST_FRAME"
+          }
+        ],
+        "output": {
+          "size": "640x640",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 1613903812,
+        "idempotencyKey": "a77571fe-1c9d-4ffd-88f8-005dbb2d19fe"
+      },
+      "_owner": "acceptance-a"
+    },
+    {
+      "id": "3a3bb0a2-dc33-41e2-b612-ca039ccd9177",
+      "status": "QUEUED",
+      "errorCode": "",
+      "request": {
+        "resourceId": "ltx-video-2b-local",
+        "mode": "FIRST_FRAME",
+        "prompt": "A red teapot stays still as the camera slowly moves forward.",
+        "inputs": [
+          {
+            "uploadId": "ca0b5aa3-f90d-41d8-8647-be6409b93c85",
+            "role": "FIRST_FRAME"
+          }
+        ],
+        "output": {
+          "size": "640x640",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 1908227516,
+        "idempotencyKey": "b3a000a7-1b5b-49b5-a699-514700024a66"
+      },
+      "_owner": "acceptance-a"
+    },
+    {
+      "id": "7839e21b-71b8-4d43-8b31-e134af4a5c42",
+      "status": "QUEUED",
+      "errorCode": "",
+      "request": {
+        "resourceId": "ltx-video-2b-local",
+        "mode": "FIRST_FRAME",
+        "prompt": "A fixed camera shows gentle motion.",
+        "inputs": [
+          {
+            "uploadId": "8293631e-35b1-463a-a587-066edf66f5c4",
+            "role": "FIRST_FRAME"
+          }
+        ],
+        "output": {
+          "size": "640x640",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 1941946986,
+        "idempotencyKey": "dee6ff24-fac9-467e-80cd-4eda3f4ddc16"
+      },
+      "_owner": "acceptance-b"
+    }
+  ],
+  "offline": false
+}

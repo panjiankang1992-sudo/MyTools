@@ -8,6 +8,11 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.yuyutian.mytools.media.library.common.ErrorCode;
+import com.yuyutian.mytools.media.library.model.MediaModels.MediaView;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -73,6 +78,22 @@ public class DerivedThumbnailContentService {
             return Optional.empty();
         }
         return assetContent(media.assetId(), false);
+    }
+
+    /** 从媒体外键对应的可用存储位置读取原始文件，保持响应流打开直到转发完成。 */
+    void writeOriginal(MediaView media, String range, boolean head, HttpServletResponse response) {
+        Map<?, ?> asset = assetClient.get().uri("/internal/v1/assets/{id}", media.assetId()).retrieve().body(Map.class);
+        Map<?, ?> location = availableLocation(asset);
+        if (location == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorCode.CONTENT_NOT_FOUND.code());
+        }
+        // 媒体投影和登记的原片必须一致，防止向播放器发送错误的长度或文件内容。
+        if (!(asset.get("sizeBytes") instanceof Number size) || size.longValue() != media.sizeBytes()
+                || !media.contentSha256().equalsIgnoreCase(String.valueOf(asset.get("contentSha256")))) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, ErrorCode.CONTENT_STORAGE_INVALID.code());
+        }
+        AssetMediaStreamWriter.write(storageClient, String.valueOf(location.get("storageUri")), media.mimeType(),
+                media.sizeBytes(), range, head, response);
     }
 
     private Optional<LegacyMediaContentService.Content> assetContent(UUID assetId, boolean requireJpeg) {

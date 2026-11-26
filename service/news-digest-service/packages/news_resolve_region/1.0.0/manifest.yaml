@@ -1,0 +1,10 @@
+name: news_resolve_region
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities: []
+parameters:
+  required: []
+limits:
+  timeoutSeconds: 90
+  maxOutputBytes: 65536

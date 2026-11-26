@@ -1,0 +1,62 @@
+[
+  {
+    "name": "00-product-seed42",
+    "frames": 49,
+    "adjacentMAD": 2.582,
+    "lastVsFirstMAD": 35.956
+  },
+  {
+    "name": "01-product-seed932",
+    "frames": 49,
+    "adjacentMAD": 5.12,
+    "lastVsFirstMAD": 44.023
+  },
+  {
+    "name": "02-portrait-seed42",
+    "frames": 49,
+    "adjacentMAD": 1.771,
+    "lastVsFirstMAD": 31.75
+  },
+  {
+    "name": "03-portrait-seed932",
+    "frames": 49,
+    "adjacentMAD": 2.598,
+    "lastVsFirstMAD": 39.818
+  },
+  {
+    "name": "04-landscape-seed42",
+    "frames": 49,
+    "adjacentMAD": 0.201,
+    "lastVsFirstMAD": 4.725
+  },
+  {
+    "name": "05-landscape-seed932",
+    "frames": 49,
+    "adjacentMAD": 3.695,
+    "lastVsFirstMAD": 41.617
+  },
+  {
+    "name": "06-product-seed42",
+    "frames": 49,
+    "adjacentMAD": 2.582,
+    "lastVsFirstMAD": 35.956
+  },
+  {
+    "name": "07-product-seed932",
+    "frames": 49,
+    "adjacentMAD": 5.12,
+    "lastVsFirstMAD": 44.023
+  },
+  {
+    "name": "08-portrait-seed42",
+    "frames": 49,
+    "adjacentMAD": 1.771,
+    "lastVsFirstMAD": 31.75
+  },
+  {
+    "name": "09-portrait-seed932",
+    "frames": 49,
+    "adjacentMAD": 2.598,
+    "lastVsFirstMAD": 39.818
+  }
+]

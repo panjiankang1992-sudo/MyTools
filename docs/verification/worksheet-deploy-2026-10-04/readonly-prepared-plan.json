@@ -1,0 +1,17 @@
+{
+  "releaseId": "worksheet-three-step-20261004-003105",
+  "baseUrl": "https://toolbox.yuyutian.top",
+  "staticFiles": 225,
+  "staticBytes": 47942938,
+  "publishedBooks": 5,
+  "entryCount": 2635,
+  "coverageSlots": 20,
+  "maxConcurrentRequests": 3,
+  "methods": [
+    "GET"
+  ],
+  "credentials": "none",
+  "manifestSha256": "4a3429277377e2bd4755828dfb96507a4257b9249a4cb852ad3fa2fafcf1cba9",
+  "expectedCatalogSha256": "bc483256d290420a2d572244157982aa177b641359934161458a1f871fc83ed5",
+  "prepareOnly": true
+}

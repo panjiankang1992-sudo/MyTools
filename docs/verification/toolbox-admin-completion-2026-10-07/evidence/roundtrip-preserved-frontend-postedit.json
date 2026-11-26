@@ -1,0 +1,109 @@
+{
+  "files": [
+    "/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/evidence/roundtrip-draft-cn-ty-2-1-pep-2017.json",
+    "/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/evidence/roundtrip-draft-cn-ty-3-1-pep-2024.json",
+    "/Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/evidence/roundtrip-draft-en-yl-3-1-yilin-2024.json"
+  ],
+  "pass": true,
+  "results": [
+    {
+      "label": "-cn-ty-2-1-pep-2017",
+      "subject": "chinese",
+      "entries": 761,
+      "cases": {
+        "identityRoundTrip": {
+          "compared": 761,
+          "tally": {},
+          "mismatches": []
+        },
+        "singleRowEdit": {
+          "compared": 761,
+          "tally": {},
+          "mismatches": [],
+          "targetIndex": 0,
+          "targetRowId": "cn-ty-2-1-pep-2017-0001",
+          "mismatchesOnUntouchedRows": 0,
+          "editedRow": {
+            "before": {
+              "text": "两个",
+              "pinyin": "liǎng gè",
+              "meaning": ""
+            },
+            "after": {
+              "text": "两个试",
+              "pinyin": "liǎng gè shì",
+              "meaning": ""
+            }
+          }
+        }
+      },
+      "pass": true
+    },
+    {
+      "label": "-cn-ty-3-1-pep-2024",
+      "subject": "chinese",
+      "entries": 778,
+      "cases": {
+        "identityRoundTrip": {
+          "compared": 778,
+          "tally": {},
+          "mismatches": []
+        },
+        "singleRowEdit": {
+          "compared": 778,
+          "tally": {},
+          "mismatches": [],
+          "targetIndex": 0,
+          "targetRowId": "cn-ty-3-1-pep-2024-0001",
+          "mismatchesOnUntouchedRows": 0,
+          "editedRow": {
+            "before": {
+              "text": "绒毛",
+              "pinyin": "róng máo",
+              "meaning": ""
+            },
+            "after": {
+              "text": "绒毛试",
+              "pinyin": "róng máo shì",
+              "meaning": ""
+            }
+          }
+        }
+      },
+      "pass": true
+    },
+    {
+      "label": "-en-yl-3-1-yilin-2024",
+      "subject": "english",
+      "entries": 140,
+      "cases": {
+        "identityRoundTrip": {
+          "compared": 140,
+          "tally": {},
+          "mismatches": []
+        },
+        "singleRowEdit": {
+          "compared": 140,
+          "tally": {},
+          "mismatches": [],
+          "targetIndex": 0,
+          "targetRowId": "en-yl-3-1-yilin-2024-0001",
+          "mismatchesOnUntouchedRows": 0,
+          "editedRow": {
+            "before": {
+              "text": "hi",
+              "pinyin": "",
+              "meaning": "嗨，你好"
+            },
+            "after": {
+              "text": "hiq",
+              "pinyin": "",
+              "meaning": "嗨，你好"
+            }
+          }
+        }
+      },
+      "pass": true
+    }
+  ]
+}

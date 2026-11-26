@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh DSH upstream authentication for MyTools
+After=dsh.service
+Wants=dsh.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/yuyutian/mytools/runtime/dsh-web/refresh_upstream_cookie.py
+User=root
+UMask=0027
+NoNewPrivileges=true
+TimeoutStartSec=30

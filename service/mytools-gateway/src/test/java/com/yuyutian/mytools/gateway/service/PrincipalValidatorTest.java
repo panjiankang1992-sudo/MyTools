@@ -1,7 +1,13 @@
 package com.yuyutian.mytools.gateway.service;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.yuyutian.mytools.gateway.config.GatewayProperties;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -63,6 +69,63 @@ class PrincipalValidatorTest {
         assertThatThrownBy(() -> new PrincipalValidator(restTemplate,
                 properties(GatewayProperties.IdentityMode.IDENTITY)).validate("token"))
                 .isInstanceOf(GatewayUnauthorizedException.class);
+    }
+
+    @Test
+    void observesInternalValidationWithoutTokenPrincipalOrServerAddress() {
+        RestTemplate restTemplate = mock(RestTemplate.class);
+        when(restTemplate.postForObject(anyString(), any(HttpEntity.class), eq(PrincipalValidator.ValidationResponse.class)))
+                .thenReturn(new PrincipalValidator.ValidationResponse(true, 7L, "private-username", List.of("PRIVATE_ROLE"), null));
+        Logger logger = (Logger) LoggerFactory.getLogger(PrincipalValidator.class);
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        logger.addAppender(appender);
+        MDC.put("gatewayObservationModule", "MEDIA");
+        MDC.put("gatewayObservationTrace", "00000000-0000-4000-8000-000000000007");
+        try {
+            new PrincipalValidator(restTemplate, properties(GatewayProperties.IdentityMode.LEGACY)).validate("private-access-token");
+
+            assertThat(appender.list).extracting(ILoggingEvent::getFormattedMessage)
+                    .hasSize(2)
+                    .anySatisfy(message -> assertThat(message).contains("phase=rpc-start module=MEDIA", "target=LEGACY"))
+                    .anySatisfy(message -> assertThat(message).contains("phase=rpc-complete", "completed=true", "active=true", "status=0", "elapsedMs="))
+                    .allSatisfy(message -> assertThat(message).doesNotContain("private-", "PRIVATE_ROLE", "http://", "/internal/", "gateway-token", "identity-token"));
+            assertThat(appender.list).allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        } finally {
+            MDC.remove("gatewayObservationModule");
+            MDC.remove("gatewayObservationTrace");
+            logger.detachAppender(appender);
+            appender.stop();
+        }
+    }
+
+    @Test
+    void rejectedInternalRpcLogsOnlyFixedOutcomeEvenWhenExceptionContainsSecrets() {
+        RestTemplate restTemplate = mock(RestTemplate.class);
+        when(restTemplate.postForObject(anyString(), any(HttpEntity.class), eq(PrincipalValidator.ValidationResponse.class)))
+                .thenThrow(new ResourceAccessException("private-token https://private-user-resource/internal/path"));
+        Logger logger = (Logger) LoggerFactory.getLogger(PrincipalValidator.class);
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        logger.addAppender(appender);
+        MDC.put("gatewayObservationModule", "private-user-module");
+        MDC.put("gatewayObservationTrace", "private-token");
+        try {
+            assertThatThrownBy(() -> new PrincipalValidator(restTemplate,
+                    properties(GatewayProperties.IdentityMode.IDENTITY)).validate("private-access-token"))
+                    .isInstanceOf(GatewayUnauthorizedException.class);
+
+            assertThat(appender.list).extracting(ILoggingEvent::getFormattedMessage)
+                    .hasSize(2)
+                    .anySatisfy(message -> assertThat(message).contains("phase=rpc-complete module=OTHER trace=none", "target=IDENTITY", "completed=false", "active=false", "status=0"))
+                    .allSatisfy(message -> assertThat(message).doesNotContain("private-", "http", "/internal/"));
+            assertThat(appender.list).allSatisfy(event -> assertThat(event.getThrowableProxy()).isNull());
+        } finally {
+            MDC.remove("gatewayObservationModule");
+            MDC.remove("gatewayObservationTrace");
+            logger.detachAppender(appender);
+            appender.stop();
+        }
     }
 
     private GatewayProperties properties(GatewayProperties.IdentityMode mode) {

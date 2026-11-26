@@ -1,0 +1,130 @@
+{
+  "batch": 20,
+  "goalStatus": "ACTIVE",
+  "scope": "Source and region registry capacity with report reservation at job admission",
+  "newsLocal": {
+    "tests": 253,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 26,
+    "passed": 227
+  },
+  "deploymentPython": {
+    "tests": 38,
+    "passed": 38
+  },
+  "isolatedMySql": {
+    "summary": {
+      "aborted": 0,
+      "containersFailed": 0,
+      "failed": 0,
+      "passed": 22,
+      "skipped": 0,
+      "tests": 22
+    },
+    "databaseVersion": "8.4.11-0ubuntu0.26.04.1",
+    "bundle": {
+      "archiveSha256": "df68b31ac8eebb4386037e17eb931352872e12cb08754a8c8323bb5c52b8fd91",
+      "files": 690,
+      "libraryFiles": 98,
+      "manifestSha256": "a25493f2d8ca36240cd821d845fc15a7fabe5c40de20c40af220a6b7f3709e3c"
+    }
+  },
+  "release": {
+    "releasePath": "/tmp/mytools-news-release-20261018-b20-verified",
+    "manifestSha256": "527ff5895a5397ee5687f27ebc6e9665cb31bb51a42c0109481a649e02a93b09",
+    "inspection": {
+      "releaseFilesValid": true,
+      "inventoryMode": "exact_source",
+      "fileCount": 733,
+      "packageCount": 153,
+      "requiredJarCount": 5,
+      "pinnedMigrationRuntimeVerified": true,
+      "runtimeAcceptance": false
+    },
+    "packagedCliHelpsDoNotMutateInventory": true,
+    "newsJarSha256": "e014a00cab719009df4f2e05b6bb9814b9d3679c82742893e116b7a016ea3693"
+  },
+  "alerts": {
+    "yamlRulesParsed": 10,
+    "promtoolValidated": false,
+    "liveMonitoringValidated": false
+  },
+  "cleanup": {
+    "rootRemoved": true,
+    "archiveRemoved": true,
+    "units": {
+      "database": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      },
+      "-test": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      },
+      "-init": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      }
+    },
+    "existingServices": {
+      "task-scheduler-service": "active",
+      "task-executor-service": "active",
+      "messaging-service": "active",
+      "mytools-gateway": "active"
+    },
+    "localPrivateSessionRemoved": true
+  },
+  "distinctPassed": 287,
+  "remainingSkipped": {
+    "optionalLiveSourceTests": 4
+  },
+  "historicalMigrations": {
+    "files": 206,
+    "unchanged": true
+  },
+  "sourceSha256": {
+    "service/news-digest-service/db/migrations/V10__reserve_registry_capacity.sql": "4786e657b52ceda0597a225f8d85066f1daa9b755fdde6aa48906b59d59452c7",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/RegistryCapacityProperties.java": "de0cbda90d165f87457bbdc099133aaf434f595867bb01ecaf4e5334e8a8806f",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/RegistryCapacityRepository.java": "b599efd65beac561bbd5f8bfc948073468a2dd61f09ac7c00a0b3f620a4324f3",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/NewsRepository.java": "e963f78cfb27dfbe725c8e03d2e365f3e02fda4c6df30ec9d63a30fa9efd68b4",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/RegionRepository.java": "9327e2b6a3fc5467875d059ead0e8463aa3930dfc8f2c1310046664f7eb396b7",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/RegionJobRepository.java": "a01d1779b64da877c6c4a0b57e3070801610bac46cb607917ade3b9311b15525",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/RegionService.java": "3726018bc615c5f9a4f5f7a5096e212646380fa75932c2971609bb02b40fd0b2",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/RegionJobService.java": "bde2d1b3b8d765dfee45af049e63f52c4677d6f0a0f30964e0eb747b2f1f4711",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/NewsOperations.java": "d991051146d87c0b9f682b7550bb493338f3b39579e3e2853cfae2032d7c5c13",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/common/ErrorCode.java": "835ea0f1a9264bb047e493afac38876958fe56884859a1fca2e1a58eb1a4b32b",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/NewsDigestApplication.java": "a526ca12fa0edca6e8eb9a5a889e7a0efea97c3a54af88072e3b8ddc1a3e572d",
+    "service/news-digest-service/src/main/resources/application.yml": "4f8f79b06d2d29c9ada861b410b3d0a05a038e75f317181f5643f55dd70f2e52",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/RegistryCapacityTest.java": "35515839efe7b9edb0021cec72383f6cd0b9d614ed582a14eef536335463308f",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/MySqlCompatibilityTest.java": "36d6a242131288f72c900ae7a8b102d0ff1bd6ab50654a631fc88919972de724",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/Fixtures.java": "161667d1379a51372dad93648404dc0286b934472520d1f635da182f6b0a7644",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/NewsIntegrationTest.java": "c4612acf44571bbb245ac55c186dd85674a2afc138b06624f1e333b5bb31827d",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/PipelineIntegrationTest.java": "bbb08f2f2148bac811c2c86f71bd6e3e165bf974c35d4e0aaa1e7f6fa08bb183",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/RetentionTest.java": "9cea045f6e442eb4b81570a68155198373ba1ded047e037c83586b8700a33982",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/ControlCapacityTest.java": "05058186498df86291e01f1683bc546cd0cebce5d2f3cc30f31d0325e2f3722f",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/CollectionCapacityTest.java": "211f64c8c238b9764f3ceef2a6f0626ce07e27c0e3e25ce6c4cc0e3510625247",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/TechnicalMigrationTest.java": "954ad7233174141de9289ac74751b7b63db0892caf1efd90f48d5fcb41e90166",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/TechnicalPersistenceTest.java": "5cf90f84bd703a50c942fe13000d6f76a2103f11e8e7d64133729e0e4e6f5e5c",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/EvidenceTest.java": "e34ebecab9a098eb11aab5a44d2644ae0e97e088dbc18717ab54d824dac70429",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/RegionIntegrationTest.java": "81f5dc2a4f50ef7b3239e2923f1b43a337d557d010e9ec7dbd025f61787b5618",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/DispatchIntegrationTest.java": "ef2e37a24758211c3c3e9f6cfa8b6e3bbde3f582d8d0421b11b6b9b435ceb181",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/SchedulingIntegrationTest.java": "90a37d46acd31614aced0501b25df63c4c409414c4d9026fb542e12b0fef3f3c",
+    "service/deploy/create_service_env.py": "dcc5cf785af224e27d7ad8703f1374d49ef429b20d2c69706b98fcb974c8c3a8",
+    "service/deploy/news_deployment_config.py": "9b33432a72f9588e57b51aa4bdfe78b3538c65bf339a8d54c460e411d3343de2",
+    "service/deploy/env.example": "84d7c4b0c1d032571b353e1f5e952ceb9afc81fec2c911a4e8cc996589c7514a",
+    "service/deploy/verify_news_deployment.py": "13bd4d78035d815008ebca0867b263ae53f6c5610424dd1c54d48b038641f40a",
+    "service/deploy/monitoring/news-digest-alerts.yml": "c1060354f3bcf5e1afe4cd655851af363740f2312e6c10cdf0a8332d5367fedb",
+    "service/news-digest-service/README.md": "655da67eec8bb6210f4199968b04488e863e9fc66c5e5ee0ae0170c49ceba9e6",
+    "docs/runbooks/daily-news-retention-operations.md": "801329971ee341b46c436c9f9db905aef45b6f9625f300f5eec574ab1f677eaa",
+    "docs/runbooks/daily-news-release.md": "5920debf1244e5116bddbaeaf17c2ec0aa9922480bd127b0240118b157b5cc1c"
+  },
+  "limits": [
+    "Capacity is global admission control, not per-owner fairness or a physical database quota.",
+    "Legacy payloads and identities are retained; lowering limits does not delete or rewrite them.",
+    "One report slot is reserved per accepted region job; direct reports cannot borrow it.",
+    "Only News JAR was rebuilt in this batch; other Java artifacts were reused.",
+    "No production deployment, real provider delivery, successful executor IP geolocation or seven-day shadow run was performed.",
+    "Ten alert rules parsed with SnakeYAML; promtool and live monitoring were not validated."
+  ]
+}

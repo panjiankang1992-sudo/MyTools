@@ -15,6 +15,7 @@ import com.yuyutian.mytools.task.scheduler.model.ReportStepExecutionRequest;
 import com.yuyutian.mytools.task.scheduler.model.StepKind;
 import com.yuyutian.mytools.task.scheduler.model.TaskStatus;
 import com.yuyutian.mytools.task.scheduler.repository.JsonColumnMapper;
+import com.yuyutian.mytools.task.scheduler.repository.GpuTaskRepository;
 import com.yuyutian.mytools.task.scheduler.repository.TaskInstanceRepository;
 import com.yuyutian.mytools.task.scheduler.repository.TaskStepRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,6 +49,7 @@ public class TaskDispatchService {
     private static final int PLACEMENT_SCAN_BATCH_SIZE = 32;
 
     private final JdbcTemplate jdbcTemplate;
+    private final GpuTaskRepository gpuTaskRepository;
     private final TaskInstanceRepository instanceRepository;
     private final TaskStepRepository stepRepository;
     private final JsonColumnMapper jsonColumnMapper;
@@ -62,6 +64,7 @@ public class TaskDispatchService {
     /**
      * 创建任务分发服务。
      *
+     * @param gpuTaskRepository GPU 任务准入仓储。
      * @param jdbcTemplate JDBC 模板
      * @param instanceRepository 任务实例仓储
      * @param stepRepository 任务步骤仓储
@@ -73,7 +76,7 @@ public class TaskDispatchService {
      * @param childTaskAggregationService 父子任务聚合服务
      * @param cancellationPropagationService 取消传播服务
      */
-    public TaskDispatchService(JdbcTemplate jdbcTemplate, TaskInstanceRepository instanceRepository,
+    public TaskDispatchService(JdbcTemplate jdbcTemplate, GpuTaskRepository gpuTaskRepository, TaskInstanceRepository instanceRepository,
                                TaskStepRepository stepRepository, JsonColumnMapper jsonColumnMapper,
                                MultiNodeTaskAggregationService multiNodeTaskAggregationService,
                                TaskSchemaValidationService schemaValidationService,
@@ -83,6 +86,7 @@ public class TaskDispatchService {
                                TaskCancellationPropagationService cancellationPropagationService,
                                TaskExecutionAuthorizationService executionAuthorizationService) {
         this.jdbcTemplate = jdbcTemplate;
+        this.gpuTaskRepository = gpuTaskRepository;
         this.instanceRepository = instanceRepository;
         this.stepRepository = stepRepository;
         this.jsonColumnMapper = jsonColumnMapper;
@@ -146,10 +150,7 @@ public class TaskDispatchService {
                         SET status = 'RUNNING', dispatch_attempts = dispatch_attempts + 1,
                             started_at = COALESCE(started_at, ?), available_at = NULL, updated_at = ?
                         WHERE id = ? AND status = 'QUEUED'
-                          AND (started_at IS NOT NULL OR (
-                              dispatch_deadline_at IS NOT NULL AND dispatch_deadline_at > ?
-                          ))
-                        """, Timestamp.from(now), Timestamp.from(now), taskId.toString(), Timestamp.from(now));
+                        """, Timestamp.from(now), Timestamp.from(now), taskId.toString());
                 if (claimed == 1) {
                     ClaimedTaskView execution = createExecution(request, taskId, null, null);
                     taskEventService.appendTransition(taskId, "QUEUED", "RUNNING",
@@ -187,10 +188,6 @@ public class TaskDispatchService {
                 WHERE ti.status = 'QUEUED' AND cn.node_id = ?
                 """ + taskScope.condition() + """
                   AND (ti.available_at IS NULL OR ti.available_at <= CURRENT_TIMESTAMP)
-                  AND (ti.started_at IS NOT NULL OR (
-                      ti.dispatch_deadline_at IS NOT NULL
-                      AND ti.dispatch_deadline_at > ?
-                  ))
                   AND ti.created_at <= ?
                   AND td.execution_mode = 'SINGLE_NODE'
                   AND (
@@ -218,7 +215,6 @@ public class TaskDispatchService {
         List<Object> parameters = new ArrayList<>();
         parameters.add(request.nodeId().toString());
         parameters.addAll(taskScope.parameters());
-        parameters.add(Timestamp.from(selectionTime));
         parameters.add(Timestamp.from(selectionTime));
         if (cursor != null) {
             parameters.add(cursor.priority());
@@ -308,10 +304,7 @@ public class TaskDispatchService {
                         SET status = 'RUNNING', dispatch_attempts = dispatch_attempts + 1,
                             started_at = COALESCE(started_at, ?), available_at = NULL, updated_at = ?
                         WHERE id = ? AND status = 'QUEUED'
-                          AND (started_at IS NOT NULL OR (
-                              dispatch_deadline_at IS NOT NULL AND dispatch_deadline_at > ?
-                          ))
-                        """, Timestamp.from(now), Timestamp.from(now), taskId.toString(), Timestamp.from(now));
+                        """, Timestamp.from(now), Timestamp.from(now), taskId.toString());
                 if (claimed == 1) {
                     int expanded = createExecutionTargets(taskId);
                     if (expanded == 0) {
@@ -351,10 +344,6 @@ public class TaskDispatchService {
                 JOIN cluster_node cn ON cn.cluster_id = td.cluster_id AND cn.enabled = TRUE
                 WHERE ti.status = 'QUEUED' AND cn.node_id = ?
                 """ + taskScope.condition() + """
-                  AND (ti.started_at IS NOT NULL OR (
-                      ti.dispatch_deadline_at IS NOT NULL
-                      AND ti.dispatch_deadline_at > ?
-                  ))
                   AND ti.created_at <= ?
                   AND td.execution_mode IN ('MULTI_NODE_BROADCAST', 'MULTI_NODE_SHARD')
                   AND EXISTS (
@@ -368,7 +357,6 @@ public class TaskDispatchService {
         List<Object> parameters = new ArrayList<>();
         parameters.add(request.nodeId().toString());
         parameters.addAll(taskScope.parameters());
-        parameters.add(Timestamp.from(selectionTime));
         parameters.add(Timestamp.from(selectionTime));
         if (cursor != null) {
             parameters.add(cursor.priority());
@@ -419,6 +407,10 @@ public class TaskDispatchService {
     }
 
     private CapacityDecision capacityDecision(UUID taskId, UUID nodeId) {
+        // 节点行已锁定，容量判断和创建执行记录在同一事务中完成。
+        if (!gpuTaskRepository.canDispatch(taskId, nodeId)) {
+            return CapacityDecision.UNAVAILABLE;
+        }
         CapacityDefinition definition = lockCapacityDefinition(taskId);
         if (definition == null || !hasDefinitionCapacity(definition)) {
             return CapacityDecision.UNAVAILABLE;
@@ -473,6 +465,10 @@ public class TaskDispatchService {
     }
 
     private boolean hasExecutionCapacity(UUID taskId, UUID nodeId) {
+        // 多节点目标领取也必须遵守同一节点上的视频独占协议。
+        if (!gpuTaskRepository.canDispatch(taskId, nodeId)) {
+            return false;
+        }
         CapacityDefinition definition = lockCapacityDefinition(taskId);
         return definition != null && executionCapacity(
                 definition, nodeId, taskCapacityRequirement(taskId, definition.definitionId()).minimumSlots())
@@ -761,6 +757,13 @@ public class TaskDispatchService {
         }
         childTaskAggregationService.completeOrWait(identity.taskInstanceId(), identity.taskStatus(),
                 request.status(), executionId.toString(), now);
+        if (request.status() == TaskStatus.TIMED_OUT) {
+            // 执行器达到批次总时限会终止脚本，由持久化队列接管其未结束子任务。
+            instanceRepository.findById(identity.taskInstanceId())
+                    .filter(task -> task.status() == TaskStatus.TIMED_OUT
+                            && "download_message_url_batch".equals(task.taskName()))
+                    .ifPresent(task -> cancellationPropagationService.enqueueActiveChildren(task.id(), task.id(), 2));
+        }
         cancellationPropagationService.finalizeCancellationChain(identity.taskInstanceId());
         return ExecutionReportView.accepted();
     }

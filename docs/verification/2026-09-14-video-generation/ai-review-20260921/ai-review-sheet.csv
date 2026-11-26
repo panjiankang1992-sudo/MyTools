@@ -1,0 +1,7 @@
+role,sample_id,video,mode,instructionFollowing,subjectPreservation,temporalCoherence,editLocality,artifacts,severeFlag,notes
+acceptance,A-cold-white-seed42,p0-reaccept-20260920/A-cold-white-seed42.mp4,FIRST_FRAME,3,4,3,N/A,4,FALSE,主体与背景保持；可见轻微视角变化，运动幅度有限。
+acceptance,A-cold-white-seed932,p0-reaccept-20260920/A-cold-white-seed932.mp4,FIRST_FRAME,1,2,2,N/A,2,TRUE,第 4 帧起杯子和背景出现青红分区；均值不能反映区域变色。
+acceptance,B-warm-generated-seed42,p0-reaccept-20260920/B-warm-generated-seed42.mp4,FIRST_FRAME,1,2,2,N/A,2,TRUE,第 1 帧起茶壶变黄绿，背景出现彩虹渐变，违背保持颜色指令。
+acceptance,B-warm-generated-seed932,p0-reaccept-20260920/B-warm-generated-seed932.mp4,FIRST_FRAME,1,2,2,N/A,2,TRUE,第 1 帧起茶壶变黄绿，背景出现彩虹渐变，违背保持颜色指令。
+acceptance,C-landscape-seed42,p0-reaccept-20260920/C-landscape-seed42.mp4,FIRST_FRAME,3,4,3,N/A,4,FALSE,主体与背景保持；可见轻微视角变化，运动幅度有限。
+acceptance,C-landscape-seed932,p0-reaccept-20260920/C-landscape-seed932.mp4,FIRST_FRAME,3,4,3,N/A,4,FALSE,主体与背景保持；可见轻微视角变化，运动幅度有限。

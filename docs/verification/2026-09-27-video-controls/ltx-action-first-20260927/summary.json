@@ -1,0 +1,36 @@
+{
+  "samples": [
+    {
+      "name": "product",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "variant": "two-stage-complete",
+      "promptStyle": "action-first",
+      "seconds": 14.34,
+      "status": "SUCCEEDED"
+    },
+    {
+      "name": "portrait",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "variant": "two-stage-complete",
+      "promptStyle": "action-first",
+      "seconds": 10.32,
+      "status": "SUCCEEDED"
+    },
+    {
+      "name": "landscape",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "variant": "two-stage-complete",
+      "promptStyle": "action-first",
+      "seconds": 8.32,
+      "status": "SUCCEEDED"
+    }
+  ],
+  "quality": "pending",
+  "productionEnabled": false
+}

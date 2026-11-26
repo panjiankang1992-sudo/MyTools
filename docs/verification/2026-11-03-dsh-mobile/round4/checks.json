@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-03",
+  "resourceVersion": "20261103a",
+  "productionDeployment": false,
+  "deviceInstallation": false,
+  "nativeChanges": false,
+  "coverageCounts": {
+    "preview": 31,
+    "previous": 2,
+    "device": 7,
+    "service": 2,
+    "desktop": 2,
+    "scenario": 4,
+    "upstream": 1
+  },
+  "sourceHashes": {
+    "deploy/dsh-mobile/mobile.css": "31625e0e389000f33fc7d290d8ef20734ac1f0eda0697433edeb943ffd56997d",
+    "deploy/dsh-mobile/mobile.js": "e7bbf15492c1300f6b67675e0af7f6bef059e13fa91a534f167515168f7367fe",
+    "deploy/nginx/dsh-lan.conf": "e26990d7163b11767214fbc34a2149331934874cdbb402f0a14af04da6fc6947",
+    "deploy/dsh-mobile/tests/terminal-harness.html": "28b6534861102c3759c0a9eb616af42a434e4ab6835ecac7716e5b1fecc84dd7",
+    "deploy/dsh-mobile/tests/blob-harness.html": "e427db247aa0650adf9dbaecaec15acb7e4761ea390b36fe4deb142c255734d6"
+  },
+  "fixtureHashes": {
+    "interactive.html": "614e988191f36ca91631942f018d246cc0b7cc3ca8d2808b3d2a1e20766a4074",
+    "sample.md": "5308524eeff62a04d3abda16c840dbc4e41116dc4c89d4fbae5441224e6a535b",
+    "sample.html": "f0d9aa352e46a0764cab0f6e77ef239ce43b2f43f114b736bb96f864983cec9b",
+    "sample.mp4": "0f3a4ab9ff13b3a6c5ecd17eca5623b88340957673b56e49452f762e14494255",
+    "sample.pdf": "fecae0820735828cb9b36c07c82c8fc21172f211ddaa198cad68aa3304ab9771",
+    "sample.json": "b928ae70c94b328e76ecc1c9de9f5430ab25843bd5bd92b65d50e6de57af2067",
+    "sample.png": "f91d3ca302098e8546633196f180fd2a09fd41e936a87afe32727ad5505b9411",
+    "sample.docx": "8e705fa1b810b681b769688dbe48be903e8f0a323a74d43cda3f608e7f4aad82",
+    "sample.wav": "f9efab5003000788f6851091398494c71506d3319e03f2abea702aa8214bc8f0"
+  },
+  "checks": {
+    "javascriptSyntax": "passed",
+    "mobileTerminalHarness": "passed",
+    "desktopTerminalHarness": "passed",
+    "liveTerminal": "passed",
+    "pngPdfHtmlDocx": "passed",
+    "mp4Wav": "unsupported-upstream",
+    "fixtureCleanup": "passed",
+    "closedTestTerminals": true
+  }
+}

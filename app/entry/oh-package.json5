@@ -6,6 +6,9 @@
   "author": "",
   "license": "",
   "dependencies": {
+    "libhome_channel.so": "file:./src/main/cpp/types/libhome_channel",
+    "libqr_engine.so": "file:./src/main/cpp/types/libqr_engine",
+    "libarchive_engine.so": "file:./src/main/cpp/types/libarchive_engine",
     "libmobi_reader.so": "file:./src/main/cpp/types/libmobi_reader"
   }
 }

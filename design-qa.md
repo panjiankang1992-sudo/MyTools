@@ -54,3 +54,21 @@ No actionable P0, P1, or P2 mismatch remains in the compared Reading screen. The
 - Compare the profile grouping cards against the dedicated profile mock after the navigation container is fixed.
 
 final result: passed
+
+
+## 2026-11-03 雅迪爱车页与桌面解锁入口
+
+基于用户真机雅迪智行爱车截图进行原生适配，已安装最终正式入口包到真机并验证桌面长按解锁入口。车辆比例、页头颜色和操作区渐变经同图比较调整；字体、间距、颜色、资产和内容五项检查通过。
+
+详细记录与组合截图：[爱车设计 QA](docs/verification/2026-11-03-yadea-home/design-qa.md)、[参考与真机同图比较](docs/verification/2026-11-03-yadea-home/comparison-final.png)。无剩余 P0/P1/P2；当前解锁入口仅显示未鉴权说明，未验证实车控车。
+
+final result: passed
+
+
+## 2026-11-03 桌面“解锁爱车”按钮
+
+将被裁切、模糊的24px快捷图标替换为墨绿圆底与白色开锁图形的192px PNG，名称为“解锁爱车”。按真机桌面放大行为补偿图形安全区，重新安装并以同图比较复验，点击进入生产爱车页通过。
+
+[详细QA](docs/verification/2026-11-03-yadea-shortcut-icon/design-qa.md) · [真机菜单](docs/verification/2026-11-03-yadea-shortcut-icon/menu-after-device.png)。
+
+final result: passed

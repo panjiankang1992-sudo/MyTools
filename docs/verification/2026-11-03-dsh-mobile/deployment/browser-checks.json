@@ -1,0 +1,37 @@
+{
+  "resourceVersion": "20261103a",
+  "source": "deployed-nginx-assets-with-live-dsh-over-loopback-validation-proxy",
+  "fullMyToolsLoginFlowVerified": false,
+  "deviceInstallation": false,
+  "settings390": {
+    "width": 390,
+    "documentWidth": 390,
+    "passed": true
+  },
+  "settings320": {
+    "width": 320,
+    "height": 450,
+    "documentWidth": 320,
+    "dialogWidth": 320,
+    "dialogHeight": 450,
+    "passed": true
+  },
+  "plugins320": "passed",
+  "terminal320": {
+    "connected": true,
+    "toolbarCount": 1,
+    "keyCount": 10,
+    "homeInsertion": "OK_MOBILE_DEPLOY_CHECK",
+    "ctrlCCancelled": true,
+    "enterSent": false,
+    "testTerminalClosed": true
+  },
+  "desktop1800": {
+    "toolbarDisplay": "none",
+    "passed": true
+  },
+  "consoleErrorCount": 0,
+  "temporaryProxyStopped": true,
+  "temporaryTunnelStopped": true,
+  "stageCleaned": true
+}

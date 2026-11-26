@@ -18,7 +18,7 @@ grep -Fq 'await this.DiscoverLanEndpoint(false);' "$page"
 grep -Fq 'new DshApi(this.ActiveServiceUrl(), this.authManager)' "$page"
 grep -Fq 'this.RefreshAfterEndpointSwitch();' "$page"
 grep -Fq 'return `${this.ActiveServiceUrl()}${avatar}`;' "$page"
-grep -Fq 'new ProfileApi(result.baseUrl, this.authManager, false)' "$page"
+grep -Fq 'new ProfileApi(result.baseUrl, this.authManager, false, true)' "$page"
 grep -Fq 'onBusinessEndpointUnavailable = (baseUrl: string)' "$page"
 for source in \
   "$app_dir/entry/src/main/ets/shared/network/AuthorizedApiClient.ets" \

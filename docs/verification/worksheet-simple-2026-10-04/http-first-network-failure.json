@@ -1,0 +1,96 @@
+{
+  "releaseId": "worksheet-simple-20261004-011600",
+  "checkedChangedFiles": 4,
+  "passedFiles": 0,
+  "static": [
+    {
+      "path": "assets/WorksheetV2View-Axsh-8TF.js",
+      "passed": false,
+      "attempts": [
+        {
+          "path": "assets/WorksheetV2View-Axsh-8TF.js",
+          "error": "HTTP Error 403: Forbidden",
+          "passed": false
+        },
+        {
+          "path": "assets/WorksheetV2View-Axsh-8TF.js",
+          "error": "HTTP Error 403: Forbidden",
+          "passed": false
+        },
+        {
+          "path": "assets/WorksheetV2View-Axsh-8TF.js",
+          "error": "HTTP Error 403: Forbidden",
+          "passed": false
+        }
+      ]
+    },
+    {
+      "path": "assets/WorksheetV2View-Cn81MvGP.css",
+      "passed": false,
+      "attempts": [
+        {
+          "path": "assets/WorksheetV2View-Cn81MvGP.css",
+          "error": "HTTP Error 403: Forbidden",
+          "passed": false
+        },
+        {
+          "path": "assets/WorksheetV2View-Cn81MvGP.css",
+          "error": "HTTP Error 403: Forbidden",
+          "passed": false
+        },
+        {
+          "path": "assets/WorksheetV2View-Cn81MvGP.css",
+          "error": "HTTP Error 403: Forbidden",
+          "passed": false
+        }
+      ]
+    },
+    {
+      "path": "assets/index-DJkCLb13.js",
+      "passed": false,
+      "attempts": [
+        {
+          "path": "assets/index-DJkCLb13.js",
+          "error": "HTTP Error 403: Forbidden",
+          "passed": false
+        },
+        {
+          "path": "assets/index-DJkCLb13.js",
+          "error": "HTTP Error 403: Forbidden",
+          "passed": false
+        },
+        {
+          "path": "assets/index-DJkCLb13.js",
+          "error": "HTTP Error 403: Forbidden",
+          "passed": false
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "passed": false,
+      "attempts": [
+        {
+          "path": "index.html",
+          "error": "HTTP Error 403: Forbidden",
+          "passed": false
+        },
+        {
+          "path": "index.html",
+          "error": "HTTP Error 403: Forbidden",
+          "passed": false
+        },
+        {
+          "path": "index.html",
+          "error": "HTTP Error 403: Forbidden",
+          "passed": false
+        }
+      ]
+    }
+  ],
+  "catalog": {
+    "error": "HTTP Error 403: Forbidden",
+    "passed": false
+  },
+  "passed": false
+}

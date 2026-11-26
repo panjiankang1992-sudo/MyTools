@@ -1,0 +1,9 @@
+{
+  "tests": 185,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "dshTests": 11,
+  "regressionBefore": "HTTP 500 from Map1-to-String serialization reproduced",
+  "regressionAfter": "HTTP 200 with code 0000 and data.url verified"
+}

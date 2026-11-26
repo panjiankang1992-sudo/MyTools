@@ -1,0 +1,13 @@
+{
+  "build": "SUCCESS",
+  "warnings": 0,
+  "hapSha256": "f55d3dcf6e7d390652f68c9a9f5eee966ee1fd60696814a6c717fd58c60ed2c5",
+  "simulatorInstalled": true,
+  "connectedPhysicalDeviceInstalled": true,
+  "tests": [
+    "18 input and dimension assertions",
+    "authorized API policy including exact-path quota",
+    "3 native image codec cases"
+  ],
+  "productionBackendCheck": "3/3 HTTP 200, sha256 matches simulator outputs"
+}

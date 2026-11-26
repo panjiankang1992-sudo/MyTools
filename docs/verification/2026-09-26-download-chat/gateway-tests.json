@@ -1,0 +1,23 @@
+[
+  {
+    "name": "com.yuyutian.mytools.gateway.controller.DownloadToolsGatewayControllerTest",
+    "tests": "2",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.yuyutian.mytools.gateway.controller.DownloadGatewayControllerTest",
+    "tests": "3",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.yuyutian.mytools.gateway.service.DownloadGatewayClientTest",
+    "tests": "3",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  }
+]

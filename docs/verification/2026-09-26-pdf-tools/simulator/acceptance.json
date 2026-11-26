@@ -1,0 +1,58 @@
+{
+  "date": "2026-09-26",
+  "environment": {
+    "emulator": "CopilotPerf0912",
+    "os": "HarmonyOS 6.1.1 API 24",
+    "target": "127.0.0.1:5555",
+    "backend": "production",
+    "account": "dedicated acceptance account"
+  },
+  "hapSha256": "9ba0d1ff220ece7f39be9b29f44523904fa11bff5c58bca460604bb179dd32f4",
+  "savedResult": {
+    "file": "saved-result.pdf",
+    "pages": 4,
+    "pageSizePoints": [
+      421,
+      595
+    ],
+    "bytes": 1412,
+    "visiblePageLabels": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "sha256": "b417350b5d37adb093608050c5e6b702adf35e39d75859649ce07099f4389adb"
+  },
+  "passed": [
+    "tools entry",
+    "system picker upload",
+    "drag cut line 50 to 63 percent and reset",
+    "vertical center cut 2 to 4 pages",
+    "all four preview pages",
+    "publish after 65 seconds exceeding 60 second cleanup period",
+    "native PDF reader",
+    "system save and file retrieval",
+    "restart and history recovery",
+    "Chinese text generation and native rendering"
+  ],
+  "backendExpiryCheck": {
+    "cutJobAgeSeconds": 552,
+    "cutJobStatus": "SUCCEEDED",
+    "cutPlanAgeSeconds": 616,
+    "cutPlanStatus": "READY",
+    "cutJobRemainingSeconds": 85849
+  },
+  "checks": {
+    "pdfServiceTests": 5,
+    "failures": 0,
+    "hapBuild": "passed",
+    "arktsWarnings": 0,
+    "gitDiffCheck": "passed"
+  },
+  "limits": [
+    "physical device not tested",
+    "other six operations retain backend acceptance only; no complete simulator interaction test",
+    "synthetic input only; original user PDF not uploaded"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "releaseId": "english-wordlist-20261004-140500",
+  "files": [
+    {
+      "path": "catalog/published.json",
+      "bytes": 5822,
+      "sha256": "107460ab893b7cbee890c3667807d534e5deaa7cdd96485a190c1b60b571f3cf"
+    },
+    {
+      "path": "textbooks/en-yl-3-1-yilin-2024/1.0.1/book.json",
+      "bytes": 117917,
+      "sha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4"
+    },
+    {
+      "path": "sources/en-3-first-2024.json",
+      "bytes": 11200,
+      "sha256": "10a4922ee85acba2540f09f88650c62aeb9c431407a09ceef52c42d5520980fc"
+    }
+  ]
+}

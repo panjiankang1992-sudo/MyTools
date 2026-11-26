@@ -6,7 +6,8 @@ TEST_DIR="$(mktemp -d)"
 trap 'rm -rf "$TEST_DIR"' EXIT
 TSC_BIN="/Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor/node_modules/typescript/bin/tsc"
 
-mkdir -p "$TEST_DIR/reader"
+mkdir -p "$TEST_DIR/reader" "$TEST_DIR/connectivity"
+cp "$APP_DIR/entry/src/main/ets/features/connectivity/TrustedLanEndpointPolicy.ets" "$TEST_DIR/connectivity/TrustedLanEndpointPolicy.ts"
 for file in AudiobookModels AudiobookResponseNormalizer AudiobookPlaybackPolicy AudiobookPlaybackProgressPolicy; do
   cp "$APP_DIR/entry/src/main/ets/features/reader/${file}.ets" "$TEST_DIR/reader/${file}.ts"
 done
@@ -15,8 +16,8 @@ node "$TSC_BIN" "$TEST_DIR/reader/AudiobookModels.ts" "$TEST_DIR/reader/Audioboo
   --target ES2020 --module commonjs --outDir "$TEST_DIR/output" \
   --skipLibCheck
 node "$APP_DIR/tests/audiobook_response_normalizer_test.cjs" \
-  "$TEST_DIR/output/AudiobookResponseNormalizer.js" "$TEST_DIR/output/AudiobookPlaybackProgressPolicy.js" \
-  "$TEST_DIR/output/AudiobookPlaybackPolicy.js"
+  "$TEST_DIR/output/reader/AudiobookResponseNormalizer.js" "$TEST_DIR/output/reader/AudiobookPlaybackProgressPolicy.js" \
+  "$TEST_DIR/output/reader/AudiobookPlaybackPolicy.js"
 
 grep -Fq 'AudiobookResponseNormalizer' "$APP_DIR/entry/src/main/ets/features/reader/AudiobookApi.ets"
 grep -Fq '/api/app/v1/reader/audiobook-generations' "$APP_DIR/entry/src/main/ets/features/reader/AudiobookApi.ets"

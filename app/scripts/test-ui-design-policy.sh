@@ -11,30 +11,74 @@ fail() {
   exit 1
 }
 
+# 视觉尺寸由共享令牌约束，业务页面只检查组件语义，避免逐个冻结原生按钮源码。
+THEME="$APP_DIR/entry/src/main/ets/theme/AppTheme.ets"
+for token in 'buttonFontSize: number = 16' 'touchTarget: number = 44' \
+  'inputHeight: number = 48' 'buttonRadius: number = 10'; do
+  rg -q -F "$token" "$THEME" || fail "approved UI token changed: $token"
+done
+shared_button="$(sed -n '/export struct AppButton/,/^}/p' "$CONTROLS")"
+printf '%s\n' "$shared_button" | rg -q -F '.fontFamily(' || fail "shared buttons must use the registered UI font"
+printf '%s\n' "$shared_button" | rg -q -F '.enabled(this.available && !this.loading)' ||
+  fail "shared buttons must reject disabled and repeated loading activation"
+printf '%s\n' "$shared_button" | rg -q -F 'if (this.available && !this.loading) { this.action(); }' ||
+  fail "shared buttons must guard the callback as well as the native target"
+action_group="$(sed -n '/export struct AppActionGroup/,/^}/p' "$CONTROLS")"
+printf '%s\n' "$action_group" | rg -q -F 'AppEqualActionRow({' ||
+  fail "grouped actions must use the common-width and common-height measurement container"
+if printf '%s\n' "$action_group" | rg -q 'Blank\(\)|\.layoutWeight\(|onPlaceChildren|onMeasureSize'; then
+  fail "grouped action content must contain only native buttons, with slot measurement delegated to the shared row"
+fi
+[[ "$(printf '%s\n' "$action_group" | rg -c -F 'AppGroupedButton({')" -eq 2 ]] ||
+  fail "grouped actions must use native single-root buttons for explicit common-height measurement"
+native_grouped_button="$(sed -n '/export struct AppGroupedButton/,/^}/p' "$CONTROLS")"
+printf '%s\n' "$native_grouped_button" | rg -q -F 'Button({ type: ButtonType.Normal })' ||
+  fail "grouped actions must expose a native button root"
+if printf '%s\n' "$native_grouped_button" | rg -q 'onPlaceChildren|onMeasureSize'; then
+  fail "grouped actions must not split their visible plate from native stretch measurement"
+fi
+printf '%s\n' "$action_group" | rg -q -F 'widthLimit: this.fullWidth ? 0 : AppTheme.groupMinWidth * 2 + 8' ||
+  fail "compact grouped actions must retain their approved width without overriding narrow parent constraints"
+equal_action_row="$(sed -n '/export struct AppEqualActionRow/,/^}/p' "$CONTROLS")"
+printf '%s\n' "$equal_action_row" | rg -q -F '@Prop gap: number = 8;' ||
+  fail "equal-action rows must own their fixed eight-point gap"
+printf '%s\n' "$equal_action_row" | rg -q -F 'minHeight: height, maxHeight: height' ||
+  fail "equal-action rows must remeasure every native plate with the same hard height"
+printf '%s\n' "$action_group" | rg -q -F 'available: this.secondaryAvailable' ||
+  fail "cancel availability must remain independent of submission availability"
+
 tabs_block="$(sed -n '/private readonly tabs:/,/^  ];/p' "$SOURCE")"
 expected_tabs=$'阅读\n工具\nDSH\n多媒体\n网盘'
 actual_tabs="$(printf '%s\n' "$tabs_block" | sed -n "s/.*{ title: '\([^']*\)'.*/\1/p")"
 [[ "$actual_tabs" == "$expected_tabs" ]] || fail "bottom tabs must be 阅读/工具/DSH/多媒体/网盘"
 
 page_header="$(sed -n '/private PageHeader(title: string)/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$page_header" | rg -q -F '.fontSize(21).fontWeight(FontWeight.Bold)' ||
-  fail "main page titles must keep the approved compact 21 vp size"
+printf '%s\n' "$page_header" | rg -q -F '.fontSize(26).fontWeight(600)' ||
+  fail "main page titles must use the approved 26 vp heading size"
+printf '%s\n' "$page_header" | rg -q -F '.fontFamily(AppTheme.fontSemibold)' ||
+  fail "main page titles must use the fixed semibold UI font"
 printf '%s\n' "$page_header" | rg -q -F 'Image(this.ProfileAvatarSource()).width(36).height(36)' ||
   fail "main page avatar must keep the approved compact 36 vp visual size"
 printf '%s\n' "$page_header" | rg -q -F 'Text(this.ProfileAvatarLabel()).width(36).height(36)' ||
   fail "fallback account avatar must match the compact visual size"
 
+standard_tab_page="$(sed -n '/private StandardTabPage(/,/private PageHeader(/p' "$SOURCE")"
 book_selector="$(sed -n '/private BookModeSelector()/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$book_selector" | rg -q -F "ForEach(['书源', '远程', '本地']" ||
-  fail "ebook modes must remain 书源/远程/本地"
+printf '%s\n' "$book_selector" | rg -q -F "ForEach([3, 0, 1, 2]" ||
+  fail "ebook modes must preserve the 书架/书源/远程/本地 order"
+rg -q -F "return index === 3 ? '书架' : index === 0 ? '书源' : index === 1 ? '远程' : '本地';" "$SOURCE" ||
+  fail "ebook mode labels must match their existing route identifiers"
+printf '%s\n' "$book_selector" | rg -q -F "AppSegmentItem({ label: 'RSS'" ||
+  fail "RSS must use the same navigation level and segment style"
 printf '%s\n' "$book_selector" | rg -q -F 'this.bookModeIndex = index;' ||
   fail "ebook mode selector must update the active mode"
-printf '%s\n' "$book_selector" | rg -q -F 'AppSegmentItem({ label: item' ||
+printf '%s\n' "$book_selector" | rg -q -F 'AppSegmentItem({ label: this.BookModeLabel(index)' ||
   fail "ebook mode selector must use the shared segment control"
-rg -q -F 'Button(this.label)' "$CONTROLS" ||
+segment_control="$(sed -n '/export struct AppSegmentItem/,/^}/p' "$CONTROLS")"
+printf '%s\n' "$segment_control" | rg -q -F 'Button({ type: ButtonType.Normal })' ||
   fail "shared segment control must remain a focusable button"
-printf '%s\n' "$page_header" | rg -q -F 'this.BookModeSelector()' ||
-  fail "ebook modes must stay in the fixed page header"
+printf '%s\n' "$standard_tab_page" | rg -q -F 'if (index === 0) this.BookModeSelector()' ||
+  fail "ebook modes must stay above the independently scrolling content"
 rg -q -F ".accessibilityDescription(this.selected ? '已选择' : '未选择')" "$CONTROLS" ||
   fail "shared segment control must expose selected state"
 printf '%s\n' "$book_selector" | rg -q -F 'if (index === 1 && this.authenticated) this.LoadRemoteBooks();' ||
@@ -86,7 +130,7 @@ printf '%s\n' "$book_source_management" | rg -q -F 'this.FilteredManagedBookSour
 book_source_row="$(sed -n '/private BookSourceManageRow(source: BookSource)/,/^  }/p' "$SOURCE")"
 printf '%s\n' "$book_source_row" | rg -q -F '.maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis })' ||
   fail "book source names must stay horizontal and truncate safely"
-[[ "$(printf '%s\n' "$book_source_row" | rg -c -F '.layoutWeight(1).height(44)')" -ge 2 ]] ||
+[[ "$(printf '%s\n' "$book_source_row" | rg -c -F '.layoutWeight(1)')" -ge 2 ]] ||
   fail "book source actions must use a dedicated balanced action row"
 network_loading="$(sed -n '/private NetworkLoadingRows(label: string)/,/^  }/p' "$SOURCE")"
 printf '%s\n' "$network_loading" | rg -q -F 'Text(label)' ||
@@ -98,9 +142,9 @@ printf '%s\n' "$books_page" | rg -q -F "!(this.bookModeIndex === 0 && this.sourc
   fail "book source loading must not duplicate the operation status below the spinner"
 
 book_detail="$(sed -n '/private BookDetailPage()/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$book_detail" | rg -q -F "AppSecondaryPillButton({ label: this.DetailBookInShelf() ? '书架中' : '试读'" ||
+printf '%s\n' "$book_detail" | rg -q -F 'app.string.reader_detail_preview' ||
   fail "book details need the fixed preview action"
-printf '%s\n' "$book_detail" | rg -q -F "AppPrimaryPillButton({ label: this.DetailBookInShelf() ? '继续阅读' : '加入书架'" ||
+printf '%s\n' "$book_detail" | rg -q -F "AppActionGroup({ primaryLabel: this.DetailBookInShelf() ? '继续阅读' : '加入书架'" ||
   fail "book details need the fixed primary shelf action"
 printf '%s\n' "$book_detail" | rg -q -F ".accessibilityText('目录')" ||
   fail "book detail catalog entry must be a semantic button"
@@ -132,25 +176,27 @@ printf '%s\n' "$reader_controls" | rg -q -F "this.readerMoreVisible ? '关闭更
   fail "reader more action must expose its open state"
 
 reader_settings="$(sed -n '/private ReaderSettingsPanel()/,/^  }/p' "$SOURCE")"
-for setting in 字体 字号 行距 段距 页边距 亮度 主题; do
+for setting in 字体 行距 段距 页边距 亮度 主题; do
   printf '%s\n' "$reader_settings" | rg -q -F "'$setting'" || fail "reader settings must include $setting"
 done
+printf '%s\n' "$reader_settings" | rg -q -F 'this.ReaderFontSizeStepper()' ||
+  fail "reader settings must include the shared font-size stepper"
 printf '%s\n' "$reader_settings" | rg -q -F 'this.ComicSettingsFields()' ||
   fail "comic reader must use its own settings fields"
 
 reader_annotation="$(sed -n '/private ReaderAnnotationPanel()/,/^  }/p' "$SOURCE")"
 printf '%s\n' "$reader_annotation" | rg -q -F "AppPrimaryPillButton({ label: '保存当前位置批注'" ||
   fail "reader annotation needs a full-width save action"
-rg -q -F '.height(AppTheme.controlHeight)' "$CONTROLS" ||
+rg -q -F '.constraintSize({ minHeight: AppTheme.touchTarget' "$CONTROLS" ||
   fail "shared action buttons must meet the standard touch target"
 
 reader_catalog="$(sed -n '/private ReaderCatalogPanel()/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$reader_catalog" | rg -q -F "Button('上一页').layoutWeight(1)" ||
+printf '%s\n' "$reader_catalog" | rg -q -F "AppGroupedButton({ label: '上一页'" ||
   fail "PDF catalog needs previous-page navigation"
-printf '%s\n' "$reader_catalog" | rg -q -F "Button('下一页').layoutWeight(1)" ||
+printf '%s\n' "$reader_catalog" | rg -q -F "AppGroupedButton({ label: '下一页'" ||
   fail "PDF catalog needs next-page navigation"
-[[ "$(printf '%s\n' "$reader_catalog" | rg -c -F '.height(48).accessibilityDescription(')" -ge 2 ]] ||
-  fail "PDF catalog navigation must use semantic 48 vp targets"
+[[ "$(printf '%s\n' "$reader_catalog" | rg -c -F "description: '跳转到")" -ge 2 ]] ||
+  fail "PDF catalog navigation must use shared touch targets and explicit destinations"
 
 media_page="$(sed -n '/private MediaPage()/,/^  }/p' "$SOURCE")"
 media_toolbar="$(sed -n '/private MediaCatalogToolbar()/,/^  }/p' "$SOURCE")"
@@ -170,7 +216,7 @@ rg -q -F 'private MediaCatalogVideos()' "$SOURCE" || fail "video directory aggre
 rg -q -F 'directory.topItems' "$SOURCE" || fail "video directories must show top three items"
 rg -q -F 'private MediaVideoDetailPage()' "$SOURCE" || fail "multimedia video detail page is missing"
 rg -q -F 'this.mediaVideoDetail.storyboard' "$SOURCE" || fail "video detail must show storyboard frames"
-rg -q -F "Button(this.mediaVideoDescriptionExpanded ? '收起文字' : '展开文字')" "$SOURCE" ||
+rg -q -F "AppTextAction({ label: this.mediaVideoDescriptionExpanded ? '收起文字' : '展开文字'" "$SOURCE" ||
   fail "video description must support expand and collapse"
 if printf '%s\n' "$media_page" | rg -q "DocumentViewPicker|PhotoViewPicker|AudioViewPicker|PickLocal|HeroPanel\('本地媒体|BookActionCard\('本地媒体|Button\('本地媒体"; then
   fail "media page must not expose a local media picker or entry"
@@ -182,41 +228,42 @@ hero_panel="$(sed -n '/private HeroPanel(/,/^  }/p' "$SOURCE")"
 printf '%s\n' "$hero_panel" | rg -q -F 'AppPrimaryPillButton({ label: action' ||
   fail "hero action must use the shared primary button"
 
-tool_entry="$(sed -n '/private ToolEntryRow(/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$tool_entry" | rg -q -F 'AppSettingsRow({' ||
-  fail "tool entries must use the shared settings row"
+tool_entry="$(sed -n '/private ToolGridCard(/,/^  }/p' "$SOURCE")"
+printf '%s\n' "$tool_entry" | rg -q -F 'Button({ type: ButtonType.Normal }) {' ||
+  fail "tool cards must remain focusable compound buttons"
+printf '%s\n' "$tool_entry" | rg -q -F '.accessibilityText(this.ToolTitle(id))' ||
+  fail "tool cards must expose their destination title"
+printf '%s\n' "$tool_entry" | rg -q -F '.accessibilityDescription(this.ToolSubtitle(id))' ||
+  fail "tool cards must explain their destination"
+printf '%s\n' "$tool_entry" | rg -q -F '.onClick(() => this.OpenTool(id))' ||
+  fail "tool cards must preserve their existing route"
+printf '%s\n' "$tool_entry" | rg -q -F '.fontFamily(AppTheme.fontMedium)' ||
+  fail "tool cards must use the fixed UI font"
 rg -q -F 'export struct AppSettingsRow' "$CONTROLS" || fail "shared settings row is missing"
 settings_row="$(sed -n '/export struct AppSettingsRow/,/^}/p' "$CONTROLS")"
 printf '%s\n' "$settings_row" | rg -q -F 'Button({ type: ButtonType.Normal }) {' ||
   fail "shared settings rows must be focusable buttons"
-printf '%s\n' "$settings_row" | rg -q -F '.constraintSize({ minHeight: 68 })' ||
-  fail "shared settings rows must meet the minimum touch target"
+printf '%s\n' "$settings_row" | rg -q -F '.constraintSize({ minHeight: 64 })' ||
+  fail "shared settings rows must meet the 64 vp row target"
 printf '%s\n' "$settings_row" | rg -q -F '.borderRadius(0)' ||
   fail "unselected settings rows must not retain a pill background"
-printf '%s\n' "$settings_row" | rg -q -F 'color: AppTheme.divider, radius: 0' ||
+printf '%s\n' "$settings_row" | rg -q -F 'AppTheme.divider, radius: 0' ||
   fail "settings row dividers must stay square instead of curving into a pill"
-printf '%s\n' "$tool_entry" | rg -q -F '.accessibilityText(`工具：${title}`)' ||
-  fail "tool entries must expose their title"
-
-recent_tool="$(sed -n '/private RecentToolCard(/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$recent_tool" | rg -q -F 'Button() {' || fail "recent tool cards must be focusable buttons"
-printf '%s\n' "$recent_tool" | rg -q -F '.accessibilityText(`最近使用：${this.RecentToolTitle(id)}`)' ||
-  fail "recent tool cards must expose their destination"
 
 tool_file_row="$(sed -n '/private ToolFileRow(/,/^  }/p' "$SOURCE")"
 printf '%s\n' "$tool_file_row" | rg -q -F 'Button() {' ||
   fail "remote file and directory content targets must be focusable buttons"
-printf '%s\n' "$tool_file_row" | rg -q -F '.height(58)' ||
-  fail "remote file and directory content targets must meet the 48 vp touch target"
+printf '%s\n' "$tool_file_row" | rg -q -F '.constraintSize({ minHeight: 58 })' ||
+  fail "remote file and directory content targets must keep a 58 vp minimum and grow with text"
 printf '%s\n' "$tool_file_row" | rg -q -F '.accessibilityText(`${item.kind ===' ||
   fail "remote file targets must expose file or directory semantics"
 
 tool_file_operation="$(sed -n '/private ToolFileOperationPanel()/,/^  }/p' "$SOURCE")"
 for operation in 重命名 移动 删除; do
-  printf '%s\n' "$tool_file_operation" | rg -q "(Button|AppDangerPillButton).*'$operation'" ||
+  printf '%s\n' "$tool_file_operation" | rg -q "(AppButton|AppGroupedButton|AppDangerPillButton).*'$operation'" ||
     fail "remote file $operation action must remain available"
 done
-printf '%s\n' "$tool_file_operation" | rg -q -F "AppDangerPillButton({ label: this.toolSelectedDirectory ? '确认删除目录' : '确认删除文件'" ||
+printf '%s\n' "$tool_file_operation" | rg -q -F "AppActionGroup({ primaryLabel: this.toolSelectedDirectory ? '确认删除目录' : '确认删除文件'" ||
   fail "remote deletion confirmation must name the target kind"
 for shared_control in AppPrimaryPillButton AppSecondaryPillButton AppDangerPillButton; do
   rg -q -F "export struct $shared_control" "$CONTROLS" ||
@@ -226,8 +273,11 @@ rg -q -F 'export struct AppGlassTextArea' "$CONTROLS" ||
   fail "shared multiline input control is missing"
 rg -q -F 'export struct AppGlassTextOutput' "$CONTROLS" ||
   fail "shared multiline output control is missing"
-for multiline_value in qrInput digestInput feedbackContent toolTextInput readerAnnotationInput; do
-  rg -q "AppGlassTextArea\\(\\{ value: this\\.$multiline_value" "$SOURCE" ||
+qr_page="$APP_DIR/entry/src/main/ets/features/tools/QrToolsPage.ets"
+rg -Uq "AppGlassTextArea\\(\\{[^}]*value: this\\.content" "$qr_page" ||
+  fail "QR input must use the shared multiline input control"
+for multiline_value in digestInput feedbackContent toolTextInput readerAnnotationInput; do
+  rg -Uq "AppGlassTextArea\\(\\{[^}]*value: this\\.$multiline_value" "$SOURCE" ||
     fail "$multiline_value must use the shared multiline input control"
 done
 for multiline_output in digestOutput toolTextOutput; do
@@ -258,21 +308,26 @@ visual_media_viewer="$(sed -n '/private RemoteVisualMediaViewerPage()/,/^  }/p' 
 if printf '%s\n' "$visual_media_viewer" | rg -q -F '上下滑动'; then
   fail "full-screen visual viewer must not render swipe instructions"
 fi
-for control in "Button('上一个').width(88).height(48)" "Button('下一个').width(88).height(48)"; do
-  printf '%s\n' "$visual_media_viewer" | rg -q -F "$control" ||
-    fail "remote visual media transport control must use a 48 vp button: $control"
+image_header="$(sed -n '/private ImageViewerHeader()/,/^  }/p' "$SOURCE")"
+image_footer="$(sed -n '/private ImageViewerFooter()/,/^  }/p' "$SOURCE")"
+for control in 'imagePrevious' 'imageResetZoom' 'imageNext'; do
+  printf '%s\n' "$image_footer" | rg -q -F "$control" ||
+    fail "immersive image toolbar missing $control"
 done
 printf '%s\n' "$visual_media_viewer" | rg -q -F 'previewUri: this.currentMediaPreviewUri' ||
   fail "remote video viewer must retain its thumbnail while preparing playback"
-printf '%s\n' "$visual_media_viewer" | rg -q -F '.controls(true)' ||
-  fail "remote video controls must remain operable in immersive mode"
-printf '%s\n' "$visual_media_viewer" | rg -q -F "Button(this.videoExpectedPlaying ? '暂停' : '播放')" ||
-  fail "remote video viewer must expose an explicit play and pause control"
-printf '%s\n' "$visual_media_viewer" | rg -q -F 'this.ToggleVideoFullscreen()' ||
-  fail "remote video viewer must expose orientation and fullscreen control"
-printf '%s\n' "$visual_media_viewer" | rg -q -F 'sys.symbol.star_fill' ||
+transport_bar="$(sed -n '/private VideoTransportBar()/,/^  }/p' "$SOURCE")"
+printf '%s\n' "$visual_media_viewer" | rg -q -F '.controls(false)' ||
+  fail "custom transport must own the only visible video controls"
+printf '%s\n' "$visual_media_viewer" | rg -q -F 'this.VideoTransportBar()' ||
+  fail "the immersive viewer must mount its transport bar"
+for control in 'videoPlayPause' 'videoTimeline' 'this.VideoSkipButton(false)' 'this.VideoSkipButton(true)' 'this.ToggleVideoFullscreen()'; do
+  printf '%s\n' "$transport_bar" | rg -q -F "$control" ||
+    fail "custom video transport missing $control"
+done
+printf '%s\n' "$image_header" | rg -q -F 'sys.symbol.star_fill' ||
   fail "immersive image favorite action must use the native system symbol"
-printf '%s\n' "$visual_media_viewer" | rg -q -F 'this.CurrentMediaDisplayName()' ||
+printf '%s\n' "$image_footer" | rg -q -F 'this.CurrentMediaDisplayName()' ||
   fail "immersive image metadata must hide unreadable hash-only filenames"
 rg -q -F 'private ScheduleMediaViewerChromeAutoHide(): void' "$SOURCE" ||
   fail "remote visual viewer must auto-hide chrome"
@@ -288,13 +343,13 @@ printf '%s\n' "$media_preview" | rg -q -F "sys.symbol.music_note_circle_fill" ||
   fail "audio previews must use a system symbol instead of a text glyph"
 rg -q -F '(item: MediaCatalogItem) => item.itemId' "$SOURCE" ||
   fail "new media catalog cards need stable opaque render keys"
-for control in "Button('上一首').height(48)" "Button('下一首').height(48)"; do
+for control in "AppButton({ label: '上一首'" "AppButton({ label: '下一首'"; do
   printf '%s\n' "$media_viewer" | rg -q -F "$control" ||
-    fail "remote media transport control must use a 48 vp button: $control"
+    fail "remote media transport control must use a shared semantic button: $control"
 done
-printf '%s\n' "$media_viewer" | rg -q -F ".accessibilityDescription('视频快退10秒')" ||
+printf '%s\n' "$media_viewer" | rg -q -F "description: '视频快退10秒'" ||
   fail "video rewind must expose its effect"
-printf '%s\n' "$media_viewer" | rg -q -F ".accessibilityDescription('音频快进10秒')" ||
+printf '%s\n' "$media_viewer" | rg -q -F "description: '音频快进10秒'" ||
   fail "audio fast-forward must expose its effect"
 printf '%s\n' "$media_viewer" | rg -q -F "this.audioQueueExpanded ? '收起远程音频播放队列'" ||
   fail "audio queue action must expose expanded state"
@@ -302,18 +357,18 @@ printf '%s\n' "$media_viewer" | rg -q -F "this.audioQueueExpanded ? '收起远�
 audio_queue_row="$(sed -n '/private AudioQueueRow(/,/^  }/p' "$SOURCE")"
 printf '%s\n' "$audio_queue_row" | rg -q -F 'Button() {' ||
   fail "audio queue rows must be focusable buttons"
-printf '%s\n' "$audio_queue_row" | rg -q -F '.height(58)' ||
-  fail "audio queue rows must meet the 48 vp touch target"
+printf '%s\n' "$audio_queue_row" | rg -q -F '.constraintSize({ minHeight: 58 })' ||
+  fail "audio queue rows must keep a 58 vp minimum and grow with text"
 printf '%s\n' "$audio_queue_row" | rg -q -F '.accessibilityText(`播放远程音频：${item.name}`)' ||
   fail "audio queue rows must expose the remote track name"
 
 if rg -q -F "Text('‹')" "$SOURCE"; then
-  fail "back navigation must use the shared 48 vp button"
+  fail "back navigation must use the shared 44 vp button"
 fi
 
 back_button="$(sed -n '/private BackButton(/,/^  }/p' "$SOURCE")"
-printf '%s\n' "$back_button" | rg -q -F '.width(48)' || fail "back button width must be 48 vp"
-printf '%s\n' "$back_button" | rg -q -F '.height(48)' || fail "back button height must be 48 vp"
+printf '%s\n' "$back_button" | rg -q -F '.width(44)' || fail "back button width must be 44 vp"
+printf '%s\n' "$back_button" | rg -q -F '.height(44)' || fail "back button height must be 44 vp"
 printf '%s\n' "$back_button" | rg -q -F "sys.symbol.arrow_left" ||
   fail "back navigation must use the HarmonyOS system symbol"
 printf '%s\n' "$back_button" | rg -q -F ".accessibilityText('返回')" || fail "back button needs an accessibility label"
@@ -365,11 +420,11 @@ rg -q -F 'this.pendingMediaPath = this.mediaPath;' "$SOURCE" ||
   fail "session invalidation must preserve the remote directory"
 rg -q -F 'else if (this.currentIndex === 2)' "$SOURCE" ||
   fail "login must resume the Copilot target tab"
-rg -q -F '.onClick(() => this.RequestLogout())' "$SOURCE" ||
+rg -q -F 'action: () => this.RequestLogout()' "$SOURCE" ||
   fail "logout must evaluate unsynchronized reader data first"
-rg -q -F "AppSecondaryPillButton({ label: '继续同步'" "$SOURCE" ||
+rg -q -F "secondaryLabel: '继续同步'" "$SOURCE" ||
   fail "logout risk must offer synchronization"
-rg -q -F "AppDangerPillButton({ label: '仍要退出'" "$SOURCE" ||
+rg -q -F "primaryLabel: '仍要退出'" "$SOURCE" ||
   fail "logout risk must require explicit confirmation"
 
 for forbidden in "Text('新建')" "Text('上传')" "Text('测试连接')" "Text('关闭')" "Text('完成')"; do

@@ -1,0 +1,9 @@
+message_received_to_download_task_complete {'n': 109, 'p50': 2618.466, 'max': 4194.754}
+attachment_channels {'TELEGRAM': 109}
+message_to_request_seconds {'n': 109, 'p50': 47.027, 'max': 2786.029}
+receive_to_message_persist {'n': 109, 'p50': 3.601, 'max': 6.49}
+message_to_job {'n': 109, 'p50': 0.819, 'max': 5.11}
+job_to_request {'n': 109, 'p50': 42.189, 'max': 2778.135}
+failure_reasons [{'step': 'generate_thumbnail', 'reason': 'ffmpeg', 'n': 124}, {'step': 'generate_tags', 'reason': 'GPU_BUSY', 'n': 65}, {'step': 'resolve_x_user', 'reason': 'HTTP Error 500', 'n': 8}, {'step': 'resolve_x_user', 'reason': 'SCRIPT_EXIT_NON_ZERO', 'n': 4}, {'step': 'orchestrate_message_urls', 'reason': 'SCRIPT_EXIT_NON_ZERO', 'n': 6}, {'step': 'download_asset', 'reason': 'REMOTE_NETWORK_FAILURE', 'n': 1}, {'step': 'download_asset', 'reason': 'timed out', 'n': 1}, {'step': 'orchestrate_message_urls', 'reason': 'timed out', 'n': 1}, {'step': 'resolve_x_post', 'reason': 'timed out', 'n': 1}, {'step': 'generate_tags', 'reason': 'MEDIA_TAGGING_PROVIDER_RESPONSE_INVALID', 'n': 1}, {'step': 'resolve_x_user', 'reason': 'timed out', 'n': 1}]
+nodes [{'name': 'executor-remote-1', 'max_concurrent_tasks': 12, 'running_tasks': 0, 'enabled': 1, 'status': 'ONLINE'}, {'name': 'adaptation-production-executor', 'max_concurrent_tasks': 2, 'running_tasks': 0, 'enabled': 1, 'status': 'ONLINE'}, {'name': 'pdf-executor-1', 'max_concurrent_tasks': 1, 'running_tasks': 0, 'enabled': 1, 'status': 'ONLINE'}]
+executor_safe_limits {'TASK_EXECUTOR_MAX_CONCURRENT_TASKS': '12', 'TASK_EXECUTOR_RESERVED_CHILD_TASK_SLOTS': '0', 'TASK_EXECUTOR_POLL_SECONDS': None}

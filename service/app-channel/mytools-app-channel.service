@@ -1,0 +1,26 @@
+[Unit]
+Description=MyTools authenticated application channel
+After=network.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+WorkingDirectory=/opt/mytools-app-channel-v1
+EnvironmentFile=/etc/mytools-app-channel.env
+Environment=PYTHONPATH=/opt/mytools-app-channel-v1/vendor
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/mytools-app-channel-v1/python/bin/python3.12 /opt/mytools-app-channel-v1/channel.py
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+IPAddressDeny=any
+IPAddressAllow=localhost
+MemoryMax=256M
+LimitNOFILE=512
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

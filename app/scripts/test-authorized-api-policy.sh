@@ -19,7 +19,7 @@ node "$APP_DIR/tests/authorized_api_policy_test.cjs" "$TEST_DIR/output/Authorize
 
 grep -Fq 'this.baseUrl = authManager.normalizeBusinessBaseUrl(baseUrl)' "$CLIENT"
 grep -Fq 'const safePath = this.policy.path(path)' "$CLIENT"
-grep -Fq 'this.policy.requestBody(body, bodyBytes)' "$CLIENT"
+grep -Fq 'this.policy.requestBody(body, bodyBytes, safePath)' "$CLIENT"
 grep -Fq "lower === 'location'" "$CLIENT"
 grep -Fq 'length > 64 * 1024 * 1024' "$CLIENT"
 grep -Fq 'this.policy.responseEnvelope(response.responseCode, text, bytes)' "$CLIENT"

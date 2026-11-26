@@ -1,0 +1,26 @@
+[
+  {
+    "seek": 1,
+    "valid": false,
+    "error": [
+      "[vf#0:0 @ 0x6257007df300] Cannot determine format of input 0:0 after EOF",
+      "[vf#0:0 @ 0x6257007df300] Task finished with error code: -1094995529 (Invalid data found when processing input)"
+    ]
+  },
+  {
+    "seek": 10,
+    "valid": false,
+    "error": [
+      "[vf#0:0 @ 0x57d9e9339300] Cannot determine format of input 0:0 after EOF",
+      "[vf#0:0 @ 0x57d9e9339300] Task finished with error code: -1094995529 (Invalid data found when processing input)"
+    ]
+  },
+  {
+    "seek": 30,
+    "valid": false,
+    "error": [
+      "[vf#0:0 @ 0x64a1e542e300] Cannot determine format of input 0:0 after EOF",
+      "[vf#0:0 @ 0x64a1e542e300] Task finished with error code: -1094995529 (Invalid data found when processing input)"
+    ]
+  }
+]

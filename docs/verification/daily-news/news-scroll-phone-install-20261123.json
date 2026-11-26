@@ -1,0 +1,15 @@
+{
+  "installedOn": "2026-11-23",
+  "timezone": "Asia/Shanghai",
+  "bundleName": "com.yuyutian.mytools",
+  "abilityName": "EntryAbility",
+  "deviceModel": "BRA-AL00",
+  "hapSha256": "27cf5235dbec93443e641d6ea0c6ea96a839e116fe99c6f3b18fb579e33f320b",
+  "checks": {
+    "packageHash": "passed",
+    "replaceInstall": "passed",
+    "launch": "passed",
+    "processObserved": "passed"
+  },
+  "scope": "Install and launch verification. Navigation regression was verified on the emulator before installation."
+}

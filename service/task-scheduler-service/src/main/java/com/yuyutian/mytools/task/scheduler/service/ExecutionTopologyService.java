@@ -336,6 +336,13 @@ public class ExecutionTopologyService {
             if (!registrationPolicy.trustedLabels().containsKey(key)) {
                 throw registrationForbidden("Executor label is not authorized: " + key);
             }
+            // 新闻节点标签只授予配置的真实节点名，其他节点不能借用相同声明领取地区任务。
+            if ("news.node".equals(key)) {
+                Object assigned = registrationPolicy.trustedLabels().get(key);
+                if (!(assigned instanceof String name) || name.isBlank() || "absent".equals(name) || !nodeName.equals(name)) {
+                    return;
+                }
+            }
             // 节点只能声明标签存在，实际值始终取 Scheduler 服务端配置。
             result.put(key, registrationPolicy.trustedLabels().get(key));
         });

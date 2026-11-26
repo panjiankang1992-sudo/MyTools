@@ -1,0 +1,35 @@
+{
+  "release": "once-print-bg-20261005-125500",
+  "entryAsset": "https://toolbox.yuyutian.top/assets/index-B7C3zQY1.js",
+  "runtime": "Real Chromium, independent ocr-engine-diagnostic browser session",
+  "scenario": "100 complete Chinese word/pinyin pairs, retain repeated entries, Chinese dictation mode, two-page PDF preview",
+  "method": "Generated preview first; froze only source window requestAnimationFrame to a function that never invokes its callback; clicked known print control; waited for print-ready in the unaffected popup; inspected every page image; closed popup and restored source requestAnimationFrame in finally. No system print call performed.",
+  "pdfPreviewPageCount": 2,
+  "result": {
+    "mode": "chinese-dictation",
+    "ready": true,
+    "images": [
+      {
+        "alt": "1",
+        "complete": true,
+        "width": 1191,
+        "height": 1684
+      },
+      {
+        "alt": "2",
+        "complete": true,
+        "width": 1191,
+        "height": 1684
+      }
+    ],
+    "printEnabled": true
+  },
+  "checks": {
+    "printReadyUnderFrozenSourceRaf": true,
+    "allPdfPagesRepresentedByDecodedImages": true,
+    "sourceRafRestored": true,
+    "popupClosed": true,
+    "systemPrintInvoked": false
+  },
+  "previewEvidence": ".playwright-cli/page-2026-10-05T05-02-45-284Z.yml"
+}

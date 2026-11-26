@@ -1,4 +1,5 @@
 import { AppTheme } from '../../theme/AppTheme';
+import { AppButton, AppTextAction } from '../../components/AppControls';
 import { DownloadCancellationToken } from '../../shared/network/DownloadCancellationToken';
 import { AuthSessionManager } from '../auth/AuthSessionManager';
 import { ChapterAdaptationApi } from './ChapterAdaptationApi';
@@ -29,58 +30,64 @@ export struct AdaptationConsentPanel {
 
   private close(): void { this.controller?.close(); this.onClose(); }
 
+  /** 构建独立告知内容，勾选后才允许显式确认。 */
   build() {
     Column({ space: 14 }) {
       Row({ space: 12 }) {
-        Text($r('app.string.adaptation_consent_title')).layoutWeight(1).fontSize(20).fontWeight(FontWeight.Bold)
-        Button($r('app.string.adaptation_close')).onClick(() => this.close())
+        Text($r('app.string.adaptation_consent_title')).lineHeight(28).fontFamily(AppTheme.fontSemibold).layoutWeight(1).fontSize(20).fontWeight(600)
+        AppTextAction({ label: $r('app.string.adaptation_close'), action: () => this.close() })
       }.width('100%')
       if (this.state.busy) { LoadingProgress().width(28).height(28) }
       if (this.state.errorCode !== '') {
-        Text($r('app.string.adaptation_consent_refresh_required')).fontSize(14).fontColor(AppTheme.danger)
-        Text(this.state.errorCode).fontSize(12).fontColor(AppTheme.textSecondary)
+        Text($r('app.string.adaptation_consent_refresh_required')).lineHeight(22).fontFamily(AppTheme.fontFamily).fontSize(14).fontColor(AppTheme.danger)
+        Text(this.state.errorCode).lineHeight(18).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary)
       }
       Scroll() {
         Column({ space: 16 }) {
           if (this.state.features !== undefined) {
             Text(this.state.features.consentStatus === 'ACCEPTED' ? $r('app.string.adaptation_consent_accepted') :
               this.state.features.consentStatus === 'REQUIRED' ? $r('app.string.adaptation_consent_required') :
-              $r('app.string.adaptation_consent_unavailable')).fontSize(15)
-            Text($r('app.string.adaptation_consent_revision', this.state.features.consentRevision.toString())).fontSize(12)
+              $r('app.string.adaptation_consent_unavailable')).lineHeight(24).fontFamily(AppTheme.fontFamily).fontSize(15)
+            Text($r('app.string.adaptation_consent_revision', this.state.features.consentRevision.toString())).lineHeight(18).fontFamily(AppTheme.fontFamily).fontSize(12)
             if (this.state.features.hasActiveConsent && this.state.features.consentStatus !== 'ACCEPTED') {
-              Text($r('app.string.adaptation_consent_older_active')).fontSize(14)
+              Text($r('app.string.adaptation_consent_older_active')).lineHeight(22).fontFamily(AppTheme.fontFamily).fontSize(14)
             }
             if (this.state.features.disclosure !== undefined) {
-              Text(`${this.state.features.disclosure.payload.providerName} · ${this.state.features.disclosure.payload.providerOrigin}`).width('100%').fontSize(14)
-              Text(this.state.features.disclosure.payload.dataUseNotice).width('100%').fontSize(15)
-              Text(this.state.features.disclosure.payload.retentionNotice).width('100%').fontSize(15)
-              Text(this.state.features.disclosure.payload.rightsNotice).width('100%').fontSize(15)
-              Text(`${this.state.features.disclosure.version} · ${this.state.features.disclosure.rightsAttestationVersion}`).fontSize(12)
+              Text(`${this.state.features.disclosure.payload.providerName} · ${this.state.features.disclosure.payload.providerOrigin}`).lineHeight(22).fontFamily(AppTheme.fontFamily).width('100%').fontSize(14)
+              Text(this.state.features.disclosure.payload.dataUseNotice).lineHeight(24).fontFamily(AppTheme.fontFamily).width('100%').fontSize(15)
+              Text(this.state.features.disclosure.payload.retentionNotice).lineHeight(24).fontFamily(AppTheme.fontFamily).width('100%').fontSize(15)
+              Text(this.state.features.disclosure.payload.rightsNotice).lineHeight(24).fontFamily(AppTheme.fontFamily).width('100%').fontSize(15)
+              Text(`${this.state.features.disclosure.version} · ${this.state.features.disclosure.rightsAttestationVersion}`).lineHeight(18).fontFamily(AppTheme.fontFamily).fontSize(12)
               if (this.state.features.consentStatus !== 'ACCEPTED' && this.state.features.readEnabled) {
                 Row({ space: 8 }) {
-                  Checkbox({ name: 'adaptation-processing' }).select(this.state.processingAccepted).enabled(!this.state.busy)
+                  Checkbox({ name: 'adaptation-processing' }).width(AppTheme.checkboxSize).height(AppTheme.checkboxSize).margin(12)
+                    .responseRegion({ x: -12, y: -12, width: 44, height: 44 }).selectedColor(AppTheme.primary)
+                    .select(this.state.processingAccepted).enabled(!this.state.busy)
                     .accessibilityText($r('app.string.adaptation_consent_processing'))
                     .onChange((value: boolean) => this.controller?.processing(value))
-                  Text($r('app.string.adaptation_consent_processing')).layoutWeight(1)
+                  Text($r('app.string.adaptation_consent_processing')).fontFamily(AppTheme.fontFamily).fontSize(16).lineHeight(24).layoutWeight(1)
                 }.width('100%')
                 Row({ space: 8 }) {
-                  Checkbox({ name: 'adaptation-rights' }).select(this.state.rightsAccepted).enabled(!this.state.busy)
+                  Checkbox({ name: 'adaptation-rights' }).width(AppTheme.checkboxSize).height(AppTheme.checkboxSize).margin(12)
+                    .responseRegion({ x: -12, y: -12, width: 44, height: 44 }).selectedColor(AppTheme.primary)
+                    .select(this.state.rightsAccepted).enabled(!this.state.busy)
                     .accessibilityText($r('app.string.adaptation_consent_rights'))
                     .onChange((value: boolean) => this.controller?.rights(value))
-                  Text($r('app.string.adaptation_consent_rights')).layoutWeight(1)
+                  Text($r('app.string.adaptation_consent_rights')).fontFamily(AppTheme.fontFamily).fontSize(16).lineHeight(24).layoutWeight(1)
                 }.width('100%')
-                Button($r('app.string.adaptation_consent_accept')).enabled(!this.state.busy && this.state.processingAccepted &&
-                  this.state.rightsAccepted && this.controller?.canAccept() === true)
-                  .onClick(() => this.controller?.accept())
+                AppButton({ label: $r('app.string.adaptation_consent_accept'), fullWidth: true,
+                  available: !this.state.busy && this.state.processingAccepted && this.state.rightsAccepted && this.controller?.canAccept() === true,
+                  action: () => this.controller?.accept() })
               }
             }
           }
-          Text($r('app.string.adaptation_consent_revoke_notice')).fontSize(13)
-          Button($r('app.string.adaptation_consent_revoke')).enabled(!this.state.busy && this.state.features !== undefined && this.controller?.canRevoke() === true)
-            .onClick(() => this.controller?.revoke())
-          Button($r('app.string.adaptation_refresh')).enabled(!this.state.busy).onClick(() => this.controller?.refresh())
+          Text($r('app.string.adaptation_consent_revoke_notice')).lineHeight(18).fontFamily(AppTheme.fontFamily).fontSize(12)
+          AppTextAction({ label: $r('app.string.adaptation_consent_revoke'), danger: true,
+            available: !this.state.busy && this.state.features !== undefined && this.controller?.canRevoke() === true,
+            action: () => this.controller?.revoke() })
+          AppTextAction({ label: $r('app.string.adaptation_refresh'), available: !this.state.busy, action: () => this.controller?.refresh() })
         }.width('100%').alignItems(HorizontalAlign.Start)
       }.layoutWeight(1).width('100%')
-    }.width('100%').height('100%').padding(18).backgroundColor(AppTheme.background).alignItems(HorizontalAlign.Start)
+    }.width('100%').height('100%').padding(20).backgroundColor(AppTheme.background).alignItems(HorizontalAlign.Start)
   }
 }

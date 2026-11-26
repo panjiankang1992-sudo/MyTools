@@ -1,0 +1,51 @@
+{
+  "publicChangedFiles": [
+    {
+      "path": "assets/CurriculumRestoreView-BwZPZgnO.js",
+      "sha256": "929391c6865ef6cf146eb266965d032af1d653fba2b8a039034551be41d5d4be",
+      "matches": true
+    },
+    {
+      "path": "assets/TextbookEditorView-DFn3ZfSy.js",
+      "sha256": "4fab16261a116132ced56711c0503a871dacac04d21724bae030ee392298d231",
+      "matches": true
+    },
+    {
+      "path": "assets/TextbookEntryView-C54X92qO.css",
+      "sha256": "e561006b1a1be302665799a71623de45dae0a5127c01470586a3ec50e4e01a4c",
+      "matches": true
+    },
+    {
+      "path": "assets/TextbookEntryView-HDza6Oos.js",
+      "sha256": "d0e9d476727a6f743fbe87633bf1dd58e189c06cb24e02f5f64687bd71491cd6",
+      "matches": true
+    },
+    {
+      "path": "assets/TextbookListView-Dgs0NaOZ.js",
+      "sha256": "8e193757e9fbb8d7eb34b877b9c017b4e276197fe00a2459ce3855aef34a11be",
+      "matches": true
+    },
+    {
+      "path": "assets/admin-error-messages-DHv82G_H.js",
+      "sha256": "4d5e4edc1a95c504ec7a29018231256dd16213f35e60148dd8582ca5d35526bf",
+      "matches": true
+    },
+    {
+      "path": "assets/admin-textbooks-api-iLvS15cP.js",
+      "sha256": "fd740157519bb29d613723454f4d0935428b04c9f5ec22028aaa060613485faf",
+      "matches": true
+    },
+    {
+      "path": "assets/index-DsWDqVqO.js",
+      "sha256": "c183cbe708fe130e2049b523652d3faafa5a00372e6830d8c498d5341727a8c3",
+      "matches": true
+    },
+    {
+      "path": "index.html",
+      "sha256": "b221bcfa0256562b816ab207ed93a80cc74a5c0a48a649ab640e41b4b8c1b3df",
+      "matches": true
+    }
+  ],
+  "draftAndAuditStateUnchanged": true,
+  "allPublicChangedFilesMatch": true
+}

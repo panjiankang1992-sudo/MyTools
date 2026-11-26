@@ -1,0 +1,54 @@
+[
+  {
+    "name": "chinese-pinyin",
+    "pages": 1,
+    "printPages": 1,
+    "size": {
+      "width": 594.95996,
+      "height": 841.91998
+    },
+    "promptPresent": true,
+    "answerHidden": true,
+    "printExportIdentical": true,
+    "sha256": "40388816cb0432759cc53af700d48bf9a9bab507494e824ad90989128f57b5b7"
+  },
+  {
+    "name": "chinese-dictation",
+    "pages": 1,
+    "printPages": 1,
+    "size": {
+      "width": 594.95996,
+      "height": 841.91998
+    },
+    "promptPresent": true,
+    "answerHidden": true,
+    "printExportIdentical": true,
+    "sha256": "72e9d071a843950e1c1d31457c5edcbfcc72fbac94eca99a47aee01056ca96b7"
+  },
+  {
+    "name": "english-dictation",
+    "pages": 1,
+    "printPages": 1,
+    "size": {
+      "width": 594.95996,
+      "height": 841.91998
+    },
+    "promptPresent": true,
+    "answerHidden": true,
+    "printExportIdentical": true,
+    "sha256": "9fb06f2f1eb31e6c06c5bda6d4c7590682c77c01bbec810c7cee624d9797abd1"
+  },
+  {
+    "name": "english-meaning",
+    "pages": 1,
+    "printPages": 1,
+    "size": {
+      "width": 594.95996,
+      "height": 841.91998
+    },
+    "promptPresent": true,
+    "answerHidden": true,
+    "printExportIdentical": true,
+    "sha256": "4592207146a3464c80e642e11bc084c7b126c78eac51cde8f236872da45a5573"
+  }
+]

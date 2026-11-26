@@ -146,26 +146,26 @@ export class RemoteMediaApi {
    * 获取 Alist 媒体的直接流式播放地址。
    */
   async resolvePlayback(source: RemoteMediaSource, path: string,
-    cancellation?: DownloadCancellationToken): Promise<RemotePlaybackDescriptor> {
+    cancellation?: DownloadCancellationToken, adaptive: boolean = false): Promise<RemotePlaybackDescriptor> {
     if (source.type === 'MYTOOLS_LIBRARY') {
       const match = /^\/media\/([0-9a-f-]{36})$/i.exec(path);
       if (match === null) throw new Error('媒体库文件标识无效');
-      const envelope = await this.client.post(`/api/app/v1/media/items/${match[1]}/play-ticket`, cancellation);
-      return this.normalizer.normalizePlayback(envelope.data, this.baseUrl, source.type);
+      const envelope = await this.client.post(`/api/app/v1/media/items/${match[1]}/play-ticket${adaptive ? '?adaptive=1' : ''}`, cancellation);
+      return this.normalizer.normalizePlayback(envelope.data, this.businessBaseUrl(), source.type);
     }
     if (source.type === 'MYTOOLS_LOCAL') {
       const match = /^\/local\/([1-9]\d{0,18})$/.exec(path);
       if (match === null) throw new Error('MyTools本地媒体文件标识无效');
       const ticketEnvelope = await this.client.post(
         `/api/app/v1/local-media/tickets?fileId=${encodeURIComponent(match[1])}`, cancellation);
-      return this.normalizer.normalizePlayback(ticketEnvelope.data, this.baseUrl, source.type);
+      return this.normalizer.normalizePlayback(ticketEnvelope.data, this.businessBaseUrl(), source.type);
     }
     const safeAccountId = this.requestPolicy.accountId(source.id);
     const safePath = this.requestPolicy.path(path, false);
     const ticketEnvelope = await this.client.post(
       `/api/app/v1/media/tickets?path=${encodeURIComponent(safePath)}&accountId=${encodeURIComponent(safeAccountId)}`,
       cancellation);
-    return this.normalizer.normalizePlayback(ticketEnvelope.data, this.baseUrl, source.type);
+    return this.normalizer.normalizePlayback(ticketEnvelope.data, this.businessBaseUrl(), source.type);
   }
 
   /** 为电子书申请票据，MyTools本地EPUB由后端按需提供安全归一化副本。 */
@@ -179,7 +179,7 @@ export class RemoteMediaApi {
     if (match === null) throw new Error('MyTools本地电子书标识无效');
     const ticketEnvelope = await this.client.post(
       '/api/app/v1/local-media/ebook-tickets?fileId=' + encodeURIComponent(match[1]), cancellation);
-    return this.normalizer.normalizePlayback(ticketEnvelope.data, this.baseUrl, source.type);
+    return this.normalizer.normalizePlayback(ticketEnvelope.data, this.businessBaseUrl(), source.type);
   }
 
   private async libraryItems(mimePrefix: string, maximum: number,
@@ -203,7 +203,7 @@ export class RemoteMediaApi {
 
   /** 预读视频开头最多256 KB，建立连接并预热服务端Range链路。 */
   async preloadVideoSegment(url: string, cancellation?: DownloadCancellationToken): Promise<void> {
-    if (cancellation?.isCancelled() || !url.startsWith(`${this.baseUrl}/api/app/v1/`)) return;
+    if (cancellation?.isCancelled() || !url.startsWith(`${this.businessBaseUrl()}/api/app/v1/`)) return;
     const request = http.createHttp();
     let received = 0;
     let warmed = false;
@@ -372,6 +372,16 @@ export class RemoteMediaApi {
   }
 
   /** 下载最大2048像素的安全JPEG用于系统分享。 */
+  async downloadPreviewImage(accountId: string, path: string, targetUri: string,
+    cancellation?: DownloadCancellationToken): Promise<number> {
+    if (accountId === 'library') {
+      return this.client.downloadImageToUri(
+        `/api/app/v1/media/items/${this.libraryMediaId(path)}/thumbnail?edge=2048`, targetUri, cancellation);
+    }
+    return this.downloadShareImage(accountId, path, targetUri, cancellation);
+  }
+
+  /** 下载系统分享使用的图片，媒体库保留原始文件。 */
   async downloadShareImage(accountId: string, path: string, targetUri: string,
     cancellation?: DownloadCancellationToken): Promise<number> {
     if (accountId === 'library') {
@@ -523,7 +533,7 @@ export class RemoteMediaApi {
     const pathData: request.RequestData = { name: 'path', value: directory };
     const nameData: request.RequestData = { name: 'filename', value: filename };
     const config: request.UploadConfig = {
-      url: `${this.baseUrl}/api/cloud/file?accountId=${encodeURIComponent(accountId)}`,
+      url: `${this.businessBaseUrl()}/api/cloud/file?accountId=${encodeURIComponent(accountId)}`,
       header: { 'Authorization': `Bearer ${token}` },
       method: 'POST',
       files: [file],
@@ -581,4 +591,8 @@ export class RemoteMediaApi {
     }
   }
 
+  /** 长生命周期实例在每次上传或票据拼接时读取当前业务路由。 */
+  private businessBaseUrl(): string {
+    return this.authManager.resolveBusinessBaseUrl(this.baseUrl);
+  }
 }

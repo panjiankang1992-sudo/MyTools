@@ -1,0 +1,94 @@
+{
+  "results": [
+    {
+      "reproducedEditionLabel": "2024 年版（2022 课标修订版，��",
+      "saveStatus": 200,
+      "validateStatus": 200,
+      "validateBody": {
+        "code": "OK",
+        "data": {
+          "draftRevision": 7,
+          "publishable": false,
+          "issues": [
+            {
+              "severity": "BLOCKING",
+              "code": "NAME_REPLACEMENT_CHAR",
+              "fieldPath": "editionLabel",
+              "rowId": null,
+              "unitId": null,
+              "lessonId": null,
+              "detail": "名称含替换字符 U+FFFD"
+            }
+          ]
+        },
+        "requestId": "8e4f22f9-a88b-4fb6-9806-0fb617da7bb4"
+      },
+      "publishStatus": 422,
+      "publishBody": {
+        "code": "TOOLBOX_ADMIN_005",
+        "messageKey": "admin.publish.invalid",
+        "details": {
+          "issues": 1
+        },
+        "requestId": "43a6201f-a2c9-47ef-8b9b-4ccc9df624dd"
+      },
+      "restoreStatus": 200,
+      "restoreRevision": 8
+    }
+  ],
+  "callLog": [
+    {
+      "method": "GET",
+      "path": "/admin/v1/auth/csrf",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/v1/auth/login",
+      "status": 200,
+      "requestBodyBytes": 53
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/textbooks/cn-ty-3-1-pep-2024/draft",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/textbooks/cn-ty-3-1-pep-2024/draft",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/v1/textbooks/cn-ty-3-1-pep-2024/draft",
+      "status": 200,
+      "requestBodyBytes": 748286
+    },
+    {
+      "method": "POST",
+      "path": "/admin/v1/textbooks/cn-ty-3-1-pep-2024/validate?draftRevision=7",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/v1/textbooks/cn-ty-3-1-pep-2024/publish?draftRevision=7",
+      "status": 422
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/textbooks/cn-ty-3-1-pep-2024/draft",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/textbooks/cn-ty-3-1-pep-2024/draft",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/v1/textbooks/cn-ty-3-1-pep-2024/draft",
+      "status": 200,
+      "requestBodyBytes": 748292
+    }
+  ]
+}

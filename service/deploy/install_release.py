@@ -94,8 +94,15 @@ def install_python(destination: Path, python: str) -> None:
                       if (path / "pyproject.toml").is_file())
     if not projects:
         raise ValueError("release contains no Python projects")
+    requirements: list[str] = []
+    # 新闻地区包使用固定依赖；仅随包含新闻服务的版本安装，不扫描执行其他任务的任意依赖文件。
+    if (destination / "apps" / "news-digest-service.jar").is_file():
+        region_requirements = destination / "task-packages" / "news_resolve_region" / "1.2.0" / "requirements.txt"
+        if not region_requirements.is_file():
+            raise ValueError("news region package requirements are missing")
+        requirements = ["-r", str(region_requirements)]
     subprocess.run([str(pip), "-m", "pip", "install", "--disable-pip-version-check",
-                    *map(str, projects)], check=True)
+                    *map(str, projects), *requirements], check=True)
 
 
 def switch_current(root: Path, destination: Path) -> None:

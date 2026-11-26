@@ -1,0 +1,18 @@
+{
+  "media-library-service": {
+    "baseSha256": "68f145dbe6e7394d281306f78ea858de16006684dcfce03d926bcd97a703c2cf",
+    "members": {
+      "BOOT-INF/classes/com/yuyutian/mytools/media/library/common/ErrorCode.class": "db960715dc31f327e680edfe17562f007943b156fba79fd146022f273cbe8177",
+      "BOOT-INF/classes/com/yuyutian/mytools/media/library/service/MediaImagePreviewService.class": "07e91be8b32d165cc0bce1d794b1db53e0abfbcfa9fb68687b17f8444a27d0bd",
+      "BOOT-INF/classes/com/yuyutian/mytools/media/library/controller/MediaImagePreviewController.class": "a7a3d7ebf3ec26ada11c03b4ae9770dc45f28d1f0231d052358a08738ec75e62",
+      "BOOT-INF/classes/media_preview.py": "395c24891fd27f4b1cdc7a0a56b3c825b8923e8b7c4407b15222b3d718d12d43"
+    }
+  },
+  "mytools-gateway": {
+    "baseSha256": "def5a35e74ddf6e76f684cb51fe83270416e91586c19c9b4fef58d4995837c75",
+    "members": {
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/service/MediaGatewayClient.class": "2dbf6bb72ebed653ac65a6e9f65bd92f56db47384e53d59411da9a4e6316e066",
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/controller/MediaGatewayController.class": "092d41e3192df5009e8621c2e3fff9048d31fb437ac732de93f1543443fd4f50"
+    }
+  }
+}

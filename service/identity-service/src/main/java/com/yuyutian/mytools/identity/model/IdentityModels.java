@@ -16,7 +16,14 @@ public final class IdentityModels {
    @NotBlank @Size(max=255) String deviceId) { }
  public record TokenPair(String accessToken,String refreshToken,String tokenType,long expiresIn,long refreshExpiresIn,
    UUID sessionId,long userId,String username,List<String> roles) { }
- public record RefreshRequest(@NotBlank @Size(max=1024) String refreshToken) { }
+ /** 刷新操作标识用于恢复同一次轮换丢失的响应，旧客户端可省略。 */
+ public record RefreshRequest(@NotBlank @Size(max=1024) String refreshToken,
+   @Pattern(regexp="^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$") String rotationId) {
+  /** 兼容未提供操作标识的客户端。 @param refreshToken 刷新令牌。 */
+  public RefreshRequest(String refreshToken) { this(refreshToken,null); }
+ }
+ /** 仅保存轮换回执摘要，不保存明文令牌。 */
+ public record RefreshReceipt(UUID sessionId,String previousHash,String rotationHash,long version) { }
  public record ValidateRequest(@NotBlank @Size(max=4096) String accessToken) { }
  public record PrincipalView(boolean active,long userId,String username,List<String> roles,UUID sessionId,Instant expiresAt) { }
  public record SessionRecord(UUID id,long userId,String deviceId,String refreshHash,long version,long credentialVersion,

@@ -46,6 +46,15 @@ groups:
           summary: One or more task execution leases were lost
           runbook_url: monitoring/task-reliability-alerts.md#taskleaselossesdetected
 
+      - alert: TaskExecutorProcessLaunchUnavailable
+        expr: task_executor_process_launch_ready{application="task-executor-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Executor cannot start script processes
+          runbook_url: monitoring/task-reliability-alerts.md#taskexecutorprocesslaunchunavailable
+
       - alert: TaskExecutorJournalUnreadable
         expr: task_executor_journal_readable{application="task-executor-service"} == 0
         for: 1m

@@ -10,6 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.time.Instant;
 import java.util.*;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 /** Identity 认证与会话服务。 */
 @Service
 public class IdentityService {
@@ -55,11 +57,29 @@ public class IdentityService {
    repository.createSession(session);return pair(user,session,refresh);});
  }
  /** 轮换刷新令牌。 @param request 请求 @return 新 Token */ public TokenPair refresh(RefreshRequest request){return transactions.execute(s->{Instant now=Instant.now();String oldHash=sha256(request.refreshToken());
-  SessionRecord session=repository.sessionByRefresh(oldHash).orElseThrow(()->new SecurityException("identity refresh token is invalid"));
+  String rotationId=request.rotationId();
+  // 服务层也校验标识，内部调用不能绕过 HTTP 字段约束。
+  if(rotationId!=null&&!rotationId.matches("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$"))throw new IllegalArgumentException("identity rotation id is invalid");
+  UUID sessionId=repository.refreshSessionId(oldHash).orElseThrow(()->new SecurityException("identity refresh token is invalid"));
+  SessionRecord session=repository.lockSession(sessionId);
   UserView user=repository.findById(session.userId()).orElseThrow(()->new SecurityException("identity user is unavailable"));
   if(session.revokedAt()!=null||!session.refreshExpiresAt().isAfter(now)||session.credentialVersion()!=user.credentialVersion()||!"ACTIVE".equals(user.status()))throw new SecurityException("identity session is inactive");
-  String refresh=token();SessionRecord rotated=new SessionRecord(session.id(),session.userId(),session.deviceId(),sha256(refresh),session.version()+1,session.credentialVersion(),session.issuedAt(),session.refreshExpiresAt(),null);
-  if(!repository.rotate(session.id(),oldHash,rotated.refreshHash(),rotated.version(),now))throw new SecurityException("identity refresh token was already rotated");
+  // 只恢复相同操作的最近一次结果，不能用旧令牌发起新的轮换，也不能延长原有期限。
+  if(!sameDigest(session.refreshHash(),oldHash)){
+   RefreshReceipt receipt=repository.refreshReceipt(session.id()).orElseThrow(()->new SecurityException("identity refresh token is invalid"));
+   if(rotationId==null||receipt.version()!=session.version()||!sameDigest(receipt.previousHash(),oldHash)||
+     !sameDigest(receipt.rotationHash(),sha256(rotationId)))throw new SecurityException("identity refresh token is invalid");
+   String recovered=rotationToken(session.id(),request.refreshToken(),rotationId);
+   if(!sameDigest(sha256(recovered),session.refreshHash()))throw new SecurityException("identity refresh recovery is unavailable");
+   return pair(user,session,recovered);
+  }
+  // 有效会话每次刷新后重新保留完整登录周期，同时不缩短此前已授予的更长期限。
+  Instant refreshExpiresAt=now.plusSeconds(properties.refreshSeconds());
+  if(session.refreshExpiresAt().isAfter(refreshExpiresAt))refreshExpiresAt=session.refreshExpiresAt();
+  String refresh=rotationId==null?token():rotationToken(session.id(),request.refreshToken(),rotationId);SessionRecord rotated=new SessionRecord(session.id(),session.userId(),session.deviceId(),sha256(refresh),session.version()+1,session.credentialVersion(),session.issuedAt(),refreshExpiresAt,null);
+  // 摘要与到期时间必须在同一次原子更新中轮换，避免失败请求延长会话。
+  if(!repository.rotate(session.id(),oldHash,rotated.refreshHash(),rotated.version(),now,refreshExpiresAt))throw new SecurityException("identity refresh token was already rotated");
+  repository.replaceRefreshReceipt(session.id(),rotationId==null?null:new RefreshReceipt(session.id(),oldHash,sha256(rotationId),rotated.version()),now);
   return pair(user,rotated,refresh);
  });}
  /** 校验访问令牌及实时会话状态。 @param request 请求 @return 主体 */ public PrincipalView validate(ValidateRequest request){try{Claims claims=jwt.parse(request.accessToken());UUID sessionId=UUID.fromString(claims.get("sid",String.class));long userId=Long.parseLong(claims.getSubject());
@@ -72,6 +92,15 @@ public class IdentityService {
  /** 撤销归属用户的会话。 @param userId 用户 @param id 会话 @param reason 原因 */ public void revokeOwned(long userId,UUID id,String reason){SessionRecord session=repository.session(id).orElseThrow(()->new IllegalArgumentException("identity session not found"));if(session.userId()!=userId)throw new IllegalArgumentException("identity session not found");revoke(id,reason);}
  private TokenPair pair(UserView user,SessionRecord session,String refresh){return new TokenPair(jwt.issue(user,session),refresh,"Bearer",properties.accessSeconds(),Math.max(0,session.refreshExpiresAt().getEpochSecond()-Instant.now().getEpochSecond()),session.id(),user.id(),user.username(),user.roles());}
  private String token(){byte[] bytes=new byte[32];random.nextBytes(bytes);return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);}
+ private String rotationToken(UUID sessionId,String previous,String rotationId){
+  try {
+   // 使用服务端密钥及域隔离产生不可预测的确定性结果，数据库只保存摘要。
+   Mac mac=Mac.getInstance("HmacSHA256");
+   mac.init(new SecretKeySpec(properties.jwtSecret().getBytes(StandardCharsets.UTF_8),"HmacSHA256"));
+   return Base64.getUrlEncoder().withoutPadding().encodeToString(mac.doFinal(
+     ("mytools.refresh.rotation.v1\n"+sessionId+"\n"+previous+"\n"+rotationId).getBytes(StandardCharsets.UTF_8)));
+  }catch(GeneralSecurityException exception){throw new IllegalStateException("identity refresh derivation failed",exception);}
+ }
  private String sha256(String value){try{return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));}catch(NoSuchAlgorithmException exception){throw new IllegalStateException(exception);}}
  private String userDigest(ImportUserRequest user){MessageDigest digest=digest();List<String> roles=new ArrayList<>(user.roles());roles.sort(String::compareTo);update(digest,Long.toString(user.id()),user.externalUserId(),user.username(),user.email(),user.passwordHash(),user.status(),Long.toString(user.credentialVersion()));roles.forEach(role->update(digest,role));return HexFormat.of().formatHex(digest.digest());}
  private String currentUserDigest(long userId){UserView user=repository.findById(userId).orElseThrow(()->new IllegalStateException("identity migration target user is missing"));return userDigest(new ImportUserRequest(user.id(),user.externalUserId(),user.username(),user.email(),repository.passwordHash(user.id()),user.status(),user.credentialVersion(),user.roles()));}

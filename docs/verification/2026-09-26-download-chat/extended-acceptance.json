@@ -1,0 +1,522 @@
+{
+  "checks": [
+    "512MiB_plus_one_rejected",
+    "invalid_magnet_rejected",
+    "512MiB_archive_sha256_matches"
+  ],
+  "jobs": [
+    {
+      "id": "818332bc-7c04-4102-905c-516b7c115736",
+      "requestId": "de66e4e2-d2d9-4c3d-bfaa-3b3892043ec8",
+      "kind": "MEDIA",
+      "name": "acceptance-512MiB.bin",
+      "result": {
+        "downloadRequestId": "de66e4e2-d2d9-4c3d-bfaa-3b3892043ec8",
+        "status": "SUCCEEDED",
+        "itemCount": 1,
+        "totalBytes": 536870912,
+        "collectionSha256": "441d196213393974d952c8a4bcd02f73f5e2356322c6ac3abbd5cc5b9c521b05",
+        "contentSetSha256": "a11465ccc17bcfe6c2e0fd57124bcbb2c22474b4d7a77d707d993cea170c65b5",
+        "items": [
+          {
+            "itemId": "818332bc-7c04-4102-905c-516b7c115736",
+            "fileName": "acceptance-512MiB.bin",
+            "contentSha256": "b91164718efe3beb04862cc3e2bfa83958457f91cfefb218ea832e55549bcd31",
+            "sizeBytes": 536870912,
+            "storageUri": "storage://managed/owner_806499868612455/other/acceptance-512MiB.bin",
+            "assetId": "cf9e900b-863a-4711-a4ad-6c59efc5ec60",
+            "tagStatus": "TAGGED",
+            "tags": [
+              {
+                "name": "文件格式",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "二进制数据",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "512MiB大小",
+                "type": "topic",
+                "confidence": 0.95
+              }
+            ]
+          }
+        ],
+        "progressDownloadedBytes": 0,
+        "progressTotalBytes": 0,
+        "progressPercent": 0
+      },
+      "status": "SUCCEEDED",
+      "createdAt": "2026-09-26T08:39:51.849151+00:00"
+    },
+    {
+      "id": "fda35370-32b6-4c9b-be5a-f04a517876ae",
+      "requestId": "554a1d2e-7d6c-4bf6-8d6a-a29cedf72b7b",
+      "kind": "MEDIA",
+      "name": "acceptance-small.zip",
+      "result": {
+        "downloadRequestId": "554a1d2e-7d6c-4bf6-8d6a-a29cedf72b7b",
+        "status": "SUCCEEDED",
+        "itemCount": 1,
+        "totalBytes": 30,
+        "collectionSha256": "876fda9cdcd7695872d925da37ee0ec1742fb21e7ce046d490c0720104df01dc",
+        "contentSetSha256": "54e99b00bc8c2800a923ff97fbb3221a2c769f777c0866a0ca3afe1539581a2b",
+        "items": [
+          {
+            "itemId": "local-import:1",
+            "fileName": "acceptance-note.txt",
+            "contentSha256": "afa649914248b8ca475f45eb2b37203fd67577f3092fbd4512e460f3de8e7f53",
+            "sizeBytes": 30,
+            "storageUri": "storage://managed/owner_806499868612455/ebook/acceptance-note.txt",
+            "assetId": "89a46ad0-47e3-45fd-a398-78c55b180ece",
+            "tagStatus": "TAGGED",
+            "tags": [
+              {
+                "name": "文件接受",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "合成档案",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "文本记录",
+                "type": "topic",
+                "confidence": 0.85
+              }
+            ]
+          }
+        ],
+        "progressDownloadedBytes": 0,
+        "progressTotalBytes": 0,
+        "progressPercent": 0
+      },
+      "status": "SUCCEEDED",
+      "createdAt": "2026-09-26T08:39:57.511949+00:00"
+    }
+  ],
+  "finished": true,
+  "submitted": [
+    {
+      "name": "acceptance-512MiB.bin",
+      "id": "818332bc-7c04-4102-905c-516b7c115736",
+      "sha256": "b91164718efe3beb04862cc3e2bfa83958457f91cfefb218ea832e55549bcd31",
+      "bytes": 536870912
+    },
+    {
+      "name": "acceptance-small.zip",
+      "id": "fda35370-32b6-4c9b-be5a-f04a517876ae",
+      "sha256": "9b3a30c41fbab2d0869a810ed87ceef4d76e3b25fff814417716dd2f33138721",
+      "bytes": 168
+    }
+  ],
+  "magnetHttpStatus": 503,
+  "galleryVideo": [
+    {
+      "id": "3e4f8a77-9a86-4bab-a83f-d180ba25594f",
+      "requestId": "03c815db-8288-4a45-b667-75b429d5e7f8",
+      "kind": "MEDIA",
+      "name": "download-chat-fixture.mp4",
+      "result": {
+        "downloadRequestId": "03c815db-8288-4a45-b667-75b429d5e7f8",
+        "status": "SUCCEEDED",
+        "itemCount": 1,
+        "totalBytes": 6327,
+        "collectionSha256": "2df58871b16ea669393774dd1aa2e9e2710f0109ed7b89099c2ac1309cd406c5",
+        "contentSetSha256": "18d1aae6a3faa9df23f6a30fc6d7c4e09f72b28be07efd3346faa5e0688743dd",
+        "items": [
+          {
+            "itemId": "3e4f8a77-9a86-4bab-a83f-d180ba25594f",
+            "fileName": "download-chat-fixture.mp4",
+            "contentSha256": "227e0077a2072728521ecf50577a2771a519c294be6b9f846bb88293ef04a1d4",
+            "sizeBytes": 6327,
+            "storageUri": "storage://managed/owner_806499868612455/media/202609/20260926/download-chat-fixture.mp4",
+            "assetId": "709abea7-72e1-450c-970f-abd5162eab66",
+            "tagStatus": "TAGGED",
+            "tags": [
+              {
+                "name": "山",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "太阳",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "草地",
+                "type": "topic",
+                "confidence": 0.95
+              }
+            ]
+          }
+        ],
+        "progressDownloadedBytes": 0,
+        "progressTotalBytes": 0,
+        "progressPercent": 0
+      },
+      "status": "SUCCEEDED",
+      "createdAt": "2026-09-26T08:48:42.033083+00:00"
+    },
+    {
+      "id": "e44cc4ae-4c91-4348-8842-3e0f1ce83b79",
+      "requestId": "d4438c81-b98b-4b83-81e9-837f693c8795",
+      "kind": "MEDIA",
+      "name": "download-chat-fixture.mp4",
+      "result": {
+        "downloadRequestId": "d4438c81-b98b-4b83-81e9-837f693c8795",
+        "status": "SUCCEEDED",
+        "itemCount": 1,
+        "totalBytes": 6327,
+        "collectionSha256": "b0bb24100d6455b128caa538cc6ec760087675abb2e12b4c899f884f5b3e09a2",
+        "contentSetSha256": "18d1aae6a3faa9df23f6a30fc6d7c4e09f72b28be07efd3346faa5e0688743dd",
+        "items": [
+          {
+            "itemId": "e44cc4ae-4c91-4348-8842-3e0f1ce83b79",
+            "fileName": "download-chat-fixture.mp4",
+            "contentSha256": "227e0077a2072728521ecf50577a2771a519c294be6b9f846bb88293ef04a1d4",
+            "sizeBytes": 6327,
+            "storageUri": "storage://managed/owner_806499868612455/media/202609/20260926/download-chat-fixture.mp4",
+            "assetId": "709abea7-72e1-450c-970f-abd5162eab66",
+            "tagStatus": "TAGGED",
+            "tags": [
+              {
+                "name": "山",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "太阳",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "蓝天",
+                "type": "topic",
+                "confidence": 0.95
+              },
+              {
+                "name": "草地",
+                "type": "topic",
+                "confidence": 0.95
+              }
+            ]
+          }
+        ],
+        "progressDownloadedBytes": 0,
+        "progressTotalBytes": 0,
+        "progressPercent": 0
+      },
+      "status": "SUCCEEDED",
+      "createdAt": "2026-09-26T07:48:21.564723+00:00"
+    }
+  ],
+  "appLargeUpload": {
+    "status": "STOPPED_SLOW_NETWORK",
+    "sampleBytesReceived": 3145728,
+    "sampleElapsedSeconds": 125,
+    "sampleKiBPerSecond": 24.6,
+    "fullUploadPassed": false,
+    "cancelled": true,
+    "tempRemoved": true
+  },
+  "magnetRetry": {
+    "id": "8441e0f2-eeee-4187-8d72-8505396ec1be",
+    "requestId": "834df980-a100-4c17-b867-999ce1611b71",
+    "kind": "LINKS",
+    "name": "magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel",
+    "result": {
+      "downloadRequestId": "834df980-a100-4c17-b867-999ce1611b71",
+      "status": "SUCCEEDED",
+      "itemCount": 11,
+      "totalBytes": 129302391,
+      "collectionSha256": "4c626495107680953fc6c7936a06c489838e1d3ca4933d90f06734be329a2f2f",
+      "contentSetSha256": "ef6f0fb0c45cf61939593cf534cf95f168f8a9bcbec3cf64d68b065641966d0a",
+      "items": [
+        {
+          "itemId": "pikpak:2282ee96-4981-4890-9ad7-245ec3afb2dc:1",
+          "fileName": "poster.jpg",
+          "contentSha256": "153e7e5d393cbec778dd140b7eaf7da123dcc0fdcffdc096d092a90f3ea389c8",
+          "sizeBytes": 46115,
+          "storageUri": "storage://managed/834df980-a100-4c17-b867-999ce1611b71/Sintel/poster.jpg",
+          "assetId": "a385f1ac-d8dc-4cee-8a01-538bb12dd88c",
+          "tagStatus": "TAGGED",
+          "tags": [
+            {
+              "name": "红发",
+              "type": "topic",
+              "confidence": 0.95
+            },
+            {
+              "name": "短发造型",
+              "type": "topic",
+              "confidence": 0.95
+            },
+            {
+              "name": "抱持动作",
+              "type": "topic",
+              "confidence": 0.95
+            },
+            {
+              "name": "奇幻生物互动",
+              "type": "topic",
+              "confidence": 0.95
+            }
+          ]
+        },
+        {
+          "itemId": "pikpak:2282ee96-4981-4890-9ad7-245ec3afb2dc:10",
+          "fileName": "Sintel.pt.srt",
+          "contentSha256": "a4cf9892f3b5fa8bee852c86950ae0845c94ee7fef44053f6cd787f2a0ca2302",
+          "sizeBytes": 1551,
+          "storageUri": "storage://managed/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.pt.srt",
+          "assetId": "1537e4ce-ebbe-45e6-8974-0db860b6a217",
+          "tagStatus": "TAGGED",
+          "tags": [
+            {
+              "name": "terras dos drag�es",
+              "type": "topic",
+              "confidence": 0.8
+            }
+          ]
+        },
+        {
+          "itemId": "pikpak:2282ee96-4981-4890-9ad7-245ec3afb2dc:11",
+          "fileName": "Sintel.ru.srt",
+          "contentSha256": "68722612738de5b990becb506e553a6b68994c0ddabc4d3479549f4fc0c5b242",
+          "sizeBytes": 2016,
+          "storageUri": "storage://managed/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.ru.srt",
+          "assetId": "4973986f-d7ff-414a-a3d2-c48034130605",
+          "tagStatus": "TAGGED",
+          "tags": [
+            {
+              "name": "龙守护者",
+              "type": "topic",
+              "confidence": 0.95
+            },
+            {
+              "name": "独行侠",
+              "type": "topic",
+              "confidence": 0.85
+            },
+            {
+              "name": "鳞片人",
+              "type": "topic",
+              "confidence": 0.75
+            },
+            {
+              "name": "寻找龙的人",
+              "type": "topic",
+              "confidence": 0.65
+            }
+          ]
+        },
+        {
+          "itemId": "pikpak:2282ee96-4981-4890-9ad7-245ec3afb2dc:2",
+          "fileName": "Sintel.de.srt",
+          "contentSha256": "47ddffc47bc38611d9e546b4c6b0ebcdb6c38ae6ccbf726168ad9fe2972c6732",
+          "sizeBytes": 1652,
+          "storageUri": "storage://managed/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.de.srt",
+          "assetId": "7f480f65-8852-4804-9d2a-ed9d52c7e6ec",
+          "tagStatus": "TAGGED",
+          "tags": [
+            {
+              "name": "einsame Jägerin",
+              "type": "topic",
+              "confidence": 0.8
+            }
+          ]
+        },
+        {
+          "itemId": "pikpak:2282ee96-4981-4890-9ad7-245ec3afb2dc:3",
+          "fileName": "Sintel.en.srt",
+          "contentSha256": "4ed7e1f1bc5ff69fe33606960e4c048ba6766237bf33b132fef76e1a92cb64b2",
+          "sizeBytes": 1514,
+          "storageUri": "storage://managed/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.en.srt",
+          "assetId": "14745f2e-d57f-4e3f-8499-0e28ef197707",
+          "tagStatus": "TAGGED",
+          "tags": [
+            {
+              "name": "龙",
+              "type": "topic",
+              "confidence": 0.95
+            },
+            {
+              "name": "猎人",
+              "type": "topic",
+              "confidence": 0.85
+            },
+            {
+              "name": "守门者之地",
+              "type": "topic",
+              "confidence": 0.75
+            },
+            {
+              "name": "独行者",
+              "type": "topic",
+              "confidence": 0.65
+            }
+          ]
+        },
+        {
+          "itemId": "pikpak:2282ee96-4981-4890-9ad7-245ec3afb2dc:4",
+          "fileName": "Sintel.es.srt",
+          "contentSha256": "02672e534f02321121ea2b8cc7fdac634112b6689021d1f8ed01ed26adc0e639",
+          "sizeBytes": 1554,
+          "storageUri": "storage://managed/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.es.srt",
+          "assetId": "ccff991d-43ec-4bdf-a813-68ea095b9d3a",
+          "tagStatus": "TAGGED",
+          "tags": [
+            {
+              "name": "独行猎人",
+              "type": "topic",
+              "confidence": 0.95
+            },
+            {
+              "name": "龙族守护者",
+              "type": "topic",
+              "confidence": 0.95
+            },
+            {
+              "name": "Scales",
+              "type": "topic",
+              "confidence": 0.95
+            },
+            {
+              "name": "Sintel",
+              "type": "topic",
+              "confidence": 0.95
+            }
+          ]
+        },
+        {
+          "itemId": "pikpak:2282ee96-4981-4890-9ad7-245ec3afb2dc:5",
+          "fileName": "Sintel.fr.srt",
+          "contentSha256": "42bbef7442bcee5139e283dc6513f52d16a2f8896fe70b71cfc45e4262a0fa8b",
+          "sizeBytes": 1618,
+          "storageUri": "storage://managed/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.fr.srt",
+          "assetId": "8e28c322-788e-442c-93c6-06c8a1c0e202",
+          "tagStatus": "TAGGED",
+          "tags": [
+            {
+              "name": "龙女",
+              "type": "topic",
+              "confidence": 0.95
+            },
+            {
+              "name": "独行猎人",
+              "type": "topic",
+              "confidence": 0.95
+            },
+            {
+              "name": "守护者之地",
+              "type": "topic",
+              "confidence": 0.85
+            },
+            {
+              "name": "血色刀刃",
+              "type": "topic",
+              "confidence": 0.75
+            }
+          ]
+        },
+        {
+          "itemId": "pikpak:2282ee96-4981-4890-9ad7-245ec3afb2dc:6",
+          "fileName": "Sintel.it.srt",
+          "contentSha256": "7a6967d77ebbc003cecbe83e2fdaef4e951c9a47d5e192256867ae2a10083a8d",
+          "sizeBytes": 1546,
+          "storageUri": "storage://managed/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.it.srt",
+          "assetId": "620bcdbc-c1f5-42ad-84af-175e469e5689",
+          "tagStatus": "TAGGED",
+          "tags": [
+            {
+              "name": "ricerca pericolosa",
+              "type": "topic",
+              "confidence": 0.8
+            }
+          ]
+        },
+        {
+          "itemId": "pikpak:2282ee96-4981-4890-9ad7-245ec3afb2dc:7",
+          "fileName": "Sintel.mp4",
+          "contentSha256": "1dc6f2ca9762dfcc7d1b1843129a3e4f351d1fe935dea2241c7b359c11ebc1d8",
+          "sizeBytes": 129241752,
+          "storageUri": "storage://managed/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.mp4",
+          "assetId": "ab003aa5-9bb3-48ea-9207-41f5eb5ba8ca",
+          "tagStatus": "TAGGED",
+          "tags": [
+            {
+              "name": "动画角色",
+              "type": "topic",
+              "confidence": 0.95
+            },
+            {
+              "name": "皮克斯风格",
+              "type": "topic",
+              "confidence": 0.95
+            },
+            {
+              "name": "3D动画",
+              "type": "topic",
+              "confidence": 0.95
+            }
+          ]
+        },
+        {
+          "itemId": "pikpak:2282ee96-4981-4890-9ad7-245ec3afb2dc:8",
+          "fileName": "Sintel.nl.srt",
+          "contentSha256": "4c779b3aff7de60b9f42c0ad34164c54d867be568ed7b465342a9b41340e0630",
+          "sizeBytes": 1537,
+          "storageUri": "storage://managed/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.nl.srt",
+          "assetId": "9842932a-fede-47a5-9f56-ffcc85237e05",
+          "tagStatus": "TAGGED",
+          "tags": [
+            {
+              "name": "Dragon Quest",
+              "type": "topic",
+              "confidence": 0.8
+            },
+            {
+              "name": "Draak",
+              "type": "topic",
+              "confidence": 0.8
+            },
+            {
+              "name": "Poortwachters Land",
+              "type": "topic",
+              "confidence": 0.8
+            }
+          ]
+        },
+        {
+          "itemId": "pikpak:2282ee96-4981-4890-9ad7-245ec3afb2dc:9",
+          "fileName": "Sintel.pl.srt",
+          "contentSha256": "b1c573616fdc1c55eeeff8f9cfcca9c944c5aae282d38aeb381cc6b12f968507",
+          "sizeBytes": 1536,
+          "storageUri": "storage://managed/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.pl.srt",
+          "assetId": "997c4f13-6c23-4a8e-8753-eb851e070d49",
+          "tagStatus": "TAGGED",
+          "tags": [
+            {
+              "name": "Samotna Podróżniczka",
+              "type": "topic",
+              "confidence": 0.8
+            }
+          ]
+        }
+      ],
+      "progressDownloadedBytes": 0,
+      "progressTotalBytes": 0,
+      "progressPercent": 0
+    },
+    "status": "SUCCEEDED",
+    "createdAt": "2026-09-26T08:54:49.237190+00:00"
+  },
+  "backendVersion": "download-chat-20260926-v3"
+}

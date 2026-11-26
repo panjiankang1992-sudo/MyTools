@@ -1,4 +1,6 @@
+import { ToolPageHeader, ToolEmptyState } from './ToolUi';
 import { AppTheme } from '../../theme/AppTheme';
+import { AppButton, AppGroupedButton, AppEqualActionRow, AppTextAction, AppSegmentItem, AppGlassTextArea } from '../../components/AppControls';
 import { common } from '@kit.AbilityKit';
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import picker from '@ohos.file.picker';
@@ -30,7 +32,12 @@ export struct VideoGenerationPage {
   @Prop @Watch('resetAccount') accountKey: string = '';
   authManager: AuthSessionManager = new AuthSessionManager();
   onBack: () => void = () => {};
+  @State modelExpanded: boolean = false;
+  @State modesExpanded: boolean = false;
   @State models: VideoModel[] = [];
+  @State catalogLoading: boolean = true;
+  @State catalogFailed: boolean = false;
+  private catalogRead: boolean = false;
   @State modelId: string = '';
   @State mode: string = '';
   @State entry: string = 'image';
@@ -60,14 +67,21 @@ export struct VideoGenerationPage {
   private videoController: VideoController = new VideoController();
   private pending: VideoRequest | undefined = undefined;
 
+  /** 进入页面时读取当前账号的创作能力与作品。 */
   aboutToAppear(): void { this.refresh(); }
+  /** 离开页面时释放当前会话的轮询和媒体缓存。 */
   aboutToDisappear(): void { this.teardown(); }
   /** 切换账号时必须停止轮询、释放播放器并清空上一账号的全部状态。 */
   private resetAccount(): void {
     this.teardown();
+    this.modelExpanded = false; this.modesExpanded = false;
     this.models = []; this.modelId = ''; this.mode = ''; this.prompt = ''; this.uploadIds = [];
+    this.catalogLoading = true; this.catalogFailed = false; this.catalogRead = false;
     this.jobs = []; this.message = ''; this.busy = false; this.tab = 'create'; this.page = 0;
     this.pending = undefined;
+    // 图片作品缓存及进行中的提示也属于账号，不能带入下一会话。
+    this.imageWorks = []; this.imageWorksVisible = false; this.imageWorksBusy = false;
+    this.imageWorksMessage = ''; this.slotIndex = 0; this.progressText = ''; this.entry = 'image';
     this.refresh();
   }
   /** 退出页面：停止轮询、释放播放器、删除本次会话写入缓存的封面与成片。 */
@@ -109,7 +123,8 @@ export struct VideoGenerationPage {
   }
   private entryHint(entry: string): string {
     if (entry === 'text') return '只给描述，从零生成';
-    if (entry === 'image') return '拿一张（或两张）图当首帧/主体';
+    if (entry === 'image') return this.modelId === 'ltx-video-2b-local' ?
+      '提供一张首帧图片和动作描述' : '拿一张（或两张）图当首帧/主体';
     return '拿一段原片做重绘或局部修改';
   }
   /** 切换入口时自动落到该入口下第一个已验收模式，没有可用模式则清空选择。 */
@@ -122,7 +137,24 @@ export struct VideoGenerationPage {
     this.syncInputs();
     this.pending = undefined;
     this.message = usable.length > 0 ? '' :
-      `「${this.entryLabel(entry)}」下还没有通过验收的模式。`;
+      (this.entrySupported(entry) ? `「${this.entryLabel(entry)}」下还没有通过验收的模式。` :
+        `当前模型不支持「${this.entryLabel(entry)}」，可切换其他模型查看。`);
+  }
+  /** 切换模型时清除旧素材和待提交快照，重新按新模型契约选择模式。 */
+  private selectModel(model: VideoModel): void {
+    if (this.busy || this.modelId === model.id) return;
+    this.modelId = model.id;
+    this.mode = '';
+    this.uploadIds = [];
+    this.pending = undefined;
+    this.imageWorksVisible = false;
+    this.message = '';
+    this.ensureSelection();
+  }
+  /** 未声明的入口与尚未验收的入口需要分别说明。 */
+  private entrySupported(entry: string): boolean {
+    const allowed = VideoGenerationPage.ENTRY_MODES[entry] ?? [];
+    return this.catalogModes().some((item: VideoModeSpec) => allowed.includes(item.mode));
   }
   private selectedMode(): VideoModeSpec | undefined {
     return this.catalogModes().find((item: VideoModeSpec) => item.mode === this.mode);
@@ -185,7 +217,8 @@ export struct VideoGenerationPage {
   }
   private submitLabel(): string {
     if (this.busy) return '处理中…';
-    if (this.models.length === 0) return '正在连接视频服务…';
+    if (this.models.length === 0) return this.catalogLoading ? '正在连接视频服务…' :
+      this.catalogFailed ? '连接失败，请刷新' : '暂无可用视频模型';
     if (this.validatedModes().length === 0) return '当前没有通过验收的模式';
     const model = this.selectedModel();
     if (model !== undefined && model.status !== 'READY') return '视频模型尚未就绪';
@@ -193,7 +226,8 @@ export struct VideoGenerationPage {
     return '生成视频';
   }
   private hintText(): string {
-    if (this.models.length === 0) return '正在读取视频能力目录…';
+    if (this.models.length === 0) return this.catalogLoading ? '正在读取视频能力目录…' :
+      this.catalogFailed ? '请刷新后重试，已填写内容会保留。' : '当前没有可用的视频模型。';
     if (this.validatedModes().length === 0) return '当前没有通过验收的模式，暂时不能生成。';
     const spec = this.selectedMode();
     if (spec === undefined) return '请选择一个已验收的模式。';
@@ -307,6 +341,8 @@ export struct VideoGenerationPage {
     const revision = this.revision;
     const sequence = ++this.refreshSequence;
     this.stopPolling();
+    // 后台更新保留列表，只在首次读取时展示加载状态。
+    this.catalogLoading = !this.catalogRead;
     try {
       const api = this.api();
       const models = await api.models();
@@ -314,14 +350,21 @@ export struct VideoGenerationPage {
       if (revision !== this.revision || sequence !== this.refreshSequence) return;
       this.models = models;
       this.jobs = jobs;
+      this.catalogFailed = false;
+      if (this.message === '视频服务暂不可用，请稍后刷新；不会自动切换模式。') this.message = '';
       this.ensureSelection();
       await this.loadCovers(jobs, revision, sequence);
     } catch (_) {
       if (revision === this.revision && sequence === this.refreshSequence) {
         this.message = '视频服务暂不可用，请稍后刷新；不会自动切换模式。';
+        this.catalogFailed = true;
       }
     } finally {
-      if (revision === this.revision && sequence === this.refreshSequence) this.schedule();
+      if (revision === this.revision && sequence === this.refreshSequence) {
+        this.catalogLoading = false;
+        this.catalogRead = true;
+        this.schedule();
+      }
     }
   }
   /** 默认选中第一个已就绪模型与第一个已验收模式；不存在时保持不可提交。 */
@@ -333,7 +376,8 @@ export struct VideoGenerationPage {
       return;
     }
     if (this.selectedModel() === undefined) {
-      const ready = this.models.find((item: VideoModel) => item.status === 'READY');
+      const ready = this.models.find((item: VideoModel) => item.status === 'READY' &&
+        item.modes.some((mode: VideoModeSpec) => mode.validated));
       this.modelId = ready === undefined ? this.models[0].id : ready.id;
       this.mode = '';
       this.uploadIds = [];
@@ -558,11 +602,12 @@ export struct VideoGenerationPage {
     } catch (error) {
       if (revision !== this.revision) return;
       const code = this.rawCode(this.rawMessage(error));
-      if (code.length > 0) {
+      if (code.length > 0 && code !== 'VIDEO_010') {
         // 服务端已明确拒绝，纠正后应按新意图提交，因此丢弃旧幂等键。
         this.pending = undefined;
         this.message = this.errorText(code);
       } else {
+        // 网关或上游不可用可能发生在受理之后，必须保留快照与幂等键。
         this.message = '提交未确认，重试将复用同一任务编号，避免重复生成。';
       }
     } finally {
@@ -591,6 +636,9 @@ export struct VideoGenerationPage {
     }
     this.modelId = model.id;
     this.mode = request.mode;
+    // 历史模式可能属于另一入口，恢复时同步分组，避免显示与提交模式不一致。
+    this.entry = ['text', 'image', 'video'].find((entry: string) =>
+      VideoGenerationPage.ENTRY_MODES[entry].includes(request.mode)) ?? 'image';
     this.prompt = request.prompt;
     this.uploadIds = [];
     this.syncInputs();
@@ -713,58 +761,69 @@ export struct VideoGenerationPage {
     this.onBack();
   }
   @Builder
-  private QuietButton(label: string, action: () => void) {
-    Button(label).type(ButtonType.Normal).height(34).fontSize(12).fontWeight(FontWeight.Medium)
-      .fontColor(AppTheme.textSecondary).backgroundColor(AppTheme.surfaceTint).borderRadius(10)
-      .padding({ left: 12, right: 12 }).enabled(!this.busy).onClick(action)
+  private QuietButton(label: ResourceStr, action: () => void) {
+    AppTextAction({ label: label, available: !this.busy, action: action }).margin({ right: 8 })
   }
   @Builder
   private ModeChips() {
     Column({ space: 8 }) {
       Row() {
-        Text('生成模式').fontSize(14).fontWeight(FontWeight.Medium).layoutWeight(1)
-        Text(`${this.entryModes().filter((item: VideoModeSpec) => item.validated).length} / ` +
-          `${this.entryModes().length} 个模式已验收`)
-          .fontSize(11).fontColor(AppTheme.textTertiary)
+        Text($r('app.string.tool_ui_video_mode')).fontFamily(AppTheme.fontMedium).fontSize(16).fontWeight(500).layoutWeight(1)
+        SymbolGlyph($r('sys.symbol.play_round_rectangle_fill')).fontSize(20).fontColor([AppTheme.primary])
       }.width('100%')
-      Row({ space: 8 }) {
+      AppEqualActionRow() {
         ForEach(['text', 'image', 'video'], (entry: string) => {
-          Column({ space: 2 }) {
-            Text(this.entryLabel(entry)).fontSize(12).fontWeight(FontWeight.Medium)
+          Button({ type: ButtonType.Normal }) {
+          Column({ space: 8 }) {
+            SymbolGlyph(entry === 'text' ? $r('sys.symbol.doc_text') : entry === 'image' ? $r('sys.symbol.picture') : $r('sys.symbol.play_round_rectangle_fill')).fontSize(24).fontColor([this.entry === entry ? AppTheme.primary : AppTheme.textSecondary])
+            Text(this.entryLabel(entry)).fontFamily(AppTheme.fontMedium).fontSize(14).fontWeight(500)
+              .width('100%').textAlign(TextAlign.Center).maxLines(2).wordBreak(WordBreak.BREAK_ALL)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
               .fontColor(this.entry === entry ? AppTheme.primary : AppTheme.ink)
-            Text(this.entryUsable(entry) ? '可用' : '未验收').fontSize(9)
+            Text(this.entryUsable(entry) ? $r('app.string.tool_ui_video_available') : $r('app.string.tool_ui_video_unavailable')).fontFamily(AppTheme.fontFamily).fontSize(12)
+              .width('100%').textAlign(TextAlign.Center).maxLines(2).textOverflow({ overflow: TextOverflow.Ellipsis })
               .fontColor(this.entryUsable(entry) ? AppTheme.primary : AppTheme.textTertiary)
-          }.layoutWeight(1).padding({ top: 8, bottom: 8 }).borderRadius(10)
+          }.width('100%')
+          }.padding({ left: 8, right: 8, top: 14, bottom: 14 }).borderRadius(12)
             .backgroundColor(this.entry === entry ? AppTheme.accentSoft : AppTheme.background)
-            .border({ width: 1, color: this.entry === entry ? AppTheme.primary : AppTheme.divider })
+            .border({ width: 1, radius: 12, color: this.entry === entry ? AppTheme.primary : AppTheme.divider })
             .opacity(this.entryUsable(entry) ? 1 : 0.55)
+            .enabled(!this.busy)
             .onClick(() => this.selectEntry(entry))
             .accessibilityText(`${this.entryLabel(entry)}：${this.entryHint(entry)}`)
         }, (entry: string) => entry)
-      }.width('100%')
-      Text(this.entryHint(this.entry)).fontSize(11).fontColor(AppTheme.textTertiary).width('100%')
-      ForEach(this.entryModes(), (spec: VideoModeSpec) => {
+      }
+      Text(this.entryHint(this.entry)).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary).width('100%')
+      ForEach(this.entryModes().filter((spec: VideoModeSpec) => this.modesExpanded || spec.validated), (spec: VideoModeSpec) => {
+        Button({ type: ButtonType.Normal }) {
         Column({ space: 4 }) {
           Row({ space: 8 }) {
-            Text(this.modeLabel(spec.mode)).fontSize(13).fontWeight(FontWeight.Medium).layoutWeight(1)
+            Text(this.modeLabel(spec.mode)).fontFamily(AppTheme.fontMedium).fontSize(16).fontWeight(500).layoutWeight(1)
               .fontColor(spec.validated ? (this.mode === spec.mode ? AppTheme.primary : AppTheme.ink) :
                 AppTheme.textTertiary)
-            Text(spec.validated ? '已验收' : '未验收').fontSize(10)
+            Text(spec.validated ? (this.mode === spec.mode ? $r('app.string.tool_ui_video_selected') : $r('app.string.tool_ui_video_available')) : $r('app.string.tool_ui_video_unavailable')).fontFamily(AppTheme.fontFamily).fontSize(12)
               .fontColor(spec.validated ? AppTheme.primary : AppTheme.textTertiary)
               .backgroundColor(spec.validated ? AppTheme.accentSoft : AppTheme.surfaceTint)
               .borderRadius(6).padding({ left: 6, right: 6, top: 2, bottom: 2 })
           }.width('100%')
-          Text(spec.validated ? this.modeContract(spec) : `未验收，禁止提交 · 原因码 ${this.reasonText(spec)}`)
-            .fontSize(11).fontColor(AppTheme.textTertiary).width('100%')
-        }.width('100%').padding(10).borderRadius(12)
+          Text(spec.validated ? this.modeContract(spec) : $r('app.string.tool_ui_video_pending')).fontFamily(AppTheme.fontFamily)
+            .fontSize(12).fontColor(AppTheme.textTertiary).width('100%')
+        }.width('100%').alignItems(HorizontalAlign.Start)
+        }.width('100%').constraintSize({ minHeight: 64 }).padding(12).borderRadius(12)
           .backgroundColor(spec.validated && this.mode === spec.mode ? AppTheme.accentSoft : AppTheme.background)
-          .border({ width: 1,
+          .border({ width: 1, radius: 12,
             color: spec.validated && this.mode === spec.mode ? AppTheme.primary : AppTheme.divider })
           .opacity(spec.validated ? 1 : 0.55)
           .enabled(spec.validated && !this.busy)
           .onClick(() => this.selectMode(spec))
+          .accessibilityText(this.modeLabel(spec.mode))
+          .accessibilityDescription(this.mode === spec.mode ? '已选择' : '未选择')
       }, (spec: VideoModeSpec) => `${spec.mode}:${spec.validated}:${spec.reasonCode}`)
-    }.width('100%').padding(14).backgroundColor(AppTheme.surface).borderRadius(20)
+      if (this.entryModes().some((spec: VideoModeSpec) => !spec.validated)) {
+        AppTextAction({ label: this.modesExpanded ? $r('app.string.tool_ui_video_less') : $r('app.string.tool_ui_video_more'),
+          action: () => this.modesExpanded = !this.modesExpanded })
+      }
+    }.width('100%').padding(14).backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius)
       .alignItems(HorizontalAlign.Start)
   }
   private modeContract(spec: VideoModeSpec): string {
@@ -778,27 +837,23 @@ export struct VideoGenerationPage {
         Column({ space: 8 }) {
           // 标签与规格独占一行：按钮再多样也不会把说明挤成竖排。
           Column({ space: 3 }) {
-            Text(`${this.roleLabel(slot.role)}${slot.optional ? '（可选）' : ''}`)
-              .fontSize(13).fontWeight(FontWeight.Medium).fontColor(AppTheme.ink).width('100%')
+            Text(`${this.roleLabel(slot.role)}${slot.optional ? '（可选）' : ''}`).fontFamily(AppTheme.fontMedium)
+              .fontSize(14).lineHeight(20).fontWeight(500).fontColor(AppTheme.ink).width('100%')
             Text(slot.kind === 'VIDEO' ? `${slot.optional ? '可选' : '必填'} · MP4，服务端实测不超过 200 MB` :
-              `${slot.optional ? '可选' : '必填'} · PNG/JPEG，服务端实测不超过 20 MB`)
-              .fontSize(11).fontColor(AppTheme.textTertiary).width('100%')
+              `${slot.optional ? '可选' : '必填'} · PNG/JPEG，服务端实测不超过 20 MB`).fontFamily(AppTheme.fontFamily)
+              .fontSize(12).fontColor(AppTheme.textTertiary).width('100%')
           }.width('100%').alignItems(HorizontalAlign.Start)
           // 操作按钮另起一行，按需换行而不是压缩文字。
           Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start }) {
             if (slot.kind === 'IMAGE') {
-              Button('我的作品').type(ButtonType.Normal).height(34).fontSize(12).margin({ right: 8, bottom: 8 }).padding({ left: 14, right: 14 })
-                .fontColor(AppTheme.textSecondary).backgroundColor(AppTheme.surfaceTint).borderRadius(10)
-                .enabled(!this.busy).onClick(() => this.openImageWorks(slot))
+              AppButton({ label: '我的作品', variant: 'secondary', available: !this.busy,
+                action: () => this.openImageWorks(slot) }).margin({ right: 8, bottom: 8 })
             }
-            Button(this.slotActionLabel(slot)).type(ButtonType.Normal).height(34).fontSize(12).margin({ right: 8, bottom: 8 })
-              .padding({ left: 14, right: 14 })
-              .fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft).borderRadius(10)
-              .enabled(!this.busy).onClick(() => this.pick(slot))
+            AppButton({ label: this.slotActionLabel(slot), variant: 'secondary', available: !this.busy,
+              action: () => this.pick(slot) }).margin({ right: 8, bottom: 8 })
             if (slot.index < this.uploadIds.length && this.uploadIds[slot.index].length > 0) {
-              Button('清除').type(ButtonType.Normal).height(34).fontSize(12).margin({ right: 8, bottom: 8 }).padding({ left: 14, right: 14 })
-                .fontColor(AppTheme.textSecondary).backgroundColor(AppTheme.surfaceTint).borderRadius(10)
-                .enabled(!this.busy).onClick(() => this.clearSlot(slot.index))
+              AppTextAction({ label: '清除', available: !this.busy,
+                action: () => this.clearSlot(slot.index) }).margin({ right: 8, bottom: 8 })
             }
           }.width('100%')
         }.width('100%')
@@ -815,13 +870,18 @@ export struct VideoGenerationPage {
   }
   private modeSelected(): boolean { return this.selectedMode() !== undefined; }
   private promptLabel(): string {
-    return this.modePromptRequired() ? '必填 · 不会自动扩写或上传外部服务' : '可选 · 留空则完全依赖素材';
+    if (!this.modePromptRequired()) return '可选 · 留空则完全依赖素材';
+    return this.modelId === 'ltx-video-2b-local' ?
+      '必填 · 本机根据图片整理为英文描述，保留你的动作要求，不上传外部服务' :
+      '必填 · 不会自动扩写或上传外部服务';
   }
   private modelSummary(): string {
     const model = this.selectedModel();
-    if (model === undefined) return '正在读取视频模型…';
+    if (model === undefined) return this.catalogLoading ? '正在读取视频模型…' :
+      this.catalogFailed ? '视频模型暂时无法加载，请刷新重试。' : '暂无可用视频模型';
     const location = model.location === 'LOCAL' ? '本机运行' : '远端服务';
-    const status = model.status === 'READY' ? '已就绪' : `暂不可用（${model.reasonCode.length > 0 ?
+    const status = model.status === 'READY' ? (model.modes.some((item: VideoModeSpec) => item.validated) ?
+      '可用' : '模型已就绪，暂无可用模式') : `暂不可用（${model.reasonCode.length > 0 ?
       model.reasonCode : 'REASON_UNKNOWN'}）`;
     return `${model.name} · ${location} · ${status}`;
   }
@@ -829,50 +889,65 @@ export struct VideoGenerationPage {
   private Composer() {
     Column({ space: 12 }) {
       Column({ space: 4 }) {
-        Text('让文字或图片，动起来').fontSize(24).fontWeight(FontWeight.Bold).fontColor(AppTheme.ink)
-        Text('只展示通过验收的模式，成片参数固定不开放其他取值。')
-          .fontSize(13).fontColor(AppTheme.textSecondary)
+        Text('让文字或图片，动起来').fontFamily(AppTheme.fontSemibold).fontSize(26).lineHeight(34).fontWeight(600).fontColor(AppTheme.ink)
+        Text($r('app.string.tool_ui_video_hint')).fontFamily(AppTheme.fontFamily)
+          .fontSize(15).lineHeight(24).fontColor(AppTheme.textSecondary)
       }.width('100%').alignItems(HorizontalAlign.Start).padding({ top: 8, bottom: 4 })
-      Column({ space: 6 }) {
-        Text('视频模型').fontSize(13).fontWeight(FontWeight.Medium)
-        Text(this.modelSummary()).fontSize(12).fontColor(AppTheme.textSecondary)
-        Text(`固定输出 ${this.outputSummary()}`).fontSize(11).fontColor(AppTheme.textTertiary)
-      }.width('100%').padding(14).backgroundColor(AppTheme.surface).borderRadius(20)
-        .alignItems(HorizontalAlign.Start)
       this.ModeChips()
+      Column({ space: 12 }) {
+        Row({ space: 8 }) {
+          Text($r('app.string.tool_ui_video_settings')).fontFamily(AppTheme.fontMedium).fontSize(15).fontWeight(500).layoutWeight(1)
+          AppTextAction({ label: this.modelExpanded ? $r('app.string.tool_ui_video_collapse') : $r('app.string.tool_ui_video_expand'),
+            available: !this.busy, action: () => this.modelExpanded = !this.modelExpanded })
+        }.width('100%')
+        Text(this.modelSummary()).fontFamily(AppTheme.fontFamily).fontSize(13).fontColor(AppTheme.ink).width('100%')
+        Text(this.outputSummary()).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary).width('100%')
+        if (this.modelExpanded) {
+        ForEach(this.models, (model: VideoModel) => {
+          Button({ type: ButtonType.Normal }) {
+            Text(model.name).fontFamily(AppTheme.fontMedium).fontWeight(500).fontSize(16).lineHeight(24)
+              .fontColor(this.modelId === model.id ? AppTheme.primary : AppTheme.textSecondary)
+              .width('100%').textAlign(TextAlign.Start)
+          }.width('100%').constraintSize({ minHeight: 48 })
+            .padding({ left: 14, right: 14, top: 10, bottom: 10 })
+            .backgroundColor(this.modelId === model.id ? AppTheme.accentSoft : AppTheme.background)
+            .borderRadius(10).enabled(!this.busy)
+            .accessibilityText(`选择视频模型：${model.name}`)
+            .accessibilityDescription(this.modelId === model.id ? '已选择' : '未选择')
+            .onClick(() => this.selectModel(model))
+        }, (model: VideoModel) => model.id)
+        }
+      }.width('100%').padding(16).backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius).alignItems(HorizontalAlign.Start)
       if (this.modeSelected()) {
         Column({ space: 10 }) {
           Row() {
-            Text('画面描述').fontSize(14).fontWeight(FontWeight.Medium).layoutWeight(1)
-            Text(`${this.prompt.length} / 4000`).fontSize(10).fontColor(AppTheme.textTertiary)
+            Text('画面描述').fontFamily(AppTheme.fontMedium).fontSize(14).fontWeight(500).layoutWeight(1)
+            Text(`${this.prompt.length} / 4000`).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary)
           }.width('100%')
-          TextArea({ text: this.prompt, placeholder: '描述主体、动作、运镜与光线…' })
-            .height(88).fontSize(15).fontColor(AppTheme.ink).backgroundColor(Color.Transparent)
-            .padding(0).maxLength(4000).enabled(!this.busy)
-            .onChange((value: string) => { this.prompt = value; this.pending = undefined; })
+          AppGlassTextArea({ value: this.prompt, placeholder: '描述主体、动作、运镜与光线…',
+            areaHeight: 156, limit: 4000, available: !this.busy,
+            valueChanged: (value: string) => { this.prompt = value; this.pending = undefined; } })
           Row() {
-            Text(this.promptLabel()).fontSize(11).fontColor(AppTheme.textTertiary).layoutWeight(1)
+            Text(this.promptLabel()).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary).layoutWeight(1)
             if (this.prompt.length > 0) {
-              Text('清空').fontSize(12).fontColor(AppTheme.textSecondary).padding(8).enabled(!this.busy)
-                .onClick(() => { this.prompt = ''; this.pending = undefined; })
+              AppTextAction({ label: '清空', available: !this.busy,
+                action: () => { this.prompt = ''; this.pending = undefined; } })
             }
           }.width('100%')
-        }.padding(16).width('100%').backgroundColor(AppTheme.surface).borderRadius(20)
+        }.padding(16).width('100%').backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius)
           .border({ width: 1, color: AppTheme.divider }).alignItems(HorizontalAlign.Start)
       }
       if (this.slots().length > 0) {
         Column({ space: 10 }) {
-          Text('素材').fontSize(14).fontWeight(FontWeight.Medium).width('100%')
+          Text('素材').fontFamily(AppTheme.fontMedium).fontSize(14).fontWeight(500).width('100%')
           this.InputSlots()
           this.ImageWorksSheet()
-        }.padding(14).width('100%').backgroundColor(AppTheme.surface).borderRadius(20)
+        }.padding(14).width('100%').backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius)
           .alignItems(HorizontalAlign.Start)
       }
-      Button(this.submitLabel()).type(ButtonType.Normal).width('100%').height(50).fontSize(16)
-        .fontWeight(FontWeight.Medium).fontColor(Color.White)
-        .backgroundColor(this.canSubmit() ? AppTheme.primary : AppTheme.outline).borderRadius(14)
-        .enabled(this.canSubmit()).onClick(() => this.generate())
-      Text(this.hintText()).fontSize(11).fontColor(AppTheme.textTertiary)
+      AppButton({ label: this.submitLabel(), fullWidth: true, loading: this.busy,
+        available: this.canSubmit(), action: () => this.generate() })
+      Text(this.hintText()).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary)
         .accessibilityText(`提交提示：${this.hintText()}`)
     }.width('100%').alignItems(HorizontalAlign.Start)
   }
@@ -882,14 +957,14 @@ export struct VideoGenerationPage {
     if (this.imageWorksVisible) {
       Column({ space: 10 }) {
         Row() {
-          Text('用我的图片作品').fontSize(15).fontWeight(FontWeight.Medium).layoutWeight(1)
+          Text('用我的图片作品').fontFamily(AppTheme.fontMedium).fontSize(15).fontWeight(500).layoutWeight(1)
           this.QuietButton('关闭', () => this.imageWorksVisible = false)
         }.width('100%')
         if (this.imageWorksBusy) {
-          Text(this.imageWorksMessage.length > 0 ? this.imageWorksMessage : '正在加载…')
+          Text(this.imageWorksMessage.length > 0 ? this.imageWorksMessage : '正在加载…').fontFamily(AppTheme.fontFamily)
             .fontSize(12).fontColor(AppTheme.textTertiary).width('100%')
         } else if (this.imageWorks.length === 0) {
-          Text(this.imageWorksMessage.length > 0 ? this.imageWorksMessage : '还没有可用的图片作品。')
+          Text(this.imageWorksMessage.length > 0 ? this.imageWorksMessage : '还没有可用的图片作品。').fontFamily(AppTheme.fontFamily)
             .fontSize(12).fontColor(AppTheme.textTertiary).width('100%')
         } else {
           List({ space: 8 }) {
@@ -898,14 +973,13 @@ export struct VideoGenerationPage {
                 Row({ space: 10 }) {
                   Column({ space: 3 }) {
                     Text(job.request === undefined || job.request.prompt === undefined ||
-                      job.request.prompt.length === 0 ? '（无描述）' : job.request.prompt)
+                      job.request.prompt.length === 0 ? '（无描述）' : job.request.prompt).fontFamily(AppTheme.fontFamily)
                       .fontSize(13).fontColor(AppTheme.ink).maxLines(1)
                       .textOverflow({ overflow: TextOverflow.Ellipsis }).width('100%')
-                    Text(`${this.imageJobLabel(job)}`).fontSize(10).fontColor(AppTheme.textTertiary).width('100%')
+                    Text(`${this.imageJobLabel(job)}`).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary).width('100%')
                   }.layoutWeight(1).alignItems(HorizontalAlign.Start)
-                  Button('用作素材').type(ButtonType.Normal).height(32).fontSize(12)
-                    .fontColor(AppTheme.primary).backgroundColor(AppTheme.accentSoft).borderRadius(10)
-                    .onClick(() => this.useImageWork(job))
+                  AppTextAction({ label: '用作素材', available: !this.busy,
+                    action: () => this.useImageWork(job) })
                 }.width('100%').padding(10).backgroundColor(AppTheme.background).borderRadius(12)
               }
             }, (job: ImageJob) => job.id)
@@ -923,15 +997,15 @@ export struct VideoGenerationPage {
   private Player() {
     Column({ space: 8 }) {
       Row() {
-        Text(this.playerTitle.length > 0 ? `正在播放 ${this.playerTitle}` : '正在播放')
-          .fontSize(13).fontWeight(FontWeight.Medium).layoutWeight(1).fontColor(AppTheme.ink)
+        Text(this.playerTitle.length > 0 ? `正在播放 ${this.playerTitle}` : '正在播放').fontFamily(AppTheme.fontMedium)
+          .fontSize(13).fontWeight(500).layoutWeight(1).fontColor(AppTheme.ink)
         this.QuietButton('停止播放', () => this.releasePlayer())
       }.width('100%')
       Video({ src: this.playerUri, controller: this.videoController })
         .width('100%').height(220).autoPlay(true).controls(true).objectFit(ImageFit.Contain)
         .onPrepared(() => { this.progressText = ''; })
         .onError(() => { this.message = '播放失败：本地成片可重试，在线播放请重新获取播放地址。'; })
-    }.width('100%').padding(12).backgroundColor(AppTheme.surface).borderRadius(20)
+    }.width('100%').padding(12).backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius)
   }
   @Builder
   private WorksCard(job: VideoJob) {
@@ -940,27 +1014,27 @@ export struct VideoGenerationPage {
         Stack({ alignContent: Alignment.Center }) {
           Image(this.coverUri(job)).width('100%').height(160).objectFit(ImageFit.Cover)
             .backgroundColor(AppTheme.surfaceTint).accessibilityText('成片封面，点击播放')
-          Text('播放成片').fontSize(12).fontColor(Color.White).padding({ left: 12, right: 12, top: 6, bottom: 6 })
+          Text('播放成片').fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(Color.White).padding({ left: 12, right: 12, top: 6, bottom: 6 })
             .backgroundColor('#66000000').borderRadius(10)
         }.width('100%').height(160).clip(true).borderRadius(12)
           .accessibilityText('点击播放成片')
           .onClick(() => this.play(job))
       }
       Row({ space: 8 }) {
-        Text(this.statusLabel(job.status)).fontSize(11).fontWeight(FontWeight.Medium)
+        Text(this.statusLabel(job.status)).fontFamily(AppTheme.fontMedium).fontSize(12).fontWeight(500)
           .fontColor(this.showable(job) || this.active(job) ? AppTheme.primary : AppTheme.textSecondary)
           .backgroundColor(AppTheme.accentSoft).borderRadius(6).padding({ left: 8, right: 8, top: 4, bottom: 4 })
-        Text(this.elapsedLabel(job)).fontSize(11).fontColor(AppTheme.textTertiary).layoutWeight(1)
+        Text(this.elapsedLabel(job)).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary).layoutWeight(1)
       }.width('100%')
-      Text(job.request.prompt === undefined || job.request.prompt.length === 0 ? '（无描述）' : job.request.prompt)
-        .fontSize(14).lineHeight(21).fontColor(AppTheme.ink).maxLines(3)
+      Text(job.request.prompt === undefined || job.request.prompt.length === 0 ? '（无描述）' : job.request.prompt).fontFamily(AppTheme.fontFamily)
+        .fontSize(15).lineHeight(24).fontColor(AppTheme.ink).maxLines(3)
         .textOverflow({ overflow: TextOverflow.Ellipsis }).width('100%')
-      Text(`${this.modeLabel(job.request.mode)} · ${this.jobOutputLabel(job)}`)
-        .fontSize(10).fontColor(AppTheme.textTertiary).width('100%')
+      Text(`${this.modeLabel(job.request.mode)} · ${this.jobOutputLabel(job)}`).fontFamily(AppTheme.fontFamily)
+        .fontSize(12).fontColor(AppTheme.textTertiary).width('100%')
       if (job.errorCode.length > 0) {
-        Text(this.errorText(job.errorCode)).fontSize(12).fontColor(AppTheme.danger).width('100%')
+        Text(this.errorText(job.errorCode)).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.danger).width('100%')
       }
-      Row({ space: 8 }) {
+      Flex({ wrap: FlexWrap.Wrap }) {
         if (this.showable(job)) {
           this.QuietButton('播放成片', () => this.play(job))
           this.QuietButton('在线播放', () => this.playOnline(job))
@@ -973,7 +1047,7 @@ export struct VideoGenerationPage {
         }
         this.QuietButton('再次创作', () => this.reuseParameters(job))
       }.width('100%')
-    }.width('100%').padding(12).backgroundColor(AppTheme.surface).borderRadius(20)
+    }.width('100%').padding(12).backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius)
       .border({ width: 1, color: AppTheme.divider }).alignItems(HorizontalAlign.Start)
   }
   /** 优先展示服务端实测的成片参数，未产出时退回提交时的固定规格。 */
@@ -997,62 +1071,65 @@ export struct VideoGenerationPage {
   private Works() {
     Column({ space: 16 }) {
       Row() {
-        Text('生成需要时间，可以离开页面稍后回看').fontSize(13).fontColor(AppTheme.textSecondary).layoutWeight(1)
-        Text(`${this.jobs.length} 条`).fontSize(11).fontColor(AppTheme.textTertiary)
+        Text('生成需要时间，可以离开页面稍后回看').fontFamily(AppTheme.fontFamily).fontSize(13).fontColor(AppTheme.textSecondary).layoutWeight(1)
+        Text(`${this.jobs.length} 条`).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary)
       }.width('100%')
       if (this.playerUri.length > 0) { this.Player() }
-      if (this.jobs.length === 0) {
+      if (this.jobs.length === 0 && this.catalogLoading) {
+        Column({ space: 12 }) {
+          LoadingProgress().width(28).height(28).color(AppTheme.primary)
+          Text('正在加载视频作品…').fontFamily(AppTheme.fontFamily).fontSize(15).fontColor(AppTheme.textSecondary)
+        }.width('100%').padding(32)
+      } else if (this.jobs.length === 0 && this.catalogFailed) {
+        ToolEmptyState({ icon: $r('sys.symbol.play_round_rectangle_fill'), title: '作品暂时无法加载',
+          description: '已保留当前页码，请稍后重试。' })
+        AppTextAction({ label: '重新加载', action: () => this.refresh() })
+      } else if (this.jobs.length === 0) {
         Column({ space: 12 }) {
           SymbolGlyph($r('sys.symbol.play_round_rectangle_fill')).fontSize(36).fontColor([AppTheme.primary])
-          Text('还没有视频作品').fontSize(16).fontWeight(FontWeight.Medium)
-          Text('选择模式与素材，生成第一支短片。').fontSize(13).fontColor(AppTheme.textSecondary)
+          Text('还没有视频作品').fontFamily(AppTheme.fontMedium).fontSize(16).fontWeight(500)
+          Text('选择模式与素材，生成第一支短片。').fontFamily(AppTheme.fontFamily).fontSize(13).fontColor(AppTheme.textSecondary)
           this.QuietButton('开始创作', () => { this.tab = 'create'; this.releasePlayer(); })
-        }.width('100%').padding({ top: 50, bottom: 50 }).backgroundColor(AppTheme.surface).borderRadius(20)
+        }.width('100%').padding({ top: 50, bottom: 50 }).backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius)
       }
       ForEach(this.jobs, (job: VideoJob) => {
         this.WorksCard(job)
       }, (job: VideoJob) => `${job.id}:${job.status}:${job.errorCode}:${job.elapsedMillis}`)
-      Row({ space: 16 }) {
-        Button('上一页').height(36).fontSize(12).backgroundColor(AppTheme.surface)
-          .fontColor(AppTheme.textSecondary).enabled(this.page > 0 && !this.busy)
-          .onClick(() => { this.page--; this.covers = []; this.refresh(); })
-        Text(`第 ${this.page + 1} 页`).fontSize(12).fontColor(AppTheme.textTertiary)
-        Button('下一页').height(36).fontSize(12).backgroundColor(AppTheme.surface)
-          .fontColor(AppTheme.textSecondary).enabled(this.jobs.length === PAGE_SIZE && !this.busy)
-          .onClick(() => { this.page++; this.covers = []; this.refresh(); })
-      }.width('100%').justifyContent(FlexAlign.Center)
+      AppEqualActionRow() {
+        AppGroupedButton({ label: '上一页', variant: 'text', fullWidth: true, available: this.page > 0 && !this.busy,
+          action: () => { this.page--; this.covers = []; this.refresh(); } })
+        Column() {
+          Text(`第 ${this.page + 1} 页`).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary)
+            .constraintSize({ maxWidth: 92 }).maxLines(1)
+            .textOverflow({ overflow: TextOverflow.Ellipsis }).textAlign(TextAlign.Center)
+        }.justifyContent(FlexAlign.Center).alignItems(HorizontalAlign.Center)
+        AppGroupedButton({ label: '下一页', variant: 'text', fullWidth: true, available: this.jobs.length === PAGE_SIZE && !this.busy,
+          action: () => { this.page++; this.covers = []; this.refresh(); } })
+      }
     }.width('100%')
   }
+  /** 构建视频创作、素材与作品页面。 */
   build() {
     Column({ space: 14 }) {
       Row({ space: 12 }) {
-        Button() {
-          SymbolGlyph($r('sys.symbol.chevron_left')).fontSize(18).fontColor([AppTheme.ink])
-        }.width(36).height(36).backgroundColor(AppTheme.surface).borderRadius(12)
-          .accessibilityText('返回').onClick(() => this.leave())
-        Text('视频工作台').fontSize(20).fontWeight(FontWeight.Bold).fontColor(AppTheme.ink).layoutWeight(1)
+        ToolPageHeader({ title: '视频工作台', onBack: () => this.leave() }).layoutWeight(1)
         this.QuietButton('刷新', () => this.refresh())
       }.width('100%')
       Row({ space: 4 }) {
-        Button('创作').type(ButtonType.Normal).layoutWeight(1).height(40).fontSize(14).fontWeight(FontWeight.Medium)
-          .fontColor(this.tab === 'create' ? AppTheme.ink : AppTheme.textSecondary)
-          .backgroundColor(this.tab === 'create' ? AppTheme.surface : Color.Transparent).borderRadius(11)
-          .onClick(() => { this.tab = 'create'; this.releasePlayer(); })
-        Button('我的作品').type(ButtonType.Normal).layoutWeight(1).height(40).fontSize(14)
-          .fontWeight(FontWeight.Medium)
-          .fontColor(this.tab === 'works' ? AppTheme.ink : AppTheme.textSecondary)
-          .backgroundColor(this.tab === 'works' ? AppTheme.surface : Color.Transparent).borderRadius(11)
-          .onClick(() => this.tab = 'works')
-      }.width('100%').padding(4).backgroundColor(AppTheme.surfaceTint).borderRadius(14)
+        AppSegmentItem({ label: '创作', selected: this.tab === 'create',
+          action: () => { this.tab = 'create'; this.releasePlayer(); } }).layoutWeight(1)
+        AppSegmentItem({ label: '我的作品', selected: this.tab === 'works',
+          action: () => this.tab = 'works' }).layoutWeight(1)
+      }.width('100%').backgroundColor(AppTheme.surfaceTint).borderRadius(12)
       if (this.progressText.length > 0) {
-        Text(this.progressText).fontSize(12).fontColor(AppTheme.primary).width('100%').padding(10)
+        Text(this.progressText).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.primary).width('100%').padding(10)
+          .backgroundColor(AppTheme.accentSoft).borderRadius(12)
+      }
+      if (this.message.length > 0) {
+        Text(this.message).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary).width('100%').padding(12)
           .backgroundColor(AppTheme.accentSoft).borderRadius(12)
       }
       if (this.tab === 'create') { this.Composer() } else { this.Works() }
-      if (this.message.length > 0) {
-        Text(this.message).fontSize(12).fontColor(AppTheme.textSecondary).width('100%').padding(12)
-          .backgroundColor(AppTheme.accentSoft).borderRadius(12)
-      }
     }.width('100%').padding({ top: 4, bottom: 16 }).alignItems(HorizontalAlign.Start)
   }
 }

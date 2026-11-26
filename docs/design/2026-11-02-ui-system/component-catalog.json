@@ -1,0 +1,2188 @@
+{
+  "version": "1.2",
+  "groups": [
+    {
+      "id": "actions",
+      "title": "动作与按钮",
+      "description": "执行、取消、跳转与上下文操作，保持轻重和风险层级。"
+    },
+    {
+      "id": "inputs",
+      "title": "输入与搜索",
+      "description": "标签、字段、校验、搜索提交与建议，覆盖完整输入链路。"
+    },
+    {
+      "id": "selection",
+      "title": "选择与筛选",
+      "description": "单选、多选、可搜索选择与关联选择，明确值何时生效。"
+    },
+    {
+      "id": "datetime",
+      "title": "日期与时间",
+      "description": "日期、范围、时间、时区及快捷范围，取消和确认语义一致。"
+    },
+    {
+      "id": "numeric",
+      "title": "数值与偏好",
+      "description": "连续值、范围、步进、评分和颜色，不依赖精细拖动。"
+    },
+    {
+      "id": "navigation",
+      "title": "导航与结构",
+      "description": "页面层级、视图切换、分页、流程与上下文菜单。"
+    },
+    {
+      "id": "content",
+      "title": "信息展示",
+      "description": "列表、设置、卡片、表格、树、标签与详情描述。"
+    },
+    {
+      "id": "feedback",
+      "title": "反馈与加载",
+      "description": "长期提示、短反馈、进度、空错状态及刷新分页。"
+    },
+    {
+      "id": "overlays",
+      "title": "弹层与说明",
+      "description": "确认、底部面板、锚点浮层和简短提示，统一焦点与回退。"
+    },
+    {
+      "id": "business",
+      "title": "业务组合",
+      "description": "文件、媒体、阅读、会话与任务，由基础组件组合并保留业务语义。"
+    }
+  ],
+  "components": [
+    {
+      "id": "a01",
+      "group": "actions",
+      "name": "Button",
+      "title": "动作按钮",
+      "description": "推进当前任务的标准按钮，以角色区分主要、次要与危险动作。",
+      "scenes": [
+        "保存设置",
+        "开始生成",
+        "继续阅读"
+      ],
+      "variants": [
+        "主操作",
+        "次操作",
+        "危险确认"
+      ],
+      "states": [
+        "默认",
+        "按下",
+        "焦点",
+        "加载",
+        "禁用",
+        "成功",
+        "失败"
+      ],
+      "sizing": "主底板40、次36、命中44；16/22，主600、次500；圆角10，左右14。",
+      "behavior": "同一任务区一个主动作；加载阻止重复提交并保留宽度，失败保留输入并给重试。",
+      "accessibility": "名称描述动作与对象；键盘可激活；忙碌与不可用状态可读屏识别。",
+      "avoid": "不要用多个同色主按钮并排争抢，也不要把静态状态做成按钮。",
+      "api": "variant, label, enabled, loading, loadingLabel, onAction"
+    },
+    {
+      "id": "a02",
+      "group": "actions",
+      "name": "TextAction",
+      "title": "文字操作",
+      "description": "工具栏和行内的轻操作，文字可辨认而外形克制。",
+      "scenes": [
+        "刷新",
+        "编辑",
+        "管理订阅"
+      ],
+      "variants": [
+        "纯文字",
+        "图文",
+        "危险文字"
+      ],
+      "states": [
+        "默认",
+        "按下",
+        "焦点",
+        "加载",
+        "禁用"
+      ],
+      "sizing": "16/22、500；左右8，命中44；按下弱底32；图文间距6。",
+      "behavior": "一行保留2–3个高频操作，其余进入更多；不改变相邻内容布局。",
+      "accessibility": "必须有按钮语义；图标不替代可访问名称；加载状态说明当前动作。",
+      "avoid": "不要用可点击Text替代按钮，也不要压小字号以容纳过多操作。",
+      "api": "label, icon, tone, enabled, loading, onAction"
+    },
+    {
+      "id": "a03",
+      "group": "actions",
+      "name": "IconButton",
+      "title": "图标按钮",
+      "description": "用于返回、搜索、关闭和更多等高频短动作。",
+      "scenes": [
+        "页面返回",
+        "关闭弹层",
+        "列表更多"
+      ],
+      "variants": [
+        "透明",
+        "弱底",
+        "选中"
+      ],
+      "states": [
+        "默认",
+        "按下",
+        "焦点",
+        "选中",
+        "禁用"
+      ],
+      "sizing": "命中44×44；图标20–24；弱底可见32；相邻命中区间距至少8。",
+      "behavior": "作用范围由容器明确；关闭只关闭当前层，返回沿既有导航栈。",
+      "accessibility": "提供返回、关闭或具体对象更多等名称；选中按钮播报切换状态。",
+      "avoid": "不要用无标签图标承载难理解的业务操作。",
+      "api": "icon, accessibilityText, selected, enabled, onAction"
+    },
+    {
+      "id": "a04",
+      "group": "actions",
+      "name": "ButtonGroup",
+      "title": "成组操作",
+      "description": "同一流程的主次、确认取消或批量动作组合。",
+      "scenes": [
+        "保存与取消",
+        "批量移动",
+        "删除确认"
+      ],
+      "variants": [
+        "主次双按钮",
+        "确认取消",
+        "批量工具栏"
+      ],
+      "states": [
+        "默认",
+        "提交中",
+        "部分不可用",
+        "大字换行"
+      ],
+      "sizing": "组内等宽等高、最小宽96、间距8；可见底板40、命中44；统一16/22、字重500、圆角10；长文案共同增宽或同高换行。",
+      "behavior": "确认/取消和主次双按钮默认等宽；按最长标签确定共享宽度，填满模式等分容器。颜色区分主次，字重不再一粗一细。提交时宽度稳定，保留安全取消路径。",
+      "accessibility": "焦点按视觉顺序移动；组名说明所作用的选中项目与数量。",
+      "avoid": "不要把危险实色与普通主动作同时高亮。",
+      "api": "actions, equalWidth=true, minWidth=96, fullWidth, orientation, busy, selectionCount, onAction"
+    },
+    {
+      "id": "a05",
+      "group": "actions",
+      "name": "Link",
+      "title": "链接",
+      "description": "在正文或说明中进入明确位置，区别于执行动作。",
+      "scenes": [
+        "隐私说明",
+        "查看帮助",
+        "外部原文"
+      ],
+      "variants": [
+        "行内",
+        "独立行",
+        "外部链接"
+      ],
+      "states": [
+        "默认",
+        "焦点",
+        "已访问",
+        "不可用"
+      ],
+      "sizing": "正文16/24或随段落字阶；独立链接命中至少44；行内保留可识别下划线。",
+      "behavior": "内部链接保持返回路径；外部链接展示去向，触发后不丢失当前输入。",
+      "accessibility": "使用链接语义和有意义名称；外部打开方式可被辅助设备识别。",
+      "avoid": "不要把删除、保存等副作用动作伪装成链接，也不要只写点击这里。",
+      "api": "label, href, external, accessibilityText, onOpen"
+    },
+    {
+      "id": "a06",
+      "group": "actions",
+      "name": "FloatingAction",
+      "title": "悬浮操作",
+      "description": "在长列表或沉浸内容上提供一个必要的快捷入口。",
+      "scenes": [
+        "回到顶部",
+        "新建会话",
+        "阅读控制"
+      ],
+      "variants": [
+        "单图标",
+        "图文扩展"
+      ],
+      "states": [
+        "默认",
+        "按下",
+        "焦点",
+        "暂时隐藏"
+      ],
+      "sizing": "命中至少44；紧凑底板40；距内容边缘16–20，避开底部安全区与键盘。",
+      "behavior": "同一视口最多一个；滚动和键盘期间可避让，不能遮住正文或列表最后一行。",
+      "accessibility": "名称说明具体动作；按正常焦点顺序可达，隐藏时移出焦点树。",
+      "avoid": "不要将多个低频操作悬浮堆叠，也不要持续闪动吸引注意。",
+      "api": "icon, label, visible, placement, safeArea, onAction"
+    },
+    {
+      "id": "i01",
+      "group": "inputs",
+      "name": "TextField",
+      "title": "单行输入",
+      "description": "带持久标签、帮助信息和就近校验的基础字段。",
+      "scenes": [
+        "文件名",
+        "服务地址",
+        "书源名称"
+      ],
+      "variants": [
+        "文本",
+        "邮箱",
+        "网址",
+        "只读"
+      ],
+      "states": [
+        "空值",
+        "输入",
+        "聚焦",
+        "已填",
+        "错误",
+        "只读",
+        "禁用"
+      ],
+      "sizing": "字段最小48、圆角12、左右14；值16/24；标签14/20；帮助和错误12/18。",
+      "behavior": "输入同步草稿；失焦或提交时校验，清除不触发提交；只读值仍可选择复制。",
+      "accessibility": "标签关联字段；必填、错误和帮助可关联播报；键盘类型匹配内容。",
+      "avoid": "不要仅用占位符作为标签，也不要把只读值做成不可辨认的禁用态。",
+      "api": "value, label, type, required, readOnly, disabled, error, onChange, onBlur"
+    },
+    {
+      "id": "i02",
+      "group": "inputs",
+      "name": "TextArea",
+      "title": "多行输入",
+      "description": "用于较长描述、提示词和文本处理输入。",
+      "scenes": [
+        "画面描述",
+        "反馈内容",
+        "改编意图"
+      ],
+      "variants": [
+        "自动增高",
+        "固定可滚动",
+        "计数"
+      ],
+      "states": [
+        "空值",
+        "输入",
+        "聚焦",
+        "临近上限",
+        "超限",
+        "错误",
+        "只读"
+      ],
+      "sizing": "最小120高、内边距14；16/24；计数12/18；随字号增高而不遮挡光标。",
+      "behavior": "换行输入正常保留；限制按约定字符规则计算；提交失败保留内容和滚动位置。",
+      "accessibility": "标签与计数关联；超限用文字说明；键盘与辅助设备可进入滚动内容。",
+      "avoid": "不要每输入一个字都弹出错误，也不要静默截断用户长文本。",
+      "api": "value, label, minRows, maxLength, countMode, error, onChange"
+    },
+    {
+      "id": "i03",
+      "group": "inputs",
+      "name": "PasswordField",
+      "title": "密码与敏感字段",
+      "description": "默认隐藏内容，可明确切换显示并提供就近错误。",
+      "scenes": [
+        "压缩包密码",
+        "PDF密码",
+        "访问凭据"
+      ],
+      "variants": [
+        "隐藏",
+        "显示",
+        "只读凭据"
+      ],
+      "states": [
+        "空值",
+        "输入",
+        "显示",
+        "错误",
+        "提交中",
+        "禁用"
+      ],
+      "sizing": "字段最小48；值16/24；显示切换命中44×44，尾部为其预留空间。",
+      "behavior": "显隐不清空值或移动光标；提交或离开流程后的保留规则由对应业务定义。",
+      "accessibility": "显隐按钮播报显示密码或隐藏密码及当前状态；错误避免重复读取敏感值。",
+      "avoid": "不要在列表提示、Toast或样例中回显真实密码。",
+      "api": "value, label, visible, error, enabled, onChange, onToggleVisibility"
+    },
+    {
+      "id": "i04",
+      "group": "inputs",
+      "name": "NumberField",
+      "title": "数值输入",
+      "description": "需要精确数值时使用，单位、范围和精度清楚可见。",
+      "scenes": [
+        "图片尺寸",
+        "PDF页数",
+        "随机种子"
+      ],
+      "variants": [
+        "整数",
+        "小数",
+        "带单位",
+        "可为空"
+      ],
+      "states": [
+        "空值",
+        "输入中",
+        "有效",
+        "越界",
+        "格式错误",
+        "只读"
+      ],
+      "sizing": "字段48；16/24；单位14/20；错误12/18；单位与输入区域分开。",
+      "behavior": "允许负号和小数点等编辑中间态；提交时校验min/max/step，不静默改写未确认值。",
+      "accessibility": "名称包含单位；上下界和步长可读屏获取；保留直接输入路径。",
+      "avoid": "不要将种子或编号当浮点数格式化，也不要只靠数字键盘限制合法值。",
+      "api": "value, min, max, step, precision, unit, nullable, onChange, onCommit"
+    },
+    {
+      "id": "i05",
+      "group": "inputs",
+      "name": "SearchBar",
+      "title": "搜索栏",
+      "description": "整合输入、清除、搜索触发和范围说明的完整搜索入口。",
+      "scenes": [
+        "书架搜索",
+        "网盘目录搜索",
+        "工具搜索"
+      ],
+      "variants": [
+        "即时筛选",
+        "提交搜索",
+        "带范围"
+      ],
+      "states": [
+        "空值",
+        "输入",
+        "建议",
+        "搜索中",
+        "有结果",
+        "无结果",
+        "错误"
+      ],
+      "sizing": "输入区48，16/24；搜索/清除各44命中；组合间距8，窄屏搜索动作可下移。",
+      "behavior": "即时筛选和提交搜索必须明确区分；中文输入法合成期间不发请求；新查询取消或忽略旧结果。",
+      "accessibility": "字段名称描述搜索对象；键盘搜索与按钮同效；结果数量适度播报。",
+      "avoid": "不要让正在请求显示成无结果，也不要清除输入时顺便离开搜索页。",
+      "api": "query, scope, mode, loading, resultCount, onChange, onSubmit, onClear"
+    },
+    {
+      "id": "i06",
+      "group": "inputs",
+      "name": "SearchButton",
+      "title": "搜索触发按钮",
+      "description": "明确提交当前查询，与搜索框清除动作分离。",
+      "scenes": [
+        "远程书源查询",
+        "跨来源搜索",
+        "目录搜索提交"
+      ],
+      "variants": [
+        "文字搜索",
+        "图标搜索",
+        "取消搜索"
+      ],
+      "states": [
+        "可提交",
+        "查询中",
+        "取消中",
+        "禁用",
+        "失败可重试"
+      ],
+      "sizing": "文字16/22；底板可见36或主路径40，命中44；图标20，命中44×44。",
+      "behavior": "空查询是否允许由场景明示；搜索中防重复触发，支持的长查询提供取消并保存原输入。",
+      "accessibility": "图标按钮命名为搜索图书等具体对象；键盘搜索键触发同一事件。",
+      "avoid": "不要把清除图标当搜索按钮，也不要在每个本地筛选框旁增加无效提交按钮。",
+      "api": "query, enabled, loading, cancellable, onSubmit, onCancel"
+    },
+    {
+      "id": "i07",
+      "group": "inputs",
+      "name": "SearchSuggestions",
+      "title": "搜索建议与历史",
+      "description": "帮助完成查询，区分建议、历史和直接结果。",
+      "scenes": [
+        "书名联想",
+        "历史查询",
+        "模型筛选建议"
+      ],
+      "variants": [
+        "分组建议",
+        "历史记录",
+        "即时结果"
+      ],
+      "states": [
+        "加载",
+        "有建议",
+        "无建议",
+        "键盘高亮",
+        "删除历史"
+      ],
+      "sizing": "单项至少44高；标题16/24，说明12/18；最多展示5–6项后滚动。",
+      "behavior": "选择建议填入或提交的行为在场景中固定；上下键移动、确认选择、关闭保留输入。",
+      "accessibility": "建议列表关联输入，当前项可播报；删除历史有独立名称和命中区。",
+      "avoid": "不要把广告或无关内容混为建议，也不要删除历史时同时执行查询。",
+      "api": "query, items, activeId, loading, onChoose, onRemoveHistory, onDismiss"
+    },
+    {
+      "id": "i08",
+      "group": "inputs",
+      "name": "FormGroup",
+      "title": "表单分组与校验",
+      "description": "组织相关字段，统一必填、帮助、错误汇总和提交位置。",
+      "scenes": [
+        "添加书源",
+        "反馈表单",
+        "任务配置"
+      ],
+      "variants": [
+        "单列",
+        "可折叠高级项",
+        "提交摘要"
+      ],
+      "states": [
+        "未编辑",
+        "已修改",
+        "校验失败",
+        "提交中",
+        "提交成功"
+      ],
+      "sizing": "组间24、字段间16；标签14/20；错误12/18；主提交可见40、命中44。",
+      "behavior": "提交前校验相关字段；错误就近展示并定位首个错误；退出未保存提示按现有流程处理。",
+      "accessibility": "组名和字段顺序清楚；错误摘要链接到字段；折叠区域错误仍可发现。",
+      "avoid": "不要只在Toast中列出全部错误，也不要每次失败重置整个表单。",
+      "api": "fields, values, errors, dirty, submitting, onValidate, onSubmit, onCancel"
+    },
+    {
+      "id": "i09",
+      "group": "inputs",
+      "name": "VerificationCode",
+      "title": "验证码与重发",
+      "description": "提供完整验证码输入、发送、倒计时和重试路径。",
+      "scenes": [
+        "账号验证",
+        "邮箱验证",
+        "授权确认"
+      ],
+      "variants": [
+        "单字段分组显示",
+        "自动填充"
+      ],
+      "states": [
+        "未发送",
+        "发送中",
+        "倒计时",
+        "可重发",
+        "错误",
+        "过期"
+      ],
+      "sizing": "输入最小48；数字18/26；发送/重发按钮16/22、命中44；倒计时12/18。",
+      "behavior": "支持整段粘贴；发送成功后才启动倒计时；错误保留可修正内容，过期后提供重发。",
+      "accessibility": "优先一个可访问输入而非六个难导航小格；倒计时不逐秒打断读屏。",
+      "avoid": "不要自动无限重发，也不要只靠倒计时颜色说明不可用原因。",
+      "api": "value, length, expiresAt, resendAt, sending, error, onChange, onSend, onVerify"
+    },
+    {
+      "id": "s01",
+      "group": "selection",
+      "name": "Select",
+      "title": "下拉单选",
+      "description": "从有限选项中选一个值，显示当前值、展开方向和清除规则。",
+      "scenes": [
+        "改编风格",
+        "来源选择",
+        "输出格式"
+      ],
+      "variants": [
+        "短菜单",
+        "底部选择层",
+        "可清空"
+      ],
+      "states": [
+        "未选",
+        "展开",
+        "已选",
+        "禁用",
+        "只读",
+        "加载",
+        "无选项",
+        "失败"
+      ],
+      "sizing": "触发器48；值16/24；选项行至少44–48；移动端长列表优先底部层。",
+      "behavior": "值与显示文案分开保存；展开时定位当前项；明确选择即生效或确认后生效，取消保留原值。",
+      "accessibility": "触发器含名称、当前值和展开状态；方向键选项、确认选择、关闭回到触发器。",
+      "avoid": "不要用普通文本输入模拟不可编辑选择，也不要默认选中第一个远程结果掩盖未选择。",
+      "api": "value, options, placeholder, loading, clearable, readOnly, disabled, onChange"
+    },
+    {
+      "id": "s02",
+      "group": "selection",
+      "name": "SearchSelect",
+      "title": "可搜索选择",
+      "description": "选项较多时在选择层内搜索，同时保持已选值。",
+      "scenes": [
+        "模型选择",
+        "书源选择",
+        "网盘来源"
+      ],
+      "variants": [
+        "本地过滤",
+        "远程查询"
+      ],
+      "states": [
+        "未搜索",
+        "请求中",
+        "有结果",
+        "无匹配",
+        "已选",
+        "加载失败"
+      ],
+      "sizing": "触发器48；搜索栏48；选项48；选项文字16/24；列表区域独立滚动。",
+      "behavior": "输入法合成不查询；新请求覆盖旧请求，选中项不因过滤暂时消失；重试保留关键词。",
+      "accessibility": "搜索字段与选项列表关联；当前选择和结果数可播报；取消返回触发器。",
+      "avoid": "不要把无匹配当无来源，也不要搜索时清掉原选择。",
+      "api": "value, query, options, loading, error, onSearch, onChoose, onRetry"
+    },
+    {
+      "id": "s03",
+      "group": "selection",
+      "name": "MultiSelect",
+      "title": "多选选择器",
+      "description": "在独立选择层中完成多项勾选，明确已选数量与提交方式。",
+      "scenes": [
+        "标签过滤",
+        "批量目标",
+        "订阅分组"
+      ],
+      "variants": [
+        "选项列表",
+        "已选摘要",
+        "全选与半选"
+      ],
+      "states": [
+        "未选",
+        "部分选",
+        "全选",
+        "达到上限",
+        "禁用",
+        "搜索无结果"
+      ],
+      "sizing": "触发器48；选项48；勾选标记20、命中44；摘要标签视觉30、命中44。",
+      "behavior": "草稿与已提交值分开；确认一次提交集合，取消恢复原集合；全选说明作用于全部还是当前结果。",
+      "accessibility": "读屏播报项名和勾选状态；全选包含半选语义；键盘可切换而不关闭列表。",
+      "avoid": "不要在筛选结果变化时隐式取消已选项，也不要无提示超出选择上限。",
+      "api": "values, options, maxSelected, selectionScope, onDraftChange, onConfirm, onCancel"
+    },
+    {
+      "id": "s04",
+      "group": "selection",
+      "name": "CascadeSelect",
+      "title": "级联选择",
+      "description": "在有关联的层级或维度中逐步选择，清楚展示当前位置。",
+      "scenes": [
+        "来源与目录",
+        "分类与标签",
+        "区域筛选"
+      ],
+      "variants": [
+        "双层",
+        "多层路径",
+        "逐级页面"
+      ],
+      "states": [
+        "上级未选",
+        "下级加载",
+        "可选",
+        "无子项",
+        "失败",
+        "已完成"
+      ],
+      "sizing": "触发器48；路径14/20；层级行48；窄屏逐级展示，不硬塞多列。",
+      "behavior": "改上级仅在明确说明后清除受影响下级；取消保留原路径；叶节点和可选父节点规则固定。",
+      "accessibility": "节点名称包含层级与展开状态；键盘可回上级；完整已选路径可读。",
+      "avoid": "不要将层级依赖藏在两个互不关联的普通下拉框中。",
+      "api": "path, levels, loadingLevel, selectableParent, onLoadChildren, onConfirm, onCancel"
+    },
+    {
+      "id": "s05",
+      "group": "selection",
+      "name": "RadioGroup",
+      "title": "单选组",
+      "description": "少量互斥选项直接展示，便于比较含义。",
+      "scenes": [
+        "生成方式",
+        "输出方向",
+        "阅读翻页方式"
+      ],
+      "variants": [
+        "横排",
+        "纵排",
+        "带说明卡片"
+      ],
+      "states": [
+        "未选",
+        "已选",
+        "聚焦",
+        "禁用",
+        "校验错误"
+      ],
+      "sizing": "每项命中至少44；圆形标记20；标签16/24，说明12/18；项间8。",
+      "behavior": "组内至多一个值；是否允许未选由必填规则决定，切换触发一次值变更。",
+      "accessibility": "组名、选项名和选中状态完整；方向键在组内移动，整行可触。",
+      "avoid": "不要用多个开关表达互斥选择，也不要仅用颜色表示选中。",
+      "api": "value, options, required, orientation, disabled, onChange"
+    },
+    {
+      "id": "s06",
+      "group": "selection",
+      "name": "CheckboxGroup",
+      "title": "复选与全选",
+      "description": "用于独立选项、协议确认或批量选择。",
+      "scenes": [
+        "选择解压条目",
+        "授权确认",
+        "多项设置"
+      ],
+      "variants": [
+        "独立复选",
+        "复选组",
+        "全选半选"
+      ],
+      "states": [
+        "未选",
+        "已选",
+        "半选",
+        "禁用",
+        "错误"
+      ],
+      "sizing": "命中至少44，标记20；标签16/24；长说明换行且对齐第一行。",
+      "behavior": "每个选项独立变化；全选只作用于明确集合；批量集合变化时准确计算半选。",
+      "accessibility": "原生复选语义；半选可播报；标签与框为一个目标，说明链接独立。",
+      "avoid": "不要默认勾选必须由用户主动确认的授权，也不要把导航箭头当勾选状态。",
+      "api": "checked, indeterminate, values, options, disabled, onChange, onToggleAll"
+    },
+    {
+      "id": "s07",
+      "group": "selection",
+      "name": "Switch",
+      "title": "开关",
+      "description": "对一个可立即理解的布尔状态进行切换。",
+      "scenes": [
+        "自动解压",
+        "显示页码",
+        "启用书源"
+      ],
+      "variants": [
+        "独立开关",
+        "设置行开关"
+      ],
+      "states": [
+        "关闭",
+        "开启",
+        "提交中",
+        "禁用",
+        "失败回退"
+      ],
+      "sizing": "轨道视觉40×24、真实命中44×44；行高至少64；标签16/24，说明12/18。",
+      "behavior": "立即生效时保存失败需恢复原值并说明；依赖提交的表单中只改草稿，不制造即时成功反馈。",
+      "accessibility": "名称描述设置本身，状态播报开或关；键盘空格切换；不依赖红绿。",
+      "avoid": "不要将开关用于选择模式、跳转页面或提交一次性动作。",
+      "api": "checked, pending, disabled, description, onChange, onCommitFailure"
+    },
+    {
+      "id": "s08",
+      "group": "selection",
+      "name": "FilterChip",
+      "title": "筛选标签",
+      "description": "用紧凑标签快速缩小结果，区别于执行按钮和静态状态。",
+      "scenes": [
+        "书架状态",
+        "媒体类型",
+        "标签过滤"
+      ],
+      "variants": [
+        "单选",
+        "多选",
+        "可清除"
+      ],
+      "states": [
+        "未选",
+        "选中",
+        "禁用",
+        "焦点",
+        "超长标签"
+      ],
+      "sizing": "视觉30、命中44；14/20、500；左右10；命中区间隔8且不重叠。",
+      "behavior": "选择后更新结果但不跳页；清除恢复对应条件；超长标签可横向滚动或换行。",
+      "accessibility": "标签名称与选中状态可读；移除图标具有独立名称；焦点不被横向滚动裁切。",
+      "avoid": "不要把已缓存等静态状态做成可点胶囊，也不要给所有标签都加关闭图标。",
+      "api": "value, values, options, multiple, removable, onChange, onRemove"
+    },
+    {
+      "id": "d01",
+      "group": "datetime",
+      "name": "DateField",
+      "title": "日期输入",
+      "description": "用固定格式展示一个日历日期，并提供明确日期选择入口。",
+      "scenes": [
+        "日期筛选",
+        "记录日期",
+        "日期类任务参数"
+      ],
+      "variants": [
+        "可清空",
+        "只读",
+        "带上下界"
+      ],
+      "states": [
+        "未选",
+        "已选",
+        "日历打开",
+        "越界",
+        "无效格式",
+        "禁用"
+      ],
+      "sizing": "字段48；16/24；日历图标20、命中44；显示格式按语言，内部YYYY-MM-DD。",
+      "behavior": "date-only作为日历日期保存，不经UTC隐式转换；选择层取消保留原值，确认才提交草稿。",
+      "accessibility": "标签包含日期用途；格式和范围可读；支持键盘输入或等价可访问选择。",
+      "avoid": "不要将date-only转成UTC午夜后再显示，避免跨时区日期偏移。",
+      "api": "value, minDate, maxDate, clearable, displayFormat, onDraftChange, onConfirm, onCancel"
+    },
+    {
+      "id": "d02",
+      "group": "datetime",
+      "name": "Calendar",
+      "title": "日历选择",
+      "description": "显示月份、星期、今天与可选日期，提供清楚的确认路径。",
+      "scenes": [
+        "日期选择层",
+        "日期筛选",
+        "范围选择基础"
+      ],
+      "variants": [
+        "单日",
+        "范围",
+        "只读标记"
+      ],
+      "states": [
+        "今天",
+        "当前选择",
+        "范围起止",
+        "范围内",
+        "不可选",
+        "切月",
+        "加载标记"
+      ],
+      "sizing": "7列每格命中44，网格至少308宽；320窄屏用全宽面板、左右最多6；较宽设备居中或左右16。",
+      "behavior": "切月不提交值；今天不自动替换原值；日期选择写入草稿，取消恢复原值，确认提交。",
+      "accessibility": "日期格播报完整年月日、星期、今天与选中；方向键按日移动，切月按钮命中44。",
+      "avoid": "不要将日历塞入带20页边距的320窄卡片，也不要用重叠热区补足格子。",
+      "api": "month, draftValue, minDate, maxDate, disabledDates, onMonthChange, onChoose, onConfirm"
+    },
+    {
+      "id": "d03",
+      "group": "datetime",
+      "name": "DateRange",
+      "title": "日期范围",
+      "description": "选择开始与结束日期，说明是否包含首尾日期。",
+      "scenes": [
+        "历史记录筛选",
+        "任务时间段",
+        "阅读统计范围"
+      ],
+      "variants": [
+        "双字段",
+        "连续范围日历",
+        "开放结束日期"
+      ],
+      "states": [
+        "未开始",
+        "选中起点",
+        "完整范围",
+        "反向输入",
+        "超限",
+        "清空"
+      ],
+      "sizing": "两个字段各48；窄屏纵排；范围日历每格44；起止用文字和形状双重识别。",
+      "behavior": "UI按包含首尾的日历日期展示；结束早于开始时就近报错；服务端时间边界转换显式使用业务时区。",
+      "accessibility": "开始和结束分别命名；读屏可获取整段范围；快捷键与直接输入可完成相同选择。",
+      "avoid": "不要默认假定结束日期为当天00:00，也不要静默交换用户手填起止值。",
+      "api": "startDate, endDate, inclusive, minDate, maxDate, maxSpan, timeZone, onConfirm, onClear"
+    },
+    {
+      "id": "d04",
+      "group": "datetime",
+      "name": "TimePicker",
+      "title": "时间选择",
+      "description": "选择时分或秒，明确24小时制、步长及可用范围。",
+      "scenes": [
+        "定时参数",
+        "媒体跳转时间",
+        "一天内时间"
+      ],
+      "variants": [
+        "时分",
+        "时分秒",
+        "滚轮或列表"
+      ],
+      "states": [
+        "未选",
+        "草稿",
+        "已选",
+        "越界",
+        "禁用时间段"
+      ],
+      "sizing": "触发字段48；数字16/24；列表/滚轮选中行至少44，列标题14/20。",
+      "behavior": "支持精确输入或可访问步进；步长按业务定义，取消保留原值；纯时间值不隐式附加日期或时区。",
+      "accessibility": "每列分别命名时、分、秒；可增减、直接输入；选中行不只靠颜色区分。",
+      "avoid": "不要把播放时长当一天内时刻处理，也不要将非法输入直接取模。",
+      "api": "value, format, minuteStep, secondStep, minTime, maxTime, onConfirm, onCancel"
+    },
+    {
+      "id": "d05",
+      "group": "datetime",
+      "name": "DateTime",
+      "title": "日期时间与时区",
+      "description": "组合日期、时刻和时区，使预定时间含义明确。",
+      "scenes": [
+        "计划任务参数",
+        "时间定位",
+        "包含时区的记录"
+      ],
+      "variants": [
+        "本地时区",
+        "指定时区",
+        "只读时间点"
+      ],
+      "states": [
+        "未选",
+        "有效",
+        "过去时间",
+        "时区切换",
+        "无效时刻",
+        "禁用"
+      ],
+      "sizing": "日期和时间字段各48；时区选择48；值16/24，时区/偏移12/18；窄屏纵向。",
+      "behavior": "时间点提交带偏移或时区标识；切时区明确保留瞬间还是保留钟面时间；不存在或重复时刻需明确处理。",
+      "accessibility": "日期、时间、时区独立命名；确认前可读完整摘要；错误关联具体字段。",
+      "avoid": "不要仅展示模糊的本地时间，也不要在后台静默更改用户选定时区。",
+      "api": "date, time, timeZone, offset, minInstant, maxInstant, onZoneChange, onConfirm"
+    },
+    {
+      "id": "d06",
+      "group": "datetime",
+      "name": "QuickDate",
+      "title": "快捷日期范围",
+      "description": "将常用相对时间映射成可检查的具体日期。",
+      "scenes": [
+        "今天",
+        "最近7天",
+        "本月"
+      ],
+      "variants": [
+        "单日快捷",
+        "范围快捷",
+        "自定义"
+      ],
+      "states": [
+        "未选",
+        "已选",
+        "自定义",
+        "跨日更新"
+      ],
+      "sizing": "标签视觉30、命中44；14/20；当前解析后的具体日期用12/18展示。",
+      "behavior": "点击时按指定时区与当前时间解析；最近7天是否包含今天写明；手动改日期后转为自定义。",
+      "accessibility": "每项名称清楚，选中状态可读；范围摘要说明真实起止日期。",
+      "avoid": "不要只提交最近几天这类模糊字符串，也不要使用设备时区偷偷改变业务范围。",
+      "api": "preset, now, timeZone, includeToday, resolvedRange, onChoose, onCustom"
+    },
+    {
+      "id": "n01",
+      "group": "numeric",
+      "name": "Slider",
+      "title": "单值滑杆",
+      "description": "调整连续或离散数值，同时提供精确读数和输入路径。",
+      "scenes": [
+        "阅读行距",
+        "亮度",
+        "PDF裁切比例"
+      ],
+      "variants": [
+        "连续",
+        "分段",
+        "带刻度"
+      ],
+      "states": [
+        "默认",
+        "拖动",
+        "聚焦",
+        "达到边界",
+        "禁用"
+      ],
+      "sizing": "轨道视觉4、手柄20、交互行44；名称16/24、数值14/20；两端留足手柄空间。",
+      "behavior": "拖动只预览、释放再提交高成本操作；步长明确；读数同步，必要时可直接输入。",
+      "accessibility": "名称、当前值、单位、上下界可读；方向键按步长调整，不仅依赖拖动。",
+      "avoid": "不要用没有读数的滑杆设置精确值，也不要每个像素移动都发昂贵请求。",
+      "api": "value, min, max, step, unit, disabled, onPreview, onCommit"
+    },
+    {
+      "id": "n02",
+      "group": "numeric",
+      "name": "RangeSlider",
+      "title": "双端范围滑杆",
+      "description": "在同一连续维度中选择下限与上限。",
+      "scenes": [
+        "范围过滤",
+        "区间参数",
+        "片段选择"
+      ],
+      "variants": [
+        "双手柄",
+        "带双数值输入"
+      ],
+      "states": [
+        "初始范围",
+        "拖动下限",
+        "拖动上限",
+        "边界",
+        "非法范围",
+        "禁用"
+      ],
+      "sizing": "交互行至少44；手柄20；数值输入各48；窄空间改双输入而不叠加手柄热区。",
+      "behavior": "上下限不交叉；最小间隔由业务给定；输入与拖动相互同步，提交完整范围。",
+      "accessibility": "两个手柄分别命名下限和上限，具有独立值和焦点；键盘可精确调整。",
+      "avoid": "不要让两个重叠手柄无法选中，也不要通过颜色猜测当前操作端点。",
+      "api": "lower, upper, min, max, step, minGap, onPreview, onCommit"
+    },
+    {
+      "id": "n03",
+      "group": "numeric",
+      "name": "Stepper",
+      "title": "数值步进器",
+      "description": "适用于少量离散数值，结合减、当前值和加。",
+      "scenes": [
+        "阅读字号",
+        "预加载数量",
+        "每份页数"
+      ],
+      "variants": [
+        "带数值输入",
+        "只读数值"
+      ],
+      "states": [
+        "可减可加",
+        "最小值",
+        "最大值",
+        "输入错误",
+        "禁用"
+      ],
+      "sizing": "减/加各44命中，图标20；数值16/24，输入最小48；组间距8。",
+      "behavior": "到达边界禁用对应方向并说明范围；每次按步长更新，精确值可直接编辑。",
+      "accessibility": "按钮名为减小字号、增大字号等；当前值和单位可读；支持键盘调整。",
+      "avoid": "不要让长按持续触发超出上限，也不要省略单位与上下界。",
+      "api": "value, min, max, step, unit, editable, onChange, onCommit"
+    },
+    {
+      "id": "n04",
+      "group": "numeric",
+      "name": "Rating",
+      "title": "评分",
+      "description": "显示或输入离散评分，区分只读评分与可编辑评分。",
+      "scenes": [
+        "评分筛选",
+        "内容评价",
+        "偏好打分"
+      ],
+      "variants": [
+        "只读",
+        "整数输入",
+        "半级输入"
+      ],
+      "states": [
+        "未评分",
+        "悬停预览",
+        "已评分",
+        "只读",
+        "禁用"
+      ],
+      "sizing": "可编辑每项至少44命中，图标20–24；只读图标16，旁边14/20显示分数与总分。",
+      "behavior": "选择后明确是否立即保存；可清空规则可见；只读评分不接受点击。",
+      "accessibility": "使用有名称的离散选项，播报3分共5分；键盘可逐项选择。",
+      "avoid": "不要只用星形数量传达精确值，也不要把收藏状态与评分混在一起。",
+      "api": "value, max, step, readOnly, clearable, onPreview, onChange"
+    },
+    {
+      "id": "n05",
+      "group": "numeric",
+      "name": "ColorPicker",
+      "title": "颜色选择",
+      "description": "用预设色与精确色值配置主题，选择过程不丢失原值。",
+      "scenes": [
+        "阅读主题色",
+        "文字颜色",
+        "自定义背景"
+      ],
+      "variants": [
+        "预设色板",
+        "HEX输入",
+        "可选透明度"
+      ],
+      "states": [
+        "预设已选",
+        "自定义",
+        "输入无效",
+        "预览",
+        "取消恢复"
+      ],
+      "sizing": "色块视觉28–32、命中44；色值字段48、16/24；色板项间8；选中轮廓不遮颜色。",
+      "behavior": "草稿实时预览，确认才保存；取消恢复原主题；色值格式和透明度支持范围明确。",
+      "accessibility": "色块有颜色名称与色值；选中不只靠颜色；可直接输入，避免仅靠色盘拖动。",
+      "avoid": "不要允许文字背景组合难以识别却无预览，也不要依赖系统颜色名解析主色。",
+      "api": "value, presets, alphaEnabled, draftValue, onPreview, onConfirm, onCancel"
+    },
+    {
+      "id": "v01",
+      "group": "navigation",
+      "name": "PageHeader",
+      "title": "页头",
+      "description": "说明当前页面与上一级，并容纳少量明确操作。",
+      "scenes": [
+        "一级入口",
+        "深层工具页",
+        "选择模式"
+      ],
+      "variants": [
+        "一级标题",
+        "带返回",
+        "选择工具栏"
+      ],
+      "states": [
+        "正常",
+        "长标题",
+        "搜索展开",
+        "选择中",
+        "滚动折叠"
+      ],
+      "sizing": "一级标题26/34、600；深层20/28、600；返回和尾部操作44命中；水平边距20。",
+      "behavior": "系统安全区与内容区分别计算；默认最多两个尾部动作；选择模式显示数量并可退出。",
+      "accessibility": "标题具有页面层级语义；返回名称清楚；模式变化不丢焦点，长标题完整可读。",
+      "avoid": "不要把系统状态栏高度硬编码进内容，也不要让返回图标与关闭作用混淆。",
+      "api": "title, subtitle, backAction, actions, selectionCount, onBack, onCloseSelection"
+    },
+    {
+      "id": "v02",
+      "group": "navigation",
+      "name": "Tabs",
+      "title": "标签页",
+      "description": "在同一上下文中切换内容页面，保持选项稳定。",
+      "scenes": [
+        "创作与作品",
+        "媒体类型",
+        "工具子页"
+      ],
+      "variants": [
+        "固定标签",
+        "滚动标签",
+        "带数量"
+      ],
+      "states": [
+        "未选",
+        "选中",
+        "焦点",
+        "禁用",
+        "内容加载"
+      ],
+      "sizing": "每项命中至少44高，14/22或16/22；选中指示2–3高；标签间16，过长横向滚动。",
+      "behavior": "切换保留各页草稿与滚动位置；标签内容请求失败只影响对应页；选择不改变标签顺序。",
+      "accessibility": "tablist与tabpanel关联，当前选中可读；键盘可切换并进入内容区。",
+      "avoid": "不要将标签页当过滤集合，也不要在切换时重置所有表单。",
+      "api": "activeKey, items, badgeCounts, lazy, onChange"
+    },
+    {
+      "id": "v03",
+      "group": "navigation",
+      "name": "Segment",
+      "title": "分段切换",
+      "description": "对同级、短名称、少量视图提供紧凑切换。",
+      "scenes": [
+        "书架书源远程本地RSS",
+        "未读全部收藏",
+        "创作模式"
+      ],
+      "variants": [
+        "2–5项",
+        "带数量",
+        "紧凑"
+      ],
+      "states": [
+        "未选",
+        "选中",
+        "焦点",
+        "禁用",
+        "空间不足"
+      ],
+      "sizing": "命中高44、组底可见36、选中底32；14/22、500；圆角10/8。",
+      "behavior": "每次一个值；RSS与其他阅读入口同层级；宽度不足时滚动或替换专门导航，不缩字。",
+      "accessibility": "组名和选中状态清楚；方向键在选项间移动；数量与名称一起播报。",
+      "avoid": "不要把分段做成多个提交按钮，也不要用不同字号突出其中一个同级入口。",
+      "api": "value, items, disabledKeys, scrollable, onChange"
+    },
+    {
+      "id": "v04",
+      "group": "navigation",
+      "name": "BottomNav",
+      "title": "底部主导航",
+      "description": "保持五个一级入口可识别，并与沉浸页控制区分。",
+      "scenes": [
+        "阅读",
+        "工具",
+        "DSH",
+        "多媒体",
+        "网盘"
+      ],
+      "variants": [
+        "图标加文字",
+        "沉浸时隐藏"
+      ],
+      "states": [
+        "默认",
+        "当前页",
+        "通知提示",
+        "键盘避让"
+      ],
+      "sizing": "内容区最小64加安全区；图标20–24，文字12/18；每项真实目标至少44×44。",
+      "behavior": "只用于一级导航；同一入口保留既有状态；键盘或沉浸模式按既有规则避让而不遮输入。",
+      "accessibility": "每项命名并播报当前页；提示数量有文本含义；辅助设备可稳定定位。",
+      "avoid": "不要用底部导航承载保存删除等动作，也不要新增入口挤压五个现有层级。",
+      "api": "activeKey, items, badges, safeArea, hidden, onNavigate"
+    },
+    {
+      "id": "v05",
+      "group": "navigation",
+      "name": "Breadcrumb",
+      "title": "路径导航",
+      "description": "显示目录或层级路径并支持回到可访问的上级。",
+      "scenes": [
+        "网盘目录",
+        "本地文件路径",
+        "分类路径"
+      ],
+      "variants": [
+        "完整路径",
+        "折叠中间层",
+        "当前节点"
+      ],
+      "states": [
+        "根目录",
+        "多层级",
+        "长路径",
+        "加载中",
+        "上级失效"
+      ],
+      "sizing": "文字14/20；可点节点命中44高；分隔图标16；窄屏保留根与末级，其余折叠。",
+      "behavior": "点击上级只进入该层；保留可恢复滚动和来源；路径加载中不闪回错误根目录。",
+      "accessibility": "导航区域有路径名称，当前节点标为当前位置；折叠项可用键盘打开。",
+      "avoid": "不要只显示无法理解的服务器路径，也不要让当前节点看起来仍可重复进入。",
+      "api": "items, currentKey, collapsedKeys, loading, onNavigate"
+    },
+    {
+      "id": "v06",
+      "group": "navigation",
+      "name": "Pagination",
+      "title": "分页",
+      "description": "结果有明确页数时切换页码，保留总量与边界语义。",
+      "scenes": [
+        "历史记录",
+        "长表格",
+        "远程结果"
+      ],
+      "variants": [
+        "页码",
+        "上一页下一页",
+        "每页条数"
+      ],
+      "states": [
+        "首页",
+        "中间页",
+        "末页",
+        "加载中",
+        "请求失败"
+      ],
+      "sizing": "页码目标44×44；文字14/20；当前页底板30；窄屏简化为上一页、页码摘要、下一页。",
+      "behavior": "翻页只替换对应结果区；失败保留旧页并说明目标页；未知总数使用加载更多而非虚构页数。",
+      "accessibility": "当前页、总页数与不可用的前后页可读；切换后定位结果标题或保留合理焦点。",
+      "avoid": "不要把滚动位置当页码，也不要请求中先清空并显示末页。",
+      "api": "page, pageSize, total, loading, onPageChange, onPageSizeChange"
+    },
+    {
+      "id": "v07",
+      "group": "navigation",
+      "name": "StepIndicator",
+      "title": "步骤与流程进度",
+      "description": "显示多步任务的当前位置、完成与错误状态。",
+      "scenes": [
+        "导入流程",
+        "文件处理配置",
+        "授权步骤"
+      ],
+      "variants": [
+        "水平短步骤",
+        "纵向长步骤"
+      ],
+      "states": [
+        "未开始",
+        "当前",
+        "完成",
+        "失败",
+        "可返回"
+      ],
+      "sizing": "节点视觉24、可点节点命中44；标题14/20，说明12/18；步骤间16–24。",
+      "behavior": "只有可安全返回的已完成步骤可点；返回不丢已填数据；处理进度另用Progress表达。",
+      "accessibility": "播报第几步共几步与状态；当前步骤对应内容标题；只读步骤不伪装按钮。",
+      "avoid": "不要将不确定任务伪造为固定百分比，也不要用步骤圆点代替操作按钮。",
+      "api": "steps, currentKey, completedKeys, errorKey, navigable, onStepChange"
+    },
+    {
+      "id": "v08",
+      "group": "navigation",
+      "name": "Menu",
+      "title": "操作菜单",
+      "description": "集中低频或上下文动作，明确作用对象与风险。",
+      "scenes": [
+        "书籍更多",
+        "文件更多",
+        "订阅管理"
+      ],
+      "variants": [
+        "锚点菜单",
+        "底部菜单",
+        "带分组"
+      ],
+      "states": [
+        "打开",
+        "焦点项",
+        "禁用项",
+        "危险项",
+        "关闭"
+      ],
+      "sizing": "单项至少44高、左右16；文字16/24；图标20；分组间8并配分隔。",
+      "behavior": "常用操作优先，危险动作独立分组；关闭不执行动作；选择后关闭并回到合理位置。",
+      "accessibility": "菜单与触发器关联；上下键导航、确认执行、关闭返回；危险项名称含对象。",
+      "avoid": "不要在一个菜单中混入页面主导航和无关任务，也不要只用颜色说明危险。",
+      "api": "anchor, items, groups, open, onAction, onDismiss"
+    },
+    {
+      "id": "c01",
+      "group": "content",
+      "name": "ListRow",
+      "title": "通用列表行",
+      "description": "以稳定的图文、说明和尾部信息展示一项内容。",
+      "scenes": [
+        "文件目录",
+        "订阅来源",
+        "搜索结果"
+      ],
+      "variants": [
+        "单行",
+        "双行",
+        "带图标",
+        "带操作"
+      ],
+      "states": [
+        "默认",
+        "选中",
+        "展开",
+        "加载占位",
+        "不可用"
+      ],
+      "sizing": "最小64高；左右16–20；图标40，行标题16/24，说明12/18；尾部动作44命中。",
+      "behavior": "整行进入详情时尾部箭头仅提示去向；独立操作不触发行主动作；长标题最多两行后提供完整访问。",
+      "accessibility": "行内容按标题、说明、状态顺序播报；交互目标职责分离且名称具体。",
+      "avoid": "不要把整行、标题和箭头做成三个重复入口，也不要让尾部操作误触行导航。",
+      "api": "title, description, leading, trailing, selected, onOpen, onAction"
+    },
+    {
+      "id": "c02",
+      "group": "content",
+      "name": "SettingsRow",
+      "title": "设置行",
+      "description": "展示设置名称、当前值或开关，进入和切换语义明确。",
+      "scenes": [
+        "阅读偏好",
+        "服务设置",
+        "隐私与权限"
+      ],
+      "variants": [
+        "进入下级",
+        "开关",
+        "值选择",
+        "危险入口"
+      ],
+      "states": [
+        "默认",
+        "当前值",
+        "提交中",
+        "禁用",
+        "失败"
+      ],
+      "sizing": "最小64高；名称16/24，当前值14/20，说明12/18；箭头20，开关命中44。",
+      "behavior": "箭头仅表示进入下级；开关行只切设置；长说明换行，自身状态与提交结果分开。",
+      "accessibility": "整行名称和当前值可读；包含开关时避免父子重复激活；危险入口单独命名。",
+      "avoid": "不要给不可进入的静态信息加右箭头，也不要点击行时同时导航和切换。",
+      "api": "label, value, description, type, pending, onOpen, onChange"
+    },
+    {
+      "id": "c03",
+      "group": "content",
+      "name": "Card",
+      "title": "内容卡片",
+      "description": "将一组相关信息组织成明确单元，而非普遍加边框容器。",
+      "scenes": [
+        "任务摘要",
+        "阅读进度",
+        "模型说明"
+      ],
+      "variants": [
+        "静态",
+        "可进入",
+        "带操作",
+        "媒体卡"
+      ],
+      "states": [
+        "默认",
+        "选中",
+        "聚焦",
+        "加载",
+        "错误"
+      ],
+      "sizing": "圆角16、内边距16；标题16/24或18/26；块内间距8–12；操作命中44。",
+      "behavior": "卡片整体可点与内部独立动作只能选择清楚的职责组合；内容变化保持结构稳定。",
+      "accessibility": "标题建立内容组；可点卡片具有按钮或链接语义；图像提供相应替代信息。",
+      "avoid": "不要为每行短文字套卡片，也不要用阴影掩盖信息层级。",
+      "api": "title, content, media, actions, interactive, selected, onOpen"
+    },
+    {
+      "id": "c04",
+      "group": "content",
+      "name": "Table",
+      "title": "结构化表格",
+      "description": "用于需要按列对比的数据，明确排序、选择和空错状态。",
+      "scenes": [
+        "任务列表",
+        "文件属性对比",
+        "管理型记录"
+      ],
+      "variants": [
+        "只读",
+        "可排序",
+        "可选择",
+        "横向滚动"
+      ],
+      "states": [
+        "默认",
+        "排序",
+        "选中",
+        "加载",
+        "空",
+        "失败"
+      ],
+      "sizing": "表头和数据行最小48；正文14/20–16/24；单元格内边距12；交互44命中。",
+      "behavior": "排序在当前数据范围或服务端范围内明示；窄屏转摘要行或允许横滚，不压小字号。",
+      "accessibility": "表头关联数据列；排序方向可播报；多选保留行名；横滚区域可聚焦。",
+      "avoid": "不要用表格排普通表单，也不要隐藏对理解数据必要的列却无详情入口。",
+      "api": "columns, rows, sort, selection, loading, empty, onSort, onSelect, onRowOpen"
+    },
+    {
+      "id": "c05",
+      "group": "content",
+      "name": "Tree",
+      "title": "层级树",
+      "description": "显示可展开的层级结构，节点选择与展开分别明确。",
+      "scenes": [
+        "文件目录",
+        "分类结构",
+        "书签目录"
+      ],
+      "variants": [
+        "只读层级",
+        "可选择",
+        "懒加载"
+      ],
+      "states": [
+        "收起",
+        "展开",
+        "选中",
+        "部分选",
+        "子级加载",
+        "空子级",
+        "失败"
+      ],
+      "sizing": "节点至少44高；缩进每级16；图标18–20；文字16/24；过深路径可横滚或逐级进入。",
+      "behavior": "展开只加载子节点；选择是否包含子节点明确；失败保留已展开祖先与当前选择。",
+      "accessibility": "树层级、展开和选择状态可读；左右键展开/回父节点，上下键移动。",
+      "avoid": "不要只用缩进颜色表示层级，也不要点击展开箭头时顺便提交选择。",
+      "api": "nodes, expandedKeys, selectedKeys, loadingKeys, onExpand, onSelect, onLoadChildren"
+    },
+    {
+      "id": "c06",
+      "group": "content",
+      "name": "TagBadge",
+      "title": "标签与徽标",
+      "description": "表达分类、状态和数量，与筛选按钮区分。",
+      "scenes": [
+        "已缓存",
+        "任务状态",
+        "未读数量"
+      ],
+      "variants": [
+        "分类标签",
+        "状态标签",
+        "数量徽标"
+      ],
+      "states": [
+        "中性",
+        "成功",
+        "警告",
+        "失败",
+        "数量上限"
+      ],
+      "sizing": "静态标签视觉20–24、12/18；数量徽标最小18；可点击筛选另用FilterChip，命中44。",
+      "behavior": "徽标只显示真实数量；超过显示上限用99+等并保留完整可访问值；状态配图标或文字。",
+      "accessibility": "标签与所属对象一起播报；不单靠颜色区分；装饰徽标不重复朗读。",
+      "avoid": "不要让静态状态套用按钮外形，也不要以小红点替代所有重要错误说明。",
+      "api": "label, tone, count, maxCount, icon, accessibilityText"
+    },
+    {
+      "id": "c07",
+      "group": "content",
+      "name": "Avatar",
+      "title": "头像与身份标识",
+      "description": "呈现人物、账号或来源身份，提供稳定的加载回退。",
+      "scenes": [
+        "个人账号",
+        "会话身份",
+        "来源图标"
+      ],
+      "variants": [
+        "图片",
+        "首字母",
+        "固定默认图"
+      ],
+      "states": [
+        "加载",
+        "已加载",
+        "缺失",
+        "加载失败",
+        "可进入"
+      ],
+      "sizing": "常用32/40/48；可点外层至少44；首字母16–20、600；尺寸变化不引起行跳动。",
+      "behavior": "图片失败回退既定默认资源或字母，不改变身份名称；可进入账号时路径清楚。",
+      "accessibility": "替代文字描述身份；邻近已有名称时装饰图不重复播报；可点击时说明去向。",
+      "avoid": "不要依赖系统emoji作为固定头像，也不要无说明地以颜色区分账号。",
+      "api": "src, name, size, fallback, interactive, onOpen"
+    },
+    {
+      "id": "c08",
+      "group": "content",
+      "name": "Description",
+      "title": "详情描述与键值",
+      "description": "把元信息和较长说明按可扫描的标签和值组织。",
+      "scenes": [
+        "文件信息",
+        "图书详情",
+        "任务参数"
+      ],
+      "variants": [
+        "单列键值",
+        "多列宽屏",
+        "可复制值"
+      ],
+      "states": [
+        "正常",
+        "缺失值",
+        "长值",
+        "可复制",
+        "只读"
+      ],
+      "sizing": "标签12/18或14/20；值16/24；行间12–16；窄屏标签置顶，复制44命中。",
+      "behavior": "缺失值说明未提供；日期、容量和状态格式统一；敏感或超长值保留适当查看/复制路径。",
+      "accessibility": "标签与值作为关联信息读取；复制按钮名称含字段名；长值可获取完整内容。",
+      "avoid": "不要将键值数据排成无语义的两列绝对定位，也不要把缺失值显示成0。",
+      "api": "items, layout, valueFormatters, copyableKeys, onCopy"
+    },
+    {
+      "id": "f01",
+      "group": "feedback",
+      "name": "InlineNotice",
+      "title": "就近提示",
+      "description": "在相关内容附近持续解释成功、限制、警告或错误。",
+      "scenes": [
+        "离线缓存说明",
+        "权限不足",
+        "模型不可用"
+      ],
+      "variants": [
+        "信息",
+        "成功",
+        "警告",
+        "错误",
+        "可关闭"
+      ],
+      "states": [
+        "显示",
+        "展开详情",
+        "处理中",
+        "可重试",
+        "关闭"
+      ],
+      "sizing": "内边距12–14、圆角10；文字14/22；图标18–20；关闭/动作44命中。",
+      "behavior": "长期问题留在相关区域；用户可采取的动作明确；错误消失后再撤销，不用固定超时隐藏。",
+      "accessibility": "信息等级配文字和图标；必要错误适度播报；链接或重试可被键盘访问。",
+      "avoid": "不要只用Toast承载必须修复的字段或服务错误。",
+      "api": "tone, title, message, action, dismissible, onAction, onDismiss"
+    },
+    {
+      "id": "f02",
+      "group": "feedback",
+      "name": "Toast",
+      "title": "短暂操作反馈",
+      "description": "反馈复制、保存等短操作结果，不打断当前任务。",
+      "scenes": [
+        "已复制",
+        "设置已保存",
+        "操作完成"
+      ],
+      "variants": [
+        "成功",
+        "中性",
+        "短错误"
+      ],
+      "states": [
+        "出现",
+        "停留",
+        "消失",
+        "重复合并"
+      ],
+      "sizing": "文字14/22；左右16、上下10–12；距底部安全区至少16；不覆盖主操作。",
+      "behavior": "普通反馈约2–3秒，读屏场景延长或可再次获取；重复相同消息合并，重要问题转就近提示。",
+      "accessibility": "使用非打断式状态播报；消息不抢焦点；不要让消失时间成为完成任务限制。",
+      "avoid": "不要放长文本、必需确认或唯一重试入口，也不要连续堆叠遮屏。",
+      "api": "message, tone, duration, dedupeKey, placement, onDismiss"
+    },
+    {
+      "id": "f03",
+      "group": "feedback",
+      "name": "Progress",
+      "title": "确定进度",
+      "description": "仅在存在可信总量时表达处理比例，保持步骤与取消可达。",
+      "scenes": [
+        "下载进度",
+        "上传进度",
+        "PDF处理"
+      ],
+      "variants": [
+        "线性",
+        "环形",
+        "步骤加数值"
+      ],
+      "states": [
+        "等待",
+        "进行中",
+        "暂停",
+        "完成",
+        "失败",
+        "已取消"
+      ],
+      "sizing": "线性轨道4–6；环形32–40；数值14/20；说明12/18；取消44命中。",
+      "behavior": "百分比来源于真实已完成量与总量；总量未知改不定式；100%后仍处理需说明收尾状态。",
+      "accessibility": "播报当前进度、总量和任务名；更新适度节流；暂停、取消与重试可独立操作。",
+      "avoid": "不要用计时器伪造百分比，也不要进度归零后丢失失败原因。",
+      "api": "value, total, status, label, unit, cancellable, onCancel, onRetry"
+    },
+    {
+      "id": "f04",
+      "group": "feedback",
+      "name": "Spinner",
+      "title": "不定式加载",
+      "description": "总耗时或总量未知时说明任务正在进行。",
+      "scenes": [
+        "连接服务",
+        "打开目录",
+        "加载模型"
+      ],
+      "variants": [
+        "行内",
+        "内容区",
+        "按钮内"
+      ],
+      "states": [
+        "请求中",
+        "超时",
+        "失败",
+        "完成"
+      ],
+      "sizing": "行内16–20、内容区28–32；说明14/22；按钮中图标20且不改变按钮宽度。",
+      "behavior": "短请求避免闪烁；较长请求给当前动作和可取消路径；结束时明确进入结果或错误。",
+      "accessibility": "区域标记忙碌并提供加载名称；动画不承担唯一信息；尊重减少动效。",
+      "avoid": "不要无限转圈且没有超时或返回，也不要阻塞仍可使用的整页内容。",
+      "api": "loading, label, delay, timeoutState, cancellable, onCancel"
+    },
+    {
+      "id": "f05",
+      "group": "feedback",
+      "name": "Skeleton",
+      "title": "骨架占位",
+      "description": "首屏结构尚未获取时预留最终布局，减少跳动。",
+      "scenes": [
+        "书架首屏",
+        "文件列表首屏",
+        "媒体卡片"
+      ],
+      "variants": [
+        "列表行",
+        "卡片",
+        "图文"
+      ],
+      "states": [
+        "首次加载",
+        "部分就绪",
+        "转为结果",
+        "失败"
+      ],
+      "sizing": "尺寸与最终行/封面一致；圆角4–8；占位间距沿用最终布局；避免过强闪动。",
+      "behavior": "只在首次无内容时使用；已有数据刷新继续显示内容；失败转错误而非永久保留骨架。",
+      "accessibility": "占位装饰隐藏于读屏，父区域统一播报加载中；减少动效时停止闪动。",
+      "avoid": "不要在每次后台刷新覆盖已读内容，也不要用骨架暗示虚构数据。",
+      "api": "loading, layout, count, reducedMotion, preserveContent"
+    },
+    {
+      "id": "f06",
+      "group": "feedback",
+      "name": "EmptyState",
+      "title": "空状态",
+      "description": "区分没有内容、无筛选结果和未配置来源，并给下一步。",
+      "scenes": [
+        "空书架",
+        "无搜索结果",
+        "未配置来源"
+      ],
+      "variants": [
+        "首次空内容",
+        "筛选无结果",
+        "来源为空"
+      ],
+      "states": [
+        "真实空",
+        "可添加",
+        "可清除筛选",
+        "只读空"
+      ],
+      "sizing": "图标32–40；标题18/26；说明14/22；主底板40、命中44；内容间距12–20。",
+      "behavior": "只有请求完成且确认无数据才显示；无结果提供修改查询，未配置提供添加来源，不混用。",
+      "accessibility": "标题和说明完整可读；提供一个主路径及必要补充路径，焦点不被空白吸走。",
+      "avoid": "不要把请求中、网络错误或无权限都显示为暂无内容。",
+      "api": "reason, title, message, primaryAction, secondaryAction, onAction"
+    },
+    {
+      "id": "f07",
+      "group": "feedback",
+      "name": "ErrorState",
+      "title": "内容区错误",
+      "description": "说明当前无法完成的动作，提供重试或返回并保存上下文。",
+      "scenes": [
+        "目录加载失败",
+        "阅读打开失败",
+        "服务不可用"
+      ],
+      "variants": [
+        "局部错误",
+        "整页错误",
+        "离线可恢复"
+      ],
+      "states": [
+        "失败",
+        "重试中",
+        "恢复",
+        "无权限",
+        "来源失效"
+      ],
+      "sizing": "标题18/26、说明14/22；错误详情12/18可折叠；重试按钮可见40、命中44。",
+      "behavior": "展示用户可理解原因；重试保留来源、查询和输入；有缓存时提供对应已支持的离线路径。",
+      "accessibility": "错误与受影响区域关联；重试和返回名称清楚；详细错误不直接暴露技术堆栈。",
+      "avoid": "不要无止境自动重试，也不要重试失败时清空已缓存内容。",
+      "api": "reason, message, retryable, cachedAvailable, onRetry, onBack, onOpenCached"
+    },
+    {
+      "id": "f08",
+      "group": "feedback",
+      "name": "Result",
+      "title": "流程结果",
+      "description": "在任务完成、失败或取消后展示产物与后续动作。",
+      "scenes": [
+        "PDF输出",
+        "解压完成",
+        "任务提交结果"
+      ],
+      "variants": [
+        "成功",
+        "部分成功",
+        "失败",
+        "已取消"
+      ],
+      "states": [
+        "有产物",
+        "无产物",
+        "部分失败",
+        "可预览",
+        "可重试"
+      ],
+      "sizing": "标题20/28；摘要14/22；产物用64行；一个主动作40可见、44命中。",
+      "behavior": "区分已提交与已完成；产物数量准确，部分失败可定位并重试；返回不重复执行任务。",
+      "accessibility": "结果摘要、成功/失败数量和主要下一步可读；初次进入适度播报。",
+      "avoid": "不要把已排队画成处理成功，也不要只用绿色对勾替代结果信息。",
+      "api": "status, summary, artifacts, failures, primaryAction, onPreview, onRetry"
+    },
+    {
+      "id": "f09",
+      "group": "feedback",
+      "name": "RefreshLoadMore",
+      "title": "刷新与加载更多",
+      "description": "维护已有列表的刷新、分页和结束状态，不闪空内容。",
+      "scenes": [
+        "媒体目录",
+        "RSS更新",
+        "历史任务列表"
+      ],
+      "variants": [
+        "下拉刷新",
+        "按钮刷新",
+        "滚动加载",
+        "游标分页"
+      ],
+      "states": [
+        "可刷新",
+        "刷新中",
+        "加载更多中",
+        "末页",
+        "部分失败",
+        "重试"
+      ],
+      "sizing": "顶部/底部状态区至少44；文字14/22；加载图标16–20；保留列表行结构。",
+      "behavior": "首屏加载与后台刷新分开；刷新失败保留旧内容，分页失败保留已加载页；新查询重置游标。",
+      "accessibility": "刷新完成和新增数量适度播报；加载更多有等价按钮路径；末页说明清楚。",
+      "avoid": "不要将正在请求显示为无来源或空列表，也不要因刷新回到列表顶部丢失阅读位置。",
+      "api": "refreshing, loadingMore, hasMore, error, cursor, onRefresh, onLoadMore, onRetry"
+    },
+    {
+      "id": "o01",
+      "group": "overlays",
+      "name": "Dialog",
+      "title": "对话框与确认",
+      "description": "用于需要用户明确判断的短信息、确认或少量表单。",
+      "scenes": [
+        "删除确认",
+        "清除缓存",
+        "切换模型提示"
+      ],
+      "variants": [
+        "信息确认",
+        "危险确认",
+        "单字段输入"
+      ],
+      "states": [
+        "打开",
+        "输入错误",
+        "提交中",
+        "提交失败",
+        "关闭"
+      ],
+      "sizing": "手机宽度随屏，边距20、最大480；圆角20；标题20/28；操作命中44、底板40。",
+      "behavior": "内容说明对象与后果；危险确认文案明确；取消不产生副作用，提交失败留在当前层并保留输入。",
+      "accessibility": "打开后焦点进入并限制在当前层；关闭回触发器；返回键/Esc规则明确，背景不可操作。",
+      "avoid": "不要多层对话框叠加，也不要用模糊的确定按钮执行删除。",
+      "api": "open, title, message, content, confirmLabel, destructive, busy, onConfirm, onCancel"
+    },
+    {
+      "id": "o02",
+      "group": "overlays",
+      "name": "Sheet",
+      "title": "底部操作与选择面板",
+      "description": "承载移动端选择、参数和上下文操作，显示完整标题与完成路径。",
+      "scenes": [
+        "书籍操作",
+        "模型选择",
+        "日期选择",
+        "阅读设置"
+      ],
+      "variants": [
+        "动作面板",
+        "选择面板",
+        "可滚动表单"
+      ],
+      "states": [
+        "打开",
+        "草稿已改",
+        "键盘出现",
+        "提交中",
+        "错误",
+        "取消"
+      ],
+      "sizing": "顶部圆角24；通用内容边距20；操作44命中；内容与底部安全区分开，日历网格可例外全宽。",
+      "behavior": "草稿型面板取消恢复原值、确认提交；键盘出现后字段与操作可见；支持手势关闭时防误丢输入。",
+      "accessibility": "标题关联面板；焦点进入后不落到背景；关闭按钮有名称，关闭后恢复触发位置。",
+      "avoid": "不要只靠拖动手势关闭，也不要固定高度裁掉大字号内容或错误提示。",
+      "api": "open, title, size, draft, dirty, busy, dismissible, onConfirm, onCancel"
+    },
+    {
+      "id": "o03",
+      "group": "overlays",
+      "name": "Popover",
+      "title": "锚点浮层",
+      "description": "在触发控件附近展示短选择或上下文内容，空间不足时转底部层。",
+      "scenes": [
+        "短下拉",
+        "更多操作",
+        "筛选面板"
+      ],
+      "variants": [
+        "菜单浮层",
+        "轻量表单",
+        "说明浮层"
+      ],
+      "states": [
+        "打开",
+        "边缘避让",
+        "焦点内",
+        "关闭",
+        "转底部层"
+      ],
+      "sizing": "最小宽160，最大不超过视口减32；选项至少44；内边距8–12，圆角12。",
+      "behavior": "与触发器定位并避让屏幕边缘；点击外部或返回关闭，带草稿时按取消规则处理。",
+      "accessibility": "触发器播报展开状态；可键盘进入和关闭；关闭回触发器，背景交互规则明确。",
+      "avoid": "不要让浮层超出屏幕或覆盖触发器全部位置，也不要放长列表而无滚动。",
+      "api": "anchor, open, placement, content, dismissOnOutside, onDismiss, onConfirm"
+    },
+    {
+      "id": "o04",
+      "group": "overlays",
+      "name": "Tooltip",
+      "title": "简短辅助说明",
+      "description": "补充图标或术语的非必要解释，同时提供触摸与键盘访问。",
+      "scenes": [
+        "图标说明",
+        "术语帮助",
+        "数值解释"
+      ],
+      "variants": [
+        "聚焦提示",
+        "触摸帮助",
+        "悬停辅助"
+      ],
+      "states": [
+        "显示",
+        "延迟关闭",
+        "隐藏"
+      ],
+      "sizing": "文字12/18或14/20；宽度不超过240；内边距8–10；帮助触发器44命中。",
+      "behavior": "聚焦或明确帮助操作显示，离开可关闭；不承载提交、表单或唯一错误信息。",
+      "accessibility": "说明与触发器关联；键盘和触摸均有等价入口；出现时不抢焦点。",
+      "avoid": "不要把必要标签或关键风险只藏在悬停提示中。",
+      "api": "content, triggerId, open, placement, onOpenChange"
+    },
+    {
+      "id": "b01",
+      "group": "business",
+      "name": "Upload",
+      "title": "文件上传",
+      "description": "完整表达选择、校验、进度、取消、失败与结果的上传流程。",
+      "scenes": [
+        "参考图片",
+        "文件传输",
+        "会话附件"
+      ],
+      "variants": [
+        "单文件",
+        "多文件",
+        "图片预览"
+      ],
+      "states": [
+        "待选",
+        "校验中",
+        "排队",
+        "上传中",
+        "完成",
+        "失败",
+        "取消中",
+        "已取消"
+      ],
+      "sizing": "选择按钮可见36/命中44；文件行至少64；进度4–6；缩略图48，移除44命中。",
+      "behavior": "类型/大小/数量限制选择前可见；无效文件就近说明；重试不重复创建记录，取消明确是否保留已完成项。",
+      "accessibility": "选择、移除和取消按文件名命名；进度可读；支持系统文件选择与辅助设备操作。",
+      "avoid": "不要自动提交整个业务任务，也不要上传失败后悄悄删除用户本地文件。",
+      "api": "files, accept, maxSize, maxCount, status, progress, onChoose, onUpload, onCancel, onRetry"
+    },
+    {
+      "id": "b02",
+      "group": "business",
+      "name": "FilePicker",
+      "title": "来源与文件选择",
+      "description": "在已支持来源中选择文件或目录，显示来源、路径和当前选择。",
+      "scenes": [
+        "本地导入",
+        "PDF选择输入",
+        "远程文件选择"
+      ],
+      "variants": [
+        "单文件",
+        "多文件",
+        "目录",
+        "来源切换"
+      ],
+      "states": [
+        "无来源",
+        "来源加载",
+        "目录加载",
+        "空目录",
+        "已选择",
+        "无权限",
+        "失败"
+      ],
+      "sizing": "来源字段48；路径44命中；文件行至少64；选择标记20、命中44；底部确认44。",
+      "behavior": "来源列表请求中不显示无来源；切换来源保留或清空选择的规则明确；确认后返回稳定文件标识。",
+      "accessibility": "来源、路径、文件名和选择状态可读；目录进入和文件选择职责分离。",
+      "avoid": "不要在只读浏览页新增上传、新建等写能力，也不要把来源失效等同空目录。",
+      "api": "sources, sourceId, path, selectedIds, multiple, mode, onNavigate, onSelect, onConfirm"
+    },
+    {
+      "id": "b03",
+      "group": "business",
+      "name": "FileRow",
+      "title": "文件与目录行",
+      "description": "以类型、名称、大小、状态和必要操作呈现文件。",
+      "scenes": [
+        "网盘目录",
+        "解压结果",
+        "本地文件列表"
+      ],
+      "variants": [
+        "目录",
+        "文件",
+        "缩略图",
+        "可多选"
+      ],
+      "states": [
+        "正常",
+        "选中",
+        "下载中",
+        "不可访问",
+        "失效",
+        "操作中"
+      ],
+      "sizing": "最小64；图标40或缩略图48；名称16/24、最多两行；元信息12/18；尾部操作44。",
+      "behavior": "目录整行进入，文件按已支持行为打开；更多动作不触发行打开；类型未知仍可查看信息。",
+      "accessibility": "名称包含文件/目录区别与选择状态；更多按钮说明作用对象；完整长文件名可获取。",
+      "avoid": "不要只用扩展名或颜色表达文件类型，也不要在窄屏截掉所有可区分名称。",
+      "api": "file, kind, selected, progress, actions, onOpen, onSelect, onAction"
+    },
+    {
+      "id": "b04",
+      "group": "business",
+      "name": "MediaControls",
+      "title": "媒体播放控制",
+      "description": "将播放、时间、拖动和扩展操作组织成稳定控制区。",
+      "scenes": [
+        "音频播放",
+        "视频覆盖层",
+        "继续播放"
+      ],
+      "variants": [
+        "音频常驻",
+        "视频沉浸",
+        "紧凑迷你播放器"
+      ],
+      "states": [
+        "准备中",
+        "播放",
+        "暂停",
+        "缓冲",
+        "结束",
+        "失败",
+        "续播"
+      ],
+      "sizing": "核心控制至少44命中；播放主图标24；时间12/18；进度交互行44；覆盖层文字对比独立验证。",
+      "behavior": "拖动预览与实际seek分开；缓冲不误报暂停；隐藏控制前保留唤出路径，失败可重试不丢播放位置。",
+      "accessibility": "播放/暂停名称随状态更新；当前时长和总时长可读；键盘与辅助设备可跳转时间。",
+      "avoid": "不要只靠手势提供音量或进度调整，也不要让控制栏遮住字幕和系统安全区。",
+      "api": "playing, buffering, position, duration, seekable, onPlayPause, onSeek, onRetry"
+    },
+    {
+      "id": "b05",
+      "group": "business",
+      "name": "BookRow",
+      "title": "书架图书行",
+      "description": "封面、续读信息、缓存与阅读进度组合，入口语义稳定。",
+      "scenes": [
+        "我的书架",
+        "图书搜索结果",
+        "最近阅读"
+      ],
+      "variants": [
+        "书架续读",
+        "搜索结果",
+        "缓存中"
+      ],
+      "states": [
+        "默认",
+        "已缓存",
+        "缓存中",
+        "缓存失败",
+        "有进度",
+        "已读完"
+      ],
+      "sizing": "封面56×84；书名16/24、600；作者/章节12/18；缓存12/18；行内间距12–14。",
+      "behavior": "封面进入详情，文字区域继续阅读；缓存状态真实可读；阅读进度与下载进度区分，不显示重复详情按钮。",
+      "accessibility": "封面详情与正文续读分别命名；书名、章节、阅读进度、缓存状态按合理顺序播报。",
+      "avoid": "不要让整个行与封面点击冲突，也不要把已缓存做成无法理解的操作按钮。",
+      "api": "book, readingProgress, cacheStatus, cacheProgress, onOpenDetail, onContinue, onManage"
+    },
+    {
+      "id": "b06",
+      "group": "business",
+      "name": "ReaderSettings",
+      "title": "阅读参数面板",
+      "description": "组合字体、字号、间距、页边距和主题，实时预览且可恢复。",
+      "scenes": [
+        "正文阅读设置",
+        "漫画参数",
+        "阅读主题"
+      ],
+      "variants": [
+        "即时设置",
+        "带预览确认",
+        "恢复默认"
+      ],
+      "states": [
+        "默认",
+        "已修改",
+        "预览",
+        "自定义色",
+        "不可用选项"
+      ],
+      "sizing": "标题18/26；设置行64；滑杆/步进44命中；字体选择48；正文预览左右边距相等。",
+      "behavior": "默认使用打包字体；用户主动选择阅读专用字体独立保存；取消草稿恢复原值，恢复默认说明影响范围。",
+      "accessibility": "设置名称包含单位；滑杆有精确输入路径；主题选择有名称而非仅色块。",
+      "avoid": "不要用固定高度裁切大字号预览，也不要美化时覆盖读者既有页边距与阅读偏好。",
+      "api": "fontFamily, fontSize, lineHeight, paragraphSpacing, margin, theme, onPreview, onSave, onReset"
+    },
+    {
+      "id": "b07",
+      "group": "business",
+      "name": "ChatComposer",
+      "title": "会话输入与附件",
+      "description": "组织消息、附件、发送和生成中停止，保持编辑过程稳定。",
+      "scenes": [
+        "DSH会话",
+        "下载助手输入",
+        "工具对话"
+      ],
+      "variants": [
+        "文本",
+        "带附件",
+        "生成中"
+      ],
+      "states": [
+        "空值",
+        "输入",
+        "附件上传",
+        "可发送",
+        "发送中",
+        "生成中",
+        "失败"
+      ],
+      "sizing": "输入最小48并随内容增高；16/24；附件/发送/停止44命中；预览文件行64。",
+      "behavior": "中文输入法合成不发送；换行与发送快捷键按场景固定；失败保留草稿，停止生成不误清历史。",
+      "accessibility": "输入有名称；发送、停止名称随状态变化；附件状态和移除可读，消息更新不反复抢焦点。",
+      "avoid": "不要每次回复自动清空未发送草稿，也不要上传附件后未经明确发送就提交消息。",
+      "api": "draft, attachments, sending, generating, canSend, onChange, onAttach, onSend, onStop"
+    },
+    {
+      "id": "b08",
+      "group": "business",
+      "name": "TaskRow",
+      "title": "异步任务行",
+      "description": "显示真实任务阶段、进度、产物和可执行的恢复动作。",
+      "scenes": [
+        "生成任务",
+        "下载任务",
+        "PDF任务",
+        "解压任务"
+      ],
+      "variants": [
+        "排队",
+        "处理中",
+        "有产物",
+        "失败恢复"
+      ],
+      "states": [
+        "排队",
+        "处理中",
+        "取消中",
+        "已取消",
+        "成功",
+        "部分成功",
+        "失败"
+      ],
+      "sizing": "任务行最小80；标题16/24；阶段/时间12/18；进度4–6；取消/重试/查看44命中。",
+      "behavior": "阶段来自实际任务状态；已提交不等于已完成；取消中不得显示为已取消，重试范围与产物对应。",
+      "accessibility": "名称、阶段、百分比和主要动作可读；更新适度播报，列表刷新不跳焦点。",
+      "avoid": "不要持续转圈而无阶段说明，也不要把重试做成重复创建多个相同任务。",
+      "api": "task, status, phase, progress, artifacts, cancellable, onCancel, onRetry, onOpenResult"
+    },
+    {
+      "id": "b09",
+      "group": "business",
+      "name": "FilePreview",
+      "title": "文件预览",
+      "description": "在可支持的格式中展示内容，区分加载、预览失败和不支持。",
+      "scenes": [
+        "图片查看",
+        "PDF预览",
+        "文本查看",
+        "文件详情"
+      ],
+      "variants": [
+        "图片",
+        "PDF",
+        "文本",
+        "不支持格式"
+      ],
+      "states": [
+        "加载中",
+        "可预览",
+        "预览失败",
+        "不支持",
+        "无权限",
+        "文件失效"
+      ],
+      "sizing": "页头操作44命中；内容使用可用视口；PDF页码14/20；文本16/26；缩放控制44。",
+      "behavior": "加载失败提供重试；不支持格式给已支持的外部打开/下载路径；返回保留列表位置与当前文件。",
+      "accessibility": "图片替代信息、PDF页码和文本内容可获取；缩放有按钮路径，不仅依赖捏合手势。",
+      "avoid": "不要把不支持格式显示成文件损坏，也不要为预览执行未授权的文件写操作。",
+      "api": "file, format, loading, error, page, zoom, canOpenExternal, onRetry, onOpenExternal, onClose"
+    }
+  ]
+}

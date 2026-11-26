@@ -1,0 +1,14 @@
+[
+  {
+    "name": "com.yuyutian.mytools.automation.service.DownloadIngestionClientTest",
+    "tests": "9",
+    "errors": "0",
+    "failures": "0"
+  },
+  {
+    "name": "com.yuyutian.mytools.automation.service.CompletionOutboxRelayTest",
+    "tests": "38",
+    "errors": "0",
+    "failures": "0"
+  }
+]

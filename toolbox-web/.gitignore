@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.runtime-deps/
+public/pdfjs/
+public/ocr/

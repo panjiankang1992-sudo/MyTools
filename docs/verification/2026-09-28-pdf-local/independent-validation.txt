@@ -1,0 +1,8 @@
+PASS rotation=0 axis=v ratio=25% nonzero-cropbox bounds and text-layer
+PASS rotation=0 axis=h ratio=25% nonzero-cropbox bounds and text-layer
+PASS rotation=90 axis=v ratio=25% nonzero-cropbox bounds and text-layer
+PASS rotation=90 axis=h ratio=25% nonzero-cropbox bounds and text-layer
+PASS rotation=180 axis=v ratio=25% nonzero-cropbox bounds and text-layer
+PASS rotation=180 axis=h ratio=25% nonzero-cropbox bounds and text-layer
+PASS rotation=270 axis=v ratio=25% nonzero-cropbox bounds and text-layer
+PASS rotation=270 axis=h ratio=25% nonzero-cropbox bounds and text-layer

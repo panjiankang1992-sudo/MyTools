@@ -34,9 +34,21 @@ rclone 的远端出站连接，Storage/Drive 仍通过受认证的回环 RC 调�
 - `assemble_release.py`：在构建机打包 Java 服务、Python 项目、Executor SDK、任务包和部署工具，并生成逐文件 SHA-256 清单。
 - `install_release.py`：在远程主机精确验签发布清单，创建版本内 Python venv，全部安装成功后原子切换 `releases/current`。
 - `create_service_env.py`：在远程生成只写一次的私有数据库密码、内部令牌和默认关闭配置，不回显秘密。
+- `inspect_news_runtime.py`：只读检查五个新闻相关服务的运行进程，报告环境缺项、角色绑定及配置覆盖入口；不输出配置值，不代替 Spring 最终绑定或真实任务验收。
 - `prepare_runtime_directories.py`：精确创建清单声明的运行和微服务日志目录，不修改现有父目录及业务数据目录。
 - `monitoring/task-reliability-alerts.yml`：Scheduler/Executor Prometheus 可靠性告警规则；发布包同时携带对应运行手册。
 - `monitoring/task-reliability-dashboard.json`：可导入 Grafana 的任务运行与可靠性仪表盘，导入时选择采集 MyTools 管理端点的 Prometheus 数据源。
+- `verify_download_dispatch.py`：发布后及临时容量维护结束后，用 Scheduler 只读接口检查四类下载任务的并发容量。已启用任务容量为零时返回非零退出码；服务健康检查不能替代此项检查。
+
+下载容量检查使用运行环境已有的 `TASK_OPERATOR_INTERNAL_TOKEN`，可选 `TASK_SCHEDULER_URL`；不要在命令行中填写或输出真实令牌：
+
+```bash
+python3 service/deploy/verify_download_dispatch.py
+```
+
+2026-09-21 的 `V161` 迁移仅恢复四类已启用、容量为零的下载任务（HTTP 为 8，其余为 4），不改变视频任务或显式禁用的任务。发布包含此迁移的版本前，应先结束临时验收窗口；恢复后执行容量检查及一条真实下载验证。systemd 存在多个覆盖文件时，还需检查健康启动后的实际 JAR 路径，不能仅凭重启成功认定新版本已生效。
+
+`V162` 将这四类下载和独立 `media_generate_tags` 任务的标签步骤升级至不可变包 `1.4.1`，不切换视频分析步骤。先部署并验证新包索引及非 root 执行器的目录权限，再启动含迁移的 Scheduler。该版本仅把同一个标签模型已经占用的显存计入可复用容量，仍检查其他驻留模型、驱动空闲显存和最低运行余量；防止首张图片成功后，后续图片因重复要求完整冷启动容量而失败。
 
 ## 初始化
 
@@ -258,3 +270,12 @@ Task Scheduler 与 Task Executor 均在回环管理端点暴露 `/actuator/prome
 7. MyTools Gateway，所有新路由保持关闭。
 
 空库启动和健康检查完成后才能执行旧数据快照。不可再生数据的正式迁移顺序以 `design/25-implementation-status-and-completion-plan.md` 为准。
+
+
+## 每日新闻发布基础
+
+清单新增默认关闭的 news-digest-service（23350 / mytools_news）。新建环境生成独立新闻及 Messaging v2 凭据，新闻业务和定时器均关闭；现有环境不得通过重建 services.env 升级。Gateway 已映射 GATEWAY_NEWS_ROUTE_ENABLED、NEWS_SERVICE_URL 和 NEWS_INTERNAL_TOKEN。
+
+Executor 默认声明 news 集群，Scheduler 默认允许该集群，但只给配置的注册节点名授予 news.node 标签。先升级 Scheduler 策略再升级 Executor；既有集群覆盖配置需保留原成员并补 news。服务迁移中的新闻及新版消息任务仍默认关闭。
+
+完整装配包含新闻 JAR、任务包、告警及两份运行手册，发布最终目录前强制检查文件清单、相关迁移和包摘要。包含新闻服务的安装器会要求地区包 1.2.0 的固定 Python 依赖清单；安装失败不会切换 current。自用可选择 IPWHOIS，不要求 MaxMind 账号或城市库；Scheduler V177 升级包版本并保留任务原有启停状态。旧环境使用 `prepare_news_environment.py` 默认预览、显式 `--apply` 增补缺失项；`verify_news_deployment.py` 提供 staged/shadow/delivery 配置检查及只读运行依赖检查。验收进度见 [每日新闻发布准备](../../docs/runbooks/daily-news-release.md)，更新任务包不等于已部署或启用每日发送。

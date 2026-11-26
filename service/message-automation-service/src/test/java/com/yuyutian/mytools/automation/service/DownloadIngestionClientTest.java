@@ -106,7 +106,7 @@ class DownloadIngestionClientTest {
                 .andExpect(header("Authorization", "Bearer download-token"))
                 .andRespond(withSuccess("""
                         {"downloadRequestId":"%s","status":"FAILED","items":[
-                          {"fileName":"saved.jpg","tagStatus":"FAILED","tags":[]}
+                          {"fileName":"saved.jpg","sizeBytes":12582912,"tagStatus":"FAILED","tags":[]}
                         ]}
                         """.formatted(downloadId), MediaType.APPLICATION_JSON));
         DownloadIngestionClient client = new DownloadIngestionClient(builder.build(), "download-token");
@@ -116,6 +116,7 @@ class DownloadIngestionClientTest {
         assertThat(summary.status()).isEqualTo("FAILED");
         assertThat(summary.items()).extracting(DownloadIngestionClient.DownloadItem::fileName)
                 .containsExactly("saved.jpg");
+        assertThat(summary.items().getFirst().sizeBytes()).isEqualTo(12582912L);
         server.verify();
     }
 

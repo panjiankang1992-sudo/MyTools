@@ -1,0 +1,177 @@
+{
+  "url": "https://toolbox.yuyutian.top/#/words",
+  "release": "autofill-fix-20261004-175000",
+  "entryAsset": "assets/index-LdAF13fB.js",
+  "method": "Real Chromium UI: reload, select two original photos, click recognize; no Next, Complete or Retry clicks; no manual corrections",
+  "sourceFiles": [
+    "20261004-141232.jpg",
+    "20261004-141249.jpg"
+  ],
+  "page": {
+    "headings": [
+      "单词",
+      "单词练习",
+      "核对识别内容"
+    ],
+    "status": [
+      "已识别 2 / 2 张，请核对结果后使用。",
+      "缺少的内容会自动补全，已有内容保持不变。"
+    ]
+  },
+  "pairs": [
+    {
+      "row": 1,
+      "chinese": "跳舞",
+      "english": "dancing"
+    },
+    {
+      "row": 2,
+      "chinese": "课时",
+      "english": "lesson"
+    },
+    {
+      "row": 3,
+      "chinese": "走",
+      "english": "walk"
+    },
+    {
+      "row": 4,
+      "chinese": "狗",
+      "english": "dog"
+    },
+    {
+      "row": 5,
+      "chinese": "明天，在明天",
+      "english": "tomorrow"
+    },
+    {
+      "row": 6,
+      "chinese": "免费",
+      "english": "free"
+    },
+    {
+      "row": 7,
+      "chinese": "明天见！",
+      "english": "See you tomorrow!"
+    },
+    {
+      "row": 8,
+      "chinese": "微弱",
+      "english": "Weak"
+    },
+    {
+      "row": 9,
+      "chinese": "星期一",
+      "english": "Monday"
+    },
+    {
+      "row": 10,
+      "chinese": "星期二",
+      "english": "Tuesday"
+    },
+    {
+      "row": 11,
+      "chinese": "星期三",
+      "english": "Wednesday"
+    },
+    {
+      "row": 12,
+      "chinese": "星期四",
+      "english": "Thursday"
+    },
+    {
+      "row": 13,
+      "chinese": "星期五",
+      "english": "Friday"
+    },
+    {
+      "row": 14,
+      "chinese": "星期六",
+      "english": "Saturday"
+    },
+    {
+      "row": 15,
+      "chinese": "星期天",
+      "english": "Sunday"
+    },
+    {
+      "row": 16,
+      "chinese": "什么时候",
+      "english": "when"
+    },
+    {
+      "row": 17,
+      "chinese": "每一个，每个",
+      "english": "every"
+    },
+    {
+      "row": 18,
+      "chinese": "在",
+      "english": "at"
+    },
+    {
+      "row": 19,
+      "chinese": "上涨",
+      "english": "up"
+    },
+    {
+      "row": 20,
+      "chinese": "在今天",
+      "english": "today"
+    },
+    {
+      "row": 21,
+      "chinese": "今天是星期几？",
+      "english": "What day is it today?"
+    },
+    {
+      "row": 22,
+      "chinese": "电影院",
+      "english": "cinema"
+    },
+    {
+      "row": 23,
+      "chinese": "放学后",
+      "english": "after school"
+    }
+  ],
+  "checks": {
+    "rowCount": 23,
+    "originalOcrMeaningsPreserved": 13,
+    "missingMeaningsBeforeAutofill": 10,
+    "automaticallyFilled": 10,
+    "stillMissing": [],
+    "walkFilled": "走",
+    "remainedOnSourceStep": true,
+    "manualEditsPerformed": false
+  },
+  "limitations": [
+    {
+      "source": "OCR",
+      "expectedEnglish": "week",
+      "actualEnglish": "Weak",
+      "automaticMeaning": "微弱"
+    },
+    {
+      "source": "context-dependent translation",
+      "english": "free",
+      "automaticMeaning": "免费",
+      "photoMeaning": "空闲的"
+    },
+    {
+      "source": "context-dependent translation",
+      "english": "up",
+      "automaticMeaning": "上涨",
+      "photoMeaning": "起床"
+    },
+    {
+      "source": "context-dependent translation",
+      "english": "walk",
+      "automaticMeaning": "走",
+      "photoMeaning": "牵着（动物）走，遛"
+    }
+  ],
+  "screenshots": [
+    "output/playwright/autofill-final-image.png"
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "date": "2026-11-02",
+  "counting": "Static source constructors/calls, including shared implementations and inactive legacy builders; not runtime instances or acceptance percentage.",
+  "files": [
+    {
+      "file": "app/entry/src/main/ets/components/AppControls.ets",
+      "sha256": "0a7adee303adc78a67f314a05b02f964e5546d8f2cd1c88cce29745972ecff52",
+      "rawButtonConstructions": 5,
+      "sharedCalls": {
+        "AppButton": 6,
+        "AppIconButton": 1,
+        "AppGlassTextOutput": 1
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/features/reader/AdaptationConsentPanel.ets",
+      "sha256": "7f2e1c79e216f1e63999e432a517de467ac65debc7de7938f0d8f6ad6036dbda",
+      "rawButtonConstructions": 0,
+      "sharedCalls": {
+        "AppButton": 1,
+        "AppTextAction": 3
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/features/reader/ChapterAdaptationPanel.ets",
+      "sha256": "e77ad73817a13e90a92aa1952e1f390840d886cce036c8477a5cb77ae4ee9fef",
+      "rawButtonConstructions": 3,
+      "sharedCalls": {
+        "AppButton": 1,
+        "AppTextAction": 2,
+        "AppSecondaryPillButton": 2,
+        "AppSelect": 1,
+        "AppGlassTextArea": 1
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/features/rss/RssHomePage.ets",
+      "sha256": "726d7e97711a8be6c5e901c17be6c8c8c67baa336bc89a0b6a749da4bbc7b8a7",
+      "rawButtonConstructions": 4,
+      "sharedCalls": {
+        "AppButton": 1,
+        "AppTextAction": 12,
+        "AppSegmentItem": 1,
+        "AppSelect": 2,
+        "AppGlassTextInput": 4,
+        "AppSearchField": 1
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/features/rss/RssReaderPage.ets",
+      "sha256": "69c51d59863fa802e8d78d1a89f1fbe9e212d3754eeb8113741adee8c615e4cb",
+      "rawButtonConstructions": 1,
+      "sharedCalls": {
+        "AppButton": 1,
+        "AppTextAction": 4
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/ImageGenerationPage.ets",
+      "sha256": "52812991c30f546339ee7098727db5fbefb97db3432da5db92d1fe8e11d012ae",
+      "rawButtonConstructions": 5,
+      "sharedCalls": {
+        "AppButton": 5,
+        "AppTextAction": 17,
+        "AppIconButton": 2,
+        "AppSegmentItem": 2,
+        "AppFilterChip": 2,
+        "AppGlassTextInput": 2,
+        "AppGlassTextArea": 2,
+        "AppSearchField": 1
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/QrToolsPage.ets",
+      "sha256": "38074bcded73381b9fc2b1c95fea6fb6cf2cbe18976bf1d39525330dc49666b7",
+      "rawButtonConstructions": 0,
+      "sharedCalls": {
+        "AppButton": 4,
+        "AppTextAction": 3,
+        "AppActionGroup": 1,
+        "AppSegmentItem": 1,
+        "AppGlassTextArea": 1
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/ToolUi.ets",
+      "sha256": "0a6ac8bc794b7fc8fbd493af7e9a603b4e8ba899f3a4d34df56870f1440dfa50",
+      "rawButtonConstructions": 0,
+      "sharedCalls": {
+        "AppIconButton": 1,
+        "AppActionGroup": 1
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/VideoGenerationPage.ets",
+      "sha256": "2119cc7edd7e0932f0f2d07a78c2d8a69083dfd09350ddbe3d8690c16d735021",
+      "rawButtonConstructions": 3,
+      "sharedCalls": {
+        "AppButton": 3,
+        "AppTextAction": 9,
+        "AppSegmentItem": 2,
+        "AppGlassTextArea": 1
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/archive/ArchivePage.ets",
+      "sha256": "16d2e87bf4f0e370dee0017a4388eb83e2e421058881b11da3ba905f57183a60",
+      "rawButtonConstructions": 0,
+      "sharedCalls": {
+        "AppButton": 12,
+        "AppTextAction": 5,
+        "AppActionGroup": 1,
+        "AppSegmentItem": 3,
+        "AppGlassTextInput": 1,
+        "AppSearchField": 1
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/download/DownloadReplyCard.ets",
+      "sha256": "8b4183fc18aa81243175eafe3a25e583011ab5ea8f82ea47d57f1a3354a23bda",
+      "rawButtonConstructions": 0,
+      "sharedCalls": {
+        "AppTextAction": 1
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/download/DownloadToolsPage.ets",
+      "sha256": "eba59e1520c44b769ac1c38de85827bdf14cb288b9804089bff5f928ab52531b",
+      "rawButtonConstructions": 1,
+      "sharedCalls": {
+        "AppButton": 1,
+        "AppTextAction": 1,
+        "AppIconButton": 1,
+        "AppActionGroup": 1
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/pdf/PdfToolsPage.ets",
+      "sha256": "6eb87796c90749844f3d7735aeb5cb56f5a04313d10d4ac078c7b0b743c2c94c",
+      "rawButtonConstructions": 5,
+      "sharedCalls": {
+        "AppButton": 12,
+        "AppTextAction": 7,
+        "AppIconButton": 1,
+        "AppActionGroup": 4,
+        "AppSegmentItem": 10,
+        "AppGlassTextInput": 6,
+        "AppGlassTextArea": 1
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "sha256": "2b437c49d848109aade90a72678930ec7d0815fba31906639d17fa8be38d28a4",
+      "rawButtonConstructions": 71,
+      "sharedCalls": {
+        "AppButton": 78,
+        "AppTextAction": 30,
+        "AppIconButton": 3,
+        "AppActionGroup": 14,
+        "AppPrimaryPillButton": 18,
+        "AppSecondaryPillButton": 10,
+        "AppDangerPillButton": 7,
+        "AppSegmentItem": 8,
+        "AppFilterChip": 5,
+        "AppSelect": 2,
+        "AppGlassTextInput": 12,
+        "AppGlassTextArea": 4,
+        "AppGlassTextOutput": 2,
+        "AppSearchField": 9,
+        "AppSettingsRow": 1
+      }
+    },
+    {
+      "file": "app/entry/src/main/ets/ability/EntryAbility.ets",
+      "sha256": "04e6454a11caf9a8ea6db97fd5104a1643ed9e824abbfc0b1c106cac66c5358c",
+      "rawButtonConstructions": 0,
+      "sharedCalls": {}
+    },
+    {
+      "file": "app/entry/src/main/ets/theme/AppTheme.ets",
+      "sha256": "3ba781c6ca8b3e06d5c6fee62ceb599895cc1cc7184dea86d58474e14b8841da",
+      "rawButtonConstructions": 0,
+      "sharedCalls": {}
+    },
+    {
+      "file": "app/entry/src/main/ets/theme/AppFonts.ets",
+      "sha256": "63740984b90436cf8b3096cffd575f383728b15596ed71e7b288f0ca4c4274ec",
+      "rawButtonConstructions": 0,
+      "sharedCalls": {}
+    }
+  ]
+}

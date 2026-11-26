@@ -24,6 +24,9 @@ spring:
     properties:
       mail.smtp.auth: ${MESSAGING_SMTP_AUTH:true}
       mail.smtp.ssl.enable: ${MESSAGING_SMTP_SSL:true}
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 20000
+      mail.smtp.writetimeout: 20000
 
 management:
   health:
@@ -35,6 +38,23 @@ management:
         include: health,info
 
 messaging:
+  outbound:
+    capacity:
+      destination-rows: ${MESSAGING_OUTBOUND_CAPACITY_DESTINATION_ROWS:1000}
+      delivery-rows: ${MESSAGING_OUTBOUND_CAPACITY_DELIVERY_ROWS:100000}
+      cancel-only-rows: ${MESSAGING_OUTBOUND_CAPACITY_CANCEL_ONLY_ROWS:100000}
+      payload-bytes: ${MESSAGING_OUTBOUND_CAPACITY_PAYLOAD_BYTES:536870912}
+    retention:
+      enabled: ${MESSAGING_OUTBOUND_RETENTION_ENABLED:false}
+      timer-enabled: ${MESSAGING_OUTBOUND_RETENTION_TIMER_ENABLED:true}
+      content-days: ${MESSAGING_OUTBOUND_CONTENT_RETENTION_DAYS:90}
+      attempt-days: ${MESSAGING_OUTBOUND_ATTEMPT_RETENTION_DAYS:90}
+      batch-size: ${MESSAGING_OUTBOUND_RETENTION_BATCH_SIZE:250}
+    enabled: ${MESSAGING_OUTBOUND_ENABLED:false}
+    client-token: ${MESSAGING_OUTBOUND_CLIENT_TOKEN:}
+    worker-token: ${MESSAGING_OUTBOUND_WORKER_TOKEN:}
+    admin-token: ${MESSAGING_OUTBOUND_ADMIN_TOKEN:}
+    encryption-key: ${MESSAGING_DESTINATION_ENCRYPTION_KEY:}
   scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
   scheduler-token: ${TASK_BUSINESS_MESSAGING_TOKEN:${MESSAGING_INTERNAL_TOKEN:${TASK_BUSINESS_INTERNAL_TOKEN:${TASK_INTERNAL_TOKEN:}}}}
   internal-token: ${MESSAGING_INTERNAL_TOKEN:}

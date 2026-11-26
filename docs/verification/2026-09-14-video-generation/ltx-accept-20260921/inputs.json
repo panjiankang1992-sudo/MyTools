@@ -1,0 +1,20 @@
+[
+  {
+    "name": "product",
+    "prompt": "镜头缓慢向前推进。茶壶、草莓和盘子保持静止，保持红色与原有光照。不要新增人物或物品。",
+    "uploadId": "22681800-25b8-4c01-96a2-c82a872a0dae",
+    "sha256": "5383ec9b359b53517bbc582be548879b9f45dc8a1e3d1b8fa15491abc82be46f"
+  },
+  {
+    "name": "portrait",
+    "prompt": "人物自然眨眼并轻轻微笑，头部保持稳定，镜头固定，保持原来的面貌、服装和背景。",
+    "uploadId": "b2cb94d1-4e3d-493b-afe9-90e045f67084",
+    "sha256": "6035cad323864b9514095cf112ac91176dbc2a1a61eaf064453e1b0cb44a811c"
+  },
+  {
+    "name": "landscape",
+    "prompt": "镜头固定，湖水泛起细微波纹，保留山峰、雪和日落颜色，不要改变场景。",
+    "uploadId": "e33ec78b-c8ba-41b9-b62d-0739771f07ba",
+    "sha256": "e625508acee0f61f1391872e9f159123a49a2272ebee6ecc15df6053352da66d"
+  }
+]

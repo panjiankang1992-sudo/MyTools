@@ -9,8 +9,9 @@ export class ProfileApi {
   private readonly client: AuthorizedApiClient;
   private readonly normalizer: ProfileResponseNormalizer = new ProfileResponseNormalizer();
 
-  constructor(baseUrl: string, authManager: AuthSessionManager, allowPublicFallback: boolean = true) {
-    this.client = new AuthorizedApiClient(baseUrl, authManager, allowPublicFallback);
+  constructor(baseUrl: string, authManager: AuthSessionManager, allowPublicFallback: boolean = true,
+    pinEndpoint: boolean = false) {
+    this.client = new AuthorizedApiClient(baseUrl, authManager, allowPublicFallback, 20000, pinEndpoint);
   }
 
   /** 获取当前用户昵称和头像。 */

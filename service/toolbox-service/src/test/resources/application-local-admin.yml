@@ -1,0 +1,52 @@
+# 仅本地验收使用的配置（**绝不可用于生产**）。
+#
+# 用途：在隔离的 MySQL 测试容器上启动 toolbox-service，并装载
+# 本地假身份替身（见 src/test/java 的 LocalAdminIdentityTestConfig），
+# 从而让管理员登录与教材录入链路可以在本机完整验收。
+#
+# 激活方式（必须同时满足）：
+#   --spring.profiles.active=local,local-admin
+#   -Dspring-boot.run.useTestClasspath=true      # 替身只存在于测试类路径
+#
+# 本文件不包含任何真实凭据：数据库密码与内部令牌一律由启动命令的环境变量注入。
+spring:
+  datasource:
+    # 指向只回环绑定的隔离测试容器；库名与端口都是测试专用。
+    url: jdbc:mysql://${TOOLBOX_DB_HOST:127.0.0.1}:${TOOLBOX_DB_PORT:13316}/${TOOLBOX_DB_NAME:toolbox_test}?useUnicode=true&characterEncoding=utf8&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true
+    username: ${TOOLBOX_DB_USER:root}
+    # 测试容器的口令由启动命令通过环境变量注入，不写入仓库。
+    password: ${TOOLBOX_DB_PASSWORD:}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+toolbox:
+  # 前端 dev server 的来源，用于同源校验（精确匹配，不使用通配符）。
+  public-origin: ${TOOLBOX_PUBLIC_ORIGIN:http://127.0.0.1:4173}
+  public-origins: ""
+  # 本地验收专用目录；repository=database 时不会读取该目录，保留仅为配置完整。
+  catalog-path: ${TOOLBOX_CATALOG_PATH:./target/local-admin-content}
+  admin:
+    enabled: true
+    # 假身份替身的第二重闸门：必须与 profile=local-admin 同时成立才会装载。
+    local-identity-stub: true
+    # 本机假账号，不是任何真实账号或凭据。
+    local-stub-account: ${TOOLBOX_ADMIN_STUB_ACCOUNT:local-admin}
+    local-stub-password: ${TOOLBOX_ADMIN_STUB_PASSWORD:local-admin}
+    local-stub-user-id: local-admin-1001
+    # 可选的第二个本机假账号（同样只在本机生效，不是任何真实账号或凭据）。
+    # 默认留空 = 不启用；只有"换账号不串内容"需要两个账号时才由启动命令注入。
+    local-stub-account-2: ${TOOLBOX_ADMIN_STUB_ACCOUNT_2:}
+    local-stub-password-2: ${TOOLBOX_ADMIN_STUB_PASSWORD_2:}
+    local-stub-user-id-2: ${TOOLBOX_ADMIN_STUB_USER_ID_2:local-admin-1002}
+    # 替身接管后该地址不会被访问；保留为不可达的回环地址，避免误指向真实上游。
+    upstream-base-url: http://127.0.0.1:1
+    internal-token: ${TOOLBOX_ADMIN_INTERNAL_TOKEN:local-acceptance-only-not-a-secret}
+    # 明文 HTTP 环境不能使用 __Host- 前缀（该前缀要求 Secure，否则浏览器拒收）。
+    session-cookie-name: toolbox_admin_local
+    login-cookie-name: toolbox_admin_login_local
+    cookie-secure: false
+    # 仅本地验收用的固定密钥（Base64 的 32 字节零值），不是生产凭据。
+    encryption-key: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+  curriculum:
+    # 公开目录改由工具箱数据库提供，使「管理端发布」在隔离环境里对外可见。
+    repository: database

@@ -25,8 +25,8 @@ public class CompletionOutboxRelay {
             "\n\n结果超过 8 页，后续内容已截断；请在系统中查询完整结果。";
     private static final java.util.Set<String> TERMINAL_DOWNLOAD_STATUSES =
             java.util.Set.of("SUCCEEDED", "FAILED", "CANCELLED");
-    private static final java.util.Set<String> TERMINAL_TAG_STATUSES =
-            java.util.Set.of("TAGGED", "FAILED", "SKIPPED");
+    private static final java.util.Set<String> SAVED_FILE_TAG_STATUSES =
+            java.util.Set.of("TAGGED", "FAILED", "SKIPPED", "PENDING");
     private static final int MAXIMUM_EXTERNAL_CONCURRENCY = 4;
     private static final long EVENT_DEADLINE_SECONDS = 120L;
     private static final long DEFAULT_DEFER_SECONDS = 1L;
@@ -110,8 +110,17 @@ public class CompletionOutboxRelay {
             }
             InboundMessage message = externalCall(
                     () -> messagingClient.get(event.messageId()), externalPermits, deadline);
-            java.util.List<String> pages = channelPages(message.channelType(), completionTexts(
-                    event, message, executor, externalPermits, deadline, actionWindowSize));
+            java.util.List<String> pages = repository.findOutboxDeliveryPages(event.eventId()).orElse(null);
+            if (pages == null) {
+                pages = channelPages(message.channelType(), completionTexts(
+                        event, message, executor, externalPermits, deadline, actionWindowSize));
+                // 在第一次发送前固定页数和正文，重试期间标签变化也不会改变回复身份。
+                if (event.claimToken() != null
+                        && !repository.saveOutboxDeliveryPages(event.eventId(), event.claimToken(), pages)) {
+                    LOGGER.warn("Completion relay lost claim before saving pages: eventId={}", event.eventId());
+                    return;
+                }
+            }
             if (event.deliveryPageCursor() > pages.size()) {
                 throw new IllegalStateException("Completion delivery page cursor exceeds page count");
             }
@@ -120,9 +129,10 @@ public class CompletionOutboxRelay {
                 publish(event);
                 return;
             }
+            java.util.List<String> deliveryPages = pages;
             for (int index = event.deliveryPageCursor(); index < pages.size(); index++) {
                 int page = index;
-                externalCall(() -> replyPage(event, message, pages, page),
+                externalCall(() -> replyPage(event, message, deliveryPages, page),
                         externalPermits, deadline);
                 if (!acknowledgePage(event, page)) {
                     // 回复已受理但租约失效时立即停止，稳定幂等键允许新 worker 安全补偿。
@@ -181,14 +191,17 @@ public class CompletionOutboxRelay {
     private MessagingClient.InboundReplySnapshot replyPage(
             AutomationRepository.CompletionEvent event, InboundMessage message,
             java.util.List<String> pages, int page) {
+        // 普通事件保留现行回执身份，已审计重跑使用稳定的新事件身份区分旧失败结果。
+        java.util.UUID replyIdentity = repository.isRecoveredCompletion(event.runId(), event.eventId())
+                ? event.eventId() : event.runId();
         if (message.channelType() == ChannelType.QQ
                 || pages.size() > 1) {
             // QQ Connector 将 page-1..8 确定性映射到原消息的被动回复序号。
             return messagingClient.reply(event.messageId(),
-                    "automation-completion-" + event.runId() + "-page-" + (page + 1),
+                    "automation-completion-" + replyIdentity + "-page-" + (page + 1),
                     pages.get(page));
         }
-        return messagingClient.reply(event.messageId(), event.runId(), pages.get(page));
+        return messagingClient.reply(event.messageId(), replyIdentity, pages.get(page));
     }
 
     private boolean acknowledgePage(AutomationRepository.CompletionEvent event, int expectedCursor) {
@@ -246,8 +259,8 @@ public class CompletionOutboxRelay {
                     ActionCompletion>> summaries =
                     actions.subList(offset, end).stream()
                             .map(action -> java.util.concurrent.CompletableFuture.supplyAsync(
-                                    () -> completionItems(
-                                            action, message, externalPermits, deadline), executor))
+                                    () -> completionItems(action, message, externalPermits, deadline,
+                                            event.deliveryPageCursor() > 0), executor))
                             .toList();
             try {
                 java.util.concurrent.CompletableFuture.allOf(
@@ -280,9 +293,13 @@ public class CompletionOutboxRelay {
             return java.util.List.of("下载处理" + state + "，共 " + event.actionCount() + " 个文件。");
         }
         boolean allTagged = items.stream().allMatch(item -> "TAGGED".equals(item.tagStatus()));
+        // 真实结果与失败占位条目分开判断，不能把已保存文件描述为下载失败。
+        boolean hasSavedFiles = items.stream().anyMatch(item ->
+                SAVED_FILE_TAG_STATUSES.contains(item.tagStatus())
+                        || "METADATA_UNAVAILABLE".equals(item.tagStatus()));
         String title = switch (resolvedStatus) {
-            case "PARTIAL_FAILED" -> "下载处理部分失败";
-            case "FAILED" -> "下载处理失败";
+            case "PARTIAL_FAILED", "FAILED" -> hasSavedFiles
+                    ? "已有文件下载并归档，但部分处理未完成" : "下载处理失败";
             case "CANCELLED" -> "下载处理已取消";
             default -> allTagged ? "下载与标签已完成" : "下载处理已完成";
         };
@@ -291,6 +308,7 @@ public class CompletionOutboxRelay {
         for (int index = 0; index < items.size(); index++) {
             DownloadIngestionClient.DownloadItem item = items.get(index);
             String entry = "\n\n" + (index + 1) + ". " + item.fileName()
+                    + (item.sizeBytes() == null ? "" : "\n   \u5927\u5c0f\uff1a" + formatSize(item.sizeBytes()))
                     + "\n   标签：" + formatTags(item);
             if (entry.length() > COMPLETION_PAGE_CONTENT_LIMIT) {
                 entry = entry.substring(0, COMPLETION_PAGE_CONTENT_LIMIT - 3) + "...";
@@ -317,7 +335,7 @@ public class CompletionOutboxRelay {
 
     private ActionCompletion completionItems(
             AutomationRepository.ActionExecution action, InboundMessage message,
-            java.util.concurrent.Semaphore externalPermits, long deadline) {
+            java.util.concurrent.Semaphore externalPermits, long deadline, boolean legacyPartialDelivery) {
         try {
             java.util.UUID requestId = action.externalRequestId();
             if (requestId != null && "ATTACHMENT_DOWNLOAD".equals(action.actionType())) {
@@ -338,7 +356,7 @@ public class CompletionOutboxRelay {
                     }
                     throw new IllegalStateException("Download result summary is not terminal");
                 }
-                requireUsableSummary(action, summary);
+                requireUsableSummary(action, summary, legacyPartialDelivery);
                 if (summary.items().isEmpty()
                         && ("FAILED".equals(summary.status()) || "CANCELLED".equals(summary.status()))) {
                     // 下游失败或取消且没有已保存文件时，使用计划阶段元数据解释真实终态。
@@ -403,15 +421,18 @@ public class CompletionOutboxRelay {
     }
 
     private void requireUsableSummary(AutomationRepository.ActionExecution action,
-                                      DownloadIngestionClient.DownloadSummary summary) {
+                                      DownloadIngestionClient.DownloadSummary summary,
+                                      boolean legacyPartialDelivery) {
         if (!terminalFailureAction(action) && !action.status().equals(summary.status())) {
             // 本地成功动作仍必须与下游严格一致，避免掩盖真实的数据完整性问题。
             throw new IllegalStateException("Download result summary conflicts with local status");
         }
         for (DownloadIngestionClient.DownloadItem item : summary.items()) {
-            if (item.fileName() == null || item.fileName().isBlank()
-                    || !TERMINAL_TAG_STATUSES.contains(item.tagStatus())) {
-                throw new IllegalStateException("Download tag summary is not terminal");
+            // 文件已落盘即可通知；旧版本已发出部分分页时仍按旧规则保留分页内容。
+            if (item.fileName() == null || item.fileName().isBlank() || item.tagStatus() == null
+                    || !SAVED_FILE_TAG_STATUSES.contains(item.tagStatus())
+                    || (legacyPartialDelivery && "PENDING".equals(item.tagStatus()))) {
+                throw new IllegalStateException("Download file summary is invalid");
             }
             boolean tagged = "TAGGED".equals(item.tagStatus());
             if (tagged == item.tags().isEmpty()) {
@@ -475,6 +496,18 @@ public class CompletionOutboxRelay {
             return "CANCELLED";
         }
         return succeeded ? "SUCCEEDED" : eventStatus;
+    }
+
+    private static String formatSize(long bytes) {
+        String[] units = {"B", "KB", "MB", "GB", "TB"};
+        double value = bytes;
+        int unit = 0;
+        // 使用已完成文件的真实字节数，按 1024 自动选择单位。
+        while (value >= 1024 && unit < units.length - 1) {
+            value /= 1024;
+            unit++;
+        }
+        return unit == 0 ? bytes + " B" : String.format(java.util.Locale.ROOT, "%.2f %s", value, units[unit]);
     }
 
     private String formatTags(DownloadIngestionClient.DownloadItem item) {

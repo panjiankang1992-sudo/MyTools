@@ -1,0 +1,53 @@
+{
+  "build": "passed",
+  "signedHap": "app/build/dsh-mobile/entry-dsh-mobile-20261102-signed.hap",
+  "sha256": "e035e3d374b7630e9a16ac8bc1afe6e17d23f76cfc802ee446bcb6c10bacef15",
+  "bytes": 51314439,
+  "policyTests": "passed",
+  "javascriptSyntax": "passed",
+  "mobileViewport": [
+    {
+      "width": 320,
+      "height": 740,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "settingsBodyHeight": 290,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 450,
+      "scope": "reduced viewport only, not a real soft keyboard"
+    }
+  ],
+  "desktop": {
+    "width": 1440,
+    "height": 900,
+    "settingsPanelWidth": 800,
+    "navigationWidth": 188,
+    "contentWidth": 612
+  },
+  "deployment": "not deployed; user requested code and preview first",
+  "deviceValidation": "not performed; user deferred",
+  "upstreamVersion": "0.2.1-rc.2",
+  "nginxCandidateSyntax": "passed",
+  "navigation": {
+    "outsideDrawerTap": "passed",
+    "selectPluginClosesDrawer": "passed",
+    "settingsClose": "passed",
+    "cancelUnsavedModel": "passed"
+  },
+  "sourceHashes": {
+    "deploy/dsh-mobile/mobile.css": "d409d79523d750f958f12100c71a152dad709f04f2ae71fbb61c59c70849f073",
+    "deploy/dsh-mobile/mobile.js": "73b2e1decbade8255fb1d1bfa2f917991439d8df3503e4a073ca4a9af6ed7f46",
+    "deploy/nginx/dsh-lan.conf": "06d4438209b4b182e1e0ae4199c5f4c06ffd1058622825e029b498f9dbbbc010"
+  }
+}

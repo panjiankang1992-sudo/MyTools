@@ -1,0 +1,41 @@
+{
+  "reading": {
+    "passed": 19,
+    "checks": [
+      "twenty headlines rendered",
+      "only available top-ten details rendered",
+      "missing details kept at original ranks",
+      "trend readiness distinguished from generation readiness",
+      "executable URL blocked",
+      "untrusted markup remains plain text",
+      "historical region preserved",
+      "current region shown separately",
+      "evidence can be expanded",
+      "empty local category does not borrow national stories",
+      "category switching shows actual count",
+      "subscription saved with expected revision",
+      "no client owner or destination fields",
+      "conflict preserves draft",
+      "conflict blocks overwrite",
+      "explicit reload restores editing",
+      "network-loss preview retries same key and cutoff",
+      "cancelled run no longer offers cancellation",
+      "failed refresh keeps last readable history with error"
+    ]
+  },
+  "evidence": {
+    "passed": 10,
+    "checks": [
+      "retained citation is labelled",
+      "expired citation is labelled",
+      "missing evidence is distinct from expired",
+      "missing evidence has no invented deadline",
+      "local retention status is explained without claiming verification",
+      "status failure preserves frozen excerpts",
+      "failed refresh clears stale available label",
+      "recovered status keeps same edition content",
+      "390px evidence view has no horizontal overflow",
+      "360px evidence view has no horizontal overflow"
+    ]
+  }
+}

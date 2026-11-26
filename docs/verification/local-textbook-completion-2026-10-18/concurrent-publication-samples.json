@@ -1,0 +1,157 @@
+{
+  "edition": {
+    "editionId": "en-yl-4-1-yilin-2024",
+    "subject": "english",
+    "grade": 4,
+    "semester": "first",
+    "regionCodes": [
+      "jiangsu"
+    ],
+    "publisher": "译林出版社",
+    "series": "译林版英语",
+    "editionLabel": "2024 年版（2022 课标修订版）",
+    "curriculumYear": null,
+    "isbn": null,
+    "sourceIds": [
+      "yilin-en-4-first-2024"
+    ],
+    "schemaVersion": 1,
+    "contentVersion": "1.0.5",
+    "contentSha256": "71f0f1f866f8676e422eab6860b633abd6f7479eea3f9d9ed45416987e31ff67",
+    "reviewStatus": "published",
+    "coverageStatus": "partial",
+    "verifiedAt": "2026-10-18T00:00:00Z",
+    "publishedAt": null,
+    "availableEntryCount": 157,
+    "expectedEntryCount": 157,
+    "missingScopes": [
+      "**按 2026-10-18 的新印次照片重新核对并修正**（较上一版：新增 *Labour、swimming、hard、It's OK.、short、It's raining.、shorts、new；playground 改为 *sports ground；移除 *timetable、*number、*oops、*puppet、meet；so 由 Unit 3 移至 Unit 4；多册页码修正）。",
+      "本册按 Word lists I 原印单元表收录 8 个单元全部条目；未收录 Word lists II（字母序重排）、Word lists III（专有名词）与课文正文、Project、Learning tips。",
+      "ISBN 未取得：照片只含 Word lists 页，缺版权页，故 isbn 留空而不推测。",
+      "单元标题按原印只显示 Unit 1—Unit 8 的单元号，故一律记为 \"Unit N\"，不推测标题。",
+      "同一词在不同单元有不同义项时分别收录（如 in、have、early），不合并。"
+    ]
+  },
+  "entries": [
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0010",
+      "entryVersion": "1.0.5",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 9,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "Labour",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "劳动（课）",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-10",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 10; original order 10",
+          "page": 9
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0023",
+      "entryVersion": "1.0.5",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u01",
+      "lessonId": null,
+      "order": 22,
+      "form": "phrase",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "sports ground",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "操场，运动场",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-23",
+      "context": "教材标注：*（非单元核心词）。",
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 1; item 23; original order 23",
+          "page": 13
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0078",
+      "entryVersion": "1.0.5",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u04",
+      "lessonId": null,
+      "order": 77,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "swimming",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "游泳；游泳运动",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-78",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 4; item 6; original order 6",
+          "page": 36
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    },
+    {
+      "entryId": "en-yl-4-1-yilin-2024-0157",
+      "entryVersion": "1.0.5",
+      "editionId": "en-yl-4-1-yilin-2024",
+      "unitId": "en-yl-4-1-yilin-2024-u08",
+      "lessonId": null,
+      "order": 156,
+      "form": "word",
+      "listTypes": [
+        "vocabulary"
+      ],
+      "text": "clothes",
+      "pinyinDisplay": null,
+      "pinyinSegments": [],
+      "meaning": "衣服",
+      "partOfSpeech": null,
+      "senseId": "en-yl-4-1-yilin-2024-157",
+      "context": null,
+      "promptContext": null,
+      "acceptableAnswers": [],
+      "sourceRefs": [
+        {
+          "sourceId": "yilin-en-4-first-2024",
+          "locator": "Word lists I; Unit 8; item 16; original order 16",
+          "page": 70
+        }
+      ],
+      "reviewStatus": "reviewed",
+      "blockingIssues": []
+    }
+  ]
+}

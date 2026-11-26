@@ -1,0 +1,15 @@
+{
+  "environment" : "loopback-only; test profile; isolated H2; fake identity; no production credentials",
+  "loginStatus" : 200,
+  "loginProvidesCsrf" : true,
+  "restoredSessionStatus" : 200,
+  "restoredAuthenticated" : true,
+  "restoredSessionProvidesCsrf" : false,
+  "restoredReadStatus" : 200,
+  "writeWithoutRestoredCsrfStatus" : 403,
+  "writeWithoutRestoredCsrfCode" : "TOOLBOX_ADMIN_003",
+  "sameOriginLogoutWithoutCsrfStatus" : 200,
+  "upstreamFakeLogoutCalls" : 1,
+  "oldCookieReadAfterLogoutStatus" : 401,
+  "finding" : "Reload restores administrator identity but no write CSRF; same-origin logout bypasses CSRF validation"
+}

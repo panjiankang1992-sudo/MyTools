@@ -4,6 +4,12 @@ import { ApiEnvelope } from './AuthorizedApiModels';
  * 统一校验受认证JSON接口的路径、载荷和响应信封。
  */
 export class AuthorizedApiPolicy {
+  /** 归一真机可能缺省的 HTTP 响应正文，保留非空 JSON 响应。 */
+  responseText(result: string | Object | undefined | null): string {
+    if (result === undefined || result === null) return '';
+    return typeof result === 'string' ? result : JSON.stringify(result);
+  }
+
   /**
    * 仅允许应用内部构造的绝对API路径和查询参数。
    */
@@ -20,12 +26,13 @@ export class AuthorizedApiPolicy {
   }
 
   /**
-   * 限制JSON请求体为最多2 MB的UTF-8数据。
+   * 普通 JSON 保持 2 MB；图片底稿专用端点允许 5 MB 图片的 Base64 编码。
    */
-  requestBody(body: string | undefined, bytes: number): void {
+  requestBody(body: string | undefined, bytes: number, path: string = ''): void {
     if (body === undefined) return;
-    if (!Number.isSafeInteger(bytes) || bytes < 0 || bytes > 2 * 1024 * 1024) {
-      throw new Error('认证API请求超过2 MB限制');
+    const maximum = path === '/api/app/v1/image-generation/uploads' ? 7 * 1024 * 1024 : 2 * 1024 * 1024;
+    if (!Number.isSafeInteger(bytes) || bytes < 0 || bytes > maximum) {
+      throw new Error(`认证API请求超过${maximum / (1024 * 1024)} MB限制`);
     }
   }
 

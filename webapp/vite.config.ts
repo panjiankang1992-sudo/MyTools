@@ -35,7 +35,14 @@ export default defineConfig(configEnv => {
       host: '0.0.0.0',
       port: 23111,
       open: true,
-      proxy: createViteProxy(viteEnv, enableProxy) ?? {}
+      proxy: {
+        // 新闻接口优先转发到 Gateway，避免落到旧单体的同名前缀。
+        '/api/v1/news': {
+          target: viteEnv.VITE_NEWS_GATEWAY_URL || 'http://127.0.0.1:23200',
+          changeOrigin: true
+        },
+        ...createViteProxy(viteEnv, enableProxy)
+      }
     },
     preview: {
       port: 9725

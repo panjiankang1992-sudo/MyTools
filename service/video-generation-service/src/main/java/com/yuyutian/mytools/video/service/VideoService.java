@@ -111,9 +111,9 @@ public class VideoService {
   String width = request.output().size().split("x")[0];
   String height = request.output().size().split("x")[1];
   String id = UUID.randomUUID().toString();
-  String modelRevision = env.getProperty("video.model-revision", "wan2.1-vace-1.3b-fp16");
+  String modelRevision = capability.modelRevision(request.resourceId());
   // 工作流规格是一整套版本化文件，索引摘要由执行器侧固定，因此这里只有一个版本标识。
-  String workflowRevision = env.getProperty("video.workflow-revision", "video-vace-1.3b-v1");
+  String workflowRevision = capability.workflowRevision(request.resourceId());
   ObjectNode snapshot = submitted.deepCopy();
   snapshot.put("effectivePrompt", request.prompt());
   snapshot.put("width", Integer.parseInt(width));
@@ -323,6 +323,14 @@ public class VideoService {
   ObjectNode resourcePeak = peak.isObject() ? (ObjectNode) peak : store.json().createObjectNode();
   result.set("resourcePeak", resourcePeak);
   result.put("hasAudio", false);
+  // 实际模型提示词单独持久化，原始请求始终保留，方便回放与排查语义偏差。
+  String effective = produced.path("effectivePrompt").asText("");
+  if (!effective.isBlank() && effective.length() <= 4000) {
+   store.jdbc().update("UPDATE video_job SET effective_prompt=? WHERE id=?", effective, id);
+  }
+  for (String field : List.of("workflowRevision", "promptRevision", "nativeWidth", "nativeHeight")) {
+   if (produced.has(field)) result.set(field, produced.get(field));
+  }
   store.jdbc().update("UPDATE video_job SET status='SUCCEEDED',result_json=?,resource_peak_json=?,"
    + "error_code=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=?", store.encode(result),
    store.encode(resourcePeak), id);
@@ -356,7 +364,7 @@ public class VideoService {
  private void validateShape(ModeSpec spec, Create request) {
   if (spec.requiresPrompt() && request.prompt().isBlank()) throw new VideoException(ErrorCode.VIDEO_001);
   if (!capability.allowsFrames(spec, request.output().frames())) throw new VideoException(ErrorCode.VIDEO_002);
-  if (!VideoCapability.SIZES.contains(request.output().size())) throw new VideoException(ErrorCode.VIDEO_002);
+  if (!capability.model(request.resourceId()).sizes().contains(request.output().size())) throw new VideoException(ErrorCode.VIDEO_002);
   if (!List.of(16).contains(request.output().fps())) throw new VideoException(ErrorCode.VIDEO_002);
   List<Input> inputs = request.inputs();
   if (inputs.size() < spec.minInputs() || inputs.size() > spec.maxInputs()) throw new VideoException(ErrorCode.VIDEO_001);

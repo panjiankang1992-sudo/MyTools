@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.boot.actuate.health.Status;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -49,6 +50,31 @@ class TaskExecutionWorkerTest {
 
     @TempDir
     Path temporaryDirectory;
+
+    @Test
+    void shouldLeaveTasksQueuedWhileScriptLauncherIsUnavailable() throws Exception {
+        ExecutorProperties properties = new ExecutorProperties(
+                "executor-test", "http://127.0.0.1:23210", temporaryDirectory.resolve("work"),
+                temporaryDirectory.resolve("scripts"), temporaryDirectory.resolve("sdk"), Path.of("/usr/bin/python3"),
+                10, 1, 60, 4, Map.of(), Map.of(), Set.of(), false, Map.of());
+        SchedulerClient schedulerClient = mock(SchedulerClient.class);
+        ExecutorNodeAgent nodeAgent = mock(ExecutorNodeAgent.class);
+        when(nodeAgent.registration()).thenReturn(mock(ExecutorNodeRegistration.class));
+        ScriptProcessRunner processRunner = mock(ScriptProcessRunner.class);
+        when(processRunner.preparedCommand(any())).thenReturn(List.of("/nonexistent/mytools-executor-probe"));
+        ProcessLaunchHealthIndicator probe = new ProcessLaunchHealthIndicator(processRunner);
+        DiskSpaceGuard diskSpaceGuard = mock(DiskSpaceGuard.class);
+        when(diskSpaceGuard.hasCapacity()).thenReturn(true);
+        var worker = new TaskExecutionWorker(properties, nodeAgent, schedulerClient, processRunner,
+                mock(ScriptReleaseVerifier.class), new ObjectMapper(), mock(ExecutionReportJournal.class),
+                diskSpaceGuard, null, probe);
+
+        worker.poll();
+
+        assertEquals(Status.DOWN, probe.health().getStatus());
+        verifyNoInteractions(schedulerClient);
+        verify(processRunner, times(1)).preparedCommand(any());
+    }
 
     @Test
     void shouldFollowDeepestChildChainWithoutClaimingBlockingSiblings() throws Exception {

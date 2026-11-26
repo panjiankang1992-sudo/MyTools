@@ -115,9 +115,11 @@ export interface VideoTicket {
 export class VideoGenerationApi {
   private client: AuthorizedApiClient;
   private readonly baseUrl: string;
+  private readonly authManager: AuthSessionManager;
   constructor(baseUrl: string, auth: AuthSessionManager) {
     this.client = new AuthorizedApiClient(baseUrl, auth, false);
-    this.baseUrl = baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
+    this.baseUrl = auth.normalizeBusinessBaseUrl(baseUrl);
+    this.authManager = auth;
   }
   /** 读取逐模式的能力与验收状态。 */
   async models(): Promise<VideoModel[]> {
@@ -174,11 +176,16 @@ export class VideoGenerationApi {
   /** 校验票据响应并把相对路径补成绝对地址；票据缺失直接报错而不是退化成无声失败。 */
   private ticket(data: Object | undefined): VideoTicket {
     const value = data as VideoTicket;
+    const endpoint = this.authManager.resolveBusinessBaseUrl(this.baseUrl);
     if (value === undefined || typeof value.token !== 'string' || !/^[0-9a-f]{32}$/.test(value.token) ||
       typeof value.url !== 'string' || !value.url.startsWith('/')) {
       throw new Error('播放票据无效，请稍后重试。');
     }
-    value.url = `${this.baseUrl}${value.url}`;
+    // 局域网HTTP只接受固定票据资源，公网HTTPS继续兼容既有公开前缀。
+    if (endpoint.startsWith('http://') && value.url !== `/api/app/v1/video-generation/tickets/${value.token}`) {
+      throw new Error('播放票据无效，请稍后重试。');
+    }
+    value.url = `${endpoint}${value.url}`;
     return value;
   }
   /** 将成片封面下载到本地缓存路径。 */

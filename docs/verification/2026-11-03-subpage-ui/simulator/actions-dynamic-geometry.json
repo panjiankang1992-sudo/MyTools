@@ -1,0 +1,259 @@
+{
+  "hapSha256": "6ca7771fef900418612ffda005d093bfbbbd26880e522f1226e68cca81a8ac66",
+  "scope": "isolated native real components; local callbacks only",
+  "scalePxPerVp": 3,
+  "cases": [
+    {
+      "case": "12-dynamic-default",
+      "childCount": 3,
+      "bounds": [
+        [
+          84,
+          1033,
+          332,
+          1261
+        ],
+        [
+          356,
+          1033,
+          604,
+          1261
+        ],
+        [
+          628,
+          1033,
+          876,
+          1261
+        ]
+      ],
+      "heightsPx": [
+        228,
+        228,
+        228
+      ],
+      "widthsPx": [
+        248,
+        248,
+        248
+      ],
+      "state": "loading=false; available=true; long=false; visible=true",
+      "events": "upload=0; refresh=0; event=",
+      "result": "passed"
+    },
+    {
+      "case": "13-dynamic-callbacks",
+      "childCount": 3,
+      "bounds": [
+        [
+          84,
+          1033,
+          332,
+          1261
+        ],
+        [
+          356,
+          1033,
+          604,
+          1261
+        ],
+        [
+          628,
+          1033,
+          876,
+          1261
+        ]
+      ],
+      "heightsPx": [
+        228,
+        228,
+        228
+      ],
+      "widthsPx": [
+        248,
+        248,
+        248
+      ],
+      "state": "loading=false; available=true; long=false; visible=true",
+      "events": "upload=1; refresh=1; event=REFRESH_CLICK",
+      "result": "passed"
+    },
+    {
+      "case": "14-dynamic-loading",
+      "childCount": 3,
+      "bounds": [
+        [
+          84,
+          1033,
+          332,
+          1261
+        ],
+        [
+          356,
+          1033,
+          604,
+          1261
+        ],
+        [
+          628,
+          1033,
+          876,
+          1261
+        ]
+      ],
+      "heightsPx": [
+        228,
+        228,
+        228
+      ],
+      "widthsPx": [
+        248,
+        248,
+        248
+      ],
+      "state": "loading=true; available=true; long=false; visible=true",
+      "events": "upload=1; refresh=2; event=REFRESH_CLICK",
+      "result": "passed"
+    },
+    {
+      "case": "15-dynamic-disabled",
+      "childCount": 3,
+      "bounds": [
+        [
+          84,
+          1033,
+          332,
+          1261
+        ],
+        [
+          356,
+          1033,
+          604,
+          1261
+        ],
+        [
+          628,
+          1033,
+          876,
+          1261
+        ]
+      ],
+      "heightsPx": [
+        228,
+        228,
+        228
+      ],
+      "widthsPx": [
+        248,
+        248,
+        248
+      ],
+      "state": "loading=false; available=false; long=false; visible=true",
+      "events": "upload=1; refresh=3; event=REFRESH_CLICK",
+      "result": "passed"
+    },
+    {
+      "case": "16-dynamic-label",
+      "childCount": 3,
+      "bounds": [
+        [
+          84,
+          1033,
+          332,
+          1261
+        ],
+        [
+          356,
+          1033,
+          604,
+          1261
+        ],
+        [
+          628,
+          1033,
+          876,
+          1261
+        ]
+      ],
+      "heightsPx": [
+        228,
+        228,
+        228
+      ],
+      "widthsPx": [
+        248,
+        248,
+        248
+      ],
+      "state": "loading=false; available=true; long=true; visible=true",
+      "events": "upload=2; refresh=3; event=UPLOAD_CLICK",
+      "result": "passed"
+    },
+    {
+      "case": "17-dynamic-count-two",
+      "childCount": 2,
+      "bounds": [
+        [
+          84,
+          1033,
+          468,
+          1195
+        ],
+        [
+          492,
+          1033,
+          876,
+          1195
+        ]
+      ],
+      "heightsPx": [
+        162,
+        162
+      ],
+      "widthsPx": [
+        384,
+        384
+      ],
+      "state": "loading=false; available=true; long=true; visible=false",
+      "events": "upload=2; refresh=3; event=UPLOAD_CLICK",
+      "result": "passed"
+    },
+    {
+      "case": "18-dynamic-restored",
+      "childCount": 3,
+      "bounds": [
+        [
+          84,
+          1033,
+          332,
+          1261
+        ],
+        [
+          356,
+          1033,
+          604,
+          1261
+        ],
+        [
+          628,
+          1033,
+          876,
+          1261
+        ]
+      ],
+      "heightsPx": [
+        228,
+        228,
+        228
+      ],
+      "widthsPx": [
+        248,
+        248,
+        248
+      ],
+      "state": "loading=false; available=true; long=true; visible=true",
+      "events": "upload=2; refresh=4; event=REFRESH_CLICK",
+      "result": "passed"
+    }
+  ],
+  "result": "passed"
+}

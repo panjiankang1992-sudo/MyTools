@@ -1,0 +1,31 @@
+{
+  "target": "Pura90 HarmonyOS 6.1.1 API24",
+  "scalePxPerVp": 3.5,
+  "sourceLayout": "/tmp/mytools-ui-simulator-private/06-rss-manage.json",
+  "controls": {
+    "groupName": {
+      "type": "TextInput",
+      "bounds": [
+        70,
+        1452,
+        1021,
+        1621
+      ],
+      "widthPx": 951,
+      "heightPx": 169
+    },
+    "create": {
+      "type": "Button",
+      "bounds": [
+        1049,
+        1452,
+        1251,
+        1620
+      ],
+      "widthPx": 202,
+      "heightPx": 168
+    }
+  },
+  "heightDifferencePx": 1,
+  "result": "passed-with-pixel-rounding"
+}

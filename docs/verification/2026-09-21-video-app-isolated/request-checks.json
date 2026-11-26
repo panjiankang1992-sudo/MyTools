@@ -1,0 +1,50 @@
+[
+  {
+    "mode": "FIRST_FRAME",
+    "jobId": "edb6c90d-4e7a-4c4a-9694-a0ff936e9b9e",
+    "roles": [
+      "FIRST_FRAME"
+    ],
+    "requestValidated": true
+  },
+  {
+    "mode": "TEXT_TO_VIDEO",
+    "jobId": "76570fbb-be03-418d-9fac-2e4efc31e6d3",
+    "roles": [],
+    "requestValidated": true
+  },
+  {
+    "mode": "SUBJECT_REFERENCES",
+    "jobId": "79e71846-0de4-4c9f-904b-3ba2a775dd7b",
+    "roles": [
+      "SUBJECT",
+      "SUBJECT"
+    ],
+    "requestValidated": true
+  },
+  {
+    "mode": "FIRST_LAST_FRAMES",
+    "jobId": "b93edbba-9200-4a83-9f7d-5451c4aad48c",
+    "roles": [
+      "FIRST_FRAME",
+      "LAST_FRAME"
+    ],
+    "requestValidated": true
+  },
+  {
+    "mode": "STRUCTURE_RESTYLE",
+    "jobId": "6a4d2208-c1a9-4d49-9167-f73010bdb17a",
+    "roles": [
+      "SOURCE_VIDEO"
+    ],
+    "requestValidated": true
+  },
+  {
+    "mode": "MASKED_EDIT",
+    "jobId": "9e6ecf40-4c10-4a96-8fa7-52f553ddb19c",
+    "roles": [
+      "SOURCE_VIDEO"
+    ],
+    "requestValidated": true
+  }
+]

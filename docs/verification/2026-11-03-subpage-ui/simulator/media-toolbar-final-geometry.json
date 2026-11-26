@@ -1,0 +1,48 @@
+{
+  "hapSha256": "9b6a2b252581c9885eb1c2109ca0d24a878cd8d5652401e38b34c872e9f35ef9",
+  "result": "passed",
+  "scope": "media toolbar controls only; loading gallery not counted as content acceptance",
+  "controls": {
+    "目录": {
+      "type": "Button",
+      "bounds": [
+        70,
+        591,
+        308,
+        759
+      ],
+      "heightPx": 168,
+      "widthPx": 238
+    },
+    "标签": {
+      "type": "Button",
+      "bounds": [
+        329,
+        591,
+        567,
+        759
+      ],
+      "heightPx": 168,
+      "widthPx": 238
+    },
+    "searchPlate": {
+      "type": "Column",
+      "bounds": [
+        588,
+        591,
+        1250,
+        759
+      ],
+      "heightPx": 168,
+      "widthPx": 662
+    }
+  },
+  "order": [
+    "目录",
+    "标签",
+    "searchPlate"
+  ],
+  "heightVp": 48,
+  "scalePxPerVp": 3.5,
+  "sourceLayout": "/tmp/mytools-ui-simulator-private/22-media-final.json"
+}

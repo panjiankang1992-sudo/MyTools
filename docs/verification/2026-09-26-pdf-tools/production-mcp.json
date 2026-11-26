@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "workerVersion": "1.0.1",
+  "url": "https://mytools.yuyutian.top/api/app/v1/pdf-mcp",
+  "protocolVersion": "2025-06-18",
+  "toolCount": 9,
+  "jobId": "48645719-5239-437f-9f65-77e0c48d16e0",
+  "outputPages": 4,
+  "checks": [
+    "HTTPS",
+    "anonymous 401",
+    "initialize",
+    "tools/list",
+    "dedicated account refresh",
+    "uploadUrl PUT",
+    "frozen plan",
+    "downloadUrl GET",
+    "SHA256"
+  ]
+}

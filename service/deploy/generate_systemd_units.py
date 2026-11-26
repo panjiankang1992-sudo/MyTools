@@ -49,7 +49,11 @@ def service_unit(entry: dict[str, Any], deployment_root: str, log_root: str) -> 
     dependencies = entry.get("after", [])
     after = ["network-online.target", "mysql.service", *(f"mytools-{item}.service" for item in dependencies)]
     if entry["runtime"] == "java":
-        executable = f"/usr/bin/java -jar {deployment_root}/releases/current/apps/{name}.jar"
+        java = "/usr/bin/java"
+        if name == "task-executor-service":
+            # 执行器需要启动脚本。使用项目 JDK 并避免升级时 JVM 与 jspawnhelper 版本不同步。
+            java = "/usr/lib/jvm/java-21-openjdk-amd64/bin/java -Djdk.lang.Process.launchMechanism=FORK"
+        executable = f"{java} -jar {deployment_root}/releases/current/apps/{name}.jar"
     else:
         executable = f"{deployment_root}/releases/current/venv/bin/{entry['executable']}"
     lines = [

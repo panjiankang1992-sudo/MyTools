@@ -1,0 +1,385 @@
+{
+  "recordedAt": "2026-10-03T14:25:03.129862+00:00",
+  "files": [
+    {
+      "path": "toolbox-web/src/App.vue",
+      "sha256": "c69a509988992335a7798ce99f3ab69aa075baafc3c350661018fda58e426af9"
+    },
+    {
+      "path": "toolbox-web/src/components/CurriculumPicker.vue",
+      "sha256": "d607bce1ba752e0bb8180ff6589cb401af9b0e2e2ceca2a65e313dfaab2abb53"
+    },
+    {
+      "path": "toolbox-web/src/components/EntrySelector.vue",
+      "sha256": "471028ebd203baabcb71d96196163f5e779ade08593c81d1d398028cea737ae9"
+    },
+    {
+      "path": "toolbox-web/src/components/WorksheetPreview.vue",
+      "sha256": "4adb7ecc5f582cf3f63e8762edc3c3f07c65763631f592c0b56f2e805d7dc04b"
+    },
+    {
+      "path": "toolbox-web/src/components/worksheet/WorksheetEntryList.vue",
+      "sha256": "492ac9d67e683bf55e0d7f1e0cd9a3096b9d96dd8bdb00a0286c937097c453ec"
+    },
+    {
+      "path": "toolbox-web/src/components/worksheet/WorksheetImageInput.vue",
+      "sha256": "1331d056fff2b5024dc974a7120d8018efd572e3588e0f545268521c768923bd"
+    },
+    {
+      "path": "toolbox-web/src/components/worksheet/WorksheetTextEditor.vue",
+      "sha256": "8ac018ad02680b7e895625c3983b2de2a0b705cfd81f730f13451b88c6b8bef2"
+    },
+    {
+      "path": "toolbox-web/src/composables/useWorksheetDraft.ts",
+      "sha256": "826c99d26049d9086e6fcbc46a28073e9d1b108e9798d8bc893b7b441bfb3f4c"
+    },
+    {
+      "path": "toolbox-web/src/composables/useWorksheetV2Session.ts",
+      "sha256": "cb014e8bddfb4fd7e759713bcc451aac239bfa4e0548ebf2e94ec527b289d159"
+    },
+    {
+      "path": "toolbox-web/src/config/env.ts",
+      "sha256": "d77e2b600ad4200e52b401c1dfebf9410503781f33fb559fb3dc38ccd0a95cbe"
+    },
+    {
+      "path": "toolbox-web/src/config/icons.ts",
+      "sha256": "80a7005748d065532e4e52bf2e1f7401f58bef23c643c036f550255f4761b150"
+    },
+    {
+      "path": "toolbox-web/src/config/tools.ts",
+      "sha256": "ee983433f2bdb0c3ee1d3c4cc6081aac12aad8b7fe2d625fd4e8f896ed4b8bf9"
+    },
+    {
+      "path": "toolbox-web/src/data/sample-entries.ts",
+      "sha256": "d109258a52d3142139f5b3ba2eb5fc360ed3cfecf3d42f0cd85121d34aa4b7f8"
+    },
+    {
+      "path": "toolbox-web/src/data/worksheet-samples.ts",
+      "sha256": "5f40a82e39fc4fa13b91e0e8424d157d4ae28def5717ad4301061fbe66316aa3"
+    },
+    {
+      "path": "toolbox-web/src/domain/curriculum.ts",
+      "sha256": "5196c90bfa09aeb4046493ffd5d0d8f894c3584e96c4407d38c962d5e457c683"
+    },
+    {
+      "path": "toolbox-web/src/domain/hash.ts",
+      "sha256": "d8ad3799c786cc086b7c72c1854efcbafa8b6066604872e552b74db52615b234"
+    },
+    {
+      "path": "toolbox-web/src/domain/random.ts",
+      "sha256": "2a5c4980bd75fd15f0eb1793f3be4efab6554f2e7316bcae1ad574eae9b8b78b"
+    },
+    {
+      "path": "toolbox-web/src/domain/selection.ts",
+      "sha256": "6a65de7c219dacce2d63f5d2abbf7de4037bfcdca7facf4b9ac8ee4f0fbc4c18"
+    },
+    {
+      "path": "toolbox-web/src/domain/worksheet-draft-v2.ts",
+      "sha256": "6b3b2ec24662d22a7c8c8c74b79fe2ee73e3bb3c00d777b23197325be05fe793"
+    },
+    {
+      "path": "toolbox-web/src/domain/worksheet-import.ts",
+      "sha256": "064f531401d3aadcc38822a4ce834fd09c434d01f1a84cab47e4861e7adce58c"
+    },
+    {
+      "path": "toolbox-web/src/domain/worksheet-input.ts",
+      "sha256": "d0989cb0cbe5cefca41e419e0404b908461cf21255228238622ce79e16ee911a"
+    },
+    {
+      "path": "toolbox-web/src/domain/worksheet-processing.ts",
+      "sha256": "3141b0f6ed10a423f7a7cdcfbbaef216f284a14af83dd11ffe1c7136905af489"
+    },
+    {
+      "path": "toolbox-web/src/domain/worksheet-session.ts",
+      "sha256": "e905a65aaf51da3bb8ab121f02944e470da5b752ea3c232019853ea8eb569c01"
+    },
+    {
+      "path": "toolbox-web/src/domain/worksheet-snapshot.ts",
+      "sha256": "2ea038330a2f3a4679768a39974b25c6693eb5b0bd671e649af6f3e88f79efa9"
+    },
+    {
+      "path": "toolbox-web/src/domain/worksheet-workflow.ts",
+      "sha256": "591f8126b35d500d7b79c72ade1f744bf22dc1bc7a1862679c0ea85a29456443"
+    },
+    {
+      "path": "toolbox-web/src/lib/analytics.ts",
+      "sha256": "d6b18c17861b2602a06b3fcedd092c0556153f4bcc8ca98bd0c8a76aac5461c3"
+    },
+    {
+      "path": "toolbox-web/src/lib/csv.ts",
+      "sha256": "02020e3888ac71f0227c61e048fb885f3deac099665d63771b6a4a2a66de9c15"
+    },
+    {
+      "path": "toolbox-web/src/lib/image-preprocess.ts",
+      "sha256": "2e719efed277157b07ff42af9549569c582dfacac0b9e2d7b4f06109893f652a"
+    },
+    {
+      "path": "toolbox-web/src/lib/pdf-font.ts",
+      "sha256": "13cf28b8b22985f04041acbe0feea0e19f96aa1883582b94e1e95978e8a00c15"
+    },
+    {
+      "path": "toolbox-web/src/lib/pdf-runtime.ts",
+      "sha256": "2fb908137a2e52200402238b013ce245a797d505ef26e7e98f77cca29764cdee"
+    },
+    {
+      "path": "toolbox-web/src/lib/pdf-tools.ts",
+      "sha256": "7926a166a6e97b262e99a05407f3ad2305970e2d6d05e7d52ca9214fd07cd573"
+    },
+    {
+      "path": "toolbox-web/src/lib/pinyin-adapter.ts",
+      "sha256": "63cad213695e75cac64cd509c3db19a186a63de5c4ce8057530e17c5154acc49"
+    },
+    {
+      "path": "toolbox-web/src/lib/worksheet-layout-v2.ts",
+      "sha256": "50b98e6f54fe6464111306eaed1b03e9453a7064774f63f7eaaa73e0c818271e"
+    },
+    {
+      "path": "toolbox-web/src/lib/worksheet-print.ts",
+      "sha256": "680d71a8f5bd422ce21a9bab46cfc962ab7ae4d4df06ebfca974228350b4ea06"
+    },
+    {
+      "path": "toolbox-web/src/lib/worksheet.ts",
+      "sha256": "6b4898fb79503f45c8605eab806a93cc72670d29b10892ea4f30f3ce2b63f272"
+    },
+    {
+      "path": "toolbox-web/src/locales/common.ts",
+      "sha256": "db1b439a48bc66fb04ab52c1ff0920bd837544a7ee5e36dce919e594cfc7be05"
+    },
+    {
+      "path": "toolbox-web/src/locales/pdf.ts",
+      "sha256": "6942c1c324a46e741f2deac3716bd35e2a48c19756be7df036ae2f4848b597af"
+    },
+    {
+      "path": "toolbox-web/src/locales/tools.ts",
+      "sha256": "23e1c9f0b4bb9e3ebc9c746402896daf5eb6a387162fe316d41382ecada16695"
+    },
+    {
+      "path": "toolbox-web/src/locales/worksheet.ts",
+      "sha256": "78575d0d4be33aa8fed3726a1d89e139166a11c1597cb32c7d9a0adebf8635dc"
+    },
+    {
+      "path": "toolbox-web/src/main.ts",
+      "sha256": "e1ae9fe5d853fddc46872e9c1b6851491c1ff01bf1aaad7e94526a9fe7901c38"
+    },
+    {
+      "path": "toolbox-web/src/services/curriculum-api.ts",
+      "sha256": "d7c5053f9af2ec9efaf6da64c5977a16adb27f8b3331974881f0a1160466ae7d"
+    },
+    {
+      "path": "toolbox-web/src/services/ocr-engine.ts",
+      "sha256": "660e4bd2d06c33b8d3fa2858a54c0515d3b6cd6aafa100ce74789bf51bd65eb7"
+    },
+    {
+      "path": "toolbox-web/src/services/pdf-adapter.ts",
+      "sha256": "346499dffa73f174b709656f8b100944c1dfb86086f5f340f95c5e1e2a83c067"
+    },
+    {
+      "path": "toolbox-web/src/services/public-api.ts",
+      "sha256": "fad67d7fa7afc775c485e2f4084b75d1211fe42f4932907b99fc71bee0949f8c"
+    },
+    {
+      "path": "toolbox-web/src/services/stats-api.ts",
+      "sha256": "69eb0b8f118820b5de4c876fc15f86b0787732dfc85b32aa4c5d36cf09721f31"
+    },
+    {
+      "path": "toolbox-web/src/services/worksheet-ocr.ts",
+      "sha256": "cdf0f451985a0bc1ffe93ecbdc7c8b2ac731f84b210c1f790056846b4c9d5131"
+    },
+    {
+      "path": "toolbox-web/src/style.css",
+      "sha256": "826a2fe8ab016f415028f28135c4b05038a7ad314530130236d7d7c8cf839399"
+    },
+    {
+      "path": "toolbox-web/src/types.ts",
+      "sha256": "143a8dabe948492702e4ca26f30f082f15c194119b5490c0d863c99130c9aac9"
+    },
+    {
+      "path": "toolbox-web/src/views/HomeView.vue",
+      "sha256": "3232815e717f68d437c99d36f3202a51b97018145136f74d8bf936b05f8ab81b"
+    },
+    {
+      "path": "toolbox-web/src/views/PdfView.vue",
+      "sha256": "ecd617ab8754adc85deb2682913f56de2a9570e2c4d3ccc65dfe97cd0d26f7db"
+    },
+    {
+      "path": "toolbox-web/src/views/WorksheetV2View.vue",
+      "sha256": "4b1bd2b346eb361e73a50031c380967412f211925ee3605a7657be9b21cf73e3"
+    },
+    {
+      "path": "toolbox-web/src/views/WorksheetView.vue",
+      "sha256": "14d111c672b0a27fbcdcdadf6266fe265121c17b03d9a4259e38ea356878c538"
+    },
+    {
+      "path": "toolbox-web/tests/analytics.test.ts",
+      "sha256": "4f8c04017589243f50d1ac7515ca0e47c17266507404d031dcdf2b89c64b703b"
+    },
+    {
+      "path": "toolbox-web/tests/curriculum.test.ts",
+      "sha256": "639a6ccc9464618e698ac983bbf86c3e751d273041dbd7ed8f4c0abb2aec876a"
+    },
+    {
+      "path": "toolbox-web/tests/e2e/cdp.mjs",
+      "sha256": "50aebd26d170fc9cdb349c700242f04c63e8f03bb1ce5aae9e1d3941f2339a82"
+    },
+    {
+      "path": "toolbox-web/tests/e2e/run.mjs",
+      "sha256": "f1d164bda532ff707e0a46fcec15116b596d2656226686a72b10791150d38d92"
+    },
+    {
+      "path": "toolbox-web/tests/e2e/scenario.mjs",
+      "sha256": "d08425f3148fcc1fd27d6de357f42f4d4ac35b9da6a6705829d867fb11ca3d10"
+    },
+    {
+      "path": "toolbox-web/tests/image-preprocess.test.ts",
+      "sha256": "c01add25e1d579489bab1bf8d99dbcba3f34cbd6131947d094be5d7712bba7c3"
+    },
+    {
+      "path": "toolbox-web/tests/pdf-adapter.test.ts",
+      "sha256": "ca3910a97b011c8bab53187fe03be86fabd4f930a53eeb8ad5303212680c122e"
+    },
+    {
+      "path": "toolbox-web/tests/pdf-tools.test.ts",
+      "sha256": "494d311fd136000c0159cfa3865082b2c588ff6860202915ac6344ca8331e203"
+    },
+    {
+      "path": "toolbox-web/tests/pinyin-adapter.test.ts",
+      "sha256": "d8591f4c22e451af69483c006cd9219f61cc3430674da84190083e5e3d090fae"
+    },
+    {
+      "path": "toolbox-web/tests/selection.test.ts",
+      "sha256": "548743e34d1d47c77a8a1e6fd9fc5cb8a21a146f8f2d7440785cd6cef0765729"
+    },
+    {
+      "path": "toolbox-web/tests/stats-contract.test.ts",
+      "sha256": "6e92d09ab22cafcd2807700264d14cfaefdf4a745b6dc3db6277be143a78c848"
+    },
+    {
+      "path": "toolbox-web/tests/worksheet-draft-v2.test.ts",
+      "sha256": "24c39858fb103a440b132162f3fbe10a7fc665ae30f6ab50d4934c3b726cc8e3"
+    },
+    {
+      "path": "toolbox-web/tests/worksheet-import.test.ts",
+      "sha256": "9f29944bbd0136a3f883d74d337dffa2fe5db0ecc52d0a89c2c457debba28a74"
+    },
+    {
+      "path": "toolbox-web/tests/worksheet-input.test.ts",
+      "sha256": "e28f9cea23e75a3c4c217c2e951b35d0fe4ce2f10670ca227b353b59ea08df5e"
+    },
+    {
+      "path": "toolbox-web/tests/worksheet-layout-v2.test.ts",
+      "sha256": "8153ea06ff0bc75e6c65ca34f2db63f5e6b23c06be06b911bac9f957c6ca5f58"
+    },
+    {
+      "path": "toolbox-web/tests/worksheet-ocr.test.ts",
+      "sha256": "1488b5a2ed4179c3ca1388fdb4e0cad3bee1c954a0441877bbe510d5ec79ef7f"
+    },
+    {
+      "path": "toolbox-web/tests/worksheet-print.test.ts",
+      "sha256": "3e11f78aa116e97ab708b4e9010e869911899df28205532c075b97c062ba0a33"
+    },
+    {
+      "path": "toolbox-web/tests/worksheet-processing.test.ts",
+      "sha256": "86a00219c19f9b23712f2f5135f3db581100d6372451a64231e812526ac57c00"
+    },
+    {
+      "path": "toolbox-web/tests/worksheet-session.test.ts",
+      "sha256": "7d13ef1e0988b8d9cee31ca97c6595beb8077d032048043252daabfd37d6139d"
+    },
+    {
+      "path": "toolbox-web/tests/worksheet-snapshot.test.ts",
+      "sha256": "b819ff65f83332fc05d25273f9fd66ab3d226ce6f86974627318e0761bb9a233"
+    },
+    {
+      "path": "toolbox-web/tests/worksheet-workflow.test.ts",
+      "sha256": "62f490ef34d11218635614e0fddad7ac28cf66dfd89c8c8acc4fce456b9c21cd"
+    },
+    {
+      "path": "toolbox-web/tests/worksheet.test.ts",
+      "sha256": "a3e9b34503db4686283af49625062c39a188ebf5fcc55c70e4935db76a5d584d"
+    },
+    {
+      "path": "toolbox-web/scripts/build-curriculum.mjs",
+      "sha256": "943df39da77045ba05029ef48a2d1ad977a7912555b279eec1d671b5766c2564"
+    },
+    {
+      "path": "toolbox-web/scripts/curriculum-lib.mjs",
+      "sha256": "b169eb2fd7ffcb3d6f7b63d480cc2bddfd0e99ebb89c0dbcc414b787f1f9a228"
+    },
+    {
+      "path": "toolbox-web/scripts/generate-layout-samples.mjs",
+      "sha256": "a3686fda2ea97c3c37322c45b4c3e99df7073873d21af47e1c28bb727ceb7137"
+    },
+    {
+      "path": "toolbox-web/scripts/import-curriculum.mjs",
+      "sha256": "2a052fe07ab5d0d8a0d6f1e29fc318c613a1ae0c77414920812f87413bfbfe25"
+    },
+    {
+      "path": "toolbox-web/scripts/make-ocr-fixtures.mjs",
+      "sha256": "56b17d1192423d26cfa93dcfba725ce848155c159a4a4a24ead9199d3bf5761f"
+    },
+    {
+      "path": "toolbox-web/scripts/measure-layout-density.mjs",
+      "sha256": "06f0168212bde663425375553b830b72da7a72f0f90854df26c58acd5bbec952"
+    },
+    {
+      "path": "toolbox-web/scripts/measure-ocr-accuracy.mjs",
+      "sha256": "7553119a67578ecfc48160f6ccb627f7c474eb4f345f4212765da4b2d238e8b6"
+    },
+    {
+      "path": "toolbox-web/scripts/prepare-ocr-assets.mjs",
+      "sha256": "e6ea4130c8dbda99bcf8959cf21fd4cd96947c8568d1a33d04a120cf66512deb"
+    },
+    {
+      "path": "toolbox-web/scripts/prepare-pdf-assets.mjs",
+      "sha256": "31af25791b92bb65e42d4b21137aa693dd04248b80d28f31a77fc85f869e7c6e"
+    },
+    {
+      "path": "toolbox-web/scripts/render-worksheet-sample.mjs",
+      "sha256": "c42863b98d4d17e3edc4b434684fb5535d0a4d2e7e6d6edc6611a3e725e369b6"
+    },
+    {
+      "path": "toolbox-web/scripts/run-acceptance.mjs",
+      "sha256": "155445afd8e24e00fe3cd984967a879dcf13b85e2c88922db5a6dc61fb59215d"
+    },
+    {
+      "path": "toolbox-web/scripts/validate-curriculum.mjs",
+      "sha256": "f822dbe78a963e51be9e7308f0b6e2a579cbf9096e110e5335ca602259216d1f"
+    },
+    {
+      "path": "toolbox-web/scripts/verify-curriculum-coverage.mjs",
+      "sha256": "a36ba775e463df26e899bf4a1a53047f2eaa517350f66066fbc29baed55b9d0b"
+    },
+    {
+      "path": "toolbox-web/scripts/verify-curriculum-regression.mjs",
+      "sha256": "39dd916d4606218bf1a5ccac983cfd6860a76bc9d64c1c385cf470f2150c3549"
+    },
+    {
+      "path": "toolbox-web/scripts/verify-grid-geometry.mjs",
+      "sha256": "d4014a7d52a6256b996564e4f32bcd2c9fdf64e081e08fa7b67060858c47af0c"
+    },
+    {
+      "path": "toolbox-web/scripts/verify-local-deps.mjs",
+      "sha256": "3a1f9b7b9c242ae634f92df199446a0f715287205de9aa8c2f225e223acb25d5"
+    },
+    {
+      "path": "toolbox-web/scripts/verify-release.mjs",
+      "sha256": "58e4be8de134861acff043fadc2f0da568dbf1f7552f3e541afcb3439269d015"
+    },
+    {
+      "path": "toolbox-web/scripts/verify-slot-gaps.mjs",
+      "sha256": "7bb4d8f21f61781b83b64eba6bb2e0684ee74c7639d7345344a5ce7bc50b2e89"
+    },
+    {
+      "path": "docs/design/2026-10-03-worksheet-workflow-revision/acceptance.md",
+      "sha256": "ea888a99d2c3908aa8c7a0f871cf4861d5c6e74c9c447ca3d991a84b4703cfd7"
+    },
+    {
+      "path": "docs/design/2026-10-03-worksheet-workflow-revision/data-and-layout-contracts.md",
+      "sha256": "11a74402f23bfa053ec0c4aaf6eb0450119e07ab7a9a08e645e6c94058639d57"
+    },
+    {
+      "path": "docs/design/2026-10-03-worksheet-workflow-revision/modification-plan.md",
+      "sha256": "732a2e27eec3a4ea1cc0aa516b3253da277a9ebd3c10a70bacfd7c273fc98814"
+    }
+  ]
+}

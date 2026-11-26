@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-19",
+  "scope": "Personal daily news collection, digest and sending",
+  "goalStatus": "ACTIVE",
+  "reports": [
+    {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "name": "LiveFeedSmokeTest"
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "name": "LiveTechnicalSourcesTest"
+    }
+  ],
+  "passed": 4,
+  "logSha256": "39c3e4658385f03a70d3a27a1cbde17cfe90ae53225aa943679cf56829be3629",
+  "productionDatabaseWrites": false,
+  "realMessagesSent": false,
+  "newSchemaMigration": false,
+  "newsDerivedDeadlineExpansionDeferred": true
+}

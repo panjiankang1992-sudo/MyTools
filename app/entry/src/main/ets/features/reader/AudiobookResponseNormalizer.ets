@@ -1,3 +1,4 @@
+import { TrustedLanEndpointPolicy } from '../connectivity/TrustedLanEndpointPolicy';
 import { AudiobookChapter, AudiobookExport, AudiobookExportDownloadDescriptor, AudiobookExportStatus,
   AudiobookGeneration, AudiobookGenerationMode, AudiobookGenerationStatus,
   AudiobookAnalysisEvidence, AudiobookBookAnalysis, AudiobookCharacterAlias, AudiobookCharacterProfile,
@@ -105,37 +106,39 @@ export class AudiobookResponseNormalizer {
       speechSegments: speechSegments };
   }
 
-  /** 将票据回执转换为只允许本有声书章节使用的 HTTPS 播放描述。 */
+  /** 将票据回执转换为只允许本有声书章节使用的可信业务播放描述。 */
   playbackTicket(value: Object | undefined, baseUrl: string, generationId: string,
     chapterIndex: number, now: number = Date.now()): AudiobookPlaybackDescriptor {
     const record = this.requiredRecord(value, '有声书播放票据无效');
+    const endpoint = this.ticketBaseUrl(baseUrl);
     const ticket = this.text(record['ticket'], 32, false, '有声书播放票据无效');
     const streamPath = this.text(record['streamPath'], 128, false, '有声书播放票据无效');
     const expiresAt = this.instant(record['expiresAt'], '有声书播放票据无效');
     const expectedPath = `/api/app/v1/audiobook-playback/tickets/${ticket}`;
-    if (!/^[a-f0-9]{32}$/.test(ticket) || streamPath !== expectedPath || !baseUrl.startsWith('https://') ||
+    if (!/^[a-f0-9]{32}$/.test(ticket) || streamPath !== expectedPath ||
       expiresAt < now - 5 * 60 * 1000 || expiresAt > now + 24 * 60 * 60 * 1000 ||
       !Number.isSafeInteger(chapterIndex) || chapterIndex < 0 || !/^[0-9a-f-]{36}$/i.test(generationId)) {
       throw new Error('有声书播放票据无效');
     }
-    return { url: `${baseUrl}${streamPath}`, ticket: ticket, expiresAt: expiresAt,
+    return { url: `${endpoint}${streamPath}`, ticket: ticket, expiresAt: expiresAt,
       generationId: generationId.toLowerCase(), chapterIndex: chapterIndex };
   }
 
-  /** 将票据回执转换为只允许当前音色试听使用的 HTTPS 播放描述。 */
+  /** 将票据回执转换为只允许当前音色试听使用的可信业务播放描述。 */
   voicePreviewTicket(value: Object | undefined, baseUrl: string, generationId: string, provider: string,
     voiceType: string, now: number = Date.now()): AudiobookVoicePreviewDescriptor {
     const record = this.requiredRecord(value, '音色试听票据无效');
+    const endpoint = this.ticketBaseUrl(baseUrl);
     const ticket = this.text(record['ticket'], 32, false, '音色试听票据无效');
     const streamPath = this.text(record['streamPath'], 160, false, '音色试听票据无效');
     const expiresAt = this.instant(record['expiresAt'], '音色试听票据无效');
     const expectedPath = `/api/app/v1/audiobook-voice-preview/tickets/${ticket}`;
-    if (!/^[a-f0-9]{32}$/.test(ticket) || streamPath !== expectedPath || !baseUrl.startsWith('https://') ||
+    if (!/^[a-f0-9]{32}$/.test(ticket) || streamPath !== expectedPath ||
       expiresAt < now - 5 * 60 * 1000 || expiresAt > now + 30 * 60 * 1000 ||
       !/^[0-9a-f-]{36}$/i.test(generationId)) {
       throw new Error('音色试听票据无效');
     }
-    return { url: `${baseUrl}${streamPath}`, ticket: ticket, expiresAt: expiresAt,
+    return { url: `${endpoint}${streamPath}`, ticket: ticket, expiresAt: expiresAt,
       generationId: generationId.toLowerCase(), provider: provider, voiceType: voiceType };
   }
 
@@ -169,16 +172,17 @@ export class AudiobookResponseNormalizer {
   exportDownloadTicket(value: Object | undefined, baseUrl: string, generationId: string,
     exportId: string, now: number = Date.now()): AudiobookExportDownloadDescriptor {
     const record = this.requiredRecord(value, '有声书导出票据无效');
+    const endpoint = this.ticketBaseUrl(baseUrl);
     const ticket = this.text(record['ticket'], 32, false, '有声书导出票据无效');
     const downloadPath = this.text(record['downloadPath'], 128, false, '有声书导出票据无效');
     const expiresAt = this.instant(record['expiresAt'], '有声书导出票据无效');
     const expectedPath = `/api/app/v1/audiobook-export/tickets/${ticket}`;
-    if (!/^[a-f0-9]{32}$/.test(ticket) || downloadPath !== expectedPath || !baseUrl.startsWith('https://') ||
+    if (!/^[a-f0-9]{32}$/.test(ticket) || downloadPath !== expectedPath ||
       expiresAt < now - 5 * 60 * 1000 || expiresAt > now + 12 * 60 * 60 * 1000 ||
       !/^[0-9a-f-]{36}$/i.test(generationId) || !/^[0-9a-f-]{36}$/i.test(exportId)) {
       throw new Error('有声书导出票据无效');
     }
-    return { url: `${baseUrl}${downloadPath}`, ticket: ticket, expiresAt: expiresAt,
+    return { url: `${endpoint}${downloadPath}`, ticket: ticket, expiresAt: expiresAt,
       generationId: generationId.toLowerCase(), exportId: exportId.toLowerCase() };
   }
 
@@ -526,5 +530,11 @@ export class AudiobookResponseNormalizer {
     const result = Date.parse(value);
     if (!Number.isFinite(result)) throw new Error(message);
     return result;
+  }
+
+  /** HTTP票据只允许固定端口私网根地址，固定资源路径仍由各票据契约精确校验。 */
+  private ticketBaseUrl(value: string): string {
+    if (value.startsWith('https://')) return value;
+    return new TrustedLanEndpointPolicy().normalize(value);
   }
 }

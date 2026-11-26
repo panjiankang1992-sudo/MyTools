@@ -1,0 +1,43 @@
+{
+  "hapSha256": "9b6a2b252581c9885eb1c2109ca0d24a878cd8d5652401e38b34c872e9f35ef9",
+  "result": "passed",
+  "scope": "book source search and status filter default production geometry; popup has no Clear action so no clear containment claimed",
+  "controls": {
+    "filter": {
+      "type": "Button",
+      "bounds": [
+        928,
+        1053,
+        1250,
+        1221
+      ],
+      "heightPx": 168,
+      "widthPx": 322
+    },
+    "searchPlate": {
+      "type": "Column",
+      "bounds": [
+        70,
+        1053,
+        893,
+        1221
+      ],
+      "heightPx": 168,
+      "widthPx": 823
+    },
+    "textInput": {
+      "type": "TextInput",
+      "bounds": [
+        213,
+        1053,
+        883,
+        1221
+      ],
+      "heightPx": 168,
+      "widthPx": 670
+    }
+  },
+  "heightVp": 48,
+  "scalePxPerVp": 3.5,
+  "sourceLayout": "/tmp/mytools-ui-simulator-private/20-book-source-final.json"
+}

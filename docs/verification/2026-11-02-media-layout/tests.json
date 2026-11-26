@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-02",
+  "passed": 8,
+  "results": [
+    {
+      "suite": "test-ui-action-layout.sh",
+      "exit": 0,
+      "tail": [
+        "UI action layout: native flex root, fixed gap, stretched plates/targets, long text, large type, constrained width and fresh measurement passed"
+      ]
+    },
+    {
+      "suite": "test-ui-design-policy.sh",
+      "exit": 0,
+      "tail": [
+        "UI design policy tests passed"
+      ]
+    },
+    {
+      "suite": "test-media-gallery-regression-policy.sh",
+      "exit": 0,
+      "tail": [
+        "media gallery regression policy tests passed"
+      ]
+    },
+    {
+      "suite": "test-media-action-sheet-policy.sh",
+      "exit": 0,
+      "tail": [
+        "Media action sheet integration policy tests passed"
+      ]
+    },
+    {
+      "suite": "test-media-page-polish-policy.sh",
+      "exit": 0,
+      "tail": [
+        "Media page polish integration policy tests passed"
+      ]
+    },
+    {
+      "suite": "test-remote-media-picker-selection-policy.sh",
+      "exit": 0,
+      "tail": [
+        "Remote media picker selection policy tests passed",
+        "Remote media picker selection integration tests passed"
+      ]
+    },
+    {
+      "suite": "test-book-source-layout-policy.sh",
+      "exit": 0,
+      "tail": [
+        "Book source layout policy tests passed"
+      ]
+    },
+    {
+      "suite": "test-dsh-web-auth-policy.sh",
+      "exit": 0,
+      "tail": [
+        "PASS: DSH one-time ticket URL restrictions",
+        "PASS: DSH popup destination and source restrictions"
+      ]
+    }
+  ],
+  "scope": "Host regression/policy tests; native device checks recorded separately."
+}

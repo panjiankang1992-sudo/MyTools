@@ -1,0 +1,60 @@
+{
+  "hapSha256": "9b6a2b252581c9885eb1c2109ca0d24a878cd8d5652401e38b34c872e9f35ef9",
+  "result": "passed",
+  "scope": "production native media tag-picker header Clear action; no selection changed",
+  "controls": {
+    "label": {
+      "type": "Text",
+      "bounds": [
+        1096,
+        830,
+        1208,
+        907
+      ]
+    },
+    "visiblePlate": {
+      "type": "Row",
+      "bounds": [
+        1068,
+        812,
+        1236,
+        924
+      ]
+    },
+    "nativeButton": {
+      "type": "Button",
+      "bounds": [
+        1068,
+        791,
+        1236,
+        945
+      ],
+      "enabled": "false"
+    },
+    "headerActionSlot": {
+      "type": "Row",
+      "bounds": [
+        1040,
+        791,
+        1264,
+        945
+      ]
+    },
+    "sheet": {
+      "type": "Column",
+      "bounds": [
+        0,
+        763,
+        1320,
+        2758
+      ]
+    }
+  },
+  "containment": {
+    "labelInsidePlate": true,
+    "plateInsideNativeButton": true,
+    "buttonInsideHeaderActionSlot": true,
+    "actionSlotInsideSheet": true
+  },
+  "sourceLayout": "/tmp/mytools-ui-simulator-private/23-media-tag-picker-final.json"
+}

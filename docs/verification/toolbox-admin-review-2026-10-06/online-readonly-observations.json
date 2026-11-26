@@ -1,0 +1,76 @@
+{
+  "onlineEntryAssets": [
+    "/assets/index--oevCOxr.js",
+    "/assets/env-DqCiQ8jc.js",
+    "/assets/_plugin-vue_export-helper-CIFpoG-t.js",
+    "/assets/chunk-zsgVPwQN.js",
+    "/assets/preload-helper-D_sPnjeL.js",
+    "/assets/tools-CUI7pYp7.js",
+    "/assets/ChevronRight-BqdMHX69.js",
+    "/assets/light-Dy9yiV_7.js",
+    "/assets/keysOf-Dvq9k1rv.js",
+    "/assets/public-api-wzUE3nW7.js",
+    "/assets/analytics-CN5vT-TL.js",
+    "/assets/light-BQ0UDcwT.js",
+    "/assets/icons-Ch6VjJ_j.js",
+    "/assets/FormItem-C_Xmy0Li.js",
+    "/assets/get-slot-GUiKev-r.js",
+    "/assets/Space-D3E7-kRN.js",
+    "/assets/light-D87E-UW7.js",
+    "/assets/light-6JYgbXkK.js",
+    "/assets/vue-router-DvgpH-E9.js",
+    "/assets/admin-api-Ccb76En1.js",
+    "/assets/index-C207aGET.css"
+  ],
+  "localBuildEntryAssets": [
+    "/assets/index--oevCOxr.js",
+    "/assets/env-DqCiQ8jc.js",
+    "/assets/_plugin-vue_export-helper-CIFpoG-t.js",
+    "/assets/chunk-zsgVPwQN.js",
+    "/assets/preload-helper-D_sPnjeL.js",
+    "/assets/tools-CUI7pYp7.js",
+    "/assets/ChevronRight-BqdMHX69.js",
+    "/assets/light-Dy9yiV_7.js",
+    "/assets/keysOf-Dvq9k1rv.js",
+    "/assets/public-api-wzUE3nW7.js",
+    "/assets/analytics-CN5vT-TL.js",
+    "/assets/light-BQ0UDcwT.js",
+    "/assets/icons-Ch6VjJ_j.js",
+    "/assets/FormItem-C_Xmy0Li.js",
+    "/assets/get-slot-GUiKev-r.js",
+    "/assets/Space-D3E7-kRN.js",
+    "/assets/light-D87E-UW7.js",
+    "/assets/light-6JYgbXkK.js",
+    "/assets/vue-router-DvgpH-E9.js",
+    "/assets/admin-api-Ccb76En1.js",
+    "/assets/index-C207aGET.css"
+  ],
+  "catalogVersion": "catalog-5",
+  "editions": [
+    {
+      "editionId": "cn-ty-1-1-pep-2024",
+      "contentVersion": "1.0.2",
+      "availableEntryCount": 318
+    },
+    {
+      "editionId": "cn-ty-2-1-pep-2017",
+      "contentVersion": "1.0.2",
+      "availableEntryCount": 760
+    },
+    {
+      "editionId": "cn-ty-3-1-pep-2024",
+      "contentVersion": "1.0.0",
+      "availableEntryCount": 777
+    },
+    {
+      "editionId": "cn-ty-4-1-pep-2024",
+      "contentVersion": "1.0.0",
+      "availableEntryCount": 640
+    },
+    {
+      "editionId": "en-yl-3-1-yilin-2024",
+      "contentVersion": "1.0.1",
+      "availableEntryCount": 140
+    }
+  ]
+}

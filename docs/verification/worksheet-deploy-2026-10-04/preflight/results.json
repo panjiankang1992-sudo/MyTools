@@ -1,0 +1,56 @@
+{
+  "generatedAt": "2026-10-03T16:31:49.436760+00:00",
+  "environment": {
+    "nodeExecutable": "/Users/pankang/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "nodeVersion": "v24.19.0"
+  },
+  "commands": [
+    {
+      "command": "npm test",
+      "exitCode": 0,
+      "log": "unit-tests.log",
+      "logSha256": "023342e5644029f3a1f2b110d813f455a0b27b1a847b4fb732790fe880c15826"
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "log": "typecheck.log",
+      "logSha256": "91f33457ea351669731ad8b83ae8d504149a2aa0a747ef8745fcf86a3eefa31e"
+    },
+    {
+      "command": "npm run test:curriculum",
+      "exitCode": 0,
+      "log": "curriculum.log",
+      "logSha256": "b5343552ce71dd19e4f365ffb7f599f12e01ffa6f122ba482523e40ce32b73a2"
+    },
+    {
+      "command": "npm run verify:deps",
+      "exitCode": 0,
+      "log": "dependencies.log",
+      "logSha256": "305abeeedc0186c51263a32f140707a270719892e4d7f8126644db3aaec2ab7d"
+    }
+  ],
+  "unitTests": {
+    "total": 337,
+    "passed": 337,
+    "failed": 0,
+    "skipped": 0
+  },
+  "curriculum": {
+    "requiredSlots": 20,
+    "publishedVersions": 5,
+    "validationPassed": true
+  },
+  "dependencies": {
+    "exactVersionsMatched": 21,
+    "ocrAssetsIncludedInDependencyCheck": false
+  },
+  "sourceSnapshot": {
+    "sha256": "da3bbe49063cb506a907ea8b7c96ec43b217ba86a334604cb18a07974a02362d",
+    "fileCount": 62,
+    "scope": "toolbox-web/src, package.json, package-lock.json, vite.config.ts"
+  },
+  "deploymentScope": "Front-end static bundle only. Whole repository contains unrelated application and server changes; do not deploy the entire working tree.",
+  "productionChecked": false,
+  "buildExecutedByThisAgent": false
+}

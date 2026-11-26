@@ -1,0 +1,17 @@
+[
+  {
+    "mediaId": "2d017acd-faba-4142-b08e-b8d30fe1f9e9",
+    "packageImageCount": 0,
+    "headerHex": "000000206674797069736f6d0000020069736f6d69736f32617663316d703431"
+  },
+  {
+    "mediaId": "8bbe0d4c-4283-4b15-a57d-6c8c1db1afb2",
+    "packageImageCount": 0,
+    "headerHex": "0000001c6674797069736f6d0000020069736f6d69736f326d70343100000008"
+  },
+  {
+    "mediaId": "9cd34c11-70e2-498a-a8c7-419e4e54d260",
+    "packageImageCount": 0,
+    "headerHex": "000000206674797069736f6d0000020069736f6d69736f32617663316d703431"
+  }
+]

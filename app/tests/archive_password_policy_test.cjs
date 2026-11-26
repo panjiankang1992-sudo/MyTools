@@ -1,0 +1,11 @@
+const assert = require('node:assert/strict');
+const { ArchivePasswordPolicy: policy } = require(process.argv[2]);
+const row = (value, successes, lastUsedAt, fingerprint='') => ({ id:value, value, successes, lastUsedAt, fingerprint, attempts:1, createdAt:1 });
+const records = [row('unused',0,500),row('success',1,200),row('bound',1,100,'same'),row('other',0,10)];
+assert.deepEqual(policy.candidates(records,'manual','same').map(x=>x.value), ['manual','bound','success','unused','other']);
+assert.deepEqual(policy.candidates(records,'unused','same').map(x=>x.value), ['unused','bound','success','other']);
+assert.deepEqual(policy.candidates([row(' p ',0,1),row('p',0,2),row(' p ',0,3)],' p ','').map(x=>x.value), [' p ','p']);
+assert.deepEqual(policy.candidates([row('',0,1)],'',''), []);
+assert.deepEqual(records.map(x=>x.value),['unused','success','bound','other']);
+assert.equal(policy.candidates([row('Wrong',0,1)],'wrong','').length,2);
+console.log('6 archive password policy checks passed');

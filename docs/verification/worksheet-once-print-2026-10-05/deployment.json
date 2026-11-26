@@ -1,0 +1,10 @@
+{
+  "releaseId": "once-print-20261005-123000",
+  "indexSha256": "0547a17728864014490891e1e402ba9559c722b1626ee882a05160f3b15033ed",
+  "verifiedFrontendFiles": 225,
+  "frontendBackup": "/opt/yuyutian/toolbox/releases/once-print-20261005-123000/previous-frontend",
+  "backendChanged": false,
+  "contentChanged": false,
+  "serviceRestarted": false,
+  "originIndex": "pass"
+}

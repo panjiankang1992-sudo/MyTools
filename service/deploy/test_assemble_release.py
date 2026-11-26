@@ -1,5 +1,8 @@
 import importlib.util
 import json
+import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,6 +15,13 @@ SPEC.loader.exec_module(MODULE)
 
 
 class AssembleReleaseTest(unittest.TestCase):
+    def test_builds_feed_dependency_before_rss(self):
+        with patch.object(MODULE.subprocess, "run") as run:
+            MODULE.build_java(Path("/test-services"), ["rss-service"])
+        self.assertEqual([Path("/test-services/feed-core"), Path("/test-services/rss-service")],
+                         [call.kwargs["cwd"] for call in run.call_args_list])
+        self.assertEqual("install", run.call_args_list[0].args[0][2])
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
@@ -24,6 +34,7 @@ class AssembleReleaseTest(unittest.TestCase):
         (deploy / "services.json").write_text(json.dumps(manifest), encoding="utf-8")
         (deploy / "verify.py").write_text("pass\n", encoding="utf-8")
         (deploy / "verify_task_runtime_config.py").write_text("pass\n", encoding="utf-8")
+        (deploy / "inspect_news_runtime.py").write_text("pass\n", encoding="utf-8")
         scripts = self.root / "service" / "scripts"
         scripts.mkdir()
         (scripts / "cutover_preflight.py").write_text("pass\n", encoding="utf-8")
@@ -41,6 +52,8 @@ class AssembleReleaseTest(unittest.TestCase):
         runbooks.mkdir(parents=True)
         (runbooks / "task-reliability-alerts.md").write_text("# Runbook\n", encoding="utf-8")
         (runbooks / "audiobook-generation-alerts.md").write_text("# Runbook\n", encoding="utf-8")
+        (runbooks / "daily-news-retention-operations.md").write_text("# Runbook\n", encoding="utf-8")
+        (runbooks / "daily-news-release.md").write_text("# Runbook\n", encoding="utf-8")
         for name in ("api", "gateway"):
             target = self.root / "service" / name / "target"
             target.mkdir(parents=True)
@@ -78,7 +91,10 @@ class AssembleReleaseTest(unittest.TestCase):
         self.assertTrue((output / "deploy" / "monitoring" / "audiobook-generation-alerts.yml").is_file())
         self.assertTrue((output / "deploy" / "monitoring" / "audiobook-generation-dashboard.json").is_file())
         self.assertTrue((output / "deploy" / "monitoring" / "audiobook-generation-alerts.md").is_file())
+        self.assertTrue((output / "deploy" / "monitoring" / "daily-news-retention-operations.md").is_file())
+        self.assertTrue((output / "deploy" / "monitoring" / "daily-news-release.md").is_file())
         self.assertTrue((output / "deploy" / "verify_task_runtime_config.py").is_file())
+        self.assertTrue((output / "deploy" / "inspect_news_runtime.py").is_file())
         self.assertTrue((output / "operator-tools" / "cutover_preflight.py").is_file())
         self.assertTrue((output / "operator-tools" / "audiobook-analysis" / "evaluate.py").is_file())
         self.assertTrue((output / "operator-tools" / "audiobook-analysis"
@@ -96,6 +112,29 @@ class AssembleReleaseTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "already exists"):
             MODULE.assemble(self.root, output, "release_1", skip_java_build=True)
 
+    @patch.object(MODULE, "assemble_task_packages")
+    @patch.object(MODULE, "inspect_news_release")
+    def test_news_gate_runs_before_publish_and_cleans_failed_build(self, gate, packages):
+        path = self.root / "service" / "deploy" / "services.json"
+        manifest = json.loads(path.read_text())
+        manifest["services"].append({"name": "news-digest-service", "runtime": "java"})
+        path.write_text(json.dumps(manifest))
+        target = self.root / "service" / "news-digest-service" / "target"
+        target.mkdir(parents=True);(target / "news.jar").write_bytes(b"fixture")
+        packages.side_effect = lambda _repository, directory: directory.mkdir()
+        output = self.root / "release"
+        def validate_before_publish(directory):
+            self.assertFalse(output.exists())
+            self.assertTrue((directory / "release-manifest.json").is_file())
+            raise ValueError("NEWS_RELEASE_INVALID")
+        gate.side_effect = validate_before_publish
+        with self.assertRaisesRegex(ValueError, "NEWS_RELEASE_INVALID"):
+            MODULE.assemble(self.root, output, "release_1", skip_java_build=True)
+        self.assertFalse(output.exists());self.assertFalse(list(self.root.glob("release.*")))
+        gate.side_effect = None
+        MODULE.assemble(self.root, output, "release_1", skip_java_build=True)
+        self.assertTrue(output.is_dir());self.assertEqual(2, gate.call_count)
+
     def test_removes_transient_python_artifacts_before_inventory(self):
         cache = self.root / "release" / "task-executor-sdk" / "package" / "__pycache__"
         cache.mkdir(parents=True)
@@ -108,6 +147,19 @@ class AssembleReleaseTest(unittest.TestCase):
 
         self.assertFalse(cache.exists())
         self.assertFalse(stray.exists())
+
+    def test_packaged_help_does_not_modify_immutable_tool_directory(self):
+        directory = self.root / "isolated-tools"
+        directory.mkdir()
+        for name in ("assemble_release.py", "verify_news_deployment.py", "news_deployment_config.py", "install_release.py"):
+            shutil.copyfile(SCRIPT.with_name(name), directory / name)
+        before = {path.name: path.read_bytes() for path in directory.iterdir()}
+        result = subprocess.run([sys.executable, str(directory / "assemble_release.py"), "--help"],
+                                capture_output=True, timeout=10, env={}, check=False)
+        self.assertEqual(0, result.returncode)
+        self.assertEqual(set(before), {path.name for path in directory.iterdir()})
+        for name, content in before.items():
+            self.assertEqual(content, (directory / name).read_bytes())
 
 
 if __name__ == "__main__":

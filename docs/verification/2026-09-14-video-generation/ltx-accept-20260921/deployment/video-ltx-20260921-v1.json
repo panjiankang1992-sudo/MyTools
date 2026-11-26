@@ -1,0 +1,23 @@
+{
+  "release": "video-ltx-20260921-v1",
+  "deployed": true,
+  "ltxProductEnabled": false,
+  "jarAudit": {
+    "task-scheduler-service": {
+      "previousJar": "/opt/yuyutian/mytools/releases/qq-tag-reuse-20260921-v4/apps/task-scheduler-service.jar",
+      "changed": [
+        "BOOT-INF/classes/db/migration/V163__add_ltx_video_resource.sql"
+      ]
+    },
+    "video-generation-service": {
+      "previousJar": "/opt/yuyutian/mytools/releases/video-production-20260919-v4/apps/video-generation-service.jar",
+      "changed": [
+        "BOOT-INF/classes/application.yml",
+        "BOOT-INF/classes/com/yuyutian/mytools/video/service/VideoCapability.class",
+        "BOOT-INF/classes/com/yuyutian/mytools/video/service/VideoService.class"
+      ]
+    }
+  },
+  "workerVersion": "1.1.0",
+  "executorOnline": true
+}

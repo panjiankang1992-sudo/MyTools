@@ -1,0 +1,32 @@
+{
+  "build": "success",
+  "buildWarnings": false,
+  "hapSha256": "db2569d60f76d3548d23a0c11255e492be3d19728e51b5329fe2c166cd0a585c",
+  "nativeLibraries": [
+    "libs/arm64-v8a/libarchive_engine.so",
+    "libs/arm64-v8a/libsevenzip.so",
+    "libs/x86_64/libarchive_engine.so",
+    "libs/x86_64/libsevenzip.so"
+  ],
+  "nativeAssertions": 42,
+  "passwordPolicyAssertions": 6,
+  "simulator": "127.0.0.1:5555",
+  "simulatorFlow": [
+    "AES ZIP import",
+    "wrong password rejected and recorded",
+    "correct extraction",
+    "automatic history matching",
+    "byte equality",
+    "system picker export",
+    "password and result deletion"
+  ],
+  "outputSha256": "b2c8508ce5597b409022ef7176b06dd36af85ce459c5fac1487637f2e7d633c4",
+  "cleanup": {
+    "passwordRecordsDeleted": 3,
+    "resultRecordsDeleted": 3,
+    "testInputRemoved": true,
+    "testCacheRemoved": true,
+    "downloadsExportPermanentlyDeleted": true
+  },
+  "physicalDeviceTested": false
+}

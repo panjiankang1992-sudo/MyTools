@@ -1,0 +1,33 @@
+{
+  "samples": [
+    {
+      "name": "product",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "variant": "cfg2",
+      "seconds": 20.47,
+      "status": "SUCCEEDED"
+    },
+    {
+      "name": "portrait",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "variant": "cfg2",
+      "seconds": 16.35,
+      "status": "SUCCEEDED"
+    },
+    {
+      "name": "landscape",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "variant": "cfg2",
+      "seconds": 12.31,
+      "status": "SUCCEEDED"
+    }
+  ],
+  "quality": "pending",
+  "productionEnabled": false
+}

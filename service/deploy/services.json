@@ -22,6 +22,9 @@
     {"name": "msgservice-adapter-service", "port": 23321, "schema": "mytools_msgservice_adapter", "dbPrefix": "MSGSERVICE_ADAPTER", "runtime": "python", "executable": "mytools-msgservice-adapter", "after": ["messaging-service"], "defaultEnabled": false},
     {"name": "legacy-asset-adapter-service", "port": 23330, "schema": "mytools_legacy_asset_adapter", "dbPrefix": "LEGACY_ASSET_ADAPTER", "runtime": "python", "executable": "mytools-legacy-asset-adapter", "after": ["asset-registry-service"], "defaultEnabled": false},
     {"name": "image-generation-service", "port": 23340, "schema": "mytools_image_generation", "dbPrefix": "IMAGE_GENERATION", "runtime": "java", "after": ["task-scheduler-service", "asset-registry-service"], "defaultEnabled": false},
+    {"name": "pdf-service", "port": 23342, "schema": "mytools_pdf", "dbPrefix": "PDF", "runtime": "java", "after": ["task-scheduler-service", "asset-registry-service"], "defaultEnabled": false},
+    {"name": "rss-service", "port": 23360, "schema": "mytools_rss", "dbPrefix": "RSS", "runtime": "java", "defaultEnabled": false},
+    {"name": "news-digest-service", "port": 23350, "schema": "mytools_news", "dbPrefix": "NEWS", "runtime": "java", "after": ["task-scheduler-service", "messaging-service"], "defaultEnabled": false},
     {"name": "video-generation-service", "port": 23341, "schema": "mytools_video_generation", "dbPrefix": "VIDEO_GENERATION", "runtime": "java", "after": ["task-scheduler-service", "asset-registry-service"], "defaultEnabled": false}
   ],
   "statelessServices": [

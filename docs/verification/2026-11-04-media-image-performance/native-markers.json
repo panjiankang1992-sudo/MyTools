@@ -1,0 +1,142 @@
+[
+  {
+    "time": "11-04 16:35:13.747",
+    "event": "Connectivity probe: lan=false, ipv6=1/1"
+  },
+  {
+    "time": "11-04 16:35:13.861",
+    "event": "Connectivity route: IPv6"
+  },
+  {
+    "time": "11-04 16:35:33.943",
+    "event": "Connectivity route: PUBLIC"
+  },
+  {
+    "time": "11-04 16:36:06.790",
+    "event": "Connectivity probe: lan=false, ipv6=1/1"
+  },
+  {
+    "time": "11-04 16:36:06.902",
+    "event": "Connectivity route: IPv6"
+  },
+  {
+    "time": "11-04 16:37:12.245",
+    "event": "Media image switch: elapsedMs=1"
+  },
+  {
+    "time": "11-04 16:37:12.345",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:37:12.349",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:37:14.566",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:37:14.584",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:37:37.460",
+    "event": "Media image switch: elapsedMs=1"
+  },
+  {
+    "time": "11-04 16:37:37.467",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:37:37.478",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:37:39.176",
+    "event": "Media image switch: elapsedMs=0"
+  },
+  {
+    "time": "11-04 16:37:39.181",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:37:39.192",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:37:40.935",
+    "event": "Media image switch: elapsedMs=1"
+  },
+  {
+    "time": "11-04 16:37:40.942",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:37:40.953",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:37:46.955",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:37:46.985",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:38:44.692",
+    "event": "Media image switch: elapsedMs=1"
+  },
+  {
+    "time": "11-04 16:38:44.698",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:38:44.710",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:38:45.808",
+    "event": "Media image switch: elapsedMs=1"
+  },
+  {
+    "time": "11-04 16:38:45.812",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:38:45.822",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:38:46.947",
+    "event": "Media image switch: elapsedMs=0"
+  },
+  {
+    "time": "11-04 16:38:46.950",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:38:46.961",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:38:48.086",
+    "event": "Media image switch: elapsedMs=1"
+  },
+  {
+    "time": "11-04 16:38:48.090",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:38:48.099",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:38:48.598",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 16:38:48.630",
+    "event": "Media image paint: complete"
+  }
+]

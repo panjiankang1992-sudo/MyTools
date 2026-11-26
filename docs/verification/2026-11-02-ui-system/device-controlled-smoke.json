@@ -1,0 +1,44 @@
+{
+  "checkedAt": "2026-11-02T14:42:12.973244+08:00",
+  "handsOffConfirmed": true,
+  "detailOpened": true,
+  "equalPlatesAndTargets": true,
+  "cancelTargetEdgeClosedPanel": true,
+  "returnedToTools": true,
+  "runtimeLayoutErrorsObserved": false,
+  "geometry": [
+    {
+      "label": "管理书籍",
+      "role": "plate",
+      "x": 78,
+      "y": 2409,
+      "width": 517,
+      "height": 130
+    },
+    {
+      "label": "管理书籍",
+      "role": "target",
+      "x": 78,
+      "y": 2402,
+      "width": 517,
+      "height": 143
+    },
+    {
+      "label": "继续阅读",
+      "role": "plate",
+      "x": 621,
+      "y": 2409,
+      "width": 517,
+      "height": 130
+    },
+    {
+      "label": "继续阅读",
+      "role": "target",
+      "x": 621,
+      "y": 2402,
+      "width": 517,
+      "height": 143
+    }
+  ],
+  "dataMutation": "None: no reading start, deletion, generation or subscription save."
+}

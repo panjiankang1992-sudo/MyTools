@@ -40,6 +40,10 @@ export interface MediaGalleryPage {
   pageSize: number;
 }
 
+export interface MediaCatalogPage extends MediaGalleryPage {
+  filters: MediaCatalogFilters;
+}
+
 export interface MediaVideoDirectory {
   directoryId: string;
   name: string;

@@ -1,0 +1,19 @@
+{
+  "hapSha256": "35e5495f2287ee0ebc8abe494cfdf4af117319cbd88e6c95128cf84f15a77214",
+  "result": "login-gated-no-final2-download-geometry",
+  "attemptedPage": "DownloadToolsPage",
+  "observedPage": "LoginPage",
+  "observedState": "cloud service connecting; login action showing in progress; credentials fields empty",
+  "sourceLayout": "/tmp/mytools-ui-simulator-private/26-download-delivery-final2.json",
+  "sourceScreenshot": "/tmp/mytools-ui-simulator-private/26-download-delivery-final2.jpeg",
+  "priorDownloadEvidence": {
+    "hapSha256": "9b6a2b252581c9885eb1c2109ca0d24a878cd8d5652401e38b34c872e9f35ef9",
+    "file": "download-final-geometry.json",
+    "carriedForwardBecause": "DownloadToolsPage and shared controls unchanged; final2 delta is source-filter ButtonType.Normal only"
+  },
+  "notClaimed": [
+    "final2 protected download page native geometry",
+    "final2 usable login retained",
+    "cause of authentication state change"
+  ]
+}

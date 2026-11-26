@@ -1,0 +1,14 @@
+name: message_send_channel_message
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities:
+  - messaging_outbound_execute
+parameters:
+  required:
+    - deliveryId
+    - generation
+result:
+  schema: schemas/result.schema.json
+limits:
+  timeoutSeconds: 100

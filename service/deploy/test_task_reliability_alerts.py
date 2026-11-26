@@ -30,6 +30,7 @@ class TaskReliabilityAlertsTest(unittest.TestCase):
             "task_executor_tasks_blocked",
             "task_queue_wait_seconds",
             "task_lease_lost_total",
+            "task_executor_process_launch_ready",
             "task_executor_journal_readable",
             "task_executor_journal_pending",
             "task_executor_journal_diagnostic",

@@ -1,0 +1,76 @@
+{
+  "deployment": {
+    "release": "/opt/yuyutian/mytools/releases/rss-reader-20261101-v1",
+    "previousGatewaySha256": "a9062769d1d51b378c54eda25f4112b2d01ea6b8efd2d1da10d1f333f8bcdd22",
+    "gatewaySha256": "b39b635abd326cf160140b02c6cb53d2f4f15cd066396725d68d2a86f9a0d622",
+    "rssSha256": "cfc305ad48c392381b0b15443f9981f9915737ca50ee483d59bc749b23c42125",
+    "gatewayDropin": "/etc/systemd/system/mytools-mytools-gateway.service.d/zzzzzzz-dsh-web.conf.rss.conf",
+    "gatewayChangedClasses": [
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/common/ErrorCode.class",
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/config/RssGatewayConfiguration$RssHttpClient.class",
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/config/RssGatewayConfiguration.class",
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/config/RssGatewayProperties.class",
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/controller/RssGatewayController.class",
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/service/RssGatewayClient.class",
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/web/GatewayRequestFilter$Route.class",
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/web/GatewayRequestFilter.class",
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/web/RssBodySizeFilter$1$1.class",
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/web/RssBodySizeFilter$1.class",
+      "BOOT-INF/classes/com/yuyutian/mytools/gateway/web/RssBodySizeFilter.class"
+    ],
+    "passed": true
+  },
+  "verification": {
+    "release": "rss-reader-20261101-v1",
+    "checks": [
+      "real_identity_two_accounts",
+      "unauthenticated_rejected_gateway",
+      "unauthenticated_rejected_internal",
+      "polling_and_features_enabled",
+      "both_gateway_prefixes",
+      "discover_atom",
+      "background_poll_atom",
+      "discover_rss",
+      "background_poll_rss",
+      "article_body_available",
+      "read_and_star_persisted",
+      "owner_isolation",
+      "opml_export_and_duplicate_preview",
+      "service_enabled_on_boot",
+      "both_services_healthy"
+    ],
+    "passed": true,
+    "testSubscriptionsRemoved": 2,
+    "testSessionsRevoked": 2
+  },
+  "runtime": {
+    "mytools-rss-service.service": {
+      "active": true,
+      "running": true,
+      "serviceUser": "mytools"
+    },
+    "mytools-mytools-gateway.service": {
+      "active": true,
+      "running": true,
+      "serviceUser": "mytools"
+    },
+    "mytools-identity-service.service": {
+      "active": true,
+      "running": true,
+      "serviceUser": "mytools"
+    },
+    "rssListener": [
+      "LISTEN 0      100    [::ffff:127.0.0.1]:23360            *:*"
+    ],
+    "migrations": [
+      {
+        "version": "1",
+        "success": true
+      }
+    ],
+    "rssNoGlobalDbPrivileges": true,
+    "rssOnlyOwnSchema": true,
+    "service.envPrivate": true,
+    "gateway.envPrivate": true
+  }
+}

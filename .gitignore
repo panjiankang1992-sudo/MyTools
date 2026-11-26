@@ -49,3 +49,10 @@ surefire-reports/
 
 # Compiled output
 out/
+
+# Release artifacts
+output/
+*.hap
+
+# Local backups
+.backup-*/

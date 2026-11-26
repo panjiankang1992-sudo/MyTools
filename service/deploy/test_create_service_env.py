@@ -91,6 +91,24 @@ class CreateServiceEnvTest(unittest.TestCase):
         self.assertEqual("0", first["TASK_EXECUTOR_RESERVED_CHILD_TASK_SLOTS"])
         self.assertFalse(first["DOWNLOAD_DESTINATION_ROOT"].startswith("/opt/yuyutian/mytools"))
 
+    def test_news_has_isolated_credentials_and_no_implicit_activation(self):
+        manifest = MODULE.load_manifest(Path(__file__).with_name("services.json"))
+        value = MODULE.values(manifest, "/data/downloads", "/srv/storage", [], "managed")
+        keys = ("NEWS_INTERNAL_TOKEN", "NEWS_ADMIN_TOKEN", "NEWS_JOB_TOKEN", "NEWS_REGION_REPORT_TOKEN",
+                "TASK_BUSINESS_NEWS_TOKEN", "NEWS_REGION_FINGERPRINT_KEY", "MESSAGING_OUTBOUND_CLIENT_TOKEN",
+                "MESSAGING_OUTBOUND_WORKER_TOKEN", "MESSAGING_OUTBOUND_ADMIN_TOKEN")
+        self.assertEqual(len(keys), len({value[key] for key in keys}))
+        self.assertTrue(all(len(value[key]) >= 32 for key in keys))
+        self.assertEqual(32, len(__import__("base64").b64decode(value["MESSAGING_DESTINATION_ENCRYPTION_KEY"])))
+        self.assertNotEqual(value["MESSAGING_DESTINATION_ENCRYPTION_KEY"], value["MESSAGING_REGISTRATION_MAIL_DELIVERY_ENCRYPTION_KEY"])
+        self.assertTrue(value["NEWS_DB_USER"])
+        self.assertTrue(value["NEWS_DB_PASSWORD"])
+        self.assertEqual("", value["NEWS_REGION_NODE_ID"])
+        self.assertEqual("absent", value["TASK_NEWS_NODE_VALUE"])
+        for key in MODULE.DISABLED_FLAGS:
+            if key.startswith(("NEWS_", "GATEWAY_NEWS_", "MESSAGING_OUTBOUND_")):
+                self.assertEqual("false", value[key])
+
     def test_rejects_business_paths_under_deployment_or_logs(self):
         for path in ("relative", "/opt/yuyutian/mytools/downloads",
                      "/opt/yuyutian/logs/mytools/media"):

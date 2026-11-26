@@ -1,0 +1,30 @@
+{
+  "checkedAt": "2026-11-02T16:51:58.991054+08:00",
+  "order": "directory-tag-search",
+  "directoryPlate": {
+    "x": 65,
+    "y": 530,
+    "width": 221,
+    "height": 156
+  },
+  "tagPlate": {
+    "x": 306,
+    "y": 530,
+    "width": 221,
+    "height": 156
+  },
+  "searchPlate": {
+    "x": 546,
+    "y": 530,
+    "width": 605,
+    "height": 156
+  },
+  "visiblePlatesSameHeight": true,
+  "visibleHeightVpInferred": 48.0,
+  "selectorsOpenAndClosePassed": [
+    "directory",
+    "tag"
+  ],
+  "runtimeLayoutErrorsObserved": false,
+  "dataMutation": "None: navigation and selector open/close only."
+}

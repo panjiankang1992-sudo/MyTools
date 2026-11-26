@@ -1,0 +1,388 @@
+{
+  "url": "https://toolbox.yuyutian.top/#/words",
+  "release": "paired-editor-20261004-170000",
+  "method": "Real Chromium UI: select images, recognize, inspect paired fields, next step",
+  "originalOcrEnglishCorrection": {
+    "row": 8,
+    "ocr": "Weak",
+    "humanCorrection": "week"
+  },
+  "beforeNextStep": [
+    {
+      "row": 1,
+      "chinese": "",
+      "english": "dancing"
+    },
+    {
+      "row": 2,
+      "chinese": "",
+      "english": "lesson"
+    },
+    {
+      "row": 3,
+      "chinese": "",
+      "english": "walk"
+    },
+    {
+      "row": 4,
+      "chinese": "狗",
+      "english": "dog"
+    },
+    {
+      "row": 5,
+      "chinese": "明天，在明天",
+      "english": "tomorrow"
+    },
+    {
+      "row": 6,
+      "chinese": "",
+      "english": "free"
+    },
+    {
+      "row": 7,
+      "chinese": "",
+      "english": "See you tomorrow!"
+    },
+    {
+      "row": 8,
+      "chinese": "",
+      "english": "week"
+    },
+    {
+      "row": 9,
+      "chinese": "",
+      "english": "Monday"
+    },
+    {
+      "row": 10,
+      "chinese": "星期二",
+      "english": "Tuesday"
+    },
+    {
+      "row": 11,
+      "chinese": "星期三",
+      "english": "Wednesday"
+    },
+    {
+      "row": 12,
+      "chinese": "星期四",
+      "english": "Thursday"
+    },
+    {
+      "row": 13,
+      "chinese": "星期五",
+      "english": "Friday"
+    },
+    {
+      "row": 14,
+      "chinese": "星期六",
+      "english": "Saturday"
+    },
+    {
+      "row": 15,
+      "chinese": "星期天",
+      "english": "Sunday"
+    },
+    {
+      "row": 16,
+      "chinese": "什么时候",
+      "english": "when"
+    },
+    {
+      "row": 17,
+      "chinese": "每一个，每个",
+      "english": "every"
+    },
+    {
+      "row": 18,
+      "chinese": "",
+      "english": "at"
+    },
+    {
+      "row": 19,
+      "chinese": "",
+      "english": "up"
+    },
+    {
+      "row": 20,
+      "chinese": "在今天",
+      "english": "today"
+    },
+    {
+      "row": 21,
+      "chinese": "",
+      "english": "What day is it today?"
+    },
+    {
+      "row": 22,
+      "chinese": "电影院",
+      "english": "cinema"
+    },
+    {
+      "row": 23,
+      "chinese": "放学后",
+      "english": "after school"
+    }
+  ],
+  "afterAutomaticCompletion": [
+    {
+      "row": 1,
+      "chinese": "跳舞",
+      "english": "dancing"
+    },
+    {
+      "row": 2,
+      "chinese": "课时",
+      "english": "lesson"
+    },
+    {
+      "row": 3,
+      "chinese": "",
+      "english": "walk"
+    },
+    {
+      "row": 4,
+      "chinese": "狗",
+      "english": "dog"
+    },
+    {
+      "row": 5,
+      "chinese": "明天，在明天",
+      "english": "tomorrow"
+    },
+    {
+      "row": 6,
+      "chinese": "免费",
+      "english": "free"
+    },
+    {
+      "row": 7,
+      "chinese": "明天见！",
+      "english": "See you tomorrow!"
+    },
+    {
+      "row": 8,
+      "chinese": "星期",
+      "english": "week"
+    },
+    {
+      "row": 9,
+      "chinese": "星期一",
+      "english": "Monday"
+    },
+    {
+      "row": 10,
+      "chinese": "星期二",
+      "english": "Tuesday"
+    },
+    {
+      "row": 11,
+      "chinese": "星期三",
+      "english": "Wednesday"
+    },
+    {
+      "row": 12,
+      "chinese": "星期四",
+      "english": "Thursday"
+    },
+    {
+      "row": 13,
+      "chinese": "星期五",
+      "english": "Friday"
+    },
+    {
+      "row": 14,
+      "chinese": "星期六",
+      "english": "Saturday"
+    },
+    {
+      "row": 15,
+      "chinese": "星期天",
+      "english": "Sunday"
+    },
+    {
+      "row": 16,
+      "chinese": "什么时候",
+      "english": "when"
+    },
+    {
+      "row": 17,
+      "chinese": "每一个，每个",
+      "english": "every"
+    },
+    {
+      "row": 18,
+      "chinese": "在",
+      "english": "at"
+    },
+    {
+      "row": 19,
+      "chinese": "上涨",
+      "english": "up"
+    },
+    {
+      "row": 20,
+      "chinese": "在今天",
+      "english": "today"
+    },
+    {
+      "row": 21,
+      "chinese": "今天是星期几？",
+      "english": "What day is it today?"
+    },
+    {
+      "row": 22,
+      "chinese": "电影院",
+      "english": "cinema"
+    },
+    {
+      "row": 23,
+      "chinese": "放学后",
+      "english": "after school"
+    }
+  ],
+  "checks": {
+    "rows": 23,
+    "originalMeanings": 13,
+    "originalMeaningsPreserved": true,
+    "missingBefore": 10,
+    "automaticFilled": 9,
+    "automaticStillEmpty": [
+      "walk"
+    ],
+    "translationMeaningNeedsReview": [
+      {
+        "english": "free",
+        "automatic": "免费",
+        "photo": "空闲的"
+      },
+      {
+        "english": "up",
+        "automatic": "上涨",
+        "photo": "起床"
+      }
+    ],
+    "manualCorrectionRetained": true
+  },
+  "screenshots": [
+    "output/playwright/ocr-production-paired-before.png",
+    "output/playwright/ocr-production-paired-confirmation.png"
+  ],
+  "afterManualCorrection": [
+    {
+      "row": 1,
+      "chinese": "跳舞",
+      "english": "dancing"
+    },
+    {
+      "row": 2,
+      "chinese": "课时",
+      "english": "lesson"
+    },
+    {
+      "row": 3,
+      "chinese": "牵着（动物）走，遛",
+      "english": "walk"
+    },
+    {
+      "row": 4,
+      "chinese": "狗",
+      "english": "dog"
+    },
+    {
+      "row": 5,
+      "chinese": "明天，在明天",
+      "english": "tomorrow"
+    },
+    {
+      "row": 6,
+      "chinese": "空闲的",
+      "english": "free"
+    },
+    {
+      "row": 7,
+      "chinese": "明天见！",
+      "english": "See you tomorrow!"
+    },
+    {
+      "row": 8,
+      "chinese": "星期",
+      "english": "week"
+    },
+    {
+      "row": 9,
+      "chinese": "星期一",
+      "english": "Monday"
+    },
+    {
+      "row": 10,
+      "chinese": "星期二",
+      "english": "Tuesday"
+    },
+    {
+      "row": 11,
+      "chinese": "星期三",
+      "english": "Wednesday"
+    },
+    {
+      "row": 12,
+      "chinese": "星期四",
+      "english": "Thursday"
+    },
+    {
+      "row": 13,
+      "chinese": "星期五",
+      "english": "Friday"
+    },
+    {
+      "row": 14,
+      "chinese": "星期六",
+      "english": "Saturday"
+    },
+    {
+      "row": 15,
+      "chinese": "星期天",
+      "english": "Sunday"
+    },
+    {
+      "row": 16,
+      "chinese": "什么时候",
+      "english": "when"
+    },
+    {
+      "row": 17,
+      "chinese": "每一个，每个",
+      "english": "every"
+    },
+    {
+      "row": 18,
+      "chinese": "在",
+      "english": "at"
+    },
+    {
+      "row": 19,
+      "chinese": "起床",
+      "english": "up"
+    },
+    {
+      "row": 20,
+      "chinese": "在今天",
+      "english": "today"
+    },
+    {
+      "row": 21,
+      "chinese": "今天是星期几？",
+      "english": "What day is it today?"
+    },
+    {
+      "row": 22,
+      "chinese": "电影院",
+      "english": "cinema"
+    },
+    {
+      "row": 23,
+      "chinese": "放学后",
+      "english": "after school"
+    }
+  ]
+}

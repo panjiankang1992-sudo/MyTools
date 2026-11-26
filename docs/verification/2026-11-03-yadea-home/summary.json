@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-03",
+  "scope": "vehicle-home-and-unlock-navigation",
+  "build": "passed",
+  "hap_sha256": "3c416ceeb0d96a701f75f1a92b51df17a0e905a59f76df58dc0e4afbd48af7ff",
+  "production_entry": "pages/Index",
+  "ble_behavior_scenarios": 39,
+  "index_navigation_scenarios": 11,
+  "shortcut_policy_and_entry_tests": "passed",
+  "new_module_warnings": 0,
+  "preexisting_warning": "DownloadToolsPage READ_PASTEBOARD",
+  "emulator": {
+    "installed": "production",
+    "desktop_shortcut_menu": "passed",
+    "cold_start": "passed",
+    "warm_start": "passed",
+    "visual_comparison": "passed"
+  },
+  "physical_device": {
+    "installed": "production",
+    "desktop_shortcut_menu": "passed",
+    "shortcut_navigation": "passed",
+    "vehicle_connection_attempted": false,
+    "control_commands_sent": false,
+    "final_visual_comparison": "passed",
+    "final_screen": "vehicle_home"
+  },
+  "actual_vehicle_authentication": "not_implemented",
+  "actual_unlock": "not_implemented"
+}

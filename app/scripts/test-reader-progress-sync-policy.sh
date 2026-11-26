@@ -70,7 +70,7 @@ rg -q -F 'this.InvalidateBookSourceOperation();' "$INDEX_SOURCE" ||
   fail "remote source changes must invalidate stale source operations"
 rg -q -F '/api/app/v1/reader/data' "$DATA_API" ||
   fail "users need an authenticated reading-data deletion API"
-rg -q -F "Button('删除阅读同步数据')" "$INDEX_SOURCE" ||
+rg -q -F "AppDangerPillButton({ label: '删除阅读同步数据'," "$INDEX_SOURCE" ||
   fail "the privacy page must expose reading-data deletion"
 rg -q -F '!this.ReaderSyncOperationActive()' "$INDEX_SOURCE" ||
   fail "destructive deletion must not race active synchronization requests"

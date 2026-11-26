@@ -1,0 +1,96 @@
+{
+  "generatedAt": "2026-10-03",
+  "requirement": "契约 §7（W42）：关键触控框 ≥44×44 px；键盘可达；无横向溢出",
+  "method": "真实 Chrome，真实按键事件（Input.dispatchKeyEvent）测焦点顺序；遍历可交互元素测尺寸",
+  "touchTargets": {
+    "before": {
+      "viewport320": "14 个控件中 12 个高度 < 44px"
+    },
+    "after": {
+      "viewport320": "19 个控件全部 ≥ 44px",
+      "viewport1440": "未放大（鼠标环境按信息密度保留原尺寸）"
+    },
+    "fix": "媒体查询 (pointer: coarse) 或 (max-width: 720px) 下放大按钮/单选/胶囊页签/文本输入"
+  },
+  "keyboardFocusOrder": [
+    "打开目录",
+    "切换深色模式",
+    "文本 / 教材",
+    "图片识别",
+    "原文",
+    "按空白分项",
+    "追加教材内容",
+    "清空",
+    "radio",
+    "radio",
+    "保存草稿",
+    "清除草稿",
+    "批量确认无歧义项",
+    "逐项拼音输入",
+    "全部选入",
+    "选择词条"
+  ],
+  "keyboardConclusion": "真实 Tab 可依次到达全部步骤与主要操作，顺序与视觉步骤一致；题型单选在无内容时被有意禁用（disabled），有内容后即可达。",
+  "horizontalOverflow": false,
+  "notCovered": [
+    "读屏软件（VoiceOver/TalkBack）实机走查",
+    "软键盘遮挡（需实机）",
+    "打印纸白底黑字与暗色控件可读性的对比度测量未做"
+  ],
+  "contrast": {
+    "method": "真实 Chrome 读取 computed style，向上追溯不透明背景，按 WCAG 相对亮度算对比度",
+    "standard": "WCAG AA：普通文字 4.5:1，大字 3:1",
+    "before": [
+      {
+        "element": "步骤页签",
+        "light": 4.09,
+        "dark": 4.09,
+        "required": 4.5,
+        "issue": "硬编码 background:#fff，深浅两模式完全相同"
+      },
+      {
+        "element": "说明文字",
+        "light": 3.56,
+        "dark": 7.66,
+        "required": 4.5,
+        "issue": "--muted(#7a8597) 在白底上不足"
+      },
+      {
+        "element": "原文输入框",
+        "light": 21,
+        "dark": 21,
+        "required": 4.5,
+        "issue": "textarea 无 background 声明，沿用 UA 白底"
+      }
+    ],
+    "after": [
+      {
+        "element": "原文输入框",
+        "light": 15.84,
+        "dark": 12.74,
+        "required": 4.5,
+        "note": "显式 background:var(--surface)/color:var(--ink)，深色下背景 rgb(32,35,41)"
+      },
+      {
+        "element": "步骤页签",
+        "light": 6.36,
+        "dark": 6.36,
+        "required": 4.5,
+        "note": "改用主题变量 + 加深选中色为 #4a51c8"
+      },
+      {
+        "element": "说明文字",
+        "light": 5.55,
+        "dark": 7.66,
+        "required": 4.5,
+        "note": "浅色模式小字改用 #5c6675"
+      }
+    ],
+    "conclusion": "三项全部达到 WCAG AA；深色模式下编辑控件已跟随主题。",
+    "notCovered": [
+      "打印纸白底黑字的实纸核对",
+      "读屏软件实机走查",
+      "软键盘遮挡（需实机）"
+    ]
+  }
+}

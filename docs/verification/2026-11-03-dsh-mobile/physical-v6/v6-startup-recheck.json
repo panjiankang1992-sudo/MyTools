@@ -1,0 +1,67 @@
+[
+  {
+    "seconds": 3.0,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 6.1,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 9.1,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 12.2,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 15.3,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 18.4,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 21.5,
+    "ready": false,
+    "loading": false,
+    "retry": true,
+    "nativeMessages": [
+      "DSH",
+      "暂时无法打开 DSH，请检查网络或稍后重试。",
+      "暂时无法打开 DSH，请检查网络或稍后重试。"
+    ]
+  }
+]

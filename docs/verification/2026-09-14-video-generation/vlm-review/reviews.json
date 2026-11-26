@@ -347,5 +347,125 @@
     "defects": "三张参考图未同时出现在同一场景，且画面无渐进变化",
     "summary": "视频中三个参考主体未共存于同一场景，画面无缓慢靠近的动态",
     "severeFlag": false
+  },
+  {
+    "runId": "A-cold-white-seed42",
+    "video": "p0-reaccept-20260920/A-cold-white-seed42.mp4",
+    "mode": "FIRST_FRAME",
+    "anchors": [],
+    "frames": [],
+    "defects": "",
+    "summary": "AI 复核（表：ai-review-sheet.csv）：关键项通过",
+    "scores": {
+      "instructionFollowing": 3,
+      "subjectPreservation": 4,
+      "temporalCoherence": 3,
+      "editLocality": null,
+      "artifacts": 4
+    },
+    "role": "acceptance",
+    "severeFlag": false,
+    "reviewer": "ai:codex",
+    "notHumanReview": true
+  },
+  {
+    "runId": "A-cold-white-seed932",
+    "video": "p0-reaccept-20260920/A-cold-white-seed932.mp4",
+    "mode": "FIRST_FRAME",
+    "anchors": [],
+    "frames": [],
+    "defects": "",
+    "summary": "AI 复核（表：ai-review-sheet.csv）：关键项未通过",
+    "scores": {
+      "instructionFollowing": 1,
+      "subjectPreservation": 2,
+      "temporalCoherence": 2,
+      "editLocality": null,
+      "artifacts": 2
+    },
+    "role": "acceptance",
+    "severeFlag": true,
+    "reviewer": "ai:codex",
+    "notHumanReview": true
+  },
+  {
+    "runId": "B-warm-generated-seed42",
+    "video": "p0-reaccept-20260920/B-warm-generated-seed42.mp4",
+    "mode": "FIRST_FRAME",
+    "anchors": [],
+    "frames": [],
+    "defects": "",
+    "summary": "AI 复核（表：ai-review-sheet.csv）：关键项未通过",
+    "scores": {
+      "instructionFollowing": 1,
+      "subjectPreservation": 2,
+      "temporalCoherence": 2,
+      "editLocality": null,
+      "artifacts": 2
+    },
+    "role": "acceptance",
+    "severeFlag": true,
+    "reviewer": "ai:codex",
+    "notHumanReview": true
+  },
+  {
+    "runId": "B-warm-generated-seed932",
+    "video": "p0-reaccept-20260920/B-warm-generated-seed932.mp4",
+    "mode": "FIRST_FRAME",
+    "anchors": [],
+    "frames": [],
+    "defects": "",
+    "summary": "AI 复核（表：ai-review-sheet.csv）：关键项未通过",
+    "scores": {
+      "instructionFollowing": 1,
+      "subjectPreservation": 2,
+      "temporalCoherence": 2,
+      "editLocality": null,
+      "artifacts": 2
+    },
+    "role": "acceptance",
+    "severeFlag": true,
+    "reviewer": "ai:codex",
+    "notHumanReview": true
+  },
+  {
+    "runId": "C-landscape-seed42",
+    "video": "p0-reaccept-20260920/C-landscape-seed42.mp4",
+    "mode": "FIRST_FRAME",
+    "anchors": [],
+    "frames": [],
+    "defects": "",
+    "summary": "AI 复核（表：ai-review-sheet.csv）：关键项通过",
+    "scores": {
+      "instructionFollowing": 3,
+      "subjectPreservation": 4,
+      "temporalCoherence": 3,
+      "editLocality": null,
+      "artifacts": 4
+    },
+    "role": "acceptance",
+    "severeFlag": false,
+    "reviewer": "ai:codex",
+    "notHumanReview": true
+  },
+  {
+    "runId": "C-landscape-seed932",
+    "video": "p0-reaccept-20260920/C-landscape-seed932.mp4",
+    "mode": "FIRST_FRAME",
+    "anchors": [],
+    "frames": [],
+    "defects": "",
+    "summary": "AI 复核（表：ai-review-sheet.csv）：关键项通过",
+    "scores": {
+      "instructionFollowing": 3,
+      "subjectPreservation": 4,
+      "temporalCoherence": 3,
+      "editLocality": null,
+      "artifacts": 4
+    },
+    "role": "acceptance",
+    "severeFlag": false,
+    "reviewer": "ai:codex",
+    "notHumanReview": true
   }
 ]

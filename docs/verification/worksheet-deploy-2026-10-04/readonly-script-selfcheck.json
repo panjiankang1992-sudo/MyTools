@@ -1,0 +1,12 @@
+{
+  "kind": "offline-validator-selfcheck",
+  "networkRequests": 0,
+  "passed": true,
+  "checks": [
+    "load current225-file plan",
+    "match all2635 expected entries across pagination",
+    "reject wrong pagination total",
+    "reject executable mjs served as octet-stream"
+  ],
+  "validApiFixtureRequests": 21
+}

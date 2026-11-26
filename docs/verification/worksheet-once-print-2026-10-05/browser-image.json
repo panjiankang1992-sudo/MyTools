@@ -1,0 +1,416 @@
+{
+  "release": "once-print-20261005-123000",
+  "entryAsset": "assets/index-BgZjbVgh.js",
+  "url": "https://toolbox.yuyutian.top/#/words",
+  "browserSession": "ocr-engine-diagnostic",
+  "method": "Real browser UI with supplied original photos. Translation route, method and non-sensitive test inputs only; no cookies or headers captured. No print action invoked.",
+  "firstAutomaticCompletion": {
+    "requests": [
+      {
+        "path": "public/v1/translations",
+        "method": "POST",
+        "input": {
+          "items": [
+            {
+              "id": "client:1",
+              "text": "dancing"
+            },
+            {
+              "id": "client:2",
+              "text": "lesson"
+            },
+            {
+              "id": "client:3",
+              "text": "walk"
+            },
+            {
+              "id": "client:6",
+              "text": "free"
+            },
+            {
+              "id": "client:7",
+              "text": "See you tomorrow!"
+            },
+            {
+              "id": "client:8",
+              "text": "Weak"
+            },
+            {
+              "id": "client:9",
+              "text": "Monday"
+            },
+            {
+              "id": "client:18",
+              "text": "at"
+            },
+            {
+              "id": "client:19",
+              "text": "up"
+            },
+            {
+              "id": "client:21",
+              "text": "What day is it today?"
+            }
+          ]
+        }
+      }
+    ],
+    "status": [
+      "已识别 2 / 2 张，请核对结果后使用。",
+      "每项仅自动补全一次；需要再次补空时请点击按钮。补全空白"
+    ],
+    "values": [
+      {
+        "label": "第 1 行中文",
+        "value": "跳舞"
+      },
+      {
+        "label": "第 1 行英语",
+        "value": "dancing"
+      },
+      {
+        "label": "第 2 行中文",
+        "value": "课时"
+      },
+      {
+        "label": "第 2 行英语",
+        "value": "lesson"
+      },
+      {
+        "label": "第 3 行中文",
+        "value": "走"
+      },
+      {
+        "label": "第 3 行英语",
+        "value": "walk"
+      },
+      {
+        "label": "第 4 行中文",
+        "value": "狗"
+      },
+      {
+        "label": "第 4 行英语",
+        "value": "dog"
+      },
+      {
+        "label": "第 5 行中文",
+        "value": "明天，在明天"
+      },
+      {
+        "label": "第 5 行英语",
+        "value": "tomorrow"
+      },
+      {
+        "label": "第 6 行中文",
+        "value": "免费"
+      },
+      {
+        "label": "第 6 行英语",
+        "value": "free"
+      },
+      {
+        "label": "第 7 行中文",
+        "value": "明天见！"
+      },
+      {
+        "label": "第 7 行英语",
+        "value": "See you tomorrow!"
+      },
+      {
+        "label": "第 8 行中文",
+        "value": "微弱"
+      },
+      {
+        "label": "第 8 行英语",
+        "value": "Weak"
+      },
+      {
+        "label": "第 9 行中文",
+        "value": "星期一"
+      },
+      {
+        "label": "第 9 行英语",
+        "value": "Monday"
+      },
+      {
+        "label": "第 10 行中文",
+        "value": "星期二"
+      },
+      {
+        "label": "第 10 行英语",
+        "value": "Tuesday"
+      },
+      {
+        "label": "第 11 行中文",
+        "value": "星期三"
+      },
+      {
+        "label": "第 11 行英语",
+        "value": "Wednesday"
+      },
+      {
+        "label": "第 12 行中文",
+        "value": "星期四"
+      },
+      {
+        "label": "第 12 行英语",
+        "value": "Thursday"
+      },
+      {
+        "label": "第 13 行中文",
+        "value": "星期五"
+      },
+      {
+        "label": "第 13 行英语",
+        "value": "Friday"
+      },
+      {
+        "label": "第 14 行中文",
+        "value": "星期六"
+      },
+      {
+        "label": "第 14 行英语",
+        "value": "Saturday"
+      },
+      {
+        "label": "第 15 行中文",
+        "value": "星期天"
+      },
+      {
+        "label": "第 15 行英语",
+        "value": "Sunday"
+      },
+      {
+        "label": "第 16 行中文",
+        "value": "什么时候"
+      },
+      {
+        "label": "第 16 行英语",
+        "value": "when"
+      },
+      {
+        "label": "第 17 行中文",
+        "value": "每一个，每个"
+      },
+      {
+        "label": "第 17 行英语",
+        "value": "every"
+      },
+      {
+        "label": "第 18 行中文",
+        "value": "在"
+      },
+      {
+        "label": "第 18 行英语",
+        "value": "at"
+      },
+      {
+        "label": "第 19 行中文",
+        "value": "上涨"
+      },
+      {
+        "label": "第 19 行英语",
+        "value": "up"
+      },
+      {
+        "label": "第 20 行中文",
+        "value": "在今天"
+      },
+      {
+        "label": "第 20 行英语",
+        "value": "today"
+      },
+      {
+        "label": "第 21 行中文",
+        "value": "今天是星期几？"
+      },
+      {
+        "label": "第 21 行英语",
+        "value": "What day is it today?"
+      },
+      {
+        "label": "第 22 行中文",
+        "value": "电影院"
+      },
+      {
+        "label": "第 22 行英语",
+        "value": "cinema"
+      },
+      {
+        "label": "第 23 行中文",
+        "value": "放学后"
+      },
+      {
+        "label": "第 23 行英语",
+        "value": "after school"
+      }
+    ]
+  },
+  "afterEditingAndClearing": {
+    "requestCount": 1,
+    "fields": [
+      {
+        "label": "第 1 行中文",
+        "value": ""
+      },
+      {
+        "label": "第 1 行英语",
+        "value": "swimming"
+      },
+      {
+        "label": "第 6 行中文",
+        "value": "空闲的"
+      },
+      {
+        "label": "第 6 行英语",
+        "value": ""
+      }
+    ]
+  },
+  "confirmationWithoutAutoRequest": {
+    "requestCount": 1,
+    "fields": [
+      {
+        "label": "第 1 行中文",
+        "value": ""
+      },
+      {
+        "label": "第 1 行英语",
+        "value": "swimming"
+      },
+      {
+        "label": "第 6 行中文",
+        "value": "空闲的"
+      },
+      {
+        "label": "第 6 行英语",
+        "value": ""
+      }
+    ]
+  },
+  "returnedToSourceWithoutAutoRequest": {
+    "requestCount": 1,
+    "fields": [
+      {
+        "label": "第 1 行中文",
+        "value": ""
+      },
+      {
+        "label": "第 1 行英语",
+        "value": "swimming"
+      },
+      {
+        "label": "第 6 行中文",
+        "value": "空闲的"
+      },
+      {
+        "label": "第 6 行英语",
+        "value": ""
+      }
+    ]
+  },
+  "explicitCompletion": {
+    "requests": [
+      {
+        "path": "public/v1/translations",
+        "method": "POST",
+        "input": {
+          "items": [
+            {
+              "id": "client:1",
+              "text": "dancing"
+            },
+            {
+              "id": "client:2",
+              "text": "lesson"
+            },
+            {
+              "id": "client:3",
+              "text": "walk"
+            },
+            {
+              "id": "client:6",
+              "text": "free"
+            },
+            {
+              "id": "client:7",
+              "text": "See you tomorrow!"
+            },
+            {
+              "id": "client:8",
+              "text": "Weak"
+            },
+            {
+              "id": "client:9",
+              "text": "Monday"
+            },
+            {
+              "id": "client:18",
+              "text": "at"
+            },
+            {
+              "id": "client:19",
+              "text": "up"
+            },
+            {
+              "id": "client:21",
+              "text": "What day is it today?"
+            }
+          ]
+        }
+      },
+      {
+        "path": "public/v1/translations",
+        "method": "POST",
+        "input": {
+          "items": [
+            {
+              "id": "client:1",
+              "text": "swimming"
+            },
+            {
+              "id": "client:6",
+              "text": "空闲的"
+            }
+          ]
+        }
+      }
+    ],
+    "status": [
+      "每项仅自动补全一次；需要再次补空时请点击按钮。补全空白"
+    ],
+    "fields": [
+      {
+        "label": "第 1 行中文",
+        "value": "游泳"
+      },
+      {
+        "label": "第 1 行英语",
+        "value": "swimming"
+      },
+      {
+        "label": "第 6 行中文",
+        "value": "空闲的"
+      },
+      {
+        "label": "第 6 行英语",
+        "value": "idle"
+      }
+    ]
+  },
+  "checks": {
+    "initialRows": 23,
+    "initialBlankMeaningsFilled": 10,
+    "initialTranslationRequests": 1,
+    "editingAddedRequests": 0,
+    "nextStepAddedRequests": 0,
+    "returnAddedRequests": 0,
+    "editsAndBlanksPreserved": true,
+    "explicitButtonAddedRequests": 1,
+    "explicitRequestOnlyContainsMissingFields": true
+  },
+  "knownSemanticLimitations": [
+    "OCR week remains Weak; initial translation 微弱 follows misrecognized text.",
+    "Initial free=免费 and up=上涨 differ from meanings in the photographed textbook."
+  ]
+}

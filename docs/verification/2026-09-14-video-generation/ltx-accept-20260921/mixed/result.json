@@ -1,0 +1,12 @@
+{
+  "controlledLockHoldSeconds": 130,
+  "realEightMinuteVideo": false,
+  "videoTaskId": "8ac62e68-2e76-4b79-8fa4-4f920a69444e",
+  "tagTaskId": "7c51cc3b-c38e-4a12-927d-9a4f2da56e56",
+  "imageJobId": "1b89f40c-8d7b-41a6-8d2a-87243b51c94c",
+  "video": "SUCCEEDED",
+  "tag": "SUCCEEDED",
+  "image": "SUCCEEDED",
+  "queueSamples": 26,
+  "maxObservedQueuedSeconds": 125.46
+}

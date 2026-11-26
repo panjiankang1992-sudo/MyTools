@@ -1,0 +1,108 @@
+{
+  "mode": "反向验证（预期失败）",
+  "edition": "local-acceptance-2026-10-07",
+  "printState": {
+    "hasToolbar": true,
+    "ready": true,
+    "printDisabled": false,
+    "pages": 1,
+    "decoded": 1,
+    "summary": "1 页",
+    "status": "",
+    "title": "教材草稿预览",
+    "buttons": [
+      "导出 PDF",
+      "打印",
+      "关闭窗口"
+    ]
+  },
+  "gateAtCreation": {
+    "disabled": true,
+    "ready": false
+  },
+  "popupPrintCalls": 0,
+  "summaryPages": 1,
+  "openCalls": {
+    "before": 0,
+    "after": 1
+  },
+  "printCalls": {
+    "before": 0,
+    "after": 0,
+    "timeline": []
+  },
+  "targets": {
+    "before": [
+      "A7A088EC78CF461CAD34AA4912A404A0"
+    ],
+    "after": [
+      "A7A088EC78CF461CAD34AA4912A404A0",
+      "A0527A1AD79512FC1C2FD06B2C8AB4DF"
+    ],
+    "popup": "A0527A1AD79512FC1C2FD06B2C8AB4DF"
+  },
+  "reverseBreak": {
+    "closeAttempts": 1,
+    "ignoredUnloadListeners": 2,
+    "errors": [
+      null,
+      null
+    ]
+  },
+  "totals": {
+    "checks": 10,
+    "failed": 1
+  },
+  "results": [
+    {
+      "label": "前置：草稿预览已生成、打印按钮已解禁",
+      "ok": true,
+      "detail": "点击={\"ok\":true} 产出=true 解禁=true"
+    },
+    {
+      "label": "手法：合成 el.click() 触发「打印预览」",
+      "ok": true,
+      "detail": "{\"ok\":true}"
+    },
+    {
+      "label": "★判定 1：点「打印预览」真的开出了新窗口（CDP 多出一个 page target）",
+      "ok": true,
+      "detail": "新 target=A0527A1AD795 url=about:blank"
+    },
+    {
+      "label": "证据：window.open 确实被应用调用了一次并返回了窗口对象",
+      "ok": true,
+      "detail": "open 调用 0 → 1；返回值=[true]"
+    },
+    {
+      "label": "★判定 2：打印页全部就位后才解禁打印（就绪门生效）",
+      "ok": true,
+      "detail": "ready=true 打印按钮禁用=false 页图=1/1 已解码=1 状态=「」"
+    },
+    {
+      "label": "证据：打印窗口是应用自己搭的结构（标题/工具栏/按钮文案）",
+      "ok": true,
+      "detail": "title=「教材草稿预览」 按钮=[\"导出 PDF\",\"打印\",\"关闭窗口\"]"
+    },
+    {
+      "label": "★判定 3：全程 window.print 一次都没被调用（没有真的调起系统打印）",
+      "ok": true,
+      "detail": "主页面计数=0；打印窗口自身的 print 计数=0；时间线=[]"
+    },
+    {
+      "label": "★判定 2b：打印按钮**在窗口刚建出来时是禁用的**（就绪门不是事后补的）",
+      "ok": true,
+      "detail": "首次出现打印按钮时：禁用=true 已就绪=false（观察器错误=[null,null]）"
+    },
+    {
+      "label": "★判定 4：关掉打印窗口后该 target 消失（窗口关闭即取消）",
+      "ok": false,
+      "detail": "点击关闭={\"ok\":true} 之后仍在=true"
+    },
+    {
+      "label": "兜底：关闭全程结束后依然没有任何系统打印调用",
+      "ok": true,
+      "detail": "主页面计数=0 探针={\"printCalls\":0,\"openCalls\":1,\"timeline\":[]}"
+    }
+  ]
+}

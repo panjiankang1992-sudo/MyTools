@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MyTools · 每日新闻交互设计</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="review-header"><a href="../README.md" class="brand">MyTools <span>/ 功能设计</span></a><span class="version">2026.11.22 · 交互原型</span></header>
+  <main class="review-layout">
+    <aside class="review-nav">
+      <div class="eyebrow">工具 / 每日新闻</div>
+      <h1>值得关注的事，<br>按需看一周。</h1>
+      <p>点击获取最近七天的新闻。<br>后台整理，各领域最多 20 条。</p>
+      <nav id="review-states" aria-label="预览页面状态"></nav>
+      <div class="demo-note">这是交互设计稿。新闻、数量和图片位置均为演示，按钮不会启动真实采集。</div>
+    </aside>
+    <section class="device-stage" aria-label="应用预览">
+      <div class="phone">
+        <div class="status-bar"><span>14:30</span><span aria-hidden="true">▰ ▰ ▰ &nbsp; 100%</span></div>
+        <div id="app" class="app"></div>
+        <div class="home-indicator" aria-hidden="true"><span></span></div>
+      </div>
+      <div class="prototype-caption">沿用 MyTools 现有绿色主题 · 可直接点击操作</div>
+    </section>
+    <aside class="review-notes" id="review-notes"></aside>
+  </main>
+  <script defer src="prototype.mjs"></script>
+</body>
+</html>

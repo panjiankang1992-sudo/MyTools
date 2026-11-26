@@ -28,6 +28,37 @@ import static org.mockito.Mockito.when;
 
 class MediaGatewayControllerTest {
     @Test
+    void adaptiveTicketBindsEveryPartToTheSameOwnerAndMedia() {
+        var client = mock(MediaGatewayClient.class);
+        var control = controller(true, client);
+        var req = request(55L);
+        var id = UUID.randomUUID();
+        var media = new com.yuyutian.mytools.gateway.model.MediaGatewayModels.MediaView(id,55L,UUID.randomUUID(),
+                "sample","video/mp4",200L*1024*1024,"a".repeat(64),"READY",1,List.of(),"","");
+        when(client.view(55L,id,"correlation")).thenReturn(media);
+        var original = control.playTicket(id,req);
+        assertThat(original.get("streamPath")).isEqualTo("/api/app/v1/media/tickets/" + original.get("ticket"));
+        req.setParameter("adaptive","1");
+        when(client.adaptiveEntry(55L,id,"correlation")).thenReturn("/master.m3u8");
+        var adaptive = control.playTicket(id,req);
+        String ticket = adaptive.get("ticket").toString();
+        assertThat(adaptive.get("streamPath")).isEqualTo("/api/app/v1/media/tickets/" + ticket + "/master.m3u8");
+        var response = new org.springframework.mock.web.MockHttpServletResponse();
+        control.part(ticket,"v480-00001.ts",req,response);
+        verify(client).streamPart(55L,id,"v480-00001.ts",null,response,"correlation");
+        assertThatThrownBy(() -> control.part("0".repeat(32),"v480-00001.ts",req,response))
+                .isInstanceOf(com.yuyutian.mytools.gateway.service.GatewayNotFoundException.class);
+    }
+
+    @Test
+    void shouldBindOwnerAndSizeForImagePreview() {
+        MediaGatewayClient client = mock(MediaGatewayClient.class);
+        UUID id = UUID.randomUUID();
+        var response = new org.springframework.mock.web.MockHttpServletResponse();
+        controller(true, client).thumbnail(id, 2048, request(55L), response);
+        verify(client).streamPreview(55L, id, 2048, response, "correlation");
+    }
+    @Test
     void shouldBindValidatedOwnerWhenListingMedia() {
         MediaGatewayClient client = mock(MediaGatewayClient.class);
         MediaGatewayController controller = controller(true, client);

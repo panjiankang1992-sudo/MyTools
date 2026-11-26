@@ -1,0 +1,274 @@
+[
+  {
+    "sample": "p0-reaccept-20260920--A-cold-white-seed42",
+    "video": "docs/verification/2026-09-14-video-generation/p0-reaccept-20260920/A-cold-white-seed42.mp4",
+    "sha256": "6c3dcb57dca8a4cf8e3708187a395dd91e8c945dda22ed7c95d13f4ae6018bec",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.1224479153752327,
+      "max": 13.815633773803711,
+      "median": 2.04781174659729
+    },
+    "maxMeanLumaStep": 0.002815425395965576,
+    "sheet": "p0-reaccept-20260920--A-cold-white-seed42.jpg"
+  },
+  {
+    "sample": "p0-reaccept-20260920--A-cold-white-seed932",
+    "video": "docs/verification/2026-09-14-video-generation/p0-reaccept-20260920/A-cold-white-seed932.mp4",
+    "sha256": "fb23eba6e3ac9224b9eec320a99fabf5eecf6df210829b3516b27e2f6e99a917",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.32548031210899353,
+      "max": 23.722618103027344,
+      "median": 1.400371789932251
+    },
+    "maxMeanLumaStep": 0.0024989843368530273,
+    "sheet": "p0-reaccept-20260920--A-cold-white-seed932.jpg"
+  },
+  {
+    "sample": "p0-reaccept-20260920--B-warm-generated-seed42",
+    "video": "docs/verification/2026-09-14-video-generation/p0-reaccept-20260920/B-warm-generated-seed42.mp4",
+    "sha256": "f71d970a2403bba5ce8bd042f66939968a9172903965bd3ef7c5e8581428de94",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.4524117410182953,
+      "max": 34.95465087890625,
+      "median": 1.5769718885421753
+    },
+    "maxMeanLumaStep": 0.0031655430793762207,
+    "sheet": "p0-reaccept-20260920--B-warm-generated-seed42.jpg"
+  },
+  {
+    "sample": "p0-reaccept-20260920--B-warm-generated-seed932",
+    "video": "docs/verification/2026-09-14-video-generation/p0-reaccept-20260920/B-warm-generated-seed932.mp4",
+    "sha256": "73403c7ca67d8b1ac6f7aaf18bf60cbe264632ac1df3db7671321500abfcede6",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.4484042227268219,
+      "max": 50.59046936035156,
+      "median": 1.624683141708374
+    },
+    "maxMeanLumaStep": 0.004502415657043457,
+    "sheet": "p0-reaccept-20260920--B-warm-generated-seed932.jpg"
+  },
+  {
+    "sample": "p0-reaccept-20260920--C-landscape-seed42",
+    "video": "docs/verification/2026-09-14-video-generation/p0-reaccept-20260920/C-landscape-seed42.mp4",
+    "sha256": "dfd40436a6199bc346d484be77568192aaaa79794527adb98434ddcecf61f503",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.30922597646713257,
+      "max": 10.581977844238281,
+      "median": 1.852230191230774
+    },
+    "maxMeanLumaStep": 0.002723991870880127,
+    "sheet": "p0-reaccept-20260920--C-landscape-seed42.jpg"
+  },
+  {
+    "sample": "p0-reaccept-20260920--C-landscape-seed932",
+    "video": "docs/verification/2026-09-14-video-generation/p0-reaccept-20260920/C-landscape-seed932.mp4",
+    "sha256": "59f5ca3aa9cddf1a2b8a75d9d0e5ae53c5e5b4f12bc05a451f46c2a84d313759",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.18604455888271332,
+      "max": 12.236656188964844,
+      "median": 1.874361276626587
+    },
+    "maxMeanLumaStep": 0.0030859708786010742,
+    "sheet": "p0-reaccept-20260920--C-landscape-seed932.jpg"
+  },
+  {
+    "sample": "stability-20260920--00-A-product-seed42",
+    "video": "docs/verification/2026-09-14-video-generation/stability-20260920/00-A-product-seed42.mp4",
+    "sha256": "6c3dcb57dca8a4cf8e3708187a395dd91e8c945dda22ed7c95d13f4ae6018bec",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.1224479153752327,
+      "max": 13.815633773803711,
+      "median": 2.04781174659729
+    },
+    "maxMeanLumaStep": 0.002815425395965576,
+    "sheet": "stability-20260920--00-A-product-seed42.jpg"
+  },
+  {
+    "sample": "stability-20260920--01-A-product-seed932",
+    "video": "docs/verification/2026-09-14-video-generation/stability-20260920/01-A-product-seed932.mp4",
+    "sha256": "fb23eba6e3ac9224b9eec320a99fabf5eecf6df210829b3516b27e2f6e99a917",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.32548031210899353,
+      "max": 23.722618103027344,
+      "median": 1.400371789932251
+    },
+    "maxMeanLumaStep": 0.0024989843368530273,
+    "sheet": "stability-20260920--01-A-product-seed932.jpg"
+  },
+  {
+    "sample": "stability-20260920--02-B-portrait-seed42",
+    "video": "docs/verification/2026-09-14-video-generation/stability-20260920/02-B-portrait-seed42.mp4",
+    "sha256": "15201b053a89dcb6f7cae72d1c0be15e1f227bd084ddab490640f9700bb56024",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.04956452548503876,
+      "max": 11.00555419921875,
+      "median": 1.523424506187439
+    },
+    "maxMeanLumaStep": 0.0025523900985717773,
+    "sheet": "stability-20260920--02-B-portrait-seed42.jpg"
+  },
+  {
+    "sample": "stability-20260920--03-B-portrait-seed932",
+    "video": "docs/verification/2026-09-14-video-generation/stability-20260920/03-B-portrait-seed932.mp4",
+    "sha256": "102fb14b51b95694023e236ac4c20388727092b115190e1ebc1fc1fdefff0c47",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.12061921507120132,
+      "max": 11.464628219604492,
+      "median": 1.6476013660430908
+    },
+    "maxMeanLumaStep": 0.003040492534637451,
+    "sheet": "stability-20260920--03-B-portrait-seed932.jpg"
+  },
+  {
+    "sample": "stability-20260920--04-C-landscape-seed42",
+    "video": "docs/verification/2026-09-14-video-generation/stability-20260920/04-C-landscape-seed42.mp4",
+    "sha256": "dfd40436a6199bc346d484be77568192aaaa79794527adb98434ddcecf61f503",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.30922597646713257,
+      "max": 10.581977844238281,
+      "median": 1.852230191230774
+    },
+    "maxMeanLumaStep": 0.002723991870880127,
+    "sheet": "stability-20260920--04-C-landscape-seed42.jpg"
+  },
+  {
+    "sample": "stability-20260920--05-C-landscape-seed932",
+    "video": "docs/verification/2026-09-14-video-generation/stability-20260920/05-C-landscape-seed932.mp4",
+    "sha256": "59f5ca3aa9cddf1a2b8a75d9d0e5ae53c5e5b4f12bc05a451f46c2a84d313759",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.18604455888271332,
+      "max": 12.236656188964844,
+      "median": 1.874361276626587
+    },
+    "maxMeanLumaStep": 0.0030859708786010742,
+    "sheet": "stability-20260920--05-C-landscape-seed932.jpg"
+  },
+  {
+    "sample": "stability-20260920--06-A-product-seed42",
+    "video": "docs/verification/2026-09-14-video-generation/stability-20260920/06-A-product-seed42.mp4",
+    "sha256": "6c3dcb57dca8a4cf8e3708187a395dd91e8c945dda22ed7c95d13f4ae6018bec",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.1224479153752327,
+      "max": 13.815633773803711,
+      "median": 2.04781174659729
+    },
+    "maxMeanLumaStep": 0.002815425395965576,
+    "sheet": "stability-20260920--06-A-product-seed42.jpg"
+  },
+  {
+    "sample": "stability-20260920--07-A-product-seed932",
+    "video": "docs/verification/2026-09-14-video-generation/stability-20260920/07-A-product-seed932.mp4",
+    "sha256": "fb23eba6e3ac9224b9eec320a99fabf5eecf6df210829b3516b27e2f6e99a917",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.32548031210899353,
+      "max": 23.722618103027344,
+      "median": 1.400371789932251
+    },
+    "maxMeanLumaStep": 0.0024989843368530273,
+    "sheet": "stability-20260920--07-A-product-seed932.jpg"
+  },
+  {
+    "sample": "stability-20260920--08-B-portrait-seed42",
+    "video": "docs/verification/2026-09-14-video-generation/stability-20260920/08-B-portrait-seed42.mp4",
+    "sha256": "15201b053a89dcb6f7cae72d1c0be15e1f227bd084ddab490640f9700bb56024",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.04956452548503876,
+      "max": 11.00555419921875,
+      "median": 1.523424506187439
+    },
+    "maxMeanLumaStep": 0.0025523900985717773,
+    "sheet": "stability-20260920--08-B-portrait-seed42.jpg"
+  },
+  {
+    "sample": "stability-20260920--09-B-portrait-seed932",
+    "video": "docs/verification/2026-09-14-video-generation/stability-20260920/09-B-portrait-seed932.mp4",
+    "sha256": "102fb14b51b95694023e236ac4c20388727092b115190e1ebc1fc1fdefff0c47",
+    "frames": 49,
+    "reviewMethod": "all frames in chronological contact sheet plus decoded frame metrics; not official VBench",
+    "blackFrames": [],
+    "darkFrames": [],
+    "duplicateTransitions": [],
+    "adjacentContentMad": {
+      "min": 0.12061921507120132,
+      "max": 11.464628219604492,
+      "median": 1.6476013660430908
+    },
+    "maxMeanLumaStep": 0.003040492534637451,
+    "sheet": "stability-20260920--09-B-portrait-seed932.jpg"
+  }
+]

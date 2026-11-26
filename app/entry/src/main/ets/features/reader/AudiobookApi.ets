@@ -13,11 +13,13 @@ import { AudiobookResponseNormalizer } from './AudiobookResponseNormalizer';
  */
 export class AudiobookApi {
   private readonly baseUrl: string;
+  private readonly authManager: AuthSessionManager;
   private readonly client: AuthorizedApiClient;
   private readonly normalizer: AudiobookResponseNormalizer = new AudiobookResponseNormalizer();
 
   constructor(baseUrl: string, authManager: AuthSessionManager) {
     this.baseUrl = authManager.normalizeBusinessBaseUrl(baseUrl);
+    this.authManager = authManager;
     this.client = new AuthorizedApiClient(baseUrl, authManager);
   }
 
@@ -148,7 +150,7 @@ export class AudiobookApi {
     const exportIdValue = this.id(exportId);
     const envelope = await this.client.post(
       `/api/app/v1/reader/audiobook-generations/${id}/exports/${exportIdValue}/download-ticket`);
-    return this.normalizer.exportDownloadTicket(envelope.data, this.baseUrl, id, exportIdValue);
+    return this.normalizer.exportDownloadTicket(envelope.data, this.businessBaseUrl(), id, exportIdValue);
   }
 
   /** 为一节 READY 章节申请可交给系统播放器的短期 URL。 */
@@ -159,7 +161,7 @@ export class AudiobookApi {
     }
     const envelope = await this.client.post(
       `/api/app/v1/reader/audiobook-generations/${id}/chapters/${chapterIndex}/play-ticket`);
-    return this.normalizer.playbackTicket(envelope.data, this.baseUrl, id, chapterIndex);
+    return this.normalizer.playbackTicket(envelope.data, this.businessBaseUrl(), id, chapterIndex);
   }
 
   /** 为一条已审核音色样音申请可交给系统播放器的短期 URL。 */
@@ -171,7 +173,7 @@ export class AudiobookApi {
     const voiceType = encodeURIComponent(voice.voiceType);
     const envelope = await this.client.post(`/api/app/v1/reader/audiobook-generations/${id}` +
       `/voice-previews/play-ticket?provider=${provider}&voiceType=${voiceType}`);
-    return this.normalizer.voicePreviewTicket(envelope.data, this.baseUrl, id, voice.provider, voice.voiceType);
+    return this.normalizer.voicePreviewTicket(envelope.data, this.businessBaseUrl(), id, voice.provider, voice.voiceType);
   }
 
   private validateCreate(request: CreateAudiobookGeneration): void {
@@ -237,5 +239,10 @@ export class AudiobookApi {
       throw new Error('有声书标识无效');
     }
     return value.toLowerCase();
+  }
+
+  /** 票据按当前已验证业务路由生成，避免复用实例后仍拼接旧地址。 */
+  private businessBaseUrl(): string {
+    return this.authManager.resolveBusinessBaseUrl(this.baseUrl);
   }
 }

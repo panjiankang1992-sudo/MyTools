@@ -1,0 +1,140 @@
+{
+  "checkedAt": "2026-11-22T15:24:13.100340+00:00",
+  "production": {
+    "articles": 163,
+    "originalImages": 82,
+    "categories": {
+      "FINANCE": 20,
+      "WORLD": 20,
+      "MILITARY": 3,
+      "ENTERTAINMENT": 20,
+      "SOCIETY": 20,
+      "DOMESTIC": 20,
+      "TECH": 20,
+      "LOCAL": 20,
+      "SPORTS": 20
+    },
+    "uniqueGuids": 163,
+    "repeatPublication": "unchanged",
+    "feedBytesAndMtimeUnchanged": true,
+    "weeklyJobs": 1,
+    "timer": [
+      "ActiveState=inactive",
+      "UnitFileState=disabled"
+    ],
+    "services": {
+      "mytools-news-weekly-rss": "active",
+      "mytools-news-weekly-service": "active",
+      "mytools-news-weekly-executor": "active"
+    },
+    "dailySha256": "305ba64f240664138cbae296c068e26e189c38f7829b065f7d7529f7b74d791c",
+    "outlookSha256": "c1875be37258e1775b210f71420af4a9e9b30ad794e9847fff70c40a74d1c32d"
+  },
+  "outlookPublic": {
+    "ok": true,
+    "checks": [
+      {
+        "name": "outlook-identity",
+        "status": 200,
+        "items": 100,
+        "bytes": 201262
+      },
+      {
+        "name": "outlook-gzip",
+        "status": 200,
+        "items": 100,
+        "bytes": 201262
+      },
+      {
+        "name": "outlook-conditional",
+        "status": 200,
+        "items": 100,
+        "bytes": 201262
+      },
+      {
+        "name": "outlook-modified-since",
+        "status": 200,
+        "items": 100,
+        "bytes": 201262
+      },
+      {
+        "name": "windows-rss-identity",
+        "status": 200,
+        "items": 100,
+        "bytes": 201262
+      },
+      {
+        "name": "windows-rss-gzip",
+        "status": 200,
+        "items": 100,
+        "bytes": 201262
+      },
+      {
+        "name": "windows-rss-conditional",
+        "status": 200,
+        "items": 100,
+        "bytes": 201262
+      },
+      {
+        "name": "windows-rss-modified-since",
+        "status": 200,
+        "items": 100,
+        "bytes": 201262
+      },
+      {
+        "name": "article",
+        "status": 200,
+        "items": null,
+        "bytes": 1814
+      },
+      {
+        "name": "image",
+        "status": 200,
+        "items": null,
+        "bytes": 40674
+      }
+    ]
+  },
+  "tests": {
+    "python": 31,
+    "weeklyJava": 11,
+    "failures": 0
+  },
+  "dailyPublic": {
+    "url": "https://toolbox.yuyutian.top/news/rss/daily.xml",
+    "checks": [
+      {
+        "name": "outlook",
+        "status": 200,
+        "wireBytes": 437106,
+        "seconds": 2.878209,
+        "curlExit": 0,
+        "headers": {
+          "content-type": "application/rss+xml; charset=utf-8",
+          "transfer-encoding": "chunked",
+          "cache-control": "public, max-age=300",
+          "etag": "W/\"6b0308bb-6ab72\"",
+          "last-modified": "Sun, 22 Nov 2026 15:22:35 GMT",
+          "cf-cache-status": "DYNAMIC",
+          "cf-ray": "a5e8f2d53a050427-LHR"
+        },
+        "items": 163,
+        "matchesPublishedSnapshot": true
+      },
+      {
+        "name": "windows-rss",
+        "status": 403,
+        "wireBytes": 17,
+        "seconds": 0.81813,
+        "curlExit": 0,
+        "headers": {
+          "content-type": "text/plain; charset=UTF-8",
+          "content-length": "17",
+          "cache-control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+          "cf-ray": "a5e8f2e6aa4bdfe0-SEA"
+        }
+      }
+    ],
+    "ok": false
+  }
+}

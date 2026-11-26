@@ -1,0 +1,17 @@
+[
+  {
+    "path": "app/entry/build/default/outputs/default/entry-default-signed.hap",
+    "bytes": 18847471,
+    "sha256": "f566ca99c8e59b0c5e2ff672218ae9177377d81f5c59a859cd3b667383dd2554"
+  },
+  {
+    "path": "service/rss-service/target/rss-service-0.1.0-SNAPSHOT.jar",
+    "bytes": 32410891,
+    "sha256": "cfc305ad48c392381b0b15443f9981f9915737ca50ee483d59bc749b23c42125"
+  },
+  {
+    "path": "service/mytools-gateway/target/mytools-gateway-0.1.0-SNAPSHOT.jar",
+    "bytes": 24233366,
+    "sha256": "5c56f0e6b5bb98bc8434433a02b09ab5f24bf2275d31940ebcc7b4853066e288"
+  }
+]

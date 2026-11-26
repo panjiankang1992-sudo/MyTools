@@ -1,0 +1,182 @@
+[
+  {
+    "time": "11-04 17:08:15.201",
+    "event": "Media prefetch: page=1, loaded=6, viewer=false"
+  },
+  {
+    "time": "11-04 17:08:15.258",
+    "event": "Connectivity probe: lan=false, ipv6=1/1"
+  },
+  {
+    "time": "11-04 17:08:15.313",
+    "event": "Connectivity route: IPv6"
+  },
+  {
+    "time": "11-04 17:08:16.817",
+    "event": "Media prefetch: page=1, loaded=6, viewer=false"
+  },
+  {
+    "time": "11-04 17:08:18.485",
+    "event": "Media prefetch: page=2, loaded=12, viewer=false"
+  },
+  {
+    "time": "11-04 17:08:20.194",
+    "event": "Media prefetch: page=3, loaded=18, viewer=false"
+  },
+  {
+    "time": "11-04 17:08:21.777",
+    "event": "Media prefetch: page=4, loaded=24, viewer=false"
+  },
+  {
+    "time": "11-04 17:08:35.391",
+    "event": "Connectivity route: PUBLIC"
+  },
+  {
+    "time": "11-04 17:08:58.594",
+    "event": "Media image switch: elapsedMs=2"
+  },
+  {
+    "time": "11-04 17:08:58.790",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:08:58.794",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:08:59.105",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:08:59.120",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:00.964",
+    "event": "Media prefetch: page=5, loaded=30, viewer=true"
+  },
+  {
+    "time": "11-04 17:09:01.073",
+    "event": "Media image switch: elapsedMs=1"
+  },
+  {
+    "time": "11-04 17:09:01.080",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:01.093",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:02.403",
+    "event": "Media image switch: elapsedMs=1"
+  },
+  {
+    "time": "11-04 17:09:02.408",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:02.419",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:03.759",
+    "event": "Media image switch: elapsedMs=1"
+  },
+  {
+    "time": "11-04 17:09:03.763",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:03.774",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:05.056",
+    "event": "Media image switch: elapsedMs=1"
+  },
+  {
+    "time": "11-04 17:09:05.061",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:05.071",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:06.400",
+    "event": "Media image switch: elapsedMs=1"
+  },
+  {
+    "time": "11-04 17:09:06.422",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:06.432",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:07.751",
+    "event": "Media image switch: elapsedMs=1"
+  },
+  {
+    "time": "11-04 17:09:07.754",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:07.765",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:08.221",
+    "event": "Connectivity probe: lan=false, ipv6=1/1"
+  },
+  {
+    "time": "11-04 17:09:08.279",
+    "event": "Connectivity route: IPv6"
+  },
+  {
+    "time": "11-04 17:09:09.096",
+    "event": "Media image switch: elapsedMs=0"
+  },
+  {
+    "time": "11-04 17:09:09.100",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:09.110",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:09.650",
+    "event": "Media prefetch: page=6, loaded=36, viewer=true"
+  },
+  {
+    "time": "11-04 17:09:10.395",
+    "event": "Media image switch: elapsedMs=1"
+  },
+  {
+    "time": "11-04 17:09:10.399",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:10.410",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:10.910",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:09:10.938",
+    "event": "Media image paint: complete"
+  },
+  {
+    "time": "11-04 17:10:35.100",
+    "event": "Media prefetch: page=7, loaded=42, viewer=false"
+  },
+  {
+    "time": "11-04 17:10:36.729",
+    "event": "Media prefetch: page=8, loaded=48, viewer=false"
+  }
+]

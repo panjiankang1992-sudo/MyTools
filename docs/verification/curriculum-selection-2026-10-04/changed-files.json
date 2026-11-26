@@ -1,0 +1,25 @@
+{
+  "releaseId": "curriculum-selection-20261004-134600",
+  "files": [
+    {
+      "path": "assets/WorksheetV2View-CJ2gFy58.js",
+      "bytes": 491460,
+      "sha256": "2ac3e31834e0f0cc858a4bd8d73f23a8bce4c06835a522df8bc527597704fe51"
+    },
+    {
+      "path": "assets/WorksheetV2View-W776tyx9.css",
+      "bytes": 13011,
+      "sha256": "90bd22107f7f9e587191864e27d97b346917593a05070c268a2b7b301eb0627b"
+    },
+    {
+      "path": "assets/index-BRaKc9Ty.js",
+      "bytes": 159348,
+      "sha256": "69f6ab5a760c235361470d6299013354a003485097ba3d78c42906664ffd2b93"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1199,
+      "sha256": "4fc28ccbca27fa98dd30b8cab174361b8e9ed1f2d7c619c6bff148ad3a9ed327"
+    }
+  ]
+}

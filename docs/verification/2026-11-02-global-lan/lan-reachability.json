@@ -1,0 +1,15 @@
+{
+  "checks": [
+    {
+      "interface": "192.168.1.7",
+      "status": "URLError",
+      "reachable": false
+    },
+    {
+      "interface": "192.168.3.159",
+      "status": "URLError",
+      "reachable": false
+    }
+  ],
+  "result": "not_reachable"
+}

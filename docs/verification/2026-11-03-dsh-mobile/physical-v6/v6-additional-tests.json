@@ -1,0 +1,23 @@
+{
+  "test-dsh-web-auth-policy.sh": {
+    "exitCode": 0,
+    "output": "PASS: DSH one-time ticket URL restrictions\nPASS: DSH popup destination and source restrictions\nPASS: DSH verified LAN origin routing and isolation\nPASS: DSH microphone isolation, authenticated downloads, and safe file names\nPASS: HTTPS preference, verified LAN fallback, unchanged API endpoint, invalid ticket rejection"
+  },
+  "test-dsh-popup-lifecycle.sh": {
+    "exitCode": 0,
+    "output": "PASS: cancel-before-mount, exactly-once binding, duplicate handoff, late callback, retry isolation"
+  },
+  "test-dsh-download-bridge.sh": {
+    "exitCode": 0,
+    "output": "PASS: download completion, cancellation, leaving page, stale callbacks, and origin rejection"
+  },
+  "test-endpoint-router.sh": {
+    "exitCode": 0,
+    "output": "Endpoint router behavior tests passed (37 cases)"
+  },
+  "test-auth-operation-revision-policy.sh": {
+    "exitCode": 1,
+    "output": "fixed service health retry must expose its effect",
+    "scope": "pre-existing LoginPage accessibility text assertion; RestoreSession change does not edit LoginPage"
+  }
+}

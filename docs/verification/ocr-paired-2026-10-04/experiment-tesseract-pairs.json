@@ -1,0 +1,5346 @@
+{
+  "scope": "Tesseract.js with existing same-origin traineddata; two original user photos; experimental Node canvas only, not browser acceptance",
+  "sourceFiles": [
+    {
+      "path": "/Users/pankang/Downloads/20261004-141232.jpg",
+      "sha256": "6cd2d4b60d85c27c47119d1d6a7ce8aef5085cd645a25cd7b9efd5db60d593cc"
+    },
+    {
+      "path": "/Users/pankang/Downloads/20261004-141249.jpg",
+      "sha256": "57ad149b848e13b9f142b9a5332b355d608b1d187f8b34fac1702dcad477ab2a"
+    }
+  ],
+  "model": "public/ocr/tesseract-7.0.0-lang-4.0.0-best-int-1/chi_sim.traineddata.gz",
+  "notes": [
+    "No dictionary or machine translation was used to fill image meanings.",
+    "English boxes came from saved previous integration experiment; this experiment did not validate the current browser English regression.",
+    "Whitespace/punctuation is ignored only in the diagnostic Chinese-content metric.",
+    "Highest confidence is a deliberately simple blind selection baseline; ground truth was not used to choose it.",
+    "An oracle correct candidate found in a sweep is not an automatic end-to-end pass.",
+    "The extended What day is it today? row uses a manually specified next-line region during the scale experiment; automatic detection remains unimplemented."
+  ],
+  "total": 23,
+  "blindHighestConfidenceExactChinese": 18,
+  "correctChineseCandidateExistsInSweep": 22,
+  "findings": [
+    "Single-language chi_sim plus foreground threshold around110 performs much better than original raw mixed-language OCR for Chinese meaning regions.",
+    "Direct English bbox height truncates taller or vertically shifted Chinese glyphs and leaks adjacent rows; independent Chinese segmentation is required.",
+    "The Chinese for What day is it today? is on its following line and belongs to that sentence before cinema.",
+    "English enhanced mask must not be reused for Chinese; it intentionally removes black Chinese glyphs.",
+    "Large-font Chinese variants remain wrong even with tightly cropped text: dance meaning 舞蹈→舞路 and walk meaning 牵/遛 unstable.",
+    "Engine confidence is not reliable proof of correctness; incorrect 舞路 scored75 while correct 舞蹈 scored50 in another mode.",
+    "Many sequential per-row retries add latency and cannot be shipped unbounded."
+  ],
+  "recommendation": "Integrate one-to-one paired entries retaining image-derived Chinese; generate independent Chinese boxes from contrast-normalized image and associate by y overlap/next-line order. Mark low-confidence or inconsistent pairs for review. Do not claim 23/23 unless real browser path proves it; a stronger OCR engine may be required for reliable full-photo Chinese.",
+  "rows": [
+    {
+      "photo": "20261004-141232.jpg",
+      "english": "dancing",
+      "englishCandidateFromPriorReport": "dancing",
+      "englishBboxAt1600Height": {
+        "x0": 65,
+        "y0": 777,
+        "x1": 386,
+        "y1": 864
+      },
+      "expectedChineseTranscribedFromPhoto": "跳舞，舞蹈",
+      "blindHighestConfidenceChinese": {
+        "scale": 1,
+        "gray": true,
+        "text": "/跳舞 ， 舞 路\n",
+        "confidence": 75,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": false,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "langs": [
+          "chi_sim"
+        ],
+        "p": 0,
+        "i": 0,
+        "scale": 1,
+        "psm": "13",
+        "text": "/跳舞 , 舞蹈\n",
+        "confidence": 50,
+        "method": "center-band-psm"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 396,
+            "y0": 757,
+            "x1": 1200,
+            "y1": 886
+          },
+          "ms": 130,
+          "text": "以 跳舞 ， 和 舞蹈 IN\n",
+          "confidence": 34,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 396,
+            "y0": 757,
+            "x1": 1200,
+            "y1": 886
+          },
+          "ms": 16,
+          "text": "/跳舞 ， 玛 路\n",
+          "confidence": 38,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "三 琴瑟 下 汪汪\n",
+          "confidence": 18,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "/ 跌 舞 ， 舞 路\n",
+          "confidence": 51,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "/跳舞 , 舞 喇\n",
+          "confidence": 47,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "/跳舞 ， 舞 路\n",
+          "confidence": 67,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "/跳舞 ,， 舞 中 2\n",
+          "confidence": 40,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "/跳舞 ， 舞 路\n",
+          "confidence": 75,
+          "method": "center-band"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 0,
+          "scale": 0.4,
+          "psm": "6",
+          "text": "/ 跌 舞 ， 舞 路\n",
+          "confidence": 51,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 0,
+          "scale": 0.4,
+          "psm": "7",
+          "text": "/ 跌 舞 ， 舞 路\n",
+          "confidence": 51,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 0,
+          "scale": 0.4,
+          "psm": "13",
+          "text": "居 钴 , 甸 呈\n",
+          "confidence": 12,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 0,
+          "scale": 0.65,
+          "psm": "6",
+          "text": "/跳舞 ， 舞 路\n",
+          "confidence": 67,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 0,
+          "scale": 0.65,
+          "psm": "7",
+          "text": "/跳舞 ， 舞 路\n",
+          "confidence": 67,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 0,
+          "scale": 0.65,
+          "psm": "13",
+          "text": "/不 天 , 钴 中\n",
+          "confidence": 11,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 0,
+          "scale": 1,
+          "psm": "6",
+          "text": "/跳舞 ， 舞 路\n",
+          "confidence": 75,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 0,
+          "scale": 1,
+          "psm": "7",
+          "text": "/跳舞 ， 舞 路\n",
+          "confidence": 75,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 0,
+          "scale": 1,
+          "psm": "13",
+          "text": "/跳舞 , 舞蹈\n",
+          "confidence": 50,
+          "method": "center-band-psm"
+        }
+      ],
+      "manualCropCandidates": [
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": -6,
+          "text": "跌 舞 ， 舞 中\n",
+          "confidence": 17,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": -6,
+          "text": "张 钴 ， 舞 中\n",
+          "confidence": 11,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": -3,
+          "text": "跳舞 ， 舞 路\n",
+          "confidence": 62,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": -3,
+          "text": "跳舞 ， 钴 路\n",
+          "confidence": 51,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": 0,
+          "text": "跳舞 ， 舞 路\n",
+          "confidence": 63,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": 0,
+          "text": "跳舞 ， 舞 路\n",
+          "confidence": 54,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": 3,
+          "text": "琵 舞 ， 绎 路\n",
+          "confidence": 29,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": 3,
+          "text": "跳舞 ， 舞 路\n",
+          "confidence": 72,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": 6,
+          "text": "中 天 ， 天 有\n",
+          "confidence": 15,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": 6,
+          "text": "呈 舞 ， 画 中\n",
+          "confidence": 26,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": -6,
+          "text": "跳舞 ， 舞 路\n",
+          "confidence": 51,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": -6,
+          "text": "跳舞 ， 舞 路\n",
+          "confidence": 53,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": -3,
+          "text": "跳 钴 ， 舞 中\n",
+          "confidence": 45,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": -3,
+          "text": "跳舞 ， 钴 路\n",
+          "confidence": 55,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": 0,
+          "text": "跳舞 ， 舞 路\n",
+          "confidence": 59,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": 0,
+          "text": "跳 开 ， 舞 路\n",
+          "confidence": 31,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": 3,
+          "text": "吕 舞 ， 绎 路\n",
+          "confidence": 39,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": 3,
+          "text": "跳 短 ， 舞 路\n",
+          "confidence": 56,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": 6,
+          "text": "中 王 ， 顷 用\n",
+          "confidence": 33,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": 6,
+          "text": "鲍 舞 ， 竹 路\n",
+          "confidence": 27,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": -6,
+          "text": "跳舞 ， 舞 路\n",
+          "confidence": 50,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": -6,
+          "text": "跳 钴 ， 舞 路\n",
+          "confidence": 58,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": -3,
+          "text": "跳舞 ， 绑 中\n",
+          "confidence": 42,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": -3,
+          "text": "跳舞 ， 舞 中\n",
+          "confidence": 33,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": 0,
+          "text": "跳舞 ， 舞 路\n",
+          "confidence": 59,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": 0,
+          "text": "跳舞 ， 舞 踊\n",
+          "confidence": 47,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": 3,
+          "text": "跳舞 ， 舞 路\n",
+          "confidence": 52,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": 3,
+          "text": "上 舞 ， 舞 路\n",
+          "confidence": 42,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": 6,
+          "text": "中 竹 ， 顷 中\n",
+          "confidence": 29,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": 6,
+          "text": "尼 细 ， 短 路\n",
+          "confidence": 8,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": -6,
+          "text": "跳舞 ， 舞 路\n",
+          "confidence": 73,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": -6,
+          "text": "跳 钴 ， 舞 中\n",
+          "confidence": 26,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": -3,
+          "text": "跳舞 ， 绑 中\n",
+          "confidence": 33,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": -3,
+          "text": "跳舞 ， 短 路\n",
+          "confidence": 45,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": 0,
+          "text": "跳舞 ， 舞 路\n",
+          "confidence": 60,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": 0,
+          "text": "跳舞 ， 舞 距\n",
+          "confidence": 54,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": 3,
+          "text": "号 舞 ， 短 路\n",
+          "confidence": 31,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": 3,
+          "text": "吕 舞 ， 舞 路\n",
+          "confidence": 42,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": 6,
+          "text": "绩 王 ， 细 了\n",
+          "confidence": 21,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "dancing",
+          "box": [
+            467,
+            765,
+            905,
+            875
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": 6,
+          "text": "名 细 ， 钴 路\n",
+          "confidence": 15,
+          "method": "manual-tight-crop"
+        }
+      ]
+    },
+    {
+      "photo": "20261004-141232.jpg",
+      "english": "lesson",
+      "englishCandidateFromPriorReport": "lesson",
+      "englishBboxAt1600Height": {
+        "x0": 67,
+        "y0": 896,
+        "x1": 298,
+        "y1": 963
+      },
+      "expectedChineseTranscribedFromPhoto": "一节课，一课时",
+      "blindHighestConfidenceChinese": {
+        "scale": 0.65,
+        "gray": true,
+        "text": "1 一 节 课 ， 一 课时\n",
+        "confidence": 88,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "scale": 0.65,
+        "gray": true,
+        "text": "1 一 节 课 ， 一 课时\n",
+        "confidence": 88,
+        "method": "center-band"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 308,
+            "y0": 876,
+            "x1": 1200,
+            "y1": 976
+          },
+          "ms": 126,
+          "text": "ED 沙 ， 一 课时 夭 二 |\n",
+          "confidence": 33,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 308,
+            "y0": 876,
+            "x1": 1200,
+            "y1": 976
+          },
+          "ms": 20,
+          "text": "了 一 下 诛 ， 一 课时\n",
+          "confidence": 65,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "上 这 洒 ， 谋 时 短 汪 汪\n",
+          "confidence": 14,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "/一 下 课 ， 一 课时\n",
+          "confidence": 68,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "长 节 课 ,一 襄 Hj\n",
+          "confidence": 39,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "1 一 节 课 ， 一 课时\n",
+          "confidence": 88,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "国外 ， 一 课时 着 的\n",
+          "confidence": 42,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "/一 节 课 ， 一 课时\n",
+          "confidence": 66,
+          "method": "center-band"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 1,
+          "scale": 0.4,
+          "psm": "6",
+          "text": "/一 下 课 ， 一 课时\n",
+          "confidence": 68,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 1,
+          "scale": 0.4,
+          "psm": "7",
+          "text": "/一 下 课 ， 一 课时\n",
+          "confidence": 68,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 1,
+          "scale": 0.4,
+          "psm": "13",
+          "text": "7 一 节 课时\n",
+          "confidence": 40,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 1,
+          "scale": 0.65,
+          "psm": "6",
+          "text": "1 一 节 课 ， 一 课时\n",
+          "confidence": 88,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 1,
+          "scale": 0.65,
+          "psm": "7",
+          "text": "1 一 节 课 ， 一 课时\n",
+          "confidence": 88,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 1,
+          "scale": 0.65,
+          "psm": "13",
+          "text": "1 一 节 课 , - 刘 时\n",
+          "confidence": 49,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 1,
+          "scale": 1,
+          "psm": "6",
+          "text": "/一 节 课 ， 一 课时\n",
+          "confidence": 66,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 1,
+          "scale": 1,
+          "psm": "7",
+          "text": "/一 节 课 ， 一 课时\n",
+          "confidence": 66,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 1,
+          "scale": 1,
+          "psm": "13",
+          "text": "1 一 节 课 , 一 课时\n",
+          "confidence": 86,
+          "method": "center-band-psm"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141232.jpg",
+      "english": "walk",
+      "englishCandidateFromPriorReport": "walk",
+      "englishBboxAt1600Height": {
+        "x0": 62,
+        "y0": 986,
+        "x1": 252,
+        "y1": 1063
+      },
+      "expectedChineseTranscribedFromPhoto": "牵着（动物）走，遛",
+      "blindHighestConfidenceChinese": {
+        "scale": 0.4,
+        "gray": false,
+        "text": "{ 俱 着 (动物 ) 走 , 还\n",
+        "confidence": 68,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": false,
+      "correctCandidateExistsInSweep": false,
+      "bestCorrectCandidateForDiagnosticOnly": null,
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 262,
+            "y0": 966,
+            "x1": 1200,
+            "y1": 1085
+          },
+          "ms": 101,
+          "text": "一 牵 着 (动物 ) 走 , 还\n",
+          "confidence": 63,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 262,
+            "y0": 966,
+            "x1": 1200,
+            "y1": 1085
+          },
+          "ms": 23,
+          "text": "- 寄 着 (动物 ) 走 ， 电\n",
+          "confidence": 52,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "{ 俱 着 (动物 ) 走 , 还\n",
+          "confidence": 68,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "牵 着 (动物 ) 走 , 昌\n",
+          "confidence": 57,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "伺 着 (动物 ) 走 , 还\n",
+          "confidence": 64,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "率 着 (动物 ) 走 ,中\n",
+          "confidence": 48,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "人 寄 着 (动物 ) 走 , 这\n",
+          "confidence": 62,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "- 军 着 (动物 ) 走 ， 史\n",
+          "confidence": 54,
+          "method": "center-band"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 2,
+          "scale": 0.4,
+          "psm": "6",
+          "text": "牵 着 (动物 ) 走 , 昌\n",
+          "confidence": 57,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 2,
+          "scale": 0.4,
+          "psm": "7",
+          "text": "牵 着 (动物 ) 走 , 昌\n",
+          "confidence": 57,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 2,
+          "scale": 0.4,
+          "psm": "13",
+          "text": "和 诈 着 (动物 ) 走 , 还\n",
+          "confidence": 61,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 2,
+          "scale": 0.65,
+          "psm": "6",
+          "text": "率 着 (动物 ) 走 ,中\n",
+          "confidence": 48,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 2,
+          "scale": 0.65,
+          "psm": "7",
+          "text": "率 着 (动物 ) 走 ,中\n",
+          "confidence": 48,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 2,
+          "scale": 0.65,
+          "psm": "13",
+          "text": "逢 着 (动物 ) 走 , 届\n",
+          "confidence": 59,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 2,
+          "scale": 1,
+          "psm": "6",
+          "text": "- 军 着 (动物 ) 走 ， 史\n",
+          "confidence": 54,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 2,
+          "scale": 1,
+          "psm": "7",
+          "text": "- 军 着 (动物 ) 走 ， 史\n",
+          "confidence": 54,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 2,
+          "scale": 1,
+          "psm": "13",
+          "text": "寄 着 (动物 ) 走 , 届\n",
+          "confidence": 61,
+          "method": "center-band-psm"
+        }
+      ],
+      "manualCropCandidates": [
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": -6,
+          "text": "过 着 (动物 ) 走 , 明\n",
+          "confidence": 44,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": -6,
+          "text": "宕 着 (动物 ) 走 , 明\n",
+          "confidence": 59,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": -3,
+          "text": "宕 着 ( 动物 ) 走 ， 逻\n",
+          "confidence": 56,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": -3,
+          "text": "窦 着 ( 动物 ) 走 ， 远\n",
+          "confidence": 61,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": 0,
+          "text": "这 着 (动物 ) 走 ， 遗\n",
+          "confidence": 43,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": 0,
+          "text": "它 着 (动物 ) 走 ， 史\n",
+          "confidence": 57,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": 3,
+          "text": "牵 着 ( 动物) 走 ， 电\n",
+          "confidence": 66,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": 3,
+          "text": "窑 着 (动物 ) 走 ,站\n",
+          "confidence": 56,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": 6,
+          "text": "窑 着 (动物 ) 走 ， 思\n",
+          "confidence": 59,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": 6,
+          "text": "罕 着 (动物 ) 走 过\n",
+          "confidence": 56,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": -6,
+          "text": "宕 着 (动物 ) 走 , 明\n",
+          "confidence": 58,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": -6,
+          "text": "宕 着 (动物 ) 走 , 时\n",
+          "confidence": 70,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": -3,
+          "text": "穿 着 (动物 ) 走 , 冰\n",
+          "confidence": 50,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": -3,
+          "text": "罕 着 (动物 ) 走 , 刀\n",
+          "confidence": 43,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": 0,
+          "text": "达 着 (动物 ) 走 ， 遗\n",
+          "confidence": 45,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": 0,
+          "text": "它 着 (动物 ) 走 ， 遗\n",
+          "confidence": 58,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": 3,
+          "text": "窑 着 (动物 ) 走 ， 帝\n",
+          "confidence": 58,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": 3,
+          "text": "它 着 ( 动物 ) 走 ， 喧\n",
+          "confidence": 59,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": 6,
+          "text": "这 着 (动物 ) 走 六\n",
+          "confidence": 56,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": 6,
+          "text": "宇 着 (动物 ) 走 ， 和\n",
+          "confidence": 64,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": -6,
+          "text": "守 着 (动物 ) 走 , 明\n",
+          "confidence": 44,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": -6,
+          "text": "窍 着 (动物 ) 走 , 昌\n",
+          "confidence": 61,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": -3,
+          "text": "索 着 (动物 ) 走 ,时\n",
+          "confidence": 44,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": -3,
+          "text": "宠 着 (动物 ) 走 , 时\n",
+          "confidence": 56,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": 0,
+          "text": "牵 着 (动物 ) 走 ， 逻\n",
+          "confidence": 55,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": 0,
+          "text": "牵 着 (动物 ) 走 ， 己\n",
+          "confidence": 52,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": 3,
+          "text": "这 着 (动物 ) 走 ， 帝\n",
+          "confidence": 50,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": 3,
+          "text": "窑 着 ( 动物 ) 走 ,中\n",
+          "confidence": 62,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": 6,
+          "text": "罕 着 (动物 ) 走 六\n",
+          "confidence": 50,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": 6,
+          "text": "罕 着 (动物 ) 走 ， 帝\n",
+          "confidence": 58,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": -6,
+          "text": "硬 府 区 ) 起 ;条\n",
+          "confidence": 22,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": -6,
+          "text": "国 蓄 (动物 ) 走 渤\n",
+          "confidence": 27,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": -3,
+          "text": "库 济 (动物 ) 走 3 笨\n",
+          "confidence": 39,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": -3,
+          "text": "国 苦 (动物 ) 走 ;如\n",
+          "confidence": 42,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": 0,
+          "text": "且 院 ( 才 ) 老 ;这\n",
+          "confidence": 14,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": 0,
+          "text": "对 戎 ( 动 和 ) 走 ; 壹\n",
+          "confidence": 41,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": 3,
+          "text": "(动物 ) 走 关 王\n",
+          "confidence": 35,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": 3,
+          "text": "县 了 (动物 ) 走 :这\n",
+          "confidence": 62,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": 6,
+          "text": "县 六 ( 动力) 老 ,二\n",
+          "confidence": 22,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "walk",
+          "box": [
+            330,
+            970,
+            1110,
+            1080
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": 6,
+          "text": "天 六 (动物 ) 走 ; 壕\n",
+          "confidence": 47,
+          "method": "manual-tight-crop"
+        }
+      ]
+    },
+    {
+      "photo": "20261004-141232.jpg",
+      "english": "dog",
+      "englishCandidateFromPriorReport": "dog",
+      "englishBboxAt1600Height": {
+        "x0": 65,
+        "y0": 1095,
+        "x1": 208,
+        "y1": 1176
+      },
+      "expectedChineseTranscribedFromPhoto": "狗",
+      "blindHighestConfidenceChinese": {
+        "langs": [
+          "chi_sim"
+        ],
+        "p": 0,
+        "i": 3,
+        "scale": 1,
+        "psm": "6",
+        "text": "狗\n",
+        "confidence": 88,
+        "method": "center-band-psm"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "langs": [
+          "chi_sim"
+        ],
+        "p": 0,
+        "i": 3,
+        "scale": 1,
+        "psm": "6",
+        "text": "狗\n",
+        "confidence": 88,
+        "method": "center-band-psm"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 218,
+            "y0": 1075,
+            "x1": 1200,
+            "y1": 1196
+          },
+          "ms": 142,
+          "text": "二\n",
+          "confidence": 31,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 218,
+            "y0": 1075,
+            "x1": 1200,
+            "y1": 1196
+          },
+          "ms": 35,
+          "text": "/ 独\n",
+          "confidence": 31,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "| 和\n",
+          "confidence": 49,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "狗\n",
+          "confidence": 0,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "|\n",
+          "confidence": 42,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "狗\n",
+          "confidence": 1,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "|\n",
+          "confidence": 37,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "铬\n",
+          "confidence": 15,
+          "method": "center-band"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 3,
+          "scale": 0.4,
+          "psm": "6",
+          "text": "狗\n",
+          "confidence": 0,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 3,
+          "scale": 0.4,
+          "psm": "7",
+          "text": "狗\n",
+          "confidence": 0,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 3,
+          "scale": 0.4,
+          "psm": "13",
+          "text": "网\n",
+          "confidence": 14,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 3,
+          "scale": 0.65,
+          "psm": "6",
+          "text": "狗\n",
+          "confidence": 1,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 3,
+          "scale": 0.65,
+          "psm": "7",
+          "text": "狗\n",
+          "confidence": 1,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 3,
+          "scale": 0.65,
+          "psm": "13",
+          "text": "多\n",
+          "confidence": 39,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 3,
+          "scale": 1,
+          "psm": "6",
+          "text": "狗\n",
+          "confidence": 88,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 3,
+          "scale": 1,
+          "psm": "7",
+          "text": "铬\n",
+          "confidence": 15,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 3,
+          "scale": 1,
+          "psm": "13",
+          "text": "狗\n",
+          "confidence": 55,
+          "method": "center-band-psm"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141232.jpg",
+      "english": "tomorrow",
+      "englishCandidateFromPriorReport": "tomorrow",
+      "englishBboxAt1600Height": {
+        "x0": 62,
+        "y0": 1206,
+        "x1": 485,
+        "y1": 1269
+      },
+      "expectedChineseTranscribedFromPhoto": "明天，在明天",
+      "blindHighestConfidenceChinese": {
+        "scale": 0.4,
+        "gray": true,
+        "text": "明天 ， 在 明天\n",
+        "confidence": 85,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "scale": 0.4,
+        "gray": true,
+        "text": "明天 ， 在 明天\n",
+        "confidence": 85,
+        "method": "center-band"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 495,
+            "y0": 1186,
+            "x1": 1200,
+            "y1": 1288
+          },
+          "ms": 104,
+          "text": "莉 因 天 二 奏 骨 和 >\n",
+          "confidence": 37,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 495,
+            "y0": 1186,
+            "x1": 1200,
+            "y1": 1288
+          },
+          "ms": 15,
+          "text": "明天 ， 在 汶 太\n",
+          "confidence": 58,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "且 天 汪 在 时 大 二\n",
+          "confidence": 24,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "明天 ， 在 明天\n",
+          "confidence": 85,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "团 恩 在 明天\n",
+          "confidence": 36,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "明天 ,在 明天\n",
+          "confidence": 84,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "着 沽 在 明天 二 滞\n",
+          "confidence": 19,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "明天 ， 在 骨 六\n",
+          "confidence": 52,
+          "method": "center-band"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141232.jpg",
+      "english": "free",
+      "englishCandidateFromPriorReport": "free",
+      "englishBboxAt1600Height": {
+        "x0": 65,
+        "y0": 1298,
+        "x1": 219,
+        "y1": 1373
+      },
+      "expectedChineseTranscribedFromPhoto": "空闲的",
+      "blindHighestConfidenceChinese": {
+        "mode": "threshold",
+        "crop": {
+          "x0": 229,
+          "y0": 1278,
+          "x1": 1200,
+          "y1": 1378
+        },
+        "ms": 21,
+        "text": "空闲 的\n",
+        "confidence": 91,
+        "method": "english-bbox-right"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "mode": "threshold",
+        "crop": {
+          "x0": 229,
+          "y0": 1278,
+          "x1": 1200,
+          "y1": 1378
+        },
+        "ms": 21,
+        "text": "空闲 的\n",
+        "confidence": 91,
+        "method": "english-bbox-right"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 229,
+            "y0": 1278,
+            "x1": 1200,
+            "y1": 1378
+          },
+          "ms": 135,
+          "text": "|\n",
+          "confidence": 53,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 229,
+            "y0": 1278,
+            "x1": 1200,
+            "y1": 1378
+          },
+          "ms": 21,
+          "text": "空闲 的\n",
+          "confidence": 91,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "|\n",
+          "confidence": 26,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "空闲 的 ni，\n",
+          "confidence": 63,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "TEST\n",
+          "confidence": 13,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "空闲 的 -un，\n",
+          "confidence": 63,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "人\n",
+          "confidence": 0,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "空闲 的 本\n",
+          "confidence": 51,
+          "method": "center-band"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141232.jpg",
+      "english": "See you tomorrow!",
+      "englishCandidateFromPriorReport": "See you tomorrow!",
+      "englishBboxAt1600Height": {
+        "x0": 69,
+        "y0": 1388,
+        "x1": 843,
+        "y1": 1500
+      },
+      "expectedChineseTranscribedFromPhoto": "明天见！",
+      "blindHighestConfidenceChinese": {
+        "mode": "threshold",
+        "crop": {
+          "x0": 853,
+          "y0": 1368,
+          "x1": 1200,
+          "y1": 1530
+        },
+        "ms": 9,
+        "text": "明天 见 !\n",
+        "confidence": 86,
+        "method": "english-bbox-right"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "mode": "threshold",
+        "crop": {
+          "x0": 853,
+          "y0": 1368,
+          "x1": 1200,
+          "y1": 1530
+        },
+        "ms": 9,
+        "text": "明天 见 !\n",
+        "confidence": 86,
+        "method": "english-bbox-right"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 853,
+            "y0": 1368,
+            "x1": 1200,
+            "y1": 1530
+          },
+          "ms": 54,
+          "text": "|\n",
+          "confidence": 0,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 853,
+            "y0": 1368,
+            "x1": 1200,
+            "y1": 1530
+          },
+          "ms": 9,
+          "text": "明天 见 !\n",
+          "confidence": 86,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "柄 下 到\n",
+          "confidence": 29,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "明 大 网 !\n",
+          "confidence": 56,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "人\n",
+          "confidence": 18,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "明 大 见 !\n",
+          "confidence": 66,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "",
+          "confidence": 0,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "明 大 上 匈 !\n",
+          "confidence": 68,
+          "method": "center-band"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 6,
+          "scale": 0.4,
+          "psm": "6",
+          "text": "明 大 网 !\n",
+          "confidence": 56,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 6,
+          "scale": 0.4,
+          "psm": "7",
+          "text": "明 大 网 !\n",
+          "confidence": 56,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 6,
+          "scale": 0.4,
+          "psm": "13",
+          "text": "",
+          "confidence": 0,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 6,
+          "scale": 0.65,
+          "psm": "6",
+          "text": "明 大 见 !\n",
+          "confidence": 66,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 6,
+          "scale": 0.65,
+          "psm": "7",
+          "text": "明 大 见 !\n",
+          "confidence": 66,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 6,
+          "scale": 0.65,
+          "psm": "13",
+          "text": "明天 多 1\n",
+          "confidence": 24,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 6,
+          "scale": 1,
+          "psm": "6",
+          "text": "明 大 上 匈 !\n",
+          "confidence": 68,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 6,
+          "scale": 1,
+          "psm": "7",
+          "text": "明 大 上 匈 !\n",
+          "confidence": 68,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 0,
+          "i": 6,
+          "scale": 1,
+          "psm": "13",
+          "text": "明天 知 !\n",
+          "confidence": 4,
+          "method": "center-band-psm"
+        }
+      ],
+      "manualCropCandidates": [
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": -6,
+          "text": "明天 见 !\n",
+          "confidence": 83,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": -6,
+          "text": "明天 区\n",
+          "confidence": 34,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": -3,
+          "text": "明天 兄 !\n",
+          "confidence": 55,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": -3,
+          "text": "明天 见 !\n",
+          "confidence": 63,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": 0,
+          "text": "明天 见 !\n",
+          "confidence": 85,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": 0,
+          "text": "明天 克 !\n",
+          "confidence": 30,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": 3,
+          "text": "明天 见 !\n",
+          "confidence": 88,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": 3,
+          "text": "明天 见 !\n",
+          "confidence": 82,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 85,
+          "rotation": 6,
+          "text": "明天 兄 !\n",
+          "confidence": 60,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 85,
+          "rotation": 6,
+          "text": "明天 见 !\n",
+          "confidence": 52,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": -6,
+          "text": "明天 见 !\n",
+          "confidence": 80,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": -6,
+          "text": "明天 多 ，\n",
+          "confidence": 51,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": -3,
+          "text": "明天 见 !\n",
+          "confidence": 60,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": -3,
+          "text": "明天 见 !\n",
+          "confidence": 63,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": 0,
+          "text": "明天 见 !\n",
+          "confidence": 84,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": 0,
+          "text": "明天 见 !\n",
+          "confidence": 86,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": 3,
+          "text": "明天 见 !\n",
+          "confidence": 90,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": 3,
+          "text": "明天 见 !\n",
+          "confidence": 67,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 110,
+          "rotation": 6,
+          "text": "明天 见 !\n",
+          "confidence": 79,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 110,
+          "rotation": 6,
+          "text": "明天 见 !\n",
+          "confidence": 73,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": -6,
+          "text": "明天 见 !\n",
+          "confidence": 79,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": -6,
+          "text": "明天 见 !\n",
+          "confidence": 89,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": -3,
+          "text": "明天 见 !\n",
+          "confidence": 76,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": -3,
+          "text": "明天 见 !\n",
+          "confidence": 58,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": 0,
+          "text": "明天 见 !\n",
+          "confidence": 87,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": 0,
+          "text": "明天 见 !\n",
+          "confidence": 80,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": 3,
+          "text": "明天 见 !\n",
+          "confidence": 89,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": 3,
+          "text": "明天 见 !\n",
+          "confidence": 60,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 130,
+          "rotation": 6,
+          "text": "明天 见 !\n",
+          "confidence": 88,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 130,
+          "rotation": 6,
+          "text": "明天 兄 !\n",
+          "confidence": 54,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": -6,
+          "text": "明天 见 !\n",
+          "confidence": 73,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": -6,
+          "text": "明天 见 !\n",
+          "confidence": 82,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": -3,
+          "text": "明天 见 !\n",
+          "confidence": 77,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": -3,
+          "text": "明天 见 !\n",
+          "confidence": 86,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": 0,
+          "text": "明天 见 !\n",
+          "confidence": 77,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": 0,
+          "text": "明天 见 !\n",
+          "confidence": 91,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": 3,
+          "text": "明天 见 !\n",
+          "confidence": 86,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": 3,
+          "text": "明天 见 !\n",
+          "confidence": 91,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 0.6,
+          "threshold": 150,
+          "rotation": 6,
+          "text": "明天 见 !\n",
+          "confidence": 76,
+          "method": "manual-tight-crop"
+        },
+        {
+          "name": "see",
+          "box": [
+            920,
+            1360,
+            1190,
+            1470
+          ],
+          "scale": 1,
+          "threshold": 150,
+          "rotation": 6,
+          "text": "明天 见 !\n",
+          "confidence": 83,
+          "method": "manual-tight-crop"
+        }
+      ]
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "week",
+      "englishCandidateFromPriorReport": "Week",
+      "englishBboxAt1600Height": {
+        "x0": 143,
+        "y0": 81,
+        "x1": 288,
+        "y1": 120
+      },
+      "expectedChineseTranscribedFromPhoto": "周，星期",
+      "blindHighestConfidenceChinese": {
+        "scale": 1,
+        "gray": true,
+        "text": "局 ， 星 期\n",
+        "confidence": 69,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": false,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "scale": 0.4,
+        "gray": true,
+        "text": "周 ， 星 期\n",
+        "confidence": 64,
+        "method": "center-band"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 298,
+            "y0": 61,
+            "x1": 1200,
+            "y1": 129
+          },
+          "ms": 121,
+          "text": "上 局， 十 二 有\n",
+          "confidence": 26,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 298,
+            "y0": 61,
+            "x1": 1200,
+            "y1": 129
+          },
+          "ms": 15,
+          "text": "周 . 星期 (9)\n",
+          "confidence": 39,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "[, 是 二 本 于\n",
+          "confidence": 23,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "周 ， 星 期\n",
+          "confidence": 64,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "- 甩 - 巴 天 有 到\n",
+          "confidence": 8,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "周 ， 星 期\n",
+          "confidence": 58,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "-用 ， 星 其 汪 于 于 和 和\n",
+          "confidence": 15,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "局 ， 星 期\n",
+          "confidence": 69,
+          "method": "center-band"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 0,
+          "scale": 0.4,
+          "psm": "6",
+          "text": "周 ， 星 期\n",
+          "confidence": 64,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 0,
+          "scale": 0.4,
+          "psm": "7",
+          "text": "周 ， 星 期\n",
+          "confidence": 64,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 0,
+          "scale": 0.4,
+          "psm": "13",
+          "text": "有\n",
+          "confidence": 0,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 0,
+          "scale": 0.65,
+          "psm": "6",
+          "text": "周 ， 星 期\n",
+          "confidence": 58,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 0,
+          "scale": 0.65,
+          "psm": "7",
+          "text": "周 ， 星 期\n",
+          "confidence": 58,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 0,
+          "scale": 0.65,
+          "psm": "13",
+          "text": "周 , 昌 期\n",
+          "confidence": 43,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 0,
+          "scale": 1,
+          "psm": "6",
+          "text": "局 ， 星 期\n",
+          "confidence": 69,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 0,
+          "scale": 1,
+          "psm": "7",
+          "text": "局 ， 星 期\n",
+          "confidence": 69,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 0,
+          "scale": 1,
+          "psm": "13",
+          "text": "周 , 尼 期\n",
+          "confidence": 41,
+          "method": "center-band-psm"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "Monday",
+      "englishCandidateFromPriorReport": "Monday",
+      "englishBboxAt1600Height": {
+        "x0": 143,
+        "y0": 139,
+        "x1": 382,
+        "y1": 209
+      },
+      "expectedChineseTranscribedFromPhoto": "星期一",
+      "blindHighestConfidenceChinese": {
+        "scale": 0.4,
+        "gray": true,
+        "text": "星期 一\n",
+        "confidence": 96,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "scale": 0.4,
+        "gray": true,
+        "text": "星期 一\n",
+        "confidence": 96,
+        "method": "center-band"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 392,
+            "y0": 119,
+            "x1": 1200,
+            "y1": 197
+          },
+          "ms": 107,
+          "text": "“所 其 2 清和\n",
+          "confidence": 36,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 392,
+            "y0": 119,
+            "x1": 1200,
+            "y1": 197
+          },
+          "ms": 23,
+          "text": "4? 刘 划 ” (24)\n",
+          "confidence": 23,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "(星期 二 :项\n",
+          "confidence": 45,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "星期 一\n",
+          "confidence": 96,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "“ 晤 贡 动机 硬\n",
+          "confidence": 7,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "星期 一\n",
+          "confidence": 80,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "-星期 二 二 二 吉大 汪 和\n",
+          "confidence": 31,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "星期 一\n",
+          "confidence": 85,
+          "method": "center-band"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "Tuesday",
+      "englishCandidateFromPriorReport": "Tuesday",
+      "englishBboxAt1600Height": {
+        "x0": 140,
+        "y0": 207,
+        "x1": 379,
+        "y1": 277
+      },
+      "expectedChineseTranscribedFromPhoto": "星期二",
+      "blindHighestConfidenceChinese": {
+        "scale": 0.4,
+        "gray": true,
+        "text": "星期 二\n",
+        "confidence": 96,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "scale": 0.4,
+        "gray": true,
+        "text": "星期 二\n",
+        "confidence": 96,
+        "method": "center-band"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 389,
+            "y0": 187,
+            "x1": 1200,
+            "y1": 265
+          },
+          "ms": 106,
+          "text": "DC\n",
+          "confidence": 48,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 389,
+            "y0": 187,
+            "x1": 1200,
+            "y1": 265
+          },
+          "ms": 14,
+          "text": "总 期 一 (24)\n",
+          "confidence": 68,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "是 汪 轴\n",
+          "confidence": 0,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "星期 二\n",
+          "confidence": 96,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "ET\n",
+          "confidence": 37,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "星期 二\n",
+          "confidence": 82,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "ET\n",
+          "confidence": 2,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "星期 二\n",
+          "confidence": 95,
+          "method": "center-band"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 2,
+          "scale": 0.4,
+          "psm": "6",
+          "text": "星期 二\n",
+          "confidence": 96,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 2,
+          "scale": 0.4,
+          "psm": "7",
+          "text": "星期 二\n",
+          "confidence": 96,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 2,
+          "scale": 0.4,
+          "psm": "13",
+          "text": "0\n",
+          "confidence": 19,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 2,
+          "scale": 0.65,
+          "psm": "6",
+          "text": "星期 二\n",
+          "confidence": 82,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 2,
+          "scale": 0.65,
+          "psm": "7",
+          "text": "星期 二\n",
+          "confidence": 82,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 2,
+          "scale": 0.65,
+          "psm": "13",
+          "text": "JI\n",
+          "confidence": 0,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 2,
+          "scale": 1,
+          "psm": "6",
+          "text": "星期 二\n",
+          "confidence": 95,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 2,
+          "scale": 1,
+          "psm": "7",
+          "text": "星期 二\n",
+          "confidence": 95,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 2,
+          "scale": 1,
+          "psm": "13",
+          "text": "量 期 -\n",
+          "confidence": 28,
+          "method": "center-band-psm"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "Wednesday",
+      "englishCandidateFromPriorReport": "Wednesday",
+      "englishBboxAt1600Height": {
+        "x0": 140,
+        "y0": 275,
+        "x1": 476,
+        "y1": 349
+      },
+      "expectedChineseTranscribedFromPhoto": "星期三",
+      "blindHighestConfidenceChinese": {
+        "scale": 0.4,
+        "gray": true,
+        "text": "星期 二\n",
+        "confidence": 86,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": false,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "scale": 0.65,
+        "gray": true,
+        "text": "星期 三\n",
+        "confidence": 70,
+        "method": "center-band"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 486,
+            "y0": 255,
+            "x1": 1200,
+            "y1": 333
+          },
+          "ms": 94,
+          "text": "有 RE\n",
+          "confidence": 35,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 486,
+            "y0": 255,
+            "x1": 1200,
+            "y1": 333
+          },
+          "ms": 38,
+          "text": "“ 尼 期 二 CH)\n",
+          "confidence": 24,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "ER\n",
+          "confidence": 21,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "星期 二\n",
+          "confidence": 86,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": ",是\n",
+          "confidence": 0,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "星期 三\n",
+          "confidence": 70,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "- 星 划 Sa 省\n",
+          "confidence": 13,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "星期 三\n",
+          "confidence": 22,
+          "method": "center-band"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 3,
+          "scale": 0.4,
+          "psm": "6",
+          "text": "星期 二\n",
+          "confidence": 86,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 3,
+          "scale": 0.4,
+          "psm": "7",
+          "text": "星期 二\n",
+          "confidence": 86,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 3,
+          "scale": 0.4,
+          "psm": "13",
+          "text": "|\n",
+          "confidence": 0,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 3,
+          "scale": 0.65,
+          "psm": "6",
+          "text": "星期 三\n",
+          "confidence": 70,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 3,
+          "scale": 0.65,
+          "psm": "7",
+          "text": "星期 三\n",
+          "confidence": 70,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 3,
+          "scale": 0.65,
+          "psm": "13",
+          "text": "是 基 三\n",
+          "confidence": 32,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 3,
+          "scale": 1,
+          "psm": "6",
+          "text": "星期 三\n",
+          "confidence": 22,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 3,
+          "scale": 1,
+          "psm": "7",
+          "text": "星期 三\n",
+          "confidence": 22,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 3,
+          "scale": 1,
+          "psm": "13",
+          "text": "昨 期 三\n",
+          "confidence": 49,
+          "method": "center-band-psm"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "Thursday",
+      "englishCandidateFromPriorReport": "Thursday",
+      "englishBboxAt1600Height": {
+        "x0": 140,
+        "y0": 343,
+        "x1": 406,
+        "y1": 414
+      },
+      "expectedChineseTranscribedFromPhoto": "星期四",
+      "blindHighestConfidenceChinese": {
+        "scale": 1,
+        "gray": true,
+        "text": "星期 四\n",
+        "confidence": 94,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "scale": 1,
+        "gray": true,
+        "text": "星期 四\n",
+        "confidence": 94,
+        "method": "center-band"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 416,
+            "y0": 323,
+            "x1": 1200,
+            "y1": 404
+          },
+          "ms": 12,
+          "text": "三 |\n",
+          "confidence": 36,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 416,
+            "y0": 323,
+            "x1": 1200,
+            "y1": 404
+          },
+          "ms": 15,
+          "text": "时 期 四 (24)\n",
+          "confidence": 35,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "[证 厅 ii\n",
+          "confidence": 9,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "是 期 四\n",
+          "confidence": 79,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "本\n",
+          "confidence": 0,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "星期 四\n",
+          "confidence": 86,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "和 |\n",
+          "confidence": 29,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "星期 四\n",
+          "confidence": 94,
+          "method": "center-band"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "Friday",
+      "englishCandidateFromPriorReport": "Friday",
+      "englishBboxAt1600Height": {
+        "x0": 144,
+        "y0": 414,
+        "x1": 322,
+        "y1": 478
+      },
+      "expectedChineseTranscribedFromPhoto": "星期五",
+      "blindHighestConfidenceChinese": {
+        "mode": "threshold",
+        "crop": {
+          "x0": 332,
+          "y0": 394,
+          "x1": 1200,
+          "y1": 473
+        },
+        "ms": 15,
+        "text": "星期 五 (24)\n",
+        "confidence": 62,
+        "method": "english-bbox-right"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "mode": "threshold",
+        "crop": {
+          "x0": 332,
+          "y0": 394,
+          "x1": 1200,
+          "y1": 473
+        },
+        "ms": 15,
+        "text": "星期 五 (24)\n",
+        "confidence": 62,
+        "method": "english-bbox-right"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 332,
+            "y0": 394,
+            "x1": 1200,
+            "y1": 473
+          },
+          "ms": 12,
+          "text": "(.\n",
+          "confidence": 35,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 332,
+            "y0": 394,
+            "x1": 1200,
+            "y1": 473
+          },
+          "ms": 15,
+          "text": "星期 五 (24)\n",
+          "confidence": 62,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "星期 五 总 国 国 夺 二 悦\n",
+          "confidence": 18,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "累 期 五\n",
+          "confidence": 33,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "站 其 元 5\n",
+          "confidence": 38,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "星期 五\n",
+          "confidence": 58,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "卫 期 天 2 清和\n",
+          "confidence": 20,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "星期 五\n",
+          "confidence": 47,
+          "method": "center-band"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "Saturday",
+      "englishCandidateFromPriorReport": "Saturday",
+      "englishBboxAt1600Height": {
+        "x0": 142,
+        "y0": 483,
+        "x1": 403,
+        "y1": 550
+      },
+      "expectedChineseTranscribedFromPhoto": "星期六",
+      "blindHighestConfidenceChinese": {
+        "scale": 0.65,
+        "gray": true,
+        "text": "星期 六\n",
+        "confidence": 93,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "scale": 0.65,
+        "gray": true,
+        "text": "星期 六\n",
+        "confidence": 93,
+        "method": "center-band"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 413,
+            "y0": 463,
+            "x1": 1200,
+            "y1": 541
+          },
+          "ms": 107,
+          "text": "|\n",
+          "confidence": 12,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 413,
+            "y0": 463,
+            "x1": 1200,
+            "y1": 541
+          },
+          "ms": 13,
+          "text": "“ 蛙 期 六 (24)\n",
+          "confidence": 68,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "-星期 六\n",
+          "confidence": 44,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "星期 六\n",
+          "confidence": 91,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "9\n",
+          "confidence": 0,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "星期 六\n",
+          "confidence": 93,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "|\n",
+          "confidence": 0,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "星期 六\n",
+          "confidence": 91,
+          "method": "center-band"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "Sunday",
+      "englishCandidateFromPriorReport": "Sunday",
+      "englishBboxAt1600Height": {
+        "x0": 142,
+        "y0": 551,
+        "x1": 357,
+        "y1": 617
+      },
+      "expectedChineseTranscribedFromPhoto": "星期天",
+      "blindHighestConfidenceChinese": {
+        "scale": 0.65,
+        "gray": true,
+        "text": "_ 星 期 天\n",
+        "confidence": 86,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "scale": 0.65,
+        "gray": true,
+        "text": "_ 星 期 天\n",
+        "confidence": 86,
+        "method": "center-band"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 367,
+            "y0": 531,
+            "x1": 1200,
+            "y1": 611
+          },
+          "ms": 118,
+          "text": "是 期 天 :二 二\n",
+          "confidence": 44,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 367,
+            "y0": 531,
+            "x1": 1200,
+            "y1": 611
+          },
+          "ms": 14,
+          "text": "， 妊 期 天 (24)\n",
+          "confidence": 41,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "|\n",
+          "confidence": 6,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "_ 星期天\n",
+          "confidence": 31,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "-星期 天\n",
+          "confidence": 26,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "_ 星 期 天\n",
+          "confidence": 86,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": ".星期 天 ”生生\n",
+          "confidence": 52,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "-星期 天\n",
+          "confidence": 38,
+          "method": "center-band"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "when",
+      "englishCandidateFromPriorReport": "when",
+      "englishBboxAt1600Height": {
+        "x0": 141,
+        "y0": 621,
+        "x1": 298,
+        "y1": 671
+      },
+      "expectedChineseTranscribedFromPhoto": "什么时候",
+      "blindHighestConfidenceChinese": {
+        "scale": 1,
+        "gray": true,
+        "text": "“什么 时 候\n",
+        "confidence": 88,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "scale": 1,
+        "gray": true,
+        "text": "“什么 时 候\n",
+        "confidence": 88,
+        "method": "center-band"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 308,
+            "y0": 601,
+            "x1": 1200,
+            "y1": 693
+          },
+          "ms": 123,
+          "text": "区 同属\n",
+          "confidence": 11,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 308,
+            "y0": 601,
+            "x1": 1200,
+            "y1": 693
+          },
+          "ms": 15,
+          "text": "“什么 时 候 020\n",
+          "confidence": 81,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "站 么 时 任 : 本 王 沽 辆 四\n",
+          "confidence": 13,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "?什么 时 候\n",
+          "confidence": 69,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "芭 世 后\n",
+          "confidence": 2,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "“什么 时 候\n",
+          "confidence": 85,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "HI 友 大 古国 到 和\n",
+          "confidence": 3,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "“什么 时 候\n",
+          "confidence": 88,
+          "method": "center-band"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "every",
+      "englishCandidateFromPriorReport": "every",
+      "englishBboxAt1600Height": {
+        "x0": 143,
+        "y0": 703,
+        "x1": 298,
+        "y1": 753
+      },
+      "expectedChineseTranscribedFromPhoto": "每一个，每个",
+      "blindHighestConfidenceChinese": {
+        "mode": "threshold",
+        "crop": {
+          "x0": 308,
+          "y0": 683,
+          "x1": 1200,
+          "y1": 756
+        },
+        "ms": 17,
+        "text": "每 一 个 ， 每 个 (20)\n",
+        "confidence": 93,
+        "method": "english-bbox-right"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "mode": "threshold",
+        "crop": {
+          "x0": 308,
+          "y0": 683,
+          "x1": 1200,
+          "y1": 756
+        },
+        "ms": 17,
+        "text": "每 一 个 ， 每 个 (20)\n",
+        "confidence": 93,
+        "method": "english-bbox-right"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 308,
+            "y0": 683,
+            "x1": 1200,
+            "y1": 756
+          },
+          "ms": 128,
+          "text": "每 5\n",
+          "confidence": 44,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 308,
+            "y0": 683,
+            "x1": 1200,
+            "y1": 756
+          },
+          "ms": 17,
+          "text": "每 一 个 ， 每 个 (20)\n",
+          "confidence": 93,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "[ 荐 人\n",
+          "confidence": 28,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "每 -个 ， 每 个\n",
+          "confidence": 84,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "ET\n",
+          "confidence": 51,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "每 一 个 ， 每 个\n",
+          "confidence": 89,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "ee |\n",
+          "confidence": 33,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "每 一 个 ， 每 个\n",
+          "confidence": 92,
+          "method": "center-band"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "at",
+      "englishCandidateFromPriorReport": "at",
+      "englishBboxAt1600Height": {
+        "x0": 146,
+        "y0": 766,
+        "x1": 201,
+        "y1": 808
+      },
+      "expectedChineseTranscribedFromPhoto": "在（某时间）",
+      "blindHighestConfidenceChinese": {
+        "langs": [
+          "chi_sim"
+        ],
+        "p": 1,
+        "i": 10,
+        "scale": 1,
+        "psm": "13",
+        "text": "?在 ( 某 时 间 )\n",
+        "confidence": 79,
+        "method": "center-band-psm"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "langs": [
+          "chi_sim"
+        ],
+        "p": 1,
+        "i": 10,
+        "scale": 1,
+        "psm": "13",
+        "text": "?在 ( 某 时 间 )\n",
+        "confidence": 79,
+        "method": "center-band-psm"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 211,
+            "y0": 746,
+            "x1": 1200,
+            "y1": 833
+          },
+          "ms": 134,
+          "text": "“在 工业 时 大 AT\n",
+          "confidence": 48,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 211,
+            "y0": 746,
+            "x1": 1200,
+            "y1": 833
+          },
+          "ms": 19,
+          "text": "7 在 ( 某 时 间 ) 026j\n",
+          "confidence": 71,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 130,
+            "y0": 816,
+            "x1": 1200,
+            "y1": 834
+          },
+          "ms": 173,
+          "text": "人\n",
+          "confidence": 0,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 130,
+            "y0": 816,
+            "x1": 1200,
+            "y1": 834
+          },
+          "ms": 35,
+          "text": "一 二 人 加 、\n",
+          "confidence": 30,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "|\n",
+          "confidence": 6,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "?在 〈 某 时 间 )\n",
+          "confidence": 74,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "二 ES\n",
+          "confidence": 24,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": ":在 ( 基 时 间 )\n",
+          "confidence": 55,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "ED\n",
+          "confidence": 27,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "在 〔( 某 时 间 )\n",
+          "confidence": 67,
+          "method": "center-band"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 10,
+          "scale": 0.4,
+          "psm": "6",
+          "text": "?在 〈 某 时 间 )\n",
+          "confidence": 74,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 10,
+          "scale": 0.4,
+          "psm": "7",
+          "text": "?在 〈 某 时 间 )\n",
+          "confidence": 74,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 10,
+          "scale": 0.4,
+          "psm": "13",
+          "text": "1\n",
+          "confidence": 0,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 10,
+          "scale": 0.65,
+          "psm": "6",
+          "text": ":在 ( 基 时 间 )\n",
+          "confidence": 55,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 10,
+          "scale": 0.65,
+          "psm": "7",
+          "text": ":在 ( 基 时 间 )\n",
+          "confidence": 55,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 10,
+          "scale": 0.65,
+          "psm": "13",
+          "text": "在 (HH 间 )\n",
+          "confidence": 12,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 10,
+          "scale": 1,
+          "psm": "6",
+          "text": "在 〔( 某 时 间 )\n",
+          "confidence": 67,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 10,
+          "scale": 1,
+          "psm": "7",
+          "text": "在 〔( 某 时 间 )\n",
+          "confidence": 67,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 10,
+          "scale": 1,
+          "psm": "13",
+          "text": "?在 ( 某 时 间 )\n",
+          "confidence": 79,
+          "method": "center-band-psm"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "up",
+      "englishCandidateFromPriorReport": "up",
+      "englishBboxAt1600Height": {
+        "x0": 144,
+        "y0": 844,
+        "x1": 215,
+        "y1": 891
+      },
+      "expectedChineseTranscribedFromPhoto": "起床",
+      "blindHighestConfidenceChinese": {
+        "mode": "threshold",
+        "crop": {
+          "x0": 225,
+          "y0": 824,
+          "x1": 1200,
+          "y1": 890
+        },
+        "ms": 12,
+        "text": ") 起 床 (26)\n",
+        "confidence": 92,
+        "method": "english-bbox-right"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "mode": "threshold",
+        "crop": {
+          "x0": 225,
+          "y0": 824,
+          "x1": 1200,
+          "y1": 890
+        },
+        "ms": 12,
+        "text": ") 起 床 (26)\n",
+        "confidence": 92,
+        "method": "english-bbox-right"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 225,
+            "y0": 824,
+            "x1": 1200,
+            "y1": 890
+          },
+          "ms": 139,
+          "text": ") 天 于 五 天 天\n",
+          "confidence": 33,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 225,
+            "y0": 824,
+            "x1": 1200,
+            "y1": 890
+          },
+          "ms": 12,
+          "text": ") 起 床 (26)\n",
+          "confidence": 92,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "枚 |\n",
+          "confidence": 21,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "",
+          "confidence": 0,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "天 三\n",
+          "confidence": 9,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "起 床\n",
+          "confidence": 21,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "下 订 7 天 天 本 二 本 和\n",
+          "confidence": 22,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "起 床 .\n",
+          "confidence": 63,
+          "method": "center-band"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "today",
+      "englishCandidateFromPriorReport": "today",
+      "englishBboxAt1600Height": {
+        "x0": 140,
+        "y0": 900,
+        "x1": 313,
+        "y1": 960
+      },
+      "expectedChineseTranscribedFromPhoto": "在今天",
+      "blindHighestConfidenceChinese": {
+        "scale": 0.4,
+        "gray": true,
+        "text": "在 今天\n",
+        "confidence": 96,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "scale": 0.4,
+        "gray": true,
+        "text": "在 今天\n",
+        "confidence": 96,
+        "method": "center-band"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 323,
+            "y0": 880,
+            "x1": 1200,
+            "y1": 960
+          },
+          "ms": 120,
+          "text": "在 人 6\n",
+          "confidence": 42,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 323,
+            "y0": 880,
+            "x1": 1200,
+            "y1": 960
+          },
+          "ms": 14,
+          "text": "“在 今天 (26)-\n",
+          "confidence": 68,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "这 全 天 anaw 用 汪汪\n",
+          "confidence": 29,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "在 今天\n",
+          "confidence": 96,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "ji 在 全 天 aaadae\n",
+          "confidence": 40,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "在 今天\n",
+          "confidence": 96,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "在 全\n",
+          "confidence": 36,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "在 今天\n",
+          "confidence": 95,
+          "method": "center-band"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "What day is it today?",
+      "englishCandidateFromPriorReport": "What day is it today?",
+      "englishBboxAt1600Height": {
+        "x0": 144,
+        "y0": 970,
+        "x1": 757,
+        "y1": 1031
+      },
+      "expectedChineseTranscribedFromPhoto": "今天星期几？",
+      "blindHighestConfidenceChinese": {
+        "mode": "threshold",
+        "crop": {
+          "x0": 130,
+          "y0": 1039,
+          "x1": 1200,
+          "y1": 1101
+        },
+        "ms": 19,
+        "text": "今天 星期 儿 ? (20)\n",
+        "confidence": 77,
+        "method": "english-bbox-right"
+      },
+      "exactChineseIgnoringPunctuation": false,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "scale": 1,
+        "gray": true,
+        "text": "今天 星期 几 ?\n",
+        "confidence": 43,
+        "method": "center-band"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 767,
+            "y0": 950,
+            "x1": 1200,
+            "y1": 1056
+          },
+          "ms": 58,
+          "text": "|\n",
+          "confidence": 6,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 767,
+            "y0": 950,
+            "x1": 1200,
+            "y1": 1056
+          },
+          "ms": 6,
+          "text": "、\n",
+          "confidence": 0,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 130,
+            "y0": 1039,
+            "x1": 1200,
+            "y1": 1101
+          },
+          "ms": 158,
+          "text": "ia TI\n",
+          "confidence": 20,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 130,
+            "y0": 1039,
+            "x1": 1200,
+            "y1": 1101
+          },
+          "ms": 19,
+          "text": "今天 星期 儿 ? (20)\n",
+          "confidence": 77,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "|\n",
+          "confidence": 0,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "含 天 是 期 才 ?\n",
+          "confidence": 47,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "ER\n",
+          "confidence": 27,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "念 天 在 期 杞 ?\n",
+          "confidence": 45,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "到 天 于 其 二 FRR\n",
+          "confidence": 14,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "今天 星期 几 ?\n",
+          "confidence": 43,
+          "method": "center-band"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 13,
+          "scale": 0.4,
+          "psm": "6",
+          "text": "含 天 是 期 才 ?\n",
+          "confidence": 47,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 13,
+          "scale": 0.4,
+          "psm": "7",
+          "text": "含 天 是 期 才 ?\n",
+          "confidence": 47,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 13,
+          "scale": 0.4,
+          "psm": "13",
+          "text": "RD\n",
+          "confidence": 37,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 13,
+          "scale": 0.65,
+          "psm": "6",
+          "text": "今天 旦 期 J?\n",
+          "confidence": 39,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 13,
+          "scale": 0.65,
+          "psm": "7",
+          "text": "念 天 在 期 杞 ?\n",
+          "confidence": 45,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 13,
+          "scale": 0.65,
+          "psm": "13",
+          "text": "FE\n",
+          "confidence": 47,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 13,
+          "scale": 1,
+          "psm": "6",
+          "text": "量 上 朋\n今天 旦 期 几 ?\n",
+          "confidence": 41,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 13,
+          "scale": 1,
+          "psm": "7",
+          "text": "今天 星期 几 ?\n",
+          "confidence": 43,
+          "method": "center-band-psm"
+        },
+        {
+          "langs": [
+            "chi_sim"
+          ],
+          "p": 1,
+          "i": 13,
+          "scale": 1,
+          "psm": "13",
+          "text": "KENJIT\n",
+          "confidence": 0,
+          "method": "center-band-psm"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "cinema",
+      "englishCandidateFromPriorReport": "cinema",
+      "englishBboxAt1600Height": {
+        "x0": 143,
+        "y0": 1111,
+        "x1": 347,
+        "y1": 1158
+      },
+      "expectedChineseTranscribedFromPhoto": "电影院",
+      "blindHighestConfidenceChinese": {
+        "mode": "threshold",
+        "crop": {
+          "x0": 357,
+          "y0": 1091,
+          "x1": 1200,
+          "y1": 1166
+        },
+        "ms": 11,
+        "text": "电影 院 (28)\n",
+        "confidence": 86,
+        "method": "english-bbox-right"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "mode": "threshold",
+        "crop": {
+          "x0": 357,
+          "y0": 1091,
+          "x1": 1200,
+          "y1": 1166
+        },
+        "ms": 11,
+        "text": "电影 院 (28)\n",
+        "confidence": 86,
+        "method": "english-bbox-right"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 357,
+            "y0": 1091,
+            "x1": 1200,
+            "y1": 1166
+          },
+          "ms": 119,
+          "text": "9\n",
+          "confidence": 17,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 357,
+            "y0": 1091,
+            "x1": 1200,
+            "y1": 1166
+          },
+          "ms": 11,
+          "text": "电影 院 (28)\n",
+          "confidence": 86,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "区\n",
+          "confidence": 16,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "电影 院 .、-\n",
+          "confidence": 64,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "有\n",
+          "confidence": 8,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "电影 院\n",
+          "confidence": 71,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "TY\n",
+          "confidence": 20,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "电影 院\n",
+          "confidence": 77,
+          "method": "center-band"
+        }
+      ],
+      "manualCropCandidates": []
+    },
+    {
+      "photo": "20261004-141249.jpg",
+      "english": "after school",
+      "englishCandidateFromPriorReport": "after school",
+      "englishBboxAt1600Height": {
+        "x0": 144,
+        "y0": 1176,
+        "x1": 478,
+        "y1": 1228
+      },
+      "expectedChineseTranscribedFromPhoto": "放学后",
+      "blindHighestConfidenceChinese": {
+        "scale": 1,
+        "gray": true,
+        "text": "放学 后\n",
+        "confidence": 96,
+        "method": "center-band"
+      },
+      "exactChineseIgnoringPunctuation": true,
+      "correctCandidateExistsInSweep": true,
+      "bestCorrectCandidateForDiagnosticOnly": {
+        "scale": 1,
+        "gray": true,
+        "text": "放学 后\n",
+        "confidence": 96,
+        "method": "center-band"
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "crop": {
+            "x0": 488,
+            "y0": 1156,
+            "x1": 1200,
+            "y1": 1258
+          },
+          "ms": 95,
+          "text": "ie\n",
+          "confidence": 21,
+          "method": "english-bbox-right"
+        },
+        {
+          "mode": "threshold",
+          "crop": {
+            "x0": 488,
+            "y0": 1156,
+            "x1": 1200,
+            "y1": 1258
+          },
+          "ms": 11,
+          "text": "“放学 后 C8)\n",
+          "confidence": 81,
+          "method": "english-bbox-right"
+        },
+        {
+          "scale": 0.4,
+          "gray": false,
+          "text": "|\n",
+          "confidence": 44,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.4,
+          "gray": true,
+          "text": "放学 后\n",
+          "confidence": 94,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": false,
+          "text": "BE\n",
+          "confidence": 36,
+          "method": "center-band"
+        },
+        {
+          "scale": 0.65,
+          "gray": true,
+          "text": "放学 后\n",
+          "confidence": 95,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": false,
+          "text": "[El\n",
+          "confidence": 30,
+          "method": "center-band"
+        },
+        {
+          "scale": 1,
+          "gray": true,
+          "text": "放学 后\n",
+          "confidence": 96,
+          "method": "center-band"
+        }
+      ],
+      "manualCropCandidates": []
+    }
+  ]
+}

@@ -1,5 +1,39 @@
 {
   "string": [
+    {"name": "media_image_load_failed", "value": "\u56fe\u7247\u52a0\u8f7d\u5931\u8d25\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5"},
+    {"name": "transport_back_ten", "value": "\u5feb\u900010\u79d2"},
+    {"name": "transport_forward_ten", "value": "\u5feb\u8fdb10\u79d2"},
+    {"name": "transport_play", "value": "\u64ad\u653e"},
+    {"name": "transport_pause", "value": "\u6682\u505c"},
+    {"name": "transport_landscape", "value": "\u5207\u6362\u6a2a\u5c4f"},
+    {"name": "transport_portrait", "value": "\u9000\u51fa\u6a2a\u5c4f"},
+    {"name": "transport_progress", "value": "\u64ad\u653e\u8fdb\u5ea6"},
+    {"name": "media_video_public_loading", "value": "\u6b63\u5728\u901a\u8fc7\u516c\u7f51\u51c6\u5907\u89c6\u9891"},
+    {"name": "media_video_public_mode", "value": "\u516c\u7f51\u64ad\u653e"},
+    {"name": "media_delete_button", "value": "\u5220\u9664"},
+    {"name": "media_delete_image_action", "value": "\u5220\u9664\u5f53\u524d\u56fe\u7247"},
+    {"name": "media_library_remove_title", "value": "\u786e\u8ba4\u4ece\u56fe\u5e93\u5220\u9664\u201c%s\u201d\uff1f"},
+    {"name": "media_library_remove_notice", "value": "\u8fd9\u5f20\u56fe\u7247\u5c06\u4ece\u5a92\u4f53\u5e93\u5217\u8868\u79fb\u9664\u3002"},
+    {"name": "connection_mode_lan", "value": "\u5c40\u57df\u7f51"},
+    {"name": "connection_mode_ipv6", "value": "IPv6 \u76f4\u8fde"},
+    {"name": "connection_mode_public", "value": "\u516c\u7f51"},
+    {"name": "connection_mode_current", "value": "\u5f53\u524d\u4f7f\u7528\u7684\u8fde\u63a5\u6a21\u5f0f"},
+    {"name": "media_loaded_count", "value": "\u5df2\u5c55\u793a %d/%d \u4e2a\u5a92\u4f53"},
+    {"name": "media_directory_empty", "value": "\u76ee\u5f55\u4e2d\u6ca1\u6709\u7b26\u5408\u6761\u4ef6\u7684\u5a92\u4f53"},
+    {"name": "media_directory_loaded", "value": "\u5df2\u52a0\u8f7d %d \u4e2a\u6587\u4ef6 \u00b7 %s"},
+    { "name": "reader_cache_ready", "value": "\u5df2\u7f13\u5b58\u5230\u672c\u5730" },
+    { "name": "reader_cache_chapters_ready", "value": "\u5df2\u7f13\u5b58\u5f53\u524d\u53ca\u540e\u7eed\u7ae0\u8282" },
+    { "name": "reader_cache_loading", "value": "\u6b63\u5728\u7f13\u5b58\u5230\u672c\u5730\u2026" },
+    { "name": "reader_cache_pending", "value": "\u7b49\u5f85\u7f13\u5b58" },
+    { "name": "reader_cache_failed", "value": "\u7f13\u5b58\u5931\u8d25\uff0c\u6253\u5f00\u65f6\u91cd\u8bd5" },
+    { "name": "reader_open_empty", "value": "\u56fe\u4e66\u6ca1\u6709\u53ef\u663e\u793a\u7684\u5185\u5bb9" },
+    { "name": "reader_open_back", "value": "\u8fd4\u56de\u4e66\u67b6" },
+    { "name": "reader_open_downloading", "value": "\u6b63\u5728\u4e0b\u8f7d\u56fe\u4e66" },
+    { "name": "reader_open_preparing", "value": "\u6b63\u5728\u51c6\u5907\u6b63\u6587\u2026" },
+    {
+      "name": "download_clipboard_permission_reason",
+      "value": "用于自动填入一分钟内复制的下载链接"
+    },
     {
       "name": "adaptation_legacy_style",
       "value": "历史版本（未使用模板）"
@@ -382,7 +416,7 @@
     },
     {
       "name": "image_reference_limit",
-      "value": "张 / 每张 ≤ 1 MB"
+      "value": "张 / 大图自动适配，原图不变"
     },
     {
       "name": "image_style_title",
@@ -559,6 +593,2178 @@
     {
       "name": "image_style_name_food_photo",
       "value": "美食摄影"
-    }
+    },
+    {
+      "name": "pdf_tools",
+      "value": "PDF 工具"
+    },
+    {
+      "name": "pdf_subtitle",
+      "value": "生成、转换、分割与合并"
+    },
+    {
+      "name": "pdf_search",
+      "value": "搜索 PDF 功能"
+    },
+    {
+      "name": "pdf_history",
+      "value": "任务记录"
+    },
+    {
+      "name": "pdf_generate",
+      "value": "生成 PDF"
+    },
+    {
+      "name": "pdf_export",
+      "value": "PDF 转出"
+    },
+    {
+      "name": "pdf_organize",
+      "value": "整理 PDF"
+    },
+    {
+      "name": "pdf_images",
+      "value": "图片生成"
+    },
+    {
+      "name": "pdf_text",
+      "value": "文本生成"
+    },
+    {
+      "name": "pdf_markdown",
+      "value": "Markdown 生成"
+    },
+    {
+      "name": "pdf_to_images",
+      "value": "转图片"
+    },
+    {
+      "name": "pdf_to_text",
+      "value": "提取文本"
+    },
+    {
+      "name": "pdf_cut",
+      "value": "页面裁切"
+    },
+    {
+      "name": "pdf_split",
+      "value": "拆分文件"
+    },
+    {
+      "name": "pdf_merge",
+      "value": "合并 PDF"
+    },
+    {
+      "name": "pdf_pick",
+      "value": "选择文件"
+    },
+    {
+      "name": "pdf_preview",
+      "value": "查看预览"
+    },
+    {
+      "name": "pdf_start",
+      "value": "开始处理"
+    },
+    {
+      "name": "pdf_save",
+      "value": "保存到设备"
+    },
+    {
+      "name": "pdf_back",
+      "value": "返回"
+    },
+    {
+      "name": "pdf_source",
+      "value": "文件会上传到 MyTools 处理，原文件不变。"
+    },
+    {
+      "name": "pdf_empty",
+      "value": "选择文件或输入内容开始"
+    },
+    {
+      "name": "pdf_unavailable",
+      "value": "PDF 工具暂不可用，请稍后重试"
+    },
+    {
+      "name": "pdf_retry",
+      "value": "重试"
+    },
+    {
+      "name": "pdf_text_placeholder",
+      "value": "输入需要排版的内容"
+    },
+    {
+      "name": "pdf_ranges",
+      "value": "页码范围，例如 1-3,5；留空为全部"
+    },
+    {
+      "name": "pdf_vertical",
+      "value": "左右分割"
+    },
+    {
+      "name": "pdf_horizontal",
+      "value": "上下分割"
+    },
+    {
+      "name": "pdf_reverse",
+      "value": "反向阅读顺序"
+    },
+    {
+      "name": "pdf_position",
+      "value": "分割位置"
+    },
+    {
+      "name": "pdf_count",
+      "value": "每个文件的页数"
+    },
+    {
+      "name": "pdf_page_size",
+      "value": "纸张大小"
+    },
+    {
+      "name": "pdf_fit",
+      "value": "完整显示"
+    },
+    {
+      "name": "pdf_fill",
+      "value": "铺满裁边"
+    },
+    {
+      "name": "pdf_margin",
+      "value": "页边距（毫米）"
+    },
+    {
+      "name": "pdf_dpi",
+      "value": "图片分辨率 DPI"
+    },
+    {
+      "name": "pdf_cancel",
+      "value": "取消处理"
+    },
+    {
+      "name": "pdf_wait",
+      "value": "正在检查或生成预览，可返回后从记录恢复"
+    },
+    {
+      "name": "pdf_done",
+      "value": "处理完成"
+    },
+    {
+      "name": "pdf_saved",
+      "value": "已保存"
+    },
+    {
+      "name": "pdf_remove",
+      "value": "移除"
+    },
+    {
+      "name": "pdf_up",
+      "value": "上移"
+    },
+    {
+      "name": "pdf_down",
+      "value": "下移"
+    },
+    {
+      "name": "pdf_caution",
+      "value": "版面裁切不会安全删除框外内容"
+    },
+    {
+      "name": "pdf_output",
+      "value": "输出文件"
+    },
+    {
+      "name": "pdf_expiry",
+      "value": "有效期至"
+    },
+    {
+      "name": "pdf_previous",
+      "value": "上一页"
+    },
+    {
+      "name": "pdf_next",
+      "value": "下一页"
+    },
+    {
+      "name": "pdf_read",
+      "value": "预览 PDF"
+    },
+    {
+      "name": "pdf_error",
+      "value": "处理失败，请重试或重新选择文件"
+    },
+    {
+      "name": "pdf_error_password",
+      "value": "文件需要密码，请先使用已解锁的副本"
+    },
+    {
+      "name": "pdf_error_features",
+      "value": "此版本暂不支持该文件的签名、表单或注释"
+    },
+    {
+      "name": "pdf_error_ocr",
+      "value": "部分页面没有文字层，需要 OCR；当前不提供识别"
+    },
+    {
+      "name": "pdf_error_limit",
+      "value": "文件、页数或输出超过限制，请缩小范围"
+    },
+    {
+      "name": "pdf_error_expired",
+      "value": "资源已过期，请重新选择文件"
+    },
+    {
+      "name": "pdf_error_range",
+      "value": "页码或设置无效，请检查"
+    },
+    {
+      "name": "pdf_no_history",
+      "value": "还没有处理记录"
+    },
+    {
+      "name": "pdf_page_numbers",
+      "value": "显示页码"
+    },
+    {
+      "name": "pdf_edit",
+      "value": "返回调整"
+    },
+    {
+      "name": "pdf_result_count",
+      "value": "输出页数"
+    },
+    {
+      "name": "pdf_files_count",
+      "value": "输出文件数"
+    },
+    {
+      "name": "pdf_status_queue",
+      "value": "排队中"
+    },
+    {
+      "name": "pdf_status_running",
+      "value": "处理中"
+    },
+    {
+      "name": "pdf_status_ready",
+      "value": "预览已就绪"
+    },
+    {
+      "name": "pdf_status_failed",
+      "value": "处理失败"
+    },
+    {
+      "name": "pdf_status_cancelled",
+      "value": "已取消"
+    },
+    {
+      "name": "pdf_status_cancelling",
+      "value": "正在取消"
+    },
+    {
+      "name": "pdf_upload",
+      "value": "正在上传"
+    },
+    {
+      "name": "pdf_all",
+      "value": "全部页面"
+    },
+    {
+      "name": "pdf_select_mode",
+      "value": "选择功能"
+    },
+    {
+      "name": "pdf_open",
+      "value": "打开"
+    },
+    {
+      "name": "pdf_cancelled",
+      "value": "已取消选择"
+    },
+    {
+      "name": "pdf_plan_history",
+      "value": "处理中的计划"
+    },
+    {
+      "name": "pdf_input_count",
+      "value": "已选文件"
+    },
+    {
+      "name": "pdf_split_hint",
+      "value": "范围分组用分号分隔，例如 1-3;4-6；留空按固定页数"
+    },
+    {
+      "name": "pdf_groups",
+      "value": "拆分范围分组"
+    },
+    {
+      "name": "pdf_preview_limit",
+      "value": "预览展示前 40 页，下载包含完整结果"
+    },
+    {
+      "name": "pdf_no_preview",
+      "value": "此结果可直接保存，暂不提供页面预览"
+    },
+    {
+      "name": "pdf_add_attachment",
+      "value": "添加图片附件"
+    },
+    {
+      "name": "pdf_insert_attachment",
+      "value": "插入图片"
+    },
+    {
+      "name": "pdf_fill_warning",
+      "value": "铺满会裁去超出纸张边距的图像，请在预览中确认。"
+    },
+    {
+      "name": "pdf_metadata_warning",
+      "value": "输出不保留原文档的书签或文档级格式声明，请核对预览。"
+    },
+    {
+      "name": "download_chat_title",
+      "value": "下载工具"
+    },
+    {
+      "name": "download_chat_subtitle",
+      "value": "下载、打标签与自动归档"
+    },
+    {
+      "name": "download_chat_refresh",
+      "value": "刷新"
+    },
+    {
+      "name": "download_chat_no_match",
+      "value": "未匹配到下载规则或消息中没有可处理内容，本次未创建下载任务。"
+    },
+    {
+      "name": "download_chat_incomplete",
+      "value": "文件尚未上传完成，请重新选择文件发送。"
+    },
+    {
+      "name": "download_chat_expired",
+      "value": "上传已过期，请重新选择文件。"
+    },
+    {
+      "name": "download_chat_cancelled",
+      "value": "下载处理已取消。"
+    },
+    {
+      "name": "download_chat_cancelling",
+      "value": "正在取消处理，请稍候。"
+    },
+    {
+      "name": "download_chat_received",
+      "value": "已收到消息，正在按下载规则处理。"
+    },
+    {
+      "name": "download_chat_media_received",
+      "value": "文件已收到，已跳过外链下载，正在入库、打标签和归档。"
+    },
+    {
+      "name": "download_chat_job_failed",
+      "value": "下载未完成，暂未返回成功归档的文件。"
+    },
+    {
+      "name": "download_chat_partial_done",
+      "value": "已有文件下载并归档，但本次任务仍有部分处理未完成。已保存文件和标签状态如下。"
+    },
+    {
+      "name": "download_chat_dedup",
+      "value": "处理完成，没有新增文件（内容可能已处理）。"
+    },
+    {
+      "name": "download_chat_tagged",
+      "value": "下载与标签已完成"
+    },
+    {
+      "name": "download_chat_done",
+      "value": "下载处理已完成"
+    },
+    {
+      "name": "download_chat_tags_skipped",
+      "value": "已跳过（文件不支持）"
+    },
+    {
+      "name": "download_chat_tags_failed",
+      "value": "失败（文件已保存）"
+    },
+    {
+      "name": "download_chat_tags_pending",
+      "value": "处理中"
+    },
+    {
+      "name": "download_chat_size",
+      "value": "大小："
+    },
+    {
+      "name": "download_chat_tags",
+      "value": "标签："
+    },
+    {
+      "name": "download_chat_archive",
+      "value": "归档位置："
+    },
+    {
+      "name": "download_chat_welcome",
+      "value": "把链接发给我，我会下载、打标签并归档。也可以点“＋”发送本地文件、图片或视频，已上传的内容直接进入后续处理。单文件最大 512 MB。"
+    },
+    {
+      "name": "download_chat_sending",
+      "value": "正在发送，请稍候…"
+    },
+    {
+      "name": "download_chat_retry_hint",
+      "value": "发送未完成，可重试。"
+    },
+    {
+      "name": "download_chat_retry",
+      "value": "重试"
+    },
+    {
+      "name": "download_chat_discard",
+      "value": "放弃"
+    },
+    {
+      "name": "download_chat_attach",
+      "value": "添加图片、视频或文件"
+    },
+    {
+      "name": "download_chat_placeholder",
+      "value": "链接或消息…"
+    },
+    {
+      "name": "download_chat_send",
+      "value": "发送"
+    },
+    {
+      "name": "download_chat_photos",
+      "value": "图片 / 视频"
+    },
+    {
+      "name": "download_chat_files",
+      "value": "本地文件"
+    },
+    {
+      "name": "download_chat_cancel",
+      "value": "取消处理"
+    },
+    {
+      "name": "download_chat_unavailable",
+      "value": "暂时无法获取回复，请稍后刷新。"
+    },
+    {
+      "name": "download_chat_failed",
+      "value": "发送未完成，请检查网络后重试。"
+    },
+    {
+      "name": "download_chat_invalid",
+      "value": "无法发送：请检查链接、文件格式或大小（最大 512 MB）。"
+    },
+    {
+      "name": "qr_back",
+      "value": "返回"
+    },
+    {
+      "name": "qr_title",
+      "value": "二维码"
+    },
+    {
+      "name": "qr_generate",
+      "value": "生成二维码"
+    },
+    {
+      "name": "qr_placeholder",
+      "value": "输入要分享的链接或文字…"
+    },
+    {
+      "name": "qr_generate_action",
+      "value": "生成二维码"
+    },
+    {
+      "name": "qr_save",
+      "value": "保存 PNG 图片"
+    },
+    {
+      "name": "qr_recognize",
+      "value": "识别二维码"
+    },
+    {
+      "name": "qr_camera",
+      "value": "扫一扫"
+    },
+    {
+      "name": "qr_photo",
+      "value": "选择图片"
+    },
+    {
+      "name": "qr_copy",
+      "value": "复制内容"
+    },
+    {
+      "name": "qr_input_invalid",
+      "value": "请输入内容，且 UTF-8 长度不超过 2950 字节。"
+    },
+    {
+      "name": "qr_generate_failed",
+      "value": "生成失败，请调整内容后重试。"
+    },
+    {
+      "name": "qr_no_result",
+      "value": "图片中未识别到二维码。"
+    },
+    {
+      "name": "qr_scan_failed",
+      "value": "未完成识别，请重试或选择清晰的二维码图片。"
+    },
+    {
+      "name": "qr_saved",
+      "value": "二维码图片已保存。"
+    },
+    {
+      "name": "qr_save_failed",
+      "value": "保存失败，请重新选择保存位置。"
+    },
+    {
+      "name": "qr_copied",
+      "value": "已复制识别内容。"
+    },
+    {
+      "name": "qr_copy_failed",
+      "value": "复制失败，请重试。"
+    },
+    {
+      "name": "archive_title",
+      "value": "解压工具"
+    },
+    {
+      "name": "archive_back",
+      "value": "返回"
+    },
+    {
+      "name": "archive_files",
+      "value": "文件"
+    },
+    {
+      "name": "archive_history",
+      "value": "解压记录"
+    },
+    {
+      "name": "archive_vault",
+      "value": "密码库"
+    },
+    {
+      "name": "archive_choose_hint",
+      "value": "选择一个压缩文件"
+    },
+    {
+      "name": "archive_formats",
+      "value": "本机处理 ZIP · 7z · RAR · TAR · GZIP / TGZ"
+    },
+    {
+      "name": "archive_choose",
+      "value": "选择压缩文件"
+    },
+    {
+      "name": "archive_auto",
+      "value": "自动尝试历史密码"
+    },
+    {
+      "name": "archive_password_hint",
+      "value": "本次密码（优先尝试，可不填）"
+    },
+    {
+      "name": "archive_password_notice",
+      "value": "实际使用过的密码会加密保存在本机，包括未匹配成功的密码。"
+    },
+    {
+      "name": "archive_unlock",
+      "value": "解锁并预览"
+    },
+    {
+      "name": "archive_preview",
+      "value": "文件预览"
+    },
+    {
+      "name": "archive_select_all",
+      "value": "全选 / 清空"
+    },
+    {
+      "name": "archive_search",
+      "value": "搜索包内文件"
+    },
+    {
+      "name": "archive_encrypted",
+      "value": "已加密"
+    },
+    {
+      "name": "archive_more",
+      "value": "显示更多"
+    },
+    {
+      "name": "archive_output_notice",
+      "value": "结果先保存到当前账户的本机解压记录，完成后可选择文件导出至系统位置。"
+    },
+    {
+      "name": "archive_extract",
+      "value": "解压选中文件"
+    },
+    {
+      "name": "archive_done",
+      "value": "解压完成，已保存至本机解压记录。"
+    },
+    {
+      "name": "archive_result_location",
+      "value": "本机解压记录 · 原压缩包保持不变"
+    },
+    {
+      "name": "archive_export",
+      "value": "导出"
+    },
+    {
+      "name": "archive_exported",
+      "value": "文件已导出至所选位置。"
+    },
+    {
+      "name": "archive_delete_result",
+      "value": "删除解压结果"
+    },
+    {
+      "name": "archive_delete_notice",
+      "value": "删除该任务的本机解压文件与记录，已导出的文件不受影响。"
+    },
+    {
+      "name": "archive_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "archive_delete",
+      "value": "删除"
+    },
+    {
+      "name": "archive_history_empty",
+      "value": "暂无解压记录"
+    },
+    {
+      "name": "archive_vault_notice",
+      "value": "当前账户的密码仅加密保存在本机。查看需验证本机身份，15 秒后自动隐藏。"
+    },
+    {
+      "name": "archive_vault_empty",
+      "value": "暂无使用过的密码"
+    },
+    {
+      "name": "archive_reveal",
+      "value": "查看"
+    },
+    {
+      "name": "archive_reveal_title",
+      "value": "验证身份以查看解压密码"
+    },
+    {
+      "name": "archive_auth_failed",
+      "value": "无法完成本机身份验证，请先设置锁屏密码。"
+    },
+    {
+      "name": "archive_attempts",
+      "value": "尝试"
+    },
+    {
+      "name": "archive_successes",
+      "value": "成功"
+    },
+    {
+      "name": "archive_unverified",
+      "value": "尚未验证成功"
+    },
+    {
+      "name": "archive_clear",
+      "value": "清空当前密码库"
+    },
+    {
+      "name": "archive_clear_confirm",
+      "value": "确认清空全部密码"
+    },
+    {
+      "name": "archive_paused",
+      "value": "匹配已暂停，继续后从下一条开始"
+    },
+    {
+      "name": "archive_working",
+      "value": "正在处理，请稍候"
+    },
+    {
+      "name": "archive_matching",
+      "value": "密码尝试"
+    },
+    {
+      "name": "archive_continue",
+      "value": "继续匹配"
+    },
+    {
+      "name": "archive_001",
+      "value": "无法读取该格式或压缩算法，文件也可能已损坏。"
+    },
+    {
+      "name": "archive_002",
+      "value": "需要解压密码，请输入密码或开启历史密码匹配。"
+    },
+    {
+      "name": "archive_003",
+      "value": "已有密码均未匹配成功，请补充正确密码。"
+    },
+    {
+      "name": "archive_004",
+      "value": "密码或数据校验失败，压缩包可能已损坏。"
+    },
+    {
+      "name": "archive_005",
+      "value": "压缩包数据不完整或缺少分卷，暂不支持分卷解压。"
+    },
+    {
+      "name": "archive_006",
+      "value": "超过限制：输入最大 500 MB、文件最多 5000 个、展开总量最大 300 MB。"
+    },
+    {
+      "name": "archive_007",
+      "value": "设备空间不足，请清理空间后重试。"
+    },
+    {
+      "name": "archive_008",
+      "value": "无法访问文件或保存位置，请重新选择。"
+    },
+    {
+      "name": "archive_009",
+      "value": "压缩包含不安全路径、链接或冲突文件名，已停止处理。"
+    },
+    {
+      "name": "archive_010",
+      "value": "任务已取消，未完成的临时文件将被清理。"
+    },
+    {
+      "name": "archive_011",
+      "value": "处理失败，请重试。"
+    },
+    {
+      "name": "archive_012",
+      "value": "密码库不可用或保存失败。本次可手动解压，密码尚未可靠保存。"
+    },
+    {
+      "name": "archive_license",
+      "value": "开源许可"
+    },
+    {
+      "name": "archive_export_all",
+      "value": "批量导出文件"
+    },
+    {
+      "name": "archive_flat_export_notice",
+      "value": "将全部文件保存到同一位置，文件名前加序号以区分同名文件，不保留文件夹层级。"
+    },
+    {
+      "name": "archive_export_folder",
+      "value": "保留目录结构导出"
+    },
+    {
+      "name": "archive_folder_exported",
+      "value": "已导出至新文件夹："
+    },
+    {
+      "name": "archive_partial_export",
+      "value": "已完成文件会保留；中断项请检查目标位置。已完成："
+    },
+    {
+      "name": "archive_preserved_folders",
+      "value": "已保留文件夹："
+    },
+    {
+      "name": "archive_folder_prefix",
+      "value": "文件夹 · "
+    },
+    {
+      "name": "archive_selected",
+      "value": "已选"
+    },
+    {
+      "name": "archive_export_progress",
+      "value": "正在导出"
+    },
+    {
+      "name": "pdf_local_cut",
+      "value": "页面对半切"
+    },
+    {
+      "name": "pdf_local_pages",
+      "value": "页"
+    },
+    {
+      "name": "pdf_local_subtitle",
+      "value": "本机处理 · 文件无需上传"
+    },
+    {
+      "name": "pdf_local_error_file",
+      "value": "无法读取文件，请重新选择有效文件。"
+    },
+    {
+      "name": "pdf_local_password_error",
+      "value": "密码不正确，请重试。"
+    },
+    {
+      "name": "pdf_local_limit",
+      "value": "超过本机处理限制：文件不超过 100 MB、500 页；单张导出图不超过 1200 万像素。请减少页数或降低 DPI。"
+    },
+    {
+      "name": "pdf_local_write_error",
+      "value": "结果保存或校验失败，请检查可用空间后重试。"
+    },
+    {
+      "name": "pdf_local_markdown_limit",
+      "value": "基础 Markdown 暂不支持表格、HTML 和图片，请移除这些内容后重试。"
+    },
+    {
+      "name": "pdf_local_cancel_first",
+      "value": "正在处理，可先点击取消。"
+    },
+    {
+      "name": "pdf_local_preview_error",
+      "value": "缩略图加载失败，可点击阅读检查实际文件。"
+    },
+    {
+      "name": "pdf_local_cloud_error",
+      "value": "云端记录读取失败，请检查登录状态与网络。本机功能仍可使用。"
+    },
+    {
+      "name": "pdf_local_add_file",
+      "value": "选择 / 添加文件"
+    },
+    {
+      "name": "pdf_local_up",
+      "value": "上移"
+    },
+    {
+      "name": "pdf_local_down",
+      "value": "下移"
+    },
+    {
+      "name": "pdf_local_cut_hint",
+      "value": "按视觉方向切分，保留文字与矢量内容"
+    },
+    {
+      "name": "pdf_local_scope",
+      "value": "应用到"
+    },
+    {
+      "name": "pdf_local_all",
+      "value": "全部页面"
+    },
+    {
+      "name": "pdf_local_order",
+      "value": "输出顺序"
+    },
+    {
+      "name": "pdf_local_grouped",
+      "value": "先全部左 / 上，再右 / 下"
+    },
+    {
+      "name": "pdf_local_per_page",
+      "value": "逐页：左 → 右 / 上 → 下"
+    },
+    {
+      "name": "pdf_local_original",
+      "value": "原页"
+    },
+    {
+      "name": "pdf_local_left",
+      "value": "左"
+    },
+    {
+      "name": "pdf_local_right",
+      "value": "右"
+    },
+    {
+      "name": "pdf_local_top",
+      "value": "上"
+    },
+    {
+      "name": "pdf_local_bottom",
+      "value": "下"
+    },
+    {
+      "name": "pdf_local_preview_hint",
+      "value": "以上为页序示意，生成后可阅读实际页面。"
+    },
+    {
+      "name": "pdf_local_markdown_hint",
+      "value": "支持基础标题、段落、列表、代码文字和链接文字；不加载远程资源。"
+    },
+    {
+      "name": "pdf_local_image_fit",
+      "value": "每张图片一页，等比居中，不裁掉图片内容。"
+    },
+    {
+      "name": "pdf_local_scope_hint",
+      "value": "留空表示全部页。例：1,3-5。未选中页面保留完整原页。"
+    },
+    {
+      "name": "pdf_local_group_hint",
+      "value": "分组顺序下，未切分的原页放在末尾。"
+    },
+    {
+      "name": "pdf_local_password",
+      "value": "打开加密 PDF"
+    },
+    {
+      "name": "pdf_local_password_hint",
+      "value": "密码仅用于当前会话"
+    },
+    {
+      "name": "pdf_local_unlock",
+      "value": "解锁并导入"
+    },
+    {
+      "name": "pdf_local_apply",
+      "value": "应用"
+    },
+    {
+      "name": "pdf_local_back",
+      "value": "返回"
+    },
+    {
+      "name": "pdf_local_history",
+      "value": "本机结果"
+    },
+    {
+      "name": "pdf_local_cloud",
+      "value": "云端旧记录"
+    },
+    {
+      "name": "pdf_local_processing",
+      "value": "正在本机处理，请保持页面打开"
+    },
+    {
+      "name": "pdf_local_result_hint",
+      "value": "已保存在应用内，原文件未覆盖。可阅读后另存到文件。"
+    },
+    {
+      "name": "pdf_local_reset",
+      "value": "重置"
+    },
+    {
+      "name": "pdf_local_generate",
+      "value": "生成并查看结果"
+    },
+    {
+      "name": "image_style_optional",
+      "value": "可选"
+    },
+    {
+      "name": "image_style_natural",
+      "value": "保持原意"
+    },
+    {
+      "name": "image_style_natural_hint",
+      "value": "按画面描述生成，不叠加风格"
+    },
+    {
+      "name": "image_style_change",
+      "value": "挑选风格"
+    },
+    {
+      "name": "image_style_clear",
+      "value": "清除风格"
+    },
+    {
+      "name": "image_style_applied_hint",
+      "value": "生成时自动融入所选风格"
+    },
+    {
+      "name": "image_style_library",
+      "value": "风格库"
+    },
+    {
+      "name": "image_style_detail_title",
+      "value": "风格详情"
+    },
+    {
+      "name": "image_style_edit_title",
+      "value": "编辑我的风格"
+    },
+    {
+      "name": "image_style_back",
+      "value": "返回风格库"
+    },
+    {
+      "name": "image_style_search",
+      "value": "搜索风格名称或效果"
+    },
+    {
+      "name": "image_style_count_unit",
+      "value": "种风格"
+    },
+    {
+      "name": "image_style_custom_description",
+      "value": "自定义的画面风格与表现方式"
+    },
+    {
+      "name": "image_style_detail_hint",
+      "value": "风格会与画面描述一起应用。实际效果会随主体、模型和参数变化。"
+    },
+    {
+      "name": "image_style_incompatible",
+      "value": "当前模型或创作方式不支持此风格"
+    },
+    {
+      "name": "image_style_hide_prompt",
+      "value": "收起提示词预览"
+    },
+    {
+      "name": "image_style_prompt_preview",
+      "value": "查看合成提示词"
+    },
+    {
+      "name": "image_style_template_label",
+      "value": "风格模板"
+    },
+    {
+      "name": "image_style_copy_mine",
+      "value": "复制到我的风格"
+    },
+    {
+      "name": "image_style_empty_mine",
+      "value": "还没有自定义风格，可从内置风格复制或新建。"
+    },
+    {
+      "name": "image_style_empty_search",
+      "value": "没有找到匹配风格，试试其他关键词或分类。"
+    },
+    {
+      "name": "image_style_candidate",
+      "value": "当前候选"
+    },
+    {
+      "name": "image_style_apply",
+      "value": "应用风格"
+    },
+    {
+      "name": "image_style_saving",
+      "value": "正在保存…"
+    },
+    {
+      "name": "image_style_category_all",
+      "value": "全部"
+    },
+    {
+      "name": "image_style_category_photo",
+      "value": "摄影"
+    },
+    {
+      "name": "image_style_category_paint",
+      "value": "绘画"
+    },
+    {
+      "name": "image_style_category_illustration",
+      "value": "插画"
+    },
+    {
+      "name": "image_style_category_craft",
+      "value": "立体与手作"
+    },
+    {
+      "name": "image_style_category_design",
+      "value": "设计"
+    },
+    {
+      "name": "image_style_category_user",
+      "value": "我的"
+    },
+    {
+      "name": "image_style_desc_watercolor",
+      "value": "透明晕染 · 纸张肌理"
+    },
+    {
+      "name": "image_style_desc_impressionist",
+      "value": "松散笔触 · 光色交融"
+    },
+    {
+      "name": "image_style_desc_pointillism",
+      "value": "细密色点 · 颗粒层次"
+    },
+    {
+      "name": "image_style_desc_art_deco",
+      "value": "几何秩序 · 复古装饰"
+    },
+    {
+      "name": "image_style_desc_art_nouveau",
+      "value": "流动曲线 · 植物纹样"
+    },
+    {
+      "name": "image_style_desc_pop_art",
+      "value": "明快撞色 · 流行海报"
+    },
+    {
+      "name": "image_style_desc_surrealist",
+      "value": "梦境意象 · 奇异组合"
+    },
+    {
+      "name": "image_style_desc_anime",
+      "value": "动漫线条 · 鲜明色彩"
+    },
+    {
+      "name": "image_style_desc_comic",
+      "value": "粗线轮廓 · 漫画叙事"
+    },
+    {
+      "name": "image_style_desc_line_art",
+      "value": "清晰勾线 · 简洁留白"
+    },
+    {
+      "name": "image_style_desc_digital_art",
+      "value": "数字绘画 · 丰富细节"
+    },
+    {
+      "name": "image_style_desc_fantasy",
+      "value": "幻想场景 · 魔法氛围"
+    },
+    {
+      "name": "image_style_desc_pixel",
+      "value": "像素颗粒 · 复古游戏"
+    },
+    {
+      "name": "image_style_desc_isometric",
+      "value": "等距视角 · 微缩场景"
+    },
+    {
+      "name": "image_style_desc_low_poly",
+      "value": "几何切面 · 低多边形"
+    },
+    {
+      "name": "image_style_desc_clay",
+      "value": "柔软黏土 · 手塑质感"
+    },
+    {
+      "name": "image_style_desc_origami",
+      "value": "折纸结构 · 清晰折痕"
+    },
+    {
+      "name": "image_style_desc_paper_cut",
+      "value": "层叠纸片 · 剪纸深度"
+    },
+    {
+      "name": "image_style_desc_minimalist",
+      "value": "精简元素 · 克制留白"
+    },
+    {
+      "name": "image_style_desc_monochrome",
+      "value": "黑白灰阶 · 光影层次"
+    },
+    {
+      "name": "image_style_desc_photographic",
+      "value": "真实质感 · 自然细节"
+    },
+    {
+      "name": "image_style_desc_analog_film",
+      "value": "胶片颗粒 · 复古色调"
+    },
+    {
+      "name": "image_style_desc_cinematic",
+      "value": "电影光影 · 叙事氛围"
+    },
+    {
+      "name": "image_style_desc_food_photo",
+      "value": "食物细节 · 诱人光线"
+    },
+    {
+      "name": "tool_ui_back",
+      "value": "返回"
+    },
+    {
+      "name": "tool_ui_home_hint",
+      "value": "文件处理与灵感创作，随手开始。"
+    },
+    {
+      "name": "tool_ui_everyday",
+      "value": "文件与实用工具"
+    },
+    {
+      "name": "tool_ui_creative",
+      "value": "影像创作"
+    },
+    {
+      "name": "tool_ui_qr_hint",
+      "value": "生成、扫描与识别，都在设备上完成。"
+    },
+    {
+      "name": "tool_ui_qr_create_title",
+      "value": "把内容变成二维码"
+    },
+    {
+      "name": "tool_ui_qr_create_hint",
+      "value": "输入链接或文字，生成后可保存为图片。"
+    },
+    {
+      "name": "tool_ui_qr_scan_title",
+      "value": "读懂一张二维码"
+    },
+    {
+      "name": "tool_ui_qr_scan_hint",
+      "value": "对准二维码扫描，或从相册选择图片。"
+    },
+    {
+      "name": "tool_ui_qr_result",
+      "value": "识别结果"
+    },
+    {
+      "name": "tool_ui_qr_ready",
+      "value": "二维码已生成"
+    },
+    {
+      "name": "tool_ui_qr_ready_hint",
+      "value": "检查内容后保存，分享给需要的人。"
+    },
+    {
+      "name": "tool_ui_archive_title",
+      "value": "从一个压缩包开始"
+    },
+    {
+      "name": "tool_ui_archive_hint",
+      "value": "选择文件 → 预览内容 → 解压与导出"
+    },
+    {
+      "name": "tool_ui_archive_local",
+      "value": "本机处理"
+    },
+    {
+      "name": "tool_ui_archive_password",
+      "value": "加密与密码"
+    },
+    {
+      "name": "tool_ui_archive_history_hint",
+      "value": "解压完成的文件会显示在这里，方便继续导出。"
+    },
+    {
+      "name": "tool_ui_archive_vault_hint",
+      "value": "使用过的解压密码会保存在本机，帮助下次匹配。"
+    },
+    {
+      "name": "tool_ui_download_intro",
+      "value": "链接交给我，文件帮你整理"
+    },
+    {
+      "name": "tool_ui_download_hint",
+      "value": "发送链接开始下载；发送图片或视频，直接进入标签与归档。"
+    },
+    {
+      "name": "tool_ui_download_photos_hint",
+      "value": "图片 / 视频"
+    },
+    {
+      "name": "tool_ui_download_files_hint",
+      "value": "选择本地文件"
+    },
+    {
+      "name": "tool_ui_video_hint",
+      "value": "先选创作方式，再添加描述与素材。"
+    },
+    {
+      "name": "tool_ui_video_settings",
+      "value": "模型与输出"
+    },
+    {
+      "name": "tool_ui_video_expand",
+      "value": "调整配置"
+    },
+    {
+      "name": "tool_ui_video_collapse",
+      "value": "收起配置"
+    },
+    {
+      "name": "tool_ui_video_mode",
+      "value": "选择创作方式"
+    },
+    {
+      "name": "tool_ui_video_more",
+      "value": "查看全部模式"
+    },
+    {
+      "name": "tool_ui_video_less",
+      "value": "收起更多模式"
+    },
+    {
+      "name": "tool_ui_video_available",
+      "value": "可用"
+    },
+    {
+      "name": "tool_ui_video_unavailable",
+      "value": "暂不可用"
+    },
+    {
+      "name": "tool_ui_video_selected",
+      "value": "已选择"
+    },
+    {
+      "name": "tool_ui_video_pending",
+      "value": "此模式暂不可用，请选择其他模式。"
+    },
+    {
+      "name": "tool_ui_transfer_title",
+      "value": "文件传输"
+    },
+    {
+      "name": "tool_ui_transfer_hint",
+      "value": "连接存储，上传、下载与整理文件。"
+    },
+    {
+      "name": "tool_ui_transfer_root",
+      "value": "根目录"
+    },
+    {
+      "name": "tool_ui_transfer_location",
+      "value": "当前位置"
+    },
+    {
+      "name": "tool_ui_transfer_empty",
+      "value": "这里还没有文件"
+    },
+    {
+      "name": "tool_ui_transfer_empty_hint",
+      "value": "可以上传文件，或新建文件夹整理内容。"
+    },
+    {
+      "name": "tool_ui_download_short",
+      "value": "链接下载与归档"
+    },
+    {
+      "name": "tool_ui_pdf_short",
+      "value": "生成与整理"
+    },
+    {
+      "name": "tool_ui_qr_short",
+      "value": "生成与识别"
+    },
+    {
+      "name": "tool_ui_archive_short",
+      "value": "解压与导出"
+    },
+    {
+      "name": "tool_ui_transfer_short",
+      "value": "上传与下载"
+    },
+    {
+      "name": "tool_ui_image_short",
+      "value": "文字与图片创作"
+    },
+    {
+      "name": "tool_ui_video_short",
+      "value": "让画面动起来"
+    },
+    {
+      "name": "tool_ui_close",
+      "value": "关闭操作"
+    },
+    {
+      "name": "tool_ui_new_folder",
+      "value": "新建文件夹"
+    },
+    {
+      "name": "tool_ui_upload",
+      "value": "上传"
+    },
+    {
+      "name": "tool_ui_refresh",
+      "value": "刷新"
+    },
+    {
+      "name": "qr_edit",
+      "value": "修改内容"
+    },
+    {
+      "name": "qr_image_file",
+      "value": "从文件选择图片"
+    },
+    {
+      "name": "dsh_web_external_timeout",
+      "value": "登录页面准备超时，请关闭登录窗口后重试，或使用“复制登录链接”。"
+    },
+    {
+      "name": "dsh_web_external_blocked",
+      "value": "此链接无法在浏览器中打开，请返回 DSH 检查登录入口。"
+    },
+    {
+      "name": "dsh_web_external_failed",
+      "value": "未能打开浏览器，请使用登录窗口中的“复制登录链接”重试。"
+    },
+    {
+      "name": "dsh_web_loading",
+      "value": "正在连接 DSH"
+    },
+    {
+      "name": "dsh_web_load_timeout",
+      "value": "DSH 加载超过 60 秒，请检查网络后重新连接。"
+    },
+    {
+      "name": "dsh_web_auth_title",
+      "value": "连接你的 DSH"
+    },
+    {
+      "name": "dsh_web_auth_hint",
+      "value": "暂时无法连接 DSH。请确认已登录有访问权限的 MyTools 账号，然后重试。"
+    },
+    {
+      "name": "dsh_web_credential",
+      "value": "连接口令或启动链接"
+    },
+    {
+      "name": "dsh_web_connect",
+      "value": "验证并连接"
+    },
+    {
+      "name": "dsh_web_retry",
+      "value": "重新连接"
+    },
+    {
+      "name": "dsh_web_error_title",
+      "value": "DSH 连接失败"
+    },
+    {
+      "name": "dsh_web_public_fallback",
+      "value": "改用公网连接"
+    },
+    {
+      "name": "dsh_web_upload_title",
+      "value": "添加附件"
+    },
+    {
+      "name": "dsh_web_upload_photos",
+      "value": "图片和视频"
+    },
+    {
+      "name": "dsh_web_upload_files",
+      "value": "本地文件"
+    },
+    {
+      "name": "dsh_web_error",
+      "value": "暂时无法打开 DSH，请检查网络或稍后重试。"
+    },
+    {
+      "name": "reader_shelf_all",
+      "value": "全部"
+    },
+    {
+      "name": "reader_shelf_no_results",
+      "value": "没有匹配的图书"
+    },
+    {
+      "name": "reader_shelf_filter_hint",
+      "value": "试试其他关键词或标签，也可以清除筛选查看全部图书。"
+    },
+    {
+      "name": "reader_shelf_clear_filters",
+      "value": "清除筛选"
+    },
+    {
+      "name": "reader_shelf_unknown_author",
+      "value": "未知作者"
+    },
+    {
+      "name": "reader_shelf_details",
+      "value": "详情"
+    },
+    {
+      "name": "reader_open_catalog",
+      "value": "打开目录或页码"
+    },
+    {
+      "name": "reader_shelf_online_novel",
+      "value": "在线小说"
+    },
+    {
+      "name": "reader_shelf_unknown_format",
+      "value": "其他格式"
+    },
+    {
+      "name": "reader_detail_manage",
+      "value": "管理书籍"
+    },
+    {
+      "name": "reader_detail_preview",
+      "value": "试读"
+    },
+    {
+      "name": "reader_catalog_search",
+      "value": "搜索章节名或输入章节序号"
+    },
+    {
+      "name": "reader_catalog_count",
+      "value": "匹配章节数与全部章节数"
+    },
+    {
+      "name": "reader_catalog_empty",
+      "value": "没有找到对应章节，试试章节名或序号。"
+    },
+    {
+      "name": "reader_catalog_clear",
+      "value": "显示全部章节"
+    },
+    {
+      "name": "reader_catalog_current",
+      "value": "当前"
+    },
+    {
+      "name": "reader_settings_preview",
+      "value": "字体与行距预览"
+    },
+    {
+      "name": "reader_settings_sample",
+      "value": "翻开书页，让阅读慢下来。\n选择适合自己的文字大小和行距。"
+    },
+    {
+      "name": "reader_settings_font_size",
+      "value": "字号"
+    },
+    {
+      "name": "reader_settings_smaller",
+      "value": "缩小字号"
+    },
+    {
+      "name": "reader_settings_larger",
+      "value": "放大字号"
+    },
+    {
+      "name": "reader_metadata_unavailable",
+      "value": "章节信息暂不可用"
+    },
+    {
+      "name": "reader_source_catalog_ready",
+      "value": "目录可用"
+    },
+    {
+      "name": "reader_source_content_unverified",
+      "value": "目录已获取，正文以实际打开结果为准"
+    },
+    {
+      "name": "reader_open_recovery_hint",
+      "value": "暂时无法打开，请重试；若仍失败，可在详情中检查来源或文件。"
+    },
+    {
+      "name": "reader_open_retry",
+      "value": "重新打开"
+    },
+    {
+      "name": "reader_open_check_details",
+      "value": "检查书籍详情"
+    },
+    {
+      "name": "reader_feedback_dismiss",
+      "value": "知道了"
+    },
+    {
+      "name": "reader_quick_settings",
+      "value": "阅读外观"
+    },
+    {
+      "name": "reader_settings_done",
+      "value": "完成"
+    },
+    {
+      "name": "reader_detailed_settings",
+      "value": "详细设置 · 字体、间距、翻页"
+    },
+    {
+      "name": "reader_preset_compact",
+      "value": "紧凑"
+    },
+    {
+      "name": "reader_preset_comfort",
+      "value": "舒适"
+    },
+    {
+      "name": "reader_preset_large",
+      "value": "大字"
+    },
+    {
+      "name": "reader_theme_paper",
+      "value": "纸张"
+    },
+    {
+      "name": "reader_theme_white",
+      "value": "白色"
+    },
+    {
+      "name": "reader_theme_green",
+      "value": "护眼"
+    },
+    {
+      "name": "reader_theme_night",
+      "value": "夜间"
+    },
+    {
+      "name": "pdf_ux_pick_pdf",
+      "value": "选择 PDF 文件"
+    },
+    {
+      "name": "pdf_ux_pick_images",
+      "value": "选择图片"
+    },
+    {
+      "name": "pdf_ux_add_pdf",
+      "value": "再添加一个 PDF"
+    },
+    {
+      "name": "pdf_ux_cut_action",
+      "value": "分割页面"
+    },
+    {
+      "name": "pdf_ux_split_action",
+      "value": "拆分文件"
+    },
+    {
+      "name": "pdf_ux_merge_action",
+      "value": "合并文件"
+    },
+    {
+      "name": "pdf_ux_images_action",
+      "value": "导出图片"
+    },
+    {
+      "name": "pdf_ux_text_action",
+      "value": "提取文本"
+    },
+    {
+      "name": "pdf_ux_create_action",
+      "value": "生成 PDF"
+    },
+    {
+      "name": "pdf_ux_cut_hint",
+      "value": "把一页分成左右或上下两页，适合扫描书籍和双页文档。"
+    },
+    {
+      "name": "pdf_ux_split_hint",
+      "value": "把多页 PDF 拆成多个文件，可按页数或自定义分组。"
+    },
+    {
+      "name": "pdf_ux_merge_hint",
+      "value": "至少选择 2 个 PDF，按列表顺序合并。"
+    },
+    {
+      "name": "pdf_ux_images_hint",
+      "value": "按选择顺序生成 PDF，可添加多张图片。"
+    },
+    {
+      "name": "pdf_ux_extract_hint",
+      "value": "提取 PDF 中可选择的文字，扫描图片暂不支持识别。"
+    },
+    {
+      "name": "pdf_ux_input_hint",
+      "value": "选择文件后设置页码范围，再生成结果。"
+    },
+    {
+      "name": "pdf_ux_steps",
+      "value": "选择文件 → 调整设置 → 查看结果"
+    },
+    {
+      "name": "pdf_ux_content",
+      "value": "编辑内容"
+    },
+    {
+      "name": "pdf_ux_source",
+      "value": "源文件"
+    },
+    {
+      "name": "pdf_ux_import_text",
+      "value": "导入文本"
+    },
+    {
+      "name": "pdf_ux_replace",
+      "value": "更换文件"
+    },
+    {
+      "name": "pdf_ux_cut_settings",
+      "value": "分割设置"
+    },
+    {
+      "name": "pdf_ux_drag_hint",
+      "value": "拖动预览中的绿线，或调整下方比例。"
+    },
+    {
+      "name": "pdf_ux_range_hint",
+      "value": "留空处理全部页面；例如 1-3,5。"
+    },
+    {
+      "name": "pdf_ux_by_count",
+      "value": "按页数拆分"
+    },
+    {
+      "name": "pdf_ux_by_groups",
+      "value": "自定义分组"
+    },
+    {
+      "name": "pdf_ux_continue",
+      "value": "继续处理"
+    },
+    {
+      "name": "pdf_ux_adjust",
+      "value": "调整参数"
+    },
+    {
+      "name": "pdf_ux_back_history",
+      "value": "返回记录"
+    },
+    {
+      "name": "pdf_ux_home",
+      "value": "返回工具"
+    },
+    {
+      "name": "pdf_ux_text_ready",
+      "value": "输入正文即可生成，也可导入文本文件。"
+    },
+    {
+      "name": "pdf_ux_ready",
+      "value": "已选文件将保留，处理结果另存为新文件。"
+    },
+    {
+      "name": "pdf_ux_tile_cut",
+      "value": "一页变两页"
+    },
+    {
+      "name": "pdf_ux_tile_split",
+      "value": "拆成多个文件"
+    },
+    {
+      "name": "pdf_ux_tile_merge",
+      "value": "多份合成一份"
+    },
+    {
+      "name": "pdf_ux_tile_images",
+      "value": "照片变文档"
+    },
+    {
+      "name": "pdf_ux_tile_text",
+      "value": "输入正文排版"
+    },
+    {
+      "name": "pdf_ux_tile_markdown",
+      "value": "保留基础排版"
+    },
+    {
+      "name": "pdf_ux_tile_export",
+      "value": "逐页导出图片"
+    },
+    {
+      "name": "pdf_ux_tile_extract",
+      "value": "复制文档文字"
+    },
+    {
+      "name": "pdf_ux_groups_hint",
+      "value": "用分号分隔文件，例如 1;2-3。每组独立生成一个 PDF。"
+    },
+    {
+      "name": "pdf_ux_count_hint",
+      "value": "只拆分所选页面，每份按上方页数生成。"
+    },
+    {
+      "name": "pdf_ux_groups_required",
+      "value": "请填写分组，例如 1;2-3。"
+    },
+    {
+      "name": "download_ui_video",
+      "value": "视频"
+    },
+    {
+      "name": "download_ui_image",
+      "value": "图片"
+    },
+    {
+      "name": "download_ui_audio",
+      "value": "音频"
+    },
+    {
+      "name": "download_ui_file",
+      "value": "文件"
+    },
+    {
+      "name": "download_ui_unnamed",
+      "value": "未命名文件"
+    },
+    {
+      "name": "download_ui_unknown_size",
+      "value": "大小未知"
+    },
+    {
+      "name": "download_ui_archived",
+      "value": "已归档"
+    },
+    {
+      "name": "download_ui_archive_unknown",
+      "value": "未返回归档位置"
+    },
+    {
+      "name": "download_ui_tagged",
+      "value": "标签已生成"
+    },
+    {
+      "name": "download_ui_no_tags",
+      "value": "暂无标签"
+    },
+    {
+      "name": "download_ui_tag_failed",
+      "value": "标签待补充"
+    },
+    {
+      "name": "download_ui_tag_pending",
+      "value": "标签生成中，文件已保存"
+    },
+    {
+      "name": "download_ui_details",
+      "value": "查看文件详情"
+    },
+    {
+      "name": "download_ui_collapse",
+      "value": "收起详情"
+    },
+    {
+      "name": "download_ui_cancelling",
+      "value": "正在取消"
+    },
+    {
+      "name": "download_ui_uploading",
+      "value": "上传未完成"
+    },
+    {
+      "name": "download_ui_organizing",
+      "value": "正在整理文件"
+    },
+    {
+      "name": "download_ui_processing",
+      "value": "正在处理下载"
+    },
+    {
+      "name": "download_ui_partial",
+      "value": "部分处理完成"
+    },
+    {
+      "name": "download_ui_attention",
+      "value": "文件处理完成 · 标签待补充"
+    },
+    {
+      "name": "download_ui_done",
+      "value": "下载完成"
+    },
+    {
+      "name": "download_ui_failed",
+      "value": "下载未完成"
+    },
+    {
+      "name": "download_ui_expired",
+      "value": "上传已过期"
+    },
+    {
+      "name": "download_ui_cancelled",
+      "value": "已取消"
+    },
+    {
+      "name": "download_ui_no_match",
+      "value": "未识别可下载内容"
+    },
+    {
+      "name": "download_ui_unknown",
+      "value": "状态待确认"
+    },
+    {
+      "name": "download_ui_partial_hint",
+      "value": "已有文件成功归档，部分后续处理未完成，请查看各文件状态。"
+    },
+    {
+      "name": "download_ui_attention_hint",
+      "value": "本次任务已结束，部分标签尚未生成，请查看文件的归档状态。"
+    },
+    {
+      "name": "download_ui_files_hint",
+      "value": "文件信息与标签如下，可展开查看完整归档位置。"
+    },
+    {
+      "name": "download_ui_unknown_hint",
+      "value": "暂时无法确认处理结果，请刷新后查看。"
+    },
+    {
+      "name": "download_ui_copy",
+      "value": "复制回复"
+    },
+    {
+      "name": "download_ui_copied",
+      "value": "已复制回复"
+    },
+    {
+      "name": "download_ui_copy_failed",
+      "value": "复制失败，请重试"
+    },
+    {
+      "name": "download_ui_files",
+      "value": "个文件"
+    },
+    {
+      "name": "download_ui_all_files",
+      "value": "展开全部文件"
+    },
+    {
+      "name": "download_ui_collapse_files",
+      "value": "收起文件列表"
+    },
+    {
+      "name": "download_ui_progress",
+      "value": "下载进度"
+    },
+    {"name": "rss_title", "value": "RSS \u8ba2\u9605"},
+    {"name": "rss_back", "value": "\u8fd4\u56de"},
+    {"name": "rss_add", "value": "\u6dfb\u52a0\u8ba2\u9605"},
+    {"name": "rss_manage", "value": "\u7ba1\u7406\u8ba2\u9605"},
+    {"name": "rss_edit", "value": "\u8ba2\u9605\u8bbe\u7f6e"},
+    {"name": "rss_unread", "value": "\u672a\u8bfb"},
+    {"name": "rss_all", "value": "\u5168\u90e8"},
+    {"name": "rss_star", "value": "\u6536\u85cf"},
+    {"name": "rss_starred", "value": "\u5df2\u6536\u85cf"},
+    {"name": "rss_sources_count", "value": "\u4e2a\u8ba2\u9605"},
+    {"name": "rss_search", "value": "\u641c\u7d22"},
+    {"name": "rss_search_placeholder", "value": "\u641c\u7d22\u6587\u7ae0\u6807\u9898\u548c\u6458\u8981\uff0c\u56de\u8f66\u786e\u8ba4"},
+    {"name": "rss_all_sources", "value": "\u6240\u6709\u8ba2\u9605"},
+    {"name": "rss_mark_all", "value": "\u5168\u90e8\u5df2\u8bfb"},
+    {"name": "rss_reload", "value": "\u66f4\u65b0\u5217\u8868"},
+    {"name": "rss_retry", "value": "\u91cd\u8bd5"},
+    {"name": "rss_more", "value": "\u52a0\u8f7d\u66f4\u591a"},
+    {"name": "rss_connect_title", "value": "\u6682\u65f6\u65e0\u6cd5\u8fde\u63a5\u8ba2\u9605\u670d\u52a1"},
+    {"name": "rss_connect_hint", "value": "\u8bf7\u786e\u8ba4\u5df2\u767b\u5f55\u4e14\u670d\u52a1\u5df2\u542f\u7528\uff0c\u518d\u91cd\u8bd5\u3002"},
+    {"name": "rss_empty_sources", "value": "\u4ece\u4e00\u4efd\u597d\u5185\u5bb9\u5f00\u59cb"},
+    {"name": "rss_empty_hint", "value": "\u6dfb\u52a0\u4f60\u559c\u6b22\u7684\u7f51\u7ad9\u6216\u535a\u5ba2\uff0c\u628a\u66f4\u65b0\u6536\u8fdb\u81ea\u5df1\u7684\u9605\u8bfb\u6e05\u5355\u3002"},
+    {"name": "rss_empty_entries", "value": "\u8fd9\u91cc\u6682\u65f6\u6ca1\u6709\u6587\u7ae0"},
+    {"name": "rss_empty_filter", "value": "\u53ef\u4ee5\u5207\u6362\u300c\u5168\u90e8\u300d\u3001\u66f4\u6539\u7b5b\u9009\uff0c\u6216\u7b49\u5f85\u6765\u6e90\u66f4\u65b0\u3002"},
+    {"name": "rss_polling_disabled", "value": "\u81ea\u52a8\u66f4\u65b0\u5c1a\u672a\u5f00\u542f\uff0c\u5df2\u6536\u5f55\u5185\u5bb9\u4ecd\u53ef\u9605\u8bfb\u3002"},
+    {"name": "rss_add_hint", "value": "\u8f93\u5165\u7f51\u7ad9\u6216 RSS / Atom \u5730\u5740\uff0c\u5148\u9884\u89c8\u518d\u8ba2\u9605\u3002"},
+    {"name": "rss_detect", "value": "\u68c0\u6d4b\u8ba2\u9605\u6e90"},
+    {"name": "rss_detected", "value": "\u5df2\u8bc6\u522b\u8ba2\u9605\u6e90"},
+    {"name": "rss_recent", "value": "\u6700\u8fd1\u6587\u7ae0"},
+    {"name": "rss_name", "value": "\u8ba2\u9605\u540d\u79f0"},
+    {"name": "rss_group", "value": "\u6240\u5c5e\u5206\u7ec4"},
+    {"name": "rss_ungrouped", "value": "\u672a\u5206\u7ec4"},
+    {"name": "rss_initial_read", "value": "\u5386\u53f2\u6587\u7ae0\u5168\u90e8\u8bbe\u4e3a\u5df2\u8bfb"},
+    {"name": "rss_initial_hint", "value": "\u9ed8\u8ba4\u4ec5\u5c06\u6700\u8fd1 50 \u7bc7\u8bbe\u4e3a\u672a\u8bfb\u3002"},
+    {"name": "rss_add_confirm", "value": "\u6dfb\u52a0\u5230\u6211\u7684\u8ba2\u9605"},
+    {"name": "rss_interval", "value": "\u81ea\u52a8\u66f4\u65b0\u95f4\u9694"},
+    {"name": "rss_pause", "value": "\u6682\u505c\u81ea\u52a8\u66f4\u65b0"},
+    {"name": "rss_save", "value": "\u4fdd\u5b58\u8bbe\u7f6e"},
+    {"name": "rss_refresh", "value": "\u7acb\u5373\u66f4\u65b0"},
+    {"name": "rss_remove", "value": "\u79fb\u9664"},
+    {"name": "rss_paused", "value": "\u5df2\u6682\u505c"},
+    {"name": "rss_gone", "value": "\u6765\u6e90\u5df2\u5931\u6548"},
+    {"name": "rss_syncing", "value": "\u6b63\u5728\u66f4\u65b0"},
+    {"name": "rss_sync_failed", "value": "\u66f4\u65b0\u5931\u8d25 \u00b7 \u5c06\u81ea\u52a8\u91cd\u8bd5"},
+    {"name": "rss_active", "value": "\u6b63\u5e38\u66f4\u65b0"},
+    {"name": "rss_waiting", "value": "\u7b49\u5f85\u9996\u6b21\u66f4\u65b0"},
+    {"name": "rss_last_success", "value": "\u6700\u8fd1\u6210\u529f\u66f4\u65b0"},
+    {"name": "rss_refresh_queued", "value": "\u5df2\u8bf7\u6c42\u66f4\u65b0\uff0c\u8bf7\u7a0d\u540e\u66f4\u65b0\u5217\u8868\u3002"},
+    {"name": "rss_groups", "value": "\u5206\u7ec4\u7ba1\u7406"},
+    {"name": "rss_group_name", "value": "\u65b0\u5206\u7ec4\u540d\u79f0"},
+    {"name": "rss_create", "value": "\u521b\u5efa"},
+    {"name": "rss_cancel", "value": "\u53d6\u6d88"},
+    {"name": "rss_confirm", "value": "\u786e\u8ba4"},
+    {"name": "rss_mark_confirm", "value": "\u5c06\u5f53\u524d\u6765\u6e90\u3001\u5206\u7ec4\u548c\u641c\u7d22\u8303\u56f4\u5185\u7684\u6587\u7ae0\u8bbe\u4e3a\u5df2\u8bfb\u3002\u7a0d\u540e\u65b0\u589e\u7684\u6587\u7ae0\u4e0d\u53d7\u5f71\u54cd\u3002"},
+    {"name": "rss_remove_confirm", "value": "\u53d6\u6d88\u6b64\u8ba2\u9605\uff1f\u5df2\u6536\u85cf\u7684\u6587\u7ae0\u4f1a\u4fdd\u7559\uff0c\u91cd\u65b0\u8ba2\u9605\u53ef\u4ee5\u6062\u590d\u3002"},
+    {"name": "rss_group_remove_confirm", "value": "\u5220\u9664\u6b64\u5206\u7ec4\uff1f\u5176\u4e2d\u7684\u8ba2\u9605\u5c06\u8f6c\u5165\u672a\u5206\u7ec4\u3002"},
+    {"name": "rss_import", "value": "\u5bfc\u5165"},
+    {"name": "rss_export", "value": "\u5bfc\u51fa"},
+    {"name": "rss_opml_preview", "value": "OPML \u5bfc\u5165\u9884\u89c8"},
+    {"name": "rss_opml_hint", "value": "\u6700\u591a 200 \u4e2a\u6765\u6e90\u3002\u91cd\u590d\u9879\u4fdd\u7559\u539f\u8bbe\u7f6e\uff0c\u5931\u8d25\u9879\u4e0d\u5f71\u54cd\u5176\u4ed6\u6765\u6e90\u3002"},
+    {"name": "rss_import_ready", "value": "\u5f85\u5bfc\u5165"},
+    {"name": "rss_imported", "value": "\u5df2\u5bfc\u5165"},
+    {"name": "rss_import_exists", "value": "\u5df2\u5b58\u5728"},
+    {"name": "rss_import_failed", "value": "\u672a\u5bfc\u5165"},
+    {"name": "rss_import_confirm", "value": "\u786e\u8ba4\u5bfc\u5165"},
+    {"name": "rss_import_finished", "value": "\u5bfc\u5165\u5df2\u5b8c\u6210\uff0c\u8bf7\u67e5\u770b\u6bcf\u4e2a\u6765\u6e90\u7684\u7ed3\u679c\u3002"},
+    {"name": "rss_exported", "value": "\u8ba2\u9605\u6e05\u5355\u5df2\u4fdd\u5b58\u3002"},
+    {"name": "rss_done", "value": "\u5b8c\u6210"},
+    {"name": "rss_mark_unread", "value": "\u6807\u8bb0\u672a\u8bfb"},
+    {"name": "rss_mark_read", "value": "\u6807\u8bb0\u5df2\u8bfb"},
+    {"name": "rss_original", "value": "\u9605\u8bfb\u539f\u6587"},
+    {"name": "rss_collected_time", "value": "\u6765\u6e90\u672a\u63d0\u4f9b\u53d1\u5e03\u65f6\u95f4\uff0c\u4ee5\u4e0a\u4e3a\u6536\u5f55\u65e5\u671f\u3002"},
+    {"name": "rss_font", "value": "\u8c03\u6574\u6b63\u6587\u5b57\u53f7"},
+    {"name": "rss_load_failed", "value": "\u6587\u7ae0\u6682\u65f6\u65e0\u6cd5\u52a0\u8f7d\uff0c\u8bf7\u91cd\u8bd5\u3002"},
+    {"name": "rss_write_failed", "value": "\u72b6\u6001\u672a\u4fdd\u5b58\uff0c\u8bf7\u91cd\u8bd5\u3002"},
+    {"name": "rss_open_failed", "value": "\u65e0\u6cd5\u6253\u5f00\u539f\u6587\u94fe\u63a5\u3002"},
+    {"name": "rss_invalid", "value": "\u8f93\u5165\u683c\u5f0f\u4e0d\u6b63\u786e\uff0c\u8bf7\u68c0\u67e5\u540e\u91cd\u8bd5\u3002"},
+    {"name": "rss_public_https", "value": "\u8bf7\u4f7f\u7528\u516c\u5f00\u7f51\u7ad9\u7684 HTTPS \u5730\u5740\u3002"},
+    {"name": "rss_invalid_feed", "value": "\u672a\u627e\u5230\u53ef\u8bfb\u53d6\u7684 RSS / Atom \u5185\u5bb9\uff0c\u8bf7\u68c0\u67e5\u5730\u5740\u3002"},
+    {"name": "rss_missing", "value": "\u5185\u5bb9\u4e0d\u5b58\u5728\u6216\u5df2\u88ab\u79fb\u9664\uff0c\u8bf7\u66f4\u65b0\u5217\u8868\u3002"},
+    {"name": "rss_limit", "value": "\u5185\u5bb9\u8d85\u8fc7\u5927\u5c0f\u9650\u5236\u3002App \u5bfc\u5165 OPML \u6587\u4ef6\u9700\u5c0f\u4e8e 256 KB\u3002"},
+    {"name": "rss_rate", "value": "\u64cd\u4f5c\u8f83\u9891\u7e41\u6216\u6765\u6e90\u8981\u6c42\u7a0d\u540e\u91cd\u8bd5\uff0c\u8bf7\u7b49\u5f85\u7247\u523b\u3002"},
+    {"name": "rss_quota", "value": "\u5df2\u8fbe\u5230\u6570\u91cf\u9650\u5236\uff0c\u8bf7\u79fb\u9664\u4e0d\u9700\u8981\u7684\u8ba2\u9605\u6216\u5206\u7ec4\u3002"},
+    {"name": "rss_conflict", "value": "\u5176\u4ed6\u8bbe\u5907\u5df2\u66f4\u65b0\u6b64\u5185\u5bb9\uff0c\u8bf7\u91cd\u65b0\u6253\u5f00\u540e\u64cd\u4f5c\u3002"},
+    {"name": "rss_unavailable", "value": "\u8ba2\u9605\u670d\u52a1\u6682\u65f6\u4e0d\u53ef\u7528\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5\u3002"},
+    {"name": "dsh_microphone_reason", "value": "\u7528\u4e8e\u4f60\u4e3b\u52a8\u5f00\u542f\u7684 DSH \u8bed\u97f3\u8f93\u5165\u3002"},
+    {"name": "dsh_web_microphone_denied", "value": "\u672a\u83b7\u5f97\u9ea6\u514b\u98ce\u6743\u9650\uff0c\u4ecd\u53ef\u4f7f\u7528\u6587\u5b57\u8f93\u5165\u3002"},
+    {"name": "dsh_web_download_started", "value": "\u6b63\u5728\u4e0b\u8f7d\uff0c\u5b8c\u6210\u540e\u8bf7\u9009\u62e9\u4fdd\u5b58\u4f4d\u7f6e\u3002"},
+    {"name": "dsh_web_download_busy", "value": "\u8bf7\u5148\u5b8c\u6210\u5f53\u524d\u4e0b\u8f7d\u548c\u4fdd\u5b58\uff0c\u518d\u4e0b\u8f7d\u4e0b\u4e00\u4e2a\u6587\u4ef6\u3002"},
+    {"name": "dsh_web_download_failed", "value": "\u6587\u4ef6\u4e0b\u8f7d\u6216\u4fdd\u5b58\u5931\u8d25\uff0c\u8bf7\u91cd\u8bd5\u3002"},
+    {"name": "dsh_web_download_saved", "value": "\u6587\u4ef6\u5df2\u4fdd\u5b58\u3002"},
+    {"name": "dsh_web_download_cancelled", "value": "\u5df2\u53d6\u6d88\u4fdd\u5b58\u3002"},
+    {"name": "dsh_web_lan_fallback", "value": "\u5c40\u57df\u7f51\u5907\u7528\u8fde\u63a5"},
+    {"name": "dsh_web_lan_fallback_hint", "value": "\u5907\u7528\u8fde\u63a5\u652f\u6301\u4f1a\u8bdd\u548c\u6587\u4ef6\u6d4f\u89c8\uff0c\u8bed\u97f3\u9700\u8981\u5b89\u5168\u8fde\u63a5\u3002\u91cd\u65b0\u8fdb\u5165 DSH \u65f6\u4f1a\u4f18\u5148\u5c1d\u8bd5\u5b89\u5168\u8fde\u63a5\u3002"},
+    {"name":"vehicle_title","value":"\u96c5\u8fea\u667a\u884c"},
+    {"name":"vehicle_tool_subtitle","value":"\u8f66\u8f86\u84dd\u7259\u8fde\u63a5\u4e0e\u8bbe\u5907\u4fe1\u606f"},
+    {"name":"vehicle_tool_caption","value":"\u8fd1\u573a\u8fde\u63a5"},
+    {"name":"vehicle_tool_keywords","value":"\u96c5\u8fea \u7535\u52a8\u8f66 \u8f66\u8f86 \u84dd\u7259 \u8f66\u9501 \u5f00\u673a \u5173\u673a \u5bfb\u8f66 \u4f4d\u7f6e Yadea Q9"},
+    {"name":"vehicle_bluetooth_reason","value":"\u7528\u4e8e\u4f60\u4e3b\u52a8\u53d1\u8d77\u7684\u9644\u8fd1\u8f66\u8f86\u626b\u63cf\u3001\u84dd\u7259\u8fde\u63a5\u4e0e\u8bbe\u5907\u4fe1\u606f\u8bfb\u53d6\u3002"},
+    {"name":"vehicle_subtitle","value":"\u8fd1\u573a\u84dd\u7259\u8fde\u63a5"},
+    {"name":"vehicle_intro","value":"\u5148\u5728\u96c5\u8fea\u667a\u884c\u4e2d\u5b8c\u6210\u8f66\u8f86\u7ed1\u5b9a\uff0c\u5e76\u8ba9\u539f\u5e94\u7528\u91ca\u653e\u84dd\u7259\u8fde\u63a5\u3002\u968f\u540e\u5728\u8fd9\u91cc\u626b\u63cf\u5e76\u9009\u62e9\u4f60\u7684\u8f66\u8f86\u3002"},
+    {"name":"vehicle_scan","value":"\u626b\u63cf\u9644\u8fd1\u8bbe\u5907"},
+    {"name":"vehicle_stop_scan","value":"\u505c\u6b62\u626b\u63cf"},
+    {"name":"vehicle_paired","value":"\u67e5\u770b\u5df2\u914d\u5bf9\u8bbe\u5907"},
+    {"name":"vehicle_disconnect","value":"\u65ad\u5f00\u8fde\u63a5"},
+    {"name":"vehicle_connect","value":"\u8fde\u63a5"},
+    {"name":"vehicle_connecting","value":"\u8fde\u63a5\u4e2d"},
+    {"name":"vehicle_scan_hint","value":"\u626b\u63cf\u5c06\u5728 12 \u79d2\u540e\u81ea\u52a8\u7ed3\u675f\u3002\u53ea\u8fde\u63a5\u4f60\u786e\u8ba4\u5c5e\u4e8e\u81ea\u5df1\u7684\u8f66\u8f86\u3002"},
+    {"name":"vehicle_devices","value":"\u53d1\u73b0\u7684\u8bbe\u5907"},
+    {"name":"vehicle_no_devices","value":"\u5c1a\u672a\u53d1\u73b0\u8bbe\u5907"},
+    {"name":"vehicle_no_devices_hint","value":"\u5c06\u624b\u673a\u9760\u8fd1\u8f66\u8f86\u5e76\u5f00\u542f\u84dd\u7259\uff0c\u518d\u70b9\u51fb\u626b\u63cf\u3002\u5df2\u914d\u5bf9\u5217\u8868\u4e3a\u7a7a\u4e5f\u4e0d\u4ee3\u8868\u8f66\u8f86\u4e0d\u652f\u6301\u8fde\u63a5\u3002"},
+    {"name":"vehicle_device_unnamed","value":"\u672a\u547d\u540d\u8bbe\u5907"},
+    {"name":"vehicle_device_paired","value":"\u7cfb\u7edf\u5df2\u914d\u5bf9"},
+    {"name":"vehicle_device_nearby","value":"\u9644\u8fd1\u8bbe\u5907"},
+    {"name":"vehicle_state_idle","value":"\u5c1a\u672a\u8fde\u63a5"},
+    {"name":"vehicle_state_scanning","value":"\u6b63\u5728\u626b\u63cf"},
+    {"name":"vehicle_state_connecting","value":"\u6b63\u5728\u8fde\u63a5"},
+    {"name":"vehicle_state_discovering","value":"\u6b63\u5728\u8bfb\u53d6\u670d\u52a1"},
+    {"name":"vehicle_state_connected","value":"\u84dd\u7259\u5df2\u8fde\u63a5"},
+    {"name":"vehicle_state_disconnected","value":"\u8fde\u63a5\u5df2\u65ad\u5f00"},
+    {"name":"vehicle_state_error","value":"\u8fde\u63a5\u672a\u5b8c\u6210"},
+    {"name":"vehicle_connection_title","value":"\u8fde\u63a5\u72b6\u6001"},
+    {"name":"vehicle_auth_pending","value":"\u8f66\u8f86\u9274\u6743\u5c1a\u672a\u5b8c\u6210"},
+    {"name":"vehicle_auth_hint","value":"\u84dd\u7259\u8fde\u63a5\u6210\u529f\u4e0d\u4ee3\u8868\u5df2\u83b7\u5f97\u63a7\u8f66\u6743\u9650\u3002\u5f53\u524d\u7248\u672c\u8bfb\u53d6\u53ef\u7528\u7684\u6807\u51c6\u4fe1\u606f\uff0c\u53d6\u5f97\u5e76\u9a8c\u8bc1\u96c5\u8fea\u6388\u6743\u540e\u518d\u5f00\u653e\u63a7\u8f66\u3002"},
+    {"name":"vehicle_details","value":"\u8bbe\u5907\u4fe1\u606f"},
+    {"name":"vehicle_manufacturer","value":"\u5236\u9020\u5546"},
+    {"name":"vehicle_model","value":"\u8bbe\u5907\u578b\u53f7"},
+    {"name":"vehicle_firmware","value":"\u56fa\u4ef6\u7248\u672c"},
+    {"name":"vehicle_hardware","value":"\u786c\u4ef6\u7248\u672c"},
+    {"name":"vehicle_battery","value":"\u84dd\u7259\u8bbe\u5907\u7535\u91cf"},
+    {"name":"vehicle_no_standard_info","value":"\u6b64\u8bbe\u5907\u672a\u63d0\u4f9b\u53ef\u8bfb\u53d6\u7684\u6807\u51c6\u4fe1\u606f\u3002"},
+    {"name":"vehicle_services","value":"\u5df2\u53d1\u73b0\u670d\u52a1"},
+    {"name":"vehicle_service_count","value":"\u4e2a\u670d\u52a1"},
+    {"name":"vehicle_characteristic_count","value":"\u4e2a\u7279\u5f81"},
+    {"name":"vehicle_read_only","value":"\u53ea\u8bfb\u8fde\u63a5"},
+    {"name":"vehicle_controls_title","value":"\u8f66\u8f86\u63a7\u5236"},
+    {"name":"vehicle_controls_pending","value":"\u5f00\u5173\u673a\u3001\u8f66\u9501\u4e0e\u5bfb\u8f66\u7b49\u5f85\u8f66\u8f86\u9274\u6743\u9a8c\u8bc1\u3002"},
+    {"name":"vehicle_location_title","value":"\u8f66\u8f86\u4f4d\u7f6e"},
+    {"name":"vehicle_location_pending","value":"\u5c1a\u672a\u53d6\u5f97\u8f66\u8f86\u5b9a\u4f4d\u6570\u636e\u3002\u84dd\u7259\u8fde\u63a5\u4e0d\u4f1a\u751f\u6210\u8f66\u8f86\u4f4d\u7f6e\u3002"},
+    {"name":"vehicle_permission_denied","value":"\u8bf7\u5728\u7cfb\u7edf\u8bbe\u7f6e\u4e2d\u5141\u8bb8 MyTools \u4f7f\u7528\u84dd\u7259\uff0c\u7136\u540e\u91cd\u8bd5\u3002"},
+    {"name":"vehicle_permission_failed","value":"\u65e0\u6cd5\u7533\u8bf7\u84dd\u7259\u6743\u9650\uff0c\u8bf7\u91cd\u8bd5\u3002"},
+    {"name":"vehicle_bluetooth_off","value":"\u8bf7\u5148\u5f00\u542f\u624b\u673a\u84dd\u7259\uff0c\u7136\u540e\u91cd\u8bd5\u3002"},
+    {"name":"vehicle_error_unavailable","value":"\u5f53\u524d\u8bbe\u5907\u4e0d\u652f\u6301\u6240\u9700\u7684\u84dd\u7259\u80fd\u529b\u3002"},
+    {"name":"vehicle_error_connect","value":"\u65e0\u6cd5\u8fde\u63a5\u8bbe\u5907\u3002\u8bf7\u9760\u8fd1\u8f66\u8f86\uff0c\u5e76\u786e\u8ba4\u96c5\u8fea\u667a\u884c\u5df2\u91ca\u653e\u8fde\u63a5\u3002"},
+    {"name":"vehicle_error_discover","value":"\u65e0\u6cd5\u8bfb\u53d6\u8bbe\u5907\u670d\u52a1\uff0c\u8bf7\u65ad\u5f00\u540e\u91cd\u8bd5\u3002"},
+    {"name":"vehicle_error_timeout","value":"\u8fde\u63a5\u8d85\u65f6\uff0c\u8bf7\u9760\u8fd1\u8f66\u8f86\u540e\u91cd\u8bd5\u3002"},
+    {"name":"vehicle_error_read","value":"\u90e8\u5206\u6807\u51c6\u4fe1\u606f\u8bfb\u53d6\u5931\u8d25\uff0c\u5df2\u4fdd\u7559\u6210\u529f\u8bfb\u53d6\u7684\u5185\u5bb9\u3002"},
+    {"name":"vehicle_error_scan","value":"\u626b\u63cf\u672a\u80fd\u5b8c\u6210\uff0c\u8bf7\u68c0\u67e5\u84dd\u7259\u72b6\u6001\u540e\u91cd\u8bd5\u3002"},
+    {"name":"vehicle_error_unknown","value":"\u84dd\u7259\u64cd\u4f5c\u672a\u80fd\u5b8c\u6210\uff0c\u8bf7\u91cd\u8bd5\u3002"},
+    {"name":"vehicle_paused","value":"\u9875\u9762\u79bb\u5f00\u6216\u5207\u5230\u540e\u53f0\u540e\u5df2\u505c\u6b62\u84dd\u7259\u64cd\u4f5c\uff0c\u8bf7\u624b\u52a8\u91cd\u65b0\u8fde\u63a5\u3002"},
+    {"name":"vehicle_logged_out","value":"\u8bf7\u5148\u767b\u5f55 MyTools\u3002"},
+    {"name":"vehicle_device_identity","value":"\u8bbe\u5907\u6807\u8bc6"},
+    {"name":"vehicle_signal","value":"\u4fe1\u53f7\u5f3a\u5ea6"},
+    {"name":"vehicle_software","value":"\u8f6f\u4ef6\u7248\u672c"},
+    {"name":"vehicle_last_read","value":"\u8bfb\u53d6\u65f6\u95f4"},
+    {"name":"vehicle_yadea_candidate","value":"\u7591\u4f3c\u96c5\u8fea\u8bbe\u5907"},
+    {"name":"vehicle_unverified_device","value":"\u8bbe\u5907\u8eab\u4efd\u5f85\u786e\u8ba4"},
+    {"name":"vehicle_retry_scan","value":"\u91cd\u65b0\u626b\u63cf"},
+    {"name":"vehicle_no_read_time","value":"\u5c1a\u65e0\u8bfb\u53d6\u8bb0\u5f55"},
+    {"name":"vehicle_error_paired","value":"\u65e0\u6cd5\u8bfb\u53d6\u5df2\u914d\u5bf9\u8bbe\u5907\uff0c\u8bf7\u68c0\u67e5\u84dd\u7259\u6743\u9650\u540e\u91cd\u8bd5\u3002"},
+    {"name":"vehicle_error_device","value":"\u8bbe\u5907\u5df2\u5931\u6548\uff0c\u8bf7\u91cd\u65b0\u626b\u63cf\u5e76\u9009\u62e9\u3002"},
+    {"name":"vehicle_error_busy","value":"\u8bf7\u5148\u505c\u6b62\u626b\u63cf\u6216\u65ad\u5f00\u5f53\u524d\u8fde\u63a5\uff0c\u518d\u7ee7\u7eed\u64cd\u4f5c\u3002"},
+    {"name":"vehicle_shortcut_unlock","value":"\u89e3\u9501\u7231\u8f66"},
+    {"name":"vehicle_home_title","value":"\u6211\u7684\u7231\u8f66"},
+    {"name":"vehicle_home_illustration","value":"Q9-D \u8f66\u578b\u793a\u610f"},
+    {"name":"vehicle_home_power","value":"\u5f00\u5173\u673a"},
+    {"name":"vehicle_home_lock","value":"\u8f66\u9501"},
+    {"name":"vehicle_home_find","value":"\u5bfb\u8f66"},
+    {"name":"vehicle_home_details","value":"\u8f66\u8f86\u8be6\u60c5"},
+    {"name":"vehicle_home_connection","value":"\u8fde\u63a5\u7ba1\u7406"},
+    {"name":"vehicle_home_connection_hint","value":"\u8fde\u63a5\u8f66\u8f86\u4ee5\u8bfb\u53d6\u8bbe\u5907\u4fe1\u606f"},
+    {"name":"vehicle_home_location_unknown","value":"\u6682\u672a\u83b7\u53d6\u8f66\u8f86\u4f4d\u7f6e"},
+    {"name":"vehicle_home_location_hint","value":"\u8fde\u63a5\u4e0e\u5b9a\u4f4d\u670d\u52a1\u53ef\u7528\u540e\u663e\u793a"},
+    {"name":"vehicle_home_power_unavailable","value":"\u8f66\u8f86\u9274\u6743\u5c1a\u672a\u5b8c\u6210\uff0c\u6682\u65f6\u65e0\u6cd5\u5f00\u5173\u673a\u3002"},
+    {"name":"vehicle_home_lock_unavailable","value":"\u8f66\u8f86\u9274\u6743\u5c1a\u672a\u5b8c\u6210\uff0c\u6682\u65f6\u65e0\u6cd5\u89e3\u9501\u6216\u9501\u8f66\u3002"},
+    {"name":"vehicle_home_find_unavailable","value":"\u8f66\u8f86\u9274\u6743\u5c1a\u672a\u5b8c\u6210\uff0c\u6682\u65f6\u65e0\u6cd5\u5bfb\u8f66\u3002"},
+    {"name":"vehicle_home_unlock_title","value":"\u89e3\u9501\u8f66\u8f86"},
+    {"name":"vehicle_home_unlock_hint","value":"\u89e3\u9501\u5165\u53e3\u5df2\u6253\u5f00\u3002\u8f66\u8f86\u9274\u6743\u5c1a\u672a\u5b8c\u6210\uff0c\u6682\u65f6\u65e0\u6cd5\u53d1\u9001\u89e3\u9501\u6307\u4ee4\u3002"},
+    {"name":"vehicle_home_close","value":"\u77e5\u9053\u4e86"},
+    {"name":"vehicle_home_connection_open","value":"\u5c55\u5f00\u8fde\u63a5\u7ba1\u7406"},
+    {"name":"vehicle_home_connection_close","value":"\u6536\u8d77\u8fde\u63a5\u7ba1\u7406"},
+    {"name":"vehicle_home_details_empty","value":"\u8fde\u63a5\u8f66\u8f86\u540e\u53ef\u67e5\u770b\u8bbe\u5907\u4fe1\u606f\u3002"},
+    {"name":"vehicle_home_manage_hint","value":"\u4ec5\u9009\u62e9\u4f60\u786e\u8ba4\u5c5e\u4e8e\u81ea\u5df1\u7684\u8f66\u8f86\u3002"},
+    {"name":"vehicle_home_car_name","value":"\u51a0\u80fd\u5962\u4eab Q9-D"},
+    {"name":"vehicle_home_connection_status","value":"\u84dd\u7259\u72b6\u6001"},
+    {"name":"vehicle_home_location_action","value":"\u67e5\u770b\u4f4d\u7f6e"},
+    {"name":"vehicle_home_back","value":"\u8fd4\u56de\u5de5\u5177"},
+    {"name":"vehicle_shortcut_finish_editing","value":"\u8bf7\u5148\u5b8c\u6210\u5f53\u524d\u6279\u6ce8\uff0c\u518d\u4f7f\u7528\u8f66\u8f86\u89e3\u9501\u5165\u53e3\u3002"},
+    {"name": "home_channel_name", "value": "应用内通道"},
+    {"name": "home_channel_relay_name", "value": "公网中继"},
+    {"name": "home_channel_relay_connected", "value": "已通过公网中继连接家中 MyTools"},
+    {"name": "home_channel_connected", "value": "已连接家中 MyTools"},
+    {"name": "home_channel_connecting", "value": "正在连接家中主机"},
+    {"name": "home_channel_waiting", "value": "等待可用通道，当前使用原线路"},
+    {"name": "home_channel_off", "value": "仅转发 MyTools 业务请求"},
+    {"name": "news_title", "value": "\u6bcf\u65e5\u65b0\u95fb"},
+    {"name": "news_tool_subtitle", "value": "\u83b7\u53d6\u6700\u8fd1\u4e03\u5929\u5404\u9886\u57df\u8981\u70b9"},
+    {"name": "news_tool_keywords", "value": "\u65b0\u95fb \u5468\u62a5 \u6280\u672f \u56fd\u9645 \u56fd\u5185 \u672c\u5730 \u6d41\u884c \u519b\u4e8b \u8d22\u7ecf \u793e\u4f1a \u4f53\u80b2 \u5a31\u4e50"},
+    {"name": "news_tool_caption", "value": "\u4e03\u5929\u8981\u70b9"},
+    {"name": "news_heading", "value": "\u6700\u8fd1 7 \u5929\u7684\u65b0\u95fb"},
+    {"name": "news_description", "value": "\u6309\u9886\u57df\u7cbe\u9009\u3001\u5408\u5e76\u91cd\u590d\u62a5\u9053\uff0c\u6bcf\u7c7b\u6700\u591a 20 \u6761\uff0c\u6bcf\u6761\u90fd\u6709\u8be6\u60c5\u548c\u6765\u6e90\u3002"},
+    {"name": "news_manual", "value": "\u624b\u52a8\u83b7\u53d6 \u00b7 \u6700\u8fd1 7 \u5929 \u00b7 \u5317\u4eac\u65f6\u95f4"},
+    {"name": "news_get", "value": "\u83b7\u53d6\u672c\u5468\u8981\u70b9"},
+    {"name": "news_disabled", "value": "\u624b\u52a8\u65b0\u95fb\u670d\u52a1\u5c1a\u672a\u5f00\u653e\uff0c\u8bf7\u7a0d\u540e\u518d\u8bd5\u3002"},
+    {"name": "news_running", "value": "\u540e\u53f0\u751f\u6210\u4e2d"},
+    {"name": "news_history", "value": "\u5386\u53f2\u8bb0\u5f55"},
+    {"name": "news_tech", "value": "\u6280\u672f"},
+    {"name": "news_world", "value": "\u56fd\u9645"},
+    {"name": "news_domestic", "value": "\u56fd\u5185"},
+    {"name": "news_local", "value": "\u672c\u5730"},
+    {"name": "news_trending", "value": "\u6d41\u884c"},
+    {"name": "news_military", "value": "\u519b\u4e8b"},
+    {"name": "news_finance", "value": "\u8d22\u7ecf"},
+    {"name": "news_society", "value": "\u793e\u4f1a"},
+    {"name": "news_sports", "value": "\u4f53\u80b2"},
+    {"name": "news_entertainment", "value": "\u5a31\u4e50"},
+    {"name": "news_succeeded", "value": "\u5df2\u5b8c\u6210"},
+    {"name": "news_partial", "value": "\u90e8\u5206\u5206\u7c7b\u672a\u5b8c\u6210"},
+    {"name": "news_failed", "value": "\u672c\u6b21\u83b7\u53d6\u5931\u8d25"},
+    {"name": "news_queued", "value": "\u7b49\u5f85\u5f00\u59cb"},
+    {"name": "news_collecting", "value": "\u6b63\u5728\u6536\u96c6\u65b0\u95fb"},
+    {"name": "news_enriching", "value": "\u6b63\u5728\u83b7\u53d6\u539f\u6587\u4e0e\u56fe\u7247"},
+    {"name": "news_merging", "value": "\u6b63\u5728\u5408\u5e76\u91cd\u590d\u62a5\u9053"},
+    {"name": "news_analyzing", "value": "\u6b63\u5728\u5206\u6790\u5404\u9886\u57df\u8981\u70b9"},
+    {"name": "news_saving", "value": "\u6b63\u5728\u4fdd\u5b58\u62a5\u544a"},
+    {"name": "news_background", "value": "\u53ef\u4ee5\u79bb\u5f00\u9875\u9762\uff0c\u4efb\u52a1\u4f1a\u7ee7\u7eed\u5728\u540e\u53f0\u6267\u884c\u3002\u91cd\u65b0\u8fdb\u5165\u5373\u53ef\u67e5\u770b\u8fdb\u5ea6\u4e0e\u7ed3\u679c\u3002"},
+    {"name": "news_result", "value": "\u672c\u671f\u65b0\u95fb"},
+    {"name": "news_result_count", "value": "%d \u6761\u65b0\u95fb \u00b7 %d \u4e2a\u5206\u7c7b\u5df2\u5b8c\u6210"},
+    {"name": "news_region", "value": "\u672c\u5730\u6765\u6e90\u5730\u533a\uff1a%s\uff08\u6309\u6267\u884c\u670d\u52a1\u6240\u5728\u5730\uff09"},
+    {"name": "news_retry", "value": "\u91cd\u8bd5\u5931\u8d25\u5206\u7c7b"},
+    {"name": "news_retry_hint", "value": "\u5df2\u5b8c\u6210\u7684\u5185\u5bb9\u4f1a\u4fdd\u7559\u3002\u91cd\u8bd5\u6cbf\u7528\u539f\u4e03\u5929\u8303\u56f4\uff0c\u53ea\u8865\u9f50\u5931\u8d25\u7684\u90e8\u5206\u3002"},
+    {"name": "news_category_failed", "value": "\u8fd9\u4e2a\u5206\u7c7b\u6682\u672a\u5b8c\u6210"},
+    {"name": "news_category_empty", "value": "\u8fd9\u4e2a\u5206\u7c7b\u6682\u65e0\u5408\u683c\u65b0\u95fb"},
+    {"name": "news_shortfall", "value": "\u53ea\u5c55\u793a\u6709\u53ef\u9760\u65f6\u95f4\u3001\u6b63\u6587\u4e0e\u6765\u6e90\u7684\u65b0\u95fb\uff1b\u4e0d\u8db3 20 \u6761\u65f6\u4fdd\u7559\u5b9e\u9645\u6570\u91cf\u3002"},
+    {"name": "news_empty_title", "value": "\u8fd8\u6ca1\u6709\u83b7\u53d6\u65b0\u95fb"},
+    {"name": "news_empty_hint", "value": "\u70b9\u51fb\u300c\u83b7\u53d6\u672c\u5468\u8981\u70b9\u300d\uff0c\u540e\u53f0\u5c06\u6536\u96c6\u6700\u8fd1 7 \u5929\u7684\u65b0\u95fb\u5e76\u751f\u6210\u62a5\u544a\u3002"},
+    {"name": "news_no_history", "value": "\u6682\u65e0\u5386\u53f2\u8bb0\u5f55"},
+    {"name": "news_view_report", "value": "\u67e5\u770b\u672c\u671f"},
+    {"name": "news_more", "value": "\u52a0\u8f7d\u66f4\u591a"},
+    {"name": "news_read_detail", "value": "\u9605\u8bfb\u5168\u6587"},
+    {"name": "news_original_image", "value": "\u65b0\u95fb\u6765\u6e90\u539f\u56fe"},
+    {"name": "news_image_failed", "value": "\u539f\u56fe\u6682\u4e0d\u53ef\u7528"},
+    {"name": "news_image_loading", "value": "\u6b63\u5728\u52a0\u8f7d\u539f\u56fe"},
+    {"name": "news_key_points", "value": "\u65b0\u95fb\u8981\u70b9"},
+    {"name": "news_why_selected", "value": "\u5165\u9009\u7406\u7531"},
+    {"name": "news_sources", "value": "\u62a5\u9053\u6765\u6e90"},
+    {"name": "news_read_failed", "value": "\u6682\u65f6\u65e0\u6cd5\u8bfb\u53d6\uff0c\u8bf7\u68c0\u67e5\u8fde\u63a5\u540e\u5237\u65b0\u3002"},
+    {"name": "news_poll_failed", "value": "\u8fdb\u5ea6\u8fde\u63a5\u6682\u65f6\u4e2d\u65ad\uff0c\u540e\u53f0\u4efb\u52a1\u4e0d\u53d7\u5f71\u54cd\uff0c\u6b63\u5728\u91cd\u8bd5\u67e5\u8be2\u3002"},
+    {"name": "news_submit_uncertain", "value": "\u5c1a\u672a\u786e\u8ba4\u63d0\u4ea4\u7ed3\u679c\u3002\u53ef\u70b9\u51fb\u5237\u65b0\u6062\u590d\u72b6\u6001\uff0c\u6216\u518d\u6b21\u70b9\u51fb\u83b7\u53d6\uff1b\u91cd\u590d\u8bf7\u6c42\u4f1a\u5408\u5e76\u3002"},
+    {"name": "news_reused", "value": "\u5df2\u4e3a\u4f60\u6062\u590d\u521a\u521a\u83b7\u53d6\u7684\u4efb\u52a1\u6216\u62a5\u544a\u3002"},
+    {"name": "news_retry_failed", "value": "\u6682\u65f6\u65e0\u6cd5\u786e\u8ba4\u91cd\u8bd5\u7ed3\u679c\uff0c\u8bf7\u5237\u65b0\u4efb\u52a1\u72b6\u6001\u540e\u518d\u8bd5\u3002"},
+    {"name": "news_source_failed", "value": "\u65e0\u6cd5\u6253\u5f00\u6765\u6e90\u94fe\u63a5\uff0c\u8bf7\u7a0d\u540e\u518d\u8bd5\u3002"},
+    {"name": "news_refresh", "value": "\u5237\u65b0\u72b6\u6001"}
   ]
 }

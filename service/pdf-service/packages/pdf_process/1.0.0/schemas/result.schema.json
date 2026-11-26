@@ -1,0 +1,1 @@
+{"type":"object","required":["workId","completed"],"properties":{"workId":{"type":"string","format":"uuid"},"completed":{"type":"boolean"}},"additionalProperties":false}

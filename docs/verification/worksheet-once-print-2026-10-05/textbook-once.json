@@ -1,0 +1,294 @@
+{
+  "release": "once-print-20261005-123000",
+  "entryAsset": "assets/index-BgZjbVgh.js",
+  "runtime": "Real Chromium UI in isolated ocr-engine-diagnostic session",
+  "english": {
+    "book": "译林版英语 三年级上册 2024年版（2022课标修订版）",
+    "selection": "Unit 1 Hello!",
+    "defaultSelectedCount": 0,
+    "defaultNextDisabled": true,
+    "initial": {
+      "requests": [],
+      "values": [
+        {
+          "label": "第 1 行中文",
+          "value": "哈啰，你好"
+        },
+        {
+          "label": "第 1 行英语",
+          "value": "hello"
+        },
+        {
+          "label": "第 2 行中文",
+          "value": "喂，嗨"
+        },
+        {
+          "label": "第 2 行英语",
+          "value": "hi"
+        },
+        {
+          "label": "第 3 行中文",
+          "value": "早上好。"
+        },
+        {
+          "label": "第 3 行英语",
+          "value": "Good morning."
+        },
+        {
+          "label": "第 4 行中文",
+          "value": "我"
+        },
+        {
+          "label": "第 4 行英语",
+          "value": "I"
+        },
+        {
+          "label": "第 5 行中文",
+          "value": "是"
+        },
+        {
+          "label": "第 5 行英语",
+          "value": "am"
+        },
+        {
+          "label": "第 6 行中文",
+          "value": "啊"
+        },
+        {
+          "label": "第 6 行英语",
+          "value": "ah"
+        },
+        {
+          "label": "第 7 行中文",
+          "value": "一（个）"
+        },
+        {
+          "label": "第 7 行英语",
+          "value": "a"
+        },
+        {
+          "label": "第 8 行中文",
+          "value": "猫"
+        },
+        {
+          "label": "第 8 行英语",
+          "value": "cat"
+        },
+        {
+          "label": "第 9 行中文",
+          "value": "小姐，女士"
+        },
+        {
+          "label": "第 9 行英语",
+          "value": "Miss"
+        },
+        {
+          "label": "第 10 行中文",
+          "value": "下午好。"
+        },
+        {
+          "label": "第 10 行英语",
+          "value": "Good afternoon."
+        },
+        {
+          "label": "第 11 行中文",
+          "value": "同学们"
+        },
+        {
+          "label": "第 11 行英语",
+          "value": "class"
+        },
+        {
+          "label": "第 12 行中文",
+          "value": "再见，再会"
+        },
+        {
+          "label": "第 12 行英语",
+          "value": "goodbye"
+        },
+        {
+          "label": "第 13 行中文",
+          "value": "再见，再会"
+        },
+        {
+          "label": "第 13 行英语",
+          "value": "bye"
+        }
+      ]
+    },
+    "afterEditClearBackContinue": {
+      "requests": [],
+      "fields": [
+        {
+          "label": "第 1 行中文",
+          "value": ""
+        },
+        {
+          "label": "第 1 行英语",
+          "value": "swimming"
+        }
+      ]
+    },
+    "afterExplicitCompletion": {
+      "requests": [
+        {
+          "path": "public/v1/translations",
+          "method": "POST",
+          "input": {
+            "items": [
+              {
+                "id": "tok-3eee1a18-504f-4985-9f9c-4260a79050ae",
+                "text": "swimming"
+              }
+            ]
+          }
+        }
+      ],
+      "fields": [
+        {
+          "label": "第 1 行中文",
+          "value": "游泳"
+        },
+        {
+          "label": "第 1 行英语",
+          "value": "swimming"
+        }
+      ]
+    }
+  },
+  "chinese": {
+    "book": "统编语文 一年级上册 2024年版（2022课标修订版）",
+    "selection": "第一单元 1 天地人",
+    "defaultSelectedCount": 0,
+    "defaultNextDisabled": true,
+    "initial": {
+      "requests": [
+        {
+          "path": "public/v1/translations",
+          "method": "POST",
+          "input": {
+            "items": [
+              {
+                "id": "tok-3eee1a18-504f-4985-9f9c-4260a79050ae",
+                "text": "swimming"
+              }
+            ]
+          }
+        }
+      ],
+      "values": [
+        {
+          "label": "第 1 行汉字",
+          "value": "天"
+        },
+        {
+          "label": "第 1 行拼音",
+          "value": "tiān"
+        },
+        {
+          "label": "第 2 行汉字",
+          "value": "地"
+        },
+        {
+          "label": "第 2 行拼音",
+          "value": "dì"
+        },
+        {
+          "label": "第 3 行汉字",
+          "value": "人"
+        },
+        {
+          "label": "第 3 行拼音",
+          "value": "rén"
+        },
+        {
+          "label": "第 4 行汉字",
+          "value": "你"
+        },
+        {
+          "label": "第 4 行拼音",
+          "value": "nǐ"
+        },
+        {
+          "label": "第 5 行汉字",
+          "value": "我"
+        },
+        {
+          "label": "第 5 行拼音",
+          "value": "wǒ"
+        },
+        {
+          "label": "第 6 行汉字",
+          "value": "他"
+        },
+        {
+          "label": "第 6 行拼音",
+          "value": "tā"
+        }
+      ]
+    },
+    "afterEditClearBackContinue": {
+      "requests": [
+        {
+          "path": "public/v1/translations",
+          "method": "POST",
+          "input": {
+            "items": [
+              {
+                "id": "tok-3eee1a18-504f-4985-9f9c-4260a79050ae",
+                "text": "swimming"
+              }
+            ]
+          }
+        }
+      ],
+      "fields": [
+        {
+          "label": "第 1 行汉字",
+          "value": "山"
+        },
+        {
+          "label": "第 1 行拼音",
+          "value": ""
+        }
+      ]
+    },
+    "afterExplicitCompletion": {
+      "requests": [
+        {
+          "path": "public/v1/translations",
+          "method": "POST",
+          "input": {
+            "items": [
+              {
+                "id": "tok-3eee1a18-504f-4985-9f9c-4260a79050ae",
+                "text": "swimming"
+              }
+            ]
+          }
+        }
+      ],
+      "fields": [
+        {
+          "label": "第 1 行汉字",
+          "value": "山"
+        },
+        {
+          "label": "第 1 行拼音",
+          "value": "shān"
+        }
+      ]
+    },
+    "translationRequestNote": "One request in cumulative log belongs to earlier explicit English case; Chinese pinyin actions added no network requests."
+  },
+  "checks": {
+    "englishRows": 13,
+    "chineseRows": 6,
+    "bothRangesInitiallyUnselected": true,
+    "bothEditedSourceAndClearedTargetSurviveBackAndContinue": true,
+    "noAutomaticTranslationAfterEditing": true,
+    "explicitEnglishCompletionRequestsOnce": true,
+    "explicitPinyinProducesShan": true
+  },
+  "physicalPrintInvoked": false
+}

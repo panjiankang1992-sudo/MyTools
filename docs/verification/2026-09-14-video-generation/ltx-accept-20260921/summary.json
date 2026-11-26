@@ -1,0 +1,12 @@
+{
+  "tasks": 10,
+  "succeeded": 10,
+  "elapsedSecondsMin": 18.06,
+  "elapsedSecondsMax": 18.08,
+  "sampledWorkerGpuPeakMiB": 11554,
+  "minReportedAvailableMemoryMiB": 15167,
+  "formalQualityPassed": 2,
+  "formalQualityTotal": 6,
+  "productEnabled": false,
+  "fullVideoServiceAssetFlowVerified": false
+}

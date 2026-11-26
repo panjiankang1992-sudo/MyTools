@@ -2,6 +2,10 @@ package com.yuyutian.mytools.media.library.service;
 
 import com.yuyutian.mytools.media.library.config.MediaLibraryConfiguration.LegacyContentDatabase;
 import com.yuyutian.mytools.media.library.repository.MediaRepository;
+import com.yuyutian.mytools.media.library.common.ErrorCode;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +48,18 @@ public class LegacyMediaContentService {
         this.resourceUsername = resourceUsername;
     }
 
+    /** 校验所有者和可用状态；缺少旧文件映射的条目从其登记的原始资产取流。 */
+    public boolean writeManagedOriginal(long ownerId, UUID mediaId, String range, boolean head,
+                                        HttpServletResponse response) {
+        var media = repository.view(mediaId)
+                .filter(item -> item.ownerId() == ownerId && "READY".equals(item.status()))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorCode.CONTENT_NOT_FOUND.code()));
+        // 已迁移的旧文件继续使用原有文件资源和 Spring 的 Range 处理。
+        if (repository.legacyFileId(ownerId, mediaId).isPresent()) return false;
+        derivedThumbnailContentService.writeOriginal(media, range, head, response);
+        return true;
+    }
+
     /**
      * 解析当前所有者已经迁移媒体的真实文件。
      *
@@ -65,15 +81,23 @@ public class LegacyMediaContentService {
                 return originalImage;
             }
         }
-        long legacyId = repository.legacyFileId(ownerId, mediaId)
+        var media = repository.view(mediaId).filter(value -> value.ownerId() == ownerId)
                 .orElseThrow(() -> new IllegalArgumentException("media content not found"));
+        Long legacyId = repository.legacyFileId(ownerId, mediaId).orElse(null);
+        // 扫描导入条目可能没有旧主键关联，仅为已授权媒体按摘要和长度复用相同内容的旧封面。
+        if (legacyId == null && !thumbnail) throw new IllegalArgumentException("media content not found");
         String url = "jdbc:mysql://" + database.host() + ":" + database.port() + "/" + database.database()
                 + "?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai";
         try (var connection = DriverManager.getConnection(url, database.username(), database.password());
              var statement = connection.prepareStatement(
-                     "SELECT file_path,thumbnail_path,mime_type,file_size FROM local_file WHERE id=?")) {
+                     legacyId != null ? "SELECT id,file_path,thumbnail_path,mime_type,file_size FROM local_file WHERE id=?"
+                             : "SELECT id,file_path,thumbnail_path,mime_type,file_size FROM local_file WHERE file_hash=? AND file_size=? AND deleted=0 ORDER BY thumbnail_path IS NULL,id LIMIT 1")) {
             connection.setReadOnly(true);
-            statement.setLong(1, legacyId);
+            if (legacyId != null) statement.setLong(1, legacyId);
+            else {
+                statement.setString(1, media.contentSha256());
+                statement.setLong(2, media.sizeBytes());
+            }
             try (var result = statement.executeQuery()) {
                 if (!result.next()) {
                     throw new IllegalArgumentException("media content not found");
@@ -84,6 +108,19 @@ public class LegacyMediaContentService {
                 Path path = thumbnail && thumbnailPath != null && !thumbnailPath.isBlank()
                         ? resolveMigratedPath(Path.of(thumbnailPath)) : original;
                 long expectedSize = result.getLong("file_size");
+                // 旧视频包已经保存封面时直接复用，禁止把视频原文件当成图片预览返回。
+                if (thumbnail && originalMimeType != null && originalMimeType.startsWith("video/")
+                        && (path.equals(original) || !Files.isRegularFile(path))) {
+                    Path sharedThumbnail = RESOURCE_ROOT.resolve(".thumbnails").resolve(result.getLong("id") + ".jpg");
+                    Path packagedThumbnail = original.getParent().resolve("thumbnail.jpg");
+                    if (Files.isRegularFile(sharedThumbnail)) {
+                        path = sharedThumbnail;
+                    } else if (original.toString().contains("/big_media/") && Files.isRegularFile(packagedThumbnail)) {
+                        path = packagedThumbnail;
+                    } else {
+                        throw new IllegalArgumentException("media thumbnail is unavailable");
+                    }
+                }
                 // 图片缩略图缺失时可回退原图；视频禁止把超大原文件伪装成缩略图返回。
                 if (thumbnail && !Files.isRegularFile(path)) {
                     if (originalMimeType == null || !originalMimeType.toLowerCase().startsWith("image/")) {
@@ -111,6 +148,13 @@ public class LegacyMediaContentService {
     Path resolveMigratedPath(Path storedPath) {
         Path normalized = storedPath.toAbsolutePath().normalize();
         Path userResourceRoot = RESOURCE_ROOT.resolve(resourceUsername).normalize();
+        // 历史缩略图仍存放在公共目录，迁移记录可能误加了用户名层；沿用唯一旧文件标识。
+        Path sharedThumbnails = RESOURCE_ROOT.resolve(".thumbnails");
+        if (normalized.startsWith(sharedThumbnails)) return normalized;
+        Path scopedThumbnails = userResourceRoot.resolve(".thumbnails");
+        if (normalized.startsWith(scopedThumbnails) && !Files.isRegularFile(normalized)) {
+            return sharedThumbnails.resolve(scopedThumbnails.relativize(normalized));
+        }
         // 新目录已经包含用户名层时必须原样解析，不能在文件暂时缺失时重复拼接用户名。
         if (normalized.startsWith(userResourceRoot)) {
             return normalized;

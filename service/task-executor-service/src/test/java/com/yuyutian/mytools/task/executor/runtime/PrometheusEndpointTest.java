@@ -16,6 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
         "executor.require-non-root=false",
+        "executor.resource-limits.maximum-cpu-seconds=0",
+        "executor.resource-limits.maximum-virtual-memory-bytes=0",
+        "executor.resource-limits.maximum-file-bytes=0",
         "executor.work-root=${java.io.tmpdir}/mytools-executor-prometheus-${random.uuid}",
         "spring.task.scheduling.enabled=false",
         "management.endpoints.web.exposure.include=health,info,metrics,prometheus"
@@ -37,6 +40,7 @@ class PrometheusEndpointTest {
         assertTrue(containsMetric(body, "task_executor_journal_readable", "1.0"));
         assertTrue(containsMetric(body, "task_executor_journal_pending", "0.0"));
         assertTrue(containsMetric(body, "task_executor_journal_diagnostic", "0.0"));
+        assertTrue(containsMetric(body, "task_executor_process_launch_ready", "1.0"));
     }
 
     private boolean containsMetric(String body, String metric, String value) {

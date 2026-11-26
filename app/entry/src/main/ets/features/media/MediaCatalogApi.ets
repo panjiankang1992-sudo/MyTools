@@ -2,7 +2,7 @@ import { AuthSessionManager } from '../auth/AuthSessionManager';
 import { AuthorizedApiClient } from '../../shared/network/AuthorizedApiClient';
 import { DownloadCancellationToken } from '../../shared/network/DownloadCancellationToken';
 import {
-  MediaCatalogFilters, MediaCatalogItem, MediaCatalogKind, MediaDirectoryFilter, MediaGalleryPage,
+  MediaCatalogFilters, MediaCatalogItem, MediaCatalogKind, MediaCatalogPage, MediaDirectoryFilter, MediaGalleryPage,
   MediaStoryboardFrame, MediaTagFilter, MediaVideoDetail, MediaVideoDirectory
 } from './MediaCatalogModels';
 import { RemotePlaybackDescriptor } from './RemoteMediaModels';
@@ -21,14 +21,17 @@ interface CatalogQueryData {
 export class MediaCatalogApi {
   private static readonly MAX_LIBRARY_ITEMS: number = 10000;
   private static readonly GALLERY_PAGE_SIZE: number = 100;
+  private static readonly BROWSE_PAGE_SIZE: number = 6;
   private readonly client: AuthorizedApiClient;
   private readonly baseUrl: string;
+  private readonly authManager: AuthSessionManager;
   private readonly playbackNormalizer: RemoteMediaResponseNormalizer = new RemoteMediaResponseNormalizer();
   private readonly libraryItemCache: Map<string, Object[]> = new Map<string, Object[]>();
   private readonly catalogCache: Map<string, CatalogQueryData> = new Map<string, CatalogQueryData>();
 
   constructor(baseUrl: string, authManager: AuthSessionManager) {
     this.baseUrl = authManager.normalizeBusinessBaseUrl(baseUrl);
+    this.authManager = authManager;
     this.client = new AuthorizedApiClient(baseUrl, authManager);
   }
 
@@ -42,6 +45,17 @@ export class MediaCatalogApi {
       (mode === 'audio' ? 'audio/' : 'text/'));
     const data = await this.catalog(prefix, '', '', keyword, 1, excludeAdult, cancellation);
     return { directories: data.directories, tags: data.tags };
+  }
+
+  /** 一次只读取一批浏览数据，同时复用响应中的筛选项，首屏不等待额外请求。 */
+  async browsePage(mode: string, directoryId: string, tag: string, keyword: string, page: number,
+    excludeAdult: boolean, cancellation?: DownloadCancellationToken): Promise<MediaCatalogPage> {
+    const prefix = mode === 'gallery' ? 'image/' : (mode === 'audio' ? 'audio/' : 'video/');
+    const safePage = Math.max(1, page);
+    const data = await this.catalog(prefix, directoryId, tag, keyword, safePage, excludeAdult,
+      cancellation, MediaCatalogApi.BROWSE_PAGE_SIZE);
+    return { items: data.items, total: data.total, page: safePage, pageSize: MediaCatalogApi.BROWSE_PAGE_SIZE,
+      filters: { directories: data.directories, tags: data.tags } };
   }
 
   /** 查询图库分页。 */
@@ -123,7 +137,7 @@ export class MediaCatalogApi {
   async playTicket(videoId: string, cancellation?: DownloadCancellationToken): Promise<RemotePlaybackDescriptor> {
     if (!this.isUuid(videoId)) throw new Error('视频标识无效');
     const envelope = await this.client.post(`/api/app/v1/media/items/${videoId}/play-ticket`, cancellation);
-    return this.playbackNormalizer.normalizePlayback(envelope.data, this.baseUrl, 'MYTOOLS_LIBRARY');
+    return this.playbackNormalizer.normalizePlayback(envelope.data, this.businessBaseUrl(), 'MYTOOLS_LIBRARY');
   }
 
   /** 将受认证缩略图或截图下载到缓存URI。 */
@@ -260,20 +274,20 @@ export class MediaCatalogApi {
 
   /** 调用媒体库同步目录接口，查询过程不创建任务。 */
   private async catalog(mimePrefix: string, directoryId: string, tag: string, keyword: string, page: number, excludeAdult: boolean,
-    cancellation?: DownloadCancellationToken): Promise<CatalogQueryData> {
-    const cacheKey = `${mimePrefix}|${directoryId}|${tag}|${keyword.trim()}|${page}|${excludeAdult}`;
+    cancellation?: DownloadCancellationToken, pageSize: number = MediaCatalogApi.GALLERY_PAGE_SIZE): Promise<CatalogQueryData> {
+    const cacheKey = `${mimePrefix}|${directoryId}|${tag}|${keyword.trim()}|${page}|${excludeAdult}|${pageSize}`;
     const cached = this.catalogCache.get(cacheKey);
     if (cached !== undefined) return cached;
     const envelope = await this.client.get('/api/app/v1/media/catalog' +
       `?mimePrefix=${encodeURIComponent(mimePrefix)}&tag=${encodeURIComponent(tag)}` +
       `&directoryId=${encodeURIComponent(directoryId)}` +
       `&keyword=${encodeURIComponent(keyword.trim())}&page=${page}` +
-      `&pageSize=${MediaCatalogApi.GALLERY_PAGE_SIZE}&excludeAdult=${excludeAdult}`, cancellation);
+      `&pageSize=${pageSize}&excludeAdult=${excludeAdult}`, cancellation);
     const data = this.record(envelope.data);
     const rawItems = data['items'];
     const rawTags = data['tags'];
     const rawDirectories = data['directories'];
-    if (!Array.isArray(rawItems) || rawItems.length > MediaCatalogApi.GALLERY_PAGE_SIZE ||
+    if (!Array.isArray(rawItems) || rawItems.length > pageSize ||
       !Array.isArray(rawTags) || rawTags.length > 500 || !Array.isArray(rawDirectories) ||
       rawDirectories.length > 5000) throw new Error('媒体目录响应无效');
     const result: CatalogQueryData = { items: rawItems.map((entry: Object): MediaCatalogItem => this.item(entry)),
@@ -322,5 +336,10 @@ export class MediaCatalogApi {
     const items = await this.allLibraryItems(mimePrefix, MediaCatalogApi.MAX_LIBRARY_ITEMS, cancellation);
     this.libraryItemCache.set(mimePrefix, items);
     return items;
+  }
+
+  /** 票据按当前已验证业务路由生成，避免复用实例后仍拼接旧地址。 */
+  private businessBaseUrl(): string {
+    return this.authManager.resolveBusinessBaseUrl(this.baseUrl);
   }
 }

@@ -1,0 +1,132 @@
+[
+  {
+    "id": "0f49dd9e-cae3-4f2b-84fc-9c9f123976bc",
+    "operation": "PDF_TO_TEXT",
+    "createdAt": "2026-10-03T08:03:17.581Z",
+    "artifacts": [
+      {
+        "name": "result_result.txt",
+        "pages": 0,
+        "bytes": 61
+      }
+    ]
+  },
+  {
+    "id": "47658cbe-6add-40d4-8cd8-092845f40d6d",
+    "operation": "PDF_PAGE_CUT",
+    "createdAt": "2026-10-03T07:56:35.371Z",
+    "artifacts": [
+      {
+        "name": "result_result.pdf",
+        "pages": 2,
+        "bytes": 7273
+      }
+    ]
+  },
+  {
+    "id": "4d7d5ba6-56fa-478f-8c71-88ffffad2c31",
+    "operation": "IMAGES_TO_PDF",
+    "createdAt": "2026-10-03T08:02:18.715Z",
+    "artifacts": [
+      {
+        "name": "result_result_result-1_result.pdf",
+        "pages": 1,
+        "bytes": 31985
+      }
+    ]
+  },
+  {
+    "id": "7ae738c5-df93-4e6f-952e-7190e19f926b",
+    "operation": "PDF_SPLIT",
+    "createdAt": "2026-10-03T07:57:08.627Z",
+    "artifacts": [
+      {
+        "name": "result_result_result-1.pdf",
+        "pages": 1,
+        "bytes": 3845
+      },
+      {
+        "name": "result_result_result-2.pdf",
+        "pages": 1,
+        "bytes": 3849
+      }
+    ]
+  },
+  {
+    "id": "8058ebd3-b985-482a-9937-75e927483d90",
+    "operation": "PDF_TO_IMAGES",
+    "createdAt": "2026-10-03T08:00:34.467Z",
+    "artifacts": [
+      {
+        "name": "result_result_result-1.png",
+        "pages": 1,
+        "bytes": 66668
+      },
+      {
+        "name": "result_result_result-2.png",
+        "pages": 1,
+        "bytes": 33824
+      }
+    ]
+  },
+  {
+    "id": "a233d2d4-7d60-4d65-ae43-577203257309",
+    "operation": "TEXT_TO_PDF",
+    "createdAt": "2026-10-03T07:43:09.707Z",
+    "artifacts": [
+      {
+        "name": "result.pdf",
+        "pages": 1,
+        "bytes": 3832
+      }
+    ]
+  },
+  {
+    "id": "ccdba847-1d21-43fa-b336-aa445dadcb3f",
+    "operation": "TEXT_TO_PDF",
+    "createdAt": "2026-10-03T08:03:13.391Z",
+    "artifacts": [
+      {
+        "name": "result.pdf",
+        "pages": 1,
+        "bytes": 2836
+      }
+    ]
+  },
+  {
+    "id": "ec8528c3-d7a8-407b-b39e-9b7f7fa74032",
+    "operation": "MARKDOWN_TO_PDF",
+    "createdAt": "2026-10-03T08:03:52.786Z",
+    "artifacts": [
+      {
+        "name": "result.pdf",
+        "pages": 1,
+        "bytes": 3814
+      }
+    ]
+  },
+  {
+    "id": "fc934f8f-5544-4e78-aa46-ff9e037970a6",
+    "operation": "PDF_MERGE",
+    "createdAt": "2026-10-03T08:00:26.924Z",
+    "artifacts": [
+      {
+        "name": "result_result.pdf",
+        "pages": 2,
+        "bytes": 7269
+      }
+    ]
+  },
+  {
+    "id": "0c6bf88a-f95c-4b40-aefe-8654110d9004",
+    "operation": "PDF_PAGE_CUT",
+    "createdAt": "2026-10-03T08:08:12.364Z",
+    "artifacts": [
+      {
+        "name": "result_result.pdf",
+        "pages": 2,
+        "bytes": 7277
+      }
+    ]
+  }
+]

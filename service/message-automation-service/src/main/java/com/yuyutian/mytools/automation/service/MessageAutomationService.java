@@ -602,7 +602,9 @@ public class MessageAutomationService {
             throw new IllegalStateException("Action status is missing");
         }
         return switch (status) {
-            case "ACCEPTED", "PLANNING", "QUEUED", "RESOLVING", "RUNNING", "CANCELLING" -> "RUNNING";
+            // 附件可能在解析完成或刚提交下载的窗口内被轮询，两个状态均未终结。
+            case "ACCEPTED", "PLANNING", "QUEUED", "RESOLVING", "RESOLVED", "SUBMITTED", "RUNNING", "CANCELLING" ->
+                    "RUNNING";
             case "SUCCEEDED" -> "SUCCEEDED";
             case "FAILED", "TIMED_OUT" -> "FAILED";
             case "CANCELLED" -> "CANCELLED";

@@ -1,0 +1,9 @@
+{
+  "enabled": false,
+  "baseUrl": "https://news.example.com/news",
+  "directory": "/var/lib/mytools-news-public",
+  "feedDays": 7,
+  "archiveDays": 90,
+  "maxFeedBytes": 8388608,
+  "feedFormat": "articles"
+}

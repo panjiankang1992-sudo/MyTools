@@ -1,0 +1,34 @@
+{
+  "result": "inconclusive-no-observed-app-font-enlargement",
+  "scope": "dedicated isolated test emulator only; main Pura90 and physical phone settings not changed",
+  "selectedSystemFontSlider": "5.000000",
+  "restoredSystemFontSlider": "2.000000",
+  "otherSliderValues": {
+    "largest": [
+      "1.000000",
+      "1.000000"
+    ],
+    "restored": [
+      "1.000000",
+      "1.000000"
+    ]
+  },
+  "nativeTextDefault": [
+    {
+      "text": "上传",
+      "bounds": "[160,1114][257,1180]"
+    }
+  ],
+  "nativeTextAfterLargestAndColdStart": [
+    {
+      "text": "上传",
+      "bounds": "[160,1114][257,1180]"
+    }
+  ],
+  "reason": "Settings showed the largest font selection, but the observed upload text bounds did not enlarge after cold start. This does not prove largest-font layout coverage.",
+  "evidence": {
+    "selectedSettings": "/tmp/mytools-ui-probe-private/21-settings-font-largest.json",
+    "coldStartApp": "/tmp/mytools-ui-probe-private/23-actions-font-largest-cold.json",
+    "restoredSettings": "/tmp/mytools-ui-probe-private/24-settings-font-restored.json"
+  }
+}

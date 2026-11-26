@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "sourceId": "moe-teaching-book-catalog-2024",
+      "kind": "officialCatalog",
+      "title": "教育部 2024 年义务教育国家课程教学用书目录",
+      "url": "https://www.moe.gov.cn/srcsite/A26/s8001/202408/W020240805496325238752.pdf",
+      "purpose": "核对统编语文的出版社、年级与册次系列关系，不用于直接转录词表。",
+      "accessBasis": "publicOfficialDocument",
+      "verifiedAt": "2026-10-02",
+      "notes": "只证明系列与年级对应关系；具体学校的教材版本仍需逐校确认，不能据此声称已具备字词库。"
+    },
+    {
+      "sourceId": "pep-textbook-center",
+      "kind": "publisherCatalog",
+      "title": "人民教育出版社教材产品中心",
+      "url": "https://www.pep.com.cn/products/jc/",
+      "purpose": "核对人教版统编语文的现行版次信息。",
+      "accessBasis": "publicOfficialSite",
+      "verifiedAt": "2026-10-02",
+      "notes": "需要在录入每一册时记录 ISBN/版次；当前槽位保持 missing，未填写未经核实的版次。"
+    },
+    {
+      "sourceId": "yilin-ebook",
+      "kind": "publisherCatalog",
+      "title": "译林出版社电子教材入口",
+      "url": "https://edu.yilin.com/index.php/Category/index?nav_id=14",
+      "purpose": "核对译林版英语的年级与册次系列关系。",
+      "accessBasis": "publicOfficialSite",
+      "verifiedAt": "2026-10-02",
+      "notes": "译林版为产品推荐，不代表所有学校统一使用；词表需另行取得可用来源并人工校对。"
+    },
+    {
+      "sourceId": "jiangsu-textbook-selection-rules",
+      "kind": "policyDocument",
+      "title": "江苏省中小学教材选用管理实施细则",
+      "url": "https://jyt.jiangsu.gov.cn/art/2024/1/18/art_88010_11138172.html",
+      "purpose": "说明江苏语文使用国家统编教材、其他学科由设区市组织选用。",
+      "accessBasis": "publicPolicyDocument",
+      "verifiedAt": "2026-10-02",
+      "notes": "解释“语文统编、英语译林优先”的产品推荐依据。"
+    }
+  ]
+}

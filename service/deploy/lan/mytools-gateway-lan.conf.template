@@ -1,0 +1,213 @@
+# 统一局域网入口按迁移边界连接 Gateway 与保留服务，不复用旧单体端口。
+map $http_upgrade $mytools_gateway_lan_connection {
+    default upgrade;
+    '' close;
+}
+map $request_method $mytools_gateway_lan_ticket_upstream {
+    default 127.0.0.1:23200;
+    POST 127.0.0.1:23110;
+}
+
+server {
+@LAN_LISTENERS@
+    server_name _;
+    allow 10.0.0.0/8;
+    allow 172.16.0.0/12;
+    allow 192.168.0.0/16;
+    deny all;
+
+    # 播放票据属于凭据，不能把完整 URL 写入常规访问日志。
+    access_log off;
+    error_log /var/log/nginx/mytools-gateway-lan-error.log crit;
+    client_max_body_size 200m;
+    client_body_timeout 120s;
+
+    # 迁移未完成的既有接口保持原服务，匹配边界不能扩大到未知路径。
+    location = /api/cloud {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    location ^~ /api/cloud/ {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    location = /api/ebooks {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    location ^~ /api/ebooks/ {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    location = /api/localfiles {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    location ^~ /api/localfiles/ {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    location ^~ /api/app/v1/local-media/ {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    location = /api/public/feedback {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    location = /api/app/v1/files/download {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    location = /api/app/v1/reader/data {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    location = /api/app/v1/reader/data/summary {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    location ~ "^/api/app/v1/reader/source-discovery(?:/[A-Za-z0-9_-]+)?$" {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    location = /api/app/v1/media/thumbnail {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    # 此路径仅 POST 属于旧接口，其他方法仍按 Gateway 处理。
+    location = /api/app/v1/media/tickets {
+        proxy_pass http://$mytools_gateway_lan_ticket_upstream;
+@API_PROXY_PARAMETERS@
+    }
+    location ~ "^/api/app/v1/media/tickets/[a-f0-9]{32}/metrics$" {
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+    # 冲突播放票据优先新服务，只有只读请求的 404 可进入旧服务。
+    location ~ "^/api/app/v1/media/tickets/[a-f0-9]{32}$" {
+        proxy_pass http://127.0.0.1:23200;
+        proxy_intercept_errors on;
+        error_page 404 = @mytools_gateway_lan_legacy_ticket;
+@API_PROXY_PARAMETERS@
+    }
+    location @mytools_gateway_lan_legacy_ticket {
+        if ($request_method !~ "^(GET|HEAD)$") { return 404; }
+        proxy_pass http://127.0.0.1:23110;
+@API_PROXY_PARAMETERS@
+    }
+
+    # DSH 0.2.1-rc.2 的独立 HTTP 路径和已安装 RPC 命名空间须进入 DSH 网页认证。
+    location ~ "^/api/(?:remote[.]mux|file|[$]events/result|changes[.](?:summary|diff|open)|present[.](?:host|open)|session[.]export|(?:account|agentPresets|commands|cotTranslation|credentials|directoryPicker|dynamicCordisRunner|fileReferences|fileUploads|goals|job|llm|messageFeedback|officeToPdf|permissionPresets|pluginInventory|pluginManager|pluginMarket|pluginRegistryProbe|productAnalytics|remoteAccess|schedule|session|sessionFeedback|sessionReferenceResolver|settings|sidebarBrowser|sidebarTerminal|skills|speech|subagents|terminal|userQuestions|workspace|workspaceFiles)/[A-Za-z0-9_-]+)$" {
+        if ($http_sec_fetch_site = cross-site) { return 403; }
+        # 同源文件 GET 可以没有 Origin，带 Origin 的请求必须与当前入口一致。
+        set $mytools_dsh_expected_origin "";
+        if ($http_origin != "") { set $mytools_dsh_expected_origin "@DSH_BROWSER_ORIGIN@"; }
+        if ($http_origin != $mytools_dsh_expected_origin) { return 403; }
+        if ($arg_token != "") { return 403; }
+        # 与 DSH 的 300 MiB HTTP 载体上限对齐，保证较大的图片请求和附件上传。
+        client_max_body_size 300m;
+        auth_request /_mytools/authorize;
+        auth_request_set $mytools_dsh_cookie $upstream_http_x_dsh_upstream_cookie;
+        proxy_pass http://127.0.0.1:3080;
+        proxy_http_version 1.1;
+        proxy_set_header Host dsh-app.yuyutian.top;
+        proxy_set_header Origin https://dsh-app.yuyutian.top;
+        proxy_set_header Cookie $mytools_dsh_cookie;
+        proxy_hide_header Set-Cookie;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $mytools_gateway_lan_connection;
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 120s;
+        proxy_cache off;
+        proxy_buffering off;
+        proxy_request_buffering off;
+        proxy_next_upstream off;
+    }
+
+    # 其余 API 进入 Gateway，普通 404 不兜底到旧服务。
+    location /api/ {
+        proxy_pass http://127.0.0.1:23200;
+@API_PROXY_PARAMETERS@
+    }
+
+    location = /_mytools/connect {
+        proxy_pass http://127.0.0.1:23200/internal/dsh-web/lan/connect;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header Host $host;
+        @DSH_PROXY_KEY_DIRECTIVE@
+        proxy_next_upstream off;
+    }
+
+    location = /_mytools/authorize {
+        internal;
+        # 鉴权子请求仍检查原请求长度，采用同一上限但不转发请求体。
+        client_max_body_size 300m;
+        proxy_pass http://127.0.0.1:23200/internal/dsh-web/lan/authorize;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        @DSH_PROXY_KEY_DIRECTIVE@
+        proxy_set_header Cookie $http_cookie;
+        proxy_next_upstream off;
+    }
+
+    # 只检查现有网页会话，客户端据此提示重新换票。
+    location = /_mytools/session-status {
+        if ($request_method != GET) { return 405; }
+        if ($http_sec_fetch_site = cross-site) { return 403; }
+        auth_request /_mytools/authorize;
+        add_header Cache-Control "no-store" always;
+        try_files /.__mytools_dsh_session_status =204;
+    }
+
+    # 管理探针与内部凭据桥接不经局域网开放。
+    location ^~ /internal/ {
+        return 404;
+    }
+    location ^~ /actuator/ {
+        return 404;
+    }
+
+    # 手机适配资源由当前入口同源提供，不依赖外网加载。
+    location = /_mytools/mobile.css {
+        alias /var/www/mytools-dsh-mobile/mobile.css;
+        default_type text/css;
+        add_header Cache-Control no-cache;
+    }
+    location = /_mytools/mobile.js {
+        alias /var/www/mytools-dsh-mobile/mobile.js;
+        default_type application/javascript;
+        add_header Cache-Control no-cache;
+    }
+
+    # 页面、插件资源与事件流使用同一网页认证，浏览器拿不到上游凭据。
+    location / {
+        if ($http_sec_fetch_site = cross-site) { return 403; }
+        set $mytools_dsh_expected_origin "";
+        if ($http_origin != "") { set $mytools_dsh_expected_origin "@DSH_BROWSER_ORIGIN@"; }
+        if ($http_origin != $mytools_dsh_expected_origin) { return 403; }
+        if ($arg_token != "") { return 403; }
+        auth_request /_mytools/authorize;
+        auth_request_set $mytools_dsh_cookie $upstream_http_x_dsh_upstream_cookie;
+        proxy_pass http://127.0.0.1:3080;
+        proxy_http_version 1.1;
+        proxy_set_header Host dsh-app.yuyutian.top;
+        proxy_set_header Origin https://dsh-app.yuyutian.top;
+        proxy_set_header Cookie $mytools_dsh_cookie;
+        proxy_hide_header Set-Cookie;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $mytools_gateway_lan_connection;
+        proxy_set_header Accept-Encoding "";
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 120s;
+        proxy_cache off;
+        proxy_buffering off;
+        proxy_request_buffering off;
+        proxy_next_upstream off;
+        gzip on;
+        gzip_vary on;
+        gzip_types application/javascript text/javascript text/css application/json image/svg+xml;
+@DSH_HTML_FILTERS@
+    }
+}

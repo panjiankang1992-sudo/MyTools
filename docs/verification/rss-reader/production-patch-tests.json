@@ -1,0 +1,20 @@
+[
+  {
+    "name": "com.yuyutian.mytools.gateway.web.GatewayRequestFilterTest",
+    "tests": "16",
+    "failures": "0",
+    "errors": "0"
+  },
+  {
+    "name": "com.yuyutian.mytools.gateway.web.RssBodySizeFilterTest",
+    "tests": "2",
+    "failures": "0",
+    "errors": "0"
+  },
+  {
+    "name": "com.yuyutian.mytools.gateway.controller.RssGatewayControllerTest",
+    "tests": "5",
+    "failures": "0",
+    "errors": "0"
+  }
+]

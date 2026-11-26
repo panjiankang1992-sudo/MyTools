@@ -1,0 +1,72 @@
+{
+  "releaseId": "worksheet-simple-20261004-011600",
+  "checkedChangedFiles": 4,
+  "passedFiles": 4,
+  "static": [
+    {
+      "path": "assets/WorksheetV2View-Axsh-8TF.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/WorksheetV2View-Axsh-8TF.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 491370,
+          "sha256": "e8ae815a1e8f38339fe81dc015b81468514f85d69b39197bb2059c53af04096f",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/WorksheetV2View-Cn81MvGP.css",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/WorksheetV2View-Cn81MvGP.css",
+          "status": 200,
+          "mime": "text/css",
+          "bytes": 12913,
+          "sha256": "e7daf283cadb6c341c31435ec58c28626226d7e8dbea4f4df04a2aa7919b9e81",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/index-DJkCLb13.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/index-DJkCLb13.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 159348,
+          "sha256": "0245b93e728d66e9b47a1f70b0dbda110ad34157edbfed2be4bdb82099f7e6e7",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "index.html",
+          "status": 200,
+          "mime": "text/html",
+          "bytes": 1566,
+          "sha256": "3cacd8a878cc02d26be79566d762216993aaf2eca3e48115fed9296b69769d41",
+          "rawMatches": false,
+          "edgeTransformation": "script-and-following-LF",
+          "normalizedSha256": "aa4cbaaf772e2af51afed8277d16cbd0405903f930f60840b7cf9eb1eac86986",
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "catalog": {
+    "status": 200,
+    "editions": 5,
+    "passed": true
+  },
+  "passed": true
+}

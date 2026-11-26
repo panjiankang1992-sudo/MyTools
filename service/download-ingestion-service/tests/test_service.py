@@ -45,6 +45,57 @@ class FakeScheduler:
 class DownloadRequestServiceTest(unittest.TestCase):
     """Validate request-to-task orchestration invariants."""
 
+    def test_resolvers_strip_only_legacy_single_file_fields(self):
+        """编排任务剔除单文件字段，保留原始请求、所有权与目录参数。"""
+        for kind in ("X_POST", "X_USER", "WEB_ARCHIVE"):
+            with self.subTest(kind=kind):
+                repository = InMemoryDownloadRequestRepository()
+                scheduler = FakeScheduler()
+                service = DownloadRequestService(repository, scheduler)
+                parameters = {"itemId": "legacy-item", "fileName": "legacy.bin",
+                    "url": "https://x.com/example/status/123", "resourceUsername": "user",
+                    "receivedAt": "2026-09-21T00:00:00Z", "messageBatchId": "batch"}
+                command = CreateDownloadRequest("resolver-" + kind, "MESSAGE", "source-" + kind,
+                    kind, parameters, owner_id=17)
+                scheduler.failures_remaining = 1
+                with self.assertRaisesRegex(RuntimeError, "scheduler unavailable"):
+                    service.create(command)
+                accepted = repository.find_by_idempotency_key(command.idempotency_key)
+                self.assertEqual(parameters, accepted.parameters)
+                result = service.create(command)
+                sent = scheduler.calls[-1]["parameters"]
+                self.assertNotIn("itemId", sent)
+                self.assertNotIn("fileName", sent)
+                self.assertEqual(17, sent["ownerId"])
+                self.assertEqual("user", sent["resourceUsername"])
+                self.assertEqual(str(accepted.id), sent["downloadRequestId"])
+                self.assertEqual(parameters, result.parameters)
+                self.assertEqual(result.id, service.create(command).id)
+                self.assertEqual(2, len(scheduler.calls))
+
+    def test_app_batches_do_not_impersonate_message_identity(self):
+        """APP 使用稳定独立身份，机器人仍保留消息身份，原始参数与幂等行为不变。"""
+        for source in ("APP_TOOL", "MESSAGE"):
+            scheduler = FakeScheduler()
+            service = DownloadRequestService(InMemoryDownloadRequestRepository(), scheduler)
+            original = {"messageBatchId": str(uuid4()), "items": []}
+            command = CreateDownloadRequest("identity-" + source, source, "batch", "MESSAGE_URL_BATCH", original)
+            first = service.create(command)
+            expected = "app:" + str(first.id) if source == "APP_TOOL" else original["messageBatchId"]
+            self.assertEqual(expected, scheduler.calls[0]["parameters"]["messageBatchId"])
+            self.assertEqual(original, first.parameters)
+            self.assertEqual(first.id, service.create(command).id)
+            self.assertEqual(1, len(scheduler.calls))
+
+    def test_atomic_http_keeps_required_identity_fields(self):
+        """原子下载必须继续携带文件身份，不能被编排参数兼容逻辑误删。"""
+        scheduler = FakeScheduler()
+        service = DownloadRequestService(InMemoryDownloadRequestRepository(), scheduler)
+        service.create(CreateDownloadRequest("atomic", "MESSAGE", "atomic", "HTTP_ASSET",
+            {"itemId": "file-1", "fileName": "file.jpg", "url": "https://example.com/file.jpg"}))
+        self.assertEqual("file-1", scheduler.calls[0]["parameters"]["itemId"])
+        self.assertEqual("file.jpg", scheduler.calls[0]["parameters"]["fileName"])
+
     def test_creates_one_parent_task_for_replayed_request(self):
         """A replay should return the same aggregate without a second task."""
         repository = InMemoryDownloadRequestRepository()

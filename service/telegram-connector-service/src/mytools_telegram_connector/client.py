@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import UTC, datetime
+import hashlib
 import logging
 import time
 from typing import Any, AsyncIterator
@@ -10,84 +11,105 @@ from typing import Any, AsyncIterator
 import aiohttp
 
 from .config import Config
+from .inbox import Delivery, Inbox
 
 logger = logging.getLogger(__name__)
-ALBUM_WINDOW_SECONDS = 2.0
+MESSAGE_KINDS = ("message", "channel_post", "edited_message", "edited_channel_post")
+DELIVERY_STALE_SECONDS = 60
+OFFSET_MAXIMUM_AGE_SECONDS = 24 * 60 * 60
+
+
+class ProviderError(RuntimeError):
+    """保存可安全诊断的上游 HTTP 状态。"""
+
+    def __init__(self, provider: str, status: int) -> None:
+        super().__init__(f"{provider} HTTP {status}")
+        self.status = status
 
 
 class TelegramConnector:
     """长轮询 Telegram，并标准化入站消息。"""
 
-    def __init__(self, config: Config, session: aiohttp.ClientSession) -> None:
+    def __init__(self, config: Config, session: aiohttp.ClientSession, inbox: Inbox | None = None) -> None:
         self.config = config
         self.session = session
         self.offset = 0
-        self.albums: dict[tuple[str, str], tuple[float, str, list[dict[str, Any]]]] = {}
-        self.business_connection_id = config.business_connection_id
+        if inbox is None:
+            # Telegram token 的冒号前为 Bot ID，轮换 token 后继续使用同一个收件箱。
+            identity = f"{config.account_key}:{config.owner_id}:{config.bot_token.partition(':')[0]}"
+            inbox = Inbox(config.inbox_path, hashlib.sha256(identity.encode()).hexdigest())
+        self.inbox = inbox
+        self.business_connection_id = inbox.business_connection(config.business_connection_id)
+        self.last_poll_success: float | None = None
+        self.last_poll_error: str | None = None
+        self.last_delivery_tick: float | None = None
+        self.delivery_ready = asyncio.Event()
 
     async def api(self, method: str, payload: dict[str, Any] | None = None) -> Any:
         """调用 Bot API，异常中不包含 token 或消息正文。"""
         url = f"{self.config.api_base_url}/bot{self.config.bot_token}/{method}"
-        async with self.session.post(url, json=payload or {}, proxy=self.config.proxy_url) as response:
+        timeout = self.config.poll_timeout + 15 if method == "getUpdates" else 30
+        async with self.session.post(url, json=payload or {}, proxy=self.config.proxy_url,
+                                     timeout=aiohttp.ClientTimeout(total=timeout, connect=10)) as response:
+            if response.status >= 400:
+                raise ProviderError(f"Telegram {method}", response.status)
             body = await response.json(content_type=None)
-            if response.status >= 400 or not isinstance(body, dict) or not body.get("ok"):
-                raise RuntimeError(f"Telegram API {method} failed with HTTP {response.status}")
+            if not isinstance(body, dict) or not body.get("ok"):
+                raise ProviderError(f"Telegram {method}", response.status)
             return body.get("result")
 
     async def poll_once(self) -> None:
         """拉取并依次处理一批更新。"""
-        timeout = min(self.config.poll_timeout, 2) if self.albums else self.config.poll_timeout
+        if (self.last_poll_success is not None
+                and time.monotonic() - self.last_poll_success >= OFFSET_MAXIMUM_AGE_SECONDS):
+            self.offset = 0
+        # 初次立即确认 Bot API 可用，后续请求使用长轮询。
+        timeout = self.config.poll_timeout if self.last_poll_success is not None else 0
         updates = await self.api("getUpdates", {
             "offset": self.offset, "timeout": timeout,
-            "allowed_updates": ["message", "channel_post", "edited_message",
-                                "edited_channel_post", "business_connection"]})
+            "allowed_updates": [*MESSAGE_KINDS, "business_connection"]})
         if not isinstance(updates, list):
             raise RuntimeError("Telegram getUpdates returned an invalid result")
+        receipts = []
         for update in updates:
-            if not isinstance(update, dict) or not isinstance(update.get("update_id"), int):
+            if (not isinstance(update, dict) or type(update.get("update_id")) is not int
+                    or not 0 < update["update_id"] < 2**63 - 1):
                 continue
-            try:
-                await self.receive(update)
-            finally:
-                # 无效或未授权消息也必须前移，内部写入由 externalMessageId 保证重放幂等。
-                self.offset = max(self.offset, int(update["update_id"]) + 1)
-        await self.flush_albums(False)
+            receipts.append((update["update_id"], self._accepted_update(update)))
+        if receipts:
+            # 先提交收据与原始消息，再在下一次 getUpdates 确认该批更新。
+            self.inbox.store(receipts)
+            self.offset = max(update_id for update_id, _ in receipts) + 1
+            self.delivery_ready.set()
+        else:
+            # 空响应表示前一批已确认。空闲一周后 Telegram 可能返回更小的新 ID。
+            self.offset = 0
+        self.last_poll_success = time.monotonic()
+        self.last_poll_error = None
 
-    async def receive(self, update: dict[str, Any]) -> None:
-        """标准化一个 Telegram 更新并写入 Messaging。"""
+    def _accepted_update(self, update: dict[str, Any]) -> tuple[str, str, str, dict[str, Any]] | None:
+        """分类并过滤本连接器处理的更新。"""
         business_connection = update.get("business_connection")
         if isinstance(business_connection, dict):
-            self._capture_business_connection(business_connection)
-            return
+            return "business_connection", "", "", business_connection
         kind, message = next(((name, update[name]) for name in
-                              ("message", "channel_post", "edited_message", "edited_channel_post")
+                              MESSAGE_KINDS
                               if isinstance(update.get(name), dict)), ("", {}))
         chat = message.get("chat") if isinstance(message.get("chat"), dict) else {}
         chat_id = str(chat.get("id") or "")
         message_id = str(message.get("message_id") or "")
-        if not kind or not self._allowed(chat_id) or not message_id:
-            return
+        if not kind or not self._allowed(chat_id) or not message_id.isascii() or not message_id.isdecimal():
+            return None
         album_id = str(message.get("media_group_id") or "").strip()
-        if album_id:
-            key = (chat_id, album_id)
-            current = self.albums.get(key)
-            messages = [] if current is None else current[2]
-            messages.append(message)
-            self.albums[key] = (time.monotonic(), kind, messages)
-            return
-        await self._deliver(kind, [message], "")
+        return kind, chat_id, album_id, message
 
-    async def flush_albums(self, force: bool) -> None:
-        """在短窗口结束后把同一 media_group_id 合并为一条入站消息。"""
-        now = time.monotonic()
-        ready = [key for key, value in self.albums.items()
-                 if force or now - value[0] >= ALBUM_WINDOW_SECONDS]
-        for key in ready:
-            _, kind, messages = self.albums.pop(key)
-            await self._deliver(kind, sorted(messages, key=lambda item: int(item.get("message_id") or 0)), key[1])
-
-    async def _deliver(self, kind: str, messages: list[dict[str, Any]], album_id: str) -> None:
+    async def _deliver(self, delivery: Delivery) -> None:
         """标准化一条消息或已聚合的 Telegram 相册。"""
+        messages = sorted(delivery.messages, key=lambda item: int(item.get("message_id") or 0))
+        if delivery.kind == "business_connection":
+            self._capture_business_connection(messages[0])
+            return
+        album_id = delivery.album
         message = messages[0]
         chat = message.get("chat") if isinstance(message.get("chat"), dict) else {}
         sender_data = message.get("from") if isinstance(message.get("from"), dict) else {}
@@ -99,6 +121,7 @@ class TelegramConnector:
                      if int(item.get("file_size") or 0) > self.config.pikpak_threshold_bytes]
         if oversized and self.business_connection_id:
             # 超大文件直接复用Telegram file_id以用户身份发送，避免云Bot API下载上限。
+            self.inbox.relay_started(delivery.id)
             for album_message, source_key, item in oversized:
                 await self._relay_to_pikpak(source_key, item, album_message)
             await self.send_text(chat_id, int(message_id),
@@ -225,9 +248,11 @@ class TelegramConnector:
         connection_id = str(value.get("id") or "").strip()
         rights = value.get("rights") if isinstance(value.get("rights"), dict) else {}
         if value.get("is_enabled") and rights.get("can_reply") and connection_id:
+            self.inbox.save_business_connection(connection_id)
             self.business_connection_id = connection_id
             logger.info("Telegram Business relay connection is ready")
         elif connection_id and connection_id == self.business_connection_id:
+            self.inbox.save_business_connection("")
             self.business_connection_id = ""
             logger.warning("Telegram Business relay connection was disabled")
 
@@ -277,7 +302,8 @@ class TelegramConnector:
         if size > self.config.maximum_file_bytes:
             raise ValueError("Telegram file exceeds configured limit")
         url = f"{self.config.api_base_url}/file/bot{self.config.bot_token}/{result['file_path']}"
-        response = await self.session.get(url, proxy=self.config.proxy_url)
+        response = await self.session.get(url, proxy=self.config.proxy_url,
+                                          timeout=aiohttp.ClientTimeout(connect=15, sock_read=60))
         if response.status >= 400:
             response.release()
             raise RuntimeError(f"Telegram file request failed with HTTP {response.status}")
@@ -300,26 +326,74 @@ class TelegramConnector:
 
     async def _internal_json(self, url: str, payload: dict[str, Any]) -> dict[str, Any]:
         headers = {"Authorization": f"Bearer {self.config.messaging_token}"}
-        async with self.session.post(url, headers=headers, json=payload) as response:
+        async with self.session.post(url, headers=headers, json=payload,
+                                     timeout=aiohttp.ClientTimeout(total=15, connect=5)) as response:
+            if response.status >= 400:
+                raise ProviderError("Messaging", response.status)
             body = await response.json(content_type=None)
-            if response.status >= 400 or not isinstance(body, dict):
-                raise RuntimeError(f"Messaging request failed with HTTP {response.status}")
+            if not isinstance(body, dict):
+                raise ProviderError("Messaging", response.status)
             return body
+
+    @staticmethod
+    def _error_code(exception: Exception) -> str:
+        """去掉可能包含请求地址、凭证和正文的异常文本。"""
+        if isinstance(exception, ProviderError):
+            return f"HTTP_{exception.status}"
+        return type(exception).__name__
+
+    async def deliver_once(self) -> bool:
+        """尝试处理最早可投递记录，瞬时故障退避后重试。"""
+        delivery = self.inbox.claim()
+        if delivery is None:
+            return False
+        try:
+            await self._deliver(delivery)
+        except Exception as exception:
+            code = self._error_code(exception)
+            permanent = isinstance(exception, (TypeError, ValueError, OverflowError)) or (
+                isinstance(exception, ProviderError) and exception.status in (400, 413, 422))
+            self.inbox.fail(delivery, code, permanent)
+            logger.warning("Telegram inbound delivery failed: %s", code)
+        else:
+            self.inbox.complete(delivery.id)
+        return True
+
+    async def deliver_pending(self, stop: asyncio.Event) -> None:
+        """独立投递本地消息，避免长轮询和下游重试互相阻塞。"""
+        while not stop.is_set():
+            self.last_delivery_tick = time.monotonic()
+            self.delivery_ready.clear()
+            if await self.deliver_once():
+                continue
+            try:
+                await asyncio.wait_for(self.delivery_ready.wait(), timeout=0.5)
+            except TimeoutError:
+                pass
+
+    def health(self) -> dict[str, Any]:
+        """返回长轮询与本地待投递记录的就绪状态。"""
+        now = time.monotonic()
+        poll_ready = (self.last_poll_success is not None
+                      and now - self.last_poll_success <= self.config.poll_timeout + 45)
+        worker_ready = (self.last_delivery_tick is not None
+                        and now - self.last_delivery_tick <= DELIVERY_STALE_SECONDS)
+        pending, age, dead = self.inbox.health()
+        delivery_ready = worker_ready and age < DELIVERY_STALE_SECONDS and dead == 0
+        return {"status": "UP" if poll_ready and delivery_ready else "DOWN",
+                "pollReady": poll_ready, "pollLastError": self.last_poll_error,
+                "deliveryReady": delivery_ready, "pendingInbound": pending,
+                "oldestPendingAgeSeconds": age, "deadInbound": dead}
 
     async def run(self, stop: asyncio.Event) -> None:
         """持续轮询并在瞬时错误后退避。"""
         backoff = 1.0
-        try:
-            while not stop.is_set():
-                try:
-                    await self.poll_once()
-                    backoff = 1.0
-                except asyncio.CancelledError:
-                    raise
-                except Exception as exception:
-                    logger.warning("Telegram polling failed: %s", exception)
-                    await asyncio.sleep(backoff)
-                    backoff = min(backoff * 2, 60.0)
-        finally:
-            # offset 只在入队后推进，正常停机前必须把窗口内相册全部写入 Messaging。
-            await self.flush_albums(True)
+        while not stop.is_set():
+            try:
+                await self.poll_once()
+                backoff = 1.0
+            except Exception as exception:
+                self.last_poll_error = self._error_code(exception)
+                logger.warning("Telegram polling failed: %s", self.last_poll_error)
+                await asyncio.sleep(backoff)
+                backoff = min(backoff * 2, 60.0)

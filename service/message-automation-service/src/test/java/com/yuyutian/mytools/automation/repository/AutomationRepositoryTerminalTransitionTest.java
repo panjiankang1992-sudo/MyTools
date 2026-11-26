@@ -27,6 +27,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AutomationRepositoryTerminalTransitionTest {
 
     @Test
+    void shouldPersistCompletionPagesOnlyOnceUnderTheCurrentClaim() {
+        Fixture fixture = fixture();
+        UUID eventId = UUID.randomUUID();
+        Timestamp now = Timestamp.from(Instant.now());
+        Timestamp claimUntil = Timestamp.from(Instant.now().plusSeconds(30));
+        fixture.jdbcTemplate().update("""
+                INSERT INTO automation_outbox
+                    (id, aggregate_id, event_type, payload_json, created_at, claimed_by, claim_until)
+                VALUES (?, ?, 'AutomationRunCompleted', ?, ?, ?, ?)
+                """, eventId.toString(), UUID.randomUUID().toString(), "{\"status\":\"SUCCEEDED\"}",
+                now, "current-claim", claimUntil);
+
+        assertThat(fixture.repository().findOutboxDeliveryPages(eventId)).isEmpty();
+        assertThat(fixture.transactionTemplate().<Boolean>execute(status ->
+                fixture.repository().saveOutboxDeliveryPages(eventId, "stale-claim", List.of("old"))))
+                .isFalse();
+        assertThat(fixture.transactionTemplate().<Boolean>execute(status ->
+                fixture.repository().saveOutboxDeliveryPages(eventId, "current-claim", List.of("first", "second"))))
+                .isTrue();
+        assertThat(fixture.transactionTemplate().<Boolean>execute(status ->
+                fixture.repository().saveOutboxDeliveryPages(eventId, "current-claim", List.of("changed"))))
+                .isFalse();
+        assertThat(fixture.repository().findOutboxDeliveryPages(eventId)).contains(List.of("first", "second"));
+        assertThat(fixture.jdbcTemplate().queryForObject(
+                "SELECT payload_json FROM automation_outbox WHERE id=?", String.class, eventId.toString()))
+                .contains("SUCCEEDED");
+    }
+
+    @Test
     void shouldRecoverExpiredLeaseAndRejectEveryStaleTokenWrite() {
         Fixture fixture = fixture();
         UUID runId = UUID.randomUUID();

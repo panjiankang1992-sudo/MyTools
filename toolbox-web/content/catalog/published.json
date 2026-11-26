@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "2026-10-04.1",
+  "publishedAt": "2026-10-18T09:38:19.215Z",
+  "note": "已发布教材版本清单，editions 的元素为完整 TextbookEdition（含正文哈希 contentSha256）。为空表示尚无任何一册通过来源核验与人工校对，公开站不会用示例数据顶替。",
+  "sourceCount": 4,
+  "editions": [
+    {
+      "editionId": "cn-ty-1-1-pep-2024",
+      "subject": "chinese",
+      "grade": 1,
+      "semester": "first",
+      "regionCodes": [
+        "jiangsu"
+      ],
+      "publisher": "人民教育出版社",
+      "series": "统编语文",
+      "editionLabel": "2024 年版（2022 课标修订版）",
+      "curriculumYear": null,
+      "isbn": null,
+      "sourceIds": [
+        "smartedu-ebook-cn-1-first-2024"
+      ],
+      "schemaVersion": 1,
+      "contentVersion": "1.0.2",
+      "contentSha256": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527",
+      "reviewStatus": "published",
+      "coverageStatus": "partial",
+      "missingScopes": [
+        "教材本册没有词语表，故无词语条目",
+        "汉语拼音第 1、2 课没有生字，目录中不出现"
+      ],
+      "verifiedAt": "2026-10-02T00:00:00Z",
+      "publishedAt": "2026-10-02T15:57:08.791Z",
+      "availableEntryCount": 318,
+      "expectedEntryCount": 318
+    },
+    {
+      "editionId": "cn-ty-2-1-pep-2017",
+      "subject": "chinese",
+      "grade": 2,
+      "semester": "first",
+      "regionCodes": [
+        "jiangsu"
+      ],
+      "publisher": "人民教育出版社",
+      "series": "统编语文",
+      "editionLabel": "2017 年版（教育部审定）",
+      "curriculumYear": null,
+      "isbn": null,
+      "sourceIds": [
+        "nmg-smartedu-cn-2-first"
+      ],
+      "schemaVersion": 1,
+      "contentVersion": "1.0.2",
+      "contentSha256": "1d14e1fd6d3c819dfa5a74b00de26d9476e04e7f9d5e5780a97dff71914f8778",
+      "reviewStatus": "published",
+      "coverageStatus": "partial",
+      "missingScopes": [
+        "第六、七、八单元识字表缺失（约 130 条，可用来源均为 2016 送审本，与正式版不一致）",
+        "写字表 245 字，教材审定会写字为 250 字，缺 5 字",
+        "无词句积累条目"
+      ],
+      "verifiedAt": "2026-10-02T00:00:00Z",
+      "publishedAt": "2026-10-02T15:57:03.830Z",
+      "availableEntryCount": 760,
+      "expectedEntryCount": 760
+    },
+    {
+      "editionId": "cn-ty-3-1-pep-2024",
+      "subject": "chinese",
+      "grade": 3,
+      "semester": "first",
+      "regionCodes": [
+        "jiangsu"
+      ],
+      "publisher": "人民教育出版社",
+      "series": "统编语文",
+      "editionLabel": "2024 年版（2022 课标修订版，��",
+      "curriculumYear": null,
+      "isbn": null,
+      "sourceIds": [
+        "smartedu-ebook-cn-3-first-2024"
+      ],
+      "schemaVersion": 1,
+      "contentVersion": "1.0.0",
+      "contentSha256": "49abe27d8b49e50b99af599726d0374b13071b47f4447538fcaab65b74fd7cdf",
+      "reviewStatus": "published",
+      "coverageStatus": "partial",
+      "missingScopes": [
+        "无词句积累条目",
+        "250 个会写字中 153 字课本未印读音，来自外部来源"
+      ],
+      "verifiedAt": "2026-10-02T00:00:00Z",
+      "publishedAt": "2026-10-03T04:23:25.192Z",
+      "availableEntryCount": 777,
+      "expectedEntryCount": 777
+    },
+    {
+      "editionId": "cn-ty-4-1-pep-2024",
+      "subject": "chinese",
+      "grade": 4,
+      "semester": "first",
+      "regionCodes": [
+        "jiangsu"
+      ],
+      "publisher": "人民教育出版社",
+      "series": "统编语文",
+      "editionLabel": "2024 年版（2022 课标修订版，��",
+      "curriculumYear": null,
+      "isbn": null,
+      "sourceIds": [
+        "smartedu-ebook-cn-4-first-2024"
+      ],
+      "schemaVersion": 1,
+      "contentVersion": "1.0.0",
+      "contentSha256": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295",
+      "reviewStatus": "published",
+      "coverageStatus": "partial",
+      "missingScopes": [
+        "无词句积累条目",
+        "识字表之外 155 字读音来自本册外来源"
+      ],
+      "verifiedAt": "2026-10-02T00:00:00Z",
+      "publishedAt": "2026-10-03T04:23:25.457Z",
+      "availableEntryCount": 640,
+      "expectedEntryCount": 640
+    },
+    {
+      "editionId": "en-yl-3-1-yilin-2024",
+      "subject": "english",
+      "grade": 3,
+      "semester": "first",
+      "regionCodes": [
+        "jiangsu"
+      ],
+      "publisher": "译林出版社",
+      "series": "译林版英语",
+      "editionLabel": "2024 年版（2022 课标修订版）",
+      "curriculumYear": null,
+      "isbn": "9787575300377",
+      "sourceIds": [
+        "yilin-en-3-first-2024"
+      ],
+      "schemaVersion": 1,
+      "contentVersion": "1.0.1",
+      "contentSha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4",
+      "reviewStatus": "published",
+      "coverageStatus": "partial",
+      "missingScopes": [
+        "该册平台限制 PDF 下载，数据来自同一官方资源的页面图像判读，而非 PDF 文字层。",
+        "本版按 Word lists I 原印单元表收录 129 项生词、短语和重要句型；Word lists III 的 11 项专有名词单列附录，不推定归入单元。",
+        "Word lists II 为单元表的字母序重排，仅用于核对，不重复收录；未收录词表之外的课文正文、Project、Learning tips 与字母教学。",
+        "11 项专有名词仅有教材页面图像证据，缺独立来源；其中 New Year's Day 未被既有 OCR 命中，本次按原图复核。"
+      ],
+      "verifiedAt": "2026-10-04T06:02:25.799Z",
+      "publishedAt": "2026-10-04T06:02:25.799Z",
+      "availableEntryCount": 140,
+      "expectedEntryCount": 140
+    },
+    {
+      "editionId": "en-yl-4-1-yilin-2024",
+      "subject": "english",
+      "grade": 4,
+      "semester": "first",
+      "regionCodes": [
+        "jiangsu"
+      ],
+      "publisher": "译林出版社",
+      "series": "译林版英语",
+      "editionLabel": "2024 年版（2022 课标修订版）",
+      "curriculumYear": null,
+      "isbn": null,
+      "sourceIds": [
+        "yilin-en-4-first-2024"
+      ],
+      "schemaVersion": 1,
+      "contentVersion": "1.0.5",
+      "contentSha256": "71f0f1f866f8676e422eab6860b633abd6f7479eea3f9d9ed45416987e31ff67",
+      "reviewStatus": "published",
+      "coverageStatus": "partial",
+      "verifiedAt": "2026-10-18T00:00:00Z",
+      "publishedAt": null,
+      "availableEntryCount": 157,
+      "expectedEntryCount": 157,
+      "missingScopes": [
+        "**按 2026-10-18 的新印次照片重新核对并修正**（较上一版：新增 *Labour、swimming、hard、It's OK.、short、It's raining.、shorts、new；playground 改为 *sports ground；移除 *timetable、*number、*oops、*puppet、meet；so 由 Unit 3 移至 Unit 4；多册页码修正）。",
+        "本册按 Word lists I 原印单元表收录 8 个单元全部条目；未收录 Word lists II（字母序重排）、Word lists III（专有名词）与课文正文、Project、Learning tips。",
+        "ISBN 未取得：照片只含 Word lists 页，缺版权页，故 isbn 留空而不推测。",
+        "单元标题按原印只显示 Unit 1—Unit 8 的单元号，故一律记为 \"Unit N\"，不推测标题。",
+        "同一词在不同单元有不同义项时分别收录（如 in、have、early），不合并。"
+      ]
+    }
+  ]
+}

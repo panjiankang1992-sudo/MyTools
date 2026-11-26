@@ -1,0 +1,10 @@
+{
+  "built": true,
+  "sourceStable": true,
+  "etsSourceSha256": "fdcda1f3ff91ce717d9db3e05e975dc9896a5e474a487b1c141768d9623c4cea",
+  "etsFileCount": 194,
+  "artifact": "/Users/pankang/mycode/MyTools/app/build/acceptance/global-lan-20261102-signed.hap",
+  "sha256": "395d8cdcd66569fa7972098139863cff65dd14eba378a3e0ba49401c11cb4bcb",
+  "bytes": 51395186,
+  "knownWarning": "Existing DownloadToolsPage getData READ_PASTEBOARD warning; no new compiler warnings."
+}

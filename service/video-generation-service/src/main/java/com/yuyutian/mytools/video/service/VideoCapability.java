@@ -11,6 +11,8 @@ import java.util.Optional;
 /** 视频能力目录：只有显式通过验收的模式才允许提交。 */
 @Component
 public class VideoCapability {
+ /** LTX 首帧候选的独立资源标识。 */
+ public static final String LTX_RESOURCE_ID = "ltx-video-2b-local";
  /** 本机 VACE 1.3B 基线的资源标识。 */
  public static final String RESOURCE_ID = "wan-vace-1.3b-local";
  /** 已实测通过的横屏尺寸；竖屏尚未验证，因此不列出。 */
@@ -30,7 +32,7 @@ public class VideoCapability {
   List<ModeSpec> modes = List.of(
    mode("TEXT_TO_VIDEO", 0, 0, List.of(), true, List.of(49), "video.t2v-validated",
         "INSTRUCTION_FOLLOWING_UNVERIFIED"),
-   // P0 结论：只有"单图首帧 + 控制强度 α=0.25"通过 3 主体 × 2 种子网格与机器复核。
+   // 首帧模式也必须独立验收，不能沿用历史机器均值指标开放。
    mode("FIRST_FRAME", 1, 1, List.of(FIRST_FRAME), true, List.of(49), "video.first-frame-validated",
         "MODE_VALIDATION_REQUIRED"),
    // 只放行两张参考：三图参考在 P0 判为不可用，收下第三张只会产出未验收的结果。
@@ -43,16 +45,37 @@ public class VideoCapability {
    mode("MASKED_EDIT", 1, 2, List.of(SOURCE_VIDEO, MASK_VIDEO), true, List.of(49), "video.masked-validated",
         "LOCALITY_DISPUTED"));
   return List.of(new Model(RESOURCE_ID, "Wan 2.1 VACE 1.3B", "LOCAL", ready ? "READY" : "UNVERIFIED",
-   SIZES, List.of(49), 16, modes, ready ? "" : "LOCAL_VALIDATION_REQUIRED"));
+   SIZES, List.of(49), 16, modes, ready ? "" : "LOCAL_VALIDATION_REQUIRED"),
+   new Model(LTX_RESOURCE_ID, "LTX-Video 2B", "LOCAL", ready ? "READY" : "UNVERIFIED",
+    List.of("640x640"), List.of(49), 16,
+    List.of(mode("FIRST_FRAME", 1, 1, List.of(FIRST_FRAME), true, List.of(49),
+     "video.ltx-first-frame-validated", "MODE_VALIDATION_REQUIRED")),
+    ready ? "" : "LOCAL_VALIDATION_REQUIRED"));
  }
  /** 按资源标识与模式取契约；未知资源或模式一律拒绝。 */
  public ModeSpec require(String resourceId, String mode) {
-  if (!RESOURCE_ID.equals(resourceId)) throw new VideoException(ErrorCode.VIDEO_002);
-  Optional<ModeSpec> spec = models().getFirst().modes().stream()
+  Optional<ModeSpec> spec = model(resourceId).modes().stream()
    .filter(item -> item.mode().equals(mode)).findFirst();
   ModeSpec found = spec.orElseThrow(() -> new VideoException(ErrorCode.VIDEO_002));
   if (!found.validated()) throw new VideoException(ErrorCode.VIDEO_002);
   return found;
+ }
+ /** 按资源返回独立模型契约，未知资源拒绝。 */
+ public Model model(String resourceId) {
+  return models().stream().filter(item -> item.id().equals(resourceId)).findFirst()
+   .orElseThrow(() -> new VideoException(ErrorCode.VIDEO_002));
+ }
+ /** 返回模型修订；历史 VACE 仍读取原配置。 */
+ public String modelRevision(String resourceId) {
+  model(resourceId);
+  return LTX_RESOURCE_ID.equals(resourceId) ? "ltxv-2b-0.9.8-distilled-8984fa25"
+   : env.getProperty("video.model-revision", "wan2.1-vace-1.3b-fp16");
+ }
+ /** 返回对应模型的固定工作流修订。 */
+ public String workflowRevision(String resourceId) {
+  model(resourceId);
+  return LTX_RESOURCE_ID.equals(resourceId) ? "video-ltx-2b-i2v-v1"
+   : env.getProperty("video.workflow-revision", "video-vace-1.3b-v1");
  }
  /** 该模式是否允许这一帧数。 */
  public boolean allowsFrames(ModeSpec spec, int frames) { return spec.frames().contains(frames); }

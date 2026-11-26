@@ -39,6 +39,17 @@ class AssembleExecutorPackagesTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "already exists"):
                 MODULE.assemble(root, output)
 
+    def test_rejects_missing_built_runtime_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "service"
+            package = create_package(root)
+            (package / "required-files.txt").write_text("lib/worker.jar\n")
+            with self.assertRaisesRegex(ValueError, "Required built package file"):
+                MODULE.discover(root)
+            (package / "lib").mkdir()
+            (package / "lib/worker.jar").write_bytes(b"test-runtime")
+            self.assertEqual(1, len(MODULE.discover(root)))
+
     def test_rejects_manifest_identity_mismatch(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / "service"

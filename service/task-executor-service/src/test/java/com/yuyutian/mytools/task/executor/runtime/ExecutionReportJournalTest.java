@@ -11,6 +11,8 @@ import com.yuyutian.mytools.task.executor.config.ExecutorProperties;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.io.BufferedReader;
@@ -309,6 +311,130 @@ public class ExecutionReportJournalTest {
         assertEquals(1, journal.replayPending(recoveredClient));
         assertEquals(1, recoveredClient.completions);
         assertEquals("UP", new ExecutionJournalHealthIndicator(journal).health().getStatus().getCode());
+    }
+
+    @Test
+    void shouldRetainLostLeaseReportsAndContinueOtherExecutions() throws Exception {
+        ExecutorProperties properties = properties();
+        ClaimedTask expired = task();
+        ClaimedTask current = task();
+        Path expiredWork = executionWorkDirectory(expired);
+        Files.createDirectories(expiredWork);
+        Files.writeString(expiredWork.resolve("result.txt"), "expired-attempt-evidence");
+        RecordingSchedulerClient client = new RecordingSchedulerClient() {
+            @Override
+            public void reportStep(ClaimedTask reported, ClaimedStep step, int attempt, String status,
+                                   Integer exitCode, Map<String, Object> result, String errorCode,
+                                   String errorMessage) throws IOException {
+                throw new SchedulerClientException(409, "EXECUTION_LEASE_LOST", false);
+            }
+
+            @Override
+            public void complete(ClaimedTask reported, String status) throws IOException {
+                if (reported.executionId().equals(expired.executionId())) {
+                    throw new SchedulerClientException(409, "EXECUTION_LEASE_LOST", false);
+                }
+                super.complete(reported, status);
+            }
+        };
+
+        try (ExecutionReportJournal journal = new ExecutionReportJournal(properties, new ObjectMapper())) {
+            journal.recordClaim(expired);
+            journal.persistStep(expired, expired.steps().getFirst(), 1, "SUCCEEDED", 0,
+                    Map.of("evidence", "retained"), null, null);
+            journal.persistCompletion(expired, "SUCCEEDED");
+            journal.recordClaim(current);
+            journal.persistCompletion(current, "SUCCEEDED");
+
+            assertEquals(1, journal.replayPending(client));
+            assertEquals(1, client.completions);
+            assertEquals(2, journal.status().fencedReports());
+            assertEquals(1, journal.status().acknowledgedReports());
+            assertEquals(0, journal.status().pendingReports());
+            assertEquals(0, journal.status().diagnosticReports());
+            assertEquals("UP", new ExecutionJournalHealthIndicator(journal).health().getStatus().getCode());
+            journal.recordClaim(expired);
+            assertEquals(0, journal.recoverInterruptedExecutions());
+            journal.cleanupAcknowledgedWorkDirectories();
+            assertTrue(Files.isRegularFile(expiredWork.resolve("result.txt")));
+            try (var connection = DriverManager.getConnection("jdbc:sqlite:" + journal.databasePath());
+                 var statement = connection.createStatement();
+                 var reports = statement.executeQuery("""
+                         SELECT COUNT(*) FROM journal_report
+                         WHERE state = 'FENCED' AND status_code = 409 AND error_code = 'EXECUTION_LEASE_LOST'
+                         """)) {
+                assertTrue(reports.next());
+                assertEquals(2, reports.getInt(1));
+            }
+        }
+
+        try (ExecutionReportJournal restarted = new ExecutionReportJournal(properties, new ObjectMapper())) {
+            restarted.validate();
+            assertEquals(0, restarted.recoverInterruptedExecutions());
+            assertEquals(0, restarted.replayPending(client));
+            assertEquals(2, restarted.status().fencedReports());
+        }
+    }
+
+    @Test
+    void shouldRecoverHistoricalLeaseLostDiagnosticWithoutDiscardingEvidence() throws Exception {
+        ExecutorProperties properties = properties();
+        ClaimedTask expired = task();
+        UUID reportId;
+        String originalPayload;
+        try (ExecutionReportJournal journal = new ExecutionReportJournal(properties, new ObjectMapper())) {
+            journal.recordClaim(expired);
+            reportId = journal.persistStep(expired, expired.steps().getFirst(), 1, "FAILED", 1,
+                    Map.of("evidence", "historical-result"), "REMOTE_NETWORK_FAILURE", "network interrupted");
+            try (var connection = DriverManager.getConnection("jdbc:sqlite:" + journal.databasePath());
+                 var statement = connection.createStatement()) {
+                statement.executeUpdate("""
+                        UPDATE journal_report SET state = 'DIAGNOSTIC', status_code = 409,
+                          error_code = 'EXECUTION_LEASE_LOST'
+                        """);
+                try (var payload = statement.executeQuery("SELECT payload_json FROM journal_report")) {
+                    assertTrue(payload.next());
+                    originalPayload = payload.getString(1);
+                }
+            }
+        }
+
+        try (ExecutionReportJournal restarted = new ExecutionReportJournal(properties, new ObjectMapper())) {
+            restarted.validate();
+            assertEquals(0, restarted.recoverInterruptedExecutions());
+            assertEquals(0, restarted.replayPending(new RecordingSchedulerClient()));
+            assertEquals(1, restarted.status().fencedReports());
+            assertEquals(0, restarted.status().acknowledgedReports());
+            try (var connection = DriverManager.getConnection("jdbc:sqlite:" + restarted.databasePath());
+                 var statement = connection.prepareStatement("SELECT payload_json FROM journal_report WHERE id = ?")) {
+                statement.setString(1, reportId.toString());
+                try (var payload = statement.executeQuery()) {
+                    assertTrue(payload.next());
+                    assertEquals(originalPayload, payload.getString(1));
+                }
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {400, 403, 500})
+    void shouldKeepAmbiguousLeaseErrorsForDiagnosis(int statusCode) throws Exception {
+        try (ExecutionReportJournal journal = new ExecutionReportJournal(properties(), new ObjectMapper())) {
+            ClaimedTask task = task();
+            journal.recordClaim(task);
+            journal.persistCompletion(task, "SUCCEEDED");
+            RecordingSchedulerClient client = new RecordingSchedulerClient() {
+                @Override
+                public void complete(ClaimedTask reported, String status) throws IOException {
+                    throw new SchedulerClientException(statusCode, "EXECUTION_LEASE_LOST", false);
+                }
+            };
+
+            assertThrows(SchedulerClientException.class, () -> journal.replayPending(client));
+            assertEquals(0, journal.status().fencedReports());
+            assertEquals(1, journal.status().diagnosticReports());
+            assertThrows(IOException.class, journal::validate);
+        }
     }
 
     @Test
@@ -621,7 +747,7 @@ public class ExecutionReportJournalTest {
 
         @Override
         public void reportStep(ClaimedTask task, ClaimedStep step, int attempt, String status, Integer exitCode,
-                               Map<String, Object> result, String errorCode, String errorMessage) {
+                               Map<String, Object> result, String errorCode, String errorMessage) throws IOException {
             stepReports++;
         }
 

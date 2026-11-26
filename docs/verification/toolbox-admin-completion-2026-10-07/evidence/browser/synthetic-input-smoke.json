@@ -1,0 +1,20 @@
+{
+  "mark": "烟7bh4",
+  "results": [
+    {
+      "label": "原生 setter + input 事件让输入框（Vue 渲染）变成新值",
+      "ok": true,
+      "detail": "实际 \"山烟7bh4\""
+    },
+    {
+      "label": "后端确实收到了带独特值的草稿保存载荷（合成输入进了真实保存链路）",
+      "ok": true,
+      "detail": "载荷长度 996，含「烟7bh4」"
+    },
+    {
+      "label": "保存载荷原文（节选）",
+      "ok": true,
+      "detail": "{\"editionId\":\"local-acceptance-2026-10-07\",\"subject\":\"chinese\",\"grade\":1,\"semester\":\"first\",\"publisher\":\"人民教育出版社\",\"series\":\"统编语文\",\"editionLabel\":\"2024 年修订版\",\"sourceNote\":\"V6 审计列宽验证\",\"coverageDeclaration\":\"partial\",\"regionCodes\":[],\"curriculumYear\":null,\"isbn\":null,\"units\":[{\"unitId\":null,\"clientUnitId\":\"cu1\",\"title\":\"第一单元\",\"order\":1}],\"lessons\":[],\"entries\":[{\"rowId\":\"row-1\",\"entryId\":null,\"unitId\":null,\"clientUnitId\":\"cu1\",\"lessonId\":null,\"clientLessonId\":null,\"text\":\"山烟7bh4\",\"pinyin\":\"shān\",\"meaning\":null,\"listTypes\":[\"writing\"],\"automaticInitialized\":true,\"confirmed\":false,\"confirmedDigest\""
+    }
+  ]
+}

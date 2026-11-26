@@ -1,0 +1,27 @@
+{
+  "publishedAtEpoch": 1790403076,
+  "pdfAppRouteEnabled": true,
+  "ownerAllowlistRemoved": true,
+  "workerVersion": "1.0.1",
+  "mcpUrl": "https://mytools.yuyutian.top/api/app/v1/pdf-mcp",
+  "services": {
+    "pdf-service": "active",
+    "pdf-executor-service": "active",
+    "pdf-mcp-service": "active",
+    "mytools-gateway": "active",
+    "task-scheduler-service": "active",
+    "task-executor-service": "active"
+  },
+  "otherExecutors": [
+    {
+      "name": "adaptation-production-executor",
+      "status": "ONLINE"
+    },
+    {
+      "name": "executor-remote-1",
+      "status": "ONLINE"
+    }
+  ],
+  "fixture": "synthetic two-page PDF; no user document uploaded",
+  "appDeviceAcceptance": "pending_no_connected_device"
+}

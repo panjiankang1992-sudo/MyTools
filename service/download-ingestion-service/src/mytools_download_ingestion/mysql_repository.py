@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 import json
 from typing import Any, Callable
 from uuid import UUID, uuid4
@@ -19,8 +19,9 @@ _TERMINAL_STATUSES = frozenset({
 class MySqlDownloadRequestRepository:
     """Persist download requests through a PEP 249 connection factory."""
 
-    def __init__(self, connection_factory: Callable[[], Any]):
+    def __init__(self, connection_factory: Callable[[], Any], *, background_enabled: bool = False):
         self._connection_factory = connection_factory
+        self.background_enabled = background_enabled
 
     def find_by_idempotency_key(self, key: str) -> DownloadRequest | None:
         """Return a request by idempotency key."""
@@ -29,6 +30,21 @@ class MySqlDownloadRequestRepository:
     def find_by_id(self, request_id: UUID) -> DownloadRequest | None:
         """Return a request by identifier."""
         return self._find("id = %s", str(request_id))
+
+    def unfinished_app_request_ids(self, owner_id: int) -> list[str]:
+        """只读取指定所有者的未完成 APP 下载请求标识。"""
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """SELECT id FROM download_request
+                       WHERE owner_id = %s AND source_type = %s AND status IN (%s,%s,%s,%s)""",
+                    (owner_id, "APP_TOOL", DownloadStatus.ACCEPTED, DownloadStatus.PLANNING,
+                     DownloadStatus.RUNNING, DownloadStatus.CANCELLING),
+                )
+                return [str(row["id"]) for row in cursor.fetchall()]
+        finally:
+            connection.close()
 
     def insert(self, request: DownloadRequest) -> DownloadRequest:
         """Insert an accepted request or return the concurrent winner."""
@@ -45,6 +61,10 @@ class MySqlDownloadRequestRepository:
                      request.request_kind, json.dumps(request.parameters, separators=(",", ":")),
                      request.status.value, request.created_at, request.updated_at),
                 )
+                if self.background_enabled:
+                    # 与请求插入同事务，进程崩溃后仍能继续对账与渠道状态同步。
+                    self._insert_background(cursor, "request:" + str(request.id), "RECONCILE", request.id,
+                                            None, {}, request.created_at)
             connection.commit()
             return request
         except Exception:
@@ -150,6 +170,12 @@ class MySqlDownloadRequestRepository:
                 cursor.execute(
                     """UPDATE download_item
                        SET tag_status = %s, tags_json = %s, updated_at = %s
+                       WHERE download_request_id = %s AND status = 'COMPLETED' AND tag_status = %s
+                         AND NOT EXISTS (SELECT 1 FROM download_background_job bg
+                             WHERE bg.download_request_id = download_item.download_request_id
+                               AND bg.external_item_id = download_item.external_item_id
+                               AND bg.kind = 'ENRICHMENT')""" if self.background_enabled else
+                    """UPDATE download_item SET tag_status = %s, tags_json = %s, updated_at = %s
                        WHERE download_request_id = %s AND status = 'COMPLETED' AND tag_status = %s""",
                     ("FAILED", "[]", now, str(request_id), "PENDING"),
                 )
@@ -178,7 +204,7 @@ class MySqlDownloadRequestRepository:
             with connection.cursor() as cursor:
                 # 与终态封口事务先锁同一请求行，迟到结果只能直接进入失败标签终态。
                 cursor.execute(
-                    "SELECT status FROM download_request WHERE id = %s FOR UPDATE",
+                    "SELECT status, owner_id FROM download_request WHERE id = %s FOR UPDATE",
                     (str(request_id),),
                 )
                 request_row = cursor.fetchone()
@@ -219,6 +245,17 @@ class MySqlDownloadRequestRepository:
                      comparable["contentSha256"], comparable["sizeBytes"], comparable["storageUri"],
                      comparable["assetId"], tag_status, "[]", now, now),
                 )
+                if result.get("enrichmentMode") == "ASYNC" and request_status not in _TERMINAL_STATUSES:
+                    if not self.background_enabled:
+                        raise ValueError("asynchronous download processing is disabled")
+                    # 仅使用已登记资产、请求所有者和摘要构造任务，不持久化临时物理路径。
+                    payload = {"downloadRequestId": str(request_id), "itemId": comparable["itemId"],
+                               "ownerId": int(request_row["owner_id"]), "assetRegistryId": comparable["assetId"],
+                               "assetId": comparable["assetId"], "contentSha256": comparable["contentSha256"],
+                               "filename": comparable["fileName"], "mimeType": str(result["mimeType"]),
+                               "mediaRegistered": bool(result.get("mediaRegistered"))}
+                    self._insert_background(cursor, "enrich:" + item_id, "ENRICHMENT", request_id,
+                                            comparable["itemId"], payload, now)
                 cursor.execute(
                     """INSERT INTO download_outbox
                        (id, aggregate_id, event_type, payload_json, status, created_at, published_at)
@@ -424,3 +461,112 @@ class MySqlDownloadRequestRepository:
             created_at=row["created_at"],
             updated_at=row["updated_at"],
         )
+
+    @staticmethod
+    def _insert_background(cursor, identifier, kind, request_id, item_id, payload, now):
+        """在业务事务内创建幂等后台工作，不把结果落库与入队拆成两个提交。"""
+        cursor.execute("""INSERT INTO download_background_job
+            (id,kind,download_request_id,external_item_id,payload_json,state,next_attempt_at,created_at,updated_at)
+            VALUES (%s,%s,%s,%s,%s,'PENDING',%s,%s,%s)""",
+            (identifier, kind, str(request_id), item_id, json.dumps(payload, separators=(',', ':')), now, now, now))
+
+    def claim_background(self, kind: str, limit: int = 10) -> list[dict]:
+        """短事务领取到期工作，过期租约可恢复，多实例不会阻塞彼此。"""
+        connection = self._connection_factory()
+        now = datetime.now(UTC)
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""SELECT * FROM download_background_job
+                    WHERE kind=%s AND state IN ('PENDING','SUBMITTED') AND next_attempt_at<=%s
+                      AND (claim_until IS NULL OR claim_until<=%s)
+                    ORDER BY next_attempt_at,id LIMIT %s FOR UPDATE SKIP LOCKED""",
+                    (kind, now, now, max(1, min(limit, 25))))
+                jobs = cursor.fetchall()
+                for job in jobs:
+                    token = str(uuid4())
+                    cursor.execute("""UPDATE download_background_job SET claim_token=%s,claim_until=%s,
+                        updated_at=%s WHERE id=%s""", (token, now + timedelta(seconds=120), now, job['id']))
+                    job['claim_token'] = token
+                    if isinstance(job['payload_json'], str):
+                        job['payload_json'] = json.loads(job['payload_json'])
+            connection.commit()
+            return jobs
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            connection.close()
+
+    def finish_background(self, job: dict, state: str, *, task_id: str | None = None,
+                          error: str | None = None, delay: int = 2,
+                          fail_unbound_request: bool = False) -> None:
+        """按租约回写后台状态，后处理失败不回退下载成功状态。"""
+        if state not in {'PENDING', 'SUBMITTED', 'SUCCEEDED', 'FAILED'}:
+            raise ValueError('background state is invalid')
+        if fail_unbound_request and (job['kind'], state) != ('RECONCILE', 'FAILED'):
+            raise ValueError('only rejected reconciliation can fail an unbound request')
+        connection = self._connection_factory()
+        now = datetime.now(UTC)
+        try:
+            with connection.cursor() as cursor:
+                request_row = None
+                if fail_unbound_request:
+                    cursor.execute('SELECT status,task_instance_id FROM download_request WHERE id=%s FOR UPDATE',
+                                   (job['download_request_id'],))
+                    request_row = cursor.fetchone()
+                if job['kind'] == 'ENRICHMENT' and state in {'SUCCEEDED', 'FAILED'}:
+                    # 与结果回写和下载终态使用同一请求优先锁序，避免后台与用户读取交叉死锁。
+                    cursor.execute('SELECT status FROM download_request WHERE id=%s FOR UPDATE',
+                                   (job['download_request_id'],))
+                    cursor.fetchone()
+                cursor.execute('SELECT claim_token FROM download_background_job WHERE id=%s FOR UPDATE',
+                               (job['id'],))
+                row = cursor.fetchone()
+                if row is None or row['claim_token'] != job['claim_token']:
+                    connection.rollback()
+                    return
+                if request_row is not None:
+                    # 并发提交若已绑定，保留对账任务。只结束仍未绑定且未执行的请求。
+                    if request_row['task_instance_id'] is not None:
+                        state, error = 'PENDING', None
+                    elif request_row['status'] in {'ACCEPTED', 'PLANNING'}:
+                        cursor.execute("""UPDATE download_request SET status='FAILED',updated_at=%s
+                            WHERE id=%s""", (now, job['download_request_id']))
+                if job['kind'] == 'ENRICHMENT' and state in {'SUCCEEDED', 'FAILED'}:
+                    # 任务终止且没有标签回调时显式结束后处理，绝不留下永久 PENDING。
+                    cursor.execute("""UPDATE download_item SET tag_status='FAILED',tags_json='[]',updated_at=%s
+                        WHERE download_request_id=%s AND external_item_id=%s AND tag_status='PENDING'""",
+                        (now, job['download_request_id'], job['external_item_id']))
+                    cursor.execute('SELECT tag_status FROM download_item WHERE download_request_id=%s AND external_item_id=%s',
+                                   (job['download_request_id'], job['external_item_id']))
+                    item = cursor.fetchone()
+                    if item and item['tag_status'] == 'FAILED':
+                        state = 'FAILED'
+                cursor.execute("""UPDATE download_background_job SET state=%s,
+                    task_instance_id=COALESCE(%s,task_instance_id),attempts=attempts+%s,next_attempt_at=%s,
+                    last_error_code=%s,claim_token=NULL,claim_until=NULL,updated_at=%s
+                    WHERE id=%s AND claim_token=%s""",
+                    (state, task_id, int(error is not None), now + timedelta(seconds=max(1, min(delay, 300))),
+                     error, now, job['id'], job['claim_token']))
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            connection.close()
+
+    def background_summary(self, request_id: UUID) -> dict:
+        """下载与后处理独立展示，标签失败不会把已保存文件改成下载失败。"""
+        connection = self._connection_factory()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT state,COUNT(*) n FROM download_background_job "
+                               "WHERE download_request_id=%s AND kind='ENRICHMENT' GROUP BY state", (str(request_id),))
+                counts = {row['state']: int(row['n']) for row in cursor.fetchall()}
+            pending = counts.get('PENDING', 0) + counts.get('SUBMITTED', 0)
+            failed = counts.get('FAILED', 0)
+            status = 'PENDING' if pending else 'FAILED' if failed else 'SUCCEEDED' if counts else 'NOT_REQUIRED'
+            return {'postProcessingStatus': status, 'postProcessingPending': pending,
+                    'postProcessingFailed': failed}
+        finally:
+            connection.close()

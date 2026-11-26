@@ -1,0 +1,98 @@
+[
+  {
+    "step": 1,
+    "page": "下载工具",
+    "finding": "图标44、编辑框因占位折行72、粘贴44、发送底板约40；占位字体未指定。",
+    "change": "输入行模式48/圆角12，固定占位字体并缩短提示；多行内容上长、动作底对齐。",
+    "evidence": "01-download-before + 14-download-final-stable; 4 visible bounds all156px=48vp; simulator/download-default-geometry.json: 4 x 168px=48vp; simulator/download-narrow-final-geometry.json: identical source narrow280/320 two rows all48vp; final2 protected download attempt reached login, previous unchanged-source geometry retained",
+    "status": "production-default-and-isolated-narrow-geometry-verified"
+  },
+  {
+    "step": 2,
+    "page": "PDF首页/编辑/参数弹层",
+    "finding": "Markdown标题越过卡片边缘；文件动作不换行、长范围无约束、半屏内容不可滚动。",
+    "change": "标题按词换行且同行卡片拉伸；文件动作Wrap；摘要受限；弹层Scroll；底部等高组。",
+    "evidence": "simulator/screens/pdf-home-default.jpeg: Markdown breaks at word boundary within equal card; old formal PDF text footer lacks generate action due shared final-child loss; final footer2 x154px=44vp, generation visible disabled on empty form",
+    "status": "default-homepage-and-final-footer-verified; sheet-pending"
+  },
+  {
+    "step": 3,
+    "page": "解压工具/密码库",
+    "finding": "密码查看/删除等宽但未共同拉伸，大字时可高低不同。",
+    "change": "两遍等高测量；文件入口及授权流程保留。",
+    "evidence": "03-archive-before; password operation code reviewed",
+    "status": "source-fixed; entry-screenshot-checked; password-state-pending"
+  },
+  {
+    "step": 4,
+    "page": "二维码",
+    "finding": "生成/识别使用统一输入与操作组，未发现同类确定缺口。",
+    "change": "保持现布局。",
+    "evidence": "04-qr-before",
+    "status": "checked-no-change"
+  },
+  {
+    "step": 5,
+    "page": "图片工作台/风格/作品",
+    "finding": "长风格名无约束、分页不换行。",
+    "change": "长名省略且保持完整业务值；分页两遍测量统一高度。",
+    "evidence": "05-image-before; long-name and paging code reviewed",
+    "status": "source-fixed; form-screenshot-checked; pagination-pending"
+  },
+  {
+    "step": 6,
+    "page": "视频工作台/模式/作品",
+    "finding": "三个创作卡片长短不同，Row未拉伸；分页不换行。",
+    "change": "模式卡及分页两遍高度测量，文字宽度受限。",
+    "evidence": "06-video-before rejected loading screenshot; code reviewed",
+    "status": "source-fixed; content-loading-not-accepted-as-final-evidence"
+  },
+  {
+    "step": 7,
+    "page": "文件传输/文件操作",
+    "finding": "上传主按钮与新建/刷新次按钮底板约40/36，文件动作同类。",
+    "change": "成组等权、同字重和两遍显式测量；内容行最小高度自然增高。",
+    "evidence": "simulator/files-final-geometry.json: final formal HAP mounted3 controls, each154px=44vp and375px wide; isolated7 dynamic states passed in actions-dynamic-geometry.json",
+    "status": "final-formal-default-native-group-verified"
+  },
+  {
+    "step": 8,
+    "page": "RSS首页/管理/阅读",
+    "finding": "创建分组旁secondary按钮底板36与字段48；阅读底部长文本可能单侧增高。",
+    "change": "创建使用fieldAligned；阅读底部两遍测量统一高度。",
+    "evidence": "simulator/rss-group-final-geometry.json: final formal HAP group input169px and create button168px, same top, pixel rounding1px",
+    "status": "default-manage-field-verified-on-simulator; reader-action-row-pending"
+  },
+  {
+    "step": 9,
+    "page": "书源管理/凭据/目录",
+    "finding": "搜索48/筛选50且圆角不同；凭据三按钮底板/字重不同；双行目录固定高。",
+    "change": "同父高度和圆角；原生按钮+两遍测量；双行内容minHeight。",
+    "evidence": "code review + index layout policies; simulator/book-source-final-geometry.json: visible search plate and filter168px=48vp; final2 fresh geometry/Normal shape passed at simulator/book-source-final2-geometry.json",
+    "status": "default-search-filter-native-verified; credentials-and-catalog-code-reviewed"
+  },
+  {
+    "step": 10,
+    "page": "章节改编/详情/阅读",
+    "finding": "返回、标题和两项动作挤一行。",
+    "change": "标题与动作分两行，共用拉伸。",
+    "evidence": "37 adaptation logic tests",
+    "status": "source-fixed; paid-generation-not-triggered"
+  },
+  {
+    "step": 11,
+    "page": "资料/网盘/媒体队列",
+    "finding": "部分两行列表固定高，放大后可能裁切。",
+    "change": "内容行用minHeight；媒体目录→标签→搜索及图上12号标签保持。",
+    "evidence": "code review and sizing policy; simulator/media-toolbar-final-geometry.json directory/tag/search168px=48vp",
+    "status": "source-fixed; large-font-device-check-pending"
+  },
+  {
+    "step": 12,
+    "page": "保留市场/原生Copilot代码",
+    "finding": "字段与普通按钮混排；当前不是可达主入口。",
+    "change": "接入fieldAligned；不冒充真机主路径复现。",
+    "evidence": "code review only",
+    "status": "source-fixed-not-mounted"
+  }
+]

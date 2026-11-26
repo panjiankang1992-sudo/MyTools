@@ -1,0 +1,74 @@
+server:
+  address: ${TOOLBOX_ADDRESS:127.0.0.1}
+  port: ${TOOLBOX_PORT:23112}
+  servlet:
+    # 根上下文：公开路径由各控制器显式声明 /public/v1 前缀，管理接口使用 /admin/v1。
+    # 直接写 context-path: /public/v1 会让管理控制器变成 /public/v1/admin/v1。
+    context-path: /
+  tomcat:
+    max-swallow-size: 1MB
+spring:
+  application:
+    name: toolbox-service
+  datasource:
+    url: jdbc:mysql://${TOOLBOX_DB_HOST:127.0.0.1}:${TOOLBOX_DB_PORT:3306}/${TOOLBOX_DB_NAME:mytools_toolbox}?useUnicode=true&characterEncoding=utf8&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true
+    username: ${TOOLBOX_DB_USER:mytools_toolbox}
+    password: ${TOOLBOX_DB_PASSWORD:}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+toolbox:
+  public-origin: ${TOOLBOX_PUBLIC_ORIGIN:}
+  public-origins: ${TOOLBOX_PUBLIC_ORIGINS:}
+  site-id: ${TOOLBOX_SITE_ID:yuyutian-toolbox}
+  catalog-path: ${TOOLBOX_CATALOG_PATH:./content}
+  policy-version: ${TOOLBOX_POLICY_VERSION:2026-10-02}
+  pdf-enabled: ${TOOLBOX_PDF_ENABLED:false}
+  stats-enabled: ${TOOLBOX_STATS_ENABLED:true}
+  session:
+    cookie-name: ${TOOLBOX_SESSION_COOKIE_NAME:__Host-toolbox_guest}
+    cookie-secure: ${TOOLBOX_SESSION_COOKIE_SECURE:true}
+    ttl-hours: ${TOOLBOX_SESSION_TTL_HOURS:24}
+  events:
+    max-batch-size: ${TOOLBOX_EVENTS_MAX_BATCH_SIZE:50}
+    max-body-bytes: ${TOOLBOX_EVENTS_MAX_BODY_BYTES:32768}
+    max-past-hours: 24
+    max-future-minutes: 5
+  stats:
+    cache-ttl-seconds: ${TOOLBOX_STATS_CACHE_TTL_SECONDS:300}
+    aggregate-interval-ms: ${TOOLBOX_STATS_AGGREGATE_INTERVAL_MS:60000}
+    aggregate-batch-size: ${TOOLBOX_STATS_AGGREGATE_BATCH_SIZE:200}
+    aggregation-enabled: ${TOOLBOX_STATS_AGGREGATION_ENABLED:true}
+    outbox-lease-seconds: 60
+  curriculum:
+    entries-default-limit: 100
+    entries-max-limit: 500
+management:
+  endpoints:
+    web:
+      # 上下文改为根之后，健康检查必须显式保留原来的 /public/v1 前缀。
+      base-path: /public/v1
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+      show-components: never
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local,test
+toolbox:
+  session:
+    cookie-name: ${TOOLBOX_SESSION_COOKIE_NAME:toolbox_guest_local}
+    cookie-secure: ${TOOLBOX_SESSION_COOKIE_SECURE:false}

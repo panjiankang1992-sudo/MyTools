@@ -1,0 +1,692 @@
+{
+  "date": "2026-11-02",
+  "scope": "Static native Button sites, including shared internal implementations and legacy compatibility builders.",
+  "sites": [
+    {
+      "file": "app/entry/src/main/ets/components/AppControls.ets",
+      "line": 110,
+      "owner": "ButtonChildren",
+      "role": "shared-control-internal",
+      "reason": "公共组件内部原生语义与焦点/点击承载，尺寸由共享令牌或单按钮测量方法控制。"
+    },
+    {
+      "file": "app/entry/src/main/ets/components/AppControls.ets",
+      "line": 164,
+      "owner": "build",
+      "role": "shared-control-internal",
+      "reason": "公共组件内部原生语义与焦点/点击承载，尺寸由共享令牌或单按钮测量方法控制。"
+    },
+    {
+      "file": "app/entry/src/main/ets/components/AppControls.ets",
+      "line": 233,
+      "owner": "build",
+      "role": "shared-control-internal",
+      "reason": "公共组件内部原生语义与焦点/点击承载，尺寸由共享令牌或单按钮测量方法控制。"
+    },
+    {
+      "file": "app/entry/src/main/ets/components/AppControls.ets",
+      "line": 310,
+      "owner": "build",
+      "role": "shared-control-internal",
+      "reason": "公共组件内部原生语义与焦点/点击承载，尺寸由共享令牌或单按钮测量方法控制。"
+    },
+    {
+      "file": "app/entry/src/main/ets/components/AppControls.ets",
+      "line": 544,
+      "owner": "build",
+      "role": "shared-control-internal",
+      "reason": "公共组件内部原生语义与焦点/点击承载，尺寸由共享令牌或单按钮测量方法控制。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/reader/ChapterAdaptationPanel.ets",
+      "line": 455,
+      "owner": "VersionList",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/reader/ChapterAdaptationPanel.ets",
+      "line": 475,
+      "owner": "VersionList",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/reader/ChapterAdaptationPanel.ets",
+      "line": 606,
+      "owner": "Header",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/rss/RssHomePage.ets",
+      "line": 324,
+      "owner": "importStatus",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/rss/RssHomePage.ets",
+      "line": 333,
+      "owner": "importStatus",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/rss/RssHomePage.ets",
+      "line": 335,
+      "owner": "importStatus",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/rss/RssHomePage.ets",
+      "line": 403,
+      "owner": "importStatus",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/rss/RssReaderPage.ets",
+      "line": 87,
+      "owner": "build",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/ImageGenerationPage.ets",
+      "line": 535,
+      "owner": "StyleControls",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/ImageGenerationPage.ets",
+      "line": 559,
+      "owner": "StyleTile",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/ImageGenerationPage.ets",
+      "line": 647,
+      "owner": "StyleLibrary",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/ImageGenerationPage.ets",
+      "line": 715,
+      "owner": "Composer",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/ImageGenerationPage.ets",
+      "line": 770,
+      "owner": "Composer",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/VideoGenerationPage.ets",
+      "line": 776,
+      "owner": "ModeChips",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/VideoGenerationPage.ets",
+      "line": 795,
+      "owner": "ModeChips",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/VideoGenerationPage.ets",
+      "line": 904,
+      "owner": "Composer",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/download/DownloadToolsPage.ets",
+      "line": 184,
+      "owner": "AttachmentButton",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/pdf/PdfToolsPage.ets",
+      "line": 242,
+      "owner": "openContinue",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/pdf/PdfToolsPage.ets",
+      "line": 314,
+      "owner": "openContinue",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/pdf/PdfToolsPage.ets",
+      "line": 315,
+      "owner": "openContinue",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/pdf/PdfToolsPage.ets",
+      "line": 461,
+      "owner": "build",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/features/tools/pdf/PdfToolsPage.ets",
+      "line": 465,
+      "owner": "build",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 1225,
+      "owner": "PageHeader",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 1267,
+      "owner": "BackButton",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 1480,
+      "owner": "EmptyShelfAction",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 1970,
+      "owner": "ToolSourceSelector",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 1992,
+      "owner": "ToolFileRow",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 2157,
+      "owner": "ToolGridCard",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 2584,
+      "owner": "MediaCatalogFilterButton",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 2637,
+      "owner": "MediaCatalogSelectorSheet",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 2676,
+      "owner": "MediaCatalogSelectorRow",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 2872,
+      "owner": "MediaCatalogItemTags",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 3451,
+      "owner": "MediaVideoDetailPage",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 3663,
+      "owner": "DrivePage",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 3682,
+      "owner": "DrivePage",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 3692,
+      "owner": "DrivePage",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 3768,
+      "owner": "DriveSelectorSheet",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 3945,
+      "owner": "MediaFilterTrigger",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 4047,
+      "owner": "MediaSearchableSelectorContent",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 4087,
+      "owner": "MediaDirectoryFilterBar",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 4094,
+      "owner": "MediaDirectoryFilterBar",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 4110,
+      "owner": "MediaTagFilterBar",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 4118,
+      "owner": "MediaTagFilterBar",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 4132,
+      "owner": "MediaTagFilterBar",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 4161,
+      "owner": "MediaContinueCard",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 4390,
+      "owner": "ProfileAppearanceActionRow",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 4436,
+      "owner": "ProfileReaderThemeButton",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 4772,
+      "owner": "BookSourceSearchField",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 4792,
+      "owner": "BookSourceSearchField",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 4799,
+      "owner": "BookSourceSearchField",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 4816,
+      "owner": "BookSourceSearchField",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 5070,
+      "owner": "BookSourceExplorePanel",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 5114,
+      "owner": "BookSourceCredentialTypeButton",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 5133,
+      "owner": "BookSourceManageFilter",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 5163,
+      "owner": "BookSourceManageFilterMenuItem",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 5294,
+      "owner": "BookShelfCard",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 5341,
+      "owner": "BookShelfHeader",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 5365,
+      "owner": "BookSourceManagementPage",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 5410,
+      "owner": "BookDetailPage",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 5476,
+      "owner": "BookDetailPage",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 5520,
+      "owner": "BookDetailPage",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 5548,
+      "owner": "BookDetailPage",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 5583,
+      "owner": "BookDetailPage",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6008,
+      "owner": "ReaderFooter",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6013,
+      "owner": "ReaderFooter",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6022,
+      "owner": "ReaderFooter",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6033,
+      "owner": "ReaderSelectionAction",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6296,
+      "owner": "ReaderControls",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6306,
+      "owner": "ReaderControls",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6424,
+      "owner": "ReaderCatalogQuickAction",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6438,
+      "owner": "ReaderNightQuickAction",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6452,
+      "owner": "ReaderSpeechQuickAction",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6466,
+      "owner": "ReaderFontQuickAction",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6478,
+      "owner": "ReaderMoreQuickAction",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6729,
+      "owner": "ComicOptionButton",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6830,
+      "owner": "ReaderCatalogPanel",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6850,
+      "owner": "ReaderCatalogPanel",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6871,
+      "owner": "ReaderCatalogPanel",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6889,
+      "owner": "ReaderCatalogModeButton",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 6971,
+      "owner": "ReaderThemeButton",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 7073,
+      "owner": "ReaderOrientationButton",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 10823,
+      "owner": "AudiobookReviewSheet",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 10904,
+      "owner": "AudiobookReviewSheet",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 12433,
+      "owner": "MediaSourceSelector",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 12476,
+      "owner": "MediaItemRow",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 12504,
+      "owner": "RemoteBookSourceSelector",
+      "role": "specialized-selection",
+      "reason": "专用选中项、主题色块或来源/模式选择；保留条件颜色、选中说明与回调，使用公共字体和主题。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 12583,
+      "owner": "RemoteBookRow",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 12616,
+      "owner": "OpdsNavigationRow",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 12630,
+      "owner": "OpdsBookRow",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 17709,
+      "owner": "RemoteVisualMediaViewerPage",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 17867,
+      "owner": "RemoteMediaViewerPage",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 18001,
+      "owner": "RemoteMediaViewerPage",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    },
+    {
+      "file": "app/entry/src/main/ets/pages/Index.ets",
+      "line": 18253,
+      "owner": "AudioQueueRow",
+      "role": "compound-content-icon-or-tag",
+      "reason": "封面、图标、复合行、卡片或内容标签选择，保留原生可访问入口、业务筛选或独立手势及内容布局，内部文字采用固定UI字体。"
+    }
+  ]
+}

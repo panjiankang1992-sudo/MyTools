@@ -17,6 +17,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class InternalTokenFilterTest {
 
     @Test
+    void protectsPdfDeployment() {
+        assertTrue(InternalTokenFilter.isProtectedPath("/internal/v1/pdf-deployment"));
+        assertTrue(InternalTokenFilter.isProtectedPath("/internal/v1/news-weekly-deployment"));
+    }
+
+    @Test
     void shouldProtectImageDeploymentPath() {
         assertTrue(InternalTokenFilter.isProtectedPath("/internal/v1/image-generation-deployment"));
     }

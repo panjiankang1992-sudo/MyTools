@@ -1,0 +1,4488 @@
+{
+  "jobs": {
+    "d50fad48-1773-4fe3-b7eb-44cbd3a060eb": {
+      "id": "d50fad48-1773-4fe3-b7eb-44cbd3a060eb",
+      "status": "CANCELLED",
+      "createdAt": "2026-09-21T00:00:00Z",
+      "elapsedMillis": 0,
+      "errorCode": "",
+      "request": {
+        "resourceId": "ltx-video-2b-local",
+        "mode": "FIRST_FRAME",
+        "prompt": "A red teapot stays still as the camera slowly moves forward.",
+        "inputs": [
+          {
+            "uploadId": "ca0b5aa3-f90d-41d8-8647-be6409b93c85",
+            "role": "FIRST_FRAME"
+          }
+        ],
+        "output": {
+          "size": "640x640",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 1495707315,
+        "idempotencyKey": "b506e6da-ee36-43c8-9dd2-00473097bd90"
+      },
+      "result": {},
+      "_owner": "acceptance-a",
+      "_start": 1789997985.022582
+    },
+    "67fc4c95-ce57-442e-a3ec-39f66b5f59d3": {
+      "id": "67fc4c95-ce57-442e-a3ec-39f66b5f59d3",
+      "status": "QUEUED",
+      "createdAt": "2026-09-21T00:00:00Z",
+      "elapsedMillis": 0,
+      "errorCode": "",
+      "request": {
+        "resourceId": "ltx-video-2b-local",
+        "mode": "FIRST_FRAME",
+        "prompt": "A red teapot stays still as the camera slowly moves forward.",
+        "inputs": [
+          {
+            "uploadId": "ca0b5aa3-f90d-41d8-8647-be6409b93c85",
+            "role": "FIRST_FRAME"
+          }
+        ],
+        "output": {
+          "size": "640x640",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 1613903812,
+        "idempotencyKey": "a77571fe-1c9d-4ffd-88f8-005dbb2d19fe"
+      },
+      "result": {},
+      "_owner": "acceptance-a",
+      "_start": 1789998089.0113978
+    },
+    "3a3bb0a2-dc33-41e2-b612-ca039ccd9177": {
+      "id": "3a3bb0a2-dc33-41e2-b612-ca039ccd9177",
+      "status": "QUEUED",
+      "createdAt": "2026-09-21T00:00:00Z",
+      "elapsedMillis": 0,
+      "errorCode": "",
+      "request": {
+        "resourceId": "ltx-video-2b-local",
+        "mode": "FIRST_FRAME",
+        "prompt": "A red teapot stays still as the camera slowly moves forward.",
+        "inputs": [
+          {
+            "uploadId": "ca0b5aa3-f90d-41d8-8647-be6409b93c85",
+            "role": "FIRST_FRAME"
+          }
+        ],
+        "output": {
+          "size": "640x640",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 1908227516,
+        "idempotencyKey": "b3a000a7-1b5b-49b5-a699-514700024a66"
+      },
+      "result": {},
+      "_owner": "acceptance-a",
+      "_start": 1789998089.865738
+    },
+    "7839e21b-71b8-4d43-8b31-e134af4a5c42": {
+      "id": "7839e21b-71b8-4d43-8b31-e134af4a5c42",
+      "status": "CANCELLED",
+      "createdAt": "2026-09-21T00:00:00Z",
+      "elapsedMillis": 64342,
+      "errorCode": "",
+      "request": {
+        "resourceId": "ltx-video-2b-local",
+        "mode": "FIRST_FRAME",
+        "prompt": "A fixed camera shows gentle motion.",
+        "inputs": [
+          {
+            "uploadId": "8293631e-35b1-463a-a587-066edf66f5c4",
+            "role": "FIRST_FRAME"
+          }
+        ],
+        "output": {
+          "size": "640x640",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 1941946986,
+        "idempotencyKey": "dee6ff24-fac9-467e-80cd-4eda3f4ddc16"
+      },
+      "result": {},
+      "_owner": "acceptance-b",
+      "_start": 1789998306.024998
+    },
+    "edb6c90d-4e7a-4c4a-9694-a0ff936e9b9e": {
+      "id": "edb6c90d-4e7a-4c4a-9694-a0ff936e9b9e",
+      "status": "SUCCEEDED",
+      "createdAt": "2026-09-21T00:00:00Z",
+      "elapsedMillis": 1718,
+      "errorCode": "",
+      "request": {
+        "resourceId": "ltx-video-2b-local",
+        "mode": "FIRST_FRAME",
+        "prompt": "A fixed camera shows gentle motion.",
+        "inputs": [
+          {
+            "uploadId": "8293631e-35b1-463a-a587-066edf66f5c4",
+            "role": "FIRST_FRAME"
+          }
+        ],
+        "output": {
+          "size": "640x640",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 404706770,
+        "idempotencyKey": "b4b58773-40ff-43e4-80a7-ddc578e38e77"
+      },
+      "result": {
+        "width": 640,
+        "height": 640,
+        "frames": 49,
+        "fps": 16,
+        "durationMs": 3063
+      },
+      "_owner": "acceptance-b",
+      "_start": 1789998431.793889
+    },
+    "6a4d2208-c1a9-4d49-9167-f73010bdb17a": {
+      "id": "6a4d2208-c1a9-4d49-9167-f73010bdb17a",
+      "status": "QUEUED",
+      "createdAt": "2026-09-21T00:00:00Z",
+      "elapsedMillis": 0,
+      "errorCode": "",
+      "request": {
+        "resourceId": "wan-vace-1.3b-local",
+        "mode": "STRUCTURE_RESTYLE",
+        "prompt": "Restyle source video with warm light",
+        "inputs": [
+          {
+            "uploadId": "8a4d883c-dca9-4d8a-b845-ee02e6e2228c",
+            "role": "SOURCE_VIDEO"
+          }
+        ],
+        "output": {
+          "size": "832x480",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 834769027,
+        "idempotencyKey": "1122e1cf-ca6a-4652-b3b0-afca2468a506"
+      },
+      "result": {},
+      "_owner": "acceptance-a",
+      "_start": 1789998993.6223419
+    },
+    "79e71846-0de4-4c9f-904b-3ba2a775dd7b": {
+      "id": "79e71846-0de4-4c9f-904b-3ba2a775dd7b",
+      "status": "QUEUED",
+      "createdAt": "2026-09-21T00:00:00Z",
+      "elapsedMillis": 0,
+      "errorCode": "",
+      "request": {
+        "resourceId": "wan-vace-1.3b-local",
+        "mode": "SUBJECT_REFERENCES",
+        "prompt": "Restyle source video with warm light",
+        "inputs": [
+          {
+            "uploadId": "cd988fd6-c0c5-4683-ad4c-12cdcb05fbd5",
+            "role": "SUBJECT"
+          },
+          {
+            "uploadId": "f0163fd0-6b7e-4a7c-b687-b93ec14a963a",
+            "role": "SUBJECT"
+          }
+        ],
+        "output": {
+          "size": "832x480",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 624018723,
+        "idempotencyKey": "3d98df63-f782-4be9-9965-dcf76c1019ab"
+      },
+      "result": {},
+      "_owner": "acceptance-a",
+      "_start": 1789999271.118187
+    },
+    "76570fbb-be03-418d-9fac-2e4efc31e6d3": {
+      "id": "76570fbb-be03-418d-9fac-2e4efc31e6d3",
+      "status": "FAILED",
+      "createdAt": "2026-09-21T00:00:00Z",
+      "elapsedMillis": 6592,
+      "errorCode": "VIDEO_004",
+      "request": {
+        "resourceId": "wan-vace-1.3b-local",
+        "mode": "TEXT_TO_VIDEO",
+        "prompt": "A bird flies across a blue sky",
+        "inputs": [],
+        "output": {
+          "size": "832x480",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 2037050631,
+        "idempotencyKey": "fa08e550-d16a-4146-bf91-096cd3939eea"
+      },
+      "result": {},
+      "_owner": "acceptance-a",
+      "_start": 1789999378.908923
+    },
+    "9e6ecf40-4c10-4a96-8fa7-52f553ddb19c": {
+      "id": "9e6ecf40-4c10-4a96-8fa7-52f553ddb19c",
+      "status": "QUEUED",
+      "createdAt": "2026-09-21T00:00:00Z",
+      "elapsedMillis": 0,
+      "errorCode": "",
+      "request": {
+        "resourceId": "wan-vace-1.3b-local",
+        "mode": "MASKED_EDIT",
+        "prompt": "A bird flies across a blue sky",
+        "inputs": [
+          {
+            "uploadId": "1b596eb9-e932-4a8c-ab1b-52b3e8b1fbee",
+            "role": "SOURCE_VIDEO"
+          }
+        ],
+        "output": {
+          "size": "832x480",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 814166663,
+        "idempotencyKey": "1c873731-49f6-4485-ae7b-5b08d583370a"
+      },
+      "result": {},
+      "_owner": "acceptance-a",
+      "_start": 1789999609.232417
+    },
+    "b93edbba-9200-4a83-9f7d-5451c4aad48c": {
+      "id": "b93edbba-9200-4a83-9f7d-5451c4aad48c",
+      "status": "QUEUED",
+      "createdAt": "2026-09-21T00:00:00Z",
+      "elapsedMillis": 0,
+      "errorCode": "",
+      "request": {
+        "resourceId": "wan-vace-1.3b-local",
+        "mode": "FIRST_LAST_FRAMES",
+        "prompt": "A bird flies across a blue sky",
+        "inputs": [
+          {
+            "uploadId": "6b6d1ede-5b34-4a8a-9448-79fe23a74f56",
+            "role": "FIRST_FRAME"
+          },
+          {
+            "uploadId": "23dfd716-6f49-4dec-8035-0511734a75eb",
+            "role": "LAST_FRAME"
+          }
+        ],
+        "output": {
+          "size": "832x480",
+          "frames": 49,
+          "fps": 16
+        },
+        "seed": 1123385696,
+        "idempotencyKey": "cd2a5155-f989-4c78-99c8-4cf4206204cd"
+      },
+      "result": {},
+      "_owner": "acceptance-a",
+      "_start": 1789999701.348135
+    }
+  },
+  "uploads": {
+    "ca0b5aa3-f90d-41d8-8647-be6409b93c85": {
+      "owner": "acceptance-a",
+      "size": 1100914,
+      "sha256": "5383ec9b359b53517bbc582be548879b9f45dc8a1e3d1b8fa15491abc82be46f"
+    },
+    "8293631e-35b1-463a-a587-066edf66f5c4": {
+      "owner": "acceptance-b",
+      "size": 1100914,
+      "sha256": "5383ec9b359b53517bbc582be548879b9f45dc8a1e3d1b8fa15491abc82be46f"
+    },
+    "8a4d883c-dca9-4d8a-b845-ee02e6e2228c": {
+      "owner": "acceptance-a",
+      "size": 165756,
+      "sha256": "2e01e7127b75291477ea075da0688b28d03fd61b7be6b6f7f37ca26c536d6b9c"
+    },
+    "cd988fd6-c0c5-4683-ad4c-12cdcb05fbd5": {
+      "owner": "acceptance-a",
+      "size": 1100914,
+      "sha256": "5383ec9b359b53517bbc582be548879b9f45dc8a1e3d1b8fa15491abc82be46f"
+    },
+    "f0163fd0-6b7e-4a7c-b687-b93ec14a963a": {
+      "owner": "acceptance-a",
+      "size": 1100914,
+      "sha256": "5383ec9b359b53517bbc582be548879b9f45dc8a1e3d1b8fa15491abc82be46f"
+    },
+    "8f8fd52a-33b9-4266-90ab-e40f08a0962d": {
+      "owner": "acceptance-a",
+      "size": 1100914,
+      "sha256": "5383ec9b359b53517bbc582be548879b9f45dc8a1e3d1b8fa15491abc82be46f"
+    },
+    "1b596eb9-e932-4a8c-ab1b-52b3e8b1fbee": {
+      "owner": "acceptance-a",
+      "size": 165756,
+      "sha256": "2e01e7127b75291477ea075da0688b28d03fd61b7be6b6f7f37ca26c536d6b9c"
+    },
+    "6b6d1ede-5b34-4a8a-9448-79fe23a74f56": {
+      "owner": "acceptance-a",
+      "size": 1100914,
+      "sha256": "5383ec9b359b53517bbc582be548879b9f45dc8a1e3d1b8fa15491abc82be46f"
+    },
+    "23dfd716-6f49-4dec-8035-0511734a75eb": {
+      "owner": "acceptance-a",
+      "size": 1100914,
+      "sha256": "5383ec9b359b53517bbc582be548879b9f45dc8a1e3d1b8fa15491abc82be46f"
+    }
+  },
+  "offline": false,
+  "loseAck": false,
+  "events": [
+    {
+      "at": 1789997811.891171,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789997811.909076,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789997889.1658611,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/image-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789997944.660672,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/image-generation/jobs/10000000-0000-4000-8000-000000000001/images/0",
+      "bytes": 0
+    },
+    {
+      "at": 1789997945.676759,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/uploads/image",
+      "bytes": 1100914
+    },
+    {
+      "at": 1789997985.0224152,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs",
+      "bytes": 335
+    },
+    {
+      "at": 1789997985.0316968,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789997985.043989,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789997990.0532439,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789997990.064966,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789997995.0741189,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789997995.080248,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998000.0916638,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998000.097736,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998005.106014,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998005.110771,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998010.124204,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998010.128739,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998015.1397939,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998015.1455932,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998020.154565,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998020.159038,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998025.169667,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998025.1758468,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998030.190156,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998030.1978009,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998035.234632,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998035.249079,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998037.949993,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs/d50fad48-1773-4fe3-b7eb-44cbd3a060eb/cancel",
+      "bytes": 0
+    },
+    {
+      "at": 1789998037.959053,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998037.9652429,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998089.011172,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs",
+      "bytes": 335
+    },
+    {
+      "at": 1789998089.865582,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs",
+      "bytes": 335
+    },
+    {
+      "at": 1789998089.870781,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998089.88177,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998094.890641,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998094.897994,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998099.912811,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998099.920287,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998104.9304361,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998104.939699,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998109.951981,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998109.960006,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998114.971301,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998114.978987,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998119.9944131,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998120.002121,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998121.957151,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998121.9618208,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998223.45019,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998223.4748092,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998228.488191,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998228.495879,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998233.505687,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998233.5117388,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998238.523051,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998238.527646,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998243.537843,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998243.546454,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998248.554226,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998248.559587,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998251.315755,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/image-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998252.166882,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998252.1786182,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998266.5838459,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/image-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998297.435047,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/image-generation/jobs/20000000-0000-4000-8000-000000000002/images/0",
+      "bytes": 0
+    },
+    {
+      "at": 1789998298.449443,
+      "owner": "acceptance-b",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/uploads/image",
+      "bytes": 1100914
+    },
+    {
+      "at": 1789998306.0247629,
+      "owner": "acceptance-b",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs",
+      "bytes": 310
+    },
+    {
+      "at": 1789998333.207562,
+      "owner": "acceptance-b",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs",
+      "bytes": 310
+    },
+    {
+      "at": 1789998333.213023,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998333.222162,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998338.229871,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998338.236904,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998343.248272,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998343.25441,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998348.2659788,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998348.272193,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998353.282485,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998353.291594,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998358.302814,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998358.311977,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998363.319533,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998363.32769,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998367.9102058,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998367.917782,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998369.535129,
+      "owner": "acceptance-b",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs/7839e21b-71b8-4d43-8b31-e134af4a5c42/cancel",
+      "bytes": 0
+    },
+    {
+      "at": 1789998369.5409,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998369.546436,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998371.196092,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998371.2034829,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998431.7937012,
+      "owner": "acceptance-b",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs",
+      "bytes": 309
+    },
+    {
+      "at": 1789998431.7994912,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998431.806338,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998432.6809459,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998432.689694,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998434.343159,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998434.3499699,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998434.35995,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/jobs/edb6c90d-4e7a-4c4a-9694-a0ff936e9b9e/cover",
+      "bytes": 0
+    },
+    {
+      "at": 1789998492.493523,
+      "owner": "acceptance-b",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs/edb6c90d-4e7a-4c4a-9694-a0ff936e9b9e/ticket",
+      "bytes": 0
+    },
+    {
+      "at": 1789998495.048382,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998496.707587,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998496.713182,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998499.169157,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998499.1811619,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998499.190463,
+      "owner": "acceptance-b",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/jobs/edb6c90d-4e7a-4c4a-9694-a0ff936e9b9e/cover",
+      "bytes": 0
+    },
+    {
+      "at": 1789998553.1209621,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998553.14641,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998558.162099,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998558.1679628,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998563.176652,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998563.184161,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998568.196255,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998568.2034738,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998573.217076,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998573.224782,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998578.243617,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998578.252806,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998583.263956,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998583.270676,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998588.281878,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998588.288179,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998593.297225,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998593.3048031,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998598.317972,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998598.332617,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998603.354955,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998603.365567,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998608.379779,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998608.385802,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998613.399777,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998613.406971,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998618.4285052,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998618.4346821,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998623.445641,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998623.454591,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998628.4648,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998628.47227,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998633.485775,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998633.493222,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998638.508802,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998638.514876,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998643.5241501,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998643.530463,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998648.544189,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998648.550315,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998653.559433,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998653.56692,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998658.5837162,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998658.592739,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998663.601727,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998663.6109629,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998668.622368,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998668.6300328,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998673.651458,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998673.660084,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998678.676424,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998678.686651,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998683.7016,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998683.7091641,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998688.718915,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998688.725091,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998693.735863,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998693.7420769,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998698.751186,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998698.7572758,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998703.768878,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998703.7761269,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998708.786995,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998708.793003,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998713.804457,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998713.809078,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998718.818507,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998718.823029,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998723.8338912,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998723.8399801,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998728.850504,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998728.8560781,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998733.864844,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998733.8724349,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998738.8811069,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998738.885609,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998743.90401,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998743.91411,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998748.923691,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998748.937278,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998753.947413,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998753.953515,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998758.974153,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998758.9815419,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998763.988538,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998763.9957602,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998769.0093591,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998769.0183702,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998774.031468,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998774.036144,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998779.0448608,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998779.050786,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998784.06509,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998784.072563,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998789.0840828,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998789.090219,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998794.100589,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998794.1067882,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998799.125321,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998799.1312299,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998804.1391082,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998804.143768,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998809.158997,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998809.1665971,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998814.175837,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998814.183389,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998819.196958,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998819.204611,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998824.217391,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998824.223414,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998829.239093,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998829.2467468,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998834.267901,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998834.274032,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998839.293472,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998839.3009028,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998844.3158112,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998844.323663,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998849.334319,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998849.343621,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998854.3551621,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998854.364152,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998859.371543,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998859.3790772,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998864.386422,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998864.392303,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998869.403033,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998869.40995,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998874.426108,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998874.434975,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998879.450753,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998879.455446,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998884.4659982,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998884.472162,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998889.482463,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998889.488363,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998894.5026848,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998894.511282,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998899.52109,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998899.52701,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998904.53993,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998904.5445042,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998909.554549,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998909.558975,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998914.567012,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998914.5760121,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998919.586723,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998919.593763,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998924.6040618,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998924.6095748,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998929.620584,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998929.626564,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998934.643662,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998934.651305,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998939.66383,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998939.669827,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998944.6814232,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998944.687216,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998949.701953,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998949.706409,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998954.7220328,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998954.726563,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998959.735592,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998959.742814,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998963.783443,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/uploads/video",
+      "bytes": 165756
+    },
+    {
+      "at": 1789998968.7938619,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998968.798398,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998973.807494,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998973.8150752,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998978.825999,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998978.833437,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998983.8461351,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998983.85339,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998988.860437,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998988.8663402,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998993.622087,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs",
+      "bytes": 318
+    },
+    {
+      "at": 1789998993.697132,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998993.735445,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789998998.7458718,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789998998.751956,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999003.759794,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999003.767468,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999008.7775612,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999008.783644,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999013.795594,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999013.800489,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999018.810302,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999018.815927,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999023.826019,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999023.8321369,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999028.839639,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999028.845262,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999033.850074,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999033.855788,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999038.864612,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999038.869199,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999043.883123,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999043.890512,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999048.899271,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999048.906431,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999053.924438,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999053.9331079,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999058.942821,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999058.95005,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999063.957477,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999063.963684,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999068.971468,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999068.9760761,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999073.9877708,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999073.994695,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999079.004591,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999079.010685,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999084.017189,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999084.024373,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999089.034909,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999089.041792,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999094.05341,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999094.060443,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999099.067513,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999099.072057,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999104.081215,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999104.0872471,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999109.098857,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999109.105939,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999114.124395,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999114.133148,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999119.144394,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999119.1504042,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999124.156827,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999124.164327,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999129.174262,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999129.180374,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999134.188589,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999134.194499,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999139.20466,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999139.210589,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999144.224394,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999144.231926,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999149.2417212,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999149.2477272,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999154.255692,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999154.2630248,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999159.27424,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999159.278929,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999164.287756,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999164.293073,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999169.303344,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999169.3106492,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999174.3220968,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999174.327818,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999179.340246,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999179.3474681,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999182.27205,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/uploads/image",
+      "bytes": 1100914
+    },
+    {
+      "at": 1789999187.2900732,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999187.298866,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999192.3089159,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999192.314891,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999197.3231528,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999197.328682,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999202.3366752,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999202.3442628,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999207.3551512,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999207.360637,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999212.372857,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999212.3802,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999217.397287,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999217.407712,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999219.660668,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/image-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999222.426162,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999222.435884,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999227.446806,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999227.45425,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999232.466539,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999232.4764779,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999237.488107,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999237.494133,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999242.5080829,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999242.517246,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999247.527539,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999247.533529,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999250.274428,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/image-generation/jobs/10000000-0000-4000-8000-000000000001/images/0",
+      "bytes": 0
+    },
+    {
+      "at": 1789999251.289463,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/uploads/image",
+      "bytes": 1100914
+    },
+    {
+      "at": 1789999252.5455518,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999252.5499158,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999257.557648,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999257.564708,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999262.574327,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999262.583387,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999267.603246,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999267.609236,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999271.1180701,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs",
+      "bytes": 383
+    },
+    {
+      "at": 1789999271.131333,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999271.142186,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999276.156182,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999276.16098,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999281.1761012,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999281.18369,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999286.1942122,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999286.2017438,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999291.210183,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999291.2189178,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999296.2302861,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999296.237421,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999301.24509,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999301.251147,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999306.262455,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999306.2710762,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999311.282447,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999311.290544,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999316.308395,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999316.3154209,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999321.32353,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999321.331129,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999326.342397,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999326.3500001,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999331.362289,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999331.369746,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999336.389371,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999336.3976169,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999341.414049,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999341.42166,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999346.4360058,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999346.4450712,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999351.4540958,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999351.460125,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999356.468632,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999356.475372,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999361.489416,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999361.495502,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999366.515381,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999366.524239,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999371.532931,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999371.538767,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999376.5488122,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999376.556431,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999378.908609,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs",
+      "bytes": 236
+    },
+    {
+      "at": 1789999378.918062,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999378.9439502,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999383.953053,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999383.958827,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999388.9708831,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999388.97849,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999393.986788,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999393.9928472,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999399.0124888,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999399.018655,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999404.0250912,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999404.030717,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999409.041974,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999409.050498,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999414.064489,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999414.072021,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999419.088785,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999419.0945768,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999424.103751,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999424.109368,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999429.128887,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999429.136481,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999434.209006,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999434.233985,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999439.252291,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999439.2643409,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999444.277248,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999444.282809,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999449.293087,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999449.300433,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999454.3157032,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999454.32268,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999459.332296,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999459.3406541,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999464.348788,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999464.354613,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999469.363891,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999469.3714612,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999474.382106,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999474.390441,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999479.398762,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999479.40591,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999484.4224372,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999484.4296162,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999489.444648,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999489.449452,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999494.4657888,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999494.473096,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999499.482086,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999499.486659,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999504.5027032,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999504.509774,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999509.524889,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999509.534484,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999513.053138,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/image-generation/jobs/10000000-0000-4000-8000-000000000001/images/0",
+      "bytes": 0
+    },
+    {
+      "at": 1789999514.068047,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/uploads/image",
+      "bytes": 1100914
+    },
+    {
+      "at": 1789999514.546344,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999514.555269,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999519.5691369,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999519.573704,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999524.585662,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999524.594465,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999529.604079,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999529.610294,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999534.6237981,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999534.629571,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999539.638067,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999539.643809,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999544.651048,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999544.656982,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999549.663779,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999549.672383,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999554.682028,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999554.689122,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999559.705235,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999559.71389,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999564.727937,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999564.735463,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999569.745718,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999569.750556,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999574.7599308,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999574.767487,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999579.7793899,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999579.785331,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999584.7966669,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999584.8027232,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999589.81326,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999589.8192341,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999594.827469,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999594.8334599,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999599.84534,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999599.852618,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999603.330564,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/uploads/video",
+      "bytes": 165756
+    },
+    {
+      "at": 1789999608.336065,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999608.342131,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999609.2321699,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs",
+      "bytes": 306
+    },
+    {
+      "at": 1789999609.237746,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999609.246994,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999614.269003,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999614.2767448,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999619.291987,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999619.297877,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999624.310934,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999624.3190799,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999629.3295019,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999629.3355021,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999634.345367,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999634.3511732,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999639.3591921,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999639.3633869,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999644.3704069,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999644.375005,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999647.535557,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/image-generation/jobs/10000000-0000-4000-8000-000000000001/images/0",
+      "bytes": 0
+    },
+    {
+      "at": 1789999648.546813,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/uploads/image",
+      "bytes": 1100914
+    },
+    {
+      "at": 1789999649.3826728,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999649.3872309,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999654.402814,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999654.409906,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999659.422231,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999659.431273,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999664.441163,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999664.448597,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999669.457237,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999669.461687,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999674.470655,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999674.478391,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999679.488587,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999679.4961321,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999684.5061278,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999684.513537,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999689.520957,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999689.528569,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999690.066269,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/image-generation/jobs/10000000-0000-4000-8000-000000000001/images/0",
+      "bytes": 0
+    },
+    {
+      "at": 1789999691.080458,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/uploads/image",
+      "bytes": 1100914
+    },
+    {
+      "at": 1789999694.539767,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999694.54689,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999699.564738,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999699.572072,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999701.3479848,
+      "owner": "acceptance-a",
+      "method": "POST",
+      "path": "/api/app/v1/video-generation/jobs",
+      "bytes": 384
+    },
+    {
+      "at": 1789999701.3541288,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999701.3615518,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999706.379061,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999706.385084,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999711.3991182,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999711.406523,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999716.417541,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999716.423291,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999721.431479,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999721.437205,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    },
+    {
+      "at": 1789999726.44755,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/models",
+      "bytes": 0
+    },
+    {
+      "at": 1789999726.4549718,
+      "owner": "acceptance-a",
+      "method": "GET",
+      "path": "/api/app/v1/video-generation/works",
+      "bytes": 0
+    }
+  ]
+}

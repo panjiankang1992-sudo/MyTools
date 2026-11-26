@@ -1,0 +1,151 @@
+{
+  "name": "remaining-b03-undo-composition",
+  "at": "2026-10-06T21:59:33.629Z",
+  "results": [
+    {
+      "label": "基线（页面可见条目）",
+      "ok": true,
+      "informational": true,
+      "detail": "[{\"rowId\":\"row-1\",\"text\":\"山\"},{\"rowId\":\"row-2\",\"text\":\"水\"}]"
+    },
+    {
+      "label": "基线（服务端 rowId 顺序）",
+      "ok": true,
+      "informational": true,
+      "detail": "[\"row-1\",\"row-2\"]"
+    },
+    {
+      "label": "基线（目录）",
+      "ok": true,
+      "informational": true,
+      "detail": "[{\"unit\":\"第一单元\",\"lessons\":[]}]"
+    },
+    {
+      "label": "设计边界：纯文本输入不进入撤销栈（撤销按钮保持禁用）",
+      "ok": true,
+      "detail": "输入后 disabled=true"
+    },
+    {
+      "label": "合成输入进了「新单元名称」输入框",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "合成 click 点到「新增单元」",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "撤销按钮在新结构改动后变为可用",
+      "ok": true,
+      "detail": "disabled=false"
+    },
+    {
+      "label": "合成 click 点到「撤销」",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "场景1：撤销后新单元真的从目录消失",
+      "ok": true,
+      "detail": "[{\"unit\":\"第一单元\",\"lessons\":[]}]"
+    },
+    {
+      "label": "场景1：撤销栈回到空（按钮重新禁用）",
+      "ok": true,
+      "detail": "disabled=true"
+    },
+    {
+      "label": "场景1：目录与基线逐字相同",
+      "ok": true,
+      "detail": "[{\"unit\":\"第一单元\",\"lessons\":[]}]"
+    },
+    {
+      "label": "场景1：条目标识与顺序与基线逐字相同",
+      "ok": true,
+      "detail": "[{\"rowId\":\"row-1\",\"text\":\"山\"},{\"rowId\":\"row-2\",\"text\":\"水\"}]"
+    },
+    {
+      "label": "场景1：页面提示「已撤销：新增单元」",
+      "ok": true,
+      "detail": "[\"已撤销：新增单元。\"]"
+    },
+    {
+      "label": "场景2 快照点",
+      "ok": true,
+      "informational": true,
+      "detail": "结构改动已记录一份快照（此时 entries 仍是原值）"
+    },
+    {
+      "label": "场景2：合成输入让第 1 行变成新值（Vue 已渲染）",
+      "ok": true,
+      "detail": "setter 返回 \"山撤销81g62\""
+    },
+    {
+      "label": "场景2：自动保存把新内容真的写到服务端",
+      "ok": true,
+      "detail": "{\"revision\":3,\"rowId\":\"row-1\",\"text\":\"山撤销81g62\"}"
+    },
+    {
+      "label": "场景2：新内容写在**同一行标识**上（没有新增行）",
+      "ok": true,
+      "detail": "服务端 rowId=row-1，条目数=2"
+    },
+    {
+      "label": "场景2：合成 click 点到「撤销」",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "场景2：撤销后第 1 行真的回到原值",
+      "ok": true,
+      "detail": "实际=\"山\""
+    },
+    {
+      "label": "场景2：内容真的回到原值（页面 DOM）",
+      "ok": true,
+      "detail": "实际=\"山\""
+    },
+    {
+      "label": "场景2：rowId 与顺序逐个未变",
+      "ok": true,
+      "detail": "[{\"rowId\":\"row-1\",\"text\":\"山\"},{\"rowId\":\"row-2\",\"text\":\"水\"}]"
+    },
+    {
+      "label": "场景2：目录与基线逐字相同",
+      "ok": true,
+      "detail": "[{\"unit\":\"第一单元\",\"lessons\":[]}]"
+    },
+    {
+      "label": "实测：撤销后服务端草稿第 1 行",
+      "ok": true,
+      "informational": true,
+      "detail": "[\"row-1:山撤销81g62\",\"row-2:水\"]"
+    },
+    {
+      "label": "实测：撤销后服务端 revision",
+      "ok": true,
+      "informational": true,
+      "detail": "3"
+    },
+    {
+      "label": "场景3：撤销后再输入，rowId 仍是同一批、顺序不变",
+      "ok": true,
+      "detail": "[\"row-1\",\"row-2\"]"
+    },
+    {
+      "label": "实测：Cmd+Z（keyDown/keyUp + Meta）",
+      "ok": true,
+      "informational": true,
+      "detail": "聚焦=true 输入框值 \"山撤销81g62撤销81g62\" → \"山撤销81g62撤销81g62\"；Vue 状态(.metadata-text)=\"山撤销81g62撤销81g62\"；撤销按钮 disabled=true"
+    },
+    {
+      "label": "实测：撤销入口",
+      "ok": true,
+      "informational": true,
+      "detail": "本页没有注册 Cmd+Z 快捷键（main.ts/App.vue 无 undo/ctrlKey/metaKey 命中），唯一入口是「撤销」按钮"
+    }
+  ],
+  "editionId": "e2e-b03-81g62",
+  "mark": "撤销81g62"
+}

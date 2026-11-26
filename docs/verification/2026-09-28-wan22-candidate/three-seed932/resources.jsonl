@@ -1,0 +1,150 @@
+{"time": 1790530232.2427607, "gpu": "635, 0", "availableKiB": 15569464, "pressure": "some avg10=1.23 avg60=1.63 avg300=0.54 total=165472311\nfull avg10=1.23 avg60=1.63 avg300=0.53 total=162312443"}
+{"seconds": 0.0, "case": "product", "availableMemoryMiB": 15189}
+{"time": 1790530237.266868, "gpu": "1115, 0", "availableKiB": 12779280, "pressure": "some avg10=0.82 avg60=1.50 avg300=0.54 total=165502165\nfull avg10=0.82 avg60=1.50 avg300=0.52 total=162342261"}
+{"time": 1790530242.2898731, "gpu": "1115, 0", "availableKiB": 12637556, "pressure": "some avg10=0.55 avg60=1.41 avg300=0.53 total=165553617\nfull avg10=0.55 avg60=1.41 avg300=0.51 total=162393592"}
+{"seconds": 10.0, "case": "product", "availableMemoryMiB": 12496}
+{"time": 1790530247.3153512, "gpu": "1115, 0", "availableKiB": 12507712, "pressure": "some avg10=0.96 avg60=1.40 avg300=0.54 total=165656795\nfull avg10=0.96 avg60=1.40 avg300=0.53 total=162493449"}
+{"time": 1790530252.3416066, "gpu": "1115, 0", "availableKiB": 12849764, "pressure": "some avg10=0.64 avg60=1.31 avg300=0.54 total=165678124\nfull avg10=0.64 avg60=1.31 avg300=0.52 total=162514765"}
+{"seconds": 20.1, "case": "product", "availableMemoryMiB": 12495}
+{"time": 1790530257.367369, "gpu": "1115, 0", "availableKiB": 12665136, "pressure": "some avg10=0.35 avg60=1.18 avg300=0.52 total=165699355\nfull avg10=0.35 avg60=1.18 avg300=0.51 total=162535981"}
+{"time": 1790530262.394288, "gpu": "1115, 0", "availableKiB": 12790084, "pressure": "some avg10=0.23 avg60=1.11 avg300=0.52 total=165717757\nfull avg10=0.23 avg60=1.11 avg300=0.50 total=162554299"}
+{"seconds": 30.1, "case": "product", "availableMemoryMiB": 12505}
+{"time": 1790530267.4123943, "gpu": "8139, 91", "availableKiB": 13413556, "pressure": "some avg10=0.27 avg60=1.03 avg300=0.51 total=165763527\nfull avg10=0.27 avg60=1.03 avg300=0.50 total=162600059"}
+{"time": 1790530272.4323707, "gpu": "12779, 100", "availableKiB": 13373872, "pressure": "some avg10=0.18 avg60=0.96 avg300=0.50 total=165773162\nfull avg10=0.18 avg60=0.96 avg300=0.49 total=162609691"}
+{"seconds": 40.2, "case": "product", "availableMemoryMiB": 13060}
+{"time": 1790530277.4511504, "gpu": "12811, 100", "availableKiB": 13393760, "pressure": "some avg10=0.10 avg60=0.87 avg300=0.49 total=165773201\nfull avg10=0.10 avg60=0.87 avg300=0.48 total=162609730"}
+{"time": 1790530282.468996, "gpu": "12811, 100", "availableKiB": 13390708, "pressure": "some avg10=0.06 avg60=0.82 avg300=0.49 total=165773201\nfull avg10=0.06 avg60=0.82 avg300=0.47 total=162609730"}
+{"seconds": 50.2, "case": "product", "availableMemoryMiB": 13077}
+{"time": 1790530287.4868562, "gpu": "12843, 100", "availableKiB": 13425712, "pressure": "some avg10=0.03 avg60=0.74 avg300=0.48 total=165773201\nfull avg10=0.03 avg60=0.74 avg300=0.46 total=162609730"}
+{"time": 1790530292.5038176, "gpu": "12843, 100", "availableKiB": 13448884, "pressure": "some avg10=0.02 avg60=0.69 avg300=0.47 total=165773201\nfull avg10=0.02 avg60=0.69 avg300=0.46 total=162609730"}
+{"seconds": 60.2, "case": "product", "availableMemoryMiB": 13133}
+{"time": 1790530297.5249774, "gpu": "12843, 100", "availableKiB": 13455128, "pressure": "some avg10=0.01 avg60=0.62 avg300=0.46 total=165773201\nfull avg10=0.01 avg60=0.62 avg300=0.45 total=162609730"}
+{"time": 1790530302.5446613, "gpu": "12843, 100", "availableKiB": 13461364, "pressure": "some avg10=0.00 avg60=0.58 avg300=0.45 total=165773201\nfull avg10=0.00 avg60=0.58 avg300=0.44 total=162609730"}
+{"seconds": 70.3, "case": "product", "availableMemoryMiB": 13145}
+{"time": 1790530307.5639298, "gpu": "12843, 100", "availableKiB": 13471052, "pressure": "some avg10=0.00 avg60=0.52 avg300=0.44 total=165774310\nfull avg10=0.00 avg60=0.52 avg300=0.43 total=162610833"}
+{"time": 1790530312.5820925, "gpu": "12843, 100", "availableKiB": 13461196, "pressure": "some avg10=0.00 avg60=0.49 avg300=0.43 total=165774313\nfull avg10=0.00 avg60=0.49 avg300=0.42 total=162610837"}
+{"seconds": 80.3, "case": "product", "availableMemoryMiB": 13145}
+{"time": 1790530317.5995262, "gpu": "12843, 100", "availableKiB": 13466020, "pressure": "some avg10=0.00 avg60=0.44 avg300=0.42 total=165774316\nfull avg10=0.00 avg60=0.44 avg300=0.41 total=162610840"}
+{"time": 1790530322.6177807, "gpu": "12843, 100", "availableKiB": 13450360, "pressure": "some avg10=0.00 avg60=0.41 avg300=0.42 total=165774422\nfull avg10=0.00 avg60=0.41 avg300=0.41 total=162610942"}
+{"seconds": 90.3, "case": "product", "availableMemoryMiB": 13135}
+{"time": 1790530327.6369512, "gpu": "12843, 100", "availableKiB": 13476772, "pressure": "some avg10=0.00 avg60=0.37 avg300=0.41 total=165774422\nfull avg10=0.00 avg60=0.37 avg300=0.40 total=162610942"}
+{"time": 1790530332.6563184, "gpu": "12843, 100", "availableKiB": 13487048, "pressure": "some avg10=0.00 avg60=0.35 avg300=0.40 total=165774422\nfull avg10=0.00 avg60=0.35 avg300=0.39 total=162610942"}
+{"seconds": 100.3, "case": "product", "availableMemoryMiB": 13170}
+{"time": 1790530337.6733193, "gpu": "12843, 100", "availableKiB": 13485868, "pressure": "some avg10=0.00 avg60=0.31 avg300=0.39 total=165774422\nfull avg10=0.00 avg60=0.31 avg300=0.39 total=162610942"}
+{"time": 1790530342.6908152, "gpu": "12843, 100", "availableKiB": 13458800, "pressure": "some avg10=0.00 avg60=0.28 avg300=0.39 total=165774481\nfull avg10=0.00 avg60=0.28 avg300=0.38 total=162611001"}
+{"seconds": 110.3, "case": "product", "availableMemoryMiB": 13143}
+{"time": 1790530347.7083483, "gpu": "12843, 100", "availableKiB": 13531720, "pressure": "some avg10=0.00 avg60=0.26 avg300=0.38 total=165774900\nfull avg10=0.00 avg60=0.26 avg300=0.37 total=162611420"}
+{"seconds": 120.4, "case": "product", "availableMemoryMiB": 13185}
+{"time": 1790530352.7284732, "gpu": "12843, 100", "availableKiB": 13520780, "pressure": "some avg10=0.00 avg60=0.24 avg300=0.37 total=165774900\nfull avg10=0.00 avg60=0.24 avg300=0.36 total=162611420"}
+{"time": 1790530357.747929, "gpu": "12843, 100", "availableKiB": 13517372, "pressure": "some avg10=0.00 avg60=0.22 avg300=0.37 total=165774900\nfull avg10=0.00 avg60=0.22 avg300=0.36 total=162611420"}
+{"seconds": 130.4, "case": "product", "availableMemoryMiB": 13196}
+{"time": 1790530362.769444, "gpu": "12843, 100", "availableKiB": 13510956, "pressure": "some avg10=0.00 avg60=0.20 avg300=0.36 total=165774900\nfull avg10=0.00 avg60=0.20 avg300=0.35 total=162611420"}
+{"time": 1790530367.7884974, "gpu": "12843, 100", "availableKiB": 13494980, "pressure": "some avg10=0.00 avg60=0.19 avg300=0.35 total=165774900\nfull avg10=0.00 avg60=0.19 avg300=0.34 total=162611420"}
+{"seconds": 140.4, "case": "product", "availableMemoryMiB": 13183}
+{"time": 1790530372.8109999, "gpu": "12843, 100", "availableKiB": 13497004, "pressure": "some avg10=0.00 avg60=0.17 avg300=0.34 total=165774900\nfull avg10=0.00 avg60=0.17 avg300=0.34 total=162611420"}
+{"time": 1790530377.830843, "gpu": "12843, 100", "availableKiB": 13484796, "pressure": "some avg10=0.00 avg60=0.16 avg300=0.34 total=165774900\nfull avg10=0.00 avg60=0.16 avg300=0.33 total=162611420"}
+{"seconds": 150.5, "case": "product", "availableMemoryMiB": 13420}
+{"time": 1790530382.8494816, "gpu": "12843, 100", "availableKiB": 13745444, "pressure": "some avg10=0.00 avg60=0.14 avg300=0.33 total=165774900\nfull avg10=0.00 avg60=0.14 avg300=0.32 total=162611420"}
+{"time": 1790530387.8651514, "gpu": "11099, 100", "availableKiB": 12959012, "pressure": "some avg10=0.00 avg60=0.13 avg300=0.33 total=165787069\nfull avg10=0.00 avg60=0.13 avg300=0.32 total=162623588"}
+{"seconds": 160.5, "case": "product", "availableMemoryMiB": 12649}
+{"time": 1790530392.8858988, "gpu": "12443, 100", "availableKiB": 12952952, "pressure": "some avg10=0.00 avg60=0.12 avg300=0.32 total=165788589\nfull avg10=0.00 avg60=0.12 avg300=0.31 total=162625108"}
+{"time": 1790530397.9056585, "gpu": "12443, 100", "availableKiB": 13026996, "pressure": "some avg10=0.00 avg60=0.11 avg300=0.31 total=165788589\nfull avg10=0.00 avg60=0.11 avg300=0.31 total=162625108"}
+{"seconds": 170.5, "case": "product", "availableMemoryMiB": 12664}
+{"time": 1790530402.926036, "gpu": "12443, 100", "availableKiB": 12960484, "pressure": "some avg10=0.00 avg60=0.10 avg300=0.31 total=165788589\nfull avg10=0.00 avg60=0.10 avg300=0.30 total=162625108"}
+{"time": 1790530407.9450483, "gpu": "12443, 100", "availableKiB": 12976380, "pressure": "some avg10=0.00 avg60=0.09 avg300=0.30 total=165790267\nfull avg10=0.00 avg60=0.09 avg300=0.29 total=162626781"}
+{"seconds": 180.5, "case": "product", "availableMemoryMiB": 12701}
+{"time": 1790530412.9644845, "gpu": "12443, 100", "availableKiB": 13005856, "pressure": "some avg10=0.00 avg60=0.08 avg300=0.29 total=165790267\nfull avg10=0.00 avg60=0.08 avg300=0.29 total=162626781"}
+{"time": 1790530417.9815326, "gpu": "12443, 93", "availableKiB": 13007356, "pressure": "some avg10=0.00 avg60=0.07 avg300=0.29 total=165790267\nfull avg10=0.00 avg60=0.07 avg300=0.28 total=162626781"}
+{"seconds": 190.6, "case": "product", "availableMemoryMiB": 12843}
+{"time": 1790530423.0003145, "gpu": "11579, 0", "availableKiB": 13150968, "pressure": "some avg10=0.00 avg60=0.07 avg300=0.28 total=165790422\nfull avg10=0.00 avg60=0.07 avg300=0.28 total=162626932"}
+{"seconds": 0.0, "case": "portrait", "availableMemoryMiB": 12687}
+{"time": 1790530428.0246353, "gpu": "11579, 0", "availableKiB": 13069856, "pressure": "some avg10=0.00 avg60=0.06 avg300=0.28 total=165791742\nfull avg10=0.00 avg60=0.06 avg300=0.27 total=162628247"}
+{"time": 1790530433.0452836, "gpu": "11579, 0", "availableKiB": 12957776, "pressure": "some avg10=0.00 avg60=0.05 avg300=0.27 total=165793036\nfull avg10=0.00 avg60=0.05 avg300=0.27 total=162629526"}
+{"seconds": 10.0, "case": "portrait", "availableMemoryMiB": 11923}
+{"time": 1790530438.0689354, "gpu": "11579, 0", "availableKiB": 12705824, "pressure": "some avg10=0.00 avg60=0.05 avg300=0.27 total=165796146\nfull avg10=0.00 avg60=0.05 avg300=0.26 total=162632502"}
+{"time": 1790530443.090458, "gpu": "13659, 100", "availableKiB": 12802216, "pressure": "some avg10=0.00 avg60=0.04 avg300=0.26 total=165796252\nfull avg10=0.00 avg60=0.04 avg300=0.26 total=162632605"}
+{"seconds": 20.1, "case": "portrait", "availableMemoryMiB": 12695}
+{"time": 1790530448.112177, "gpu": "13659, 100", "availableKiB": 13061088, "pressure": "some avg10=0.00 avg60=0.04 avg300=0.26 total=165796252\nfull avg10=0.00 avg60=0.04 avg300=0.25 total=162632605"}
+{"time": 1790530453.1291344, "gpu": "13691, 100", "availableKiB": 13320896, "pressure": "some avg10=0.00 avg60=0.04 avg300=0.25 total=165796273\nfull avg10=0.00 avg60=0.04 avg300=0.25 total=162632626"}
+{"seconds": 30.1, "case": "portrait", "availableMemoryMiB": 13144}
+{"time": 1790530458.146534, "gpu": "13723, 100", "availableKiB": 13485432, "pressure": "some avg10=0.00 avg60=0.03 avg300=0.25 total=165796274\nfull avg10=0.00 avg60=0.03 avg300=0.24 total=162632627"}
+{"time": 1790530463.1645327, "gpu": "13723, 100", "availableKiB": 13487584, "pressure": "some avg10=0.00 avg60=0.03 avg300=0.24 total=165796275\nfull avg10=0.00 avg60=0.03 avg300=0.24 total=162632628"}
+{"seconds": 40.1, "case": "portrait", "availableMemoryMiB": 13217}
+{"time": 1790530468.1817715, "gpu": "13723, 100", "availableKiB": 13541408, "pressure": "some avg10=0.00 avg60=0.02 avg300=0.24 total=165796275\nfull avg10=0.00 avg60=0.02 avg300=0.23 total=162632628"}
+{"time": 1790530473.2003574, "gpu": "13755, 98", "availableKiB": 13587908, "pressure": "some avg10=0.00 avg60=0.02 avg300=0.23 total=165796275\nfull avg10=0.00 avg60=0.02 avg300=0.23 total=162632628"}
+{"seconds": 50.2, "case": "portrait", "availableMemoryMiB": 13299}
+{"time": 1790530478.216924, "gpu": "13755, 100", "availableKiB": 13620488, "pressure": "some avg10=0.00 avg60=0.02 avg300=0.23 total=165796275\nfull avg10=0.00 avg60=0.02 avg300=0.22 total=162632628"}
+{"time": 1790530483.2336233, "gpu": "13755, 100", "availableKiB": 13635332, "pressure": "some avg10=0.00 avg60=0.02 avg300=0.22 total=165796275\nfull avg10=0.00 avg60=0.02 avg300=0.22 total=162632628"}
+{"seconds": 60.2, "case": "portrait", "availableMemoryMiB": 13318}
+{"time": 1790530488.2521584, "gpu": "13755, 100", "availableKiB": 13638640, "pressure": "some avg10=0.00 avg60=0.02 avg300=0.22 total=165796277\nfull avg10=0.00 avg60=0.02 avg300=0.21 total=162632630"}
+{"time": 1790530493.2724965, "gpu": "13755, 100", "availableKiB": 13570412, "pressure": "some avg10=0.00 avg60=0.01 avg300=0.21 total=165796277\nfull avg10=0.00 avg60=0.01 avg300=0.21 total=162632630"}
+{"seconds": 70.2, "case": "portrait", "availableMemoryMiB": 13261}
+{"time": 1790530498.2931757, "gpu": "13755, 100", "availableKiB": 13567196, "pressure": "some avg10=0.00 avg60=0.01 avg300=0.21 total=165796277\nfull avg10=0.00 avg60=0.01 avg300=0.20 total=162632630"}
+{"time": 1790530503.313176, "gpu": "13755, 100", "availableKiB": 13566764, "pressure": "some avg10=0.00 avg60=0.01 avg300=0.20 total=165796277\nfull avg10=0.00 avg60=0.01 avg300=0.20 total=162632630"}
+{"seconds": 80.2, "case": "portrait", "availableMemoryMiB": 13256}
+{"time": 1790530508.3315034, "gpu": "13755, 100", "availableKiB": 13569316, "pressure": "some avg10=0.00 avg60=0.01 avg300=0.20 total=165796277\nfull avg10=0.00 avg60=0.01 avg300=0.20 total=162632630"}
+{"time": 1790530513.3502076, "gpu": "13755, 100", "availableKiB": 13571968, "pressure": "some avg10=0.00 avg60=0.01 avg300=0.20 total=165796277\nfull avg10=0.00 avg60=0.01 avg300=0.19 total=162632630"}
+{"seconds": 90.3, "case": "portrait", "availableMemoryMiB": 13265}
+{"time": 1790530518.370403, "gpu": "13755, 100", "availableKiB": 13584344, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.19 total=165796277\nfull avg10=0.00 avg60=0.00 avg300=0.19 total=162632630"}
+{"time": 1790530523.3876975, "gpu": "13755, 100", "availableKiB": 13531328, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.19 total=165796277\nfull avg10=0.00 avg60=0.00 avg300=0.19 total=162632630"}
+{"seconds": 100.3, "case": "portrait", "availableMemoryMiB": 13209}
+{"time": 1790530528.4046912, "gpu": "13755, 100", "availableKiB": 13531096, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.19 total=165796277\nfull avg10=0.00 avg60=0.00 avg300=0.18 total=162632630"}
+{"time": 1790530533.425734, "gpu": "13755, 100", "availableKiB": 13536156, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.18 total=165796277\nfull avg10=0.00 avg60=0.00 avg300=0.18 total=162632630"}
+{"seconds": 110.3, "case": "portrait", "availableMemoryMiB": 13223}
+{"time": 1790530538.4460785, "gpu": "13755, 100", "availableKiB": 13542280, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.18 total=165796277\nfull avg10=0.00 avg60=0.00 avg300=0.18 total=162632630"}
+{"time": 1790530543.4653275, "gpu": "13755, 100", "availableKiB": 13547556, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.18 total=165796279\nfull avg10=0.00 avg60=0.00 avg300=0.17 total=162632632"}
+{"seconds": 120.4, "case": "portrait", "availableMemoryMiB": 13248}
+{"time": 1790530548.485159, "gpu": "13755, 100", "availableKiB": 13564624, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.17 total=165796279\nfull avg10=0.00 avg60=0.00 avg300=0.17 total=162632632"}
+{"time": 1790530553.5023446, "gpu": "13755, 100", "availableKiB": 13454756, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.17 total=165796279\nfull avg10=0.00 avg60=0.00 avg300=0.16 total=162632632"}
+{"seconds": 130.4, "case": "portrait", "availableMemoryMiB": 13148}
+{"time": 1790530558.5242856, "gpu": "13755, 100", "availableKiB": 13466756, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.17 total=165796279\nfull avg10=0.00 avg60=0.00 avg300=0.16 total=162632632"}
+{"time": 1790530563.5413163, "gpu": "13755, 100", "availableKiB": 13724336, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.16 total=165796279\nfull avg10=0.00 avg60=0.00 avg300=0.16 total=162632632"}
+{"seconds": 140.4, "case": "portrait", "availableMemoryMiB": 12767}
+{"time": 1790530568.5609705, "gpu": "12315, 100", "availableKiB": 13068316, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.16 total=165798108\nfull avg10=0.00 avg60=0.00 avg300=0.15 total=162634461"}
+{"time": 1790530573.5790741, "gpu": "12315, 100", "availableKiB": 13050440, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.15 total=165798109\nfull avg10=0.00 avg60=0.00 avg300=0.15 total=162634462"}
+{"seconds": 150.4, "case": "portrait", "availableMemoryMiB": 12747}
+{"time": 1790530578.5973468, "gpu": "12315, 100", "availableKiB": 13057312, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.15 total=165798117\nfull avg10=0.00 avg60=0.00 avg300=0.15 total=162634470"}
+{"time": 1790530583.6180937, "gpu": "12315, 100", "availableKiB": 12944100, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.15 total=165798117\nfull avg10=0.00 avg60=0.00 avg300=0.14 total=162634470"}
+{"seconds": 160.5, "case": "portrait", "availableMemoryMiB": 12672}
+{"time": 1790530588.6366203, "gpu": "12315, 100", "availableKiB": 12966836, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.14 total=165798118\nfull avg10=0.00 avg60=0.00 avg300=0.14 total=162634471"}
+{"time": 1790530593.6564317, "gpu": "12315, 100", "availableKiB": 12984092, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.14 total=165798119\nfull avg10=0.00 avg60=0.00 avg300=0.14 total=162634472"}
+{"seconds": 170.5, "case": "portrait", "availableMemoryMiB": 12723}
+{"time": 1790530598.6764212, "gpu": "12315, 100", "availableKiB": 13032348, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.14 total=165798124\nfull avg10=0.00 avg60=0.00 avg300=0.13 total=162634477"}
+{"time": 1790530603.6937358, "gpu": "11579, 0", "availableKiB": 13190876, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.13 total=165798222\nfull avg10=0.00 avg60=0.00 avg300=0.13 total=162634575"}
+{"seconds": 0.0, "case": "landscape", "availableMemoryMiB": 12850}
+{"time": 1790530608.7202337, "gpu": "11579, 0", "availableKiB": 13235176, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.13 total=165799944\nfull avg10=0.00 avg60=0.00 avg300=0.13 total=162636287"}
+{"time": 1790530613.7436624, "gpu": "11579, 0", "availableKiB": 12990736, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.13 total=165800020\nfull avg10=0.00 avg60=0.00 avg300=0.13 total=162636363"}
+{"seconds": 10.0, "case": "landscape", "availableMemoryMiB": 12470}
+{"time": 1790530618.7697976, "gpu": "11579, 0", "availableKiB": 12952584, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.13 total=165800037\nfull avg10=0.00 avg60=0.00 avg300=0.12 total=162636380"}
+{"time": 1790530623.7905228, "gpu": "13051, 100", "availableKiB": 13376028, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.12 total=165800059\nfull avg10=0.00 avg60=0.00 avg300=0.12 total=162636402"}
+{"seconds": 20.1, "case": "landscape", "availableMemoryMiB": 13071}
+{"time": 1790530628.8102536, "gpu": "13083, 100", "availableKiB": 13732508, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.12 total=165800489\nfull avg10=0.00 avg60=0.00 avg300=0.12 total=162636827"}
+{"time": 1790530633.8309174, "gpu": "13083, 100", "availableKiB": 13689764, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.12 total=165800489\nfull avg10=0.00 avg60=0.00 avg300=0.12 total=162636827"}
+{"seconds": 30.1, "case": "landscape", "availableMemoryMiB": 13368}
+{"time": 1790530638.8497577, "gpu": "13083, 100", "availableKiB": 13667304, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.12 total=165800489\nfull avg10=0.00 avg60=0.00 avg300=0.11 total=162636827"}
+{"time": 1790530643.8689942, "gpu": "13083, 100", "availableKiB": 13591832, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.11 total=165800490\nfull avg10=0.00 avg60=0.00 avg300=0.11 total=162636828"}
+{"seconds": 40.1, "case": "landscape", "availableMemoryMiB": 13276}
+{"time": 1790530648.8894804, "gpu": "13083, 100", "availableKiB": 13609592, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.11 total=165800490\nfull avg10=0.00 avg60=0.00 avg300=0.11 total=162636828"}
+{"time": 1790530653.9073174, "gpu": "13083, 100", "availableKiB": 13629392, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.11 total=165800491\nfull avg10=0.00 avg60=0.00 avg300=0.11 total=162636829"}
+{"seconds": 50.2, "case": "landscape", "availableMemoryMiB": 13313}
+{"time": 1790530658.9274096, "gpu": "13083, 100", "availableKiB": 13637164, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.11 total=165800491\nfull avg10=0.00 avg60=0.00 avg300=0.10 total=162636829"}
+{"time": 1790530663.9478958, "gpu": "13083, 100", "availableKiB": 13640600, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.10 total=165800492\nfull avg10=0.00 avg60=0.00 avg300=0.10 total=162636830"}
+{"seconds": 60.2, "case": "landscape", "availableMemoryMiB": 13319}
+{"time": 1790530668.9678853, "gpu": "13083, 100", "availableKiB": 13624224, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.10 total=165800493\nfull avg10=0.00 avg60=0.00 avg300=0.10 total=162636830"}
+{"time": 1790530673.987256, "gpu": "13083, 100", "availableKiB": 13622992, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.10 total=165800493\nfull avg10=0.00 avg60=0.00 avg300=0.10 total=162636831"}
+{"seconds": 70.2, "case": "landscape", "availableMemoryMiB": 13301}
+{"time": 1790530679.0077376, "gpu": "13083, 100", "availableKiB": 13636092, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.10 total=165800494\nfull avg10=0.00 avg60=0.00 avg300=0.09 total=162636832"}
+{"time": 1790530684.0301604, "gpu": "13083, 100", "availableKiB": 13625580, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.09 total=165800494\nfull avg10=0.00 avg60=0.00 avg300=0.09 total=162636832"}
+{"seconds": 80.3, "case": "landscape", "availableMemoryMiB": 13306}
+{"time": 1790530689.0503263, "gpu": "13083, 100", "availableKiB": 13624420, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.09 total=165800494\nfull avg10=0.00 avg60=0.00 avg300=0.09 total=162636832"}
+{"time": 1790530694.071344, "gpu": "13083, 100", "availableKiB": 13626292, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.09 total=165800494\nfull avg10=0.00 avg60=0.00 avg300=0.09 total=162636832"}
+{"seconds": 90.3, "case": "landscape", "availableMemoryMiB": 13306}
+{"time": 1790530699.0896206, "gpu": "12315, 100", "availableKiB": 13167712, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.09 total=165800494\nfull avg10=0.00 avg60=0.00 avg300=0.08 total=162636832"}
+{"time": 1790530704.1072829, "gpu": "12315, 100", "availableKiB": 13000288, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.08 total=165800494\nfull avg10=0.00 avg60=0.00 avg300=0.08 total=162636832"}
+{"seconds": 100.3, "case": "landscape", "availableMemoryMiB": 12695}
+{"time": 1790530709.1251688, "gpu": "12315, 100", "availableKiB": 13030756, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.08 total=165800494\nfull avg10=0.00 avg60=0.00 avg300=0.08 total=162636832"}
+{"time": 1790530714.1418521, "gpu": "12315, 100", "availableKiB": 13062324, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.08 total=165800495\nfull avg10=0.00 avg60=0.00 avg300=0.08 total=162636832"}
+{"seconds": 110.4, "case": "landscape", "availableMemoryMiB": 12755}
+{"time": 1790530719.161177, "gpu": "12315, 93", "availableKiB": 13079884, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.08 total=165800495\nfull avg10=0.00 avg60=0.00 avg300=0.07 total=162636832"}
+{"time": 1790530724.180146, "gpu": "11579, 0", "availableKiB": 13194888, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.08 total=165800495\nfull avg10=0.00 avg60=0.00 avg300=0.07 total=162636832"}
+{"seconds": 120.4, "case": "landscape", "availableMemoryMiB": 12885}

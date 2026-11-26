@@ -1,0 +1,37 @@
+{
+  "cn-ty-1-1-pep-2024": {
+    "status": 200,
+    "identicalToOriginalBytes": true,
+    "sha256": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527",
+    "declared": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527",
+    "bytes": 289494
+  },
+  "cn-ty-2-1-pep-2017": {
+    "status": 200,
+    "identicalToOriginalBytes": true,
+    "sha256": "1d14e1fd6d3c819dfa5a74b00de26d9476e04e7f9d5e5780a97dff71914f8778",
+    "declared": "1d14e1fd6d3c819dfa5a74b00de26d9476e04e7f9d5e5780a97dff71914f8778",
+    "bytes": 693200
+  },
+  "cn-ty-3-1-pep-2024": {
+    "status": 200,
+    "identicalToOriginalBytes": true,
+    "sha256": "49abe27d8b49e50b99af599726d0374b13071b47f4447538fcaab65b74fd7cdf",
+    "declared": "49abe27d8b49e50b99af599726d0374b13071b47f4447538fcaab65b74fd7cdf",
+    "bytes": 716239
+  },
+  "cn-ty-4-1-pep-2024": {
+    "status": 200,
+    "identicalToOriginalBytes": true,
+    "sha256": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295",
+    "declared": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295",
+    "bytes": 595122
+  },
+  "en-yl-3-1-yilin-2024": {
+    "status": 200,
+    "identicalToOriginalBytes": true,
+    "sha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4",
+    "declared": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4",
+    "bytes": 117917
+  }
+}

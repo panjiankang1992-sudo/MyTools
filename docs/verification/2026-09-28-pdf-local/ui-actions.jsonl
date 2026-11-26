@@ -1,0 +1,176 @@
+{"op": "dump"}
+{"op": "tap", "text": "工具"}
+{"op": "tap", "text": "PDF 工具"}
+{"op": "tap", "text": "本机结果"}
+{"op": "tap", "text": "pdf-ui-acceptance-20260928_result.pdf"}
+{"op": "assert", "text": "页面对半切"}
+{"op": "back"}
+{"op": "assert", "text": "本机结果"}
+{"op": "back"}
+{"op": "tap", "text": "页面对半切"}
+{"op": "tap", "text": "选择文件"}
+{"op": "dump"}
+{"op": "key", "value": "Back"}
+{"op": "assert", "text": "生成并查看结果", "enabled": "false"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-ui-acceptance-20260928.pdf"}
+{"op": "swipe", "coords": [1150, 2280, 1150, 850, 1200]}
+{"op": "assert", "text": "50%"}
+{"op": "tap", "text": "+"}
+{"op": "tap", "text": "−"}
+{"op": "tap", "text": "重置"}
+{"op": "assert", "text": "50%"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "tap", "text": "保存到设备"}
+{"op": "tap", "text": "Download"}
+{"op": "dump"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "拆分文件"}
+{"op": "assert", "text": "生成并查看结果", "enabled": "false"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-ui-acceptance-20260928_result.pdf"}
+{"op": "dump"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "dump"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "合并 PDF"}
+{"op": "assert", "text": "生成并查看结果", "enabled": "false"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-ui-acceptance-20260928.pdf"}
+{"op": "tap", "text": "pdf-ui-acceptance-20260928_result.pdf"}
+{"op": "dump"}
+{"op": "key", "value": "Back"}
+{"op": "assert", "text": "生成并查看结果", "enabled": "false"}
+{"op": "tap", "text": "选择 / 添加文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-ui-acceptance-20260928_result.pdf", "type": "Text"}
+{"op": "dump"}
+{"op": "tap", "text": "上移", "index": 1}
+{"op": "dump"}
+{"op": "assert", "text": "上移", "index": 0, "enabled": "false"}
+{"op": "assert", "text": "下移", "index": 0}
+{"op": "tap", "text": "下移", "index": 0}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "dump"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "转图片"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-ui-acceptance-20260928.pdf", "type": "Text"}
+{"op": "tap", "text": "JPG"}
+{"op": "tap", "text": "重置"}
+{"op": "dump"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "dump"}
+{"op": "tap", "text": "保存到设备"}
+{"op": "tap", "text": "Download"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "图片生成"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "dump"}
+{"op": "tap", "text": "pdf-ui-acceptance-20260928_result-1.png", "type": "Text"}
+{"op": "tap", "text": "A5"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "dump"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "Markdown 生成"}
+{"op": "input", "type": "TextArea", "value": "# PDF UI acceptance\n\nMarkdown paragraph."}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "dump"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "提取文本"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-ui-acceptance-20260928.pdf", "type": "Text"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "dump"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "页面对半切"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-ui-acceptance-20260928_result.pdf", "type": "Text"}
+{"op": "dump"}
+{"op": "swipe", "coords": [660, 1500, 900, 1500, 600]}
+{"op": "swipe", "coords": [1200, 2300, 1200, 700, 1400]}
+{"op": "dump"}
+{"op": "swipe", "coords": [1235, 2300, 1235, 850, 1200]}
+{"op": "dump"}
+{"op": "assert", "text": "70%"}
+{"op": "tap", "text": "下一页"}
+{"op": "dump"}
+{"op": "tap", "text": "工具"}
+{"op": "tap", "text": "PDF 工具"}
+{"op": "tap", "text": "页面对半切"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-ui-acceptance-encrypted.pdf", "type": "Text"}
+{"op": "dump"}
+{"op": "assert", "text": "解锁并导入", "enabled": "false"}
+{"op": "input", "type": "TextInput", "text": "", "value": "wrong-test-password"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "解锁并导入"}
+{"op": "dump"}
+{"op": "input", "type": "TextInput", "text": "", "value": "UiTest2026"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "解锁并导入"}
+{"op": "dump"}
+{"op": "tap", "text": "下一页"}
+{"op": "assert", "text": "2 / 2"}
+{"op": "tap", "text": "上一页"}
+{"op": "assert", "text": "1 / 2"}
+{"op": "dump"}
+{"op": "swipe", "coords": [1240, 2250, 1240, 1500, 1200]}
+{"op": "assert", "text": "50%"}
+{"op": "tap", "text": "全部页面"}
+{"op": "input", "type": "TextInput", "text": "", "value": "99"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "应用"}
+{"op": "assert", "text": "页码或设置无效，请检查"}
+{"op": "tap", "text": "全部页面", "type": "Button"}
+{"op": "tap", "text": "应用"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "dump"}
+{"op": "back"}
+{"op": "dump"}
+{"op": "tap", "text": "移除"}
+{"op": "assert", "text": "生成并查看结果", "enabled": "false"}
+{"op": "back"}
+{"op": "back"}

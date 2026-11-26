@@ -1,33 +1,70 @@
-/**
- * 应用全局视觉常量。
- */
+/** 应用语义化视觉常量，布局使用vp，文字使用fp。 */
 export class AppTheme {
-  static readonly background: string = '#F3F6F4';
+  static readonly background: string = '#F5F7F5';
   static readonly surface: string = '#FFFFFF';
-  static readonly glass: string = '#A8FFFFFF';
-  static readonly glassBorder: string = '#8CFFFFFF';
-  static readonly surfaceTint: string = '#EDF1EE';
-  static readonly primary: string = '#0DA678';
-  static readonly primaryEnd: string = '#34C08F';
-  static readonly accentSoft: string = '#DDF4EA';
-  static readonly ink: string = '#1E2622';
-  static readonly inkEnd: string = '#262F29';
-  static readonly textPrimary: string = '#1E2622';
-  static readonly textSecondary: string = '#59645E';
-  static readonly textTertiary: string = '#98A29C';
-  static readonly divider: string = '#E5EAE6';
-  static readonly progressTrack: string = '#E7ECE8';
-  static readonly outline: string = '#CFD6D1';
-  static readonly success: string = '#2E9E6E';
-  static readonly danger: string = '#D35B4A';
-  static readonly dangerSoft: string = '#F9E6E1';
-  static readonly shadow: string = '#141E1814';
-  static readonly shadowSmall: string = '#0D141E18';
+  static readonly glass: string = '#FFFFFF';
+  static readonly glassBorder: string = '#D5DED7';
+  static readonly surfaceTint: string = '#EDF2EE';
+  static readonly primary: string = '#087E61';
+  static readonly primaryEnd: string = '#087E61';
+  static readonly primaryPressed: string = '#06624C';
+  static readonly accentSoft: string = '#E3F2EB';
+  static readonly ink: string = '#1C2922';
+  static readonly inkEnd: string = '#1C2922';
+  static readonly textPrimary: string = '#1C2922';
+  static readonly textSecondary: string = '#52655B';
+  static readonly textTertiary: string = '#65736B';
+  static readonly divider: string = '#D5DED7';
+  static readonly progressTrack: string = '#D5DED7';
+  static readonly outline: string = '#D5DED7';
+  static readonly success: string = '#087E61';
+  static readonly danger: string = '#B83D37';
+  static readonly dangerSoft: string = '#FCECEA';
+  static readonly warning: string = '#8A5A08';
+  static readonly warningSoft: string = '#FFF3D6';
+  static readonly darkWarning: string = '#F2C46D';
+  static readonly darkWarningSoft: string = '#40331A';
+  static readonly focus: string = '#2364CC';
+  static readonly disabledSurface: string = '#E7ECE8';
+  static readonly disabledText: string = '#87938B';
+  static readonly shadow: string = '#00000000';
+  static readonly shadowSmall: string = '#00000000';
 
+  static readonly darkBackground: string = '#101815';
+  static readonly darkSurface: string = '#19231E';
+  static readonly darkSurfaceTint: string = '#223029';
+  static readonly darkPrimary: string = '#66D6AC';
+  static readonly darkPrimaryPressed: string = '#45B78E';
+  static readonly darkPrimaryText: string = '#10271E';
+  static readonly darkAccentSoft: string = '#233D31';
+  static readonly darkTextPrimary: string = '#EFF6F0';
+  static readonly darkTextSecondary: string = '#AFBDB5';
+  static readonly darkDivider: string = '#3A4C41';
+  static readonly darkDanger: string = '#FF9D93';
+  static readonly darkDangerSoft: string = '#482B28';
+  static readonly darkDisabledSurface: string = '#2A3830';
+  static readonly darkDisabledText: string = '#809087';
+
+  static readonly fontFamily: string = 'MyTools UI';
+  static readonly fontMedium: string = 'MyTools UI Medium';
+  static readonly fontSemibold: string = 'MyTools UI Semibold';
+  static readonly buttonFontSize: number = 16;
+  static readonly fieldFontSize: number = 16;
+  static readonly touchTarget: number = 44;
   static readonly controlHeight: number = 44;
+  static readonly primaryVisualHeight: number = 40;
+  static readonly secondaryVisualHeight: number = 36;
+  static readonly groupMinWidth: number = 96;
   static readonly inputHeight: number = 48;
-  static readonly inputRadius: number = 16;
-  static readonly cardRadius: number = 18;
+  static readonly inputRadius: number = 12;
+  static readonly buttonRadius: number = 10;
+  static readonly cardRadius: number = 16;
+  static readonly sheetRadius: number = 24;
   static readonly pillRadius: number = 999;
-  static readonly iconRadius: number = 16;
+  static readonly iconRadius: number = 14;
+  static readonly checkboxSize: number = 20;
+  static readonly switchWidth: number = 40;
+  static readonly switchHeight: number = 24;
+  static readonly pagePadding: number = 20;
+  static readonly sectionSpacing: number = 24;
 }

@@ -1,0 +1,240 @@
+{
+  "releaseId": "paired-editor-20261004-170000",
+  "checkedChangedFiles": 16,
+  "passedFiles": 16,
+  "static": [
+    {
+      "path": "assets/CheckmarkCircleOutline-BbUSP5xC.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/CheckmarkCircleOutline-BbUSP5xC.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 618,
+          "sha256": "9af003e0b451742b852253ad89fd4568e7f5a52e27576fc01d0e55863b95fcf9",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/HomeView-DpaTOzU9.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/HomeView-DpaTOzU9.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 615976,
+          "sha256": "03b8b5aceb45c4fc8a5a989178066823418352090b3e342cdc86121e0c9b7d30",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/PdfView-kH5S8fQc.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/PdfView-kH5S8fQc.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 136956,
+          "sha256": "360b96b6620ca59be9afe62f4eb5f637b07a07e57b0861b97c3c1faefe380f97",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/RadioGroup-LIJ7jd7F.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/RadioGroup-LIJ7jd7F.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 11510,
+          "sha256": "6ea42cd65b3b6f5ef76f4ed09b2289972a74a58f5090895b2e0b28c2b07be853",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/WorksheetV2View-HgBgJ7pz.css",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/WorksheetV2View-HgBgJ7pz.css",
+          "status": 200,
+          "mime": "text/css",
+          "bytes": 13784,
+          "sha256": "f6f085c3f72c42381af62b145614f16650e1eef4f4272f643ffb2642c5f4a7d8",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/WorksheetV2View-ipt0mb3V.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/WorksheetV2View-ipt0mb3V.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 516048,
+          "sha256": "2a6c28b36fa1d61e528102c7166ded772f3e36e28e5481d99d64972a6741509f",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/_plugin-vue_export-helper-_SRX2KxA.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/_plugin-vue_export-helper-_SRX2KxA.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 57338,
+          "sha256": "47d848338c6d7fadefed3f5239c7b8a519e38be0287b348bbd0ff2b657070bdb",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/analytics-Bo1WMQIy.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/analytics-Bo1WMQIy.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 304737,
+          "sha256": "b4a8c9179fc2728a301066eb033b40f34ac067084cc0658485662979c13e3b5e",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/es-D5LqoYR8.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/es-D5LqoYR8.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 387512,
+          "sha256": "846c091624f425465f6d2f91a0ccf3f6c375eb19d92b6351d7ffd22fd60ef84a",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/icons-DmuM26l0.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/icons-DmuM26l0.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 41943,
+          "sha256": "0ae68984f2d9dfd6a62cd6b312adb292d0073e155e15aeaf60993041990b365b",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/index-D22P7jeQ.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/index-D22P7jeQ.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 159346,
+          "sha256": "15232a0976888b4c69681a20c0f3efddbad46053ef1725697fbb4a3511ae0828",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/light-C2VgZHZ1.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/light-C2VgZHZ1.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 343,
+          "sha256": "d423135cc866412d68416781fe0aeebd810abc9c9583e3e9a57ab97c07da9e61",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/light-D4m5AN1x.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/light-D4m5AN1x.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 1620,
+          "sha256": "a69632deff0172feaa3f48a34724bfa2b05087cd10bce1fe71ae09d13595f0d2",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/light-DPHuAKep.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/light-DPHuAKep.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 1398,
+          "sha256": "d4b5a889a1b0d74c635ed18305e0901ec355ea449713e628416c1548e348252d",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "assets/tools-MWwjes_P.js",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "assets/tools-MWwjes_P.js",
+          "status": 200,
+          "mime": "application/javascript",
+          "bytes": 37930,
+          "sha256": "4ca78ce6a37912b5c63df7b8bae06909dc6ba0909e8af50bc89dbb59c203cd3b",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "passed": true,
+      "attempts": [
+        {
+          "path": "index.html",
+          "status": 200,
+          "mime": "text/html",
+          "bytes": 1566,
+          "sha256": "44da5a8d2d30e48655af2b5d8b0a2f5448ef0a5405531d5c9a2e2b84b5e23c69",
+          "rawMatches": false,
+          "edgeTransformation": "script-and-following-LF",
+          "normalizedSha256": "e248148b62d99a303308b79b3bb7598a545f38fbc734ad4585b492c0733b2cbd",
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "catalog": {
+    "status": 200,
+    "editions": 5,
+    "passed": true
+  },
+  "passed": true
+}

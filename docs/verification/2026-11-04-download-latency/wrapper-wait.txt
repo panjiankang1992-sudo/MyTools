@@ -1,0 +1,6 @@
+queue {'message_reconcile_attachment_download': {'n': 109, 'p50s': 1274.026, 'maxs': 3005.239, 'sumSeconds': 156236.279}, 'message_download_attachment': {'n': 109, 'p50s': 42.039, 'maxs': 2777.907, 'sumSeconds': 71492.681}}
+runtime {'message_reconcile_attachment_download': {'n': 109, 'p50s': 340.523, 'maxs': 540.737, 'sumSeconds': 35745.977}, 'message_download_attachment': {'n': 109, 'p50s': 0.234, 'maxs': 0.309, 'sumSeconds': 25.51}}
+wrapper_limits [{'name': 'message_download_attachment', 'max_concurrency': 8, 'cluster_limit': 8}, {'name': 'message_reconcile_attachment_download', 'max_concurrency': 8, 'cluster_limit': 8}]
+2026-11-03 01:55:00 [{'task_name': 'download_message_url_batch', 'n': 1}, {'task_name': 'download_http_asset', 'n': 2}, {'task_name': 'download_message_attachment', 'n': 4}]
+2026-11-03 02:10:00 [{'task_name': 'download_message_attachment', 'n': 4}, {'task_name': 'message_reconcile_attachment_download', 'n': 8}]
+2026-11-03 02:30:00 [{'task_name': 'message_reconcile_attachment_download', 'n': 8}, {'task_name': 'download_message_attachment', 'n': 4}]

@@ -1,0 +1,181 @@
+{
+  "generatedAt": "2026-10-03T04:24:03.756Z",
+  "catalogVersion": "2026-10-02.1",
+  "totalSlots": 20,
+  "complete": 0,
+  "partial": 5,
+  "missing": 15,
+  "slots": [
+    {
+      "slot": "chinese-1-first",
+      "subject": "chinese",
+      "grade": 1,
+      "semester": "first",
+      "status": "partial",
+      "editionIds": [
+        "cn-ty-1-1-pep-2024"
+      ]
+    },
+    {
+      "slot": "chinese-1-second",
+      "subject": "chinese",
+      "grade": 1,
+      "semester": "second",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "chinese-2-first",
+      "subject": "chinese",
+      "grade": 2,
+      "semester": "first",
+      "status": "partial",
+      "editionIds": [
+        "cn-ty-2-1-pep-2017"
+      ]
+    },
+    {
+      "slot": "chinese-2-second",
+      "subject": "chinese",
+      "grade": 2,
+      "semester": "second",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "chinese-3-first",
+      "subject": "chinese",
+      "grade": 3,
+      "semester": "first",
+      "status": "partial",
+      "editionIds": [
+        "cn-ty-3-1-pep-2024"
+      ]
+    },
+    {
+      "slot": "chinese-3-second",
+      "subject": "chinese",
+      "grade": 3,
+      "semester": "second",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "chinese-4-first",
+      "subject": "chinese",
+      "grade": 4,
+      "semester": "first",
+      "status": "partial",
+      "editionIds": [
+        "cn-ty-4-1-pep-2024"
+      ]
+    },
+    {
+      "slot": "chinese-4-second",
+      "subject": "chinese",
+      "grade": 4,
+      "semester": "second",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "chinese-5-first",
+      "subject": "chinese",
+      "grade": 5,
+      "semester": "first",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "chinese-5-second",
+      "subject": "chinese",
+      "grade": 5,
+      "semester": "second",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "chinese-6-first",
+      "subject": "chinese",
+      "grade": 6,
+      "semester": "first",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "chinese-6-second",
+      "subject": "chinese",
+      "grade": 6,
+      "semester": "second",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "english-3-first",
+      "subject": "english",
+      "grade": 3,
+      "semester": "first",
+      "status": "partial",
+      "editionIds": [
+        "en-yl-3-1-yilin-2024"
+      ]
+    },
+    {
+      "slot": "english-3-second",
+      "subject": "english",
+      "grade": 3,
+      "semester": "second",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "english-4-first",
+      "subject": "english",
+      "grade": 4,
+      "semester": "first",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "english-4-second",
+      "subject": "english",
+      "grade": 4,
+      "semester": "second",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "english-5-first",
+      "subject": "english",
+      "grade": 5,
+      "semester": "first",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "english-5-second",
+      "subject": "english",
+      "grade": 5,
+      "semester": "second",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "english-6-first",
+      "subject": "english",
+      "grade": 6,
+      "semester": "first",
+      "status": "missing",
+      "editionIds": []
+    },
+    {
+      "slot": "english-6-second",
+      "subject": "english",
+      "grade": 6,
+      "semester": "second",
+      "status": "missing",
+      "editionIds": []
+    }
+  ],
+  "note": "20 个必需槽位的覆盖状态。已发布 5 册：语文 1/2/3/4 年级上册、英语 3 年级上册；均为部分可用并在界面列出缺口。"
+}

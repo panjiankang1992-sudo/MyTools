@@ -1,0 +1,23 @@
+[
+  {
+    "name": "high-resolution.jpg",
+    "bytes": 58655,
+    "httpStatus": 200,
+    "uploadId": "fe2569a2-928e-454d-b0cb-c9b6dd64c080",
+    "sha256": "00c8c06beceea0e11d9a39609d426d1451aebbb97b2f880b7fdd2ac93cd7c643"
+  },
+  {
+    "name": "over-five.png",
+    "bytes": 4661336,
+    "httpStatus": 200,
+    "uploadId": "af189d0d-b5c3-4dbd-a609-37920be098f4",
+    "sha256": "cd0ccde7c73d0eab6b422994af0228ab556a3714f14fdd952957ac3e71b157c2"
+  },
+  {
+    "name": "over-one.png",
+    "bytes": 1923432,
+    "httpStatus": 200,
+    "uploadId": "8a2c10f5-e9cc-44c7-964a-1d40953f39c6",
+    "sha256": "9c3cc93fe81fcc7ecc5105130ff804c4ec139daa73b76c3f9581675c0492a58e"
+  }
+]

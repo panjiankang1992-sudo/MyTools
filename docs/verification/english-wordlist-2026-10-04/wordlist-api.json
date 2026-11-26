@@ -1,0 +1,557 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "catalog-all-five-and-coverage",
+      "passed": true,
+      "differences": [],
+      "expectedSha256": "2db1ea6528b3ff1df61dfa4837d4a8db97aed77268888393189e07b8157a39f4",
+      "actualSha256": "2db1ea6528b3ff1df61dfa4837d4a8db97aed77268888393189e07b8157a39f4"
+    },
+    {
+      "name": "english-version",
+      "passed": true,
+      "differences": [],
+      "expectedSha256": "d4f110f283801535c8c2b652b0fd96434b99d1ce6e6dd99a71abf2a76bfee45b",
+      "actualSha256": "d4f110f283801535c8c2b652b0fd96434b99d1ce6e6dd99a71abf2a76bfee45b"
+    },
+    {
+      "name": "all-vocabulary",
+      "passed": true,
+      "expectedCount": 140,
+      "actualCount": 140,
+      "pages": [
+        {
+          "page": 1,
+          "returned": 37,
+          "total": 140,
+          "contentVersion": "1.0.1",
+          "filters": {
+            "listTypes": "vocabulary",
+            "unitIds": null
+          },
+          "hasNext": true
+        },
+        {
+          "page": 2,
+          "returned": 37,
+          "total": 140,
+          "contentVersion": "1.0.1",
+          "filters": {
+            "listTypes": "vocabulary",
+            "unitIds": null
+          },
+          "hasNext": true
+        },
+        {
+          "page": 3,
+          "returned": 37,
+          "total": 140,
+          "contentVersion": "1.0.1",
+          "filters": {
+            "listTypes": "vocabulary",
+            "unitIds": null
+          },
+          "hasNext": true
+        },
+        {
+          "page": 4,
+          "returned": 29,
+          "total": 140,
+          "contentVersion": "1.0.1",
+          "filters": {
+            "listTypes": "vocabulary",
+            "unitIds": null
+          },
+          "hasNext": false
+        }
+      ],
+      "differences": [],
+      "expectedSha256": "27e53a2018966a276098cfc76a348fe805cab2dba9f32fb02628fe787dba4463",
+      "actualSha256": "27e53a2018966a276098cfc76a348fe805cab2dba9f32fb02628fe787dba4463"
+    },
+    {
+      "name": "unit:en-yl-3-1-yilin-2024-u01",
+      "passed": true,
+      "expectedCount": 13,
+      "actualCount": 13,
+      "pages": [
+        {
+          "page": 1,
+          "returned": 13,
+          "total": 13,
+          "contentVersion": "1.0.1",
+          "filters": {
+            "listTypes": "vocabulary",
+            "unitIds": "en-yl-3-1-yilin-2024-u01"
+          },
+          "hasNext": false
+        }
+      ],
+      "differences": [],
+      "expectedSha256": "014750630298945fefc5d4eb3a893bd91f8f0db24efd0f6ed27701b93a19df75",
+      "actualSha256": "014750630298945fefc5d4eb3a893bd91f8f0db24efd0f6ed27701b93a19df75"
+    },
+    {
+      "name": "unit:en-yl-3-1-yilin-2024-u02",
+      "passed": true,
+      "expectedCount": 11,
+      "actualCount": 11,
+      "pages": [
+        {
+          "page": 1,
+          "returned": 11,
+          "total": 11,
+          "contentVersion": "1.0.1",
+          "filters": {
+            "listTypes": "vocabulary",
+            "unitIds": "en-yl-3-1-yilin-2024-u02"
+          },
+          "hasNext": false
+        }
+      ],
+      "differences": [],
+      "expectedSha256": "ed5f5a88c6f478b24bec86cc53765068ceabea5d8709dba36974eebf5282a8dc",
+      "actualSha256": "ed5f5a88c6f478b24bec86cc53765068ceabea5d8709dba36974eebf5282a8dc"
+    },
+    {
+      "name": "unit:en-yl-3-1-yilin-2024-u03",
+      "passed": true,
+      "expectedCount": 17,
+      "actualCount": 17,
+      "pages": [
+        {
+          "page": 1,
+          "returned": 17,
+          "total": 17,
+          "contentVersion": "1.0.1",
+          "filters": {
+            "listTypes": "vocabulary",
+            "unitIds": "en-yl-3-1-yilin-2024-u03"
+          },
+          "hasNext": false
+        }
+      ],
+      "differences": [],
+      "expectedSha256": "d5950ed5fcc42f8aa27eb8edb6f4fe229bb970bce4b8ed021acc6dafa9057946",
+      "actualSha256": "d5950ed5fcc42f8aa27eb8edb6f4fe229bb970bce4b8ed021acc6dafa9057946"
+    },
+    {
+      "name": "unit:en-yl-3-1-yilin-2024-u04",
+      "passed": true,
+      "expectedCount": 9,
+      "actualCount": 9,
+      "pages": [
+        {
+          "page": 1,
+          "returned": 9,
+          "total": 9,
+          "contentVersion": "1.0.1",
+          "filters": {
+            "listTypes": "vocabulary",
+            "unitIds": "en-yl-3-1-yilin-2024-u04"
+          },
+          "hasNext": false
+        }
+      ],
+      "differences": [],
+      "expectedSha256": "507768ed2dae9d37742bf6b8b6c28874e8b92f9fdfe6a49ee88415bbc8f08ab6",
+      "actualSha256": "507768ed2dae9d37742bf6b8b6c28874e8b92f9fdfe6a49ee88415bbc8f08ab6"
+    },
+    {
+      "name": "unit:en-yl-3-1-yilin-2024-u05",
+      "passed": true,
+      "expectedCount": 18,
+      "actualCount": 18,
+      "pages": [
+        {
+          "page": 1,
+          "returned": 18,
+          "total": 18,
+          "contentVersion": "1.0.1",
+          "filters": {
+            "listTypes": "vocabulary",
+            "unitIds": "en-yl-3-1-yilin-2024-u05"
+          },
+          "hasNext": false
+        }
+      ],
+      "differences": [],
+      "expectedSha256": "205afd81e4921805dc9b536aeb1268775ad60025bf53b483e746668ef4c5ea2b",
+      "actualSha256": "205afd81e4921805dc9b536aeb1268775ad60025bf53b483e746668ef4c5ea2b"
+    },
+    {
+      "name": "unit:en-yl-3-1-yilin-2024-u06",
+      "passed": true,
+      "expectedCount": 12,
+      "actualCount": 12,
+      "pages": [
+        {
+          "page": 1,
+          "returned": 12,
+          "total": 12,
+          "contentVersion": "1.0.1",
+          "filters": {
+            "listTypes": "vocabulary",
+            "unitIds": "en-yl-3-1-yilin-2024-u06"
+          },
+          "hasNext": false
+        }
+      ],
+      "differences": [],
+      "expectedSha256": "d6d0efdc7866e33d3709dcdd0cf16626fad8cacba460232c674916508e25700d",
+      "actualSha256": "d6d0efdc7866e33d3709dcdd0cf16626fad8cacba460232c674916508e25700d"
+    },
+    {
+      "name": "unit:en-yl-3-1-yilin-2024-u07",
+      "passed": true,
+      "expectedCount": 31,
+      "actualCount": 31,
+      "pages": [
+        {
+          "page": 1,
+          "returned": 31,
+          "total": 31,
+          "contentVersion": "1.0.1",
+          "filters": {
+            "listTypes": "vocabulary",
+            "unitIds": "en-yl-3-1-yilin-2024-u07"
+          },
+          "hasNext": false
+        }
+      ],
+      "differences": [],
+      "expectedSha256": "550c6e06767ea39424caf3ebeb82b0c7c0e0e6b3220a243310a17207f8101fc7",
+      "actualSha256": "550c6e06767ea39424caf3ebeb82b0c7c0e0e6b3220a243310a17207f8101fc7"
+    },
+    {
+      "name": "unit:en-yl-3-1-yilin-2024-u08",
+      "passed": true,
+      "expectedCount": 18,
+      "actualCount": 18,
+      "pages": [
+        {
+          "page": 1,
+          "returned": 18,
+          "total": 18,
+          "contentVersion": "1.0.1",
+          "filters": {
+            "listTypes": "vocabulary",
+            "unitIds": "en-yl-3-1-yilin-2024-u08"
+          },
+          "hasNext": false
+        }
+      ],
+      "differences": [],
+      "expectedSha256": "26eb43ce1c3d1dee46cbfa351c1b5f52afe3c51a34f6ed267f209d1e099372e4",
+      "actualSha256": "26eb43ce1c3d1dee46cbfa351c1b5f52afe3c51a34f6ed267f209d1e099372e4"
+    },
+    {
+      "name": "unit:en-yl-3-1-yilin-2024-appendix-proper-nouns",
+      "passed": true,
+      "expectedCount": 11,
+      "actualCount": 11,
+      "pages": [
+        {
+          "page": 1,
+          "returned": 11,
+          "total": 11,
+          "contentVersion": "1.0.1",
+          "filters": {
+            "listTypes": "vocabulary",
+            "unitIds": "en-yl-3-1-yilin-2024-appendix-proper-nouns"
+          },
+          "hasNext": false
+        }
+      ],
+      "differences": [],
+      "expectedSha256": "d6296c715165edb62964b435de02dd92a29bceebe2421dcef32b4c13c9d3e32a",
+      "actualSha256": "d6296c715165edb62964b435de02dd92a29bceebe2421dcef32b4c13c9d3e32a"
+    }
+  ],
+  "requests": [
+    {
+      "path": "/public/v1/textbooks",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 6367,
+          "sha256": "d0589e35c61f3e20e112b0dc849f307e23d92b7f5bbad1768c65a3dea354aebc",
+          "error": null,
+          "retryable": false,
+          "durationMs": 956
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 2566,
+          "sha256": "c233dc76745086df1654e2204276aa20e1f0506dd14cf8010fdaa25dbd0680ef",
+          "error": null,
+          "retryable": false,
+          "durationMs": 960
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1/entries?limit=37&listTypes=vocabulary",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 21371,
+          "sha256": "87236e7e766e302774a221f90a818d1c78e46ccbbdd7d5e6756951bb1770d4fd",
+          "error": null,
+          "retryable": false,
+          "durationMs": 1152
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1/entries?limit=37&listTypes=vocabulary&cursor=eyJ2ZXJzaW9uS2V5IjoiZW4teWwtMy0xLXlpbGluLTIwMjRAMS4wLjEiLCJmaWx0ZXJIYXNoIjoiYmIwOWVhMDYxZDkzNGVkNDJhMmQ5MWEyYjQ5M2Q5OGY4YzIxMmUwZTRlNzRhYzFlMDNiYzJlZTA5NjZjYjYxOCIsIm9mZnNldCI6Mzd9",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 21623,
+          "sha256": "4262f2cb2e3f449446297696867f055b4dbcc8eb34f1fe1062a3b354eb3b67a6",
+          "error": null,
+          "retryable": false,
+          "durationMs": 1021
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1/entries?limit=37&listTypes=vocabulary&cursor=eyJ2ZXJzaW9uS2V5IjoiZW4teWwtMy0xLXlpbGluLTIwMjRAMS4wLjEiLCJmaWx0ZXJIYXNoIjoiYmIwOWVhMDYxZDkzNGVkNDJhMmQ5MWEyYjQ5M2Q5OGY4YzIxMmUwZTRlNzRhYzFlMDNiYzJlZTA5NjZjYjYxOCIsIm9mZnNldCI6NzR9",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 21320,
+          "sha256": "e53ee8b41321c4acb3f34d17d50dcad062895939b3216348e77d47785f6aae10",
+          "error": null,
+          "retryable": false,
+          "durationMs": 932
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1/entries?limit=37&listTypes=vocabulary&cursor=eyJ2ZXJzaW9uS2V5IjoiZW4teWwtMy0xLXlpbGluLTIwMjRAMS4wLjEiLCJmaWx0ZXJIYXNoIjoiYmIwOWVhMDYxZDkzNGVkNDJhMmQ5MWEyYjQ5M2Q5OGY4YzIxMmUwZTRlNzRhYzFlMDNiYzJlZTA5NjZjYjYxOCIsIm9mZnNldCI6MTExfQ",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 17192,
+          "sha256": "c19ae363e06116122760a655d658ecbc01cf50af8ce3f25e0ce33c00cb895c41",
+          "error": null,
+          "retryable": false,
+          "durationMs": 941
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1/entries?limit=37&listTypes=vocabulary&unitIds=en-yl-3-1-yilin-2024-u01",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 7486,
+          "sha256": "6ffeaf669d5da5867685f27ee81ab7bdb71785f23b851894494565fb1ee4868f",
+          "error": null,
+          "retryable": false,
+          "durationMs": 916
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1/entries?limit=37&listTypes=vocabulary&unitIds=en-yl-3-1-yilin-2024-u02",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 6353,
+          "sha256": "736fabaffd83a5587ad6ab6f27bcc024f40eb5d5eb7226303885e69a91c2d8a9",
+          "error": null,
+          "retryable": false,
+          "durationMs": 1191
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1/entries?limit=37&listTypes=vocabulary&unitIds=en-yl-3-1-yilin-2024-u03",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 9898,
+          "sha256": "923b1b4565d1e04a125bba895c116ce87760f98407193db80577019c063672ce",
+          "error": null,
+          "retryable": false,
+          "durationMs": 905
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1/entries?limit=37&listTypes=vocabulary&unitIds=en-yl-3-1-yilin-2024-u04",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 5183,
+          "sha256": "d09ffa21e2f40885df543461c68c2a614debe7b556cd797759342366c41be28b",
+          "error": null,
+          "retryable": false,
+          "durationMs": 1026
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1/entries?limit=37&listTypes=vocabulary&unitIds=en-yl-3-1-yilin-2024-u05",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 10498,
+          "sha256": "067879dd76e5496a14a572e2465e3eeafe255fb6268bd5a547a7c06964d041ed",
+          "error": null,
+          "retryable": false,
+          "durationMs": 1268
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1/entries?limit=37&listTypes=vocabulary&unitIds=en-yl-3-1-yilin-2024-u06",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 7202,
+          "sha256": "827156ac3d176088eff7513bdee5b9e2d8a6793d47035e6c10cb2e7639565b64",
+          "error": null,
+          "retryable": false,
+          "durationMs": 935
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1/entries?limit=37&listTypes=vocabulary&unitIds=en-yl-3-1-yilin-2024-u07",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 17710,
+          "sha256": "20cd77d556ba3baa5b87ae2b6ebbdaea59680ae75cfda74fbfc3a25801f28cb1",
+          "error": null,
+          "retryable": false,
+          "durationMs": 914
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1/entries?limit=37&listTypes=vocabulary&unitIds=en-yl-3-1-yilin-2024-u08",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 10679,
+          "sha256": "81b01ffce6c7cc4948cec1378aa76b2f3eadf8478375d346122cb8da4af82ec3",
+          "error": null,
+          "retryable": false,
+          "durationMs": 957
+        }
+      ]
+    },
+    {
+      "path": "/public/v1/textbooks/en-yl-3-1-yilin-2024/versions/1.0.1/entries?limit=37&listTypes=vocabulary&unitIds=en-yl-3-1-yilin-2024-appendix-proper-nouns",
+      "method": "GET",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": 200,
+          "mime": "application/json",
+          "bytes": 6651,
+          "sha256": "e1eb3bae45a8e251a4af735b3a8bddb40ee6ab05a1f1c06ba5558327ecc58f0c",
+          "error": null,
+          "retryable": false,
+          "durationMs": 1007
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "checks": 12,
+    "passedChecks": 12,
+    "requests": 15,
+    "attempts": 15,
+    "expectedEnglishEntries": 140,
+    "expectedUnitCounts": [
+      13,
+      11,
+      17,
+      9,
+      18,
+      12,
+      31,
+      18,
+      11
+    ],
+    "chineseBaselineAnchors": 4
+  },
+  "checkedAt": "2026-10-04T06:16:42Z",
+  "base": "https://toolbox.yuyutian.top",
+  "userAgent": "Yuyutian-Release-ReadOnly-Check/1.0",
+  "localFiles": {
+    "catalogSha256": "107460ab893b7cbee890c3667807d534e5deaa7cdd96485a190c1b60b571f3cf",
+    "bookSha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4"
+  },
+  "readOnly": true,
+  "scope": "Public textbook API only; no browser, deployment or OCR accuracy claim."
+}

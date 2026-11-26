@@ -1,0 +1,242 @@
+{
+  "1": {
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": {
+      "ckpt_name": "ltxv-2b-0.9.8-distilled.safetensors"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "ltxv",
+      "device": "default"
+    }
+  },
+  "3": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "The camera slowly dollies straight forward toward a red ceramic teapot. The teapot steadily grows larger at the center of the frame as the camera approaches it. Strawberries on a white plate stay motionless on the wooden table beside it. The red ceramic glaze, round handle and spout keep their shapes. Soft daylight from the window lights the still life. A single smooth continuous forward camera movement."
+    }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": ""
+    }
+  },
+  "5": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "ltx-action-first-20260927/product.png"
+    }
+  },
+  "6": {
+    "class_type": "LTXVImgToVideo",
+    "inputs": {
+      "positive": [
+        "3",
+        0
+      ],
+      "negative": [
+        "4",
+        0
+      ],
+      "vae": [
+        "1",
+        2
+      ],
+      "image": [
+        "5",
+        0
+      ],
+      "width": 416,
+      "height": 416,
+      "length": 97,
+      "batch_size": 1,
+      "strength": 1.0
+    }
+  },
+  "7": {
+    "class_type": "LTXVConditioning",
+    "inputs": {
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "6",
+        1
+      ],
+      "frame_rate": 24.0
+    }
+  },
+  "8": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "euler"
+    }
+  },
+  "9": {
+    "class_type": "ManualSigmas",
+    "inputs": {
+      "sigmas": "1, 0.9937, 0.9875, 0.9812, 0.975, 0.9094, 0.725, 0"
+    }
+  },
+  "10": {
+    "class_type": "SamplerCustom",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "add_noise": true,
+      "noise_seed": 42,
+      "cfg": 1.0,
+      "positive": [
+        "7",
+        0
+      ],
+      "negative": [
+        "7",
+        1
+      ],
+      "sampler": [
+        "8",
+        0
+      ],
+      "sigmas": [
+        "9",
+        0
+      ],
+      "latent_image": [
+        "6",
+        2
+      ]
+    }
+  },
+  "11": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "20",
+        0
+      ],
+      "vae": [
+        "1",
+        2
+      ]
+    }
+  },
+  "12": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "11",
+        0
+      ],
+      "filename_prefix": "ltx-action-first-20260927/product"
+    }
+  },
+  "15": {
+    "class_type": "LatentUpscaleModelLoader",
+    "inputs": {
+      "model_name": "ltxv-spatial-upscaler-0.9.8.safetensors"
+    }
+  },
+  "16": {
+    "class_type": "LTXVLatentUpsampler",
+    "inputs": {
+      "samples": [
+        "10",
+        1
+      ],
+      "upscale_model": [
+        "15",
+        0
+      ],
+      "vae": [
+        "1",
+        2
+      ]
+    }
+  },
+  "17": {
+    "class_type": "LatentUpscale",
+    "inputs": {
+      "samples": [
+        "16",
+        0
+      ],
+      "upscale_method": "bilinear",
+      "width": 160,
+      "height": 160,
+      "crop": "disabled"
+    }
+  },
+  "18": {
+    "class_type": "LTXVImgToVideoInplace",
+    "inputs": {
+      "latent": [
+        "17",
+        0
+      ],
+      "image": [
+        "5",
+        0
+      ],
+      "vae": [
+        "1",
+        2
+      ],
+      "strength": 1.0,
+      "bypass": false
+    }
+  },
+  "19": {
+    "class_type": "ManualSigmas",
+    "inputs": {
+      "sigmas": "0.9094, 0.725, 0.4219, 0"
+    }
+  },
+  "20": {
+    "class_type": "SamplerCustom",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "add_noise": true,
+      "noise_seed": 42,
+      "cfg": 1.0,
+      "positive": [
+        "7",
+        0
+      ],
+      "negative": [
+        "7",
+        1
+      ],
+      "sampler": [
+        "8",
+        0
+      ],
+      "sigmas": [
+        "19",
+        0
+      ],
+      "latent_image": [
+        "18",
+        0
+      ]
+    }
+  }
+}

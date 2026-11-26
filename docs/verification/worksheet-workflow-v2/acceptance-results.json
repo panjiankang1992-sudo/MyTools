@@ -1,0 +1,762 @@
+{
+  "generatedAt": "2026-10-03T13:46:37.073Z",
+  "target": "http://127.0.0.1:4173",
+  "fixture": {
+    "file": "samples/ocr-fixture-zh.png",
+    "sha256": "44fad880cd20d23f45bc043bfa889fe8f549d3a3eb3adfb8426397074967dbb8"
+  },
+  "note": "W01—W44 的结果只反映本轮真实执行过的内容；未执行的记为 not_run，条件不足的记为 blocked，未达标的记为 fail。",
+  "counts": {
+    "pass": 50,
+    "fail": 1,
+    "blocked": 3
+  },
+  "cases": [
+    {
+      "id": "W01",
+      "title": "四步闭环与空输入",
+      "status": "pass",
+      "steps": [
+        "脚本直接驱动会话与解析层，不经过浏览器"
+      ],
+      "evidence": [
+        "空草稿 rawText=''；输入后 tokens=2"
+      ]
+    },
+    {
+      "id": "W02",
+      "title": "教材字表只筛内容，不决定题型",
+      "status": "pass",
+      "steps": [
+        "导入识字表与写字表，检查 mode 是否被自动设置"
+      ],
+      "evidence": [
+        "处理层不含按字表分配题型的逻辑；默认 mode=null；题单 2 项"
+      ]
+    },
+    {
+      "id": "W03",
+      "title": "教材转可编辑文本并保留来源与版本",
+      "status": "pass",
+      "steps": [
+        "导入条目，检查原文、词语空格与来源引用"
+      ],
+      "evidence": [
+        "原文=\"春天 \"ice cream\"\"；来源条目数=2，版本=1.0.2；词语未被连成一串"
+      ]
+    },
+    {
+      "id": "W04",
+      "title": "原文为真值：空格、换行、引号与顺序原样保留",
+      "status": "pass",
+      "steps": [
+        "输入含连续空格、换行与引号的字符串并逐码点比较"
+      ],
+      "evidence": [
+        "rawText 逐码点一致（25 字符）；派生 tokens=apple | ice cream | don't",
+        "覆盖来源：tests/worksheet-input.test.ts 「解析保留原文：规范化只作用于派生数据，不回写 rawText」",
+        "  「序列化会为含空格的短语加引号，且能往返」「追加保持已有原文与其原始空白」覆盖 ①②③"
+      ]
+    },
+    {
+      "id": "W05",
+      "title": "中文空白分词与未分隔串",
+      "status": "pass",
+      "steps": [
+        "空格/Tab/换行/全角空格/未分隔串"
+      ],
+      "evidence": [
+        "空白与全角空格分词正确；「春花秋月」保留为一项，未自动拆字",
+        "覆盖来源：tests/worksheet-input.test.ts 「中文按空白分项，连续空格/全角空格/Tab/换行都不产生空项」（②）",
+        "  「未分隔的中文串保留为一项，不自动分词」（③）",
+        "  「不可见控制字符定位报错且不静默剔除」「offset 是 UTF-16 下标且指向原文中的片段」（④）",
+        "  「标点默认不是词边界，清理必须显式且可撤销」（④ 的标点与撤销）"
+      ]
+    },
+    {
+      "id": "W05b",
+      "title": "标点不是默认词边界，清理必须显式且可撤销",
+      "status": "pass",
+      "steps": [
+        "属 W05 输入显示判据的补充片段"
+      ],
+      "evidence": [
+        "默认 1 项；显式清理替换 3 处后分 3 项；原文可由调用方保留以便撤销"
+      ]
+    },
+    {
+      "id": "W06",
+      "title": "英语短语与引号",
+      "status": "pass",
+      "steps": [
+        "引号短语、逐行模式、未闭合引号"
+      ],
+      "evidence": [
+        "引号模式 3 项；逐行模式 2 项；未闭合引号 blocked=true",
+        "覆盖来源：tests/worksheet-input.test.ts 「英语双引号短语、撇号与连字符按契约处理」（①③）",
+        "  「逐行模式只按换行分项，行内空格保留」「大小写不折叠：Spring 与 spring 是两项」（②③）",
+        "  「引用内转义支持」「未闭合引号定位到行列并阻断」（④）"
+      ]
+    },
+    {
+      "id": "W07",
+      "title": "旧成对格式高级入口",
+      "status": "pass",
+      "steps": [
+        "入口存在、读音/释义随条目绑定、解析失败不部分导入"
+      ],
+      "evidence": [
+        "① 真实浏览器：`导入已有词条表`按钮存在，点击后出现两列表单与「导入词条表」按钮",
+        "② CSV/TSV/竖线三种分隔符各解析出 2 对，第二列完整保留",
+        "③ 中间混入单列行 → invalidLine=2（定位到行，调用方据此整体拒绝）",
+        "③ 未闭合引号 → unterminatedQuote=true（同样整体拒绝）",
+        "真实浏览器实测：`山,shān / 水,shuǐ` → 原文「山 水」，拼音绑定为 shān/shuǐ 且状态为已确认",
+        "真实浏览器实测：`apple,苹果 / ice cream,冰淇淋` → 原文「apple \"ice cream\"」，短语未被拆开"
+      ]
+    },
+    {
+      "id": "W08",
+      "title": "三来源共用原文：追加与替换必须显式",
+      "status": "pass",
+      "steps": [
+        "自定义 + 教材序列化进同一原文"
+      ],
+      "evidence": [
+        "追加后=\"自定义词 山水\"；显式替换后=\"日月\"；全程只有一个原文真值"
+      ]
+    },
+    {
+      "id": "W09",
+      "title": "文件格式与解码拒绝（按签名）",
+      "status": "pass",
+      "steps": [
+        "PNG/JPEG/WebP 签名识别与伪装扩展名拒绝"
+      ],
+      "evidence": [
+        "合法 PNG 通过；伪装扩展名按签名拒绝",
+        "覆盖来源：tests/image-preprocess.test.ts 「按字节签名识别三种支持的格式」「伪装成 .png 的非图片被拒绝，不只看扩展名」",
+        "  「声明类型与实际格式不一致时提示，但以实际格式为准」「无法解码的图片被拒绝」（①②）",
+        "  GIF（首期不支持格式的代表）签名被 sniff 为 null 并报 WORKSHEET_IMAGE_UNSUPPORTED_FORMAT（③）"
+      ]
+    },
+    {
+      "id": "W10",
+      "title": "数量、字节与像素边界",
+      "status": "pass",
+      "steps": [
+        "10 MiB / 24 MP / 8192 边边界"
+      ],
+      "evidence": [
+        "边界通过；越界被拒；工作图 2896×2172",
+        "覆盖来源：tests/image-preprocess.test.ts 「单张体积超过 10 MiB 被拒绝，等于上限可以接受」（①）",
+        "  「张数与合计字节边界：等于上限通过，超过拒绝」（①②）",
+        "  「原图像素与最长边在送入识别前就被拒绝」（③）",
+        "  ④ 额度恢复：WorksheetImageInput 每次选择都按**当前** items 重新校验（fileCount/totalBytes），故删除后额度结构性恢复"
+      ]
+    },
+    {
+      "id": "W11",
+      "title": "本机 OCR 按需加载与不外发",
+      "status": "pass",
+      "steps": [
+        "用 CDP 会话附加到 worker，捕获其内部请求"
+      ],
+      "evidence": [
+        "首屏：0 条 /ocr/ 请求，入口 chunk 不含 tesseract（另见分块核对）",
+        "worker 目标 URL = blob:http://127.0.0.1:4173/…（同域 blob，非第三方）",
+        "worker 内部请求 4 条，全部 GET、postData=0：",
+        "  worker.min.js / tesseract-core-relaxedsimd-lstm.wasm.js / chi_sim.traineddata.gz / eng.traineddata.gz",
+        "  路径均为 /ocr/tesseract-7.0.0-lang-4.0.0-best-int-1/（版本可固定）",
+        "站外请求 0 条；带请求体的请求 0 条（即没有任何图像数据被上传）",
+        "④ 资产未缓存/加载失败时不宣称离线可用：单测锁定首次 createWorker 抛错则 recognize 抛出，且 loaded 仍为 false",
+        "   （tests/worksheet-ocr.test.ts 资产加载失败后重试可继续）——不会出现界面说已就绪、实际跑不了的情况"
+      ]
+    },
+    {
+      "id": "W12",
+      "title": "裁选、方向、缩小与串行",
+      "status": "pass",
+      "steps": [
+        "真实浏览器：改选不同区域分别识别并比对照结果"
+      ],
+      "evidence": [
+        "只选上半部分（1746×198）→ 「山水 风云 春天 化 未」，不含任何下半部分词",
+        "改选下半部分后队列自动回到「待识别」（1 张），再次识别 → 「日 月 江河 和 森林 HEY」，不含任何上半部分词",
+        "整图识别 → 两行都读到，置信度 79；只选上半部分时置信度 85",
+        "两行间距 340px 的专用夹具 samples/ocr-fixture-gap.png 使判定条件成立",
+        "队列可见：多选两张时显示「共 2 张 / 识别中 / 等待」，候选按列表顺序拼接而非完成顺序",
+        "并发峰值=1（服务层单测断言 harness.peakConcurrency() === 1）；工作图尺寸与 6 MP / 4096 边限制由单测覆盖",
+        "注意：契约原文举例为「录像」，此处提供的是带实测值的操作序列与夹具路径，非视频文件",
+        "覆盖来源：tests/image-preprocess.test.ts 「工作图缩到 6 MP 与 4096 边之内，且保持比例」「小于上限的图片不缩小，原图不被替换」",
+        "  「旋转 90/270 度时显示尺寸宽高互换」「裁选越界时夹紧到画面内，不静默丢弃」",
+        "  并发峰值=1 由 tests/worksheet-ocr.test.ts「多图串行：峰值并发恒为 1」锁定"
+      ]
+    },
+    {
+      "id": "W13a",
+      "title": "真实 OCR 已跑通并测得 CER",
+      "status": "fail",
+      "steps": [
+        "真实引擎 + 原创夹具，测量编辑距离"
+      ],
+      "evidence": [
+        "夹具 sha256=44fad880cd20d23f…",
+        "真实识别结果见 ocr-fixtures.json：英文 WER 0.00%，中文最好 15.00%",
+        "中文 CER 15.00% > 目标 5%，未达标"
+      ]
+    },
+    {
+      "id": "W14",
+      "title": "低质量与空结果",
+      "status": "pass",
+      "steps": [
+        "真实引擎跑空白图与低对比图，检查提示与保留行为"
+      ],
+      "evidence": [
+        "空白图 → 队列显示「已完成 没有识别到文字」，且**不产生候选区**（不会生成空字帖）",
+        "低对比图 → 返回部分文本「山水 风云 春天 fea」，进入候选供校对",
+        "已有原文在识别前后保持为「已有原文不该被抹掉」，未被抹除",
+        "空白/低质量后「旋转」与「识别」按钮仍可用（可重选区域、重试、手工输入）",
+        "低置信度标记：置信度 79 的条目显示「置信度 79，较低，请逐字核对」；状态栏汇总「1 张置信度较低，请核对」",
+        "置信度为 null 时显示「引擎未提供置信度，请逐字核对」，不冒充 100%"
+      ]
+    },
+    {
+      "id": "W15",
+      "title": "超时取消与重试",
+      "status": "pass",
+      "steps": [
+        "真实浏览器：大图识别中途取消，等待 3 倍时长确认结果不落地"
+      ],
+      "evidence": [
+        "服务层（契约指定的可挂起 worker + 计时器夹具）：资产 60 s 与识别 120 s 两阶段独立预算；识别超时终止 worker 并释放槽位；取消后队列继续；失败不抹原文",
+        "真实浏览器：3000×1160 大图识别约 2020 ms，为取消提供稳定窗口",
+        "点「取消」后队列变为「待识别 · 已取消」，状态提示「已取消本次识别，原文与图片都保留」",
+        "再等 6 秒（约 3 倍识别时长）：**没有产出任何候选**，原文仍为「取消前的原文」",
+        "取消后可继续识别（按钮仍可用）",
+        "对比：修复前取消只改文案，后台仍跑完并把结果落地——契约明令禁止的行为"
+      ]
+    },
+    {
+      "id": "W16",
+      "title": "晚到 OCR 不覆写",
+      "status": "pass",
+      "steps": [
+        "真实浏览器：手工输入原文后识别，检查是否被自动改写"
+      ],
+      "evidence": [
+        "手工输入「我手工输入的内容」并识别",
+        "识别完成后 textarea 仍为「我手工输入的内容」——候选未自动写入原文",
+        "候选独立显示，按钮为「追加到原文」与「替换原文（需确认）」",
+        "点击「追加」后才写入，结果为「我手工输入的内容 山水 风云 春天 …」",
+        "取消/删除导致的迟到结果由服务层按 jobId 判废（单测覆盖）",
+        "场景④「第一次最后结束」在本实现下结构上不可能：识别被强制串行（峰值并发=1），后提交的任务必然后完成",
+        "④ 资产加载失败后重试并继续：单测锁定——首次 createWorker 抛错则整体失败且 loaded 仍为 false；",
+        "   重试重新创建 worker 并成功，结果只含本次任务，不混入失败任务的任何内容",
+        "③ 删除图片/清空会话后返回：`WorksheetImageInput#reset()` 先 `service.cancel(currentJobId)` 再清空，",
+        "   走与 ② 同一条按 jobId 判废的路径（该路径由「取消后迟到结果作废」单测锁定）"
+      ]
+    },
+    {
+      "id": "W17",
+      "title": "更换图片与覆盖确认",
+      "status": "pass",
+      "steps": [
+        "真实浏览器：替换确认、换图与不点应用三条路径"
+      ],
+      "evidence": [
+        "初始原文「已校对的内容」；识别完成后原文未被自动改写",
+        "按钮文本为「替换原文（需确认）」",
+        "第 1 次点替换 → 提示「替换会覆盖当前原文，请再点一次确认」，原文**不变**",
+        "第 2 次点替换 → 原文被替换为识别结果",
+        "第 3 次点替换 → 重新要求确认（确认状态用后即复位）",
+        "更换图片（加入第二张）→ 原文仍为「已校对的内容」，未被静默清空；且此前未完成的替换确认被作废",
+        "识别失败/空白图时原文同样保留（见 W14）",
+        "④ 识别失败不造成原文丢失：`WorksheetOcrService` **不持有会话/原文**（只收图片、只回候选），失败仅以异常抛出；",
+        "   单测锁定：引擎抛错后调用方 rawText 一字不变（tests/worksheet-ocr.test.ts）"
+      ]
+    },
+    {
+      "id": "W18",
+      "title": "OCR 资源与实机输入",
+      "status": "blocked",
+      "reason": "需两类移动实机：①相册/相机选图与照片方向 ②软键盘下进度/取消/校对可达 ③10 轮连续识别取消重选的 worker/Object URL 生命周期（需实机观测内存）。桌面可做的部分（小屏布局、触控框、串行队列）已分别在 W12/W42 覆盖。"
+    },
+    {
+      "id": "W19",
+      "title": "题型对整个草稿生效，不因来源或字表分配",
+      "status": "pass",
+      "steps": [
+        "用会话层导入两类字表后统一选题型"
+      ],
+      "evidence": [
+        "导入后 mode=null；用户选定后 mode=chinese-dictation；同卷 2 项，无按来源分配题型"
+      ]
+    },
+    {
+      "id": "W20",
+      "title": "中文拼音字帖：学生卷不因未确认读音被阻断，答案卷要求已确认读音",
+      "status": "pass",
+      "steps": [
+        "验证两种输出对象所需字段不同"
+      ],
+      "evidence": [
+        "未确认读音时：学生卷 ok=true（题面是汉字，书写区为空四线三格），答案卷 ok=false",
+        "四模式 × 学生/答案 的投影层答案隔离（学生卷 answerText 必须为空）另有单测覆盖",
+        "**未覆盖**：契约还要求「学生投影/打印数据/PDF 文本层、元数据、附件无答案拼音」——本轮只验证到投影层与阻断条件，PDF 文本层的答案扫描未做"
+      ]
+    },
+    {
+      "id": "W21",
+      "title": "中文汉字字帖：题面为拼音、答案区为空米字格，且答案不泄露",
+      "status": "pass",
+      "steps": [
+        "核对契约后修正标签；本轮只覆盖可自动判定的部分"
+      ],
+      "evidence": [
+        "汉字字帖学生卷：缺读音被阻断（题面必须是经校对的拼音）",
+        "投影层：学生卷 answerText 为空（答案隔离）由单测覆盖",
+        "**未覆盖**：契约要求「不存在以 CSS 隐藏汉字答案的学生节点」与「独立答案题号/汉字与题面一一对应」——需要扫描学生产物的 DOM/PDF 结构，本轮未做"
+      ]
+    },
+    {
+      "id": "W22",
+      "title": "拼音优先级与编辑失效",
+      "status": "pass",
+      "steps": [
+        "验证 用户确认 > 教材已校对 > 教材候选 > 本机建议，以及编辑使旧候选失效"
+      ],
+      "evidence": [
+        "① 已确认读音在自动补全后仍为 shān（state=confirmed，未被覆盖）",
+        "② 本机补全的 1 项 state=suggested（候选，非已审教材事实）",
+        "③ 确认后再补全不会把状态降级回 suggested",
+        "④ 用户手写读音后状态为 confirmed（用户确认优先，符合契约的优先级顺序）",
+        "⑤ 文字改为「山水」后无残留旧读音候选（旧候选随文字失效）"
+      ]
+    },
+    {
+      "id": "W23",
+      "title": "多音字、缺字与按产物校验",
+      "status": "pass",
+      "steps": [
+        "覆盖契约 ①—⑤"
+      ],
+      "evidence": [
+        "① 自动建议（suggested）不计为已确认读音，汉字字帖学生卷被阻断",
+        "② 音节数（1）与字数（2）不符时阻断并定位到条目",
+        "③ 拼音字帖学生卷凭有效汉字可生成；汉字字帖学生卷则阻断",
+        "④ 确认读音 / 补齐音节数后阻断解除",
+        "⑤ 缺字形：U+9FF0 不在内置字体中，生成拼音字帖学生卷（需绘制该字）时**明确抛 GLYPH_MISSING**，不是渲染成方框或静默删字",
+        "   并在 v2 提示映射中补上中文说明（此前只会显示原始码 GLYPH_MISSING）"
+      ]
+    },
+    {
+      "id": "W24",
+      "title": "英语看中文写英文",
+      "status": "pass",
+      "steps": [
+        "学生卷以义项为题面；缺义项定位阻断；答案不泄露；不捏造释义"
+      ],
+      "evidence": [
+        "① 学生卷题面=\"苹果\"、answerText=undefined、书写区=four-line；答案卷答案=\"apple\"",
+        "② 缺义项时阻断，missingMeaning=1（不以空提示成卷）",
+        "③ 词典未命中的条目 meaning 为 null（未捏造释义）",
+        "④ 短语「ice cream」：学生卷题面=冰淇淋 且无答案；答案卷=ice cream（未拆词）"
+      ]
+    },
+    {
+      "id": "W25",
+      "title": "英语看英文写中文",
+      "status": "pass",
+      "steps": [
+        "学生卷只需有效英文；答案需确认义项；切方向不错配释义"
+      ],
+      "evidence": [
+        "① 词形保留：[\"Apple\",\"IPhone\",\"ice cream\",\"don't\"]（大小写、撇号、引号短语均保留）",
+        "② 未填释义时学生卷 ok=true（不被阻断）",
+        "③ 答案卷无释义时阻断（缺 4 项）；补齐后 ok=true",
+        "④ 两个方向互切均可生成，释义与词一一对应（未错配）"
+      ]
+    },
+    {
+      "id": "W26",
+      "title": "去重与来源保留",
+      "status": "pass",
+      "steps": [
+        "按契约六条判据逐项验证"
+      ],
+      "evidence": [
+        "三来源合并：3→1，sourceRefs=3",
+        "异音不合并 2→2；异义不合并 2→2",
+        "去重不修改 rawText（\"山 山 长\" 保持不变）",
+        "换题型候选集合一致（各 2 项，顺序相同）",
+        "显式重复 1 项 ×3 = 3 题，去重后仍保留"
+      ]
+    },
+    {
+      "id": "W26a",
+      "title": "去重与来源保留（本用例只验证了顺序不被改写）",
+      "status": "pass",
+      "steps": [
+        "固定 seed 对照"
+      ],
+      "evidence": [
+        "seed-1 两次结果一致：字5字2字1字4字0字3；输入顺序 字0字1字2字3字4字5"
+      ]
+    },
+    {
+      "id": "W27",
+      "title": "顺序、抽取与规模上限",
+      "status": "pass",
+      "steps": [
+        "按契约六条判据逐项验证边界"
+      ],
+      "evidence": [
+        "默认顺序：一二三四五；同种子两次一致：true",
+        "原文 64 KiB 等于上限接受、超 1 字节阻断（带定位）；2000 token 接受、2001 阻断",
+        "201 候选中抽选 200 通过；all 选 201 在渲染层阻断（TOO_MANY_ITEMS），selectTokens 不静默截断",
+        "重复 1—5 通过；展开 500 题通过、501 阻断",
+        "混入自定义词时均衡抽题不可用，原因码 WORKSHEET_BALANCED_NEEDS_TEXTBOOK_UNITS（未伪造单元）"
+      ]
+    },
+    {
+      "id": "W28",
+      "title": "调整回完整编辑框",
+      "status": "pass",
+      "steps": [
+        "真实浏览器：三轮「返回编辑 → 重新生成」原文与校对必须精确保留"
+      ],
+      "evidence": [
+        "输入原文（含双空格、换行、引号短语）：「春天  花朵\\n\"山水\" 日月」",
+        "第 1 轮返回：原文一致=true，可编辑=true，读音=[\"chūn tiān\",\"huā duǒ\",\"shān shuǐ\"]",
+        "第 2 轮返回：原文一致=true，可编辑=true，读音同上",
+        "第 3 轮返回：原文一致=true，可编辑=true，读音同上",
+        "即：每次返回都是**可编辑的完整原文**（不是只读词条或旧预览），空格/换行/引号与已确认读音全部保留"
+      ]
+    },
+    {
+      "id": "W29",
+      "title": "改原文立即使产物过期且禁止输出",
+      "status": "pass",
+      "steps": [
+        "状态机驱动"
+      ],
+      "evidence": [
+        "artifact.status=stale；canOutput=false"
+      ]
+    },
+    {
+      "id": "W30",
+      "title": "渲染竞争、清空与内容身份",
+      "status": "pass",
+      "steps": [
+        "10 次连续生成按逆序完成；同数量内容变化的 hash；清空与失败"
+      ],
+      "evidence": [
+        "② 同数量（2 项）下：改正文 hash 变化=true；改题型=true；改释义=true",
+        "③ 清空后 artifact=null、busy=false、canOutput=false",
+        "④ 字体失败后 artifact=null、lastError=FONT_UNAVAILABLE（不输出空白卷）",
+        "① 连续 10 次生成、按逆序完成（最早的最后返回）：只有第 10 次被采纳并发布，第 1—9 次全部丢弃",
+        "   实际发布次数=1（第 9 次），最终 snapshotHash=round-9"
+      ]
+    },
+    {
+      "id": "W30a",
+      "title": "纯版式变化不新建操作身份",
+      "status": "pass",
+      "steps": [
+        "状态机驱动，检查 operationId"
+      ],
+      "evidence": [
+        "首次 operationId=1；改版式后重新生成 operationId=1"
+      ]
+    },
+    {
+      "id": "W31",
+      "title": "v2 草稿保存与恢复",
+      "status": "pass",
+      "steps": [
+        "按契约五条判据逐项验证"
+      ],
+      "evidence": [
+        "键名=yuyutian-toolbox:draft:v2:chinese；保存 schemaVersion=2",
+        "恢复 rawText=\"春天 花朵\"，处理配置一致",
+        "草稿中不含 images / objectUrls / worker 字段",
+        "配额失败返回 ok=false（未谎称已保存）",
+        "清除后恢复状态为 none（记录确实被删除）"
+      ]
+    },
+    {
+      "id": "W32",
+      "title": "v1 只读有限迁移",
+      "status": "pass",
+      "steps": [
+        "按契约五条判据逐项验证"
+      ],
+      "evidence": [
+        "① 有效 v1 迁移成功，且 v1 键字节前后一致（只读）",
+        "② 保留旧题型 chinese-dictation、顺序 textbook、重复 2 次",
+        "③ 有 selectedIds 时 requiresOnlineSelection=true",
+        "④ 重建等价文本\"山水\"，提示 draftMigratedFromV1，标记 migratedFromV1",
+        "⑤ 坏 JSON 与不支持版本均判 invalid，且其它 localStorage 键未被清理"
+      ]
+    },
+    {
+      "id": "W33",
+      "title": "解析错误与重新匹配",
+      "status": "pass",
+      "steps": [
+        "错误定位、无效输入不得借旧预览输出、删词后不串位"
+      ],
+      "evidence": [
+        "① 未闭合引号：blocked 且带原输入偏移；空输入解析为 0 项",
+        "② 无效输入保留原文，且旧产物不可输出",
+        "③ 删中间词前：春天/花朵/山水（均已确认读音）",
+        "④ 删中间词后：春天/山水，剩余项读音仍与各自文字对应（未按旧下标串位）"
+      ]
+    },
+    {
+      "id": "W34",
+      "title": "冻结快照与答案隔离",
+      "status": "pass",
+      "steps": [
+        "深冻结不受外部修改影响；四模式学生投影不含答案；新卷替换旧卷"
+      ],
+      "evidence": [
+        "① 修改原条目后快照内容与 hash 均不变（hash=1d7fcd30c7cd…），且快照被冻结",
+        "② 四模式：学生投影 answerText 均为 undefined，答案投影均有值，题面一致（独立投影）",
+        "③ 产物替换后只保留当前卷，旧卷不可再取"
+      ]
+    },
+    {
+      "id": "W35",
+      "title": "单字紧凑密度",
+      "status": "pass",
+      "steps": [
+        "由 samples/geometry.json 与 samples/grid-geometry.json 的实测数据判定"
+      ],
+      "evidence": [
+        "汉字字帖（12mm 米字格，短读音单字夹具）首行 **10 题**（samples/geometry.json comparison.singleCharacters.newFirstRow=10，旧版为 4）",
+        "拼音字帖首行 **8 题**；每音节四线区 ≥16mm 宽（pinyinCellMinMm=16）、3 条 3mm 间距合计 9mm 高",
+        "按真实宽度 greedy packing，未硬设 4/5 列；题号宽 = max(3mm, 实测+0.8mm)：实测「1.」=3.444775mm、「10.」=5.2069mm",
+        "题间 2.5mm、行间 3mm（geometry.json params）；两模式行内宽度求和均不超 180mm 内容宽，无重叠"
+      ]
+    },
+    {
+      "id": "W36",
+      "title": "双字紧凑密度与真实宽度",
+      "status": "pass",
+      "steps": [
+        "由 samples/geometry.json 与 samples/grid-geometry.json 的实测数据判定"
+      ],
+      "evidence": [
+        "12mm 双字词首行 **6 题**（comparison.doubleCharacters.newFirstRow=6，旧版为 2）",
+        "10mm 格距首行 11 题（宽 176.4168mm）；14mm 首行 9 题（宽 177.003mm）——按真实测宽重排",
+        "长拼音按实测宽度扩项、可减少题数；未缩小手写区强凑题数",
+        "字号下限：numberFontPt=9、pinyinFontPt=10、promptFontPt=14，均 ≥9 pt"
+      ]
+    },
+    {
+      "id": "W37",
+      "title": "米字格与四线几何",
+      "status": "pass",
+      "steps": [
+        "由 samples/geometry.json 与 samples/grid-geometry.json 的实测数据判定"
+      ],
+      "evidence": [
+        "米字格：hasDiagonals=true，对角线 24 段、两个方向各 12 段且 balanced=true，另有横线 25、竖线 36 → 外框+横竖+两条虚线对角线（非旧田字格）",
+        "四线三格：lineClusters 显示 lines=4，相邻间距 8.5/8.51/8.5 pt = 2.999/3.002mm（目标 3mm，误差 0.0039 pt）",
+        "格宽反推：configuredMm=12 → sampleImpliedMm=[12]，maxErrorPt=**0**（10/12/14mm 三档均为 0 pt）",
+        "线色 rgb(0.35,0.35,0.4) ≈ 灰 90/255，对比度 6.87:1，黑白输出可辨"
+      ]
+    },
+    {
+      "id": "W38a",
+      "title": "A4 页面几何与内容区不越界",
+      "status": "pass",
+      "steps": [
+        "读取已生成的真实 PDF 并重新测量页面尺寸"
+      ],
+      "evidence": [
+        "三份站点真实入口产出的 PDF：最大几何误差 0 pt"
+      ]
+    },
+    {
+      "id": "W38b",
+      "title": "预览缩放不变纸面",
+      "status": "pass",
+      "steps": [
+        "真实浏览器：切换缩放前后比对画布与 CSS 尺寸"
+      ],
+      "evidence": [
+        "适应窗口:  画布 953×1348 px，CSS 显示 514×727 px",
+        "实际大小:  画布 953×1348 px（未变），CSS 显示 794×1123 px",
+        "切回适应:  画布 953×1348 px（未变），CSS 显示 514×727 px",
+        "794 px ≈ 210 mm（96dpi），即「实际大小」为物理尺寸",
+        "画布分辨率三种状态下完全相同 → 缩放只改变显示尺寸，不重绘纸面，符合契约「预览缩放不变纸面」"
+      ]
+    },
+    {
+      "id": "W38c",
+      "title": "分页不变量：题号连续、题面与书写区不跨页拆散",
+      "status": "pass",
+      "steps": [
+        "真实排版引擎跑 220 题，逐页取题号做机器检查"
+      ],
+      "evidence": [
+        "220 题 → 3 页；每页题号 1—90 / 91—170 / 171—220",
+        "题号连续、无缺失、无重复",
+        "题面及其完整书写区跨页拆散次数：0",
+        "由 npm run layout:density 的「W38 分页不变量」小节输出（真实字体测量）"
+      ]
+    },
+    {
+      "id": "W38d",
+      "title": "超单页不可布局项明确阻断、不截断",
+      "status": "pass",
+      "steps": [
+        "真实排版引擎跑超宽题项，检查 blocked 与 notices"
+      ],
+      "evidence": [
+        "题面读音 160 字符 / 899.2 pt，远宽于 180 mm 内容区",
+        "引擎判定: blocked=true，notices=[\"WORKSHEET_LAYOUT_OVERFLOW\"]",
+        "即：明确阻断并给出定位信息，而不是截断内容或让它溢出页面",
+        "由 npm run layout:density 的「W38 超长题项」小节输出"
+      ]
+    },
+    {
+      "id": "W38e",
+      "title": "四模式生成与 500 题边界",
+      "status": "pass",
+      "steps": [
+        "站点真实入口生成四种模式 PDF；另测组合上限"
+      ],
+      "evidence": [
+        "四种模式均产出 595.2756×841.8898 pt（A4 纵向），几何误差 0 pt：",
+        "  chinese-dictation 学生卷/答案卷、chinese-pinyin 学生卷、english-dictation 学生卷、english-meaning 学生卷",
+        "组合上限：200 项 ×2 = 400 题通过；200 项 ×3 = 600 题阻断；201 项阻断",
+        "学生卷 answerText 必须为空（答案隔离），答案卷必须带答案——四模式 × 学生/答案 全部断言"
+      ]
+    },
+    {
+      "id": "W39a",
+      "title": "打印预览不自动打印且提供导出",
+      "status": "pass",
+      "steps": [
+        "用假窗口驱动打印模块"
+      ],
+      "evidence": [
+        "见 tests/worksheet-print.test.ts：打开预览 print()/focus() 调用次数为 0；工具栏含导出、打印、关闭；剪贴..."
+      ]
+    },
+    {
+      "id": "W39b",
+      "title": "预览、下载与打印使用同一 artifact",
+      "status": "pass",
+      "steps": [
+        "真实浏览器：点按钮下载并解析文件；再取打印窗口下载入口的 blob 做 hash 比对"
+      ],
+      "evidence": [
+        "经「导出 PDF」按钮真实落盘：chinese-dictation-student.pdf，61669 字节，签名 %PDF-",
+        "  SHA-256 = 1f19fc31f5e0f49f45341dcfa0c6f516be053ab6497d0845b9a9037d10170880",
+        "打印预览窗口的下载入口 blob：",
+        "  SHA-256 = 1f19fc31f5e0f49f45341dcfa0c6f516be053ab6497d0845b9a9037d10170880",
+        "两者 hash 完全一致 → 预览、下载与打印确实是同一份 artifact，不是各自重新生成",
+        "文件由浏览器真实下载得到并独立解析（不是把临时函数文件当成按钮下载证据）"
+      ]
+    },
+    {
+      "id": "W40",
+      "title": "移动端下载与系统打印",
+      "status": "blocked",
+      "reason": "需要真实手机（B4）。",
+      "unblock": "具备 iPhone/Android 实机后执行。"
+    },
+    {
+      "id": "W41",
+      "title": "统计：一次生成、不重复计数、mode 取自成功快照",
+      "status": "pass",
+      "steps": [
+        "真实浏览器按四种情形取样本机事件"
+      ],
+      "evidence": [
+        "① 首次生成        → [\"worksheet.chinese-dictation\"]",
+        "② 同配置重新生成  → 仍为 1 条（沿用 operationId，不多算成功）",
+        "③ 实际改内容后生成 → 2 条（内容真变了才用新 operationId）",
+        "④ 切题型到拼音字帖 → 3 条，末条为 \"worksheet.chinese-pinyin\"",
+        "即事件 mode 来自**成功快照**，不把旧结果算到新题型上；全程只用既有 toolId，无 mixed ID"
+      ]
+    },
+    {
+      "id": "W42",
+      "title": "全尺寸交互与可访问性",
+      "status": "blocked",
+      "reason": "契约六条判据中五条已实测：①无横向溢出（responsive-report.json：7 个宽度 + 横屏/200% 等效均 false）②横屏与缩放仅纸张容器可平移 ③触控框 ≥44×44 px（320px 下 19/19 达标）④焦点顺序符合视觉步骤 ⑤暗色控件对比度 6.36/15.84/12.74 均达标。**唯一未测**：软键盘是否遮挡当前输入/错误/主要操作——需真实移动设备。"
+    },
+    {
+      "id": "W43",
+      "title": "已发布教材回归和缺口展示",
+      "status": "pass",
+      "steps": [
+        "用 content/ 的 5 个已发布版本各生成两种模式"
+      ],
+      "evidence": [
+        "cn-ty-1-1-pep-2024  chinese-dictation 2 页 / chinese-pinyin 3 页",
+        "cn-ty-2-1-pep-2017  chinese-dictation 3 页 / chinese-pinyin 3 页",
+        "cn-ty-3-1-pep-2024  chinese-dictation 3 页 / chinese-pinyin 3 页",
+        "cn-ty-4-1-pep-2024  chinese-dictation 3 页 / chinese-pinyin 3 页",
+        "en-yl-3-1-yilin-2024 english-dictation 4 页 / english-meaning 4 页",
+        "共 5 个版本 × 2 模式 = 10 条记录（契约要求 ≥10），全部为 A4 纵向且几何误差 0 pt",
+        "由 npm run verify:curriculum-regression 生成 samples/curriculum-regression.json"
+      ]
+    },
+    {
+      "id": "W43b",
+      "title": "教材请求失败可恢复且原文保留",
+      "status": "pass",
+      "steps": [
+        "真实浏览器：阻断教材请求后重试"
+      ],
+      "evidence": [
+        "前置：原文为「春天 花朵 山水」",
+        "① 用 CDP 阻断 */public/v1/textbooks* 后点「追加教材内容」：",
+        "   原文保留=true（未被清空），提示「教材内容加载失败。已保留当前原文，可重试。」，未出现范围区",
+        "② 解除阻断后重试：",
+        "   原文仍保留=true，范围区出现（「共 318 条可选，已选 8 项范围」）",
+        "即契约 W43④「失败可恢复且原文保留」成立"
+      ]
+    },
+    {
+      "id": "W43c",
+      "title": "20 册槽位的缺失/partial 如实展示",
+      "status": "pass",
+      "steps": [
+        "按后端同一规则推导槽位状态"
+      ],
+      "evidence": [
+        "按 `CurriculumCatalog#coverageOf` 的规则（subject/grade/semester 匹配已发布版本）实时推导：",
+        "  槽位 20 个 → partial 5 个、missing 15 个",
+        "  5 个 partial 对应实际已发布的 5 个版本，其余 15 个如实标为缺失（不虚称全册、不回退样例）",
+        "由 npm run verify:slot-gaps 生成 samples/slot-gaps.json",
+        "注意：requirements.json 里的 status 字段从不更新，**后端不使用它**（实时推导），因此不是缺陷"
+      ]
+    },
+    {
+      "id": "W44",
+      "title": "旧功能回归与交接完成",
+      "status": "pass",
+      "steps": [
+        "全部现有命令 + 八个 PDF 工具核心路径 + 44 项状态齐备"
+      ],
+      "evidence": [
+        "① 类型检查、单元与集成测试（250）、教材校验、生产构建、本地 E2E 全部通过，无新增编译/运行错误",
+        "② 首页与左导航正常；**八个 PDF 工具核心路径**逐个回归通过（images/text/markdown/merge/split/crop/render/extract）",
+        "   每个工具都走「加载示例 → 启动处理 → 产出结果区」，E2E 检查数 43 → 44",
+        "③ 旧链接（/copybook、/words、/pdf/*）仍可直达；旧 v1 草稿只读迁移已由 W32 覆盖（含 mode 保留）",
+        "   真机「手机保存」属 W18/W42 的实机范围，本项不冒充",
+        "④ 44 项均有实测状态（not_run = 0），失败与阻塞独立列出：W13a(CER) + W18/W40/W42",
+        "⑤ 工作流改造结果与既有全站教材缺口分开陈述：已发布 5 版 partial / 20 槽位缺 15，不作为本次改造的失败"
+      ]
+    }
+  ]
+}

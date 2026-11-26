@@ -1,0 +1,19 @@
+{
+  "samples": 10,
+  "requestedCount": 10,
+  "humanReview": "pending",
+  "succeeded": 10,
+  "edgesNeutral": true,
+  "maxContentCast": 1.0,
+  "objectiveVerdict": "accept",
+  "subjects": [
+    "A-product",
+    "B-portrait",
+    "C-landscape"
+  ],
+  "seeds": [
+    42,
+    932
+  ],
+  "output": "/opt/yuyutian/mytools/runtime/video-production-20260919-v4/stability-20260920"
+}

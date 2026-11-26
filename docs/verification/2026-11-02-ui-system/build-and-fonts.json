@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-02",
+  "build": "passed",
+  "signature": "passed",
+  "hap": "app/entry/build/default/outputs/default/entry-default-signed.hap",
+  "bytes": 51287041,
+  "sha256": "f7db1ba31cb040efa199e59694cb0e8598a562f0a56426d9f25b1c21dc87f600",
+  "fonts": [
+    {
+      "file": "NotoSansSC-Regular.ttf",
+      "weight": 400,
+      "bytes": 10595876,
+      "packedBytes": 10595876,
+      "sha256": "7d15cb9a953578ca24f129b0cd353211d45d811802237b1919da96a2af9fa2c4",
+      "unicodeMappings": 30890,
+      "static": true,
+      "matchesSignedHap": true
+    },
+    {
+      "file": "NotoSansSC-Medium.ttf",
+      "weight": 500,
+      "bytes": 10589080,
+      "packedBytes": 10589080,
+      "sha256": "f0fc0da42f35d46aedb9a6d1c01be42e6bac1eb14ed36ee95c59a16b24772de1",
+      "unicodeMappings": 30890,
+      "static": true,
+      "matchesSignedHap": true
+    },
+    {
+      "file": "NotoSansSC-Semibold.ttf",
+      "weight": 600,
+      "bytes": 10585568,
+      "packedBytes": 10585568,
+      "sha256": "cac20225b86420867406ff6e2f2950eaa905819c79676f60d450ce84adfa26ab",
+      "unicodeMappings": 30890,
+      "static": true,
+      "matchesSignedHap": true
+    }
+  ],
+  "deviceInstall": "passed",
+  "visualVerification": "representative-pages-and-final-detail-passed",
+  "warning": "Existing PasteButton-authorized clipboard API permission diagnostic remains; no permission added.",
+  "verifiedAt": "2026-11-02T14:21:59.712336+08:00",
+  "supersededBy": "../2026-11-02-media-layout/build.json",
+  "artifactStatus": "historical-record-build-output-now-contains-later-refinement"
+}

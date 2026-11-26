@@ -1,0 +1,37 @@
+{
+  "environment": "HarmonyOS emulator",
+  "instance": "Pura 90",
+  "osVersion": "HarmonyOS 6.1.1",
+  "apiVersion": 24,
+  "architecture": "arm64",
+  "screen": {
+    "width": 1320,
+    "height": 2856,
+    "density": 560
+  },
+  "dataReset": false,
+  "hapSha256": "3b30970f292d4fc41029fb35f5175a7efcb4a924d4a0a9e710b89b809200f2e5",
+  "installation": "passed",
+  "coldStart": "passed",
+  "processObserved": "passed",
+  "serviceHealthUi": "available",
+  "serviceHealthLatencyMs": 536,
+  "currentStep": "superseded by emulator-round2: v5 installed and direct settings opened with resource cache",
+  "myToolsSessionRestored": true,
+  "credentialsEnteredByAgent": false,
+  "signedInDshChecks": "timeout recovery UI passed; successful connection and page capabilities pending",
+  "dshRuntimeObservations": {
+    "entryEpoch": 1793676658,
+    "loadingAtSeconds": 57,
+    "timeoutUiObservedAtSeconds": 63,
+    "retryButtonVisible": true,
+    "loadingIndicatorStopped": true,
+    "webAccessibilityDocument": "about:blank",
+    "webAccessibilityDocumentConclusive": false,
+    "concurrentEmulatorNavigationAndInstallObserved": true,
+    "laterLayoutCapture": "uitest reply timeout"
+  },
+  "physicalDeviceValidation": false,
+  "acceptanceReceipt": "device-acceptance-20261103T033004Z.json",
+  "latestVerification": "../emulator-round2/README.md"
+}

@@ -1,0 +1,85 @@
+{
+  "releaseId": "autofill-20261004-180000",
+  "files": [
+    {
+      "path": "assets/CheckmarkCircleOutline-D7Vo1bpi.js",
+      "bytes": 618,
+      "sha256": "67bccef6f242514b1c1d41a97832747541b8f8b82e01f7cb7dea84d0c3d3e83b"
+    },
+    {
+      "path": "assets/HomeView-D1imVCf9.js",
+      "bytes": 615997,
+      "sha256": "132ce79b0098fb69329867c27b07e165bc324c03c42b636f46fd1173b392db0f"
+    },
+    {
+      "path": "assets/PdfView-DXoOw790.js",
+      "bytes": 136956,
+      "sha256": "a36e80dfb9082198f44a023303621cb3c3d7eaf25d5753efdd618f846d4d8413"
+    },
+    {
+      "path": "assets/RadioGroup-1h2NyPVF.js",
+      "bytes": 11510,
+      "sha256": "af382373cc8f3e9d5e008d993ec52f5d365785af8986a342ac1c2fa828d3b1be"
+    },
+    {
+      "path": "assets/WorksheetV2View-DqYCwTUD.css",
+      "bytes": 13837,
+      "sha256": "a016f8736517b584bfd0f3d468d8e520d96e37976627cf90aa1ea1152190fc98"
+    },
+    {
+      "path": "assets/WorksheetV2View-GEbW-L6J.js",
+      "bytes": 522320,
+      "sha256": "6963de925c2122eeb5d1eefef33205140755d50dbaae8823c5f1029cba42ad54"
+    },
+    {
+      "path": "assets/_plugin-vue_export-helper-Cyu1o52f.js",
+      "bytes": 57344,
+      "sha256": "1ef231430d9487da1ae489011adf151ffeb73858709a651128507aff7f6c5d04"
+    },
+    {
+      "path": "assets/analytics-D9ETpPar.js",
+      "bytes": 304857,
+      "sha256": "89065f56a211f6c253d212d430b314c39e8e5390aef7b5b80bdc12e275372bab"
+    },
+    {
+      "path": "assets/es-DEQIsDj5.js",
+      "bytes": 387504,
+      "sha256": "1a1d3f6c3be758ce458f816007c9a1733bfe1dbf87a960ce12d99d3603508ba3"
+    },
+    {
+      "path": "assets/icons-CQxapAW8.js",
+      "bytes": 41942,
+      "sha256": "1ce59a54a5b7948ecf7bd9787e3e7ebfb4a68d0a73e1440eaa7846c79e98c83b"
+    },
+    {
+      "path": "assets/index-frqJkKJ0.js",
+      "bytes": 159339,
+      "sha256": "a9a4478ec6c395f56f62b7fbfd8b7288b860073b0a2412d711422fdf0b4340f5"
+    },
+    {
+      "path": "assets/light-BrTSWW_b.js",
+      "bytes": 1398,
+      "sha256": "af4a88f8d613c9d1450c2eea3a6e0f6cf2112784496fa57041474d8253b8c41f"
+    },
+    {
+      "path": "assets/light-DVBz5SAL.js",
+      "bytes": 343,
+      "sha256": "b28f7f71621335afcfaa96eb883fe3cfd0d434c8eab4012a857aa77681678e0c"
+    },
+    {
+      "path": "assets/light-jpn8Bi1s.js",
+      "bytes": 1620,
+      "sha256": "11d4b25a21da6318c0837f0b2c9276220c5e6e33cc78c7fd51bbe8f03a2dc4a8"
+    },
+    {
+      "path": "assets/tools-BaNJJhOD.js",
+      "bytes": 37932,
+      "sha256": "b5c990b2ac03497e1bdc0eee0640ad08f032373c2d28c091760ed0976ab190b0"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1199,
+      "sha256": "6dc13243d6894dcfa3a9bd6c0234e86c56b81dc2b61c20a504c549a1239c7d4a"
+    }
+  ]
+}

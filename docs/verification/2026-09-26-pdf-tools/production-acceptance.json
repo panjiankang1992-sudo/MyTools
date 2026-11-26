@@ -1,0 +1,80 @@
+{
+  "passed": true,
+  "fixture": "synthetic two-page PDF; no user document uploaded",
+  "workerVersion": "1.0.1",
+  "operations": [
+    {
+      "operation": "PDF_PAGE_CUT",
+      "jobId": "e9e01a31-bd47-4f83-90a2-b942a8412196",
+      "pageCount": 4
+    },
+    {
+      "operation": "PDF_SPLIT",
+      "jobId": "735028b1-5f0c-4a23-8ba0-8bff2381b87b",
+      "pageCount": 2
+    },
+    {
+      "operation": "PDF_MERGE",
+      "jobId": "ce929c21-d259-4b04-9b5f-fa9c04b97dc5",
+      "pageCount": 4
+    },
+    {
+      "operation": "PDF_TO_IMAGES",
+      "jobId": "086a265c-4968-4cdf-88ae-ec153333a0f8",
+      "pageCount": 2
+    },
+    {
+      "operation": "IMAGES_TO_PDF",
+      "jobId": "8c2ad422-e1a0-4191-8542-c3246af4de80",
+      "pageCount": 1
+    },
+    {
+      "operation": "TEXT_TO_PDF",
+      "jobId": "65263f68-e492-4488-a73b-911401c8845b",
+      "pageCount": 1
+    },
+    {
+      "operation": "PDF_TO_TEXT",
+      "jobId": "9bbce64f-e062-4692-a709-f5a1f8983fe6",
+      "pageCount": 1
+    },
+    {
+      "operation": "MARKDOWN_TO_PDF",
+      "jobId": "915c768b-3469-43b9-a699-e44fac082800",
+      "pageCount": 1
+    }
+  ],
+  "checks": [
+    "real MySQL Scheduler Executor Storage Asset",
+    "duplicate chunk",
+    "idempotency",
+    "anonymous 401",
+    "foreign owner 404",
+    "SHA256 download",
+    "Chinese font extraction",
+    "managed Markdown attachment",
+    "cancel"
+  ],
+  "capabilities": {
+    "schemaVersion": "1.0",
+    "maxInputBytes": 104857600,
+    "maxInputs": 100,
+    "maxInputPages": 500,
+    "maxOutputPages": 1000,
+    "uploadChunkBytes": 1048576,
+    "operations": [
+      "IMAGES_TO_PDF",
+      "MARKDOWN_TO_PDF",
+      "PDF_MERGE",
+      "PDF_PAGE_CUT",
+      "PDF_SPLIT",
+      "PDF_TO_IMAGES",
+      "PDF_TO_TEXT",
+      "TEXT_TO_PDF"
+    ]
+  },
+  "inputPages": 2,
+  "outputPages": 4,
+  "sha256": "768813e1980ca1ae7dd378f8ee9cbe6c4438e0a30d7a293b7a0f096230341c23",
+  "originalInputId": "5b50aa30-fb47-4326-a094-e9634844dce0"
+}

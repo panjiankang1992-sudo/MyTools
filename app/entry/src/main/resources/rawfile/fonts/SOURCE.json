@@ -1,0 +1,29 @@
+{
+  "family": "Noto Sans SC",
+  "sourceSha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
+  "license": "OFL-1.1",
+  "build": "fontTools.varLib.instancer, fixed wght axis, full SC glyph coverage",
+  "fonts": [
+    {
+      "file": "NotoSansSC-Regular.ttf",
+      "weight": 400,
+      "bytes": 10595876,
+      "sha256": "7d15cb9a953578ca24f129b0cd353211d45d811802237b1919da96a2af9fa2c4"
+    },
+    {
+      "file": "NotoSansSC-Medium.ttf",
+      "weight": 500,
+      "bytes": 10589080,
+      "sha256": "f0fc0da42f35d46aedb9a6d1c01be42e6bac1eb14ed36ee95c59a16b24772de1"
+    },
+    {
+      "file": "NotoSansSC-Semibold.ttf",
+      "weight": 600,
+      "bytes": 10585568,
+      "sha256": "cac20225b86420867406ff6e2f2950eaa905819c79676f60d450ce84adfa26ab"
+    }
+  ],
+  "source": "https://github.com/google/fonts/tree/main/ofl/notosanssc",
+  "fontToolsVersion": "4.68.0",
+  "buildDate": "2026-11-02"
+}

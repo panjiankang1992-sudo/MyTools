@@ -1,0 +1,17 @@
+[
+  {
+    "mediaId": "2d017acd-faba-4142-b08e-b8d30fe1f9e9",
+    "verifiedSourceDigest": true,
+    "error": "moov atom not found"
+  },
+  {
+    "mediaId": "8bbe0d4c-4283-4b15-a57d-6c8c1db1afb2",
+    "verifiedSourceDigest": true,
+    "error": "[mov,mp4,m4a,3gp,3g2,mj2 @ 0x56c638712f80] moov atom not found"
+  },
+  {
+    "mediaId": "9cd34c11-70e2-498a-a8c7-419e4e54d260",
+    "verifiedSourceDigest": true,
+    "error": "[vf#0:0 @ 0x5a5b0efc42c0] Cannot determine format of input 0:0 after EOF"
+  }
+]

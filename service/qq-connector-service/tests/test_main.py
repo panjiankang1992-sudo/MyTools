@@ -55,8 +55,9 @@ def test_main_constructs_and_supervises_inbound_worker(monkeypatch, tmp_path):
             created["session_closed"] = True
 
     class FakeConnector:
-        def __init__(self, config, session, login_wal, inbound_wal):
+        def __init__(self, config, session, login_wal, inbound_wal, reference_store):
             created["connector_dependencies"] = (login_wal, inbound_wal)
+            created["reference_store"] = reference_store
             self._inbound_wakeup = asyncio.Event()
             self._login_wakeup = asyncio.Event()
             created["connector"] = self
@@ -111,6 +112,7 @@ def test_main_constructs_and_supervises_inbound_worker(monkeypatch, tmp_path):
     monkeypatch.setattr(connector_main, "LoginCommandWal", FakeLoginWal)
     monkeypatch.setattr(connector_main, "InboundEventWal", FakeInboundWal)
     monkeypatch.setattr(connector_main, "OutboundTextWal", FakeOutboundWal)
+    monkeypatch.setattr(connector_main, "MessageReferenceStore", lambda path: path)
     monkeypatch.setattr(connector_main, "QQConnector", FakeConnector)
     monkeypatch.setattr(connector_main.aiohttp, "ClientSession",
                         lambda **kwargs: FakeSession())
@@ -127,6 +129,7 @@ def test_main_constructs_and_supervises_inbound_worker(monkeypatch, tmp_path):
     assert created["gateway_started"] is True
     assert created["login_worker_started"] is True
     assert created["inbound_worker_started"] is True
+    assert created["reference_store"] == CONFIG.inbound_wal_path + ".references.sqlite3"
     assert created["inbound_settings"]["max_pending_records"] \
         == CONFIG.inbound_max_pending_records
     assert created["login_settings"] == {

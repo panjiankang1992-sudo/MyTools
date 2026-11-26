@@ -140,8 +140,9 @@ class ScriptProcessRunnerTest {
     void shouldSegmentLargeOutputAndWriteDigestIndex() throws Exception {
         ScriptProcessRunner runner = new ScriptProcessRunner();
         int outputBytes = ScriptProcessRunner.SEGMENT_BYTES + 17;
+        // 非 Linux 构建机可指定已安装的解释器，仍实际执行分段输出而非跳过验证。
         ScriptExecutionRequest request = new ScriptExecutionRequest(
-                List.of("/usr/bin/python3", "-c", "import sys;sys.stdout.write('x'*" + outputBytes + ")"),
+                List.of(System.getProperty("mytools.test.pythonExecutable", "/usr/bin/python3"), "-c", "import sys;sys.stdout.write('x'*" + outputBytes + ")"),
                 workDirectory, Map.of("PATH", "/usr/bin:/bin"), Duration.ofSeconds(10));
 
         ScriptExecutionResult result = runner.run(request);

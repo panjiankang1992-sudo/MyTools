@@ -1,0 +1,126 @@
+{
+  "result": "inconclusive-interrupted-by-unexpected-navigation",
+  "finalObservedPage": "book-details",
+  "samples": [
+    {
+      "seconds": 2.9,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 5.8,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 8.8,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 12.6,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 15.5,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 18.7,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 21.7,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 24.8,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 27.8,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 30.9,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 33.9,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 36.9,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 39.9,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 43.0,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 46.0,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 49.1,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 52.1,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 55.1,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 58.1,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    },
+    {
+      "seconds": 61.2,
+      "ready": false,
+      "loading": false,
+      "retry": false
+    }
+  ]
+}

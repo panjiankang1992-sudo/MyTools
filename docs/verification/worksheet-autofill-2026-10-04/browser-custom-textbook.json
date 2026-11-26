@@ -1,0 +1,52 @@
+{
+  "releaseId": "autofill-20261004-180000",
+  "sourceChineseLocal": {
+    "withoutNext": true,
+    "inputs": [
+      "春天",
+      "校园"
+    ],
+    "generated": [
+      "chūn tiān",
+      "xiào yuán"
+    ],
+    "changed": "学校",
+    "regenerated": "xué xiào",
+    "screenshot": "output/playwright/autofill-chinese-source.png"
+  },
+  "sourceEnglishProduction": {
+    "withoutNext": true,
+    "pairs": [
+      [
+        "星期一",
+        "Monday"
+      ],
+      [
+        "星期二",
+        "Tuesday"
+      ],
+      [
+        "放学后",
+        "after school"
+      ]
+    ],
+    "screenshot": "output/playwright/autofill-production-custom.png"
+  },
+  "manualProtection": {
+    "changedSource": "星期三",
+    "regenerated": "Wednesday",
+    "manualPair": [
+      "周三",
+      "Wed."
+    ],
+    "retainedInConfirmation": true
+  },
+  "textbookProduction": {
+    "word": "天",
+    "initialPinyin": "tiān",
+    "action": "Cleared pinyin then blurred in confirmation; no Complete button",
+    "regeneratedPinyin": "tiān",
+    "screenshot": "output/playwright/autofill-production-textbook.png"
+  },
+  "followUp": "Additional review found stale autofill provenance across round-trip, KeepAlive cancellation gap, and upstream walk result containing pinyin. Follow-up release recorded separately."
+}

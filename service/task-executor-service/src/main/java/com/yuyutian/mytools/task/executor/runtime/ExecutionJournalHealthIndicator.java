@@ -55,6 +55,7 @@ public class ExecutionJournalHealthIndicator implements HealthIndicator {
         health.withDetail("pendingReports", status.pendingReports());
         health.withDetail("acknowledgedReports", status.acknowledgedReports());
         health.withDetail("diagnosticReports", status.diagnosticReports());
+        health.withDetail("fencedReports", status.fencedReports());
         health.withDetail("diagnosticErrorCodes", status.diagnosticErrorCodes());
         if (status.earliestRetryAt() != null) {
             health.withDetail("earliestRetryAt", status.earliestRetryAt().toString());

@@ -169,6 +169,7 @@ const routeMap: RouteMap = {
   "ai-tools": "/ai-tools",
   "ai-tools_token": "/ai-tools/token",
   "home": "/home",
+  "news": "/news",
   "iframe-page": "/iframe-page/:url",
   "localfile": "/localfile",
   "localfile_ebook": "/localfile/ebook",

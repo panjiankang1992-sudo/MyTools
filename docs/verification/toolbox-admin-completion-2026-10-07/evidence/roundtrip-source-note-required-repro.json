@@ -1,0 +1,25 @@
+{
+  "editionId": "cn-ty-2-1-pep-2017",
+  "validateStatus": 200,
+  "issues": [
+    {
+      "severity": "BLOCKING",
+      "code": "SOURCE_REQUIRED",
+      "fieldPath": "sourceNote",
+      "rowId": null,
+      "unitId": null,
+      "lessonId": null,
+      "detail": "发布必须填写来源说明"
+    }
+  ],
+  "publishStatus": 422,
+  "publishBody": {
+    "code": "TOOLBOX_ADMIN_005",
+    "messageKey": "admin.publish.invalid",
+    "details": {
+      "issues": 1
+    },
+    "requestId": "8cd5474d-5969-41f2-bf22-cd46fba43ca9"
+  },
+  "sourceNoteBefore": "来源：nmg-smartedu-cn-2-first（迁移自内容包 2026-10-04.1）"
+}

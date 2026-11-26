@@ -1,0 +1,168 @@
+{
+  "batch": 12,
+  "date": "2026-10-18",
+  "goalStatus": "ACTIVE",
+  "scope": "release foundation only; N24 remains DOING",
+  "javaTests": {
+    "mytools-gateway": [
+      {
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.yuyutian.mytools.gateway.controller.NewsGatewayControllerTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.yuyutian.mytools.gateway.config.NewsGatewayConfigurationTest"
+      }
+    ],
+    "task-executor-service": [
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.yuyutian.mytools.task.executor.client.NewsPackageConfigurationTest"
+      },
+      {
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.yuyutian.mytools.task.executor.client.SchedulerNodeClientTest"
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.yuyutian.mytools.task.executor.runtime.ScriptReleaseVerifierTest"
+      },
+      {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 2,
+        "class": "com.yuyutian.mytools.task.executor.runtime.ScriptProcessRunnerTest"
+      }
+    ],
+    "task-scheduler-service": [
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.yuyutian.mytools.task.scheduler.service.ExecutionTopologyPolicyTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.yuyutian.mytools.task.scheduler.controller.NewsTaskMigrationTest"
+      },
+      {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.yuyutian.mytools.task.scheduler.controller.NewsExecutionAuthorizationControllerTest"
+      },
+      {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.yuyutian.mytools.task.scheduler.controller.MessageOutboundTaskMigrationTest"
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.yuyutian.mytools.task.scheduler.controller.MessageOutboundExecutionControllerTest"
+      }
+    ]
+  },
+  "pythonTests": {
+    "environment": 5,
+    "systemd": 13,
+    "schemas": 5,
+    "installer": 8,
+    "releaseAssembler": 3,
+    "packageAssembler": 4
+  },
+  "executorPackageValidation": {
+    "contentSha256": "e984331d9f2cdc7b2d361d06b99766563fdb62ae1d004aed231959b3cfe8c271",
+    "output": null,
+    "packageCount": 153,
+    "ready": true
+  },
+  "localJars": {
+    "news-digest-service": {
+      "jar": "service/news-digest-service/target/news-digest-service-0.1.0-SNAPSHOT.jar",
+      "sha256": "f98c4ab29ca80df127de83f7c35b40b89b421ce8c94b50225cc9a6729e32c5ba",
+      "checks": {
+        "applicationConfiguration": true,
+        "evidenceService": true,
+        "retentionMigration": true
+      }
+    },
+    "messaging-service": {
+      "jar": "service/messaging-service/target/messaging-service-0.1.0-SNAPSHOT.jar",
+      "sha256": "df67adb691ae7e5a3464124a6a6a070029d8c8935d11e8fccb435d8a3eba76ab",
+      "checks": {
+        "applicationConfiguration": true,
+        "retentionMigration": true
+      }
+    },
+    "mytools-gateway": {
+      "jar": "service/mytools-gateway/target/mytools-gateway-0.1.0-SNAPSHOT.jar",
+      "sha256": "67da755419ee74aa65369d4ed15d2760ae4a87621d5538ac7fad2b69f84e9cc7",
+      "checks": {
+        "applicationConfiguration": true,
+        "newsEnvironmentMapped": true
+      }
+    },
+    "task-executor-service": {
+      "jar": "service/task-executor-service/target/task-executor-service-0.1.0-SNAPSHOT.jar",
+      "sha256": "cb7407db918edd566f3e0560fffc49aa95b6c86fe3a93c4daf1d5b2db72d8880",
+      "checks": {
+        "applicationConfiguration": true,
+        "newsClusterDeclared": true
+      }
+    },
+    "task-scheduler-service": {
+      "jar": "service/task-scheduler-service/target/task-scheduler-service-0.1.0-SNAPSHOT.jar",
+      "sha256": "d7ebd0d02103edbc5101c837c5c067c1c3147943a388e8ff7f46f1763282cf9d",
+      "checks": {
+        "applicationConfiguration": true,
+        "newsClusterAllowed": true
+      }
+    }
+  },
+  "sourceSha256": {
+    "service/deploy/services.json": "62bc9f98b22953224805762942f7f6b6e239824773268e9778b0f1d9419e1744",
+    "service/deploy/create_service_env.py": "af8eade4dfc559590622a78bc1934511402319e1806134861765c262191a1815",
+    "service/deploy/env.example": "80143b489f7ecb2e89a7d71eae427c442c20042b8fa1215cf88e9c0e792c1c92",
+    "service/deploy/install_release.py": "06ac6a316b329741c524cd9d419804f0cf9bda85728a32d7a547b036a627f2cc",
+    "service/deploy/assemble_release.py": "d786c2b52c069f49444d6e460345fa33318429f988da73351e7245b514536902",
+    "service/mytools-gateway/src/main/resources/application.yml": "48af65a13f004e57344b9d9816dea33c904d03f07207fec27e98210e3ffc6130",
+    "service/task-executor-service/src/main/resources/application.yml": "7d1641f9f237d2c05029759229b026db2047a7498983a0daa20781b8c71935e1",
+    "service/task-scheduler-service/src/main/resources/application.yml": "26f493b25b5cd3caf12f56d49e3ef57098beba55f7a64c3b926983e5088e6cb1",
+    "service/task-scheduler-service/src/main/java/com/yuyutian/mytools/task/scheduler/service/ExecutionTopologyService.java": "d9a3cc370560e60b927d42b5a9e714193e8de4008a06fda7fcaa77ed35142d2a"
+  },
+  "notAccepted": [
+    "complete release assembly",
+    "existing environment incremental update",
+    "runtime activation preflight",
+    "real MySQL upgrade",
+    "Ubuntu installation",
+    "real channel send",
+    "seven-day source sampling"
+  ]
+}

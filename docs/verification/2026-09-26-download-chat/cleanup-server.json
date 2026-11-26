@@ -1,0 +1,204 @@
+{
+  "deleted": [
+    {
+      "path": "/opt/extend/resource/owner_806499868612455/other/download-1.bin",
+      "bytes": 559
+    },
+    {
+      "path": "/opt/extend/resource/owner_806499868612455/media/202609/20260926/download-chat-fixture.mp4",
+      "bytes": 6327
+    },
+    {
+      "path": "/opt/extend/resource/owner_806499868612455/media/202609/20260926/download-chat-fixture.png",
+      "bytes": 3263
+    },
+    {
+      "path": "/opt/extend/resource/owner_806499868612455/other/acceptance-512MiB.bin",
+      "bytes": 536870912
+    },
+    {
+      "path": "/opt/extend/resource/owner_806499868612455/ebook/acceptance-note.txt",
+      "bytes": 30
+    },
+    {
+      "path": "/opt/extend/resource/834df980-a100-4c17-b867-999ce1611b71/Sintel/poster.jpg",
+      "bytes": 46115
+    },
+    {
+      "path": "/opt/extend/resource/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.pt.srt",
+      "bytes": 1551
+    },
+    {
+      "path": "/opt/extend/resource/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.ru.srt",
+      "bytes": 2016
+    },
+    {
+      "path": "/opt/extend/resource/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.de.srt",
+      "bytes": 1652
+    },
+    {
+      "path": "/opt/extend/resource/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.en.srt",
+      "bytes": 1514
+    },
+    {
+      "path": "/opt/extend/resource/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.es.srt",
+      "bytes": 1554
+    },
+    {
+      "path": "/opt/extend/resource/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.fr.srt",
+      "bytes": 1618
+    },
+    {
+      "path": "/opt/extend/resource/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.it.srt",
+      "bytes": 1546
+    },
+    {
+      "path": "/opt/extend/resource/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.mp4",
+      "bytes": 129241752
+    },
+    {
+      "path": "/opt/extend/resource/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.nl.srt",
+      "bytes": 1537
+    },
+    {
+      "path": "/opt/extend/resource/834df980-a100-4c17-b867-999ce1611b71/Sintel/Sintel.pl.srt",
+      "bytes": 1536
+    },
+    {
+      "path": "/tmp/download-chat-fixture.mp4",
+      "bytes": 6327
+    },
+    {
+      "path": "/opt/extend/resource/app-download-inputs/806499868612455/3e4f8a77-9a86-4bab-a83f-d180ba25594f/source.bin",
+      "bytes": 6327
+    },
+    {
+      "path": "/opt/extend/resource/app-download-inputs/806499868612455/fda35370-32b6-4c9b-be5a-f04a517876ae/source.bin",
+      "bytes": 168
+    },
+    {
+      "path": "/opt/extend/resource/app-download-inputs/806499868612455/e44cc4ae-4c91-4348-8842-3e0f1ce83b79/source.bin",
+      "bytes": 6327
+    },
+    {
+      "path": "/opt/extend/resource/app-download-inputs/806499868612455/f5d2afc0-96a6-4964-962e-c9de9b7f427b/source.bin",
+      "bytes": 3263
+    },
+    {
+      "path": "/opt/extend/resource/app-download-inputs/806499868612455/818332bc-7c04-4102-905c-516b7c115736/source.bin",
+      "bytes": 536870912
+    }
+  ],
+  "absent": [
+    "/opt/yuyutian/mytools/runtime/download-chat/3e4f8a77-9a86-4bab-a83f-d180ba25594f.bin",
+    "/opt/yuyutian/mytools/runtime/download-chat/fda35370-32b6-4c9b-be5a-f04a517876ae.bin",
+    "/opt/extend/resource/app-download-inputs/806499868612455/498e72fc-ec41-4c35-9fac-0e6d6a5bdca7/source.bin",
+    "/opt/yuyutian/mytools/runtime/download-chat/498e72fc-ec41-4c35-9fac-0e6d6a5bdca7.bin",
+    "/opt/yuyutian/mytools/runtime/download-chat/e44cc4ae-4c91-4348-8842-3e0f1ce83b79.bin",
+    "/opt/yuyutian/mytools/runtime/download-chat/f5d2afc0-96a6-4964-962e-c9de9b7f427b.bin",
+    "/opt/yuyutian/mytools/runtime/download-chat/818332bc-7c04-4102-905c-516b7c115736.bin"
+  ],
+  "mismatch": [],
+  "workDirectories": [
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/11d8f900-6f5d-452f-b577-01019237b137",
+      "bytes": 21399
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/2bd168a1-90a0-4020-a4a7-3739eef835d5",
+      "bytes": 15356
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/3bc8719c-32ba-4e61-80e6-323cf4546cb9",
+      "bytes": 11727
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/3fd80bf9-4aef-42dc-a188-62e33ee5b7fa",
+      "bytes": 10743
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/521ffbe0-12ba-4d59-b6af-178977102afd",
+      "bytes": 983
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/54d86df9-6719-4768-9944-5b2e721e3eb9",
+      "bytes": 3727
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/625d8975-c04b-4c53-9411-9f0456aec758",
+      "bytes": 10741
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/67983a6c-a589-4b95-adbc-84b45dc8e9f8",
+      "bytes": 9211
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/6d243155-beb2-4e23-bb11-a080afb27266",
+      "bytes": 4170
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/7c4f442a-5eeb-4961-9687-0d7143c7f197",
+      "bytes": 11162
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/854de030-2af8-4803-b203-7acb052dac62",
+      "bytes": 15203
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/8619a399-a3e0-4f1f-b03e-4763e9c197a1",
+      "bytes": 10841
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/86350548-4bdf-41d8-aed2-ae8c8ed5c156",
+      "bytes": 21399
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/9448ed85-a3e1-4641-a98f-3a937aef59d1",
+      "bytes": 21399
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/94ea86fe-6f8b-46b3-9777-e179dcc0a7ba",
+      "bytes": 536879788
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/972c0062-3081-46ef-a454-13937c1694c1",
+      "bytes": 11302
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/a7653bab-795c-44d8-97fc-4b02a051a8b2",
+      "bytes": 129251238
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/acabee69-616a-421f-8990-ed42ff4b1f61",
+      "bytes": 983
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/aeae4bf2-4bc1-440c-befb-58761343e857",
+      "bytes": 1179
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/c1283c13-c68f-40ea-af76-ec68b57f551a",
+      "bytes": 10771
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/c3a10f75-53d6-48b8-b93d-a6c51de8fa7e",
+      "bytes": 983
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/da08181f-6e7c-42ae-b4cf-3a6d2eb17185",
+      "bytes": 11047
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/e583798a-6067-4b87-a8a0-281a43aa3c26",
+      "bytes": 11220
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/ea2e06e2-ec69-4c47-a3c0-a3fe79cf314c",
+      "bytes": 12139
+    },
+    {
+      "path": "/opt/yuyutian/mytools/runtime/tasks/ecd53213-07a6-4e2a-9212-8b427f5ed70e",
+      "bytes": 55728
+    }
+  ]
+}

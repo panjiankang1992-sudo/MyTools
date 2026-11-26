@@ -1,0 +1,190 @@
+{
+  "date": "2026-10-18",
+  "goalStatus": "ACTIVE",
+  "tests": {
+    "total": 44,
+    "passed": 44,
+    "failed": 0,
+    "newRuntimeInspectionTests": 15,
+    "relatedRegressionTests": 29,
+    "pythonVersion": "3.12"
+  },
+  "runtimeInspection": {
+    "checkedAt": "2026-10-18T10:45:47.239540+00:00",
+    "environmentCredentialBindings": {
+      "executor_messaging": "MISSING",
+      "news_executor": "PROCESS_UNAVAILABLE",
+      "news_gateway": "PROCESS_UNAVAILABLE",
+      "news_messaging": "PROCESS_UNAVAILABLE",
+      "news_scheduler": "PROCESS_UNAVAILABLE"
+    },
+    "environmentNodeBinding": "MISSING",
+    "inspectionCompleted": true,
+    "liveAcceptance": false,
+    "productionChanges": false,
+    "rawEnvironmentReturned": false,
+    "roles": {
+      "executor": {
+        "executorCandidates": {
+          "explicitRegionProxyPresent": false,
+          "geolocationPrerequisitePresent": false,
+          "networkIsolationEnvironment": "UNSET",
+          "packageFilesPresent": {
+            "message_send_channel_message": false,
+            "news_generate_edition": false,
+            "news_resolve_region": false
+          },
+          "packageIndexPresent": true,
+          "packageIntegrityVerified": false,
+          "servicePermissionsVerified": false
+        },
+        "invalidEnvironmentKeys": [],
+        "missingEnvironmentKeys": [
+          "NEWS_JOB_TOKEN",
+          "NEWS_REGION_FINGERPRINT_KEY",
+          "MESSAGING_OUTBOUND_WORKER_TOKEN"
+        ],
+        "nonRoot": true,
+        "overrideSignals": [
+          "COMMAND_LINE_PROPERTIES"
+        ],
+        "state": "RUNNING"
+      },
+      "gateway": {
+        "invalidEnvironmentKeys": [],
+        "missingEnvironmentKeys": [
+          "NEWS_INTERNAL_TOKEN"
+        ],
+        "nonRoot": true,
+        "overrideSignals": [
+          "COMMAND_LINE_PROPERTIES"
+        ],
+        "state": "RUNNING"
+      },
+      "messaging": {
+        "invalidEnvironmentKeys": [],
+        "missingEnvironmentKeys": [
+          "MESSAGING_OUTBOUND_CLIENT_TOKEN",
+          "MESSAGING_OUTBOUND_WORKER_TOKEN",
+          "MESSAGING_OUTBOUND_ADMIN_TOKEN",
+          "MESSAGING_DESTINATION_ENCRYPTION_KEY"
+        ],
+        "nonRoot": true,
+        "overrideSignals": [],
+        "state": "RUNNING"
+      },
+      "news": {
+        "state": "NOT_INSTALLED"
+      },
+      "scheduler": {
+        "invalidEnvironmentKeys": [],
+        "missingEnvironmentKeys": [
+          "TASK_BUSINESS_NEWS_TOKEN"
+        ],
+        "nonRoot": true,
+        "overrideSignals": [
+          "COMMAND_LINE_PROPERTIES"
+        ],
+        "state": "RUNNING"
+      }
+    },
+    "scope": "PROCESS_ENVIRONMENT_ONLY",
+    "springBindingVerified": false
+  },
+  "hostNetworkProbe": {
+    "checkedAt": "2026-10-18T10:41:11.024898+00:00",
+    "cityResolved": false,
+    "databaseAccessed": false,
+    "executorJobVerified": false,
+    "messageSent": false,
+    "nonRoot": true,
+    "productionChanges": false,
+    "productionCollectorVerified": false,
+    "results": {
+      "chinanews_world": {
+        "httpStatus": 200,
+        "itemCount": 30,
+        "status": "NONEMPTY_PUBLIC_RESPONSE"
+      },
+      "dev": {
+        "httpStatus": 200,
+        "itemCount": 1,
+        "status": "NONEMPTY_PUBLIC_RESPONSE"
+      },
+      "github": {
+        "httpStatus": 200,
+        "itemCount": 1,
+        "status": "NONEMPTY_PUBLIC_RESPONSE"
+      },
+      "hacker_news": {
+        "httpStatus": 200,
+        "itemCount": 500,
+        "status": "NONEMPTY_PUBLIC_RESPONSE"
+      },
+      "ipify_ipv4": {
+        "rawAddressReturned": false,
+        "status": "PROBE_FAILED"
+      },
+      "ipify_ipv6": {
+        "rawAddressReturned": false,
+        "status": "PROBE_FAILED"
+      }
+    },
+    "scope": "HOST_DIRECT_NETWORK_NON_ROOT",
+    "usesExplicitProxy": false
+  },
+  "regionNetworkDiagnostic": {
+    "checkedAt": "2026-10-18T10:43:14.973821+00:00",
+    "productionChanges": false,
+    "rawAddressReturned": false,
+    "results": {
+      "IPV4": {
+        "status": "CONNECTION_FAILURE"
+      },
+      "IPV6": {
+        "status": "NETWORK_TIMEOUT"
+      }
+    },
+    "scope": "HOST_DIRECT_NETWORK_NON_ROOT"
+  },
+  "sourceFiles": [
+    {
+      "path": "service/deploy/inspect_news_runtime.py",
+      "sha256": "394a1b2e01b9a08995bf5713f5650a6ed7e582e28b98b93526180816b2873070"
+    },
+    {
+      "path": "service/deploy/test_inspect_news_runtime.py",
+      "sha256": "5121926ccf6a441a137a26cb27b30b59a8b63b0ed0b92b16a4d0650c47b2d92f"
+    },
+    {
+      "path": "service/deploy/test_assemble_release.py",
+      "sha256": "d25c881fbd4a685e13ae77992836953bddfee81395a33e18b16632b7d61ececf"
+    },
+    {
+      "path": "service/deploy/README.md",
+      "sha256": "c1e7f22cac939d11dec9d2e6a350cd348f9ab9938fffea8880cb27707a1f0676"
+    },
+    {
+      "path": "docs/runbooks/daily-news-release.md",
+      "sha256": "bfd602d405fd0387c5b3e679a656d3330a650c2e227cb7705bfccb5e0a32b70a"
+    },
+    {
+      "path": "docs/verification/daily-news/2026-10-18-news-runtime-inspection.md",
+      "sha256": "e31cc59bb377c6fa899c78edfa7a15d709e280c5a7fe67f4522c3a29b01379de"
+    },
+    {
+      "path": "service/news-digest-service/packages/news_resolve_region/1.1.0/scripts/main.py",
+      "sha256": "0e0f0fccc46a7667ebe3eb8d205c018b977bc61812b3613b1bf064548ae46573"
+    }
+  ],
+  "hostProbeScriptSha256": "3d5ebe72619588e9f35539b0324480ab66bcc047394c1cef4ed57f0f659e7f67",
+  "limitations": [
+    "No Spring final-property binding verification",
+    "No installed News service or actual Executor job",
+    "No resolved city",
+    "No production collector verification or seven-day observation",
+    "No database or production configuration changes",
+    "No real destination or provider delivery",
+    "Batch 13 release is an earlier snapshot"
+  ]
+}

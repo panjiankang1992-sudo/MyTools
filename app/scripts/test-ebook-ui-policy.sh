@@ -18,7 +18,7 @@ actual_tabs="$(printf '%s\n' "$tabs_block" | sed -n "s/.*{ title: '\([^']*\)'.*/
 for pattern in \
   "ForEach([3, 0, 1, 2]" \
   'this.BookShelfHeader()' \
-  "AppSecondaryPillButton({ label: this.DetailBookInShelf() ? '书架中' : '试读'" \
+  "app.string.reader_detail_manage" \
   "AppPrimaryPillButton({ label: this.DetailBookInShelf() ? '继续阅读' : '加入书架'" \
   "AppDangerPillButton({ label: '仅移出书架'" \
   "AppDangerPillButton({ label: '移出并清除阅读记录'" \

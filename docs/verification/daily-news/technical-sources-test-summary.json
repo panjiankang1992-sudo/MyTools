@@ -1,0 +1,144 @@
+{
+  "date": "2026-10-18",
+  "jdk": "21.0.11",
+  "service": "news-digest-service",
+  "suites": [
+    {
+      "name": "com.yuyutian.mytools.news.DigestEngineTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.yuyutian.mytools.news.FeedParserTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.yuyutian.mytools.news.GithubTrendCalculatorTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.yuyutian.mytools.news.LiveFeedSmokeTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "name": "com.yuyutian.mytools.news.LiveTechnicalSourcesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 3
+    },
+    {
+      "name": "com.yuyutian.mytools.news.NewsIntegrationTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.yuyutian.mytools.news.PublicNetworkPolicyTest",
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.yuyutian.mytools.news.RestartPersistenceTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.yuyutian.mytools.news.TechnicalCollectorsTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.yuyutian.mytools.news.TechnicalMigrationTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.yuyutian.mytools.news.TechnicalPersistenceTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.yuyutian.mytools.news.TokenFilterTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "total": {
+    "tests": 84,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 4
+  },
+  "liveProbe": {
+    "completedAt": "2026-10-18T12:53:28+08:00",
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "providers": [
+      {
+        "kind": "GITHUB",
+        "visited": 3,
+        "accepted": 3,
+        "skipped": 0,
+        "failed": 0
+      },
+      {
+        "kind": "HACKER_NEWS",
+        "visited": 3,
+        "accepted": 3,
+        "skipped": 0,
+        "failed": 0
+      },
+      {
+        "kind": "DEV",
+        "visited": 3,
+        "accepted": 3,
+        "skipped": 0,
+        "failed": 0
+      }
+    ],
+    "credentialsUsed": false,
+    "databaseWritten": false,
+    "detailRequests": 0,
+    "messagesSent": false
+  },
+  "migrations": {
+    "h2PopulatedV1ToV2": "PASSED",
+    "h2FileRestart": "PASSED",
+    "mysqlVerified": false
+  },
+  "continuousSevenDayLiveCollection": false,
+  "deployed": false,
+  "compile": "PASSED",
+  "package": "PASSED",
+  "artifact": {
+    "path": "service/news-digest-service/target/news-digest-service-0.1.0-SNAPSHOT.jar",
+    "sha256": "ed53be19d7b1cc7dddbafcf312380e016cc2d474a30a2480ff4943bc101c8f24"
+  }
+}

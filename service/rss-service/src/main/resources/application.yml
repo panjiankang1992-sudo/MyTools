@@ -1,0 +1,29 @@
+server:
+  port: ${RSS_PORT:23360}
+  address: ${RSS_BIND_ADDRESS:127.0.0.1}
+  max-http-request-header-size: 16KB
+spring:
+  application:
+    name: rss-service
+  datasource:
+    url: ${RSS_DB_URL:jdbc:mysql://127.0.0.1:3306/mytools_rss?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC}
+    username: ${RSS_DB_USERNAME:mytools_rss}
+    password: ${RSS_DB_PASSWORD:}
+    hikari:
+      maximum-pool-size: 8
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+  flyway:
+    enabled: true
+rss:
+  internal-token: ${RSS_INTERNAL_TOKEN:}
+  polling-enabled: ${RSS_POLLING_ENABLED:false}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never

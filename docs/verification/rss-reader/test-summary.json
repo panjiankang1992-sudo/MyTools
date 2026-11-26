@@ -1,0 +1,26 @@
+{
+  "modules": {
+    "feed-core": {
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "rss-service": {
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "mytools-gateway": {
+      "tests": 182,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "mysqlIntegrationTests": 18,
+  "h2IntegrationTests": 18,
+  "nativePurePolicies": "passed",
+  "productionHapExcludesTestEntry": true
+}

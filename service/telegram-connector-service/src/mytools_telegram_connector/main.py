@@ -23,7 +23,7 @@ async def run() -> None:
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(name)s %(message)s")
     config = Config.load()
-    session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=None, connect=30, sock_read=None))
+    session = aiohttp.ClientSession()
     connector = TelegramConnector(config, session)
     app = web.Application(client_max_size=64 * 1024)
 
@@ -32,9 +32,14 @@ async def run() -> None:
         if not hmac.compare_digest(authorization, f"Bearer {config.internal_token}"):
             raise web.HTTPUnauthorized()
 
-    async def health(_request: web.Request) -> web.Response:
-        """返回进程健康状态。"""
+    async def liveness(_request: web.Request) -> web.Response:
+        """返回进程存活状态。"""
         return web.json_response({"status": "UP"})
+
+    async def health(_request: web.Request) -> web.Response:
+        """返回轮询和入站投递就绪状态。"""
+        payload = connector.health()
+        return web.json_response(payload, status=200 if payload["status"] == "UP" else 503)
 
     async def send_text(request: web.Request) -> web.Response:
         """接收 Messaging 的原会话回复。"""
@@ -77,6 +82,7 @@ async def run() -> None:
         return response
 
     app.router.add_get("/health", health)
+    app.router.add_get("/health/live", liveness)
     app.router.add_post("/internal/v1/messages/text", send_text)
     app.router.add_post("/internal/v1/provider-files/resolve", resolve)
     app.router.add_post("/internal/v1/provider-files/content", content)
@@ -86,14 +92,19 @@ async def run() -> None:
     site = web.TCPSite(runner, os.getenv("TELEGRAM_CONNECTOR_HTTP_HOST", "127.0.0.1"),
                        int(os.getenv("TELEGRAM_CONNECTOR_HTTP_PORT", "23257")))
     await site.start()
+    tasks = [asyncio.create_task(connector.run(stop)),
+             asyncio.create_task(connector.deliver_pending(stop)), asyncio.create_task(stop.wait())]
     try:
-        task = asyncio.create_task(connector.run(stop))
-        await stop.wait()
-        task.cancel()
-        await asyncio.gather(task, return_exceptions=True)
+        done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+        for task in done:
+            task.result()
     finally:
+        for task in tasks:
+            task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
         await session.close()
         await runner.cleanup()
+        connector.inbox.close()
 
 
 def main() -> None:

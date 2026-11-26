@@ -29,6 +29,7 @@ public class TaskInstanceService {
     private final TaskSchemaValidationService schemaValidationService;
     private final TaskEventService taskEventService;
     private final ReaderAdaptationTaskGuard readerAdaptationGuard;
+    private final PublicPdfTaskAccess publicPdfTaskAccess;
 
     /**
      * 创建任务实例服务。
@@ -45,7 +46,8 @@ public class TaskInstanceService {
                                MultiNodeTaskAggregationService multiNodeTaskAggregationService,
                                TaskCancellationPropagationService cancellationPropagationService,
                                TaskSchemaValidationService schemaValidationService,
-                               TaskEventService taskEventService, ReaderAdaptationTaskGuard readerAdaptationGuard) {
+                               TaskEventService taskEventService, ReaderAdaptationTaskGuard readerAdaptationGuard,
+                               PublicPdfTaskAccess publicPdfTaskAccess) {
         this.instanceRepository = instanceRepository;
         this.definitionRepository = definitionRepository;
         this.multiNodeTaskAggregationService = multiNodeTaskAggregationService;
@@ -53,6 +55,7 @@ public class TaskInstanceService {
         this.schemaValidationService = schemaValidationService;
         this.taskEventService = taskEventService;
         this.readerAdaptationGuard = readerAdaptationGuard;
+        this.publicPdfTaskAccess = publicPdfTaskAccess;
     }
 
     /**
@@ -63,8 +66,12 @@ public class TaskInstanceService {
      */
     @Transactional
     public TaskInstanceView create(CreateTaskRequest request) {
+        NewsTaskAccess.create(request);
+        MessageOutboundTaskAccess.create(request);
         ImageTaskAccess.require(request.taskName(),request.idempotencyKey());
         readerAdaptationGuard.beforeCreate(request);
+        // 公开 PDF 域双向校验：其他身份不得创建公开任务，公开身份不得创建其他任务。
+        publicPdfTaskAccess.requireCreate(request);
         Map<String, Object> requestedLabels = normalizedRequiredLabels(request.requiredNodeLabels());
         TaskInstanceView existing = instanceRepository.findByIdempotencyKey(request.idempotencyKey()).orElse(null);
         if (existing != null) {
@@ -99,8 +106,12 @@ public class TaskInstanceService {
     public TaskInstanceView get(UUID id) {
         TaskInstanceView task = instanceRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Task instance does not exist"));
+        NewsTaskAccess.read(task);
+        MessageOutboundTaskAccess.read(task);
         ImageTaskAccess.require(task.taskName(),task.idempotencyKey());
         readerAdaptationGuard.requireAccess(task);
+        // 读取、取消与结果访问共用同一守卫，避免只保护其中一条路径。
+        publicPdfTaskAccess.requireAccess(task);
         return task;
     }
 

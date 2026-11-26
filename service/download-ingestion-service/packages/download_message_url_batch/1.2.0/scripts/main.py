@@ -1,0 +1,253 @@
+#!/usr/bin/env python3
+"""整条消息 URL 批次解析、目录决策和原子下载编排。"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import mimetypes
+import os
+import re
+import tempfile
+from pathlib import Path
+from urllib.parse import urlparse
+from uuid import UUID
+
+from mytools_task_sdk.context import TaskContext
+from mytools_task_sdk.orchestration import wait_all_or_cancel
+
+X_PATH = re.compile(r"^/(?:[^/]+/status|i/(?:web/)?status)/\d{1,24}(?:/.*)?$", re.IGNORECASE)
+X_USER_PATH = re.compile(r"^/([A-Za-z0-9_]{1,15})(?:/media)?/?$", re.IGNORECASE)
+X_RESERVED_PATHS = {"home", "explore", "search", "notifications", "messages", "settings", "compose", "i"}
+SAFE_PART = re.compile(r"[^A-Za-z0-9_-]+")
+SAFE_TITLE = re.compile(r"[^\w.-]+", re.UNICODE)
+URL_TEXT = re.compile(r"https?://\S+", re.IGNORECASE)
+MAX_URLS = 20
+MAX_MEDIA = 100
+NO_CHILD_WAIT_TIMEOUT = float("inf")
+
+
+def is_x_post(value: str) -> bool:
+    """判断地址是否为受支持的 X 帖子地址。"""
+    parsed = urlparse(value)
+    host = (parsed.hostname or "").lower().removeprefix("www.").removeprefix("mobile.")
+    return parsed.scheme in {"http", "https"} and host in {"x.com", "twitter.com"} \
+        and X_PATH.fullmatch(parsed.path) is not None
+
+
+def is_x_user(value: str) -> bool:
+    """判断地址是否为受支持的 X 用户主页。"""
+    parsed = urlparse(value)
+    host = (parsed.hostname or "").lower().removeprefix("www.").removeprefix("mobile.")
+    match = X_USER_PATH.fullmatch(parsed.path)
+    return parsed.scheme in {"http", "https"} and host in {"x.com", "twitter.com"} \
+        and match is not None and match.group(1).lower() not in X_RESERVED_PATHS
+
+
+def album_title(parameters: dict) -> str:
+    """从明确标题或第一条非 URL 文本中生成稳定相册名。"""
+    text = str(parameters.get("albumTitleText") or "")[:500]
+    candidates = []
+    preferred = ""
+    for raw in text.splitlines():
+        line = URL_TEXT.sub("", raw).strip()
+        if not line:
+            continue
+        explicit = re.match(r"^(?:标题|专辑|相册|图集|album)\s*[:：]\s*(.+)$", line,
+                            re.IGNORECASE)
+        candidates.append((explicit.group(1) if explicit else line).strip())
+        if explicit:
+            preferred = explicit.group(1).strip()
+            break
+    if not candidates:
+        return ""
+    title = SAFE_TITLE.sub("_", preferred or candidates[0])
+    return title.strip("._-")[:72]
+
+
+def validate(parameters: dict) -> tuple[str, list[dict]]:
+    """验证消息批次参数并返回请求标识和稳定链接清单。"""
+    request_id = str(parameters.get("downloadRequestId") or "")
+    UUID(request_id)
+    raw_items = parameters.get("items")
+    if not isinstance(raw_items, list) or not 1 <= len(raw_items) <= MAX_URLS:
+        raise ValueError("message URL batch size is invalid")
+    items = []
+    for index, item in enumerate(raw_items):
+        if not isinstance(item, dict):
+            raise TypeError("message URL batch item is invalid")
+        url = str(item.get("url") or "").strip()
+        parsed = urlparse(url)
+        if parsed.scheme not in {"http", "https"} or not parsed.hostname or len(url) > 4096:
+            raise ValueError("message URL is invalid")
+        name = str(item.get("fileName") or f"download-{index}.bin").strip()
+        if not name or len(name) > 180 or "/" in name or "\\" in name:
+            raise ValueError("message URL file name is invalid")
+        items.append({"index": index, "url": url, "fileName": name})
+    return request_id, items
+
+
+def successful_result(payload: dict, step_name: str) -> dict:
+    """读取一个成功子任务的指定步骤结果。"""
+    if not isinstance(payload, dict) or payload.get("status") != "SUCCEEDED":
+        raise RuntimeError("message URL resolver child did not succeed")
+    steps = payload.get("steps")
+    if not isinstance(steps, list):
+        raise TypeError("message URL resolver returned invalid results")
+    selected = [step.get("result") for step in steps if isinstance(step, dict)
+                and step.get("stepName") == step_name and step.get("status") == "SUCCEEDED"
+                and isinstance(step.get("result"), dict)]
+    if len(selected) != 1:
+        raise RuntimeError("message URL resolver returned no unique result")
+    return selected[0]
+
+
+def direct_resource(item: dict) -> dict:
+    """把普通 HTTP 链接转换为单个原子下载资源。"""
+    name = item["fileName"]
+    return {"sourceAction": item["index"], "resourceIndex": 1, "url": item["url"],
+            "fileName": name, "mimeType": mimetypes.guess_type(name)[0]
+            or "application/octet-stream"}
+
+
+def resolved_resources(item: dict, result: dict) -> list[dict]:
+    """验证 X 解析结果并补充消息动作身份。"""
+    values = result.get("resources")
+    if not isinstance(values, list) or not values:
+        raise RuntimeError("X resolver returned no media")
+    resources = []
+    for position, value in enumerate(values, start=1):
+        if not isinstance(value, dict):
+            raise TypeError("X resolver returned invalid media")
+        url = str(value.get("url") or "")
+        name = str(value.get("fileName") or "")
+        if not url.startswith("https://") or not name:
+            raise RuntimeError("X resolver returned unsafe media")
+        resources.append({"sourceAction": item["index"], "resourceIndex": position,
+                          "url": url, "fileName": name,
+                          "mimeType": str(value.get("mimeType") or "application/octet-stream")})
+    return resources
+
+
+def execute(context: TaskContext) -> dict:
+    """独立启动已就绪媒体，并在失败时补偿取消所有已创建子任务。"""
+    children = []
+    try:
+        return execute_batch(context, children)
+    except Exception:
+        # 创建和解析阶段也可能失败，不能留下仍占槽的同级任务。
+        for child in children:
+            try:
+                current = context.get_task(child.id)
+                if current.status not in TaskContext.TERMINAL_STATUSES:
+                    context.cancel_child(child.id)
+            except Exception:
+                # 取消是尽力补偿，保留原始失败并由 Scheduler 终态级联继续收敛。
+                pass
+        raise
+
+
+def execute_batch(context: TaskContext, children: list) -> dict:
+    """统一媒体目录后启动下载，不等待用户主页整批完成才投递普通资源。"""
+    parameters = context.parameters
+    request_id, items = validate(parameters)
+    owner_id = int(parameters.get("ownerId") or 0)
+    maximum_bytes = int(parameters.get("maxBytesPerItem", 2 * 1024 * 1024 * 1024))
+    threshold = int(parameters.get("albumMediaThreshold", 10))
+    if maximum_bytes < 1 or maximum_bytes > 20 * 1024 * 1024 * 1024:
+        raise ValueError("message URL item byte limit is invalid")
+    if threshold < 1 or threshold > MAX_MEDIA:
+        raise ValueError("message URL album threshold is invalid")
+
+    resolver_children = []
+    resolver_items = []
+    profile_children = []
+    resources = []
+    for item in items:
+        if is_x_user(item["url"]):
+            fingerprint = hashlib.sha256(item["url"].encode()).hexdigest()
+            child = context.create_child(
+                "download_x_user",
+                {"downloadRequestId": request_id, "url": item["url"], "ownerId": owner_id,
+                 "resourceUsername": str(parameters.get("resourceUsername") or ""),
+                 "receivedAt": str(parameters.get("receivedAt") or ""),
+                 "messageBatchId": str(parameters.get("messageBatchId") or request_id)},
+                f"message-x-user:{request_id}:{item['index']}:{fingerprint}",
+                business_type="DOWNLOAD_REQUEST", business_id=request_id)
+            children.append(child)
+            profile_children.append(child)
+            continue
+        if not is_x_post(item["url"]):
+            resources.append(direct_resource(item))
+            continue
+        fingerprint = hashlib.sha256(item["url"].encode()).hexdigest()
+        child = context.create_child(
+            "download_resolve_x_url",
+            {"url": item["url"], "maxMedia": 40, "resolveOnly": True},
+            f"message-url-resolve:{request_id}:{item['index']}:{fingerprint}",
+            business_type="DOWNLOAD_REQUEST", business_id=request_id)
+        children.append(child)
+        resolver_children.append(child)
+        resolver_items.append(item)
+    # 子任务各自在领取后计算执行期限，父任务使用自身总执行期限。
+    wait_all_or_cancel(context, resolver_children, NO_CHILD_WAIT_TIMEOUT)
+    for item, child in zip(resolver_items, resolver_children, strict=True):
+        result = successful_result(context.get_task_results(child.id), "resolve_x_url")
+        resources.extend(resolved_resources(item, result))
+    if (not resources and not profile_children) or len(resources) > MAX_MEDIA:
+        raise ValueError("message resolved media count is invalid")
+    resources.sort(key=lambda value: (value["sourceAction"], value["resourceIndex"]))
+
+    album_folder = ""
+    if len(resources) > threshold:
+        raw_batch = str(parameters.get("messageBatchId") or request_id)
+        batch = SAFE_PART.sub("_", raw_batch).strip("_")
+        title = album_title(parameters)
+        album_folder = f"{title}--{hashlib.sha256(raw_batch.encode()).hexdigest()[:8]}" \
+            if title else f"message-{batch[:48]}"
+    download_children = []
+    for source_index, resource in enumerate(resources, start=1):
+        item_id = f"message:{resource['sourceAction']}:{resource['resourceIndex']}"
+        fingerprint = hashlib.sha256(resource["url"].encode()).hexdigest()
+        child = context.create_child(
+            "download_http_asset",
+            {"downloadRequestId": request_id, "itemId": item_id, "url": resource["url"],
+             "fileName": resource["fileName"], "sourceIndex": source_index,
+             "maxBytes": maximum_bytes, "ownerId": owner_id,
+             "resourceUsername": str(parameters.get("resourceUsername") or ""),
+             "receivedAt": str(parameters.get("receivedAt") or ""),
+             "albumFolder": album_folder, "assetMimeType": resource["mimeType"],
+             "assetSourceBusinessId": f"{request_id}:{item_id}"},
+            f"message-media:{request_id}:{source_index}:{fingerprint}",
+            business_type="DOWNLOAD_REQUEST", business_id=request_id)
+        children.append(child)
+        download_children.append(child)
+    # 普通资源先等待完成，用户主页在后台同级执行，不构成投递前置屏障。
+    wait_all_or_cancel(context, download_children, NO_CHILD_WAIT_TIMEOUT)
+    wait_all_or_cancel(context, profile_children, NO_CHILD_WAIT_TIMEOUT)
+    return {"requestId": request_id, "inputCount": len(items), "mediaCount": len(resources),
+            "albumFolder": album_folder,
+            "resolverTaskIds": [child.id for child in resolver_children],
+            "profileTaskIds": [child.id for child in profile_children],
+            "downloadTaskIds": [child.id for child in download_children]}
+
+
+def write_result(result: dict) -> None:
+    """原子写入消息批次结果。"""
+    target = Path(os.environ["TASK_RESULT_FILE"])
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=target.parent,
+                                     delete=False) as handle:
+        json.dump(result, handle, separators=(",", ":"))
+        temporary = Path(handle.name)
+    temporary.replace(target)
+
+
+def main() -> None:
+    """执行消息 URL 批次。"""
+    context = TaskContext.load()
+    write_result(execute(context))
+
+
+if __name__ == "__main__":
+    main()

@@ -100,7 +100,7 @@ rclone:
   serve-password: ${RCLONE_SERVE_PASSWORD:${RCLONE_RC_PASSWORD:}}
 
 media:
-  big-video-threshold-bytes: ${MEDIA_BIG_VIDEO_THRESHOLD_BYTES:52428800}
+  big-video-threshold-bytes: ${MEDIA_BIG_VIDEO_THRESHOLD_BYTES:104857600}
   manual-package:
     scan-delay-ms: ${MEDIA_MANUAL_PACKAGE_SCAN_DELAY_MS:30000}
     initial-delay-ms: ${MEDIA_MANUAL_PACKAGE_INITIAL_DELAY_MS:45000}

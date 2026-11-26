@@ -1,0 +1,83 @@
+groups:
+  - name: mytools-news-digest
+    rules:
+      - alert: NewsRegistryCapacityHigh
+        expr: (news_registry_capacity_source_rows / news_registry_capacity_source_limit >= 0.8) or (news_registry_capacity_pack_rows / news_registry_capacity_pack_limit >= 0.8) or (news_registry_capacity_node_rows / news_registry_capacity_node_limit >= 0.8) or (news_registry_capacity_region_jobs / news_registry_capacity_job_limit >= 0.8) or (news_registry_capacity_direct_observations / news_registry_capacity_observation_limit >= 0.8)
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: News source and region registry is approaching its admission limit
+          description: Inspect admin registryCapacity. Existing region jobs retain one report slot. Never erase historical source packs or observation identities to recover quota.
+      - alert: NewsControlCapacityHigh
+        expr: (news_control_capacity_subscription_rows / news_control_capacity_subscription_limit >= 0.8) or (news_control_capacity_target_owners / news_control_capacity_target_limit >= 0.8) or (news_control_capacity_daily_runs / news_control_capacity_run_limit >= 0.8) or (news_control_capacity_preview_identities / news_control_capacity_preview_limit >= 0.8)
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: News retained control identities are approaching their limit
+          description: Inspect admin controlCapacity and preserve identity records. Existing accepted runs can finish; do not reset counters or delete UNKNOWN results.
+      - alert: NewsCollectionCapacityHigh
+        expr: (news_collection_capacity_article_rows / news_collection_capacity_article_limit >= 0.8) or (news_collection_capacity_snapshot_rows / news_collection_capacity_snapshot_limit >= 0.8) or (news_collection_capacity_withdrawal_rows / news_collection_capacity_withdrawal_limit >= 0.8) or (news_collection_capacity_payload_bytes / news_collection_capacity_payload_limit >= 0.8)
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: News collection storage admission is approaching its limit
+          description: Check admin collectionCapacity and retention checkpoints. Never reset the ledger or delete delivery identities to recover space.
+      - alert: NewsDatabaseUnavailable
+        expr: news_operations_database_available{application="news-digest-service"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: News aggregate database queries are unavailable
+          description: Inspect service health and database connectivity. Do not reset idempotency records.
+      - alert: NewsRetentionFailed
+        expr: (news_operations_retention_failed{application="news-digest-service"} > 0) and on(job,instance) (news_retention_enabled{application="news-digest-service"} == 1)
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: News retention batches keep failing
+          description: Inspect the admin retention checkpoint and preview before retrying a bounded sweep.
+      - alert: NewsEvidenceRetentionBacklog
+        expr: (news_operations_retention_oldest_article_evidence_due_seconds{application="news-digest-service"} > 3600) and on(job,instance) (news_retention_enabled{application="news-digest-service"} == 1)
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: News article evidence exceeds its configured retention period
+          description: Check the retention timer, database lease and failed checkpoint. Review source-specific limits.
+      - alert: NewsDeliveryUnknown
+        expr: news_operations_delivery_unknown{application="news-digest-service"} > 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: News delivery outcomes require reconciliation
+          description: Verify provider outcomes before retrying. Unknown outcomes may already have been accepted.
+      - alert: NewsDeliveryRejected
+        expr: news_operations_delivery_rejected{application="news-digest-service"} > 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: News delivery configuration needs repair
+          description: Inspect the stable error code and destination state, then resume the original part.
+      - alert: NewsDeliveryStalled
+        expr: news_operations_delivery_oldest_pending_seconds{application="news-digest-service"} > 900
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: News delivery dispatch has stopped advancing
+          description: Check News and Messaging timers, Scheduler and worker availability without recreating the delivery.
+      - alert: NewsTaskOutboxDead
+        expr: news_operations_task_dead{application="news-digest-service"} > 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: News task outbox contains rejected jobs
+          description: Repair the scheduler or job configuration and redrive the original task key.

@@ -1,0 +1,459 @@
+{
+  "prompt": [
+    42,
+    "288de238-08a3-4dad-bca7-43f4bf84ba37",
+    {
+      "1": {
+        "class_type": "CheckpointLoaderSimple",
+        "inputs": {
+          "ckpt_name": "ltxv-2b-0.9.8-distilled.safetensors"
+        }
+      },
+      "2": {
+        "class_type": "CLIPLoader",
+        "inputs": {
+          "clip_name": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+          "type": "ltxv",
+          "device": "default"
+        }
+      },
+      "3": {
+        "class_type": "CLIPTextEncode",
+        "inputs": {
+          "clip": [
+            "2",
+            0
+          ],
+          "text": "Snow-covered mountains and dark evergreen forests surround a quiet lake beneath a pink sunset sky. The mountains, trees and pink sky reflect in the lake. Very gentle ripples move across the water. The camera makes a slow, smooth forward push. Continuous single shot. Preserve the original colors, lighting and scene. No people, hands, new objects, cuts or scene changes."
+        }
+      },
+      "4": {
+        "class_type": "CLIPTextEncode",
+        "inputs": {
+          "clip": [
+            "2",
+            0
+          ],
+          "text": ""
+        }
+      },
+      "5": {
+        "class_type": "LoadImage",
+        "inputs": {
+          "image": "ltx-eval-20260921-r3/C-landscape.png"
+        }
+      },
+      "6": {
+        "class_type": "LTXVImgToVideo",
+        "inputs": {
+          "positive": [
+            "3",
+            0
+          ],
+          "negative": [
+            "4",
+            0
+          ],
+          "vae": [
+            "1",
+            2
+          ],
+          "image": [
+            "5",
+            0
+          ],
+          "width": 640,
+          "height": 640,
+          "length": 49,
+          "batch_size": 1,
+          "strength": 1.0
+        }
+      },
+      "7": {
+        "class_type": "LTXVConditioning",
+        "inputs": {
+          "positive": [
+            "6",
+            0
+          ],
+          "negative": [
+            "6",
+            1
+          ],
+          "frame_rate": 16.0
+        }
+      },
+      "8": {
+        "class_type": "KSamplerSelect",
+        "inputs": {
+          "sampler_name": "euler"
+        }
+      },
+      "9": {
+        "class_type": "ManualSigmas",
+        "inputs": {
+          "sigmas": "1, 0.9937, 0.9875, 0.9812, 0.975, 0.9094, 0.725, 0.4219, 0"
+        }
+      },
+      "10": {
+        "class_type": "SamplerCustom",
+        "inputs": {
+          "model": [
+            "1",
+            0
+          ],
+          "add_noise": true,
+          "noise_seed": 932,
+          "cfg": 1.0,
+          "positive": [
+            "7",
+            0
+          ],
+          "negative": [
+            "7",
+            1
+          ],
+          "sampler": [
+            "8",
+            0
+          ],
+          "sigmas": [
+            "9",
+            0
+          ],
+          "latent_image": [
+            "6",
+            2
+          ]
+        }
+      },
+      "11": {
+        "class_type": "VAEDecode",
+        "inputs": {
+          "samples": [
+            "10",
+            0
+          ],
+          "vae": [
+            "1",
+            2
+          ]
+        }
+      },
+      "12": {
+        "class_type": "SaveImage",
+        "inputs": {
+          "images": [
+            "11",
+            0
+          ],
+          "filename_prefix": "ltx-eval-20260921-r3/C-landscape-seed932"
+        }
+      }
+    },
+    {
+      "client_id": "ltx-eval-20260921-r3",
+      "create_time": 1789990994860
+    },
+    [
+      "12"
+    ]
+  ],
+  "outputs": {
+    "12": {
+      "images": [
+        {
+          "filename": "C-landscape-seed932_00001_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00002_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00003_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00004_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00005_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00006_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00007_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00008_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00009_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00010_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00011_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00012_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00013_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00014_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00015_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00016_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00017_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00018_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00019_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00020_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00021_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00022_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00023_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00024_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00025_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00026_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00027_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00028_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00029_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00030_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00031_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00032_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00033_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00034_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00035_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00036_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00037_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00038_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00039_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00040_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00041_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00042_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00043_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00044_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00045_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00046_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00047_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00048_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        },
+        {
+          "filename": "C-landscape-seed932_00049_.png",
+          "subfolder": "ltx-eval-20260921-r3",
+          "type": "output"
+        }
+      ]
+    }
+  },
+  "status": {
+    "status_str": "success",
+    "completed": true,
+    "messages": [
+      [
+        "execution_start",
+        {
+          "prompt_id": "288de238-08a3-4dad-bca7-43f4bf84ba37",
+          "timestamp": 1789990994860
+        }
+      ],
+      [
+        "execution_cached",
+        {
+          "nodes": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9"
+          ],
+          "prompt_id": "288de238-08a3-4dad-bca7-43f4bf84ba37",
+          "timestamp": 1789990994861
+        }
+      ],
+      [
+        "execution_success",
+        {
+          "prompt_id": "288de238-08a3-4dad-bca7-43f4bf84ba37",
+          "timestamp": 1789990999773
+        }
+      ]
+    ]
+  },
+  "meta": {
+    "12": {
+      "node_id": "12",
+      "display_node": "12",
+      "parent_node": null,
+      "real_node_id": "12"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "landscape-frames",
+    "count": 97,
+    "sizes": [
+      [
+        640,
+        448
+      ]
+    ]
+  },
+  {
+    "name": "product-frames",
+    "count": 97,
+    "sizes": [
+      [
+        640,
+        640
+      ]
+    ]
+  },
+  {
+    "name": "portrait-frames",
+    "count": 97,
+    "sizes": [
+      [
+        640,
+        640
+      ]
+    ]
+  }
+]

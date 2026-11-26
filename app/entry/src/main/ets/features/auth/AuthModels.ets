@@ -13,6 +13,7 @@ export interface AuthSession {
   accessToken: string;
   refreshToken: string;
   expiresAt: number;
+  refreshOperationId?: string;
 }
 
 export interface AuthEnvelope {

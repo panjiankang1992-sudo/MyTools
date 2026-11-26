@@ -1,0 +1,121 @@
+{
+  "checkedAt": "2026-11-02T15:51:04.746264+08:00",
+  "toolbarSameRow": true,
+  "toolbar": {
+    "searchInput": {
+      "x": 198,
+      "y": 533,
+      "width": 463,
+      "height": 156
+    },
+    "directory": {
+      "x": 690,
+      "y": 533,
+      "width": 221,
+      "height": 156
+    },
+    "tag": {
+      "x": 930,
+      "y": 533,
+      "width": 221,
+      "height": 156
+    }
+  },
+  "searchTypingAndClearPassed": true,
+  "searchClearInsideField": true,
+  "selectors": [
+    {
+      "selector": "directory",
+      "card": {
+        "x": 0,
+        "y": 745,
+        "width": 1216,
+        "height": 1853
+      },
+      "clearTarget": {
+        "x": 982,
+        "y": 771,
+        "width": 157,
+        "height": 143
+      },
+      "clearText": {
+        "x": 1008,
+        "y": 807,
+        "width": 105,
+        "height": 72
+      },
+      "closeTarget": {
+        "x": 78,
+        "y": 771,
+        "width": 157,
+        "height": 143
+      },
+      "insideCard": true,
+      "balancedAroundCardCenter": true
+    },
+    {
+      "selector": "tag",
+      "card": {
+        "x": 0,
+        "y": 745,
+        "width": 1216,
+        "height": 1853
+      },
+      "clearTarget": {
+        "x": 982,
+        "y": 771,
+        "width": 157,
+        "height": 143
+      },
+      "clearText": {
+        "x": 1008,
+        "y": 807,
+        "width": 105,
+        "height": 72
+      },
+      "closeTarget": {
+        "x": 78,
+        "y": 771,
+        "width": 157,
+        "height": 143
+      },
+      "insideCard": true,
+      "balancedAroundCardCenter": true
+    }
+  ],
+  "visibleMetadataRows": 2,
+  "metadata": [
+    {
+      "tagScroll": {
+        "x": 65,
+        "y": 1560,
+        "width": 527,
+        "height": 143
+      },
+      "preview": {
+        "x": 65,
+        "y": 877,
+        "width": 527,
+        "height": 501
+      },
+      "tagsBelowPreview": true
+    },
+    {
+      "tagScroll": {
+        "x": 624,
+        "y": 1560,
+        "width": 527,
+        "height": 143
+      },
+      "preview": {
+        "x": 624,
+        "y": 877,
+        "width": 527,
+        "height": 501
+      },
+      "tagsBelowPreview": true
+    }
+  ],
+  "runtimeLayoutErrorsObserved": false,
+  "dataMutation": "Only temporary query test and clear, plus opening/closing selectors. No deletion, media modification or save."
+}

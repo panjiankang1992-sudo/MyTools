@@ -1,0 +1,7 @@
+{
+  "hap": "app/entry/build/default/outputs/default/entry-default-signed.hap",
+  "sha256": "b2db66825c58209150f09db7446fae5a7d5ced1e6bc7556d03fb7d1f3afa0473",
+  "device": "127.0.0.1:5555",
+  "backendGateway": "download-chat-20260926-v1",
+  "backendIngestion": "download-chat-20260926-v2"
+}

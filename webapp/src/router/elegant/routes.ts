@@ -7,6 +7,12 @@ import type { GeneratedRoute } from '@elegant-router/types';
 
 export const generatedRoutes: GeneratedRoute[] = [
   {
+    name: 'news',
+    path: '/news',
+    component: 'layout.base$view.news',
+    meta: { title: 'Daily News', i18nKey: 'route.news', icon: 'mdi:newspaper-variant-outline', order: 2 }
+  },
+  {
     name: '403',
     path: '/403',
     component: 'layout.blank$view.403',

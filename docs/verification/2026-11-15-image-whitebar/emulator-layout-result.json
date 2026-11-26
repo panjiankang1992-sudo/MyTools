@@ -1,0 +1,41 @@
+{
+  "viewer": {
+    "size": [
+      960,
+      2080
+    ],
+    "bottomWhiteRatios": [
+      0.149,
+      0.253,
+      0.0
+    ]
+  },
+  "previewBounds": [
+    0,
+    117,
+    960,
+    2080
+  ],
+  "controls": {
+    "size": [
+      960,
+      2080
+    ],
+    "bottomWhiteRatios": [
+      0.015,
+      0.0,
+      0.0
+    ]
+  },
+  "gallery": {
+    "size": [
+      960,
+      2080
+    ],
+    "bottomWhiteRatios": [
+      1.0,
+      0.993,
+      1.0
+    ]
+  }
+}

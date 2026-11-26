@@ -1,0 +1,26 @@
+{
+  "date": "2026-09-27",
+  "profile": "MyTools-Clipboard-Trial-20260927",
+  "permission": "ohos.permission.READ_PASTEBOARD",
+  "expiryDate": "2026-10-02",
+  "formalApproval": "submitted_pending_review",
+  "certificateUnchanged": true,
+  "deviceSetUnchanged": true,
+  "build": "passed_without_warnings",
+  "policyAssertions": 15,
+  "simulator": {
+    "overwriteInstall": "passed",
+    "permissionDialog": "passed",
+    "foregroundAutofill": "passed",
+    "duplicateSuppression": "passed",
+    "olderThan60SecondsIgnored": "passed",
+    "existingDraftPreserved": "passed"
+  },
+  "physicalDevice": {
+    "overwriteInstall": "passed",
+    "interactionAcceptance": "not_completed_device_in_use"
+  },
+  "testMessagesSent": 0,
+  "testDownloadsCreated": 0,
+  "temporaryUiFiles": "removed"
+}

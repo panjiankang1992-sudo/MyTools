@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-02",
+  "handsOffConfirmed": true,
+  "navigation": "Tools",
+  "before": [
+    "工具"
+  ],
+  "after": [
+    "工具"
+  ],
+  "idleSecondsAtLeast": 20,
+  "observationSeconds": 21.3,
+  "spontaneousDshNavigationObserved": false
+}

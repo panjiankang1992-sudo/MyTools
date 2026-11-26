@@ -1,0 +1,36 @@
+{
+  "built": true,
+  "buildDurationSeconds": 9.5,
+  "signature": "passed",
+  "artifact": "/Users/pankang/mycode/MyTools/app/build/acceptance/ui-subpages-20261103-simulator-final2-signed.hap",
+  "sha256": "35e5495f2287ee0ebc8abe494cfdf4af117319cbd88e6c95128cf84f15a77214",
+  "etsSnapshotSha256": "abb8468fd39c0c04d2f035c22bbc515801daa2dd131aede30753a845769b032d",
+  "stringsSha256": "8d0d61d25aba6323d3a1b22e8a505fcd3a8c15444abb392eeeddd4a959bd1499",
+  "sourceSnapshotTiming": "immediately after successful build; source workers finished before build",
+  "deltaFromPrevious": "Only BookSourceManageFilter ButtonType.Normal; all shared controls and DownloadToolsPage unchanged",
+  "sourceStableBeforeAfterBuildComparison": "not asserted; snapshot taken after build",
+  "deviceInstall": "passed-on-Pura90-emulator",
+  "installEvidence": "simulator/final2/device-acceptance-20261103T034632Z.json",
+  "nativeRecheck": "final2 source filter48vp/Normal rounded shape passed; protected download attempt ended on LoginPage, so9b6 unchanged-source geometry retained",
+  "previousNativeEvidenceSha256": "9b6a2b252581c9885eb1c2109ca0d24a878cd8d5652401e38b34c872e9f35ef9",
+  "unchangedComponentVerificationCarriedForward": {
+    "download": "formal HAP verified 4 x 168px = 48vp; simulator/download-final-geometry.json",
+    "equalActionRow": "formal HAP file actions 3 x 154px=44vp, PDF footer 2 x 154px=44vp; all expected buttons mounted",
+    "rssGroup": "final formal HAP input169px/create168px,1px rounding; simulator/rss-group-final-geometry.json",
+    "bookSource": "final formal HAP search/filter168px=48vp; simulator/book-source-final-geometry.json",
+    "mediaToolbar": "directory/tag/search168px=48vp; simulator/media-toolbar-final-geometry.json",
+    "mediaTagClear": "Clear visible plate/hit area/label all contained within sheet header; simulator/media-tag-clear-final-geometry.json"
+  },
+  "knownWarning": "Existing system PasteButton clipboard permission warning; no new restricted permission.",
+  "previousBuildRecord": "simulator/accepted-build-9b6a2b25.json",
+  "geometry": {
+    "bookSourceFinal2": "simulator/book-source-final2-geometry.json",
+    "downloadFinal2": "not newly measured; current LoginPage gates protected download; unchanged prior9b6 evidence carried forward"
+  },
+  "sourceStableSincePostBuildSnapshot": true,
+  "deliveryVerification": {
+    "frozenArtifactSha256Matches": true,
+    "etsSnapshotMatchesPostBuildSnapshot": true,
+    "note": "latest35e5495f artifact/source checked at delivery against immediately-after-build snapshot; no pre-build snapshot comparison asserted"
+  }
+}

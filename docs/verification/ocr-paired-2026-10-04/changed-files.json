@@ -1,0 +1,85 @@
+{
+  "releaseId": "paired-editor-20261004-170000",
+  "files": [
+    {
+      "path": "assets/CheckmarkCircleOutline-BbUSP5xC.js",
+      "bytes": 618,
+      "sha256": "9af003e0b451742b852253ad89fd4568e7f5a52e27576fc01d0e55863b95fcf9"
+    },
+    {
+      "path": "assets/HomeView-DpaTOzU9.js",
+      "bytes": 615976,
+      "sha256": "03b8b5aceb45c4fc8a5a989178066823418352090b3e342cdc86121e0c9b7d30"
+    },
+    {
+      "path": "assets/PdfView-kH5S8fQc.js",
+      "bytes": 136956,
+      "sha256": "360b96b6620ca59be9afe62f4eb5f637b07a07e57b0861b97c3c1faefe380f97"
+    },
+    {
+      "path": "assets/RadioGroup-LIJ7jd7F.js",
+      "bytes": 11510,
+      "sha256": "6ea42cd65b3b6f5ef76f4ed09b2289972a74a58f5090895b2e0b28c2b07be853"
+    },
+    {
+      "path": "assets/WorksheetV2View-HgBgJ7pz.css",
+      "bytes": 13784,
+      "sha256": "f6f085c3f72c42381af62b145614f16650e1eef4f4272f643ffb2642c5f4a7d8"
+    },
+    {
+      "path": "assets/WorksheetV2View-ipt0mb3V.js",
+      "bytes": 516048,
+      "sha256": "2a6c28b36fa1d61e528102c7166ded772f3e36e28e5481d99d64972a6741509f"
+    },
+    {
+      "path": "assets/_plugin-vue_export-helper-_SRX2KxA.js",
+      "bytes": 57338,
+      "sha256": "47d848338c6d7fadefed3f5239c7b8a519e38be0287b348bbd0ff2b657070bdb"
+    },
+    {
+      "path": "assets/analytics-Bo1WMQIy.js",
+      "bytes": 304737,
+      "sha256": "b4a8c9179fc2728a301066eb033b40f34ac067084cc0658485662979c13e3b5e"
+    },
+    {
+      "path": "assets/es-D5LqoYR8.js",
+      "bytes": 387512,
+      "sha256": "846c091624f425465f6d2f91a0ccf3f6c375eb19d92b6351d7ffd22fd60ef84a"
+    },
+    {
+      "path": "assets/icons-DmuM26l0.js",
+      "bytes": 41943,
+      "sha256": "0ae68984f2d9dfd6a62cd6b312adb292d0073e155e15aeaf60993041990b365b"
+    },
+    {
+      "path": "assets/index-D22P7jeQ.js",
+      "bytes": 159346,
+      "sha256": "15232a0976888b4c69681a20c0f3efddbad46053ef1725697fbb4a3511ae0828"
+    },
+    {
+      "path": "assets/light-C2VgZHZ1.js",
+      "bytes": 343,
+      "sha256": "d423135cc866412d68416781fe0aeebd810abc9c9583e3e9a57ab97c07da9e61"
+    },
+    {
+      "path": "assets/light-D4m5AN1x.js",
+      "bytes": 1620,
+      "sha256": "a69632deff0172feaa3f48a34724bfa2b05087cd10bce1fe71ae09d13595f0d2"
+    },
+    {
+      "path": "assets/light-DPHuAKep.js",
+      "bytes": 1398,
+      "sha256": "d4b5a889a1b0d74c635ed18305e0901ec355ea449713e628416c1548e348252d"
+    },
+    {
+      "path": "assets/tools-MWwjes_P.js",
+      "bytes": 37930,
+      "sha256": "4ca78ce6a37912b5c63df7b8bae06909dc6ba0909e8af50bc89dbb59c203cd3b"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1199,
+      "sha256": "e248148b62d99a303308b79b3bb7598a545f38fbc734ad4585b492c0733b2cbd"
+    }
+  ]
+}

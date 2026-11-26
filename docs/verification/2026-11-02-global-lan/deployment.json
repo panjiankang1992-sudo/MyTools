@@ -1,0 +1,28 @@
+{
+  "baseSha256": "fd71bbcabbade2229718139bbe71ca9a76f3012a8c27eeb36fe9c6c754da1874",
+  "deltaSha256": "ac5d2873cf677af489aa532476b5f868e259915d9f21c11f92e8e4b78a97620b",
+  "sha256": "ddf62e05eac5970193797ea538ccaddfc3f2776df1ed9b0c5bf497822e8e7a7d",
+  "replacedEntries": [
+    "BOOT-INF/classes/com/yuyutian/mytools/gateway/controller/DshWebController.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/gateway/model/ConnectivityModels$Bootstrap.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/gateway/service/ConnectivityService$Probe.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/gateway/service/ConnectivityService.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/gateway/service/DshWebSessionService$Grant.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/gateway/service/DshWebSessionService.class"
+  ],
+  "unrelatedEntriesVerified": 391,
+  "deployed": true,
+  "gatewayHealthy": true,
+  "lanPort": 23201,
+  "legacyPortUnchanged": 23110,
+  "privateInterfaceCount": 2,
+  "rollback": "Remove only zzzzzzzz-global-lan-20261102.conf and the new nginx/avahi files, daemon-reload, restart Gateway and reload nginx/avahi.",
+  "runtimeVerification": {
+    "activeJarVerified": true,
+    "gatewayHealthy": true,
+    "dropIn": "zzzzzzzz-global-lan-20261102.conf"
+  },
+  "legacyApiRoutesPreserved": true,
+  "nginxSyntax": "passed",
+  "nginxReload": "passed"
+}

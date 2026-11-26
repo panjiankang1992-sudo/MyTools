@@ -1,0 +1,726 @@
+{
+  "min": 44,
+  "total": 209,
+  "belowMin": [
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "INPUT",
+      "tag": "input",
+      "w": 184,
+      "h": 34
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "切换深色模式",
+      "tag": "button",
+      "w": 34,
+      "h": 34
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "管理员 · local-admin",
+      "tag": "button",
+      "w": 182,
+      "h": 34
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "恢复导入包",
+      "tag": "button",
+      "w": 98,
+      "h": 34
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "新增教材",
+      "tag": "button",
+      "w": 84,
+      "h": 34
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "INPUT",
+      "tag": "input",
+      "w": 110,
+      "h": 34
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "学科",
+      "tag": "div",
+      "w": 154,
+      "h": 34
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "年级",
+      "tag": "div",
+      "w": 154,
+      "h": 34
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "册次",
+      "tag": "div",
+      "w": 154,
+      "h": 34
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "状态",
+      "tag": "div",
+      "w": 154,
+      "h": 34
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "查询",
+      "tag": "button",
+      "w": 154,
+      "h": 34
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "继续编辑",
+      "tag": "button",
+      "w": 56,
+      "h": 14
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "继续编辑",
+      "tag": "button",
+      "w": 56,
+      "h": 14
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "编辑",
+      "tag": "button",
+      "w": 28,
+      "h": 14
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "编辑",
+      "tag": "button",
+      "w": 28,
+      "h": 14
+    },
+    {
+      "page": "list",
+      "viewport": "1280x900",
+      "text": "编辑",
+      "tag": "button",
+      "w": 28,
+      "h": 14
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "INPUT",
+      "tag": "input",
+      "w": 184,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "切换深色模式",
+      "tag": "button",
+      "w": 34,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "管理员 · local-admin",
+      "tag": "button",
+      "w": 182,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "保存草稿",
+      "tag": "button",
+      "w": 84,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "校验",
+      "tag": "button",
+      "w": 56,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "自动补全",
+      "tag": "button",
+      "w": 84,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "重新补全空白",
+      "tag": "button",
+      "w": 112,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "确认内容",
+      "tag": "button",
+      "w": 84,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "预览草稿",
+      "tag": "button",
+      "w": 84,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "保存并发布",
+      "tag": "button",
+      "w": 98,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "汉字字帖",
+      "tag": "div",
+      "w": 150,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "修改摘要",
+      "tag": "input",
+      "w": 240,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "语文",
+      "tag": "div",
+      "w": 183,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "请选择",
+      "tag": "div",
+      "w": 183,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "上册",
+      "tag": "div",
+      "w": 183,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "出版社",
+      "tag": "input",
+      "w": 159,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "教材名称",
+      "tag": "input",
+      "w": 159,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "教材版本",
+      "tag": "input",
+      "w": 159,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "教材标识",
+      "tag": "input",
+      "w": 159,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "部分收录",
+      "tag": "div",
+      "w": 183,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "来源说明",
+      "tag": "input",
+      "w": 940,
+      "h": 34
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "全部内容（0）",
+      "tag": "button",
+      "w": 93,
+      "h": 14
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "解析并追加",
+      "tag": "button",
+      "w": 238,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "新单元名称",
+      "tag": "input",
+      "w": 218,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "新增单元",
+      "tag": "button",
+      "w": 238,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "新附录名称",
+      "tag": "input",
+      "w": 218,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "新增附录",
+      "tag": "button",
+      "w": 238,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "撤销",
+      "tag": "button",
+      "w": 238,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "新课文标题",
+      "tag": "input",
+      "w": 218,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "新增课文（到未分单元）",
+      "tag": "button",
+      "w": 238,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "按表类别筛选",
+      "tag": "div",
+      "w": 688,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "应用到当前范围",
+      "tag": "button",
+      "w": 118,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "默认来源",
+      "tag": "input",
+      "w": 140,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "默认来源定位",
+      "tag": "input",
+      "w": 120,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "默认来源页码",
+      "tag": "input",
+      "w": 70,
+      "h": 28
+    },
+    {
+      "page": "new",
+      "viewport": "1280x900",
+      "text": "应用到当前范围",
+      "tag": "button",
+      "w": 118,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "INPUT",
+      "tag": "input",
+      "w": 184,
+      "h": 34
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "切换深色模式",
+      "tag": "button",
+      "w": 34,
+      "h": 34
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "管理员 · local-admin",
+      "tag": "button",
+      "w": 182,
+      "h": 34
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "保存草稿",
+      "tag": "button",
+      "w": 84,
+      "h": 34
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "校验",
+      "tag": "button",
+      "w": 56,
+      "h": 34
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "自动补全",
+      "tag": "button",
+      "w": 84,
+      "h": 34
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "重新补全空白",
+      "tag": "button",
+      "w": 112,
+      "h": 34
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "确认内容",
+      "tag": "button",
+      "w": 84,
+      "h": 34
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "预览草稿",
+      "tag": "button",
+      "w": 84,
+      "h": 34
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "保存并发布",
+      "tag": "button",
+      "w": 98,
+      "h": 34
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "汉字字帖",
+      "tag": "div",
+      "w": 150,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "修改摘要",
+      "tag": "input",
+      "w": 240,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "全部内容（2）",
+      "tag": "button",
+      "w": 92,
+      "h": 14
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "第一单元",
+      "tag": "button",
+      "w": 56,
+      "h": 14
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "上移单元",
+      "tag": "button",
+      "w": 9,
+      "h": 12
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "下移单元",
+      "tag": "button",
+      "w": 9,
+      "h": 12
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "重命名单元",
+      "tag": "button",
+      "w": 24,
+      "h": 12
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "删除单元",
+      "tag": "button",
+      "w": 24,
+      "h": 12
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "解析并追加",
+      "tag": "button",
+      "w": 238,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "新单元名称",
+      "tag": "input",
+      "w": 218,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "新增单元",
+      "tag": "button",
+      "w": 238,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "新附录名称",
+      "tag": "input",
+      "w": 218,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "新增附录",
+      "tag": "button",
+      "w": 238,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "撤销",
+      "tag": "button",
+      "w": 238,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "新课文标题",
+      "tag": "input",
+      "w": 218,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "新增课文（到未分单元）",
+      "tag": "button",
+      "w": 238,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "按表类别筛选",
+      "tag": "div",
+      "w": 688,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "应用到当前范围",
+      "tag": "button",
+      "w": 118,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "默认来源",
+      "tag": "input",
+      "w": 140,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "默认来源定位",
+      "tag": "input",
+      "w": 120,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "默认来源页码",
+      "tag": "input",
+      "w": 70,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "应用到当前范围",
+      "tag": "button",
+      "w": 118,
+      "h": 28
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "row-1 来源",
+      "tag": "input",
+      "w": 114,
+      "h": 22
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "row-1 来源定位",
+      "tag": "input",
+      "w": 104,
+      "h": 22
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "row-1 来源页码",
+      "tag": "input",
+      "w": 64,
+      "h": 22
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "row-2 来源",
+      "tag": "input",
+      "w": 114,
+      "h": 22
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "row-2 来源定位",
+      "tag": "input",
+      "w": 104,
+      "h": 22
+    },
+    {
+      "page": "editor",
+      "viewport": "1280x900",
+      "text": "row-2 来源页码",
+      "tag": "input",
+      "w": 64,
+      "h": 22
+    }
+  ]
+}

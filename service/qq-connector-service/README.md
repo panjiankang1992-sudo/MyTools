@@ -1,6 +1,14 @@
 # QQ Connector Service
 
-官方 QQ Bot 原子连接器。它维护 Gateway、把 C2C 消息及附件标准化写入 Messaging，并仅对授权发送者的精确“登录/登陆”命令创建 `onebot_relogin` 任务。任务成功后从 OneBot Connector 读取新鲜二维码并回复原消息。授权发送者提交的 URL 或附件由 Message Automation 创建下载任务，连接器提供内部鉴权文本接口发送任务完成回执；被动回复窗口失效时自动降级为主动消息。
+官方 QQ Bot 原子连接器。它维护 Gateway，把私聊、群 @、频道与频道私信中的正文、嵌套 `msg_elements` 和附件标准化写入 Messaging。消息读取与引用恢复只使用官方下发事件和本地缓存，不依赖 OneBot。授权发送者提交的 URL 或附件由 Message Automation 创建下载任务，连接器提供内部鉴权文本接口发送任务完成回执；被动回复窗口失效时自动降级为主动消息。
+
+纯 QQ Bot 模式不设置 `ONEBOT_CONNECTOR_INTERNAL_TOKEN` 即可启动，精确“登录/登陆”文本此时作为普通消息处理。兼容旧流程：配置该令牌时，授权发送者的纯文本登录命令仍可创建 `onebot_relogin` 任务并读取二维码；引用和复合消息不触发该控制命令。
+
+嵌套消息按原有数组顺序展开，TEXT 分段中的 `qq-message` 标记携带层级路径、引用关系和平台实际提供的发送者、时间信息；保留重复正文，附件去重但保留重复出现的位置。支持图片、视频、文件、语音及官方语音识别文本，正文和 TEXT 分段同时移除已结构化的附件 URL，避免重复下载。`payload` 内嵌 JSON 和旧附件摘要文本属于兼容格式，预览图、头像等任意对象不会被当作附件。
+
+官方引用索引读取 `message_scene.ext` 中的 `msg_idx` / `ref_msg_idx`，以及 `msg_elements` 节点的 `msg_idx`。有内联正文优先使用；仅有索引时在同应用、同账户、同会话的持久化缓存中恢复原文。缓存默认位于 `QQ_CONNECTOR_INBOUND_WAL_PATH + ".references.sqlite3"`，可用 `QQ_CONNECTOR_REFERENCE_STORE_PATH` 覆盖，部署时应指向 release 目录外。默认保留 7 天、最多 4096 条、合计正文 64 MiB、单条 256 KiB；重放不延长保留期。Gateway 在唤醒并行 worker 前写入索引，减少引用先于原文处理的竞争。
+
+读取上限为 32 层、4096 个节点、100 万正文字符及 500 个 Messaging 分段（预留一个错误提示分段）。缺失原文、缓存未命中、坏结构、不可下载附件或超限时，正文与 TEXT 分段包含 `qq-incomplete` 及原因，不将其伪装成完整读取。这里只保证读取已下发或已缓存的结构，不能读取平台根本没有推送的转发记录，也没有调用非官方补取接口。实现依据和复验场景见 [官方 QQ 嵌套消息说明](../../docs/research/2026-10-25-qqbot-nested-messages.md)。
 
 凭据只来自服务端环境；连接器不执行 Shell、不接受路径、不直接修改业务数据库。同一 AppId 不得同时启用两个 Gateway 消费者。
 

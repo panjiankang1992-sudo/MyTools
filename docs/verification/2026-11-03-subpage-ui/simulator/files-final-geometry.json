@@ -1,0 +1,35 @@
+{
+  "hapSha256": "9b6a2b252581c9885eb1c2109ca0d24a878cd8d5652401e38b34c872e9f35ef9",
+  "buttons": {
+    "上传": {
+      "type": "Button",
+      "bounds": "[70,510][445,664]",
+      "enabled": "true",
+      "heightPx": 154,
+      "widthPx": 375
+    },
+    "新建文件夹": {
+      "type": "Button",
+      "bounds": "[473,510][848,664]",
+      "enabled": "true",
+      "heightPx": 154,
+      "widthPx": 375
+    },
+    "刷新": {
+      "type": "Button",
+      "bounds": "[875,510][1250,664]",
+      "enabled": "true",
+      "heightPx": 154,
+      "widthPx": 375
+    }
+  },
+  "expectedCount": 3,
+  "actualCount": 3,
+  "result": "passed",
+  "equalVisibleHeight": true,
+  "equalVisibleWidth": true,
+  "heightPx": 154,
+  "heightVp": 44,
+  "scalePxPerVp": 3.5,
+  "sourceLayout": "/tmp/mytools-ui-simulator-private/11-files-final.json"
+}

@@ -9,6 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @SpringBootApplication
 @EnableScheduling
+@org.springframework.boot.context.properties.EnableConfigurationProperties({com.yuyutian.mytools.messaging.config.OutboundRetentionProperties.class,
+        com.yuyutian.mytools.messaging.config.OutboundCapacityProperties.class})
 public class MessagingServiceApplication {
 
     /**

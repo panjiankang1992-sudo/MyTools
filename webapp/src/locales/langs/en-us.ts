@@ -226,6 +226,7 @@ const local: App.I18n.Schema = {
     }
   },
   route: {
+    news: 'Daily News',
     login: 'Login',
     403: 'No Permission',
     404: 'Page Not Found',

@@ -1,0 +1,11 @@
+[Unit]
+Description=MyTools DSH upload relay socket
+
+[Socket]
+ListenStream=/run/mytools-dsh-upload.sock
+SocketGroup=www-data
+SocketMode=0660
+RemoveOnStop=yes
+
+[Install]
+WantedBy=sockets.target

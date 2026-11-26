@@ -22,6 +22,7 @@ video:
   gpu-coordination-validated: ${VIDEO_GPU_COORDINATION_VALIDATED:false}
   # 逐模式验收开关；默认全部关闭，未验收模式只出现在能力目录里并带原因码。
   t2v-validated: ${VIDEO_T2V_VALIDATED:false}
+  ltx-first-frame-validated: ${VIDEO_LTX_FIRST_FRAME_VALIDATED:false}
   first-frame-validated: ${VIDEO_FIRST_FRAME_VALIDATED:false}
   references-validated: ${VIDEO_REFERENCES_VALIDATED:false}
   first-last-validated: ${VIDEO_FIRST_LAST_VALIDATED:false}

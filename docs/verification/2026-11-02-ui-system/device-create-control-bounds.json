@@ -1,0 +1,51 @@
+[
+  {
+    "type": "Text",
+    "text": "切换模型",
+    "bounds": "[916,809][1125,881]",
+    "enabled": "true",
+    "clickable": "false"
+  },
+  {
+    "type": "Button",
+    "text": "切换模型",
+    "bounds": "[890,773][1151,916]",
+    "enabled": "true",
+    "clickable": "true"
+  },
+  {
+    "type": "Text",
+    "text": "1 张",
+    "bounds": "[104,1807][256,1905]",
+    "enabled": "true",
+    "clickable": "false"
+  },
+  {
+    "type": "Text",
+    "text": "2 张",
+    "bounds": "[282,1807][434,1905]",
+    "enabled": "true",
+    "clickable": "false"
+  },
+  {
+    "type": "Text",
+    "text": "4 张",
+    "bounds": "[460,1807][612,1905]",
+    "enabled": "true",
+    "clickable": "false"
+  },
+  {
+    "type": "Text",
+    "text": "生成图片",
+    "bounds": "[504,2223][713,2295]",
+    "enabled": "true",
+    "clickable": "false"
+  },
+  {
+    "type": "Button",
+    "text": "生成图片",
+    "bounds": "[65,2187][1151,2330]",
+    "enabled": "false",
+    "clickable": "false"
+  }
+]

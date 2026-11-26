@@ -1,0 +1,13 @@
+{
+  "device": "127.0.0.1:5555",
+  "sha256": "3bd11eef18a22cc3ea7c78b31377b39f194a988e301c0dcbd589a2b3ef58930f",
+  "checks": [
+    "horizontal_selection_updates",
+    "jpg_selection_updates",
+    "history_opens",
+    "history_boundary_buttons_disabled",
+    "single_page_preview_boundary_buttons_disabled",
+    "start_enters_completed_result"
+  ],
+  "build": "passed_without_compiler_warnings"
+}

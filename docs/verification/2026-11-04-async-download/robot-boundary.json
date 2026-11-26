@@ -1,0 +1,8 @@
+{
+  "submitPackage": "1.2.1",
+  "status": "SUCCEEDED",
+  "validation": "direct real-service replay of completed binding",
+  "originalDownloadRequestId": "91d62b8c-1bc4-49f3-8092-b951c133fd6c",
+  "bindingUnchanged": true,
+  "childTasks": 0
+}

@@ -1,0 +1,71 @@
+{
+  "version": "mobile-v2",
+  "upstreamVersion": "0.2.1-rc.2",
+  "build": "passed",
+  "existingWarning": "DownloadToolsPage.ets:78 READ_PASTEBOARD",
+  "popupLifecycleTests": "passed",
+  "urlPolicyTests": "passed",
+  "javascriptSyntax": "passed",
+  "webNavigation": {
+    "modelSubmenuToParent": "passed",
+    "parentMenuToChat": "passed",
+    "nestedShortcutDialogToSettings": "passed",
+    "settingsToDrawer": "passed",
+    "drawerToChat": "passed",
+    "filePanelToChat": "passed",
+    "rootReturnsFalse": "passed",
+    "method": "same-origin iframe harness, pointerdown without focus change"
+  },
+  "layout": {
+    "320x740": {
+      "modelButton": [
+        265,
+        44
+      ],
+      "settingsWidth": 320,
+      "settingsScrollWidth": 320,
+      "settingCategoriesWhenSignedIn": 5,
+      "accountActionLinkHeights": [
+        44,
+        44
+      ],
+      "themeIcon": [
+        20,
+        20
+      ],
+      "themeCardTextWrap": "nowrap"
+    },
+    "390x844": {
+      "rightPanelEntry": [
+        44,
+        44
+      ],
+      "fileTabButtons": [
+        44,
+        44
+      ]
+    },
+    "390x450": {
+      "sendButtonBottom": 360,
+      "note": "reduced viewport, not a real keyboard"
+    },
+    "1440x900": {
+      "settingsPanel": 800,
+      "navigation": 188,
+      "content": 612
+    }
+  },
+  "signedHap": "app/build/dsh-mobile/entry-dsh-mobile-20261102-v2-signed.hap",
+  "sha256": "ef07a0e2732fa7575feda359247d2370337768b7660973c3fc18604f17a18e4d",
+  "bytes": 51331803,
+  "sourceHashes": {
+    "deploy/dsh-mobile/mobile.js": "5ef28b57671cc66ff0bba1679f8e1ec477ae173af386b18ed402e2273548081f",
+    "deploy/dsh-mobile/mobile.css": "6a464d1d3fd8cce3775ef25ae8d584cdd39e155b06a2ea8fe3ce2a64cb03b2d7",
+    "app/entry/src/main/ets/features/dsh/DshPopupLifecycle.ets": "39a95513226802fe222583870587ab26888de0af07744e587a26726f41eba339",
+    "app/entry/src/main/ets/features/dsh/DshPopupRelay.ets": "0ac44fec6438fda9135c6f57a0c1e1042c81b6d929b44dcea0eae63825f1ea97",
+    "app/entry/src/main/ets/pages/Index.ets": "1c463d0fdad69386e2e0035ab8c05acdccd43b69ff7b50ba96f909b89b6e807b"
+  },
+  "productionDeployment": false,
+  "deviceInstallation": false,
+  "nativeBackAndLoginReturn": "awaiting real-device validation"
+}

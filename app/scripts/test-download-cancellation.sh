@@ -22,7 +22,16 @@ grep -Fq "throw new Error('下载已取消')" "$CLIENT"
 grep -Fq 'cancellation?: DownloadCancellationToken' "$API"
 grep -Fq 'this.activeDownloadCancellation.cancel()' "$PAGE"
 test "$(grep -Fc 'this.activeDownloadCancellation?.cancel();' "$PAGE")" -ge 2
-grep -Fq "Button('取消下载')" "$PAGE"
+# 公共按钮迁移后仍只允许取消当前账户的活动下载，并保留原取消回调。
+downloads="$(sed -n '/private ToolDownloadsPage(/,/^  }/p' "$PAGE")"
+cancel="$(sed -n '/private CancelActiveDownload(/,/^  }/p' "$PAGE")"
+printf '%s\n' "$downloads" | grep -Fq "if (item.status === 'running')"
+printf '%s\n' "$downloads" | grep -Fq 'item.owner === this.activeDownloadOwner && item.id === this.activeDownloadTaskId'
+printf '%s\n' "$downloads" | grep -Fq "AppButton({ label: '取消下载',"
+printf '%s\n' "$downloads" | grep -Fq "variant: 'danger'"
+printf '%s\n' "$downloads" | grep -Fq 'action: () => this.CancelActiveDownload()'
+printf '%s\n' "$cancel" | grep -Fq 'this.activeDownloadCancellation === undefined || this.activeDownloadTaskId.length === 0'
+printf '%s\n' "$cancel" | grep -Fq 'this.activeDownloadCancellation.cancel();'
 grep -Fq "cancelled ? 'cancelled' : 'failed'" "$PAGE"
 grep -Fq "if (status === 'cancelled') return '已取消'" "$PAGE"
 echo 'Download cancellation integration tests passed'

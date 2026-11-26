@@ -1,0 +1,95 @@
+{
+  "batch": 11,
+  "date": "2026-10-18",
+  "goalStatus": "ACTIVE",
+  "backend": {
+    "news": {
+      "tests": 183,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 4
+    },
+    "messaging": {
+      "tests": 127,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "gatewayNews": {
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "webStateTests": {
+    "tests": 33,
+    "passed": 33
+  },
+  "browser": {
+    "reading": {
+      "passed": 19,
+      "checks": [
+        "twenty headlines rendered",
+        "only available top-ten details rendered",
+        "missing details kept at original ranks",
+        "trend readiness distinguished from generation readiness",
+        "executable URL blocked",
+        "untrusted markup remains plain text",
+        "historical region preserved",
+        "current region shown separately",
+        "evidence can be expanded",
+        "empty local category does not borrow national stories",
+        "category switching shows actual count",
+        "subscription saved with expected revision",
+        "no client owner or destination fields",
+        "conflict preserves draft",
+        "conflict blocks overwrite",
+        "explicit reload restores editing",
+        "network-loss preview retries same key and cutoff",
+        "cancelled run no longer offers cancellation",
+        "failed refresh keeps last readable history with error"
+      ]
+    },
+    "evidence": {
+      "passed": 10,
+      "checks": [
+        "retained citation is labelled",
+        "expired citation is labelled",
+        "missing evidence is distinct from expired",
+        "missing evidence has no invented deadline",
+        "local retention status is explained without claiming verification",
+        "status failure preserves frozen excerpts",
+        "failed refresh clears stale available label",
+        "recovered status keeps same edition content",
+        "390px evidence view has no horizontal overflow",
+        "360px evidence view has no horizontal overflow"
+      ]
+    }
+  },
+  "checks": {
+    "java21NewsStrictPackage": true,
+    "java21MessagingStrictPackage": true,
+    "webTypecheck": true,
+    "webProductionBuild": true,
+    "targetedOxlint": true,
+    "readerVueEslint": true
+  },
+  "liveAcceptance": {
+    "mysql": false,
+    "realProviderSend": false,
+    "executorRegion": false,
+    "sevenDayCollection": false
+  },
+  "sourceSha256": {
+    "service/messaging-service/db/migrations/V20__add_outbound_retention.sql": "4c317a0d9b027d79fa66520b749063c2a085a4dce7a3e413b01da88a99e16c43",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/service/OutboundRetentionService.java": "6d38777a7236a267a0e21ad93b2ba63e34cf736e52720451c7f6655839441a94",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/service/OutboundService.java": "b051be915780b2eee3f7328845bd8ec66256a3b3ac662018f6a9ede8552a2e4f",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/utils/outbound/OutboundSecurity.java": "9377f1fd1d0e2bb5a2f1c878b48316d4d454383e2abfa0c47974068e74d77233",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/EvidenceService.java": "0e5b3a28291561742b952b8e181ffddf2802c6e3c0d362a7bad8f745398abdb8",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/EvidenceRepository.java": "06a960a728eceb39df542629f106840f950ecdd9fca6cb1706334d065c8f7650",
+    "service/mytools-gateway/src/main/java/com/yuyutian/mytools/gateway/controller/NewsGatewayController.java": "73fc59d98640b0e48fcdafb0a663840eeb3387e144839747ab3263541ed849a5",
+    "webapp/src/views/news/evidence-model.ts": "76817f78ecdfb8ca05e5f03944f4ccbbefb096f0482e6c52b188f8bc5154b61b",
+    "webapp/src/views/news/modules/news-reader.vue": "f8dee7a510de0e5beb5cccc56a223d55c7377d260469084dac90fb366ffee5f8"
+  }
+}

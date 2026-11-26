@@ -1,0 +1,12 @@
+PASS PDF_TO_IMAGES pdf-phone-acceptance-20260928_result-1.jpg 14781 bytes valid JPEG
+PASS PDF_TO_IMAGES pdf-phone-acceptance-20260928_result-2.jpg 15968 bytes valid JPEG
+PASS MARKDOWN_TO_PDF result.pdf 3807 bytes 1 pages
+PASS TEXT_TO_PDF result.pdf 3812 bytes 1 pages; Chinese text retained
+PASS PDF_TO_TEXT pdf-phone-acceptance-20260928_result.txt 30 bytes expected text present
+PASS PDF_PAGE_CUT pdf-phone-acceptance-20260928-encrypted_result.pdf 2809 bytes 4 pages
+PASS PDF_MERGE pdf-phone-acceptance-20260928_result_result.pdf 4072 bytes 6 pages
+PASS PDF_SPLIT pdf-phone-acceptance-20260928_result-1.pdf 1053 bytes 1 pages
+PASS PDF_SPLIT pdf-phone-acceptance-20260928_result-2.pdf 1050 bytes 1 pages
+PASS PDF_PAGE_CUT pdf-phone-acceptance-20260928_result.pdf 2809 bytes 4 pages
+PASS IMAGES_TO_PDF pdf-phone-acceptance-20260928_result.pdf 3512 bytes 1 pages; A5 verified
+PASS system-saved PDF: 4 pages, 300 x 400 points per page.

@@ -1,0 +1,8 @@
+{
+  "deltaSha256": "f93ac058592bb50e0b05194a46513b50149b63c9d548cc8c1a3617f1288b01b6",
+  "entries": [
+    "BOOT-INF/classes/com/yuyutian/mytools/gateway/model/ConnectivityModels$Bootstrap.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/gateway/service/ConnectivityService$Probe.class",
+    "BOOT-INF/classes/com/yuyutian/mytools/gateway/service/ConnectivityService.class"
+  ]
+}

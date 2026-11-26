@@ -61,6 +61,26 @@ class InstallReleaseTest(unittest.TestCase):
         self.assertEqual("release_1", current.readlink().as_posix())
         install_python.assert_called_once()
 
+    @patch.object(MODULE.subprocess, "run")
+    def test_news_runtime_installs_only_its_pinned_region_dependencies(self, run):
+        destination = self.root / "news-release"
+        project = destination / "python-src" / "worker"
+        project.mkdir(parents=True)
+        (project / "pyproject.toml").write_text("[project]\nname='fixture'\n")
+        (destination / "apps").mkdir()
+        (destination / "apps" / "news-digest-service.jar").write_bytes(b"fixture")
+        with self.assertRaisesRegex(ValueError, "requirements are missing"):
+            MODULE.install_python(destination, "python3")
+        self.assertFalse(any("pip" in call.args[0] for call in run.call_args_list))
+        requirements = destination / "task-packages" / "news_resolve_region" / "1.2.0" / "requirements.txt"
+        requirements.parent.mkdir(parents=True)
+        requirements.write_text("maxminddb==3.2.0\n")
+        run.reset_mock()
+        MODULE.install_python(destination, "python3")
+        command = run.call_args_list[-1].args[0]
+        self.assertEqual(["-r", str(requirements)], command[-2:])
+        self.assertIn(str(project), command)
+
     def test_requires_exact_remote_deployment_root(self):
         with self.assertRaisesRegex(ValueError, "deployment root"):
             MODULE.validate_destination(Path("/tmp/mytools"), "release_1")

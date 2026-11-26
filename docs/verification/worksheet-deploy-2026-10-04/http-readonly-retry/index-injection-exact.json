@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-10-03T16:54:36.026369+00:00",
+  "releaseId": "worksheet-three-step-20261004-003105",
+  "http": {
+    "path": "/",
+    "status": 200,
+    "mime": "text/html",
+    "bytes": 1566,
+    "sha256": "cb367142b76cff5d0061b8f32bbaf92093e37fc2c985bcff9c7eaa176f33e44e",
+    "durationMs": 924,
+    "error": null
+  },
+  "rawHashMatchesManifest": false,
+  "manifestBytes": 1199,
+  "manifestSha256": "e2d399bb6c0da59e922ef54875d712365abfca6aecb2cc893923c451956ebce9",
+  "confirmedInjectedScriptCount": 1,
+  "script": {
+    "sourceHost": "static.cloudflareinsights.com",
+    "sourcePathPrefix": "/beacon.min.js",
+    "bytes": 366,
+    "sha256": "d3145aca77bbb82476faed3c232596125b858404a8790969316f8c34e01913b3",
+    "startOffset": 1183
+  },
+  "afterScriptOnly": {
+    "bytes": 1200,
+    "sha256": "212391ceb7d352be5427b6b667bd3ac0e1609091e7cb2c28f5f8b6078ac22b33"
+  },
+  "adjacentSingleLfCandidates": [
+    {
+      "removedLfOffsetAfterScriptRemoval": 1183,
+      "removedByteHex": "0a",
+      "bytes": 1199,
+      "sha256": "e2d399bb6c0da59e922ef54875d712365abfca6aecb2cc893923c451956ebce9",
+      "matchesManifestExactly": true
+    }
+  ],
+  "exactlyMatchesAfterDocumentedInjectionRemoval": true,
+  "boundary": "Raw HTTP HTML remains different. Exact removal is limited to one verified Cloudflare beacon empty script tag plus its adjacent single LF byte; no server/CDN settings changed."
+}

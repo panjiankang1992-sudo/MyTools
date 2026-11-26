@@ -1,0 +1,8 @@
+UNCONFIRMED_PARTIAL_ENTRY: publishable=true; issues=[]
+INVALID_PINYIN: publishable=true; issues=[]
+LESSON_UNIT_MISMATCH: publishable=true; issues=[]
+DUPLICATE_LESSON_ORDER: publishable=true; issues=[]
+INSERT_BEFORE_PERSISTED_ROW: ids=[audit-book-e0001, audit-book-e0001]
+INSERT_BEFORE_PERSISTED_ROW: uniqueIds=1; entries=2
+UNCONFIRMED_PUBLIC_REVIEW_STATUS=DRAFT
+PUBLISHED_SOURCE_REFS=[]

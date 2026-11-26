@@ -1,0 +1,339 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-04",
+  "purpose": "15 个缺册的官方电子教材来源清单（选项 ②：只出清单，不落地教材正文）。",
+  "source": {
+    "name": "国家中小学智慧教育平台 · 电子教材",
+    "indexApi": "https://s-file-1.ykt.cbern.com.cn/zxx/ndrs/resources/tch_material/version/data_version.json",
+    "indexParts": [
+      "part_100.json",
+      "part_101.json",
+      "part_102.json",
+      "part_103.json"
+    ],
+    "accessBasis": "publicEducationPlatformDocuments",
+    "detailUrlTemplate": "https://basic.smartedu.cn/tchMaterial/detail?contentType=assets_document&contentId={id}&catalogType=tchMaterial&subCatalog=tchMaterial",
+    "reachability": {
+      "indexApi": "HTTP 200（沙箱可直连）",
+      "detailPage": "HTTP 200（真实浏览器，标题与教材一致）",
+      "directPdfGuess": "HTTP 403（文件名含 ISBN，未解析）"
+    }
+  },
+  "summary": {
+    "requirementSlots": 20,
+    "published": 5,
+    "missing": 15,
+    "missingCoveredByOfficialIndex": 15,
+    "note": "15 个缺册在官方索引中全部命中，具备按既有 officialEbook 方式逐册取得的条件。"
+  },
+  "missingSlots": [
+    {
+      "slotId": "chinese-1-second",
+      "subject": "chinese",
+      "grade": 1,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "b87e153f-a64c-451a-aa6c-6ed9ac7d6821",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文一年级下册"
+    },
+    {
+      "slotId": "chinese-2-second",
+      "subject": "chinese",
+      "grade": 2,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "0f93b83e-b3c2-4a5d-8acd-ea460ab962d4",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文二年级下册"
+    },
+    {
+      "slotId": "chinese-3-second",
+      "subject": "chinese",
+      "grade": 3,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "8e107655-5128-451f-84e5-d158725c537b",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文三年级下册"
+    },
+    {
+      "slotId": "chinese-4-second",
+      "subject": "chinese",
+      "grade": 4,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "53d6315e-5f90-42c4-904f-2d4e95fe99ed",
+      "officialTitle": "义务教育教科书·语文四年级下册"
+    },
+    {
+      "slotId": "chinese-5-first",
+      "subject": "chinese",
+      "grade": 5,
+      "semester": "first",
+      "currentStatus": "missing",
+      "officialAssetId": "aabf2e4a-3ceb-4e86-8804-22c10223cc57",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文五年级上册"
+    },
+    {
+      "slotId": "chinese-5-second",
+      "subject": "chinese",
+      "grade": 5,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "98172dc9-8fba-4da6-9fae-6a3d1166f038",
+      "officialTitle": "义务教育教科书·语文五年级下册"
+    },
+    {
+      "slotId": "chinese-6-first",
+      "subject": "chinese",
+      "grade": 6,
+      "semester": "first",
+      "currentStatus": "missing",
+      "officialAssetId": "2e3dc199-9c42-486b-bbee-7731bd0ee227",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文六年级上册"
+    },
+    {
+      "slotId": "chinese-6-second",
+      "subject": "chinese",
+      "grade": 6,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "06422d77-21f1-45c3-b409-fa2947eee424",
+      "officialTitle": "义务教育教科书·语文六年级下册"
+    },
+    {
+      "slotId": "english-3-second",
+      "subject": "english",
+      "grade": 3,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "d87e8865-615a-4b3b-8d34-179b9fb33013",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·英语三年级下册"
+    },
+    {
+      "slotId": "english-4-first",
+      "subject": "english",
+      "grade": 4,
+      "semester": "first",
+      "currentStatus": "missing",
+      "officialAssetId": "a9ce6662-f5a5-4561-944a-c3dbcc5a8192",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·英语 四年级上册"
+    },
+    {
+      "slotId": "english-4-second",
+      "subject": "english",
+      "grade": 4,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "a4fb0c8b-ebd6-4db9-bca0-705fca8126e4",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·英语 四年级下册"
+    },
+    {
+      "slotId": "english-5-first",
+      "subject": "english",
+      "grade": 5,
+      "semester": "first",
+      "currentStatus": "missing",
+      "officialAssetId": "06631d69-0865-4694-baf9-dccf22bff2fd",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·英语 五年级上册"
+    },
+    {
+      "slotId": "english-5-second",
+      "subject": "english",
+      "grade": 5,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "d3324da8-fe96-4a0d-9259-e60794e27491",
+      "officialTitle": "义务教育教科书·英语（三年级起点）五年级下册"
+    },
+    {
+      "slotId": "english-6-first",
+      "subject": "english",
+      "grade": 6,
+      "semester": "first",
+      "currentStatus": "missing",
+      "officialAssetId": "32d2e60a-be5a-4c1c-92d6-8b99e00f6db3",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·英语 六年级上册"
+    },
+    {
+      "slotId": "english-6-second",
+      "subject": "english",
+      "grade": 6,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "2b63b996-3f8c-439a-bb0c-3f127c9507af",
+      "officialTitle": "义务教育教科书·英语（三年级起点）六年级下册"
+    }
+  ],
+  "allMatchedSlots": [
+    {
+      "slotId": "chinese-1-first",
+      "subject": "chinese",
+      "grade": 1,
+      "semester": "first",
+      "currentStatus": "published",
+      "officialAssetId": "1c73b348-e8b6-47d6-84b0-6dbacbe28268",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文一年级上册"
+    },
+    {
+      "slotId": "chinese-1-second",
+      "subject": "chinese",
+      "grade": 1,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "b87e153f-a64c-451a-aa6c-6ed9ac7d6821",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文一年级下册"
+    },
+    {
+      "slotId": "chinese-2-first",
+      "subject": "chinese",
+      "grade": 2,
+      "semester": "first",
+      "currentStatus": "published",
+      "officialAssetId": "2ce8f153-7bff-4c97-b6db-9aac414fea19",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文二年级上册"
+    },
+    {
+      "slotId": "chinese-2-second",
+      "subject": "chinese",
+      "grade": 2,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "0f93b83e-b3c2-4a5d-8acd-ea460ab962d4",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文二年级下册"
+    },
+    {
+      "slotId": "chinese-3-first",
+      "subject": "chinese",
+      "grade": 3,
+      "semester": "first",
+      "currentStatus": "published",
+      "officialAssetId": "837f368e-fd4e-404a-ae3f-342d75bc0227",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文三年级上册"
+    },
+    {
+      "slotId": "chinese-3-second",
+      "subject": "chinese",
+      "grade": 3,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "8e107655-5128-451f-84e5-d158725c537b",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文三年级下册"
+    },
+    {
+      "slotId": "chinese-4-first",
+      "subject": "chinese",
+      "grade": 4,
+      "semester": "first",
+      "currentStatus": "published",
+      "officialAssetId": "5cd7e623-5c38-4602-871a-3fba8a551db2",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文四年级上册"
+    },
+    {
+      "slotId": "chinese-4-second",
+      "subject": "chinese",
+      "grade": 4,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "53d6315e-5f90-42c4-904f-2d4e95fe99ed",
+      "officialTitle": "义务教育教科书·语文四年级下册"
+    },
+    {
+      "slotId": "chinese-5-first",
+      "subject": "chinese",
+      "grade": 5,
+      "semester": "first",
+      "currentStatus": "missing",
+      "officialAssetId": "aabf2e4a-3ceb-4e86-8804-22c10223cc57",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文五年级上册"
+    },
+    {
+      "slotId": "chinese-5-second",
+      "subject": "chinese",
+      "grade": 5,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "98172dc9-8fba-4da6-9fae-6a3d1166f038",
+      "officialTitle": "义务教育教科书·语文五年级下册"
+    },
+    {
+      "slotId": "chinese-6-first",
+      "subject": "chinese",
+      "grade": 6,
+      "semester": "first",
+      "currentStatus": "missing",
+      "officialAssetId": "2e3dc199-9c42-486b-bbee-7731bd0ee227",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·语文六年级上册"
+    },
+    {
+      "slotId": "chinese-6-second",
+      "subject": "chinese",
+      "grade": 6,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "06422d77-21f1-45c3-b409-fa2947eee424",
+      "officialTitle": "义务教育教科书·语文六年级下册"
+    },
+    {
+      "slotId": "english-3-second",
+      "subject": "english",
+      "grade": 3,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "d87e8865-615a-4b3b-8d34-179b9fb33013",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·英语三年级下册"
+    },
+    {
+      "slotId": "english-4-first",
+      "subject": "english",
+      "grade": 4,
+      "semester": "first",
+      "currentStatus": "missing",
+      "officialAssetId": "a9ce6662-f5a5-4561-944a-c3dbcc5a8192",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·英语 四年级上册"
+    },
+    {
+      "slotId": "english-4-second",
+      "subject": "english",
+      "grade": 4,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "a4fb0c8b-ebd6-4db9-bca0-705fca8126e4",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·英语 四年级下册"
+    },
+    {
+      "slotId": "english-5-first",
+      "subject": "english",
+      "grade": 5,
+      "semester": "first",
+      "currentStatus": "missing",
+      "officialAssetId": "06631d69-0865-4694-baf9-dccf22bff2fd",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·英语 五年级上册"
+    },
+    {
+      "slotId": "english-5-second",
+      "subject": "english",
+      "grade": 5,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "d3324da8-fe96-4a0d-9259-e60794e27491",
+      "officialTitle": "义务教育教科书·英语（三年级起点）五年级下册"
+    },
+    {
+      "slotId": "english-6-first",
+      "subject": "english",
+      "grade": 6,
+      "semester": "first",
+      "currentStatus": "missing",
+      "officialAssetId": "32d2e60a-be5a-4c1c-92d6-8b99e00f6db3",
+      "officialTitle": "（根据2022年版课程标准修订）义务教育教科书·英语 六年级上册"
+    },
+    {
+      "slotId": "english-6-second",
+      "subject": "english",
+      "grade": 6,
+      "semester": "second",
+      "currentStatus": "missing",
+      "officialAssetId": "2b63b996-3f8c-439a-bb0c-3f127c9507af",
+      "officialTitle": "义务教育教科书·英语（三年级起点）六年级下册"
+    }
+  ]
+}

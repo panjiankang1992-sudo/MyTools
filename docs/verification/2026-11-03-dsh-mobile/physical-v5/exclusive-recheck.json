@@ -1,0 +1,198 @@
+[
+  {
+    "seconds": 3.0,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 6.0,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 9.0,
+    "ready": false,
+    "loading": false,
+    "retry": false,
+    "nativeMessages": []
+  },
+  {
+    "seconds": 12.1,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 15.1,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 18.1,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 21.2,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 24.3,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 27.3,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 30.4,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 33.4,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 36.5,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 39.5,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 42.5,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 45.5,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 48.6,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 51.7,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 54.7,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 57.7,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 60.6,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 63.7,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  },
+  {
+    "seconds": 66.8,
+    "ready": false,
+    "loading": true,
+    "retry": false,
+    "nativeMessages": [
+      "DSH"
+    ]
+  }
+]

@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-06",
+  "scope": "reviewed local sources; not a deployment checksum",
+  "files": [
+    {
+      "path": "docs/design/2026-10-05-toolbox-admin-textbooks/design-and-implementation.md",
+      "sha256": "5823eb678c9aa7169050688d35ba74e4bf4c7f1626fd876ad053579459ea555e"
+    },
+    {
+      "path": "toolbox-web/src/views/admin/TextbookEditorView.vue",
+      "sha256": "9c7890a648c10e9917d6b8ffb5d84e9443c628b1eb11fa5c0ee90d0c73cee8ba"
+    },
+    {
+      "path": "toolbox-web/src/App.vue",
+      "sha256": "81d6d7ff2020c71cd56d9e687bb14e82c19cf0a44c3b1df7f82c2cdb4b55b36b"
+    },
+    {
+      "path": "toolbox-web/src/lib/admin-textbook-draft.ts",
+      "sha256": "f391246d32fe22288700c143235db8db846079c5f270ff55520a7af6380e2c81"
+    },
+    {
+      "path": "service/toolbox-service/src/main/java/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService.java",
+      "sha256": "9d71980cbdcf6c77f2f57bac0b4d41337b119297df2f4f8b2f64cf564dacada7"
+    },
+    {
+      "path": "service/toolbox-service/src/main/java/com/yuyutian/mytools/toolbox/controller/admin/auth/AdminAuthController.java",
+      "sha256": "7419d38921e17e585558ef38bec2ba01dc261a336f22996b90f3b4ee076d5cf5"
+    }
+  ]
+}

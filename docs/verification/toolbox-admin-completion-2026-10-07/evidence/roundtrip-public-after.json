@@ -1,0 +1,514 @@
+{
+  "all": {
+    "code": "OK",
+    "data": {
+      "catalogVersion": "catalog-5",
+      "editions": [
+        {
+          "editionId": "cn-ty-1-1-pep-2024",
+          "subject": "chinese",
+          "grade": 1,
+          "semester": "first",
+          "regionCodes": [
+            "jiangsu"
+          ],
+          "publisher": "人民教育出版社",
+          "series": "统编语文",
+          "editionLabel": "2024 年版（2022 课标修订版）",
+          "curriculumYear": null,
+          "isbn": null,
+          "sourceIds": [
+            "smartedu-ebook-cn-1-first-2024"
+          ],
+          "schemaVersion": 1,
+          "contentVersion": "1.0.2",
+          "contentSha256": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527",
+          "reviewStatus": "published",
+          "coverageStatus": "partial",
+          "verifiedAt": "2026-10-02T00:00:00Z",
+          "publishedAt": "2026-10-02T15:57:08.791Z",
+          "availableEntryCount": 318,
+          "expectedEntryCount": 318,
+          "missingScopes": [
+            "教材本册没有词语表，故无词语条目",
+            "汉语拼音第 1、2 课没有生字，目录中不出现"
+          ]
+        },
+        {
+          "editionId": "cn-ty-2-1-pep-2017",
+          "subject": "chinese",
+          "grade": 2,
+          "semester": "first",
+          "regionCodes": null,
+          "publisher": "人民教育出版社",
+          "series": "统编语文",
+          "editionLabel": "2017 年版（教育部审定）",
+          "curriculumYear": null,
+          "isbn": null,
+          "sourceIds": [
+            "nmg-smartedu-cn-2-first"
+          ],
+          "schemaVersion": 1,
+          "contentVersion": "1.0.3",
+          "contentSha256": "daf97d35520076d4bccc94c74b40e119267a5266013d5fbbbdf167dab3962bb1",
+          "reviewStatus": "published",
+          "coverageStatus": "partial",
+          "verifiedAt": "2026-10-06T18:40:08.799769Z",
+          "publishedAt": "2026-10-06T18:40:08.799770Z",
+          "availableEntryCount": 761,
+          "expectedEntryCount": null,
+          "missingScopes": []
+        },
+        {
+          "editionId": "cn-ty-3-1-pep-2024",
+          "subject": "chinese",
+          "grade": 3,
+          "semester": "first",
+          "regionCodes": null,
+          "publisher": "人民教育出版社",
+          "series": "统编语文",
+          "editionLabel": "2024 年版（2022 课标修订版，江苏）",
+          "curriculumYear": null,
+          "isbn": null,
+          "sourceIds": [
+            "smartedu-ebook-cn-3-first-2024"
+          ],
+          "schemaVersion": 1,
+          "contentVersion": "1.0.1",
+          "contentSha256": "6466208d77380ff24ad81c952cf65e591b515d5cb1b5e461b74b771350e59881",
+          "reviewStatus": "published",
+          "coverageStatus": "partial",
+          "verifiedAt": "2026-10-06T18:40:09.361469Z",
+          "publishedAt": "2026-10-06T18:40:09.361469Z",
+          "availableEntryCount": 778,
+          "expectedEntryCount": null,
+          "missingScopes": []
+        },
+        {
+          "editionId": "cn-ty-4-1-pep-2024",
+          "subject": "chinese",
+          "grade": 4,
+          "semester": "first",
+          "regionCodes": [
+            "jiangsu"
+          ],
+          "publisher": "人民教育出版社",
+          "series": "统编语文",
+          "editionLabel": "2024 年版（2022 课标修订版，��",
+          "curriculumYear": null,
+          "isbn": null,
+          "sourceIds": [
+            "smartedu-ebook-cn-4-first-2024"
+          ],
+          "schemaVersion": 1,
+          "contentVersion": "1.0.0",
+          "contentSha256": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295",
+          "reviewStatus": "published",
+          "coverageStatus": "partial",
+          "verifiedAt": "2026-10-02T00:00:00Z",
+          "publishedAt": "2026-10-03T04:23:25.457Z",
+          "availableEntryCount": 640,
+          "expectedEntryCount": 640,
+          "missingScopes": [
+            "无词句积累条目",
+            "识字表之外 155 字读音来自本册外来源"
+          ]
+        },
+        {
+          "editionId": "en-yl-3-1-yilin-2024",
+          "subject": "english",
+          "grade": 3,
+          "semester": "first",
+          "regionCodes": null,
+          "publisher": "译林出版社",
+          "series": "译林版英语",
+          "editionLabel": "2024 年版（2022 课标修订版）",
+          "curriculumYear": null,
+          "isbn": null,
+          "sourceIds": [
+            "yilin-en-3-first-2024"
+          ],
+          "schemaVersion": 1,
+          "contentVersion": "1.0.3",
+          "contentSha256": "4d19348879c114cfa0da7650f7ab6cc5afd3b4d12a48b87ae9433580d3db09d1",
+          "reviewStatus": "published",
+          "coverageStatus": "partial",
+          "verifiedAt": "2026-10-06T18:40:09.800911Z",
+          "publishedAt": "2026-10-06T18:40:09.800911Z",
+          "availableEntryCount": 140,
+          "expectedEntryCount": null,
+          "missingScopes": []
+        }
+      ],
+      "coverage": [
+        {
+          "subject": "chinese",
+          "grade": 1,
+          "semester": "first",
+          "coverageStatus": "partial",
+          "editionIds": [
+            "cn-ty-1-1-pep-2024"
+          ]
+        },
+        {
+          "subject": "chinese",
+          "grade": 1,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 2,
+          "semester": "first",
+          "coverageStatus": "partial",
+          "editionIds": [
+            "cn-ty-2-1-pep-2017"
+          ]
+        },
+        {
+          "subject": "chinese",
+          "grade": 2,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 3,
+          "semester": "first",
+          "coverageStatus": "partial",
+          "editionIds": [
+            "cn-ty-3-1-pep-2024"
+          ]
+        },
+        {
+          "subject": "chinese",
+          "grade": 3,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 4,
+          "semester": "first",
+          "coverageStatus": "partial",
+          "editionIds": [
+            "cn-ty-4-1-pep-2024"
+          ]
+        },
+        {
+          "subject": "chinese",
+          "grade": 4,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 5,
+          "semester": "first",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 5,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 6,
+          "semester": "first",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 6,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 3,
+          "semester": "first",
+          "coverageStatus": "partial",
+          "editionIds": [
+            "en-yl-3-1-yilin-2024"
+          ]
+        },
+        {
+          "subject": "english",
+          "grade": 3,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 4,
+          "semester": "first",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 4,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 5,
+          "semester": "first",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 5,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 6,
+          "semester": "first",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 6,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        }
+      ]
+    },
+    "requestId": "fd947660-90b0-4051-a7ca-edf894c882a8"
+  },
+  "regionJiangsu": {
+    "code": "OK",
+    "data": {
+      "catalogVersion": "catalog-5",
+      "editions": [
+        {
+          "editionId": "cn-ty-1-1-pep-2024",
+          "subject": "chinese",
+          "grade": 1,
+          "semester": "first",
+          "regionCodes": [
+            "jiangsu"
+          ],
+          "publisher": "人民教育出版社",
+          "series": "统编语文",
+          "editionLabel": "2024 年版（2022 课标修订版）",
+          "curriculumYear": null,
+          "isbn": null,
+          "sourceIds": [
+            "smartedu-ebook-cn-1-first-2024"
+          ],
+          "schemaVersion": 1,
+          "contentVersion": "1.0.2",
+          "contentSha256": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527",
+          "reviewStatus": "published",
+          "coverageStatus": "partial",
+          "verifiedAt": "2026-10-02T00:00:00Z",
+          "publishedAt": "2026-10-02T15:57:08.791Z",
+          "availableEntryCount": 318,
+          "expectedEntryCount": 318,
+          "missingScopes": [
+            "教材本册没有词语表，故无词语条目",
+            "汉语拼音第 1、2 课没有生字，目录中不出现"
+          ]
+        },
+        {
+          "editionId": "cn-ty-4-1-pep-2024",
+          "subject": "chinese",
+          "grade": 4,
+          "semester": "first",
+          "regionCodes": [
+            "jiangsu"
+          ],
+          "publisher": "人民教育出版社",
+          "series": "统编语文",
+          "editionLabel": "2024 年版（2022 课标修订版，��",
+          "curriculumYear": null,
+          "isbn": null,
+          "sourceIds": [
+            "smartedu-ebook-cn-4-first-2024"
+          ],
+          "schemaVersion": 1,
+          "contentVersion": "1.0.0",
+          "contentSha256": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295",
+          "reviewStatus": "published",
+          "coverageStatus": "partial",
+          "verifiedAt": "2026-10-02T00:00:00Z",
+          "publishedAt": "2026-10-03T04:23:25.457Z",
+          "availableEntryCount": 640,
+          "expectedEntryCount": 640,
+          "missingScopes": [
+            "无词句积累条目",
+            "识字表之外 155 字读音来自本册外来源"
+          ]
+        }
+      ],
+      "coverage": [
+        {
+          "subject": "chinese",
+          "grade": 1,
+          "semester": "first",
+          "coverageStatus": "partial",
+          "editionIds": [
+            "cn-ty-1-1-pep-2024"
+          ]
+        },
+        {
+          "subject": "chinese",
+          "grade": 1,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 2,
+          "semester": "first",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 2,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 3,
+          "semester": "first",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 3,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 4,
+          "semester": "first",
+          "coverageStatus": "partial",
+          "editionIds": [
+            "cn-ty-4-1-pep-2024"
+          ]
+        },
+        {
+          "subject": "chinese",
+          "grade": 4,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 5,
+          "semester": "first",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 5,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 6,
+          "semester": "first",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "chinese",
+          "grade": 6,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 3,
+          "semester": "first",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 3,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 4,
+          "semester": "first",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 4,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 5,
+          "semester": "first",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 5,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 6,
+          "semester": "first",
+          "coverageStatus": "missing",
+          "editionIds": []
+        },
+        {
+          "subject": "english",
+          "grade": 6,
+          "semester": "second",
+          "coverageStatus": "missing",
+          "editionIds": []
+        }
+      ]
+    },
+    "requestId": "a2d005bc-b25a-4e99-a4e1-6de47a551c38"
+  },
+  "note": "regionCodes 丢失的可观察后果：加了 region=jiangsu 过滤后，三册被重发布的教材不再返回。"
+}

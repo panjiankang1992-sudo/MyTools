@@ -1,0 +1,209 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040"><style>text{font-family:"PingFang SC","Microsoft YaHei",sans-serif;fill:#1E2622} .muted{fill:#59645E}</style>
+<rect x="0" y="0" width="1600" height="1040" rx="0" fill="#E9EFEB" stroke="none"/>
+<text x="48" y="58" font-size="30" style="fill:#1E2622" font-weight="650">MyTools / PDF 分割</text>
+<text x="48" y="91" font-size="16" style="fill:#59645E" font-weight="400">APP 四屏设计示意 · 沿用当前绿色主题 · 2026-09-26</text>
+<text x="48" y="119" font-size="14" style="fill:#59645E" font-weight="400">此图为布局方案，纸张内容为占位示意；不是已实现界面或真机截图。</text>
+<text x="48" y="165" font-size="19" style="fill:#1E2622" font-weight="600">01 选择文件</text>
+<rect x="48" y="184" width="352" height="770" rx="26" fill="#F3F6F4" stroke="#CFD6D1"/>
+<text x="68" y="219" font-size="12" style="fill:#1E2622" font-weight="600">9:41</text>
+<text x="331" y="219" font-size="12" style="fill:#1E2622" font-weight="400">▰ ▰</text>
+<text x="68" y="260" font-size="26" style="fill:#1E2622" font-weight="400">‹</text>
+<text x="106" y="258" font-size="20" style="fill:#1E2622" font-weight="600">PDF 分割</text>
+<line x1="68" y1="280" x2="380" y2="280" stroke="#E5EAE6" stroke-width="2" stroke-dasharray=""/>
+<line x1="173" y1="934" x2="275" y2="934" stroke="#1E2622" stroke-width="2" stroke-dasharray=""/>
+<text x="432" y="165" font-size="19" style="fill:#1E2622" font-weight="600">02 调整切线</text>
+<rect x="432" y="184" width="352" height="770" rx="26" fill="#F3F6F4" stroke="#CFD6D1"/>
+<text x="452" y="219" font-size="12" style="fill:#1E2622" font-weight="600">9:41</text>
+<text x="715" y="219" font-size="12" style="fill:#1E2622" font-weight="400">▰ ▰</text>
+<text x="452" y="260" font-size="26" style="fill:#1E2622" font-weight="400">‹</text>
+<text x="490" y="258" font-size="20" style="fill:#1E2622" font-weight="600">PDF 分割</text>
+<line x1="452" y1="280" x2="764" y2="280" stroke="#E5EAE6" stroke-width="2" stroke-dasharray=""/>
+<line x1="557" y1="934" x2="659" y2="934" stroke="#1E2622" stroke-width="2" stroke-dasharray=""/>
+<text x="816" y="165" font-size="19" style="fill:#1E2622" font-weight="600">03 检查输出顺序</text>
+<rect x="816" y="184" width="352" height="770" rx="26" fill="#F3F6F4" stroke="#CFD6D1"/>
+<text x="836" y="219" font-size="12" style="fill:#1E2622" font-weight="600">9:41</text>
+<text x="1099" y="219" font-size="12" style="fill:#1E2622" font-weight="400">▰ ▰</text>
+<text x="836" y="260" font-size="26" style="fill:#1E2622" font-weight="400">‹</text>
+<text x="874" y="258" font-size="20" style="fill:#1E2622" font-weight="600">PDF 分割</text>
+<line x1="836" y1="280" x2="1148" y2="280" stroke="#E5EAE6" stroke-width="2" stroke-dasharray=""/>
+<line x1="941" y1="934" x2="1043" y2="934" stroke="#1E2622" stroke-width="2" stroke-dasharray=""/>
+<text x="1200" y="165" font-size="19" style="fill:#1E2622" font-weight="600">04 保存结果</text>
+<rect x="1200" y="184" width="352" height="770" rx="26" fill="#F3F6F4" stroke="#CFD6D1"/>
+<text x="1220" y="219" font-size="12" style="fill:#1E2622" font-weight="600">9:41</text>
+<text x="1483" y="219" font-size="12" style="fill:#1E2622" font-weight="400">▰ ▰</text>
+<text x="1220" y="260" font-size="26" style="fill:#1E2622" font-weight="400">‹</text>
+<text x="1258" y="258" font-size="20" style="fill:#1E2622" font-weight="600">分割完成</text>
+<line x1="1220" y1="280" x2="1532" y2="280" stroke="#E5EAE6" stroke-width="2" stroke-dasharray=""/>
+<line x1="1325" y1="934" x2="1427" y2="934" stroke="#1E2622" stroke-width="2" stroke-dasharray=""/>
+<text x="72" y="329" font-size="23" style="fill:#1E2622" font-weight="600">把双页试卷，拆成单页</text>
+<text x="72" y="360" font-size="15" style="fill:#59645E" font-weight="400">也可以按页码拆成多个文件</text>
+<rect x="88" y="406" width="122" height="108" rx="3" fill="#FFFFFF" stroke="#CFD6D1"/>
+<line x1="98" y1="424.0" x2="200" y2="424.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="98" y1="433.125" x2="194" y2="433.125" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="98" y1="442.25" x2="188" y2="442.25" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="98" y1="451.375" x2="200" y2="451.375" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="98" y1="460.5" x2="194" y2="460.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="98" y1="469.625" x2="188" y2="469.625" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="98" y1="478.75" x2="200" y2="478.75" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="149" y1="410" x2="149" y2="510" stroke="#0DA678" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="221" y="468" font-size="25" style="fill:#0DA678" font-weight="400">→</text>
+<rect x="260" y="407" width="46" height="108" rx="3" fill="#FFFFFF" stroke="#CFD6D1"/>
+<line x1="270" y1="425.0" x2="296" y2="425.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="270" y1="434.125" x2="290" y2="434.125" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="270" y1="443.25" x2="284" y2="443.25" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="270" y1="452.375" x2="296" y2="452.375" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="270" y1="461.5" x2="290" y2="461.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="270" y1="470.625" x2="284" y2="470.625" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="270" y1="479.75" x2="296" y2="479.75" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<rect x="318" y="407" width="46" height="108" rx="3" fill="#FFFFFF" stroke="#CFD6D1"/>
+<line x1="328" y1="425.0" x2="354" y2="425.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="328" y1="434.125" x2="348" y2="434.125" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="328" y1="443.25" x2="342" y2="443.25" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="328" y1="452.375" x2="354" y2="452.375" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="328" y1="461.5" x2="348" y2="461.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="328" y1="470.625" x2="342" y2="470.625" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="328" y1="479.75" x2="354" y2="479.75" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<rect x="72" y="554" width="304" height="48" rx="14" fill="#0DA678" stroke="none"/>
+<text x="88" y="584" font-size="15" style="fill:#FFFFFF" font-weight="600">选择 PDF 文件</text>
+<text x="151" y="636" font-size="15" style="fill:#087A58" font-weight="400">从我的云文件选择</text>
+<text x="72" y="690" font-size="14" style="fill:#59645E" font-weight="400">文件将上传至 MyTools 处理。</text>
+<text x="72" y="716" font-size="14" style="fill:#59645E" font-weight="400">原文件保持不变。</text>
+<text x="72" y="774" font-size="17" style="fill:#1E2622" font-weight="600">最近任务</text>
+<line x1="72" y1="791" x2="376" y2="791" stroke="#E5EAE6" stroke-width="2" stroke-dasharray=""/>
+<text x="72" y="826" font-size="16" style="fill:#1E2622" font-weight="400">第一单元.pdf</text>
+<text x="72" y="852" font-size="14" style="fill:#59645E" font-weight="400">已完成 · 4 页</text>
+<text x="357" y="838" font-size="23" style="fill:#1E2622" font-weight="400">›</text>
+<text x="456" y="316" font-size="17" style="fill:#1E2622" font-weight="600">第一单元.pdf</text>
+<text x="456" y="342" font-size="14" style="fill:#59645E" font-weight="400">2 页 · 横向 A4</text>
+<rect x="456" y="362" width="304" height="42" rx="12" fill="#E7ECE8" stroke="none"/>
+<rect x="460" y="366" width="148" height="34" rx="9" fill="#FFFFFF" stroke="none"/>
+<text x="480" y="389" font-size="15" style="fill:#087A58" font-weight="600">裁切页面</text>
+<text x="636" y="389" font-size="15" style="fill:#1E2622" font-weight="400">拆分文件</text>
+<rect x="456" y="426" width="140" height="36" rx="10" fill="#DDF4EA" stroke="none"/>
+<text x="474" y="450" font-size="14" style="fill:#087A58" font-weight="400">左右分割 ✓</text>
+<text x="642" y="450" font-size="14" style="fill:#1E2622" font-weight="400">上下分割</text>
+<rect x="456" y="483" width="304" height="169" rx="3" fill="#FFFFFF" stroke="#CFD6D1"/>
+<line x1="466" y1="501.0" x2="750" y2="501.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="466" y1="517.75" x2="744" y2="517.75" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="466" y1="534.5" x2="738" y2="534.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="466" y1="551.25" x2="750" y2="551.25" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="466" y1="568.0" x2="744" y2="568.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="466" y1="584.75" x2="738" y2="584.75" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="466" y1="601.5" x2="750" y2="601.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="608" y1="484" x2="608" y2="652" stroke="#0DA678" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="591" y="546" width="34" height="34" rx="17" fill="#0DA678" stroke="none"/>
+<text x="599" y="569" font-size="19" style="fill:#FFFFFF" font-weight="400">↔</text>
+<text x="456" y="680" font-size="20" style="fill:#1E2622" font-weight="400">‹</text>
+<text x="561" y="679" font-size="13" style="fill:#59645E" font-weight="400">原第 1 / 2 页</text>
+<text x="742" y="680" font-size="20" style="fill:#1E2622" font-weight="400">›</text>
+<text x="456" y="717" font-size="15" style="fill:#1E2622" font-weight="400">分割位置</text>
+<text x="632" y="717" font-size="14" style="fill:#59645E" font-weight="400">−   50.0%   +</text>
+<text x="456" y="756" font-size="15" style="fill:#1E2622" font-weight="400">阅读顺序</text>
+<text x="632" y="756" font-size="14" style="fill:#59645E" font-weight="400">先左后右  ›</text>
+<text x="456" y="795" font-size="15" style="fill:#1E2622" font-weight="400">处理页面</text>
+<text x="632" y="795" font-size="14" style="fill:#59645E" font-weight="400">全部 2 页  ›</text>
+<text x="456" y="838" font-size="14" style="fill:#087A58" font-weight="600">预计 2 页 → 4 页 · 1 个 PDF</text>
+<rect x="456" y="860" width="122" height="48" rx="14" fill="#DDF4EA" stroke="none"/>
+<text x="472" y="890" font-size="15" style="fill:#087A58" font-weight="600">查看预览</text>
+<rect x="588" y="860" width="172" height="48" rx="14" fill="#0DA678" stroke="none"/>
+<text x="604" y="890" font-size="15" style="fill:#FFFFFF" font-weight="600">开始分割</text>
+<text x="840" y="320" font-size="23" style="fill:#1E2622" font-weight="600">分割预览</text>
+<text x="840" y="350" font-size="14" style="fill:#59645E" font-weight="400">4 页 · 1 个 PDF · 接近 A5</text>
+<rect x="844" y="380" width="137" height="172" rx="3" fill="#FFFFFF" stroke="#CFD6D1"/>
+<line x1="854" y1="398.0" x2="971" y2="398.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="854" y1="415.125" x2="965" y2="415.125" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="854" y1="432.25" x2="959" y2="432.25" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="854" y1="449.375" x2="971" y2="449.375" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="854" y1="466.5" x2="965" y2="466.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="854" y1="483.625" x2="959" y2="483.625" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="854" y1="500.75" x2="971" y2="500.75" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<text x="853" y="544" font-size="11" style="fill:#59645E" font-weight="400">1</text>
+<text x="884" y="576" font-size="14" style="fill:#59645E" font-weight="400">原1左</text>
+<rect x="1001" y="380" width="137" height="172" rx="3" fill="#FFFFFF" stroke="#CFD6D1"/>
+<line x1="1011" y1="398.0" x2="1128" y2="398.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1011" y1="415.125" x2="1122" y2="415.125" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1011" y1="432.25" x2="1116" y2="432.25" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1011" y1="449.375" x2="1128" y2="449.375" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1011" y1="466.5" x2="1122" y2="466.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1011" y1="483.625" x2="1116" y2="483.625" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1011" y1="500.75" x2="1128" y2="500.75" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<text x="1010" y="544" font-size="11" style="fill:#59645E" font-weight="400">2</text>
+<text x="1041" y="576" font-size="14" style="fill:#59645E" font-weight="400">原1右</text>
+<rect x="844" y="595" width="137" height="172" rx="3" fill="#FFFFFF" stroke="#CFD6D1"/>
+<line x1="854" y1="613.0" x2="971" y2="613.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="854" y1="630.125" x2="965" y2="630.125" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="854" y1="647.25" x2="959" y2="647.25" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="854" y1="664.375" x2="971" y2="664.375" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="854" y1="681.5" x2="965" y2="681.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="854" y1="698.625" x2="959" y2="698.625" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="854" y1="715.75" x2="971" y2="715.75" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<text x="853" y="759" font-size="11" style="fill:#59645E" font-weight="400">3</text>
+<text x="884" y="791" font-size="14" style="fill:#59645E" font-weight="400">原2左</text>
+<rect x="1001" y="595" width="137" height="172" rx="3" fill="#FFFFFF" stroke="#CFD6D1"/>
+<line x1="1011" y1="613.0" x2="1128" y2="613.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1011" y1="630.125" x2="1122" y2="630.125" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1011" y1="647.25" x2="1116" y2="647.25" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1011" y1="664.375" x2="1128" y2="664.375" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1011" y1="681.5" x2="1122" y2="681.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1011" y1="698.625" x2="1116" y2="698.625" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1011" y1="715.75" x2="1128" y2="715.75" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<text x="1010" y="759" font-size="11" style="fill:#59645E" font-weight="400">4</text>
+<text x="1041" y="791" font-size="14" style="fill:#59645E" font-weight="400">原2右</text>
+<text x="840" y="828" font-size="14" style="fill:#59645E" font-weight="400">按原页逐页展开，先左后右。</text>
+<rect x="840" y="860" width="122" height="48" rx="14" fill="#DDF4EA" stroke="none"/>
+<text x="856" y="890" font-size="15" style="fill:#087A58" font-weight="600">返回调整</text>
+<rect x="972" y="860" width="172" height="48" rx="14" fill="#0DA678" stroke="none"/>
+<text x="988" y="890" font-size="15" style="fill:#FFFFFF" font-weight="600">开始分割</text>
+<rect x="1351" y="313" width="50" height="50" rx="25" fill="#DDF4EA" stroke="none"/>
+<text x="1366" y="346" font-size="26" style="fill:#087A58" font-weight="400">✓</text>
+<text x="1297" y="403" font-size="26" style="fill:#1E2622" font-weight="600">已生成 4 页</text>
+<text x="1323" y="436" font-size="15" style="fill:#59645E" font-weight="400">原 2 页 → 4 页</text>
+<rect x="1227" y="469" width="64" height="95" rx="3" fill="#FFFFFF" stroke="#CFD6D1"/>
+<line x1="1237" y1="487.0" x2="1281" y2="487.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1237" y1="494.5" x2="1275" y2="494.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1237" y1="502.0" x2="1269" y2="502.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1237" y1="509.5" x2="1281" y2="509.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1237" y1="517.0" x2="1275" y2="517.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1237" y1="524.5" x2="1269" y2="524.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1237" y1="532.0" x2="1281" y2="532.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<text x="1236" y="556" font-size="11" style="fill:#59645E" font-weight="400">1</text>
+<rect x="1305" y="469" width="64" height="95" rx="3" fill="#FFFFFF" stroke="#CFD6D1"/>
+<line x1="1315" y1="487.0" x2="1359" y2="487.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1315" y1="494.5" x2="1353" y2="494.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1315" y1="502.0" x2="1347" y2="502.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1315" y1="509.5" x2="1359" y2="509.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1315" y1="517.0" x2="1353" y2="517.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1315" y1="524.5" x2="1347" y2="524.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1315" y1="532.0" x2="1359" y2="532.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<text x="1314" y="556" font-size="11" style="fill:#59645E" font-weight="400">2</text>
+<rect x="1383" y="469" width="64" height="95" rx="3" fill="#FFFFFF" stroke="#CFD6D1"/>
+<line x1="1393" y1="487.0" x2="1437" y2="487.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1393" y1="494.5" x2="1431" y2="494.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1393" y1="502.0" x2="1425" y2="502.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1393" y1="509.5" x2="1437" y2="509.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1393" y1="517.0" x2="1431" y2="517.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1393" y1="524.5" x2="1425" y2="524.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1393" y1="532.0" x2="1437" y2="532.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<text x="1392" y="556" font-size="11" style="fill:#59645E" font-weight="400">3</text>
+<rect x="1461" y="469" width="64" height="95" rx="3" fill="#FFFFFF" stroke="#CFD6D1"/>
+<line x1="1471" y1="487.0" x2="1515" y2="487.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1471" y1="494.5" x2="1509" y2="494.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1471" y1="502.0" x2="1503" y2="502.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1471" y1="509.5" x2="1515" y2="509.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1471" y1="517.0" x2="1509" y2="517.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1471" y1="524.5" x2="1503" y2="524.5" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<line x1="1471" y1="532.0" x2="1515" y2="532.0" stroke="#CFD6D1" stroke-width="2" stroke-dasharray=""/>
+<text x="1470" y="556" font-size="11" style="fill:#59645E" font-weight="400">4</text>
+<text x="1224" y="607" font-size="18" style="fill:#1E2622" font-weight="600">第一单元_分割.pdf</text>
+<text x="1224" y="638" font-size="14" style="fill:#59645E" font-weight="400">1 个 PDF · 文件大小待实际生成</text>
+<text x="1224" y="686" font-size="14" style="fill:#59645E" font-weight="400">有效期内可下载或保存到云文件。</text>
+<text x="1224" y="712" font-size="14" style="fill:#59645E" font-weight="400">页面会显示实际到期时间。</text>
+<rect x="1224" y="747" width="304" height="48" rx="14" fill="#0DA678" stroke="none"/>
+<text x="1240" y="777" font-size="15" style="fill:#FFFFFF" font-weight="600">预览 PDF</text>
+<rect x="1224" y="811" width="147" height="48" rx="14" fill="#DDF4EA" stroke="none"/>
+<text x="1240" y="841" font-size="15" style="fill:#087A58" font-weight="600">保存到设备</text>
+<rect x="1381" y="811" width="147" height="48" rx="14" fill="#DDF4EA" stroke="none"/>
+<text x="1397" y="841" font-size="15" style="fill:#087A58" font-weight="600">保存到云文件</text>
+<text x="1294" y="903" font-size="14" style="fill:#087A58" font-weight="400">用相同设置再处理</text>
+<text x="48" y="1000" font-size="17" style="fill:#1E2622" font-weight="600">默认：左右分割 / 50% / 先左后右 / 全部页面 / 一个 PDF</text>
+</svg>

@@ -1,0 +1,58 @@
+{
+  "version": "mobile-v3",
+  "upstreamVersion": "0.2.1-rc.2",
+  "build": "passed",
+  "existingWarning": "DownloadToolsPage.ets:78 READ_PASTEBOARD",
+  "tests": {
+    "urlAndCapabilityPolicy": "passed",
+    "popupLifecycle": "passed",
+    "downloadBridgeLifecycle": "passed",
+    "secureConnectionPreference": "passed"
+  },
+  "productionDeployment": false,
+  "deviceInstallation": false,
+  "signedHap": "app/build/dsh-mobile/entry-dsh-mobile-20261102-v3-signed.hap",
+  "bytes": 51424738,
+  "sha256": "5c661a7c8e81bb1cfe55ffd4196f3dd19cc14ae706ad485aba824cba9b2f411d",
+  "sourceHashes": {
+    "deploy/dsh-mobile/mobile.css": "bc6f3aa6b8b144a14b022b6f5edbe3b1f8683916690bd131f1886f0468d6bce2",
+    "deploy/dsh-mobile/mobile.js": "f5a21a559a3c51efb0b5978ec0f7be75bca6a5dd3baf0e571379c1ee65720c38",
+    "deploy/nginx/dsh-lan.conf": "08d061bfd27ff58c10a71b3439c65c9791a9fbdc7aa366082c527f36f8385b4a",
+    "app/entry/src/main/ets/pages/Index.ets": "e8ae428b55a708fc53f40bcc8c06ad9d0684a235af37790a3702d4c92e94c998",
+    "app/entry/src/main/ets/features/dsh/DshWebCapabilityPolicy.ets": "e0bb0fc7fab2bdd00e67691f0cfcbcaf3292c200c540d064272f9b48ae79609c",
+    "app/entry/src/main/ets/features/dsh/DshDownloadBridge.ets": "137dbef851077ee280bf8a3577706660e008d93dd3a7dcb003c5f816603019e8",
+    "app/entry/src/main/module.json5": "b32d7a86e12c9881fc2ee89a4f1517af25b7b70138764f6fe15332396e57e4f7",
+    "app/entry/src/main/ets/features/dsh/DshApi.ets": "4f6710b711dc9550b9852c9ba99ec25453d992e1d7de0d8a5bcf68c352df2626"
+  },
+  "coverageCounts": {
+    "preview": 29,
+    "previous": 2,
+    "device": 7,
+    "service": 2,
+    "desktop": 2,
+    "scenario": 5
+  },
+  "layout": {
+    "320x450": {
+      "dialogHeight": 426,
+      "dialogScrollHeight": 550,
+      "inputHeight": 40
+    },
+    "390x844": {
+      "settingsWidth": 390,
+      "settingsScrollWidth": 390,
+      "sessionMenuTarget": [
+        44,
+        44
+      ]
+    },
+    "844x390": {
+      "workPanelWidth": 844,
+      "tabStripHeight": 60
+    },
+    "1440x900": {
+      "settingsWidth": 800,
+      "navWidth": 188
+    }
+  }
+}

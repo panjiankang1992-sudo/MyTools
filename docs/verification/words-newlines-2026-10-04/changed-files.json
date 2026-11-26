@@ -1,0 +1,25 @@
+{
+  "releaseId": "words-newlines-20261004-172000",
+  "files": [
+    {
+      "path": "assets/WorksheetV2View-BlnhGCt-.css",
+      "bytes": 14378,
+      "sha256": "dd5ac5601c8d025f5d823950bd0c3c88049c46ea9531df8a923568ede52650e6"
+    },
+    {
+      "path": "assets/WorksheetV2View-D7WP0AwD.js",
+      "bytes": 503210,
+      "sha256": "e3f6087bfed823ea4d4b5834243ab8c1058502e11a909984089bdc3353436d24"
+    },
+    {
+      "path": "assets/index-C-4S5rTp.js",
+      "bytes": 159357,
+      "sha256": "1da910404c77b515969fd899c37625ed8c84e30686c28bdcc8f0857e7fb74c21"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1199,
+      "sha256": "c62cdbceb731987eaa03be9e118bdad15386051cfccea829576a94e2a2ccee69"
+    }
+  ]
+}

@@ -23,7 +23,7 @@ import json
 from pathlib import Path
 
 DIMENSIONS = ('instructionFollowing', 'subjectPreservation', 'temporalCoherence', 'editLocality', 'artifacts')
-KEY_DIMENSIONS = ('instructionFollowing', 'subjectPreservation', 'temporalCoherence')
+KEY_DIMENSIONS = ('instructionFollowing', 'subjectPreservation', 'temporalCoherence', 'artifacts')
 SEVERE_VALUES = {'true', '1', 'yes', 'y', '是'}
 NOT_APPLICABLE = {'', 'n/a', 'na', '-', 'none'}
 MIN_SCORE = 3
@@ -50,7 +50,6 @@ def summarize(rows):
     samples = []
     for row in rows:
         scores = {name: parse_score(row.get(name)) for name in DIMENSIONS}
-        applicable = [name for name in DIMENSIONS if scores[name] is not None]
         # 编辑局部性被填写时说明这是编辑类样例，它也算关键项。
         key = list(KEY_DIMENSIONS) + (['editLocality'] if scores['editLocality'] is not None else [])
         missing = [name for name in key if scores[name] is None]
@@ -66,18 +65,22 @@ def summarize(rows):
     severe = [item for item in graded if item['severe']]
     incomplete = [item['sampleId'] for item in graded if item['missingKeyScores']]
     ratio = len(passed) / len(graded) if graded else 0.0
-    verdict = 'accept' if (graded and not incomplete and not severe and ratio >= REQUIRED_PASS_RATIO) else 'reject'
+    modes = {item['mode'] for item in graded}
+    if len(modes) > 1:
+        raise ValueError('review_requires_one_mode_per_sheet')
+    verdict = 'accept' if (len(graded) >= 6 and not incomplete and not severe and ratio >= REQUIRED_PASS_RATIO) else 'reject'
     return {'verdict': verdict, 'samples': samples, 'complete': not incomplete,
             'counts': {'graded': len(graded), 'reference': len(samples) - len(graded), 'passed': len(passed),
                        'severe': len(severe)}, 'unscoredSamples': incomplete, 'passRatio': round(ratio, 4),
             'rule': '只看 role=acceptance 的行；关键项均 ≥3 视为通过；至少 5/6 通过且无一票否决才准入'}
 
 
-def merge_into_reviews(summary, sheet_path, reviewer):
+def merge_into_reviews(summary, sheet_path, reviewer, review_kind='human', reviews_path=None):
     """把人工评分合并进 reviews.json；人工条目与自动 VLM 条目用 reviewer 前缀区分。"""
-    reviews_path = Path(__file__).resolve().parents[2] / 'docs/verification/2026-09-14-video-generation/vlm-review/reviews.json'
+    reviews_path = reviews_path or Path(__file__).resolve().parents[2] / 'docs/verification/2026-09-14-video-generation/vlm-review/reviews.json'
     reviews = json.loads(reviews_path.read_text()) if reviews_path.is_file() else []
-    by_video = {item.get('video'): item for item in reviews}
+    reviewer_id = review_kind + ':' + reviewer
+    by_video = {item.get('video'): item for item in reviews if item.get('reviewer') == reviewer_id}
     added = 0
     for sample in summary['samples']:
         video = sample['video']
@@ -91,9 +94,9 @@ def merge_into_reviews(summary, sheet_path, reviewer):
         entry['scores'] = sample['scores']
         entry['role'] = sample['role']
         entry['severeFlag'] = sample['severe']
-        entry['reviewer'] = 'human:' + reviewer
-        entry['notHumanReview'] = False
-        entry['summary'] = f"人工评分（表：{sheet_path.name}）：关键项{'通过' if sample['passed'] else '未通过'}"
+        entry['reviewer'] = reviewer_id
+        entry['notHumanReview'] = review_kind != 'human'
+        entry['summary'] = f"{'AI 复核' if review_kind == 'ai' else '人工评分'}（表：{sheet_path.name}）：关键项{'通过' if sample['passed'] else '未通过'}"
     reviews_path.write_text(json.dumps(reviews, ensure_ascii=False, indent=2) + '\n')
     return {'reviews': str(reviews_path), 'merged': len(summary['samples']), 'added': added}
 
@@ -103,13 +106,19 @@ def main() -> int:
     parser.add_argument('--sheet', required=True, type=Path)
     parser.add_argument('--write', action='store_true', help='同时合并进 reviews.json')
     parser.add_argument('--reviewer', default='owner', help='人工评分者标识')
-    parser.add_argument('--machine-prescore', action='store_true',
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument('--ai-review', action='store_true', help='用户授权的 AI 复核，记录 ai: 来源。')
+    source.add_argument('--machine-prescore', action='store_true',
                         help='标记本次汇总来自机器预评（供人工校准），不是人工验收结论')
     parsed = parser.parse_args()
+    if parsed.machine_prescore and parsed.write:
+        parser.error('machine-prescore cannot be written as a human review')
     with parsed.sheet.open(encoding='utf-8', newline='') as handle:
         rows = list(csv.DictReader(handle))
     summary = summarize(rows)
     summary['sheet'] = parsed.sheet.name
+    if parsed.ai_review:
+        summary.update(reviewKind='ai', reviewer='ai:' + parsed.reviewer, notHumanReview=True)
     if parsed.machine_prescore:
         # 明确标注来源：机器预评只能当校准起点，不能当人工验收。
         summary['machinePrescore'] = True
@@ -117,7 +126,7 @@ def main() -> int:
     output = parsed.sheet.with_name('review-summary.json')
     output.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n')
     if parsed.write:
-        summary['mergedInto'] = merge_into_reviews(summary, parsed.sheet, parsed.reviewer)
+        summary['mergedInto'] = merge_into_reviews(summary, parsed.sheet, parsed.reviewer, 'ai' if parsed.ai_review else 'human')
         output.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n')
     print(json.dumps({'machinePrescore': summary.get('machinePrescore', False),
                       'verdict': summary['verdict'], 'complete': summary['complete'],

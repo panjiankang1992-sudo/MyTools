@@ -18,11 +18,13 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,8 +41,28 @@ import static org.mockito.Mockito.when;
 class CompletionOutboxRelayTest {
 
     @Test
+    void shouldUseStableEventIdentityForRecoveredCompletionInsteadOfOldFailureIdentity() {
+        AutomationRepository repository = mockOutboxRepository();
+        MessagingClient messagingClient = mock(MessagingClient.class);
+        DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
+        UUID eventId = UUID.randomUUID();
+        UUID runId = UUID.randomUUID();
+        UUID messageId = UUID.randomUUID();
+        var event = new AutomationRepository.CompletionEvent(eventId, runId, messageId, "SUCCEEDED", 2);
+        when(repository.claimUnpublishedCompletions(4)).thenReturn(List.of(event));
+        when(repository.isRecoveredCompletion(runId, eventId)).thenReturn(true);
+        when(messagingClient.get(messageId)).thenReturn(message(messageId));
+        when(messagingClient.reply(messageId, eventId, "下载处理已完成，共 2 个文件。"))
+                .thenReturn(new MessagingClient.InboundReplySnapshot(messageId, "EMAIL", "ACCEPTED"));
+        new CompletionOutboxRelay(repository, properties(true), messagingClient, downloadClient).relay();
+        verify(messagingClient).reply(messageId, eventId, "下载处理已完成，共 2 个文件。");
+        verify(messagingClient, never()).reply(eq(messageId), eq(runId), any(String.class));
+        verify(repository).markOutboxPublished(eventId, null);
+    }
+
+    @Test
     void shouldRelayDuplicateFeedbackWithRunScopedIdentityWithoutReadingMessage() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -64,7 +86,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldExplainPreAcknowledgedNoMatchAsTerminalCompletion() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -87,7 +109,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldConfirmOutboxOnlyAfterMessagingAcceptsDelivery() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -107,7 +129,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldRetainOutboxWhenMessagingFails() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -135,7 +157,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldDiscardPermanentFailureAndContinueBatch() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID badEventId = UUID.randomUUID();
@@ -163,7 +185,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldDeferTooEarlyReplyWithoutConsumingDeliveryAttempt() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -190,7 +212,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldBoundExcessiveTooEarlyRetryAfter() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -212,7 +234,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldDeadLetterQqWalConflictAndExhaustionImmediately() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID conflictEventId = UUID.randomUUID();
@@ -334,6 +356,13 @@ class CompletionOutboxRelayTest {
         assertThat(firstClaim.claimToken()).isNotBlank();
         assertThat(firstClaim.deliveryPageCursor()).isZero();
         assertThat(repository.claimUnpublishedCompletions(10)).isEmpty();
+        assertThat(repository.findOutboxDeliveryPages(eventId)).isEmpty();
+        assertThat(repository.saveOutboxDeliveryPages(eventId, "stale", List.of("wrong"))).isFalse();
+        assertThat(repository.saveOutboxDeliveryPages(
+                eventId, firstClaim.claimToken(), List.of("first", "second"))).isTrue();
+        assertThat(repository.saveOutboxDeliveryPages(
+                eventId, firstClaim.claimToken(), List.of("replacement"))).isFalse();
+        assertThat(repository.findOutboxDeliveryPages(eventId)).hasValue(List.of("first", "second"));
         assertThat(repository.advanceOutboxDeliveryPage(
                 eventId, firstClaim.claimToken(), 0)).isTrue();
         assertThat(repository.advanceOutboxDeliveryPage(
@@ -346,6 +375,7 @@ class CompletionOutboxRelayTest {
                 repository.claimUnpublishedCompletions(10).getFirst();
         assertThat(secondClaim.claimToken()).isNotEqualTo(firstClaim.claimToken());
         assertThat(secondClaim.deliveryPageCursor()).isOne();
+        assertThat(repository.findOutboxDeliveryPages(eventId)).hasValue(List.of("first", "second"));
         assertThat(repository.advanceOutboxDeliveryPage(
                 eventId, firstClaim.claimToken(), 1)).isFalse();
         assertThat(repository.advanceOutboxDeliveryPage(
@@ -493,7 +523,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldRelayQqCompletionToOriginalPassiveMessage() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -512,26 +542,26 @@ class CompletionOutboxRelayTest {
         when(downloadClient.summary(downloadId, 21L)).thenReturn(new DownloadIngestionClient.DownloadSummary(
                 downloadId, "SUCCEEDED", 100, 12, 12, List.of(new DownloadIngestionClient.DownloadItem(
                 "video.mp4", "TAGGED", List.of(new DownloadIngestionClient.DownloadTag(
-                "cosplay", "topic", 0.98))))));
+                "cosplay", "topic", 0.98)), 12582912L))));
         when(repository.advanceOutboxDeliveryPage(eventId, "qq-claim", 0)).thenReturn(true);
 
         String pageKey = "automation-completion-" + runId + "-page-1";
         when(messagingClient.reply(messageId, pageKey,
-                "下载与标签已完成，共 1 个文件：\n\n1. video.mp4\n   标签：cosplay（topic，0.98）"))
+                "下载与标签已完成，共 1 个文件：\n\n1. video.mp4\n   大小：12.00 MB\n   标签：cosplay（topic，0.98）"))
                 .thenReturn(new MessagingClient.InboundReplySnapshot(messageId, "QQ", "ACCEPTED"));
 
         new CompletionOutboxRelay(repository, properties(true), messagingClient,
                 downloadClient).relay();
 
         verify(messagingClient).reply(messageId, pageKey,
-                "下载与标签已完成，共 1 个文件：\n\n1. video.mp4\n   标签：cosplay（topic，0.98）");
+                "下载与标签已完成，共 1 个文件：\n\n1. video.mp4\n   大小：12.00 MB\n   标签：cosplay（topic，0.98）");
         verify(repository).advanceOutboxDeliveryPage(eventId, "qq-claim", 0);
         verify(repository).markOutboxPublished(eventId, "qq-claim");
     }
 
     @Test
     void shouldPublishSuccessfulEmptySummaryAsNoNewFiles() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -561,7 +591,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldIncludeSuccessfulFilesAndFailedActionsInPartialCompletion() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -585,14 +615,14 @@ class CompletionOutboxRelayTest {
         new CompletionOutboxRelay(repository, properties(true), messagingClient, downloadClient).relay();
 
         verify(messagingClient).reply(messageId, runId,
-                "下载处理部分失败，共 2 个文件：\n\n1. saved.jpg\n   标签：photo（topic，0.95）"
+                "已有文件下载并归档，但部分处理未完成，共 2 个文件：\n\n1. saved.jpg\n   标签：photo（topic，0.95）"
                         + "\n\n2. failed.zip\n   标签：失败（下载未完成）");
         verify(repository).markOutboxPublished(eventId, null);
     }
 
     @Test
     void shouldFallbackFailedActionWhileRemoteSummaryIsStillRunning() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -624,7 +654,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldUseSucceededRemoteSummaryForLocallyFailedAction() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -658,7 +688,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldFallbackFailedActionWhenRemoteSummaryIsUnavailable() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -687,7 +717,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldPreserveTooEarlyDeferralForLocallyFailedActionSummary() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -718,7 +748,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldRejectFailedRemoteSummaryForLocallySucceededAction() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -746,7 +776,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldDegradeTerminalFailedActionWhenSummaryHasNoItems() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -773,7 +803,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldPreserveSavedBatchItemsWhenRemainingDownloadFails() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -802,14 +832,14 @@ class CompletionOutboxRelayTest {
 
         verify(downloadClient).summary(downloadId, 21L);
         verify(messagingClient).reply(messageId, runId,
-                "下载处理失败，共 2 个文件：\n\n1. saved-a.jpg\n   标签：photo（topic，0.95）"
+                "已有文件下载并归档，但部分处理未完成，共 2 个文件：\n\n1. saved-a.jpg\n   标签：photo（topic，0.95）"
                         + "\n\n2. saved-b.png\n   标签：失败（文件已保存）");
         verify(repository).markOutboxPublished(eventId, null);
     }
 
     @Test
     void shouldPreserveSavedAttachmentItemWhenRemainingDownloadIsCancelled() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -845,7 +875,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldDeliverMixedCompletionWhenOneMetadataLookupFails() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -880,7 +910,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldRetryTransientMetadataFailureAndContinueBatch() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -912,8 +942,8 @@ class CompletionOutboxRelayTest {
     }
 
     @Test
-    void shouldRetryPendingTagSummaryWithoutPublishingCompletion() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+    void shouldPublishSavedFileWhileTagEnrichmentIsPending() {
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -932,15 +962,63 @@ class CompletionOutboxRelayTest {
 
         new CompletionOutboxRelay(repository, properties(true), messagingClient, downloadClient).relay();
 
-        verify(messagingClient, never()).reply(eq(messageId), eq(runId),
-                org.mockito.ArgumentMatchers.anyString());
-        verify(repository, never()).markOutboxPublished(eventId, null);
-        verify(repository).recordOutboxFailure(eventId, null, 10, "IllegalStateException");
+        verify(messagingClient).reply(eq(messageId), eq(runId),
+                org.mockito.ArgumentMatchers.contains("pending.jpg\n   标签：处理中"));
+        verify(repository).markOutboxPublished(eventId, null);
+        verify(repository, never()).recordOutboxFailure(eventId, null, 10, "IllegalStateException");
+    }
+
+    @Test
+    void shouldRetryTheIdenticalPendingTagReplyAfterEnrichmentCompletes() {
+        AutomationRepository repository = mockOutboxRepository();
+        MessagingClient messagingClient = mock(MessagingClient.class);
+        DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
+        UUID eventId = UUID.randomUUID();
+        UUID runId = UUID.randomUUID();
+        UUID messageId = UUID.randomUUID();
+        UUID downloadId = UUID.randomUUID();
+        var firstClaim = new AutomationRepository.CompletionEvent(
+                eventId, runId, messageId, "SUCCEEDED", 1, 0, "first-claim");
+        var retryClaim = new AutomationRepository.CompletionEvent(
+                eventId, runId, messageId, "SUCCEEDED", 1, 0, "retry-claim");
+        when(repository.claimUnpublishedCompletions(4))
+                .thenReturn(List.of(firstClaim)).thenReturn(List.of(retryClaim));
+        when(messagingClient.get(messageId)).thenReturn(qqMessage(messageId));
+        when(repository.findActionExecutions(runId)).thenReturn(List.of(
+                new AutomationRepository.ActionExecution(UUID.randomUUID(), 0, "DOWNLOAD_REQUEST",
+                        "source", "pending.jpg", downloadId, "SUCCEEDED", 100)));
+        when(downloadClient.summary(downloadId, 21L))
+                .thenReturn(new DownloadIngestionClient.DownloadSummary(downloadId, "SUCCEEDED",
+                        100, 12, 12, List.of(new DownloadIngestionClient.DownloadItem(
+                        "pending.jpg", "PENDING", List.of(), 12L))))
+                .thenReturn(new DownloadIngestionClient.DownloadSummary(downloadId, "SUCCEEDED",
+                        100, 12, 12, List.of(new DownloadIngestionClient.DownloadItem(
+                        "pending.jpg", "TAGGED", List.of(new DownloadIngestionClient.DownloadTag(
+                        "tag", "topic", 0.98)), 12L))));
+        when(repository.advanceOutboxDeliveryPage(eventId, "retry-claim", 0)).thenReturn(true);
+        String replyKey = "automation-completion-" + runId + "-page-1";
+        when(messagingClient.reply(eq(messageId), eq(replyKey), any(String.class)))
+                .thenThrow(new IllegalStateException("temporary failure"))
+                .thenReturn(new MessagingClient.InboundReplySnapshot(messageId, "QQ", "ACCEPTED"));
+
+        CompletionOutboxRelay relay = new CompletionOutboxRelay(
+                repository, properties(true), messagingClient, downloadClient);
+        relay.relay();
+        relay.relay();
+
+        var bodies = org.mockito.ArgumentCaptor.forClass(String.class);
+        verify(messagingClient, org.mockito.Mockito.times(2)).reply(eq(messageId), eq(replyKey), bodies.capture());
+        assertThat(bodies.getAllValues().getFirst())
+                .contains("下载处理已完成", "pending.jpg", "12 B", "标签：处理中");
+        assertThat(bodies.getAllValues().getLast()).isEqualTo(bodies.getAllValues().getFirst());
+        verify(downloadClient).summary(downloadId, 21L);
+        verify(repository).recordOutboxFailure(eventId, "first-claim", 10, "IllegalStateException");
+        verify(repository).markOutboxPublished(eventId, "retry-claim");
     }
 
     @Test
     void shouldDeliverAnotherEventWhileOneSummaryIsSlow() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID slowEventId = UUID.randomUUID();
@@ -983,7 +1061,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldBoundLargeEventWindowAndNotStarveAnotherEvent() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID slowEventId = UUID.randomUUID();
@@ -1028,7 +1106,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldPaginateLargeCompletionWithoutDroppingFileDetails() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -1062,7 +1140,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldResumeAtFirstUnacknowledgedCompletionPageAfterPartialFailure() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -1119,7 +1197,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldResumeMultiPageFallbackForLocallyFailedActions() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -1169,7 +1247,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldPublishWithoutResendingWhenEveryPageWasAlreadyAcknowledged() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -1193,7 +1271,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldStopImmediatelyWhenPageCursorAdvanceLosesClaim() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -1222,7 +1300,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldDeliverAllFourteenQqFilesWithoutTruncation() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -1276,7 +1354,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldCapQqCompletionAtEightStablePassivePagesWithExplicitTruncation() {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -1330,7 +1408,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldLimitConfiguredCompletionBatchToAvailableExternalPermits() throws Exception {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         List<AutomationRepository.CompletionEvent> events = java.util.stream.IntStream.range(0, 4)
@@ -1378,7 +1456,7 @@ class CompletionOutboxRelayTest {
 
     @Test
     void shouldAllowFourConcurrentActionsForSingleCompletionEvent() throws Exception {
-        AutomationRepository repository = mock(AutomationRepository.class);
+        AutomationRepository repository = mockOutboxRepository();
         MessagingClient messagingClient = mock(MessagingClient.class);
         DownloadIngestionClient downloadClient = mock(DownloadIngestionClient.class);
         UUID eventId = UUID.randomUUID();
@@ -1478,6 +1556,7 @@ class CompletionOutboxRelayTest {
                     id VARCHAR(36) PRIMARY KEY,
                     aggregate_id VARCHAR(36) NOT NULL,
                     event_type VARCHAR(128) NOT NULL,
+                    payload_json JSON NOT NULL DEFAULT '{}',
                     created_at TIMESTAMP(6) NOT NULL,
                     published_at TIMESTAMP(6),
                     delivery_attempts INT NOT NULL DEFAULT 0,
@@ -1492,5 +1571,17 @@ class CompletionOutboxRelayTest {
                 )
                 """);
         return jdbcTemplate;
+    }
+
+    private AutomationRepository mockOutboxRepository() {
+        AutomationRepository repository = mock(AutomationRepository.class);
+        var snapshots = new java.util.concurrent.ConcurrentHashMap<UUID, List<String>>();
+        when(repository.findOutboxDeliveryPages(any(UUID.class))).thenAnswer(invocation ->
+                Optional.ofNullable(snapshots.get(invocation.getArgument(0))));
+        when(repository.saveOutboxDeliveryPages(any(UUID.class), any(String.class),
+                org.mockito.ArgumentMatchers.anyList())).thenAnswer(invocation ->
+                snapshots.putIfAbsent(invocation.getArgument(0),
+                        List.copyOf(invocation.getArgument(2))) == null);
+        return repository;
     }
 }

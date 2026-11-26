@@ -34,6 +34,14 @@ class LegacyMediaContentServicePathTest {
         assertEquals(Path.of("/opt/extend/resource/yuyutian/media/202608/20260825/image.jpg"), resolved);
     }
 
+    @Test
+    void keepsSharedThumbnailDirectoryAndRepairsIncorrectUserPrefix() {
+        assertEquals(Path.of("/opt/extend/resource/.thumbnails/10.jpg"), service().resolveMigratedPath(
+                Path.of("/opt/extend/resource/.thumbnails/10.jpg")));
+        assertEquals(Path.of("/opt/extend/resource/.thumbnails/10.jpg"), service().resolveMigratedPath(
+                Path.of("/opt/extend/resource/yuyutian/.thumbnails/10.jpg")));
+    }
+
     private LegacyMediaContentService service() {
         return new LegacyMediaContentService(mock(MediaRepository.class), mock(LegacyContentDatabase.class),
                 mock(DerivedThumbnailContentService.class), "yuyutian");

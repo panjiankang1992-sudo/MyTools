@@ -27,7 +27,10 @@ public final class IdentityGatewayModels {
     /**
      * 刷新令牌请求。
      */
-    public record RefreshRequest(@NotBlank @Size(max = 1024) String refreshToken) {
+    public record RefreshRequest(@NotBlank @Size(max = 1024) String refreshToken,
+                                 @Pattern(regexp = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$") String rotationId) {
+        /** 兼容未提供操作标识的客户端。 @param refreshToken 刷新令牌。 */
+        public RefreshRequest(String refreshToken) { this(refreshToken, null); }
     }
 
     /**

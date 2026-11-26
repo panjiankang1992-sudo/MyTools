@@ -1,0 +1,24 @@
+{
+  "samples": [
+    {
+      "name": "portrait",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "variant": "end-guide",
+      "seconds": 16.38,
+      "status": "SUCCEEDED"
+    },
+    {
+      "name": "landscape",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "variant": "end-guide",
+      "seconds": 8.21,
+      "status": "SUCCEEDED"
+    }
+  ],
+  "quality": "pending",
+  "productionEnabled": false
+}

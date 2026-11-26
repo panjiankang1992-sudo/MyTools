@@ -1,0 +1,207 @@
+{
+  "date": "2026-10-18",
+  "goalStatus": "ACTIVE",
+  "scope": "COLLECTION_DATA",
+  "localNewsTests": {
+    "tests": 210,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 15,
+    "passed": 195
+  },
+  "deploymentTests": {
+    "passed": 38,
+    "failed": 0
+  },
+  "realMySql": {
+    "mysqlVersion": "8.4.11-0ubuntu0.26.04.1",
+    "summary": {
+      "aborted": 0,
+      "containersFailed": 0,
+      "failed": 0,
+      "passed": 11,
+      "skipped": 0,
+      "tests": 11
+    },
+    "bundle": {
+      "archiveSha256": "ed801fd4410aa0954924ead3063ba9fd6d6be5a344e44ceb3a6d5f94205949e3",
+      "files": 514,
+      "libraryFiles": 98,
+      "manifestSha256": "c960155f8216ea20d6971816f01925211c32ea2092f5463eaecdf8ac4963dd10"
+    },
+    "finalStatusSha256": "55b67ad6a643a97d0418152815b16eeacc82e0e3c9f5248fc124187593a55c06",
+    "productionDatabaseAccessed": false,
+    "businessApplicationsDeployed": false,
+    "realMessageSent": false
+  },
+  "cleanup": {
+    "directoryRemoved": true,
+    "archiveRemoved": true,
+    "temporaryUnits": {
+      "database": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      },
+      "-test": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      },
+      "-init": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      }
+    },
+    "existingServices": {
+      "messaging-service": "active",
+      "task-scheduler-service": "active",
+      "task-executor-service": "active",
+      "mytools-gateway": "active"
+    },
+    "localPrivateSessionRemoved": true
+  },
+  "release": {
+    "releaseFilesValid": true,
+    "inventoryMode": "exact_source",
+    "fileCount": 733,
+    "packageCount": 153,
+    "requiredJarCount": 5,
+    "pinnedMigrationRuntimeVerified": true,
+    "runtimeAcceptance": false,
+    "artifact": "/tmp/mytools-news-release-20261018-b17-verified",
+    "manifestSha256": "78acbbda0f47ba884f361baee7896891994e4621b43213764749688de7c0e0a0",
+    "newsJarSha256": "3ca09b9b3816013459f234e06b6cf2b4cccf83788705de18b3840a7d44842712",
+    "javaServices": 18,
+    "pythonServices": 7,
+    "rebuiltJavaServices": [
+      "news-digest-service"
+    ],
+    "otherJavaArtifactsReused": true,
+    "packagedHelpDoesNotMutateRelease": true
+  },
+  "distinctTests": {
+    "passed": 244,
+    "failed": 0,
+    "optionalNetworkTestsNotRun": 4,
+    "mysqlLocallySkippedButExecutedOnIsolatedServer": 11
+  },
+  "historicalMigrationFilesUnchanged": 203,
+  "sourceFiles": [
+    {
+      "path": "service/news-digest-service/db/migrations/V8__add_collection_capacity.sql",
+      "sha256": "d380594f56fb2d31fd2db7917585c29908e1603a4445a37114d70eff6b60648a"
+    },
+    {
+      "path": "service/news-digest-service/src/main/resources/application.yml",
+      "sha256": "003ba33b120afdc3ca9ce51c497ca9ca69a2b66660bc2875124de898cdab69e7"
+    },
+    {
+      "path": "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/NewsDigestApplication.java",
+      "sha256": "1adbeff2671f198d2223dad8d857942d8fc747db23e65c74125ee029bcc648d4"
+    },
+    {
+      "path": "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/common/ErrorCode.java",
+      "sha256": "40d4190fed532fe268b4a8e36aac7cea2d124e9366c5c281382ed55429d14ddc"
+    },
+    {
+      "path": "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/config/CollectionCapacityProperties.java",
+      "sha256": "aa51e0808659e19aeea3a81dbc570022efc293dac5b49d9d989462462f676f69"
+    },
+    {
+      "path": "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/CollectionCapacityRepository.java",
+      "sha256": "4659f7e195563e05bd5cb41b75134364162404f029b44888f18f995d00311331"
+    },
+    {
+      "path": "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/NewsRepository.java",
+      "sha256": "cf99fa30ac11247bda3becad8bd2fb32636aa9bd8ce85d28bd7955b2af2063dc"
+    },
+    {
+      "path": "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/GithubSnapshotRepository.java",
+      "sha256": "ea3f1b83233d29f0aaae30c13cf724d92b14f0669508f7c2db04cfc9b8dd218c"
+    },
+    {
+      "path": "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/mapper/RetentionRepository.java",
+      "sha256": "0067708df3c09c325af821c7bb14c50f7a2f4c3b70564dd60ed27224f638b0fb"
+    },
+    {
+      "path": "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/CollectionService.java",
+      "sha256": "1a576a39d758fba7f396d4f10e3605a2baa3de9c64c851c0f8a6b6985c0de818"
+    },
+    {
+      "path": "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/NewsOperations.java",
+      "sha256": "13e6a40ebde946122b78710ed31a0497fc0a8ea29075d6e0568fa4682e514fb3"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/CollectionCapacityTest.java",
+      "sha256": "9e3fd602aca9af4d7c682cf0d9590d4b46bdc9f4126eda5592e35ec42791d225"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/MySqlCompatibilityTest.java",
+      "sha256": "907c1ede3d224436378ad6a71a527e2cfd54fa41a084e1a091cf94348747a8dc"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/NewsIntegrationTest.java",
+      "sha256": "f194a03a2eef53b567767b0b6f7dace0711ef28365ff0f20723259611a5341f0"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/RetentionTest.java",
+      "sha256": "39e3d724c139f9680d276d017bb95e1e6b2857fc7f9b1d52b1f45b3607f160d2"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/TechnicalMigrationTest.java",
+      "sha256": "b241c9daecd6fe04443966108233f5c75dd5cd306f782e6b6fb59951ea5c399c"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/TechnicalPersistenceTest.java",
+      "sha256": "64a97a2e179792657bc37d2d8cbdaa46c390e5b42c1f8b75d8cd30510fc28e31"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/EvidenceTest.java",
+      "sha256": "735a7966f238f609e245da483324cb162b0b82f52f313768d8379e4ab182b2e4"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/LiveTechnicalSourcesTest.java",
+      "sha256": "d033bb7f9ce2c68231c6fdb966fb8dcd2c0d321fd9ac7368ff387444d892d9e1"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/Fixtures.java",
+      "sha256": "6792a66c3a617c90b48a0180dfe146e8ea46d858a2bfd4cd337ee45e258f809a"
+    },
+    {
+      "path": "service/deploy/news_deployment_config.py",
+      "sha256": "f6674548824fde042b6640927aba33990546c73e322acd242d00d1b25421889c"
+    },
+    {
+      "path": "service/deploy/test_news_deployment_config.py",
+      "sha256": "af7289f1183b58a78dded82dc9cb0943749c74500e9c8fd1adb59ec58f3765ba"
+    },
+    {
+      "path": "service/deploy/verify_news_deployment.py",
+      "sha256": "7d8a88ad62e2584489d6755998633dc49508a6d29907a075474fec815c28cd77"
+    },
+    {
+      "path": "service/deploy/create_service_env.py",
+      "sha256": "ef1b5fc1356d81ba0ac34068481ff668ffdf63fee6f782829dc461cef7903c50"
+    },
+    {
+      "path": "service/deploy/env.example",
+      "sha256": "9b45ca973a949ebeea49e78802015cdeeb2ab276d27332c54c83c9e6c92ec9d3"
+    },
+    {
+      "path": "service/deploy/monitoring/news-digest-alerts.yml",
+      "sha256": "2d4cbf96e62eb6faf472cd1b6ddb70b2f05e437665e55fde9d0b76cc7657250a"
+    }
+  ],
+  "monitoring": {
+    "yamlParsed": true,
+    "ruleCount": 8,
+    "promtoolAvailable": false,
+    "promqlValidated": false,
+    "liveRulesLoaded": false
+  },
+  "limitations": [
+    "Collection row and charged JSON budgets only; no whole-database physical disk cap.",
+    "Control, subscription, edition identity, region and messaging capacity budgets remain.",
+    "All old News writers must stop for V8 migration; old binaries cannot continue collecting on V8.",
+    "No business deployment, real delivery or actual execution-node region acceptance."
+  ]
+}

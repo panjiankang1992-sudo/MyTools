@@ -1,0 +1,74 @@
+async page => {
+  const checks = [];
+  const check = (condition, label) => { if (!condition) throw new Error(label); checks.push(label); };
+  const confirm = async name => { const button = page.getByRole('button', { name, exact: true }).last(); await button.click(); await button.waitFor({ state: 'hidden' }); };
+  const email = '00000000-0000-4000-8000-000000000050';
+  const feishu = '00000000-0000-4000-8000-000000000051';
+  const batch = '00000000-0000-4000-8000-000000000060';
+  const secondBatch = '00000000-0000-4000-8000-000000000061';
+  const panel = page.getByTestId('news-delivery');
+  await panel.waitFor();
+  await panel.scrollIntoViewIfNeeded();
+  check((await panel.innerText()).includes('QQ'), 'QQ platform limit is visible');
+  check(await panel.locator('input[type="email"], input[type="password"]').count() === 0, 'no destination secrets or email entry');
+  check(await page.locator('#delivery-destination option[value="qq-unavailable"]').count() === 0, 'unsupported QQ target excluded');
+  await page.locator('#delivery-destination').selectOption(feishu);
+  await page.getByTestId('add-delivery-target').click();
+  await page.locator(`#delivery-mode-${feishu}`).selectOption('BRIEF');
+  await page.getByTestId('refresh-delivery').click();
+  check(await page.locator(`#delivery-mode-${feishu}`).inputValue() === 'BRIEF', 'refresh preserves unsaved target and format');
+  await page.getByTestId('save-delivery-targets').click();
+  await page.getByTestId('delivery-saved').waitFor();
+  let result = await (await page.request.get('http://127.0.0.1:24142/__news_test')).json();
+  let changes = result.data.requests.filter(item => item.path.endsWith('/delivery-targets') && item.method === 'PUT');
+  check(changes.length === 1 && changes[0].body.expectedRevision === 1 && changes[0].body.targets.length === 2, 'verified targets saved with revision');
+  check(changes[0].body.targets[1].mode === 'BRIEF', 'brief format saved for selected target');
+  check(Object.keys(changes[0].body.targets[0]).sort().join(',') === 'destinationId,enabled,mode', 'target mutation excludes owner and channel secrets');
+
+  await page.request.post('http://127.0.0.1:24142/__news_test', { data: { deliveryConflict: true } });
+  await page.locator(`#delivery-mode-${email}`).selectOption('BRIEF');
+  await page.getByTestId('save-delivery-targets').click();
+  await page.getByTestId('delivery-save-error').waitFor();
+  check(await page.locator(`#delivery-mode-${email}`).inputValue() === 'BRIEF', 'conflicting save preserves draft');
+  check(await page.getByTestId('save-delivery-targets').isDisabled(), 'conflicting version blocks overwrite');
+  await page.getByTestId('reload-delivery-targets').click();
+  await confirm('\u786e\u8ba4');
+  await page.waitForFunction(id => document.getElementById(`delivery-mode-${id}`).value === 'FULL', email);
+  check(await page.locator(`#delivery-mode-${email}`).inputValue() === 'FULL', 'explicit reload restores saved target format');
+
+  await page.getByTestId('retry-delivery-part-60').click();
+  await confirm('\u4fdd\u6301\u73b0\u72b6');
+  result = await (await page.request.get('http://127.0.0.1:24142/__news_test')).json();
+  check(result.data.requests.filter(item => item.path.endsWith('/retry')).length === 0, 'declining duplicate risk sends no retry');
+  await page.getByTestId('retry-delivery-part-60').click();
+  await confirm('\u63a5\u53d7\u91cd\u590d\u98ce\u9669\u5e76\u91cd\u8bd5');
+  await page.getByTestId('resume-retry-part-60').waitFor();
+  await page.getByTestId('resume-retry-part-60').click();
+  await page.waitForFunction(() => !document.querySelector('[data-testid="resume-retry-part-60"]'));
+  result = await (await page.request.get('http://127.0.0.1:24142/__news_test')).json();
+  const retries = result.data.requests.filter(item => item.path.endsWith('/retry'));
+  check(retries.length === 2 && JSON.stringify(retries[0].body) === JSON.stringify(retries[1].body), 'lost response resumes identical retry request');
+  check(retries[0].body.expectedGeneration === 1 && retries[0].body.acknowledgeDuplicateRisk === true, 'unknown retry pins generation and explicit risk');
+  check(result.data.delivery.batches[0].parts[0].generation === 2, 'lost response did not create a third generation');
+
+  await page.locator(`[data-delivery="${secondBatch}"] summary`).click();
+  await page.getByTestId('redrive-delivery-part-61').click();
+  await confirm('\u786e\u8ba4');
+  await page.locator(`[data-delivery="${secondBatch}"] [data-status="SUBMITTING"]`).waitFor();
+  check(await page.locator('[data-part="part-61"]').count() === 1, 'repair resumes original rejected part');
+  await page.getByTestId(`stop-delivery-${batch}`).click();
+  await confirm('\u786e\u8ba4');
+  await page.locator(`[data-delivery="${batch}"] [data-status="SENDING"]`).waitFor();
+  check(await page.getByTestId(`stop-delivery-${batch}`).count() === 0, 'stop request prevents a second stop command');
+  check(await page.locator(`[data-delivery="${batch}"] [data-status="CANCELLED"]`).count() === 0, 'stop request does not falsely claim cancellation');
+
+  await page.request.post('http://127.0.0.1:24142/__news_test', { data: { failDeliveryHistory: true } });
+  await page.getByTestId('refresh-delivery').click();
+  await page.waitForFunction(() => document.querySelector('[data-testid="news-delivery"]').innerText.includes('history: GATEWAY_003'));
+  check(await panel.locator('.delivery-history > li').count() === 2, 'failed refresh preserves history with explicit error');
+  await page.request.post('http://127.0.0.1:24142/__news_test', { data: { failDeliveryHistory: false } });
+  await page.getByTestId('refresh-delivery').click();
+  await page.waitForFunction(() => !document.querySelector('[data-testid="news-delivery"]').innerText.includes('history: GATEWAY_003'));
+  check(await panel.locator('.delivery-history > li').count() === 2, 'history refresh recovers');
+  await page.evaluate(value => { window.__deliveryAcceptance = value; }, { passed: checks.length, checks });
+}

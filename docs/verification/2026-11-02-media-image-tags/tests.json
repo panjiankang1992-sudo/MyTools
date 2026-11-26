@@ -1,0 +1,23 @@
+[
+  {
+    "suite": "test-media-gallery-regression-policy.sh",
+    "exit": 0,
+    "tail": [
+      "media gallery regression policy tests passed"
+    ]
+  },
+  {
+    "suite": "test-media-action-sheet-policy.sh",
+    "exit": 0,
+    "tail": [
+      "Media action sheet integration policy tests passed"
+    ]
+  },
+  {
+    "suite": "test-ui-design-policy.sh",
+    "exit": 0,
+    "tail": [
+      "UI design policy tests passed"
+    ]
+  }
+]

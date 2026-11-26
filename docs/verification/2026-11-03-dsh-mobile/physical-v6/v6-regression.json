@@ -1,0 +1,5 @@
+{
+  "regressionFailsWithoutFix": true,
+  "expected": "second connection after startup endpoint replacement",
+  "observedBeforeFix": "one connection; cancelled connection was not restarted"
+}

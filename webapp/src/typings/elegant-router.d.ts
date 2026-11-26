@@ -23,6 +23,7 @@ declare module "@elegant-router/types" {
     "ai-tools": "/ai-tools";
     "ai-tools_token": "/ai-tools/token";
     "home": "/home";
+    "news": "/news";
     "iframe-page": "/iframe-page/:url";
     "localfile": "/localfile";
     "localfile_ebook": "/localfile/ebook";
@@ -74,6 +75,7 @@ declare module "@elegant-router/types" {
     | "500"
     | "ai-tools"
     | "home"
+    | "news"
     | "iframe-page"
     | "localfile"
     | "login"
@@ -104,6 +106,7 @@ declare module "@elegant-router/types" {
     | "login"
     | "ai-tools_token"
     | "home"
+    | "news"
     | "localfile_ebook"
     | "localfile_large-media"
     | "localfile_multimedia"

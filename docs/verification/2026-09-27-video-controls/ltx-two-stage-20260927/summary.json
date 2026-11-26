@@ -1,0 +1,33 @@
+{
+  "samples": [
+    {
+      "name": "product",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "variant": "two-stage",
+      "seconds": 14.43,
+      "status": "SUCCEEDED"
+    },
+    {
+      "name": "portrait",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "variant": "two-stage",
+      "seconds": 10.33,
+      "status": "SUCCEEDED"
+    },
+    {
+      "name": "landscape",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "variant": "two-stage",
+      "seconds": 8.3,
+      "status": "SUCCEEDED"
+    }
+  ],
+  "quality": "pending",
+  "productionEnabled": false
+}

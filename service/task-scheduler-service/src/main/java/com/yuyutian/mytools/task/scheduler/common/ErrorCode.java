@@ -5,6 +5,8 @@ package com.yuyutian.mytools.task.scheduler.common;
  */
 public enum ErrorCode {
     UNAUTHORIZED,
+    /** 已认证身份越出自身任务域。 */
+    TASK_DOMAIN_FORBIDDEN,
     NODE_REGISTRATION_FORBIDDEN,
     INVALID_REQUEST,
     IDEMPOTENCY_CONFLICT,

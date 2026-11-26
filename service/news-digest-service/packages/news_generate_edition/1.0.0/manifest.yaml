@@ -1,0 +1,11 @@
+name: news_generate_edition
+version: 1.0.0
+runtime: python3.12
+entrypoint: scripts/main.py
+capabilities: []
+parameters:
+  required:
+    - runId
+limits:
+  timeoutSeconds: 100
+  maxOutputBytes: 65536

@@ -1,0 +1,117 @@
+{
+  "done": true,
+  "results": [
+    {
+      "core": "auto",
+      "file": "20261004-141232.jpg",
+      "variant": "original",
+      "text": "flancina Js, sess\nfesson JPR, — BREF\nwok #5 (39) E&, &\n‘tomorrow BAX, EHX\niee you t Ba\n",
+      "confidence": 37
+    },
+    {
+      "core": "auto",
+      "file": "20261004-141232.jpg",
+      "variant": 0,
+      "text": "dancing\n\njesson\n\nwaik\n\ndog\n\ntomorrow\n\nfree\n\nSee you tomorrow!\n",
+      "confidence": 88
+    },
+    {
+      "core": "auto",
+      "file": "20261004-141232.jpg",
+      "variant": 1,
+      "text": "dancing\n\nlesson\n\nwaik\n\ndog\n\ntomorrow\n\nfree\n\nSee you tomorrow!\n",
+      "confidence": 92
+    },
+    {
+      "core": "auto",
+      "file": "20261004-141232.jpg",
+      "variant": 2,
+      "text": "dancing\n\nlesson\n\nwalk\n\ndog\n\ntomorrow\n\nfree\n\nSee you tomorrow!\n",
+      "confidence": 81
+    },
+    {
+      "core": "auto",
+      "file": "20261004-141249.jpg",
+      "variant": "original",
+      "text": ")) a eae. Ad\n) 。 fssg 7B, BY 5\nonga \" 曙 - (24)\n)  Tuesda 星期 二 (24)\n) Wednesday 星期 三 (24)\n) Thursday 星期 四 (24)\nFriday EHH (24)\nSaturday 星期 六 (24)\n)  punday 星期 天 (24)\nwhen 什么 时 候 (26)\n) every 每 一 个 ， 每 个 (26)\n) AE (Sati ) (26)\nDis ps) ti 1 (26)\n)  joday 在 今天 26).\n) What doyisit today?\n) SRE? (26)\n) cinema 电影 院 | (28)\n) after school 放学 后 (28)\n本 :\n",
+      "confidence": 67
+    },
+    {
+      "core": "auto",
+      "file": "20261004-141249.jpg",
+      "variant": 0,
+      "text": "Weak\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday\nwhen\nevery\n\nat\n\nup\n\ntoday\n\nWhat day is it today?\n\ncinema\nafter school\n",
+      "confidence": 91
+    },
+    {
+      "core": "auto",
+      "file": "20261004-141249.jpg",
+      "variant": 1,
+      "text": "Weak\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday\nwhen\nevery\n\nat\n\nup\n\ntoday\n\nWhat day is it today?\n\ncinema\nafter school\n",
+      "confidence": 93
+    },
+    {
+      "core": "auto",
+      "file": "20261004-141249.jpg",
+      "variant": 2,
+      "text": "Waa\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday\nwhen\nevery\n\nat\n\nup\n\ntoday\n\nWhat day is it today?\n\ncinema\nafter school\n",
+      "confidence": 90
+    },
+    {
+      "core": "tesseract-core-simd-lstm.wasm.js",
+      "file": "20261004-141232.jpg",
+      "variant": "original",
+      "text": "flancina Js, sess\nfesson JPR, — BREF\nwok #5 (39) E&, &\n‘tomorrow BAX, EHX\niee you t Ba\n",
+      "confidence": 37
+    },
+    {
+      "core": "tesseract-core-simd-lstm.wasm.js",
+      "file": "20261004-141232.jpg",
+      "variant": 0,
+      "text": "dancing\n\njesson\n\nwaik\n\ndog\n\ntomorrow\n\nfree\n\nSee you tomorrow!\n",
+      "confidence": 88
+    },
+    {
+      "core": "tesseract-core-simd-lstm.wasm.js",
+      "file": "20261004-141232.jpg",
+      "variant": 1,
+      "text": "dancing\n\nlesson\n\nwaik\n\ndog\n\ntomorrow\n\nfree\n\nSee you tomorrow!\n",
+      "confidence": 92
+    },
+    {
+      "core": "tesseract-core-simd-lstm.wasm.js",
+      "file": "20261004-141232.jpg",
+      "variant": 2,
+      "text": "dancing\n\nlesson\n\nwalk\n\ndog\n\ntomorrow\n\nfree\n\nSee you tomorrow!\n",
+      "confidence": 81
+    },
+    {
+      "core": "tesseract-core-simd-lstm.wasm.js",
+      "file": "20261004-141249.jpg",
+      "variant": "original",
+      "text": ")) a eae. Ad\n) 。 fssg 7B, BY 5\nonga \" 曙 - (24)\n)  Tuesda 星期 二 (24)\n) Wednesday 星期 三 (24)\n) Thursday 星期 四 (24)\nFriday EHH (24)\nSaturday 星期 六 (24)\n)  punday 星期 天 (24)\nwhen 什么 时 候 (26)\n) every 每 一 个 ， 每 个 (26)\n) AE (Sati ) (26)\nDis ps) ti 1 (26)\n)  joday 在 今天 26).\n) What doyisit today?\n) SRE? (26)\n) cinema 电影 院 | (28)\n) after school 放学 后 (28)\n本 :\n",
+      "confidence": 67
+    },
+    {
+      "core": "tesseract-core-simd-lstm.wasm.js",
+      "file": "20261004-141249.jpg",
+      "variant": 0,
+      "text": "Weak\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday\nwhen\nevery\n\nat\n\nup\n\ntoday\n\nWhat day is it today?\n\ncinema\nafter school\n",
+      "confidence": 91
+    },
+    {
+      "core": "tesseract-core-simd-lstm.wasm.js",
+      "file": "20261004-141249.jpg",
+      "variant": 1,
+      "text": "Weak\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday\nwhen\nevery\n\nat\n\nup\n\ntoday\n\nWhat day is it today?\n\ncinema\nafter school\n",
+      "confidence": 93
+    },
+    {
+      "core": "tesseract-core-simd-lstm.wasm.js",
+      "file": "20261004-141249.jpg",
+      "variant": 2,
+      "text": "Waa\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday\nwhen\nevery\n\nat\n\nup\n\ntoday\n\nWhat day is it today?\n\ncinema\nafter school\n",
+      "confidence": 90
+    }
+  ]
+}

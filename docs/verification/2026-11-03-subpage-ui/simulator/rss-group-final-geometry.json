@@ -1,0 +1,32 @@
+{
+  "hapSha256": "9b6a2b252581c9885eb1c2109ca0d24a878cd8d5652401e38b34c872e9f35ef9",
+  "result": "passed-with-pixel-rounding",
+  "scope": "production formal RSS management group creation row; no group created or subscription changed",
+  "scalePxPerVp": 3.5,
+  "controls": {
+    "groupName": {
+      "type": "TextInput",
+      "bounds": [
+        70,
+        1452,
+        1021,
+        1621
+      ],
+      "widthPx": 951,
+      "heightPx": 169
+    },
+    "create": {
+      "type": "Button",
+      "bounds": [
+        1049,
+        1452,
+        1251,
+        1620
+      ],
+      "widthPx": 202,
+      "heightPx": 168
+    }
+  },
+  "heightDifferencePx": 1,
+  "sourceLayout": "/tmp/mytools-ui-simulator-private/17-rss-manage-final.json"
+}

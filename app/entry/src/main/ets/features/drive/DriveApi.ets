@@ -10,10 +10,12 @@ import { DriveResponseNormalizer } from './DriveResponseNormalizer';
 export class DriveApi {
   private readonly client: AuthorizedApiClient;
   private readonly baseUrl: string;
+  private readonly authManager: AuthSessionManager;
   private readonly normalizer: DriveResponseNormalizer = new DriveResponseNormalizer();
 
   constructor(baseUrl: string, authManager: AuthSessionManager) {
     this.baseUrl = authManager.normalizeBusinessBaseUrl(baseUrl);
+    this.authManager = authManager;
     this.client = new AuthorizedApiClient(baseUrl, authManager);
   }
 
@@ -45,10 +47,15 @@ export class DriveApi {
     request['path'] = itemId;
     const envelope = await this.client.postJson(
       `/api/app/v1/drive/accounts/${encodeURIComponent(driveId)}/open-ticket`, request, cancellation);
-    return this.normalizer.normalizeOpenDescriptor(envelope.data, this.baseUrl);
+    return this.normalizer.normalizeOpenDescriptor(envelope.data, this.businessBaseUrl());
   }
 
   private uuid(value: string): boolean {
     return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(value);
+  }
+
+  /** 票据按当前已验证业务路由生成，避免复用实例后仍拼接旧地址。 */
+  private businessBaseUrl(): string {
+    return this.authManager.resolveBusinessBaseUrl(this.baseUrl);
   }
 }

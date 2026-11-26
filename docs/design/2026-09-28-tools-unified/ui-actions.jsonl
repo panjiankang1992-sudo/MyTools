@@ -1,0 +1,113 @@
+{"op": "dump"}
+{"op": "key", "value": "Back"}
+{"op": "shot", "name": "before-home"}
+{"op": "tap", "text": "二维码"}
+{"op": "shot", "name": "before-qr"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "解压工具"}
+{"op": "shot", "name": "before-archive"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "视频生成"}
+{"op": "shot", "name": "before-video"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "下载工具"}
+{"op": "shot", "name": "before-download"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "工具"}
+{"op": "shot", "name": "home"}
+{"op": "tap", "text": "二维码"}
+{"op": "shot", "name": "qr-create"}
+{"op": "dump"}
+{"op": "assert", "text": "生成二维码", "enabled": "false"}
+{"op": "input", "type": "TextArea", "value": "MyTools UI check 20260928"}
+{"op": "tap", "text": "把内容变成二维码"}
+{"op": "tap", "text": "生成二维码"}
+{"op": "dump"}
+{"op": "shot", "name": "qr-debug"}
+{"op": "click", "coords": [1219, 1843]}
+{"op": "tap", "text": "生成二维码"}
+{"op": "dump"}
+{"op": "swipe", "coords": [1100, 2380, 1100, 980, 450]}
+{"op": "shot", "name": "qr-result"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "二维码"}
+{"op": "tap", "text": "识别二维码"}
+{"op": "shot", "name": "qr-scan"}
+{"op": "tap", "text": "选择图片"}
+{"op": "dump"}
+{"op": "tap", "text": "工具"}
+{"op": "dump"}
+{"op": "tap", "text": "解压工具"}
+{"op": "shot", "name": "archive"}
+{"op": "tap", "text": "解压记录"}
+{"op": "shot", "name": "archive-history"}
+{"op": "tap", "text": "文件"}
+{"op": "tap", "text": "选择压缩文件"}
+{"op": "dump"}
+{"op": "key", "value": "Back"}
+{"op": "assert", "text": "选择压缩文件"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "视频生成"}
+{"op": "shot", "name": "video"}
+{"op": "tap", "text": "调整配置"}
+{"op": "assert", "text": "收起配置"}
+{"op": "shot", "name": "video-models"}
+{"op": "tap", "text": "收起配置"}
+{"op": "tap", "text": "文字创作"}
+{"op": "shot", "name": "video-text"}
+{"op": "tap", "text": "我的作品"}
+{"op": "shot", "name": "video-works"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "下载工具"}
+{"op": "shot", "name": "download"}
+{"op": "dump"}
+{"op": "tap", "type": "Button", "text": "", "index": 1}
+{"op": "assert", "text": "本地文件"}
+{"op": "tap", "text": "本地文件"}
+{"op": "assert", "text": "最近"}
+{"op": "key", "value": "Back"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "文件传输"}
+{"op": "shot", "name": "transfer"}
+{"op": "tap", "text": "新建文件夹"}
+{"op": "assert", "text": "确认新建"}
+{"op": "shot", "name": "transfer-create"}
+{"op": "tap", "text": "取消"}
+{"op": "dump"}
+{"op": "tap", "text": "Image_1003472346139598--b06c475d19e9.jpg"}
+{"op": "assert", "text": "关闭操作"}
+{"op": "assert", "text": "重命名"}
+{"op": "assert", "text": "移动"}
+{"op": "shot", "name": "transfer-actions"}
+{"op": "tap", "text": "关闭操作"}
+{"op": "key", "value": "Back"}
+{"op": "input", "type": "TextInput", "value": "二维码"}
+{"op": "assert", "text": "生成与识别"}
+{"op": "shot", "name": "home-search"}
+{"op": "input", "type": "TextInput", "value": "no_tool_ui_928"}
+{"op": "assert", "text": "没有匹配的工具"}
+{"op": "input", "type": "TextInput", "value": ""}
+{"op": "key", "value": "Back"}
+{"op": "dump"}
+{"op": "tap", "text": "工具"}
+{"op": "tap", "text": "二维码"}
+{"op": "shot", "name": "qr-create"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "PDF 工具"}
+{"op": "shot", "name": "pdf-smoke"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "图片生成"}
+{"op": "assert", "text": "挑选风格"}
+{"op": "key", "value": "Back"}
+{"op": "shot", "name": "home"}
+{"op": "tap", "text": "工具"}
+{"op": "tap", "text": "文件传输"}
+{"op": "assert", "text": "当前位置"}
+{"op": "shot", "name": "transfer"}
+{"op": "tap", "text": "Image_1003472346139598--b06c475d19e9.jpg"}
+{"op": "assert", "text": "关闭操作"}
+{"op": "shot", "name": "transfer-actions"}
+{"op": "tap", "text": "关闭操作"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "DSH"}
+{"op": "dump"}

@@ -232,3 +232,12 @@ pnpm build
 ## 开源协议
 
 项目基于 [MIT © 2021 Soybean](./LICENSE) 协议，仅供学习参考，商业使用请保留作者版权信息，作者不保证也不承担任何软件的使用风险。
+
+
+## 每日新闻页面
+
+`/news` 使用已有登录态，提供个人订阅设置、预览、历史及四分类阅读、引用与生成状态。所有请求走同源 `/api/v1/news`；开发时 `VITE_NEWS_GATEWAY_URL` 指定 Gateway，默认为 `http://127.0.0.1:23200`，该路由优先于现有 `/api` 代理。生产需在反向代理中配置相同前缀，不能把 News 内部令牌传到浏览器。
+
+静态菜单已包含新闻页面；使用动态菜单模式的部署需由菜单服务返回 name=news、path=/news、component=layout.base$view.news，且保持需要登录。生成和消息投递能力分别显示，服务关闭时不伪造成功。
+
+验证命令及离线浏览器夹具见 [tests/news/README.md](tests/news/README.md)，阶段证据见 [第六批验证记录](../docs/verification/daily-news/2026-10-18-news-web.md)。

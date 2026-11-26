@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["registered"],
+  "properties": {
+    "registered": {"type": "boolean"},
+    "reason": {"type": "string"},
+    "mediaItemId": {"type": "string", "format": "uuid"},
+    "directoryName": {"type": "string", "pattern": "^20[0-9]{6}$"},
+    "version": {"type": "integer", "minimum": 1}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,15 @@
+const assert = require('node:assert/strict');
+const { ImageReferencePolicy: p } = require(process.argv[2]);
+for (const size of [1048577, 3*1048576, 5*1048576]) assert.equal(p.passthrough(size, 2048, 2048), true);
+assert.equal(p.validSource(20*1048576), true);
+assert.equal(p.validSource(64*1048576), true);
+for (const size of [0, -1, NaN, Infinity, 64*1048576+1]) assert.equal(p.validSource(size), false);
+assert.equal(p.passthrough(6*1048576, 2048, 2048), false);
+assert.equal(p.passthrough(2*1048576, 8000, 6000), false);
+assert.equal(p.validDimensions(12000, 16000), true);
+assert.equal(p.validDimensions(20000, 20000), false);
+assert.deepEqual(p.dimensions(8000, 6000, 0), [2048,1536]);
+assert.deepEqual(p.dimensions(6000, 8000, 0), [1536,2048]);
+assert.deepEqual(p.dimensions(100, 200, 0), [100,200]);
+assert.deepEqual(p.dimensions(8000, 6000, 1), [1536,1152]);
+console.log('18 large image input and aspect ratio assertions passed');

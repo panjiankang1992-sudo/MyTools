@@ -10,6 +10,14 @@ spring:
       fail-on-unknown-properties: true
 
 gateway:
+  rss:
+    route-enabled: ${GATEWAY_RSS_ROUTE_ENABLED:false}
+    url: ${RSS_SERVICE_URL:http://127.0.0.1:23360}
+    token: ${RSS_INTERNAL_TOKEN:}
+  news:
+    route-enabled: ${GATEWAY_NEWS_ROUTE_ENABLED:false}
+    url: ${NEWS_SERVICE_URL:http://127.0.0.1:23350}
+    token: ${NEWS_INTERNAL_TOKEN:}
   chapter-adaptation:
     read-enabled: ${GATEWAY_CHAPTER_ADAPTATION_READ_ENABLED:false}
     create-enabled: ${GATEWAY_CHAPTER_ADAPTATION_CREATE_ENABLED:false}

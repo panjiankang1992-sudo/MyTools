@@ -15,6 +15,7 @@ from mytools_qq_connector.client import (
     QQConnector,
 )
 from mytools_qq_connector.config import Config
+from mytools_qq_connector.reference_store import MessageReferenceStore
 from mytools_qq_connector.inbound_wal import (
     GatewayCheckpoint,
     InboundEvent,
@@ -1190,6 +1191,78 @@ def test_msg_elements_preview_urls_are_not_treated_as_attachments():
                  if part["type"] == "ATTACHMENT"]
         assert parts == []
     asyncio.run(scenario())
+
+
+def test_official_nested_messages_reach_messaging_without_onebot(tmp_path):
+    async def scenario():
+        connector = CapturingConnector(replace(CONFIG, onebot_token="", onebot_url=""))
+        connector.reference_store = MessageReferenceStore(tmp_path / "refs.db")
+        original = event(content="original", message_id="original")
+        original["d"].update({"message_scene": {"ext": ["msg_idx=REFIDX_original"]},
+                              "msg_elements": [{"content": "deep"}]})
+        await connector.receive(original)
+        # 模拟重启后只收到引用索引，依然从同一会话恢复原文。
+        connector.reference_store = MessageReferenceStore(tmp_path / "refs.db")
+        quoted = event(content="reply", message_id="quote")
+        quoted["d"].update({"message_type": 103,
+                            "timestamp": "2026-10-25T08:00:00+08:00",
+                            "msg_elements": [{"msg_idx": "REFIDX_original"}]})
+        await connector.receive(quoted)
+        method, url, body, token = connector.request
+        assert method == "POST" and url == CONFIG.messaging_url + "/internal/v1/inbound-messages"
+        assert token == CONFIG.messaging_token
+        assert body["channelType"] == "QQ"
+        assert body["receivedAt"] == "2026-10-25T00:00:00+00:00"
+        assert "original" in body["body"] and "deep" in body["body"]
+        assert "qq-incomplete" not in body["body"]
+        assert body["body"] == "\n".join(p["text"] for p in body["parts"] if p["type"] == "TEXT")
+        quoted["d"]["author"] = {"user_openid": "another-user"}
+        await connector.receive(quoted)
+        assert "reference_unavailable" in connector.request[2]["body"]
+
+    asyncio.run(scenario())
+
+
+def test_gateway_indexes_original_before_parallel_inbound_workers(tmp_path):
+    async def scenario():
+        connector = CapturingConnector()
+        connector.reference_store = MessageReferenceStore(tmp_path / "refs.db")
+        connector._session_id = "session"
+        original = event(content="cached-before-worker", message_id="original")
+        original["s"] = 1
+        original["d"]["message_scene"] = {"ext": ["msg_idx=REFIDX_original"]}
+        await connector._handle_dispatch(original)
+        quoted = event(content="reply", message_id="quote")
+        quoted["d"].update({"message_type": 103,
+                            "msg_elements": [{"msg_idx": "REFIDX_original"}]})
+        await connector.receive(quoted)
+        assert "cached-before-worker" in connector.request[2]["body"]
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("nested", [True, False])
+def test_pure_qq_mode_and_nested_login_text_do_not_schedule_onebot(nested):
+    async def scenario():
+        connector = FakeConnector(CONFIG if nested else replace(CONFIG, onebot_token=""))
+        payload = event()
+        if nested:
+            payload["d"].update({"message_type": 103, "msg_elements": [{"content": "context"}]})
+        await connector.receive(payload)
+        assert connector.commands == []
+        assert connector.replies == []
+        assert len(connector.received) == 1
+
+    asyncio.run(scenario())
+
+
+def test_config_load_can_start_without_any_onebot_credentials(monkeypatch):
+    for key, value in {"QQ_CONNECTOR_APP_ID": "app", "QQ_CONNECTOR_APP_SECRET": "secret",
+                       "QQ_CONNECTOR_OWNER_ID": "55", "QQ_CONNECTOR_ALLOWED_SENDER": "allowed",
+                       "MESSAGING_INTERNAL_TOKEN": "messaging", "MESSAGE_AUTOMATION_INTERNAL_TOKEN": "automation"}.items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.delenv("ONEBOT_CONNECTOR_INTERNAL_TOKEN", raising=False)
+    assert Config.load().onebot_token == ""
 
 
 def test_login_worker_recovers_persisted_scheduler_task_after_restart(tmp_path):

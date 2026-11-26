@@ -1,0 +1,34 @@
+server:
+  address: ${PDF_ADDRESS:127.0.0.1}
+  port: ${PDF_PORT:23342}
+  tomcat:
+    max-swallow-size: 1MB
+spring:
+  application:
+    name: pdf-service
+  datasource:
+    url: jdbc:mysql://${PDF_DB_HOST:127.0.0.1}:${PDF_DB_PORT:3306}/${PDF_DB_NAME:mytools_pdf}?useUnicode=true&characterEncoding=utf8&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true
+    username: ${PDF_DB_USER:mytools_pdf}
+    password: ${PDF_DB_PASSWORD:}
+  flyway:
+    enabled: true
+pdf:
+  token: ${PDF_INTERNAL_TOKEN:}
+  worker-token: ${PDF_WORKER_TOKEN:}
+  enabled: ${PDF_ENABLED:false}
+  text-enabled: ${PDF_TEXT_ENABLED:false}
+  root: ${PDF_ROOT:./runtime/pdf}
+  scheduler-url: ${TASK_SCHEDULER_URL:http://127.0.0.1:23410}
+  scheduler-token: ${TASK_BUSINESS_PDF_TOKEN:}
+  storage-url: ${STORAGE_GATEWAY_URL:http://127.0.0.1:23240}
+  storage-token: ${STORAGE_INTERNAL_TOKEN:}
+  # 以下四项默认值保持私有实例的既有行为；公开实例通过环境变量显式覆盖。
+  scheduler-service-id: ${PDF_SCHEDULER_SERVICE_ID:pdf-service}
+  task-name: ${PDF_TASK_NAME:pdf_process}
+  business-type: ${PDF_BUSINESS_TYPE:PDF_TOOL}
+  idempotency-prefix: ${PDF_IDEMPOTENCY_PREFIX:pdf:}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

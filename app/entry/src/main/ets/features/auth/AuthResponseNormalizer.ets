@@ -63,8 +63,17 @@ export class AuthResponseNormalizer {
       role: this.requiredString(session.role, '用户角色', 64, /^[A-Za-z][A-Za-z0-9_-]{0,63}$/),
       accessToken: this.token(session.accessToken, '访问令牌'),
       refreshToken: this.refreshToken(session.refreshToken),
-      expiresAt: expiresAt
+      expiresAt: expiresAt,
+      refreshOperationId: this.refreshOperationId(session.refreshOperationId)
     };
+  }
+
+  private refreshOperationId(value?: string): string | undefined {
+    if (value === undefined) return undefined;
+    if (!/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$/.test(value)) {
+      throw new Error('Invalid refresh operation');
+    }
+    return value;
   }
 
   private expiresIn(value: Object | undefined): number {

@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-19",
+  "preview": {
+    "observedAt": "2026-10-18T16:31:11.346300Z",
+    "sources": [
+      {
+        "source": "github-discovery",
+        "status": "FRESH",
+        "skipped": 0,
+        "inserted": 30
+      },
+      {
+        "source": "hacker-news-top",
+        "status": "FRESH",
+        "skipped": 0,
+        "inserted": 30
+      },
+      {
+        "source": "dev-weekly",
+        "status": "FRESH",
+        "skipped": 0,
+        "inserted": 30
+      },
+      {
+        "source": "chinanews-world",
+        "status": "FRESH",
+        "skipped": 0,
+        "inserted": 30
+      },
+      {
+        "source": "chinanews-china",
+        "status": "FRESH",
+        "skipped": 0,
+        "inserted": 30
+      }
+    ],
+    "sections": {
+      "TECH": {
+        "details": 0,
+        "headlines": 20,
+        "gaps": [
+          "DETAIL_SHORTFALL"
+        ]
+      },
+      "WORLD": {
+        "details": 0,
+        "headlines": 20,
+        "gaps": [
+          "DETAIL_SHORTFALL"
+        ]
+      },
+      "DOMESTIC": {
+        "details": 0,
+        "headlines": 20,
+        "gaps": [
+          "DETAIL_SHORTFALL"
+        ]
+      },
+      "LOCAL": {
+        "details": 0,
+        "headlines": 0,
+        "gaps": [
+          "HEADLINE_SHORTFALL",
+          "DETAIL_SHORTFALL",
+          "REGION_UNRESOLVED"
+        ]
+      }
+    },
+    "parts": 1,
+    "region": "UNRESOLVED",
+    "realSources": true,
+    "productionDatabase": false,
+    "messagesSent": false
+  },
+  "smtp": {
+    "recipients": 2,
+    "accepted": 2,
+    "receipts": [
+      {
+        "job_id": "news-preview-20261019-ff62b52dc4-primary",
+        "fingerprint": "1e75945ecd7e52dabfe6e585a3d179dd38027c0e386c4f18205f5223432cf183",
+        "message_id": "<news-preview-20261019-ff62b52dc4-primary@mytools-mail.local>",
+        "status": "accepted",
+        "bytes": 68961,
+        "smtp_code": 250
+      },
+      {
+        "job_id": "news-preview-20261019-ff62b52dc4-qq",
+        "fingerprint": "2de43794de5956b83e63a99cd91efdc8e8c81535707e98db7e847d66aee559d3",
+        "message_id": "<news-preview-20261019-ff62b52dc4-qq@mytools-mail.local>",
+        "status": "accepted",
+        "bytes": 68946,
+        "smtp_code": 250
+      }
+    ],
+    "inboxDeliveryConfirmed": false,
+    "transport": "smtp-reusing-running-messaging-service-configuration",
+    "productionNewsOutboxExercised": false,
+    "dailyScheduleEnabled": false
+  },
+  "tests": {
+    "passed": 19,
+    "failed": 0,
+    "skipped": 0,
+    "suites": [
+      "NewsDeliveryRendererTest",
+      "DispatchIntegrationTest",
+      "DispatchRestartPersistenceTest"
+    ],
+    "package": "success"
+  },
+  "sourceSha256": {
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/NewsDeliveryRenderer.java": "4fcd03436cdaf96e9f6b0c41000ef3f8b45c79f509a6ac610e52cd24dd537b64",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/NewsDeliveryRendererTest.java": "6a522ae45f9c03e0a707ce9dfe85edfe9e70cdae81f41bd84185bcccc87b5697",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/PersonalPreviewLauncher.java": "416e881f3b6f23e6948aec39bfd310c5dd853fa2004af9e80e0484bb2dc7ae0f"
+  }
+}

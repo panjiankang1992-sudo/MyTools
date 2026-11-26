@@ -21,25 +21,43 @@ vm.createContext(ctx);
 vm.runInContext(ts.transpileModule(source + '\nglobalThis.Cache = ReaderShelfFileCache;', {
   compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText, ctx);
 (async () => {
-  const context = { cacheDir: '/private-cache' };
+  const context = { cacheDir: '/private-cache', filesDir: '/private-files' };
   const book = { id: 'book', sourceId: 'source', resourceUri: '/book.txt', cacheVersion: 'v1', format: 'txt' };
   const cache = new ctx.Cache();
   assert.equal(await cache.prepare(context, 'owner-a', 'endpoint', book), '');
   files.set('/download', { size: 1000, mtime: now }); cache.save('/download');
   const hit = await cache.prepare(context, 'owner-a', 'endpoint', book);
+  assert.ok(hit.startsWith(context.filesDir + '/'));
   assert.ok(hit.endsWith('.txt'));
+  assert.equal(cache.available(), true);
   assert.equal(await new ctx.Cache().prepare(context, 'owner-b', 'endpoint', book), '');
   assert.equal(await new ctx.Cache().prepare(context, 'owner-a', 'other', book), '');
   assert.equal(await new ctx.Cache().prepare(context, 'owner-a', 'endpoint', { ...book, cacheVersion: 'v2' }), '');
   cache.invalidate(); assert.equal(files.has(hit), false);
   cache.save('/download'); now += 86400000;
-  assert.equal(await new ctx.Cache().prepare(context, 'owner-a', 'endpoint', book), '');
+  assert.equal(await new ctx.Cache().prepare(context, 'owner-a', 'endpoint', book), hit);
+  now += 30 * 86400000;
+  assert.equal(await new ctx.Cache().prepare(context, 'owner-a', 'endpoint', book), hit);
+  const legacyBook = { ...book, id: 'legacy' };
+  const legacyKey = JSON.stringify(['owner-a', 'endpoint', legacyBook.id, legacyBook.sourceId,
+    legacyBook.resourceUri, legacyBook.cacheVersion, legacyBook.format, Math.floor(now / 86400000)]);
+  const legacyPath = `${context.cacheDir}/reader-shelf-files-v1/${crypto.createHash('sha256').update(legacyKey).digest('hex')}.txt`;
+  files.set(legacyPath, { size: 1000, mtime: now });
+  const migrated = await new ctx.Cache().prepare(context, 'owner-a', 'endpoint', legacyBook);
+  assert.ok(migrated.endsWith('.txt'));
+  assert.notEqual(migrated, legacyPath);
+  assert.equal(files.has(legacyPath), false);
+  now += 86400000;
+  assert.equal(await new ctx.Cache().prepare(context, 'owner-a', 'endpoint', legacyBook), migrated);
+  files.set(migrated, { size: 0, mtime: now });
+  assert.equal(await new ctx.Cache().prepare(context, 'owner-a', 'endpoint', legacyBook), '');
+  assert.equal(files.has(migrated), false);
   for (let i = 0; i < 12; i++) {
     await cache.prepare(context, 'owner-a', 'endpoint', { ...book, id: String(i) }); cache.save('/download');
   }
-  assert.equal([...files.keys()].filter(p => /[a-f0-9]{64}\.txt$/.test(p)).length, 8);
+  assert.equal([...files.keys()].filter(p => /[a-f0-9]{64}\.txt$/.test(p)).length, 13);
   await cache.prepare(context, 'owner-a', 'endpoint', { ...book, id: 'oversize' });
-  files.set('/large', { size: 101 * 1024 * 1024, mtime: now }); cache.save('/large');
+  files.set('/large', { size: 501 * 1024 * 1024, mtime: now }); cache.save('/large');
   assert.equal(await cache.prepare(context, 'owner-a', 'endpoint', { ...book, id: 'oversize' }), '');
   const index = fs.readFileSync('app/entry/src/main/ets/pages/Index.ets', 'utf8');
   assert.match(index, /@State bookModeIndex: number = 3/);
@@ -47,5 +65,5 @@ vm.runInContext(ts.transpileModule(source + '\nglobalThis.Cache = ReaderShelfFil
   assert.match(index, /if \(this.bookModeIndex === 3\) return this.books/);
   assert.match(index, /return \[origin\]\.concat\(ordered\)/);
   assert.ok(index.indexOf('const cachedFile = await loader.shelfFileCache.prepare') < index.indexOf('descriptor = await api.resolveBookPlayback'));
-  console.log('Shelf navigation, file cache hit, owner/version/endpoint isolation, expiry, bounds and invalidation passed');
+  console.log('Shelf navigation, persistent cache hits, legacy migration, isolation, bounds and invalidation passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });

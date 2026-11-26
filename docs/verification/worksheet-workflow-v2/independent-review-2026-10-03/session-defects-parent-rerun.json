@@ -1,0 +1,162 @@
+{
+  "executedAt": "2026-10-03T15:05:57.756Z",
+  "scope": "Pure session functions and real composable with in-memory storage; no network or real PDF rendering.",
+  "findingCount": 8,
+  "reproducedCount": 8,
+  "findings": [
+    {
+      "id": "same-count-edit",
+      "expected": {
+        "canOutput": false
+      },
+      "actual": {
+        "rawText": "秋 冬",
+        "artifactStatus": "current",
+        "canOutput": true
+      },
+      "defectReproduced": true
+    },
+    {
+      "id": "parse-policy-change",
+      "expected": {
+        "canOutput": false
+      },
+      "actual": {
+        "tokens": [
+          "春 天"
+        ],
+        "canOutput": true
+      },
+      "defectReproduced": true
+    },
+    {
+      "id": "invalid-raw-still-generates",
+      "expected": {
+        "artifactGenerated": false
+      },
+      "actual": {
+        "rawText": "\"unclosed",
+        "parseBlockers": [
+          {
+            "code": "WORKSHEET_PARSE_QUOTE",
+            "detail": "line=1 column=1"
+          }
+        ],
+        "tokens": [
+          "春",
+          "天"
+        ],
+        "artifactGenerated": true,
+        "canOutput": true
+      },
+      "defectReproduced": true
+    },
+    {
+      "id": "late-render-revives-cleared-session",
+      "expected": {
+        "rawText": "",
+        "canOutput": false
+      },
+      "actual": {
+        "beforeResolve": {
+          "rawText": "",
+          "canOutput": false
+        },
+        "afterResolve": {
+          "rawText": "春 天",
+          "canOutput": true
+        }
+      },
+      "defectReproduced": true
+    },
+    {
+      "id": "one-confirm-confirms-other-polyphone",
+      "expected": {
+        "secondState": "suggested"
+      },
+      "actual": {
+        "tokens": [
+          {
+            "text": "行",
+            "state": "confirmed"
+          },
+          {
+            "text": "重",
+            "state": "confirmed"
+          }
+        ]
+      },
+      "defectReproduced": true
+    },
+    {
+      "id": "repetition-expanded-twice",
+      "expected": {
+        "renderedQuestions": 4
+      },
+      "actual": {
+        "inputCount": 2,
+        "repetitions": 2,
+        "processedCount": 4,
+        "renderedQuestions": 8
+      },
+      "defectReproduced": true
+    },
+    {
+      "id": "v2-restore-loses-policy-corrections-layout",
+      "expected": {
+        "parsePolicy": "one-per-line",
+        "tokens": [
+          "ice cream",
+          "Good morning"
+        ],
+        "meanings": [
+          "冰淇淋",
+          "早上好"
+        ],
+        "layout": {
+          "title": "Saved title",
+          "gridMm": 14
+        }
+      },
+      "actual": {
+        "saved": true,
+        "rawText": "ice cream\nGood morning",
+        "parsePolicy": "whitespace",
+        "tokens": [
+          "ice",
+          "cream",
+          "Good",
+          "morning"
+        ],
+        "meanings": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "layout": {
+          "gridMm": 12,
+          "title": ""
+        }
+      },
+      "defectReproduced": true
+    },
+    {
+      "id": "v1-restore-loses-mode-corrections",
+      "expected": {
+        "mode": "chinese-dictation",
+        "pinyin": "chūn"
+      },
+      "actual": {
+        "rawText": "春",
+        "mode": null,
+        "pinyin": [],
+        "layout": {
+          "gridMm": 12,
+          "title": ""
+        }
+      },
+      "defectReproduced": true
+    }
+  ]
+}

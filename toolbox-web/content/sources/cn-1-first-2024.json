@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "sourceId": "smartedu-ebook-cn-1-first-2024",
+      "kind": "officialEbook",
+      "title": "义务教育教科书·语文一年级上册（2022 课标修订版，人民教育出版社）电子教材",
+      "url": "https://r1-ndr.ykt.cbern.com.cn/edu_product/esp/assets/1c73b348-e8b6-47d6-84b0-6dbacbe28268.pkg/9787107383007_%E4%B9%89%E5%8A%A1%E6%95%99%E8%82%B2%E6%95%99%E7%A7%91%E4%B9%A6%E2%80%A2%E8%AF%AD%E6%96%87_%E4%B8%80%E5%B9%B4%E7%BA%A7_%E4%B8%8A%E5%86%8C_%E4%BA%BA%E6%B0%91%E6%95%99%E8%82%B2%E5%87%BA%E7%89%88%E7%A4%BE%E4%B8%89%E7%A7%91%E5%8A%9E_1787020686278.pdf",
+      "publisher": "人民教育出版社",
+      "isbn": "9787107383007",
+      "accessBasis": "publicEbookWithTextLayer",
+      "verifiedAt": "2026-10-02",
+      "contentSha256": "f8a9bba537d1925c16eced2ff79c6a2ae28804a12caf3ea362c5bbe51062013b",
+      "locators": [
+        "目录：PDF 第 4—6 页",
+        "识字表：PDF 第 110—112 页（书页 105—107）",
+        "写字表：PDF 第 113 页（书页 108）"
+      ],
+      "reconciliation": {
+        "recognitionEntries": 284,
+        "recognitionPrintedFootnote": 280,
+        "recognitionNote": "教材脚注「共 280 个生字」，差额 4 条为教材用蓝色标注的多音字复现（地/着/数/长），教材明确不计入总数",
+        "writingEntries": 100,
+        "writingPrintedFootnote": 100,
+        "distinctCharacters": 280,
+        "result": "与教材自印数量完全一致"
+      },
+      "crossChecks": [
+        { "name": "pypinyin 0.55.0", "overlap": 318, "agree": 310, "note": "8 处差异均为上下文读音与默认读音不同（地/长/只/着/数/爪/子），已按教材读音保留" },
+        { "name": "国家中小学智慧教育平台《部编版一年级上册语文知识点梳理》", "url": "https://basic.nmg.smartedu.cn/player/data4/2022/6/29/10/37/6D64A69F95B0C49EE053F1C8A8C096C1/a2a0453d1e8dd5efce4b97ff7a3d1c2d.pdf", "overlap": 184, "agree": 184 },
+        { "name": "搜狐《部编版一年级语文上册生字表》", "url": "https://www.sohu.com/a/1051559819_121124022", "overlap": 89, "agree": 88, "note": "唯一分歧为「子」的声调" }
+      ],
+      "reviewedBy": "cross-source-verification",
+      "reviewNotes": "由教材自身的识字表与写字表提取，并以教材自印数量、拼音库与两份独立来源交叉核对。一年级上册教材正文没有词语表，因此本版本不含词语条目，也未用推测内容补足。"
+    },
+    {
+      "sourceId": "cn-1-first-edition-decision",
+      "kind": "decisionRecord",
+      "title": "版本选择：采用 2024 年秋季起使用的 2022 课标修订版，而非 2016 版",
+      "accessBasis": "internalRecord",
+      "verifiedAt": "2026-10-02",
+      "notes": "网络流传的多数「部编版一上生字表」为 2016 版。依据：CIP 记录（人教社 2024-08）、国家中小学智慧教育平台电子教材目录中一年级上册语文只提供 2022 课标修订版、以及地方教育部门的单元作业设计沿用新版目录。两版差异包括第 3 课为「口耳目手足」、第 4 课为「日月山川」、「对韵歌」移至第六单元。旧版仍可另建独立 editionId，不覆盖本版本。"
+    }
+  ]
+}

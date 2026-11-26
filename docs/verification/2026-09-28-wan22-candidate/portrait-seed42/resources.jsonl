@@ -1,0 +1,59 @@
+{"time": 1790529816.9450934, "gpu": "635, 0", "availableKiB": 15685416, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=162610647\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=159638319"}
+{"seconds": 0.0, "case": "portrait", "availableMemoryMiB": 15302}
+{"time": 1790529821.9725134, "gpu": "1115, 0", "availableKiB": 13041848, "pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=162639546\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=159666907"}
+{"time": 1790529827.0008345, "gpu": "1115, 0", "availableKiB": 13184872, "pressure": "some avg10=0.36 avg60=0.06 avg300=0.01 total=162729381\nfull avg10=0.36 avg60=0.06 avg300=0.01 total=159751079"}
+{"seconds": 10.0, "case": "portrait", "availableMemoryMiB": 12750}
+{"time": 1790529832.0266747, "gpu": "1115, 0", "availableKiB": 13270912, "pressure": "some avg10=1.59 avg60=0.32 avg300=0.06 total=162982585\nfull avg10=1.44 avg60=0.28 avg300=0.06 total=159967621"}
+{"time": 1790529837.0517836, "gpu": "1115, 0", "availableKiB": 12995704, "pressure": "some avg10=2.92 avg60=0.73 avg300=0.16 total=163215331\nfull avg10=2.39 avg60=0.60 avg300=0.13 total=160151112"}
+{"seconds": 20.1, "case": "portrait", "availableMemoryMiB": 12664}
+{"time": 1790529842.0952988, "gpu": "1115, 0", "availableKiB": 12988284, "pressure": "some avg10=3.27 avg60=0.94 avg300=0.21 total=163459026\nfull avg10=2.59 avg60=0.76 avg300=0.17 total=160344268"}
+{"time": 1790529847.1308005, "gpu": "1115, 0", "availableKiB": 13096180, "pressure": "some avg10=2.85 avg60=1.10 avg300=0.26 total=163569247\nfull avg10=2.35 avg60=0.90 avg300=0.21 total=160440076"}
+{"seconds": 30.1, "case": "portrait", "availableMemoryMiB": 12784}
+{"time": 1790529852.1504633, "gpu": "7531, 100", "availableKiB": 13529064, "pressure": "some avg10=2.09 avg60=1.06 avg300=0.26 total=163698410\nfull avg10=1.75 avg60=0.88 avg300=0.22 total=160564179"}
+{"time": 1790529857.1697118, "gpu": "12779, 100", "availableKiB": 13412348, "pressure": "some avg10=1.63 avg60=1.08 avg300=0.29 total=163709844\nfull avg10=1.45 avg60=0.92 avg300=0.24 total=160575568"}
+{"seconds": 40.2, "case": "portrait", "availableMemoryMiB": 13096}
+{"time": 1790529862.1892564, "gpu": "12843, 100", "availableKiB": 13430984, "pressure": "some avg10=1.09 avg60=1.01 avg300=0.28 total=163710063\nfull avg10=0.97 avg60=0.86 avg300=0.24 total=160575779"}
+{"time": 1790529867.2056382, "gpu": "12843, 100", "availableKiB": 13465960, "pressure": "some avg10=0.60 avg60=0.91 avg300=0.27 total=163710135\nfull avg10=0.53 avg60=0.77 avg300=0.23 total=160575851"}
+{"seconds": 50.2, "case": "portrait", "availableMemoryMiB": 13150}
+{"time": 1790529872.2261393, "gpu": "12843, 100", "availableKiB": 13480300, "pressure": "some avg10=0.40 avg60=0.85 avg300=0.27 total=163710166\nfull avg10=0.35 avg60=0.72 avg300=0.23 total=160575881"}
+{"time": 1790529877.2475104, "gpu": "12843, 100", "availableKiB": 13491128, "pressure": "some avg10=0.22 avg60=0.77 avg300=0.26 total=163710170\nfull avg10=0.19 avg60=0.65 avg300=0.22 total=160575885"}
+{"seconds": 60.2, "case": "portrait", "availableMemoryMiB": 13174}
+{"time": 1790529882.2650607, "gpu": "12843, 100", "availableKiB": 13486736, "pressure": "some avg10=0.14 avg60=0.72 avg300=0.26 total=163710181\nfull avg10=0.13 avg60=0.61 avg300=0.22 total=160575886"}
+{"time": 1790529887.2871325, "gpu": "12843, 100", "availableKiB": 13498212, "pressure": "some avg10=1.16 avg60=0.85 avg300=0.30 total=163874250\nfull avg10=1.15 avg60=0.75 avg300=0.25 total=160731999"}
+{"seconds": 70.2, "case": "portrait", "availableMemoryMiB": 13182}
+{"time": 1790529892.3092153, "gpu": "12843, 100", "availableKiB": 13496024, "pressure": "some avg10=0.93 avg60=0.82 avg300=0.30 total=163874451\nfull avg10=0.92 avg60=0.73 avg300=0.26 total=160732197"}
+{"seconds": 80.3, "case": "portrait", "availableMemoryMiB": 13170}
+{"time": 1790529897.330614, "gpu": "12843, 100", "availableKiB": 13502532, "pressure": "some avg10=0.51 avg60=0.74 avg300=0.29 total=163874519\nfull avg10=0.50 avg60=0.66 avg300=0.25 total=160732260"}
+{"time": 1790529902.3503752, "gpu": "12843, 100", "availableKiB": 13506940, "pressure": "some avg10=0.34 avg60=0.70 avg300=0.29 total=163874921\nfull avg10=0.33 avg60=0.62 avg300=0.25 total=160732661"}
+{"seconds": 90.3, "case": "portrait", "availableMemoryMiB": 13192}
+{"time": 1790529907.3715494, "gpu": "12843, 100", "availableKiB": 13507868, "pressure": "some avg10=0.18 avg60=0.63 avg300=0.28 total=163874939\nfull avg10=0.18 avg60=0.56 avg300=0.24 total=160732674"}
+{"time": 1790529912.392162, "gpu": "12843, 100", "availableKiB": 13509500, "pressure": "some avg10=0.12 avg60=0.59 avg300=0.28 total=163875028\nfull avg10=0.12 avg60=0.52 avg300=0.24 total=160732760"}
+{"seconds": 100.3, "case": "portrait", "availableMemoryMiB": 13196}
+{"time": 1790529917.4114678, "gpu": "12843, 100", "availableKiB": 13509852, "pressure": "some avg10=0.06 avg60=0.53 avg300=0.27 total=163875038\nfull avg10=0.06 avg60=0.47 avg300=0.23 total=160732769"}
+{"time": 1790529922.4305913, "gpu": "12843, 100", "availableKiB": 13481244, "pressure": "some avg10=0.04 avg60=0.50 avg300=0.27 total=163875040\nfull avg10=0.04 avg60=0.44 avg300=0.23 total=160732771"}
+{"seconds": 110.3, "case": "portrait", "availableMemoryMiB": 13174}
+{"time": 1790529927.4506953, "gpu": "12843, 100", "availableKiB": 13490576, "pressure": "some avg10=0.02 avg60=0.45 avg300=0.26 total=163875046\nfull avg10=0.02 avg60=0.40 avg300=0.22 total=160732777"}
+{"time": 1790529932.4697583, "gpu": "12843, 100", "availableKiB": 13486500, "pressure": "some avg10=0.01 avg60=0.40 avg300=0.25 total=163875051\nfull avg10=0.01 avg60=0.36 avg300=0.21 total=160732782"}
+{"seconds": 120.4, "case": "portrait", "availableMemoryMiB": 13176}
+{"time": 1790529937.4914632, "gpu": "12843, 100", "availableKiB": 13496184, "pressure": "some avg10=0.00 avg60=0.38 avg300=0.25 total=163875057\nfull avg10=0.00 avg60=0.33 avg300=0.21 total=160732788"}
+{"time": 1790529942.5104842, "gpu": "12843, 100", "availableKiB": 13499980, "pressure": "some avg10=0.00 avg60=0.34 avg300=0.24 total=163875059\nfull avg10=0.00 avg60=0.30 avg300=0.21 total=160732790"}
+{"seconds": 130.4, "case": "portrait", "availableMemoryMiB": 13188}
+{"time": 1790529947.5304956, "gpu": "12843, 100", "availableKiB": 13498712, "pressure": "some avg10=0.00 avg60=0.32 avg300=0.24 total=163875090\nfull avg10=0.00 avg60=0.28 avg300=0.20 total=160732820"}
+{"time": 1790529952.5528178, "gpu": "12843, 100", "availableKiB": 13491680, "pressure": "some avg10=0.00 avg60=0.29 avg300=0.23 total=163875092\nfull avg10=0.00 avg60=0.25 avg300=0.20 total=160732822"}
+{"seconds": 140.4, "case": "portrait", "availableMemoryMiB": 13182}
+{"time": 1790529957.5728405, "gpu": "12843, 100", "availableKiB": 13493752, "pressure": "some avg10=0.00 avg60=0.27 avg300=0.23 total=163875099\nfull avg10=0.00 avg60=0.24 avg300=0.20 total=160732829"}
+{"time": 1790529962.5900323, "gpu": "12843, 100", "availableKiB": 13495848, "pressure": "some avg10=0.00 avg60=0.24 avg300=0.22 total=163875172\nfull avg10=0.00 avg60=0.21 avg300=0.19 total=160732890"}
+{"seconds": 150.5, "case": "portrait", "availableMemoryMiB": 13187}
+{"time": 1790529967.6088376, "gpu": "12843, 100", "availableKiB": 13487912, "pressure": "some avg10=0.00 avg60=0.22 avg300=0.22 total=163875175\nfull avg10=0.00 avg60=0.20 avg300=0.19 total=160732894"}
+{"time": 1790529972.6281476, "gpu": "11035, 100", "availableKiB": 12659180, "pressure": "some avg10=0.00 avg60=0.20 avg300=0.21 total=163880961\nfull avg10=0.00 avg60=0.18 avg300=0.18 total=160738679"}
+{"seconds": 160.5, "case": "portrait", "availableMemoryMiB": 12391}
+{"time": 1790529977.6472273, "gpu": "12443, 100", "availableKiB": 12642660, "pressure": "some avg10=0.00 avg60=0.19 avg300=0.21 total=163882232\nfull avg10=0.00 avg60=0.17 avg300=0.18 total=160739946"}
+{"time": 1790529982.66692, "gpu": "12443, 100", "availableKiB": 12742140, "pressure": "some avg10=0.00 avg60=0.17 avg300=0.21 total=163882232\nfull avg10=0.00 avg60=0.15 avg300=0.18 total=160739946"}
+{"seconds": 170.5, "case": "portrait", "availableMemoryMiB": 12511}
+{"time": 1790529987.6844122, "gpu": "12443, 100", "availableKiB": 12807176, "pressure": "some avg10=0.00 avg60=0.16 avg300=0.20 total=163882232\nfull avg10=0.00 avg60=0.14 avg300=0.17 total=160739946"}
+{"time": 1790529992.7025924, "gpu": "12443, 100", "availableKiB": 12826564, "pressure": "some avg10=0.00 avg60=0.14 avg300=0.20 total=163882232\nfull avg10=0.00 avg60=0.12 avg300=0.17 total=160739946"}
+{"seconds": 180.6, "case": "portrait", "availableMemoryMiB": 12538}
+{"time": 1790529997.723098, "gpu": "12443, 100", "availableKiB": 12833996, "pressure": "some avg10=0.00 avg60=0.13 avg300=0.20 total=163882248\nfull avg10=0.00 avg60=0.12 avg300=0.17 total=160739962"}
+{"time": 1790530002.7425826, "gpu": "12443, 93", "availableKiB": 12844584, "pressure": "some avg10=0.00 avg60=0.12 avg300=0.19 total=163882262\nfull avg10=0.00 avg60=0.10 avg300=0.16 total=160739976"}
+{"seconds": 190.6, "case": "portrait", "availableMemoryMiB": 12704}
+{"time": 1790530007.7595942, "gpu": "11579, 100", "availableKiB": 12993200, "pressure": "some avg10=0.00 avg60=0.11 avg300=0.19 total=163882700\nfull avg10=0.00 avg60=0.10 avg300=0.16 total=160740412"}

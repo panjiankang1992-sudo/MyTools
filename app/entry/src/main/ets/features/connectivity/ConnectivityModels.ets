@@ -6,6 +6,9 @@ export interface LanBootstrap {
   proofKey: string;
   expiresAt: number;
   lanAddresses: string[];
+  lanPort: number;
+  ipv6DirectOrigins?: string[];
+  directConfigExpiresAt?: number;
 }
 
 export interface LanChallenge {
@@ -19,4 +22,6 @@ export interface LanChallenge {
 export interface LanEndpointResult {
   baseUrl: string;
   instanceId: string;
+  verifiedIpv6Origins?: string[];
+  verifiedUntil?: number;
 }

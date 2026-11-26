@@ -1,0 +1,100 @@
+{"op": "tap", "text": "DSH"}
+{"op": "dump"}
+{"op": "shot", "name": "dsh-debug"}
+{"op": "tap", "text": "工具"}
+{"op": "tap", "text": "二维码"}
+{"op": "input", "type": "TextArea", "value": "MyTools QR acceptance 20260928"}
+{"op": "dump"}
+{"op": "click", "coords": [1219, 1843]}
+{"op": "tap", "text": "生成二维码"}
+{"op": "assert", "text": "二维码已生成"}
+{"op": "shot", "name": "qr-generated"}
+{"op": "tap", "text": "保存 PNG 图片"}
+{"op": "dump"}
+{"op": "shot", "name": "qr-save-picker"}
+{"op": "tap", "text": "Download"}
+{"op": "dump"}
+{"op": "click", "coords": [1198, 263]}
+{"op": "tap", "text": "识别二维码"}
+{"op": "tap", "text": "从文件选择图片"}
+{"op": "dump"}
+{"op": "tap", "text": "浏览"}
+{"op": "dump"}
+{"op": "tap", "text": "我的手机"}
+{"op": "tap", "text": "Download"}
+{"op": "dump"}
+{"op": "tap", "text": "MyTools-QR.png"}
+{"op": "dump"}
+{"op": "assert", "text": "MyTools QR acceptance 20260928"}
+{"op": "shot", "name": "qr-decoded"}
+{"op": "tap", "text": "扫一扫"}
+{"op": "dump"}
+{"op": "key", "value": "Back"}
+{"op": "assert", "text": "扫一扫"}
+{"op": "dump"}
+{"op": "tap", "text": "DSH"}
+{"op": "assert", "text": "连接你的 DSH"}
+{"op": "assert", "text": "验证并连接", "enabled": "false"}
+{"op": "shot", "name": "dsh-auth"}
+{"op": "tap", "text": "重新连接"}
+{"op": "assert", "text": "连接你的 DSH"}
+{"op": "dump"}
+{"op": "tap", "text": "DSH"}
+{"op": "assert", "text": "连接你的 DSH"}
+{"op": "dump"}
+{"op": "click", "coords": [267, 1170]}
+{"op": "dump"}
+{"op": "tap", "text": "打开侧边栏"}
+{"op": "dump"}
+{"op": "tap", "text": "新建会话"}
+{"op": "dump"}
+{"op": "tap", "text": "继续"}
+{"op": "dump"}
+{"op": "dump"}
+{"op": "shot", "name": "dsh-beta.png"}
+{"op": "tap", "text": "同意"}
+{"op": "dump"}
+{"op": "tap", "text": "我的手机"}
+{"op": "tap", "text": "Download"}
+{"op": "dump"}
+{"op": "longclick", "coords": [660, 1220]}
+{"op": "dump"}
+{"op": "tap", "text": "删除"}
+{"op": "dump"}
+{"op": "tap", "text": "移动到最近删除"}
+{"op": "tap", "text": "删除"}
+{"op": "dump"}
+{"op": "tap", "text": "DSH"}
+{"op": "dump"}
+{"op": "tap", "text": "选择工作区"}
+{"op": "dump"}
+{"op": "dump"}
+{"op": "tap", "text": "继续"}
+{"op": "dump"}
+{"op": "tap", "text": "DSH"}
+{"op": "dump"}
+{"op": "tap", "text": "继续"}
+{"op": "dump"}
+{"op": "tap", "text": "选择工作区"}
+{"op": "dump"}
+{"op": "tap", "text": "deepseek"}
+{"op": "click", "coords": [600, 1350]}
+{"op": "key", "value": "Back"}
+{"op": "dump"}
+{"op": "tap", "text": "发送消息"}
+{"op": "dump"}
+{"op": "key", "value": "Back"}
+{"op": "shot", "name": "dsh-reply"}
+{"op": "tap", "text": "更多操作"}
+{"op": "dump"}
+{"op": "tap", "text": "更多操作"}
+{"op": "tap", "text": "打开侧边栏"}
+{"op": "dump"}
+{"op": "longclick", "coords": [430, 1284]}
+{"op": "dump"}
+{"op": "tap", "text": "会话“MyTools acceptance reply check”的操作"}
+{"op": "dump"}
+{"op": "tap", "text": "归档会话"}
+{"op": "dump"}
+{"op": "dump"}
+{"op": "tap", "text": "收起侧边栏"}

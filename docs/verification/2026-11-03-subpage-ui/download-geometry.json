@@ -1,0 +1,51 @@
+{
+  "controls": [
+    {
+      "type": "Button",
+      "label": "",
+      "bounds": [
+        52,
+        2402,
+        208,
+        2558
+      ],
+      "heightPx": 156
+    },
+    {
+      "type": "TextArea",
+      "label": "",
+      "bounds": [
+        234,
+        2402,
+        709,
+        2558
+      ],
+      "heightPx": 156
+    },
+    {
+      "type": "PasteButton",
+      "label": "\u7c98\u8d34",
+      "bounds": [
+        735,
+        2402,
+        943,
+        2558
+      ],
+      "heightPx": 156
+    },
+    {
+      "type": "Button",
+      "label": "\u53d1\u9001",
+      "bounds": [
+        969,
+        2402,
+        1164,
+        2558
+      ],
+      "heightPx": 156
+    }
+  ],
+  "allVisibleHeightsPx": 156,
+  "layoutHeightVp": 48,
+  "alignedTopAndBottom": true
+}

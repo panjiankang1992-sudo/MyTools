@@ -21,6 +21,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "iframe-page": () => import("@/views/_builtin/iframe-page/[url].vue"),
   login: () => import("@/views/_builtin/login/index.vue"),
   "ai-tools_token": () => import("@/views/ai-tools/token/index.vue"),
+  news: () => import("@/views/news/index.vue"),
   home: () => import("@/views/home/index.vue"),
   localfile_ebook: () => import("@/views/localfile/ebook/index.vue"),
   "localfile_large-media": () => import("@/views/localfile/large-media/index.vue"),

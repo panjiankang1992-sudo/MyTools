@@ -1,0 +1,228 @@
+{
+  "date": "2026-10-18",
+  "goalStatus": "ACTIVE",
+  "versions": {
+    "java": "21",
+    "springBoot": "3.5.16",
+    "flyway": "11.20.3",
+    "legacyTestFlyway": "9.22.3"
+  },
+  "localTests": {
+    "news-digest-service": {
+      "tests": 191,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 12,
+      "passed": 179
+    },
+    "messaging-service": {
+      "tests": 127,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 127
+    },
+    "task-scheduler-service-focused": {
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 12
+    }
+  },
+  "deploymentTests": {
+    "tests": 16,
+    "passed": 16,
+    "failed": 0
+  },
+  "realMySql": {
+    "javaVersion": "openjdk version \"21.0.12.1\" 2026-08-18",
+    "logSha256": "385d000bc7807cf5c4bf6da4cef4d546bc16f46e1eef81e5380e401e0b44a3aa",
+    "newEngineUpgradeWarningCount": 0,
+    "productionServicesActive": {
+      "messaging-service": true,
+      "mytools-gateway": true,
+      "task-executor-service": true,
+      "task-scheduler-service": true
+    },
+    "summary": {
+      "aborted": 0,
+      "containersFailed": 0,
+      "failed": 0,
+      "passed": 8,
+      "skipped": 0,
+      "tests": 8
+    },
+    "bundle": {
+      "archiveSha256": "ab4e313145337d57579f30a87451e435733bd0c51963e0c23388163c867f7847",
+      "manifestSha256": "b514732d7866d8bdd0e94b0951989615dd044d421502ab2cdafe7f93d9bd63a8",
+      "fileCount": 509,
+      "libraries": 95,
+      "archiveBytes": 418485,
+      "downloadedLibraryCount": 98
+    },
+    "mysqlVersion": "8.4.11-0ubuntu0.26.04.1"
+  },
+  "cleanup": {
+    "productionServicesActive": {
+      "messaging-service": true,
+      "mytools-gateway": true,
+      "task-executor-service": true,
+      "task-scheduler-service": true
+    },
+    "temporaryArchiveAbsent": true,
+    "temporaryDirectoryAbsent": true,
+    "temporaryUnitsStopped": {
+      "-init": true,
+      "-test": true,
+      "database": true
+    },
+    "localPrivateSessionRemoved": true
+  },
+  "release": {
+    "release": "/private/tmp/mytools-news-release-20261018-b16-final",
+    "manifestSha256": "7c043089ab9fc1c08da8b96a619a0dd4d9285f06e07bf5cbd8e9b832c1b96cac",
+    "inspection": {
+      "releaseFilesValid": true,
+      "inventoryMode": "exact_source",
+      "fileCount": 733,
+      "packageCount": 153,
+      "requiredJarCount": 5,
+      "pinnedMigrationRuntimeVerified": true,
+      "runtimeAcceptance": false
+    },
+    "packagedCliChecks": 5,
+    "unchangedAfterCli": true,
+    "libraries": {
+      "news-digest-service": [
+        "flyway-core-11.20.3.jar",
+        "flyway-mysql-11.20.3.jar",
+        "spring-boot-3.5.16.jar",
+        "spring-boot-autoconfigure-3.5.16.jar"
+      ],
+      "messaging-service": [
+        "flyway-core-11.20.3.jar",
+        "flyway-mysql-11.20.3.jar",
+        "spring-boot-3.5.16.jar",
+        "spring-boot-autoconfigure-3.5.16.jar"
+      ],
+      "task-scheduler-service": [
+        "flyway-core-11.20.3.jar",
+        "flyway-mysql-11.20.3.jar",
+        "spring-boot-3.5.16.jar",
+        "spring-boot-autoconfigure-3.5.16.jar"
+      ]
+    },
+    "jarSha256": {
+      "news-digest-service": "72a9d5f56f9021cb32f72d9521bc4a6d0db9b61294fa6b5536c053c5c541d755",
+      "messaging-service": "e5c11566890d55f0112756074e4a1ce1eba7a61d50a95a4d4bc1b7c988867f88",
+      "task-scheduler-service": "64a57034798c8e070d1282b3dddfe496757bd325846fd6812819df0433a587d6"
+    },
+    "rebuiltJavaServices": [
+      "news-digest-service",
+      "messaging-service",
+      "task-scheduler-service"
+    ],
+    "otherJavaArtifactsReused": true,
+    "javaServiceCount": 18,
+    "pythonServiceCount": 7,
+    "databaseTestClassesExcluded": true,
+    "deployed": false
+  },
+  "distinctTestAccounting": {
+    "passed": 342,
+    "skipped": 4,
+    "total": 346,
+    "explanation": "Eight MySQL tests skipped locally passed on Ubuntu; each is counted once. The four optional live-source tests were not run in this batch."
+  },
+  "historicalMigrationFilesUnchanged": 203,
+  "sourceFiles": [
+    {
+      "path": "service/news-digest-service/pom.xml",
+      "sha256": "9cf525d37b2fa2f101a87340aebdd26dd1bddf55aa69f1bae52497dc0a929dd1"
+    },
+    {
+      "path": "service/messaging-service/pom.xml",
+      "sha256": "398baef5544fc69e14849eaaaaca914b2442f71591ebf76eb052324e193fb2e3"
+    },
+    {
+      "path": "service/task-scheduler-service/pom.xml",
+      "sha256": "2c29dd5d67f77b84b5bc6d90d9e54c50a89822b5baebcefa0fbcb94c61284af2"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/MySqlCompatibilityTest.java",
+      "sha256": "eff2b08f071a4e45896a9f7bea23655181a6d892d6b2f6f42ce4973085e1ce13"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/LegacyFlywayBaselineLauncher.java",
+      "sha256": "95e79be69ecfa28d9ddd0ed8dd94798c6d87d0c4e4dcb4ff6ca01a72a996f693"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/PipelineIntegrationTest.java",
+      "sha256": "4ddb3da7801c4e90cef1fd9d8b3e00b95a34e8df170c84f58a7d5cfc906ceb8d"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/DispatchIntegrationTest.java",
+      "sha256": "a61af21aa52c919e428768cf20b1ed817a150b11050207cd3e907cab8effa128"
+    },
+    {
+      "path": "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/SchedulingIntegrationTest.java",
+      "sha256": "953c5e37765433ecb504a7cf279abd91075c5b023ec6b0ef8e2306fd72c24af1"
+    },
+    {
+      "path": "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundServiceTest.java",
+      "sha256": "8bbb9e988a5c0c88b2af85ec375a3f90e32bfe13afdb2bd0295c7db5762a71f9"
+    },
+    {
+      "path": "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundRetentionTest.java",
+      "sha256": "6df818e42487323c5d535eb670f56a753fc82f72af674c04c81c8ab11b2b2cf9"
+    },
+    {
+      "path": "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/DeliveryServiceTest.java",
+      "sha256": "5e778d43d9bb12f36e05683fd1bf7dd61c0c5811594c4a3249ddb44a2b800e8c"
+    },
+    {
+      "path": "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OneBotInboundAdapterTest.java",
+      "sha256": "de12b87a8da28edaa5c6d4f61c64d6ed625ec3a113903c30ad6e9eebccaf8059"
+    },
+    {
+      "path": "service/task-scheduler-service/src/test/java/com/yuyutian/mytools/task/scheduler/service/TaskExecutionAuthorizationServiceTest.java",
+      "sha256": "a6f40a455a66dd2b7bfca11ff4da99adb23f74b88cdd42ba30626437fdffe299"
+    },
+    {
+      "path": "service/deploy/verify_news_deployment.py",
+      "sha256": "440901222009c03c17759176fdbd616143b50bff90bda4966a17936d522765aa"
+    },
+    {
+      "path": "service/deploy/test_verify_news_deployment.py",
+      "sha256": "6fae1e67ac17c97cf12574083f385a838c49b80fdfb54cdbcb1105658c7685c1"
+    },
+    {
+      "path": "service/deploy/assemble_release.py",
+      "sha256": "db294459877cce5bc39353c22566421099a61ab0387ef4a20d630a5426df3c85"
+    },
+    {
+      "path": "service/deploy/test_assemble_release.py",
+      "sha256": "82e2caa3ff9a35571291202f5958ce3bfbae9c794519a9d133739b80be3a86a8"
+    },
+    {
+      "path": "service/news-digest-service/README.md",
+      "sha256": "b1f5179a85702548120fcf53b6a2fe504f21bd75bc2dc464d59d09d63ef7c6e5"
+    },
+    {
+      "path": "docs/runbooks/daily-news-release.md",
+      "sha256": "fca6bb1a2069de18081df056f97bebde31bc82c0fb6eec08f115686f424c1ad6"
+    },
+    {
+      "path": "docs/verification/daily-news/2026-10-18-flyway-upgrade.md",
+      "sha256": "69c4f0b3fd6a9f0af65289aeaaec1d1d45bf34757254dafe6d4283345d1cbf5b"
+    }
+  ],
+  "limitations": [
+    "Scheduler full H2 bootstrap still fails at legacy V141 JSON_SET; 12 focused tests use target 140 where Spring boots",
+    "Full 7/20/176 historical migrations verified on isolated real MySQL, not a production backup",
+    "Three Java services rebuilt; other assembled Java artifacts reused",
+    "No production service or schema deployment",
+    "No actual Executor region job, real destination delivery or seven-day observation"
+  ]
+}

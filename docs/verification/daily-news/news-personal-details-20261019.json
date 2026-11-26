@@ -1,0 +1,111 @@
+{
+  "date": "2026-10-19",
+  "preview": {
+    "observedAt": "2026-10-18T16:49:07.807378Z",
+    "sources": [
+      {
+        "source": "github-discovery-personal",
+        "status": "FRESH",
+        "skipped": 0,
+        "inserted": 30
+      },
+      {
+        "source": "hacker-news-top-personal",
+        "status": "FRESH",
+        "skipped": 0,
+        "inserted": 30
+      },
+      {
+        "source": "dev-weekly-personal",
+        "status": "PARTIAL",
+        "skipped": 0,
+        "inserted": 30
+      },
+      {
+        "source": "chinanews-world-personal",
+        "status": "FRESH",
+        "skipped": 0,
+        "inserted": 30
+      },
+      {
+        "source": "chinanews-china-personal",
+        "status": "FRESH",
+        "skipped": 0,
+        "inserted": 30
+      },
+      {
+        "source": "bbc-world-personal",
+        "status": "FRESH",
+        "skipped": 0,
+        "inserted": 29
+      }
+    ],
+    "sections": {
+      "TECH": {
+        "headlines": 20,
+        "gaps": [
+          "DETAIL_SHORTFALL"
+        ],
+        "details": 6
+      },
+      "WORLD": {
+        "headlines": 20,
+        "gaps": [],
+        "details": 10
+      },
+      "DOMESTIC": {
+        "headlines": 20,
+        "gaps": [],
+        "details": 10
+      },
+      "LOCAL": {
+        "headlines": 0,
+        "gaps": [
+          "HEADLINE_SHORTFALL",
+          "DETAIL_SHORTFALL",
+          "REGION_UNRESOLVED"
+        ],
+        "details": 0
+      }
+    },
+    "parts": 1,
+    "region": "UNRESOLVED",
+    "realSources": true,
+    "productionDatabase": false,
+    "messagesSent": false
+  },
+  "htmlCheck": {
+    "headlines": 60,
+    "details": 26,
+    "httpsLinks": 62,
+    "minDetailCodePoints": 80,
+    "maxDetailCodePoints": 300,
+    "activeElements": 0,
+    "githubSignupBoilerplate": false
+  },
+  "verification": {
+    "newsTests": {
+      "tests": 265,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 29,
+      "passed": 236
+    },
+    "package": "success",
+    "webTypecheck": "success",
+    "shellSyntax": "success",
+    "productionChanges": false,
+    "additionalEmails": 0
+  },
+  "sha256": {
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/ArticleExcerptReader.java": "0f2938c550160e10cbfde65de6ffb0f60fe15d7d6648fb4752605c82a4ccf7b6",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/CollectionService.java": "fadeef8dd1fd3cbb89b0d58def6aafd49ee26e35a22710875384307bfa92d8a1",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/DigestEngine.java": "3c29d122b4327d2ad330238f0b15a1f48390bdd648d57d103ebe952bf5def40e",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/service/EvidenceService.java": "a38f8c22479c020bd923afc22c730577027c2aa66bf72c4f3ef78f9da7c21717",
+    "service/news-digest-service/src/main/java/com/yuyutian/mytools/news/Model/NewsModels.java": "0b536d4d9f630aedfe2216e68335ef8b8144cd446fd8e42ae3422e2e828a9c2d",
+    "service/news-digest-service/examples/personal-sources.json": "d16c275cea6cb72c6fdbabd2f2fa291e56a3e70cc542f80757f5e79dabe63a0b",
+    "service/news-digest-service/scripts/preview-personal.sh": "c2c8b2347350f73f2420d27330697fc50fb87a0288286c8afcea228731a42f19"
+  },
+  "previewHtmlSha256": "ce8362f8752d5fd62ce55682f88e2b2685cf7b2978608c1294083693e48fc596",
+  "jarSha256": "9b81ef9d0e03d43b60cac7262742c4d1e49d9e794c1c5537aa38fe3e1239317f"
+}

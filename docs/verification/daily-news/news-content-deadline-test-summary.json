@@ -1,0 +1,124 @@
+{
+  "batch": 21,
+  "goalStatus": "BLOCKED",
+  "scope": "Messaging explicit content deadlines and cancellation without retained bodies; News propagation pending",
+  "messagingLocal": {
+    "tests": 165,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 165
+  },
+  "newsLocal": {
+    "tests": 256,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 29,
+    "passed": 227
+  },
+  "deploymentPython": {
+    "tests": 28,
+    "passed": 28
+  },
+  "isolatedMySql": {
+    "summary": {
+      "aborted": 0,
+      "containersFailed": 0,
+      "failed": 0,
+      "passed": 25,
+      "skipped": 0,
+      "tests": 25
+    },
+    "databaseVersion": "8.4.11-0ubuntu0.26.04.1",
+    "bundle": {
+      "archiveSha256": "9c21b8439016ee54973f4245f811c9e63dfd340221c8c15e62fa57bb19f8e5d6",
+      "files": 694,
+      "libraryFiles": 98,
+      "manifestSha256": "ea8b568bcfbb249824d2f556cb0e2a89b80171a07edf8c4b27c308c8679fca11"
+    },
+    "testState": {
+      "ActiveState": "active",
+      "ExecMainStatus": "0",
+      "MainPID": "0",
+      "SubState": "exited"
+    }
+  },
+  "release": {
+    "releasePath": "/tmp/mytools-news-release-20261018-b21-verified",
+    "manifestSha256": "371da1845a7b0f56232ed06984a8719abcde021b5f94af826487e28b11206bce",
+    "inspection": {
+      "releaseFilesValid": true,
+      "inventoryMode": "exact_source",
+      "fileCount": 733,
+      "packageCount": 153,
+      "requiredJarCount": 5,
+      "pinnedMigrationRuntimeVerified": true,
+      "runtimeAcceptance": false
+    },
+    "packagedCliHelpsDoNotMutateInventory": true,
+    "messagingJarSha256": "4fe50af49992c8ba7999dab7bb2b524136b1e152e9f70a0bc5db458f3d41f946",
+    "changedJavaArtifactsFromBatch20": [
+      "messaging-service.jar"
+    ]
+  },
+  "cleanup": {
+    "rootRemoved": true,
+    "archiveRemoved": true,
+    "units": {
+      "database": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      },
+      "test": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      },
+      "init": {
+        "ActiveState": "inactive",
+        "MainPID": "0"
+      }
+    },
+    "existingServices": {
+      "task-scheduler-service": "active",
+      "task-executor-service": "active",
+      "messaging-service": "active",
+      "mytools-gateway": "active"
+    },
+    "localPrivateDirectoryRemoved": true,
+    "sessionPointerRemoved": true
+  },
+  "migrationHistory": {
+    "historicalMigrations": 207,
+    "changed": []
+  },
+  "sourceSha256": {
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/config/OutboundDeadlineTimer.java": "db298196e3b5d35e59c18944f386fe2fadf3c4bfa1e0b42bc6ac23ea0ec01603",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/controller/MessagingExceptionHandler.java": "ef018205317c98a95e9473ec0810a91247eff56fd77559d8d3edb15e3b2c131a",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/controller/OutboundController.java": "0deaf6aa8c52dce7ae5ad9548242937d2d45e9f5e38abf6d8a3a2a06afc40050",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/controller/OutboundRetentionController.java": "85d7fa623b9fdc9a0002eb5d6bc14c7b013d413a7274157582f26e72dc3f54f6",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/model/ErrorCode.java": "af9bf7e0d002b0340ab28ffce6339a4bd82699d72581b430b5754a7f7a08d624",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/model/OutboundModels.java": "643721f08c5600e99cec6e2f78119185b7402ca38a6ba7ed978a92ff38be5767",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/provider/OutboundProvider.java": "b2f3490c9a32ec5938db6daa5ab73827e0b4b129dba948965164cc2bab6e9614",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/repository/OutboundRepository.java": "c6c9f2b3df7bd9919da9da95ec8f2d07454e35923d930e0eca8f44cd9f2f66d4",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/service/OutboundRetentionService.java": "e322ab378645ef2c2f765d5981a7d2e08b08fe873e041f30c67c320cd4243840",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/service/OutboundService.java": "195e249be01f4282a4202a3f3069bbe8aa49b9bc32d656220a158a6a717b3d84",
+    "service/messaging-service/src/main/java/com/yuyutian/mytools/messaging/utils/outbound/OutboundSecurity.java": "04168a9417ec923dead55cff9aafb11f4259a05b03f492625bb66868a192cb0a",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/controller/OutboundControllerTest.java": "9b0b87f62ec827e17a75ed223225428b6b65491e799a6dd1cd87635e2a93da43",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/controller/OutboundRetentionControllerTest.java": "a2db6b1bfaf53cad54cbd0dcb1f7e3c51424eb27ad54488c38dcae31ec525746",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/provider/OutboundProviderTest.java": "a71fae314b49e237277d575d9d4d5854afd3f4241022ddf114c82c373ea2deb0",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundDeadlineTest.java": "fd13c2c206fac919aa13f5346d81a32666e034cd920941c8fa47e7d906e5800a",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundCapacityDatabaseScenarios.java": "58b8fda424adafe974fa18d02748d314b6fd9ac25583502de7ec895cb355d614",
+    "service/messaging-service/src/test/java/com/yuyutian/mytools/messaging/service/OutboundCapacityMigrationTest.java": "26a8f5f2adf483c92a451890ecf1fe868051639742a3bac8a64698134a802ff1",
+    "service/messaging-service/db/migrations/V22__add_outbound_content_deadline.sql": "f9f24822851b9f0f080f759013b43580178912a310a3d5efa73abca120ecdb4e",
+    "service/news-digest-service/src/test/java/com/yuyutian/mytools/news/MySqlCompatibilityTest.java": "004503c85fbd474387a26967db13201b92589eb415c358bdba25feba68461287",
+    "service/deploy/verify_news_deployment.py": "1b0322a0fa739357dfa378ddeb1368a0720e8871faa35784b6294f328f81e577",
+    "service/contracts/messaging-outbound-v2.md": "6f7b47bdd8c18e463d08ce2a41b006d1ed7c0cdb0108d6bbeff60b1600592bb0",
+    "service/messaging-service/README.md": "d34b7a6f2cc74243435e108665f71b7ca0014c7ccbd7bd32617cbec4622e5a4b",
+    "docs/runbooks/daily-news-retention-operations.md": "c7c01581678cfdc7a5f398e693fcd1487c064696d7303112a1408ddf8cf34106",
+    "docs/runbooks/daily-news-release.md": "7bb0c8466751f92ec6b4c64efffdb07ea39bf6566bdf765f264c7a1a2f3e52cb"
+  },
+  "productionDeployment": false,
+  "realChannelSend": false,
+  "newsDeadlinePropagationImplemented": false,
+  "passedTotal": 445
+}

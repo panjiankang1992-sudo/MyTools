@@ -1,0 +1,10 @@
+{
+  "enabled": false,
+  "ownerId": "1",
+  "stateDirectory": "/var/lib/mytools-news",
+  "nodeId": "personal-news",
+  "zone": "Asia/Shanghai",
+  "addressFamily": "IPV6",
+  "recipients": ["reader@example.com"],
+  "analysisTimeoutSeconds": 300
+}

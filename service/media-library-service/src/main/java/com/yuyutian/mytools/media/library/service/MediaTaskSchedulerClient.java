@@ -39,7 +39,11 @@ public class MediaTaskSchedulerClient {
 
     /** 创建媒体分析任务。 @param operationId 操作标识 @param idempotencyKey 幂等键 @param parameters 参数 @return 任务标识 */
     public UUID createAnalysis(UUID operationId, String idempotencyKey, Map<String, Object> parameters) {
-        return client.create(CreateTaskRequest.create("media_analyze_video", idempotencyKey, "MEDIA_ANALYSIS",
+        // 封面补齐仅抽帧与登记，不重复运行标签模型或生成分镜。
+        String version = String.valueOf(parameters.get("analysisVersion"));
+        String taskName = version.startsWith("download-preview-") || version.startsWith("history-preview-")
+                ? "media_generate_video_preview" : "media_analyze_video";
+        return client.create(CreateTaskRequest.create(taskName, idempotencyKey, "MEDIA_ANALYSIS",
                 operationId.toString(), 50, parameters)).id();
     }
 

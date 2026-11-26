@@ -1,0 +1,9 @@
+{
+  "built": true,
+  "artifact": "/Users/pankang/mycode/MyTools/app/build/acceptance/ui-subpages-20261103-signed.hap",
+  "sha256": "68287268c0441a5a842a86844de6d4c3a29e4557a31d5f6c934ffbf3fac55286",
+  "etsSnapshotSha256": "b25da71c7c74be9cdda12cf044909a5db917e40f5247fcfec3e234e0124a5157",
+  "noSourceChangesSinceBuild": true,
+  "warning": "Existing DownloadToolsPage getData clipboard permission warning; system PasteButton retained.",
+  "supersededBy": "accepted-build.json"
+}

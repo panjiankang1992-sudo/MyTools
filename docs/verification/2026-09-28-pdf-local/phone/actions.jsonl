@@ -1,0 +1,186 @@
+{"op": "dump"}
+{"op": "tap", "text": "工具"}
+{"op": "tap", "text": "PDF 工具"}
+{"op": "shot", "name": "home"}
+{"op": "tap", "text": "本机结果"}
+{"op": "dump"}
+{"op": "back"}
+{"op": "tap", "text": "页面对半切"}
+{"op": "assert", "text": "生成并查看结果", "enabled": "false"}
+{"op": "tap", "text": "选择文件"}
+{"op": "dump"}
+{"op": "key", "value": "Back"}
+{"op": "assert", "text": "生成并查看结果", "enabled": "false"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "dump"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "dump"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-phone-acceptance-20260928.pdf", "type": "Text"}
+{"op": "dump"}
+{"op": "tap", "text": "完成"}
+{"op": "assert", "text": "1 / 2"}
+{"op": "tap", "text": "下一页"}
+{"op": "assert", "text": "2 / 2"}
+{"op": "tap", "text": "上一页"}
+{"op": "assert", "text": "1 / 2"}
+{"op": "shot", "name": "cut-editor"}
+{"op": "dump"}
+{"op": "swipe", "coords": [608, 1100, 830, 1100, 600]}
+{"op": "dump"}
+{"op": "tap", "text": "重置"}
+{"op": "assert", "text": "50%"}
+{"op": "tap", "text": "上下分割"}
+{"op": "tap", "text": "左右分割"}
+{"op": "tap", "text": "+"}
+{"op": "tap", "text": "−"}
+{"op": "swipe", "coords": [1150, 2210, 1150, 1450, 1200]}
+{"op": "assert", "text": "50%"}
+{"op": "tap", "text": "全部页面"}
+{"op": "dump"}
+{"op": "input", "type": "TextInput", "text": "", "value": "99"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "应用"}
+{"op": "assert", "text": "页码或设置无效，请检查"}
+{"op": "tap", "text": "全部页面", "type": "Button"}
+{"op": "tap", "text": "应用"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "shot", "name": "four-pages"}
+{"op": "tap", "text": "预览 PDF"}
+{"op": "shot", "name": "reader"}
+{"op": "back"}
+{"op": "tap", "text": "保存到设备"}
+{"op": "dump"}
+{"op": "key", "value": "Back"}
+{"op": "assert", "text": "处理完成"}
+{"op": "tap", "text": "保存到设备"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "shot", "name": "save-dialog"}
+{"op": "click", "xy": [1103, 246]}
+{"op": "assert", "text": "已保存"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "拆分文件"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-phone-acceptance-20260928.pdf", "type": "Text"}
+{"op": "tap", "text": "完成"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "shot", "name": "split"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "合并 PDF"}
+{"op": "assert", "text": "生成并查看结果", "enabled": "false"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-phone-acceptance-20260928.pdf", "type": "Text"}
+{"op": "tap", "text": "pdf-phone-acceptance-20260928_result.pdf", "type": "Text"}
+{"op": "tap", "text": "完成"}
+{"op": "dump"}
+{"op": "tap", "text": "上移", "index": 1}
+{"op": "assert", "text": "上移", "index": 0, "enabled": "false"}
+{"op": "tap", "text": "下移", "index": 0}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "shot", "name": "merge"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "转图片"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-phone-acceptance-20260928.pdf", "type": "Text"}
+{"op": "tap", "text": "完成"}
+{"op": "tap", "text": "JPG"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "shot", "name": "export-images"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "图片生成"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-phone-acceptance-20260928.png", "type": "Text"}
+{"op": "tap", "text": "完成"}
+{"op": "tap", "text": "A5"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "shot", "name": "images-to-pdf"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "文本生成"}
+{"op": "assert", "text": "生成并查看结果", "enabled": "false"}
+{"op": "input", "type": "TextArea", "value": "真机 PDF 验收 20260928\nPhone local PDF acceptance."}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "shot", "name": "text-to-pdf"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "Markdown 生成"}
+{"op": "input", "type": "TextArea", "value": "# Phone acceptance\n\nPDF local Markdown paragraph."}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "shot", "name": "markdown"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "提取文本"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-phone-acceptance-20260928.pdf", "type": "Text"}
+{"op": "tap", "text": "完成"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "shot", "name": "extract-text"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "页面对半切"}
+{"op": "tap", "text": "选择文件"}
+{"op": "tap", "text": "浏览"}
+{"op": "tap", "text": "我的手机", "type": "Text"}
+{"op": "tap", "text": "Download", "type": "Text"}
+{"op": "tap", "text": "pdf-phone-acceptance-20260928-encrypted.pdf", "type": "Text"}
+{"op": "tap", "text": "完成"}
+{"op": "assert", "text": "解锁并导入", "enabled": "false"}
+{"op": "input", "type": "TextInput", "text": "", "value": "wrong-test-password"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "解锁并导入"}
+{"op": "assert", "text": "密码不正确，请重试。"}
+{"op": "input", "type": "TextInput", "text": "", "value": "PhoneTest2026"}
+{"op": "key", "value": "Back"}
+{"op": "tap", "text": "解锁并导入"}
+{"op": "assert", "text": "1 / 2"}
+{"op": "tap", "text": "生成并查看结果"}
+{"op": "assert", "text": "处理完成"}
+{"op": "shot", "name": "encrypted-result"}
+{"op": "back"}
+{"op": "tap", "text": "移除"}
+{"op": "assert", "text": "生成并查看结果", "enabled": "false"}
+{"op": "back"}
+{"op": "back"}
+{"op": "tap", "text": "工具"}
+{"op": "tap", "text": "PDF 工具"}
+{"op": "tap", "text": "本机结果"}
+{"op": "tap", "text": "pdf-phone-acceptance-20260928-encrypted_result.pdf"}
+{"op": "assert", "text": "页面对半切"}
+{"op": "assert", "text": "处理完成"}
+{"op": "tap", "text": "预览 PDF"}
+{"op": "shot", "name": "reopened-after-restart"}
+{"op": "back"}
+{"op": "back"}
+{"op": "assert", "text": "本机结果"}
+{"op": "back"}
+{"op": "back"}

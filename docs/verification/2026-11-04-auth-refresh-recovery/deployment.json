@@ -1,0 +1,23 @@
+{
+  "release": "/opt/yuyutian/mytools/releases/auth-refresh-recovery-20261104-v1",
+  "artifacts": {
+    "identity-service": {
+      "sha256": "2ccc7a0fa6519f03a2505dc55830f54ee3772b8bd1a17144ab99bb7399387c77",
+      "changedMembers": 6,
+      "dropIn": "/etc/systemd/system/mytools-identity-service.service.d/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-refresh-recovery.conf"
+    },
+    "mytools-gateway": {
+      "sha256": "def5a35e74ddf6e76f684cb51fe83270416e91586c19c9b4fef58d4995837c75",
+      "changedMembers": 2,
+      "dropIn": "/etc/systemd/system/mytools-mytools-gateway.service.d/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-refresh-recovery.conf"
+    }
+  },
+  "checks": [
+    "thirty_day_session_fifteen_minute_access",
+    "lost_response_recovered_after_service_restart",
+    "old_token_without_original_operation_rejected",
+    "concurrent_retries_converge_and_previous_receipt_expires",
+    "logout_blocks_recovery"
+  ],
+  "passed": true
+}

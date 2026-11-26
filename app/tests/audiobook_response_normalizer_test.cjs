@@ -185,4 +185,42 @@ rejects(() => normalizer.exportDownloadTicket({ ticket,
   expiresAt: '2026-09-06T12:00:00Z' }, 'https://mytools.example', generationId, exportId,
   Date.parse('2026-09-06T11:00:00Z')), 'Playback ticket cannot substitute ZIP ticket');
 
+// 局域网票据保留精确路径、端口与私网根地址约束。
+const ticketNow = Date.parse('2026-09-06T11:00:00Z');
+const lanRoots = ['http://10.1.2.3:23201', 'http://172.16.1.2:23201', 'http://192.168.1.2:23201/'];
+for (const lanRoot of lanRoots) {
+  const expectedRoot = lanRoot.replace(/\/$/, '');
+  equal(normalizer.playbackTicket({ ticket,
+    streamPath: `/api/app/v1/audiobook-playback/tickets/${ticket}`,
+    expiresAt: '2026-09-06T12:00:00Z' }, lanRoot, generationId, 0, ticketNow).url,
+    `${expectedRoot}/api/app/v1/audiobook-playback/tickets/${ticket}`, 'Audiobook LAN playback ticket');
+  equal(normalizer.voicePreviewTicket({ ticket,
+    streamPath: `/api/app/v1/audiobook-voice-preview/tickets/${ticket}`,
+    expiresAt: '2026-09-06T11:20:00Z' }, lanRoot, generationId, 'VOLCENGINE', 'narrator', ticketNow).url,
+    `${expectedRoot}/api/app/v1/audiobook-voice-preview/tickets/${ticket}`, 'Audiobook LAN preview ticket');
+  equal(normalizer.exportDownloadTicket({ ticket,
+    downloadPath: `/api/app/v1/audiobook-export/tickets/${ticket}`,
+    expiresAt: '2026-09-06T12:00:00Z' }, lanRoot, generationId, exportId, ticketNow).url,
+    `${expectedRoot}/api/app/v1/audiobook-export/tickets/${ticket}`, 'Audiobook LAN export ticket');
+}
+for (const unsafeRoot of ['http://8.8.8.8:23201', 'http://127.0.0.1:23201', 'http://172.32.1.2:23201',
+  'http://192.168.1.2:80', 'http://192.168.1.2:23110', 'http://192.168.01.2:23201', 'http://user@192.168.1.2:23201',
+  'http://192.168.1.2:23201/api', 'http://192.168.1.2:23201?x=1', 'http://192.168.1.2:23201#x']) {
+  rejects(() => normalizer.playbackTicket({ ticket,
+    streamPath: `/api/app/v1/audiobook-playback/tickets/${ticket}`, expiresAt: '2026-09-06T12:00:00Z' },
+    unsafeRoot, generationId, 0, ticketNow), 'Unsafe HTTP audiobook playback root');
+  rejects(() => normalizer.voicePreviewTicket({ ticket,
+    streamPath: `/api/app/v1/audiobook-voice-preview/tickets/${ticket}`, expiresAt: '2026-09-06T11:20:00Z' },
+    unsafeRoot, generationId, 'VOLCENGINE', 'narrator', ticketNow), 'Unsafe HTTP voice preview root');
+  rejects(() => normalizer.exportDownloadTicket({ ticket,
+    downloadPath: `/api/app/v1/audiobook-export/tickets/${ticket}`, expiresAt: '2026-09-06T12:00:00Z' },
+    unsafeRoot, generationId, exportId, ticketNow), 'Unsafe HTTP audiobook export root');
+}
+for (const unsafePath of [`/api/app/v1/audiobook-playback/tickets/${ticket}?x=1`,
+  `/api/app/v1/audiobook-playback/tickets/${ticket}#x`, `/api/app/v1/audiobook-playback/tickets/%2e%2e`,
+  `/api/app/v1/audiobook-playback/tickets//${ticket}`]) {
+  rejects(() => normalizer.playbackTicket({ ticket, streamPath: unsafePath, expiresAt: '2026-09-06T12:00:00Z' },
+    lanRoots[0], generationId, 0, ticketNow), 'LAN playback keeps strict resource path');
+}
+
 console.log('Audiobook response normalizer tests passed');

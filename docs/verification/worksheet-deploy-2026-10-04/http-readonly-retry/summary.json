@@ -1,0 +1,20 @@
+{
+  "releaseId": "worksheet-three-step-20261004-003105",
+  "startedAt": "2026-10-03T16:51:36.134602+00:00",
+  "finishedAt": "2026-10-03T16:52:07.923475+00:00",
+  "initialReport": "../http-readonly-production/report.json",
+  "retestedStatic": 6,
+  "staticExcludingIndex": {
+    "total": 224,
+    "passed": 224,
+    "failed": 0
+  },
+  "rawIndexMatchesManifest": false,
+  "indexWithDocumentedEdgeInjectionMatchesManifest": false,
+  "curriculumPassed": true,
+  "curriculumBooks": 5,
+  "curriculumEntries": 2635,
+  "readOnlyChecksPassedWithDocumentedHtmlTransformation": false,
+  "boundary": "Original raw HTML hash check remains different; only a separately documented exact Cloudflare beacon removal is compared. No server/CDN mutation or browser interaction.",
+  "report": "/Users/pankang/mycode/MyTools/docs/verification/worksheet-deploy-2026-10-04/http-readonly-retry/report.json"
+}

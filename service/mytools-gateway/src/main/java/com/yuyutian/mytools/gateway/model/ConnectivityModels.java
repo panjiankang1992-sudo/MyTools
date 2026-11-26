@@ -16,7 +16,8 @@ public final class ConnectivityModels {
     /** 通过可信连接签发的短期探测材料。 */
     public record Bootstrap(String instanceId, String serviceType, String apiVersion,
                             String probeId, String proofKey, long expiresAt,
-                            List<String> lanAddresses) {
+                            List<String> lanAddresses, int lanPort,
+                            List<String> ipv6DirectOrigins, long directConfigExpiresAt) {
     }
 
     /** 未携带用户令牌的局域网挑战。 */

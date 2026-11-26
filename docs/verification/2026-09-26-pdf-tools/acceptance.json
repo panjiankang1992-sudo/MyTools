@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "operations": [
+    "PDF_PAGE_CUT",
+    "PDF_SPLIT",
+    "PDF_MERGE",
+    "PDF_TO_IMAGES",
+    "IMAGES_TO_PDF",
+    "TEXT_TO_PDF",
+    "PDF_TO_TEXT",
+    "MARKDOWN_TO_PDF"
+  ],
+  "inputPages": 2,
+  "outputPages": 4,
+  "sha256": "3c4065a7e5d84b1e8f0c4650562d1a49231477b865b81ec307379e49ddc7ff4f",
+  "checks": [
+    "chunk upload",
+    "real worker inspection",
+    "frozen preview",
+    "publication",
+    "download integrity",
+    "cross-owner rejection",
+    "idempotency"
+  ]
+}

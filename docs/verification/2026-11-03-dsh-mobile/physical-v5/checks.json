@@ -1,0 +1,46 @@
+{
+  "environment": {
+    "kind": "physical-usb-device",
+    "model": "BRA-AL00",
+    "displayPixels": [
+      1216,
+      2688
+    ]
+  },
+  "version": "20261103-v5",
+  "hapSha256": "a0708af29c92f9928bf568aca1d67dbdb0fc8d029c55124a0b70bacdcf2dc144",
+  "productionChanged": false,
+  "sourceCodeChanged": false,
+  "credentialsEntered": false,
+  "debugProxyUsed": false,
+  "install": {
+    "signature": "passed",
+    "install": "passed",
+    "coldStart": "passed",
+    "processObserved": "passed",
+    "existingAppDataPreserved": true
+  },
+  "dsh": {
+    "firstAttempt": "network-error",
+    "manualRetry": "page-ready",
+    "sidebarAndWorkspaceHistory": "observed",
+    "generalSettings": "passed",
+    "settingsCategoryNavigation": "observed-five-categories",
+    "languageMenu": "opened-and-dismissal-observed",
+    "modelProviderData": "not-passed-loading-incomplete",
+    "pluginData": "not-passed-skeleton-persisted",
+    "realTimeConnection": "intermittent-retrying-observed",
+    "secondColdStart": "inconclusive-unexpected-navigation",
+    "exclusiveStartupBeforeFix": "loading-after-66.8-seconds"
+  },
+  "pending": [
+    "model and plugin data stability",
+    "automation page",
+    "keyboard and system back sequence",
+    "external OAuth callback",
+    "microphone recording",
+    "file selection and download save"
+  ],
+  "overall": "installation-passed-functional-acceptance-incomplete",
+  "supersededBy": "../physical-v6/README.md"
+}

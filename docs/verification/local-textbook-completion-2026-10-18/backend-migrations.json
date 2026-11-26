@@ -1,0 +1,26 @@
+[
+  {
+    "name": "BOOT-INF/classes/db/migration/V1__toolbox_public.sql",
+    "sha256": "3f0499d4e9e797f3eeb14e799ef3309dcf8e75fc2031a6bf5246e5f0e88fff2d"
+  },
+  {
+    "name": "BOOT-INF/classes/db/migration/V2__translation_quota.sql",
+    "sha256": "b46ba116055befec8c6b7ec7118172261e2c6b7c4323ccc28e093a3e8644f0f4"
+  },
+  {
+    "name": "BOOT-INF/classes/db/migration/V3__toolbox_admin.sql",
+    "sha256": "93f8b8efc44388b3b64307cff76b717ee41389cd2c424ee7e88558cf511b9c04"
+  },
+  {
+    "name": "BOOT-INF/classes/db/migration/V4__admin_csrf_recovery.sql",
+    "sha256": "13d174fa9c74025bb141b15c2d39ed1dadd4b7299ccb480b49236a655a202ebe"
+  },
+  {
+    "name": "BOOT-INF/classes/db/migration/V5__widen_draft_base_content_version.sql",
+    "sha256": "dfc223025a502dcdfe2861c9aec915ea05f07c642c66d1c1eb5a8661d7767b3b"
+  },
+  {
+    "name": "BOOT-INF/classes/db/migration/V6__widen_audit_version_columns.sql",
+    "sha256": "ef30f302fb3228b7163eee6daf16f58feb1f5d6d69bfdc055a2f904c4e5eb012"
+  }
+]

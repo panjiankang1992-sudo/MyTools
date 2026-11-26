@@ -1,0 +1,61 @@
+{
+  "frozenRoot": "/tmp/toolbox-roundtrip-20261007/svc",
+  "liveRoot": "/Users/pankang/mycode/MyTools/service/toolbox-service",
+  "files": [
+    {
+      "file": "src/main/java/com/yuyutian/mytools/toolbox/service/admin/curriculum/CurriculumPublisher.java",
+      "frozen": "7e1e35a204267763fee4fdb8ba505a6737fdb85e90effe861ed22c6907d938c1",
+      "live_at_report_time": "7e1e35a204267763fee4fdb8ba505a6737fdb85e90effe861ed22c6907d938c1",
+      "changedInLiveTree": false
+    },
+    {
+      "file": "src/main/java/com/yuyutian/mytools/toolbox/service/admin/curriculum/AdminTextbookService.java",
+      "frozen": "0afa4a5ab27107a1fbc1d1e26ef8cfd326c8bc24a5490122326dac2ae4e78042",
+      "live_at_report_time": "0afa4a5ab27107a1fbc1d1e26ef8cfd326c8bc24a5490122326dac2ae4e78042",
+      "changedInLiveTree": false
+    },
+    {
+      "file": "src/main/java/com/yuyutian/mytools/toolbox/service/admin/curriculum/DraftToBookMapper.java",
+      "frozen": "b578597d6266024dd1b5e2ef501c990ab5016fec843082f36f61847439d09e2b",
+      "live_at_report_time": "b578597d6266024dd1b5e2ef501c990ab5016fec843082f36f61847439d09e2b",
+      "changedInLiveTree": false
+    },
+    {
+      "file": "src/main/java/com/yuyutian/mytools/toolbox/service/admin/migration/CurriculumFileImporter.java",
+      "frozen": "cfb5be5bce3cebcd485c14420ac04023d8465483502a1466ce6c6f8aec182ddf",
+      "live_at_report_time": "cfb5be5bce3cebcd485c14420ac04023d8465483502a1466ce6c6f8aec182ddf",
+      "changedInLiveTree": false
+    },
+    {
+      "file": "src/main/java/com/yuyutian/mytools/toolbox/service/admin/migration/AdminCurriculumImportService.java",
+      "frozen": "c72f3a92dcc3628c48b8f95805cb968ae315bb57f3df40732a7cf26de606f66b",
+      "live_at_report_time": "c72f3a92dcc3628c48b8f95805cb968ae315bb57f3df40732a7cf26de606f66b",
+      "changedInLiveTree": false
+    },
+    {
+      "file": "src/main/java/com/yuyutian/mytools/toolbox/service/admin/validation/CurriculumValidator.java",
+      "frozen": "faa4fc4c273b0a0d469e8b7aa5470f3a114b75d8eb7a0ecf8055d731516f4850",
+      "live_at_report_time": "faa4fc4c273b0a0d469e8b7aa5470f3a114b75d8eb7a0ecf8055d731516f4850",
+      "changedInLiveTree": false
+    },
+    {
+      "file": "src/main/java/com/yuyutian/mytools/toolbox/mapper/admin/AdminTextbookRepository.java",
+      "frozen": "39069e5d590730866ee6b83b41928903e1179985dd4de8533b7366b0e789fe48",
+      "live_at_report_time": "39069e5d590730866ee6b83b41928903e1179985dd4de8533b7366b0e789fe48",
+      "changedInLiveTree": false
+    },
+    {
+      "file": "src/main/java/com/yuyutian/mytools/toolbox/controller/admin/curriculum/AdminTextbookController.java",
+      "frozen": "532e7d37ddbe6fa987bcf5fcccabf1b9f307fca66d96846cf12de63da2e4876a",
+      "live_at_report_time": "532e7d37ddbe6fa987bcf5fcccabf1b9f307fca66d96846cf12de63da2e4876a",
+      "changedInLiveTree": false
+    },
+    {
+      "file": "src/main/java/com/yuyutian/mytools/toolbox/controller/admin/curriculum/AdminCurriculumController.java",
+      "frozen": "df2e0535514d6a7292fa74d94a7ffe547cad668b70aa1550e0fc68174f4d4b46",
+      "live_at_report_time": "df2e0535514d6a7292fa74d94a7ffe547cad668b70aa1550e0fc68174f4d4b46",
+      "changedInLiveTree": false
+    }
+  ],
+  "note": "对账跑在冻结副本上；live 列是写文档时的实时哈希，用于说明工作树是否已漂移。"
+}

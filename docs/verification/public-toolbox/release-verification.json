@@ -1,0 +1,96 @@
+{
+  "generatedAt": "2026-10-03T07:23:11.247Z",
+  "projectRoot": "/Users/pankang/mycode/MyTools/toolbox-web",
+  "automated": [
+    {
+      "label": "typecheck",
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "status": "pass",
+      "durationMs": 2912,
+      "tail": "> yuyutian-toolbox-web@0.1.0 typecheck\n> vue-tsc --noEmit"
+    },
+    {
+      "label": "unit-tests",
+      "command": "npm test",
+      "exitCode": 0,
+      "status": "pass",
+      "durationMs": 1451,
+      "tail": "  duration_ms: 167.063958\n  type: 'test'\n  ...\n1..157\n# tests 157\n# suites 0\n# pass 157\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 1346.419084"
+    },
+    {
+      "label": "curriculum-validation",
+      "command": "npm run test:curriculum",
+      "exitCode": 0,
+      "status": "pass",
+      "durationMs": 111,
+      "tail": "> yuyutian-toolbox-web@0.1.0 test:curriculum\n> node scripts/validate-curriculum.mjs\n\n内容根目录：/Users/pankang/mycode/MyTools/toolbox-web/content\n必需槽位：20，已发布版本：5\n\n校验通过：未发现结构、引用、校对或哈希问题。"
+    },
+    {
+      "label": "curriculum-coverage",
+      "command": "npm run test:coverage -- --allow-partial",
+      "exitCode": 0,
+      "status": "pass",
+      "durationMs": 94,
+      "tail": "    {\n      \"slot\": \"english-6-second\",\n      \"subject\": \"english\",\n      \"grade\": 6,\n      \"semester\": \"second\",\n      \"status\": \"missing\",\n      \"editionIds\": []\n    }\n  ]\n}\n\n开发报告：0/20 册完成（存在缺失与部分可用，未达到发布门禁）。",
+      "tolerated": true
+    },
+    {
+      "label": "production-build",
+      "command": "npm run build:production",
+      "exitCode": 0,
+      "status": "pass",
+      "durationMs": 3905,
+      "tail": "dist/assets/icons-Wcfzw1PK.js                         31.03 kB │ gzip:   9.49 kB\ndist/assets/_plugin-vue_export-helper-Ge4yPooz.js     57.91 kB │ gzip:  15.41 kB\ndist/assets/index-Bc-9KxTa.js                        136.71 kB │ gzip:  36.80 kB\ndist/assets/PdfView-D9yZOQS7.js                      136.90 kB │ gzip:  43.07 kB\ndist/assets/WorksheetView-B9xi5hbf.js                165.65 kB │ gzip:  51.54 kB\ndist/assets/tools-BZ-MOKWX.js                        313.57 kB │ gzip: 102.09 kB\ndist/assets/pdf-B8MAnPPu.js                          370.82 kB │ gzip: 108.76 kB\ndist/assets/es-DH4tsGiq.js                           387.52 kB │ gzip: 165.36 kB\ndist/assets/HomeView-BLKY_BWC.js                     615.67 kB │ gzip: 201.05 kB\ndist/assets/pdf-runtime-C5_DWbHe.js                  760.03 kB │ gzip: 345.36 kB\n\n✓ built in 923ms"
+    },
+    {
+      "label": "end-to-end",
+      "command": "npm run test:e2e",
+      "exitCode": 1,
+      "status": "warn",
+      "durationMs": 147566,
+      "tail": "> yuyutian-toolbox-web@0.1.0 test:e2e\n> node tests/e2e/run.mjs\n\n端到端目标：http://127.0.0.1:23999\n浏览器：/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\nFAIL  首页可加载（含公网链路重试） — 重试 0 次\n端到端验收异常中止：TypeError: Failed to fetch\n    at <anonymous>:6:23\n    at <anonymous>:18:6",
+      "tolerated": true
+    }
+  ],
+  "manual": [
+    {
+      "id": "A20-A29-print",
+      "item": "系统打印对话框与 A4 实纸测量",
+      "status": "blocked",
+      "reason": "需要实体打印机与人工测量，自动检查不能替代。"
+    },
+    {
+      "id": "A70-A75-browsers",
+      "item": "Chrome / Edge / Safari 桌面与 iPhone Safari、Android Chrome 实机验收",
+      "status": "blocked",
+      "reason": "需要真实设备与手动操作，本次未执行。"
+    },
+    {
+      "id": "A76-mobile-keyboard",
+      "item": "软键盘遮挡与安全区实测",
+      "status": "blocked",
+      "reason": "需要真实移动设备输入法。"
+    },
+    {
+      "id": "R05-R06-textbooks",
+      "item": "语文 12 册与英语 8 册教材词库",
+      "status": "blocked",
+      "reason": "尚无经核验与人工校对的可用来源，未发布任何教材内容，也未用示例数据顶替。"
+    },
+    {
+      "id": "M06-M07-server-pdf",
+      "item": "公开服务端 PDF 执行链与匿名文件隔离",
+      "status": "blocked",
+      "reason": "需要 Scheduler/Storage/Executor 的公开领域隔离与专用执行包，本次未实现；当前为本机处理。"
+    }
+  ],
+  "result": "automated-pass-with-open-items",
+  "summary": {
+    "automatedChecks": 6,
+    "passed": 5,
+    "failed": 0,
+    "notExecuted": 0,
+    "openManualItems": 5
+  }
+}

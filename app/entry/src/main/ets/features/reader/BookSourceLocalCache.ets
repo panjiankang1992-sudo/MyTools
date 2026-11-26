@@ -151,6 +151,8 @@ export class BookSourceLocalCache {
     try {
       const paths = fs.listFileSync(directory).filter((name: string) =>
         /^chapter-[0-9]+-[a-f0-9]{64}\.json$/.test(name)).map((name: string) => `${directory}/${name}`);
+      // 未达到淘汰上限时不对所有章节反复读取文件时间并排序。
+      if (paths.length <= BookSourceLocalCache.MAX_CHAPTER_FILES_PER_BOOK) return;
       paths.sort((left: string, right: string) => this.modifiedAt(right) - this.modifiedAt(left));
       for (let index = BookSourceLocalCache.MAX_CHAPTER_FILES_PER_BOOK; index < paths.length; index++) {
         if (paths[index] !== protectedPath) this.deleteQuietly(paths[index]);

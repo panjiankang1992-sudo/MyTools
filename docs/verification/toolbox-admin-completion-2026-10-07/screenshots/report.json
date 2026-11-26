@@ -1,0 +1,128 @@
+[
+  {
+    "theme": "light",
+    "page": "list",
+    "size": "320x720",
+    "file": "light-list-320x720.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "list",
+    "size": "375x812",
+    "file": "light-list-375x812.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "list",
+    "size": "768x1024",
+    "file": "light-list-768x1024.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "list",
+    "size": "1280x900",
+    "file": "light-list-1280x900.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "list",
+    "size": "1440x900",
+    "file": "light-list-1440x900.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "new",
+    "size": "320x720",
+    "file": "light-new-320x720.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "new",
+    "size": "375x812",
+    "file": "light-new-375x812.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "new",
+    "size": "768x1024",
+    "file": "light-new-768x1024.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "new",
+    "size": "1280x900",
+    "file": "light-new-1280x900.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "new",
+    "size": "1440x900",
+    "file": "light-new-1440x900.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "editor",
+    "size": "320x720",
+    "file": "light-editor-320x720.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "editor",
+    "size": "375x812",
+    "file": "light-editor-375x812.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "editor",
+    "size": "768x1024",
+    "file": "light-editor-768x1024.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "editor",
+    "size": "1280x900",
+    "file": "light-editor-1280x900.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "light",
+    "page": "editor",
+    "size": "1440x900",
+    "file": "light-editor-1440x900.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "dark",
+    "page": "list",
+    "size": "1280x900",
+    "file": "dark-list-1280x900.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "dark",
+    "page": "new",
+    "size": "1280x900",
+    "file": "dark-new-1280x900.png",
+    "overflowPx": 0
+  },
+  {
+    "theme": "dark",
+    "page": "editor",
+    "size": "1280x900",
+    "file": "dark-editor-1280x900.png",
+    "overflowPx": 0
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "release": "video-ltx-20260921-v2",
+  "workerVersion": "1.1.1",
+  "allJarMembersMatchLocalBuild": true,
+  "ltxProductEnabled": false,
+  "executorOnline": true
+}

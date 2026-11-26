@@ -1,0 +1,44 @@
+{
+  "name": "remaining-b09b-autosave-loop",
+  "at": "2026-10-06T21:46:17.394Z",
+  "results": [
+    {
+      "label": "对照组①：不输入时不该有任何草稿写请求",
+      "ok": true,
+      "detail": "0 次"
+    },
+    {
+      "label": "主组实测：一次输入后 12 秒内的写请求间隔(ms)",
+      "ok": true,
+      "informational": true,
+      "detail": "[]"
+    },
+    {
+      "label": "主组实测：修订号轨迹",
+      "ok": true,
+      "informational": true,
+      "detail": "2 → 3"
+    },
+    {
+      "label": "主组：一次内容改动只应触发一次保存（允许 1 次，不该每 2 秒重复）",
+      "ok": true,
+      "detail": "实际 1 次写请求，间隔=[]，修订号 2 → 3"
+    },
+    {
+      "label": "主组：静置期间服务端修订号不该继续前进",
+      "ok": true,
+      "detail": "多出 1 次"
+    },
+    {
+      "label": "对照组②：合成 click 点到「保存草稿」",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "对照组②：没有内容改动时，保存一次之后不该继续重复写",
+      "ok": true,
+      "detail": "实际 1 次写请求，修订号 3 → 4"
+    }
+  ],
+  "editionId": "e2e-loop-7jv5y"
+}

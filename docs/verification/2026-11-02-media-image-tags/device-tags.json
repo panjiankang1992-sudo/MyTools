@@ -1,0 +1,103 @@
+{
+  "checkedAt": "2026-11-02T17:15:54.238757+08:00",
+  "labelsOnPreview": true,
+  "configuredFontSize": 12,
+  "labelPlateHeightPx": [
+    71
+  ],
+  "visibleLabelsOnCompletePreviews": 7,
+  "measurements": [
+    {
+      "labelBounds": {
+        "x": 87,
+        "y": 894,
+        "width": 195,
+        "height": 71
+      },
+      "previewBounds": {
+        "x": 65,
+        "y": 871,
+        "width": 527,
+        "height": 501
+      },
+      "previewClips": true
+    },
+    {
+      "labelBounds": {
+        "x": 295,
+        "y": 894,
+        "width": 260,
+        "height": 71
+      },
+      "previewBounds": {
+        "x": 65,
+        "y": 871,
+        "width": 527,
+        "height": 501
+      },
+      "previewClips": true
+    },
+    {
+      "labelBounds": {
+        "x": 568,
+        "y": 894,
+        "width": 24,
+        "height": 71
+      },
+      "previewBounds": {
+        "x": 65,
+        "y": 871,
+        "width": 527,
+        "height": 501
+      },
+      "previewClips": true
+    },
+    {
+      "labelBounds": {
+        "x": 659,
+        "y": 894,
+        "width": 117,
+        "height": 71
+      },
+      "previewBounds": {
+        "x": 624,
+        "y": 871,
+        "width": 527,
+        "height": 501
+      },
+      "previewClips": true
+    },
+    {
+      "labelBounds": {
+        "x": 100,
+        "y": 1596,
+        "width": 117,
+        "height": 71
+      },
+      "previewBounds": {
+        "x": 65,
+        "y": 1573,
+        "width": 527,
+        "height": 501
+      },
+      "previewClips": true
+    },
+    {
+      "labelBounds": {
+        "x": 646,
+        "y": 1596,
+        "width": 234,
+        "height": 71
+      },
+      "previewBounds": {
+        "x": 624,
+        "y": 1573,
+        "width": 527,
+        "height": 501
+      },
+      "previewClips": true
+    }
+  ],
+  "runtimeLayoutErrorsObserved": false,
+  "privateNamesIncluded": false
+}

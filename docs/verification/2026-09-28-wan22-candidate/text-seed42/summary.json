@@ -1,0 +1,42 @@
+{
+  "samples": [
+    {
+      "name": "product",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "model": "wan22",
+      "inputMode": "text",
+      "variant": "baseline",
+      "promptStyle": "original",
+      "seconds": 191.04,
+      "status": "SUCCEEDED"
+    },
+    {
+      "name": "portrait",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "model": "wan22",
+      "inputMode": "text",
+      "variant": "baseline",
+      "promptStyle": "original",
+      "seconds": 172.93,
+      "status": "SUCCEEDED"
+    },
+    {
+      "name": "landscape",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "model": "wan22",
+      "inputMode": "text",
+      "variant": "baseline",
+      "promptStyle": "original",
+      "seconds": 118.67,
+      "status": "SUCCEEDED"
+    }
+  ],
+  "quality": "pending",
+  "productionEnabled": false
+}

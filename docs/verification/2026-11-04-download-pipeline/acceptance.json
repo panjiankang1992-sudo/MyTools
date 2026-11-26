@@ -1,0 +1,67 @@
+{
+  "rows": [
+    {
+      "kind": "slow",
+      "id": "815fbe68-e092-4a41-b441-a216c6694424",
+      "requestId": "d36b1a75-9ae0-4ac2-a8b5-8edd4e7c395d"
+    },
+    {
+      "kind": "fast",
+      "id": "0ce5fac6-7b88-4735-921d-9445d0eace5c",
+      "requestId": "04a77692-ca38-4d33-871c-d8703b066fa3"
+    }
+  ],
+  "checks": [
+    "idempotent_app_submission",
+    "owner_isolation",
+    "two_batch_parents_overlap_without_blocking",
+    "real_files_visible_in_app"
+  ],
+  "migration": [
+    {
+      "version": "181",
+      "success": 1
+    },
+    {
+      "version": "182",
+      "success": 1
+    }
+  ],
+  "versions": [
+    {
+      "script_package": "download_message_url_batch",
+      "script_version": "1.1.0"
+    },
+    {
+      "script_package": "download_resolve_x_user",
+      "script_version": "1.2.0"
+    }
+  ],
+  "overlapSeconds": 3.080248,
+  "executions": [
+    {
+      "task_instance_id": "2db8cd2d-8bed-4f8a-a1b7-ff05737712d4",
+      "started_at": "2026-11-04 14:28:25.768710",
+      "finished_at": "2026-11-04 14:28:36.900372",
+      "durationSeconds": 11.131662
+    },
+    {
+      "task_instance_id": "faca25a7-fa26-4853-b6b3-e7d3e95ce4ac",
+      "started_at": "2026-11-04 14:28:25.749308",
+      "finished_at": "2026-11-04 14:28:28.848958",
+      "durationSeconds": 3.09965
+    }
+  ],
+  "core": [
+    {
+      "id": "04a77692-ca38-4d33-871c-d8703b066fa3",
+      "status": "SUCCEEDED",
+      "task_instance_id": "faca25a7-fa26-4853-b6b3-e7d3e95ce4ac"
+    },
+    {
+      "id": "d36b1a75-9ae0-4ac2-a8b5-8edd4e7c395d",
+      "status": "SUCCEEDED",
+      "task_instance_id": "2db8cd2d-8bed-4f8a-a1b7-ff05737712d4"
+    }
+  ]
+}

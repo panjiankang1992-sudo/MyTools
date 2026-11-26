@@ -1,0 +1,222 @@
+{
+  "generatedAt": "2026-10-03T11:34:51.770Z",
+  "requirement": "契约 W43③：检查原需求 20 册槽位的缺失/partial 展示，缺失如实展示、不回退样例或虚称全册",
+  "method": "与后端 CurriculumCatalog#coverageOf 一致，按 subject/grade/semester 实时推导（不读 requirements.json 的 status 字段）",
+  "slotCount": 20,
+  "summary": {
+    "partial": 5,
+    "missing": 15
+  },
+  "rows": [
+    {
+      "slotId": "chinese-1-first",
+      "subject": "chinese",
+      "grade": 1,
+      "semester": "first",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [
+        "cn-ty-1-1-pep-2024"
+      ],
+      "actualCoverage": "partial",
+      "entryCount": 318
+    },
+    {
+      "slotId": "chinese-1-second",
+      "subject": "chinese",
+      "grade": 1,
+      "semester": "second",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "chinese-2-first",
+      "subject": "chinese",
+      "grade": 2,
+      "semester": "first",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [
+        "cn-ty-2-1-pep-2017"
+      ],
+      "actualCoverage": "partial",
+      "entryCount": 760
+    },
+    {
+      "slotId": "chinese-2-second",
+      "subject": "chinese",
+      "grade": 2,
+      "semester": "second",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "chinese-3-first",
+      "subject": "chinese",
+      "grade": 3,
+      "semester": "first",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [
+        "cn-ty-3-1-pep-2024"
+      ],
+      "actualCoverage": "partial",
+      "entryCount": 777
+    },
+    {
+      "slotId": "chinese-3-second",
+      "subject": "chinese",
+      "grade": 3,
+      "semester": "second",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "chinese-4-first",
+      "subject": "chinese",
+      "grade": 4,
+      "semester": "first",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [
+        "cn-ty-4-1-pep-2024"
+      ],
+      "actualCoverage": "partial",
+      "entryCount": 640
+    },
+    {
+      "slotId": "chinese-4-second",
+      "subject": "chinese",
+      "grade": 4,
+      "semester": "second",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "chinese-5-first",
+      "subject": "chinese",
+      "grade": 5,
+      "semester": "first",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "chinese-5-second",
+      "subject": "chinese",
+      "grade": 5,
+      "semester": "second",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "chinese-6-first",
+      "subject": "chinese",
+      "grade": 6,
+      "semester": "first",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "chinese-6-second",
+      "subject": "chinese",
+      "grade": 6,
+      "semester": "second",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "english-3-first",
+      "subject": "english",
+      "grade": 3,
+      "semester": "first",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [
+        "en-yl-3-1-yilin-2024"
+      ],
+      "actualCoverage": "partial",
+      "entryCount": 140
+    },
+    {
+      "slotId": "english-3-second",
+      "subject": "english",
+      "grade": 3,
+      "semester": "second",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "english-4-first",
+      "subject": "english",
+      "grade": 4,
+      "semester": "first",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "english-4-second",
+      "subject": "english",
+      "grade": 4,
+      "semester": "second",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "english-5-first",
+      "subject": "english",
+      "grade": 5,
+      "semester": "first",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "english-5-second",
+      "subject": "english",
+      "grade": 5,
+      "semester": "second",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "english-6-first",
+      "subject": "english",
+      "grade": 6,
+      "semester": "first",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    },
+    {
+      "slotId": "english-6-second",
+      "subject": "english",
+      "grade": 6,
+      "semester": "second",
+      "storedStatusInRequirements": "missing",
+      "editionIds": [],
+      "actualCoverage": "missing",
+      "entryCount": 0
+    }
+  ]
+}

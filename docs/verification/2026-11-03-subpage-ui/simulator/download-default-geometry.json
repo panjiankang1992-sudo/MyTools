@@ -1,0 +1,47 @@
+{
+  "controls": [
+    {
+      "type": "Button",
+      "bounds": [
+        56,
+        2548,
+        224,
+        2716
+      ],
+      "heightPx": 168
+    },
+    {
+      "type": "TextArea",
+      "bounds": [
+        252,
+        2548,
+        774,
+        2716
+      ],
+      "heightPx": 168
+    },
+    {
+      "type": "PasteButton",
+      "bounds": [
+        802,
+        2548,
+        1026,
+        2716
+      ],
+      "heightPx": 168
+    },
+    {
+      "type": "Button",
+      "bounds": [
+        1054,
+        2548,
+        1264,
+        2716
+      ],
+      "heightPx": 168
+    }
+  ],
+  "equalVisibleHeight": true,
+  "expectedVp": 48,
+  "source": "official accepted HAP/Pura90"
+}

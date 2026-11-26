@@ -46,6 +46,7 @@ class Config:
     outbound_wal_path: str = "/opt/yuyutian/mytools/runtime/qq/outbound-text-wal"
     outbound_max_records: int = 10_000
     outbound_max_attempts: int = 9
+    reference_store_path: str = ""
 
     @classmethod
     def load(cls) -> "Config":
@@ -66,7 +67,7 @@ class Config:
             os.getenv("TASK_BUSINESS_QQ_TOKEN",
                       os.getenv("MESSAGING_INTERNAL_TOKEN", "")),
             os.getenv("QQ_CONNECTOR_ONEBOT_URL", "http://127.0.0.1:23255"),
-            os.environ["ONEBOT_CONNECTOR_INTERNAL_TOKEN"],
+            os.getenv("ONEBOT_CONNECTOR_INTERNAL_TOKEN", "").strip(),
             os.getenv("QQ_CONNECTOR_ONEBOT_ACCOUNT_KEY", "qq-napcat"),
             os.environ["MESSAGE_AUTOMATION_INTERNAL_TOKEN"],
             os.getenv("QQ_CONNECTOR_LOGIN_WAL_PATH",
@@ -91,7 +92,8 @@ class Config:
             os.getenv("QQ_CONNECTOR_OUTBOUND_WAL_PATH",
                       "/opt/yuyutian/mytools/runtime/qq/outbound-text-wal"),
             int(os.getenv("QQ_CONNECTOR_OUTBOUND_MAX_RECORDS", "10000")),
-            int(os.getenv("QQ_CONNECTOR_OUTBOUND_MAX_ATTEMPTS", "9")))
+            int(os.getenv("QQ_CONNECTOR_OUTBOUND_MAX_ATTEMPTS", "9")),
+            os.getenv("QQ_CONNECTOR_REFERENCE_STORE_PATH", ""))
         if value.owner_id <= 0 or not value.allowed_sender:
             raise ValueError("QQ Connector owner and allowed sender are required")
         if not value.login_wal_path or value.login_max_attempts < 1 \

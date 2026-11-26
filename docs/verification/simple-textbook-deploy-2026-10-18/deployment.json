@@ -1,0 +1,14 @@
+{
+  "releaseId": "simple-textbook-20261018-160439",
+  "status": "deployed",
+  "backendSha256": "ed3d21002bf1ab6ed5ad09cdadf50ae5d1f4daf86db650f9017d25b7bbd63e45",
+  "indexSha256": "118068330477c342b85568e06c5ae25530b4661b36683033c3e9703e8173a3fa",
+  "frontendFilesVerified": 259,
+  "backupDirectory": "/opt/yuyutian/toolbox/releases/simple-textbook-20261018-160439",
+  "frontendBackup": "/opt/yuyutian/toolbox/releases/simple-textbook-20261018-160439/candidate-frontend",
+  "databaseBackup": "database-before.sql",
+  "contentModified": false,
+  "configurationModified": false,
+  "startedAt": 1792311339.319968,
+  "finishedAt": 1792311341.7924736
+}

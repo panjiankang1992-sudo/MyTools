@@ -7,9 +7,11 @@ const assertArray = (actual, expected, label) => {
   }
 };
 
-assertArray(policy.neighborIndexes(12, 5), [4, 6, 3, 7, 2, 8, 1, 9, 0, 10], 'five each side');
-assertArray(policy.neighborIndexes(5, 0), [4, 1, 3, 2], 'wrap and deduplicate all available items');
-assertArray(policy.neighborIndexes(5, 2, 2), [1, 3, 0, 4], 'custom radius');
+assertArray(policy.neighborIndexes(30, 14), Array.from({length:12},(_,i)=>[15+i,13-i]).flat(), 'twelve each side, nearest next first');
+assertArray(policy.neighborIndexes(5, 0), [1, 4, 2, 3], 'wrap and deduplicate');
+assertArray(policy.neighborIndexes(5, 2, 2), [3, 1, 4, 0], 'custom radius');
+assertArray(policy.neighborIndexes(30, 0, 12, false), Array.from({length:12},(_,i)=>i+1), 'Catalog start cannot wrap to temporary page end');
+assertArray(policy.neighborIndexes(30, 28, 12, false), [29,...Array.from({length:12},(_,i)=>27-i)], 'Catalog end retains previous items without wrapping');
 assertArray(policy.neighborIndexes(2, 0), [1], 'deduplicate two item sequence');
 assertArray(policy.neighborIndexes(1, 0), [], 'skip single item sequence');
 assertArray(policy.neighborIndexes(5, -1), [], 'reject invalid current index');

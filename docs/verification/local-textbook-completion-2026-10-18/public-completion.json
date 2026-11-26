@@ -1,0 +1,28 @@
+{
+  "site": "https://toolbox.yuyutian.top",
+  "passed": 5,
+  "checks": [
+    {
+      "case": "english-textbook-pair",
+      "passed": true
+    },
+    {
+      "case": "chinese-meaning-alias",
+      "passed": true
+    },
+    {
+      "case": "phrase-reverse-lookup",
+      "passed": true
+    },
+    {
+      "case": "chinese-textbook-reading",
+      "passed": true
+    },
+    {
+      "case": "chinese-local-miss-no-fabricated-result",
+      "passed": true
+    }
+  ],
+  "textbookWrites": false,
+  "credentialsSaved": false
+}

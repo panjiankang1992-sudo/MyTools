@@ -5,7 +5,7 @@ import { AuthSessionManager } from '../auth/AuthSessionManager';
 import { DownloadCancellationToken } from '../../shared/network/DownloadCancellationToken';
 import { ChapterAdaptationApi } from './ChapterAdaptationApi';
 import { ChapterAdaptationPolicy } from './ChapterAdaptationPolicy';
-import { AppSecondaryPillButton } from '../../components/AppControls';
+import { AppSecondaryPillButton, AppButton, AppGroupedButton, AppEqualActionRow, AppTextAction, AppGlassTextArea, AppSelect } from '../../components/AppControls';
 import { AdaptationPendingJournal, AdaptationPendingRecord } from './AdaptationPendingJournal';
 import { AdaptationPendingAssetStorage } from './AdaptationPendingAssetStorage';
 import { AdaptationCatalog, AdaptationChapter, ChapterAdaptationCapability, ChapterAdaptationInput,
@@ -25,7 +25,7 @@ export struct ChapterAdaptationPanel {
   targetChapterIndex: number = -1;
   targetChapterTitle: string = '';
   onBackReady: (handler: () => void) => void = (): void => {};
-  baseUrl: string = '';
+  @Prop @Watch('endpointChanged') baseUrl: string = '';
   accountScope: string = '';
   authManager: AuthSessionManager = new AuthSessionManager();
   lifetime: DownloadCancellationToken = new DownloadCancellationToken();
@@ -82,6 +82,11 @@ export struct ChapterAdaptationPanel {
   }
   /** 隐藏即终止本地网络、定时器和旧回复，不取消服务端任务。 */
   aboutToDisappear(): void { this.endView(); this.lifetime.unbind(this.stopLifetime); }
+
+  /** 更新路由时保留任务身份与观察状态，后续请求使用新的认证业务端点。 */
+  private endpointChanged(): void {
+    if (this.alive) this.api = new ChapterAdaptationApi(this.baseUrl, this.authManager);
+  }
 
   private endView(): void {
     if (this.previousKeyboardMode !== undefined) {
@@ -428,18 +433,18 @@ export struct ChapterAdaptationPanel {
   @Builder
   private ContextHeading(title: string) {
     Column({ space: 8 }) {
-      Text(title).fontSize(24).lineHeight(32).fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
-      Text(this.bookTitle).fontSize(14).fontColor(AppTheme.textSecondary).maxLines(2)
+      Text(title).fontFamily(AppTheme.fontSemibold).fontSize(24).lineHeight(32).fontWeight(600).fontColor(AppTheme.textPrimary)
+      Text(this.bookTitle).lineHeight(22).fontFamily(AppTheme.fontFamily).fontSize(14).fontColor(AppTheme.textSecondary).maxLines(2)
     }.width('100%').alignItems(HorizontalAlign.Start).padding({ bottom: 8 })
   }
   @Builder
   private VersionRow($$: AdaptationVersionRowData) {
     Row({ space: 8 }) {
-      Text(`V${$$.item.revisionNumber}`).fontSize(14).fontWeight(FontWeight.Bold).fontColor(AppTheme.primary)
+      Text(`V${$$.item.revisionNumber}`).lineHeight(22).fontFamily(AppTheme.fontSemibold).fontSize(14).fontWeight(600).fontColor(AppTheme.primary)
         .padding({ left: 10, right: 10, top: 6, bottom: 6 }).borderRadius(8).backgroundColor(AppTheme.accentSoft)
-      Text(this.label($$.item.status)).fontSize(13).fontColor($$.item.status === 'FAILED' ? AppTheme.danger : AppTheme.primary)
-      Text($$.item.styleTemplate?.name ?? '').fontSize(13).fontColor(AppTheme.textSecondary).maxLines(1).layoutWeight(1)
-      Text(this.dateLabel($$.item.createdAt)).fontSize(11).fontColor(AppTheme.textTertiary)
+      Text(this.label($$.item.status)).lineHeight(18).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor($$.item.status === 'FAILED' ? AppTheme.danger : AppTheme.primary)
+      Text($$.item.styleTemplate?.name ?? '').lineHeight(18).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary).maxLines(1).layoutWeight(1)
+      Text(this.dateLabel($$.item.createdAt)).lineHeight(18).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textTertiary)
     }.width('100%')
   }
   @Builder
@@ -447,24 +452,24 @@ export struct ChapterAdaptationPanel {
     this.ContextHeading(this.chapter?.title ?? this.targetChapterTitle)
     if (this.history.length === 0) {
       Column({ space: 12 }) {
-        Text($r('app.string.adaptation_empty_title')).fontSize(18).fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary)
-        Text($r('app.string.adaptation_empty_description')).fontSize(14).lineHeight(22).fontColor(AppTheme.textSecondary)
+        Text($r('app.string.adaptation_empty_title')).lineHeight(26).fontFamily(AppTheme.fontMedium).fontSize(18).fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary)
+        Text($r('app.string.adaptation_empty_description')).fontFamily(AppTheme.fontFamily).fontSize(14).lineHeight(22).fontColor(AppTheme.textSecondary)
       }.width('100%').padding({ top: 40, bottom: 40, left: 20, right: 20 })
         .backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius).alignItems(HorizontalAlign.Start)
     } else {
       Button({ type: ButtonType.Normal }) {
         Column({ space: 14 }) {
           this.VersionRow({ item: this.history[0] })
-          Text(this.history[0].intent).fontSize(15).lineHeight(24).maxLines(3).fontColor(AppTheme.textSecondary)
+          Text(this.history[0].intent).fontFamily(AppTheme.fontFamily).fontSize(15).lineHeight(24).maxLines(3).fontColor(AppTheme.textSecondary)
           Row({ space: 6 }) {
-            Text($r('app.string.adaptation_view_detail')).fontSize(14).fontWeight(FontWeight.Medium).fontColor(AppTheme.primary)
+            Text($r('app.string.adaptation_view_detail')).lineHeight(22).fontFamily(AppTheme.fontMedium).fontSize(14).fontWeight(FontWeight.Medium).fontColor(AppTheme.primary)
             SymbolGlyph($r('sys.symbol.chevron_right')).fontSize(14).fontColor([AppTheme.primary])
           }
         }.width('100%').alignItems(HorizontalAlign.Start)
       }.width('100%').padding(20).backgroundColor(AppTheme.surface).borderRadius(AppTheme.cardRadius)
         .enabled(!this.busy && !this.uncertain).onClick(() => this.view(this.history[0]))
       if (this.history.length > 1) {
-        Text($r('app.string.adaptation_history')).fontSize(15).fontColor(AppTheme.textSecondary).padding({ top: 8 })
+        Text($r('app.string.adaptation_history')).lineHeight(24).fontFamily(AppTheme.fontFamily).fontSize(15).fontColor(AppTheme.textSecondary).padding({ top: 8 })
         Column() {
           ForEach(this.history.slice(1), (item: ChapterAdaptationHistoryItem) => {
             Row({ space: 12 }) {
@@ -475,7 +480,7 @@ export struct ChapterAdaptationPanel {
               Button({ type: ButtonType.Normal }) {
                 Column({ space: 10 }) {
                   this.VersionRow({ item: item })
-                  Text(item.intent).fontSize(14).lineHeight(22).maxLines(2).fontColor(AppTheme.textSecondary)
+                  Text(item.intent).fontFamily(AppTheme.fontFamily).fontSize(14).lineHeight(22).maxLines(2).fontColor(AppTheme.textSecondary)
                 }.width('100%').alignItems(HorizontalAlign.Start)
               }.layoutWeight(1).padding({ top: 16, bottom: 16, left: 8, right: 12 })
                 .backgroundColor(AppTheme.surface).borderRadius(0).enabled(!this.busy && !this.uncertain)
@@ -492,28 +497,24 @@ export struct ChapterAdaptationPanel {
   @Builder
   private Composer() {
     this.ContextHeading(this.label(this.kind))
-    Text(this.chapter?.title ?? this.targetChapterTitle).fontSize(14).fontColor(AppTheme.textSecondary)
+    Text(this.chapter?.title ?? this.targetChapterTitle).lineHeight(22).fontFamily(AppTheme.fontFamily).fontSize(14).fontColor(AppTheme.textSecondary)
     Column({ space: 16 }) {
-      Text($r('app.string.adaptation_style_label')).fontSize(15).fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary)
+      Text($r('app.string.adaptation_style_label')).lineHeight(24).fontFamily(AppTheme.fontMedium).fontSize(15).fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary)
       if (this.uncertain) {
-        Text(`${this.pending?.templateCode ?? 'legacy'} v${this.pending?.templateVersion ?? 1}`).fontSize(13).fontColor(AppTheme.textSecondary)
+        Text(`${this.pending?.templateCode ?? 'legacy'} v${this.pending?.templateVersion ?? 1}`).lineHeight(18).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary)
       } else {
-        Select(this.styleOptions()).selected(this.styleIndex).value(this.styles[this.styleIndex]?.name ?? '')
-          .width('100%').height(AppTheme.inputHeight).font({ size: 15 }).fontColor(AppTheme.textPrimary)
-          .backgroundColor(AppTheme.surface).border({ width: 1, color: AppTheme.divider, radius: 12 })
-          .enabled(!this.busy && this.styles.length > 0).onSelect((index: number) => this.styleIndex = index)
-        Text(this.styles[this.styleIndex]?.description ?? '').fontSize(13).lineHeight(21).fontColor(AppTheme.textSecondary)
+        AppSelect({ options: this.styleOptions(), selected: this.styleIndex, value: this.styles[this.styleIndex]?.name ?? '',
+          available: !this.busy && this.styles.length > 0, onSelected: (index: number) => this.styleIndex = index })
+        Text(this.styles[this.styleIndex]?.description ?? '').fontFamily(AppTheme.fontFamily).fontSize(12).lineHeight(18).fontColor(AppTheme.textSecondary)
         if (this.styles.length === 0 && !this.busy) {
           this.SecondaryAction($r('app.string.adaptation_style_reload'), true, () => this.loadStyles())
         }
       }
-      Text($r('app.string.adaptation_intent_label')).fontSize(15).fontWeight(FontWeight.Medium)
+      Text($r('app.string.adaptation_intent_label')).lineHeight(24).fontFamily(AppTheme.fontMedium).fontSize(15).fontWeight(FontWeight.Medium)
         .fontColor(AppTheme.textPrimary).padding({ top: 12 })
-      TextArea({ text: this.intent, placeholder: $r('app.string.adaptation_intent_placeholder') })
-        .height(200).padding(14).fontSize(15).fontColor(AppTheme.textPrimary).backgroundColor(AppTheme.surface)
-        .border({ width: 1, color: AppTheme.divider, radius: 12 })
-        .maxLength(4000).enabled(!this.busy && !this.uncertain).onChange((value: string) => this.intent = value)
-      Text(`${Array.from(this.intent).length} / 2000`).width('100%').textAlign(TextAlign.End)
+      AppGlassTextArea({ value: this.intent, placeholder: this.text($r('app.string.adaptation_intent_placeholder')),
+        areaHeight: 200, limit: 4000, available: !this.busy && !this.uncertain, valueChanged: (value: string) => this.intent = value })
+      Text(`${Array.from(this.intent).length} / 2000`).lineHeight(18).fontFamily(AppTheme.fontFamily).width('100%').textAlign(TextAlign.End)
         .fontSize(12).fontColor(AppTheme.textTertiary)
       if (this.kind !== 'INITIAL' && !this.canDerive() && !this.uncertain) {
         this.SecondaryAction($r('app.string.adaptation_verify_source'), !this.busy, () => this.checkSource(true))
@@ -524,8 +525,8 @@ export struct ChapterAdaptationPanel {
   @Builder
   private DetailRow(label: Resource, value: string) {
     Row({ space: 20 }) {
-      Text(label).width(66).fontSize(13).fontColor(AppTheme.textTertiary)
-      Text(value).layoutWeight(1).fontSize(14).lineHeight(22).fontColor(AppTheme.textSecondary)
+      Text(label).lineHeight(18).fontFamily(AppTheme.fontFamily).width(66).fontSize(12).fontColor(AppTheme.textTertiary)
+      Text(value).fontFamily(AppTheme.fontFamily).layoutWeight(1).fontSize(14).lineHeight(22).fontColor(AppTheme.textSecondary)
     }.width('100%').alignItems(VerticalAlign.Top)
   }
   @Builder
@@ -539,17 +540,17 @@ export struct ChapterAdaptationPanel {
         this.DetailRow($r('app.string.adaptation_created_label'), this.dateLabel(this.detail.version.createdAt))
         this.DetailRow($r('app.string.adaptation_origin_label'), this.originLabel())
         Divider().color(AppTheme.divider)
-        Text($r('app.string.adaptation_intent_label')).fontSize(15).fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary)
-        Text(this.detail.version.intent).fontSize(15).lineHeight(24).fontColor(AppTheme.textSecondary)
+        Text($r('app.string.adaptation_intent_label')).lineHeight(24).fontFamily(AppTheme.fontMedium).fontSize(15).fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary)
+        Text(this.detail.version.intent).fontFamily(AppTheme.fontFamily).fontSize(15).lineHeight(24).fontColor(AppTheme.textSecondary)
         Divider().color(AppTheme.divider)
-        Text($r('app.string.adaptation_preview_label')).fontSize(15).fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary)
+        Text($r('app.string.adaptation_preview_label')).lineHeight(24).fontFamily(AppTheme.fontMedium).fontSize(15).fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary)
         if (this.detail.result !== undefined) {
-          Text(this.detail.result.content).fontSize(15).lineHeight(24).maxLines(5)
+          Text(this.detail.result.content).fontFamily(AppTheme.fontFamily).fontSize(15).lineHeight(24).maxLines(5)
             .textOverflow({ overflow: TextOverflow.Ellipsis }).fontColor(AppTheme.textSecondary)
         } else {
-          Text(this.label(this.detail.version.status)).fontSize(14).fontColor(AppTheme.textSecondary)
+          Text(this.label(this.detail.version.status)).lineHeight(22).fontFamily(AppTheme.fontFamily).fontSize(14).fontColor(AppTheme.textSecondary)
           if (this.detail.version.status === 'FAILED') {
-            Text(this.failureText()).fontSize(14).lineHeight(22).fontColor(AppTheme.danger)
+            Text(this.failureText()).fontFamily(AppTheme.fontFamily).fontSize(14).lineHeight(22).fontColor(AppTheme.danger)
           }
         }
         ForEach(this.detail.attempts, (attempt: ChapterAdaptationCandidate) => {
@@ -565,61 +566,64 @@ export struct ChapterAdaptationPanel {
   @Builder
   private ReadingContent() {
     if (this.detail !== undefined) {
-      Text(this.detail.version.chapterTitle).fontSize(22).lineHeight(32).fontWeight(FontWeight.Bold).fontColor(AppTheme.textPrimary)
-      Text(`V${this.detail.version.revisionNumber} · ${this.detail.version.styleTemplate?.name ?? ''}`)
-        .fontSize(13).fontColor(AppTheme.primary).padding({ bottom: 14 })
+      Text(this.detail.version.chapterTitle).fontFamily(AppTheme.fontSemibold).fontSize(22).lineHeight(32).fontWeight(600).fontColor(AppTheme.textPrimary)
+      Text(`V${this.detail.version.revisionNumber} · ${this.detail.version.styleTemplate?.name ?? ''}`).lineHeight(18).fontFamily(AppTheme.fontFamily)
+        .fontSize(12).fontColor(AppTheme.primary).padding({ bottom: 14 })
               if (this.comparison !== undefined) {
-                Text($r('app.string.adaptation_compare_notice')).fontSize(12).fontColor(AppTheme.textSecondary)
+                Text($r('app.string.adaptation_compare_notice')).lineHeight(18).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary)
                 if (this.comparison.mode === 'SIDE_BY_SIDE') {
-                  Text($r('app.string.adaptation_compare_fallback')).fontSize(12)
-                  Text($r('app.string.adaptation_compare_original')).fontWeight(FontWeight.Bold)
-                  Text(this.comparison.original).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
-                  Text($r('app.string.adaptation_compare_adapted')).fontWeight(FontWeight.Bold)
-                  Text(this.comparison.adapted).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
+                  Text($r('app.string.adaptation_compare_fallback')).lineHeight(18).fontFamily(AppTheme.fontFamily).fontSize(12)
+                  Text($r('app.string.adaptation_compare_original')).fontFamily(AppTheme.fontSemibold).fontWeight(600)
+                  Text(this.comparison.original).fontFamily(AppTheme.fontFamily).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
+                  Text($r('app.string.adaptation_compare_adapted')).fontFamily(AppTheme.fontSemibold).fontWeight(600)
+                  Text(this.comparison.adapted).fontFamily(AppTheme.fontFamily).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
                 } else {
                   ForEach(this.comparison.hunks, (hunk: AdaptationComparisonHunk) => {
                     Column({ space: 6 }) {
                       if (hunk.kind === 'EQUAL') {
-                        Text($r('app.string.adaptation_compare_unchanged')).fontSize(12).fontColor(AppTheme.textSecondary)
-                        Text(hunk.original).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
+                        Text($r('app.string.adaptation_compare_unchanged')).lineHeight(18).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.textSecondary)
+                        Text(hunk.original).fontFamily(AppTheme.fontFamily).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
                       } else {
                         if (hunk.original !== '') {
-                          Text($r('app.string.adaptation_compare_original')).fontSize(12).fontColor(AppTheme.danger)
-                          Text(hunk.original).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
+                          Text($r('app.string.adaptation_compare_original')).lineHeight(18).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.danger)
+                          Text(hunk.original).fontFamily(AppTheme.fontFamily).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
                         }
                         if (hunk.adapted !== '') {
-                          Text($r('app.string.adaptation_compare_adapted')).fontSize(12).fontColor(AppTheme.primary)
-                          Text(hunk.adapted).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
+                          Text($r('app.string.adaptation_compare_adapted')).lineHeight(18).fontFamily(AppTheme.fontFamily).fontSize(12).fontColor(AppTheme.primary)
+                          Text(hunk.adapted).fontFamily(AppTheme.fontFamily).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
                         }
                       }
                     }.width('100%').padding(10).backgroundColor(AppTheme.surfaceTint).alignItems(HorizontalAlign.Start)
                   })
                 }
               } else if (this.candidate !== undefined) {
-                Text(this.label(this.candidate.viewStatus)).fontColor(AppTheme.danger)
-                Text(this.candidate.content).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
+                Text(this.label(this.candidate.viewStatus)).fontFamily(AppTheme.fontFamily).fontColor(AppTheme.danger)
+                Text(this.candidate.content).fontFamily(AppTheme.fontFamily).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
               } else if (this.detail.result !== undefined) {
-                Text(this.detail.result.content).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
+                Text(this.detail.result.content).fontFamily(AppTheme.fontFamily).width('100%').fontSize(17).lineHeight(28).copyOption(CopyOptions.InApp)
               }
 
     }
   }
   @Builder
   private Header() {
-    Row({ space: 8 }) {
-      Button() { SymbolGlyph($r('sys.symbol.chevron_left')).fontSize(22).fontColor([AppTheme.textPrimary]) }
-        .width(44).height(44).backgroundColor(Color.Transparent).accessibilityText($r('app.string.adaptation_close'))
-        .onClick(() => this.goBack())
-      Text(this.page === 'DETAIL' ? $r('app.string.adaptation_detail_title') :
-        this.page === 'READ' ? $r('app.string.adaptation_read_title') : $r('app.string.adaptation_title'))
-        .layoutWeight(1).fontSize(18).fontWeight(FontWeight.Medium).fontColor(AppTheme.textPrimary).maxLines(1)
+    Column({ space: 4 }) {
+      Row({ space: 8 }) {
+        Button() { SymbolGlyph($r('sys.symbol.chevron_left')).fontSize(22).fontColor([AppTheme.textPrimary]) }
+          .width(44).height(44).backgroundColor(Color.Transparent).accessibilityText($r('app.string.adaptation_close'))
+          .onClick(() => this.goBack())
+        Text(this.page === 'DETAIL' ? $r('app.string.adaptation_detail_title') :
+          this.page === 'READ' ? $r('app.string.adaptation_read_title') : $r('app.string.adaptation_title')).fontFamily(AppTheme.fontSemibold)
+          .layoutWeight(1).fontSize(20).lineHeight(28).fontWeight(600).fontColor(AppTheme.textPrimary).maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+      }.width('100%')
       if ((this.page === 'DETAIL' || this.page === 'READ') && this.detail?.result !== undefined) {
-        Button($r('app.string.adaptation_optimize')).height(40).padding({ left: 10, right: 10 }).fontSize(13)
-          .fontColor(AppTheme.primary).backgroundColor(Color.Transparent).borderRadius(AppTheme.pillRadius)
-          .enabled(!this.busy && !this.uncertain).onClick(() => this.derive('OPTIMIZE'))
-        Button($r('app.string.adaptation_regenerate')).height(40).padding({ left: 10, right: 10 }).fontSize(13)
-          .fontColor(AppTheme.primary).backgroundColor(Color.Transparent).borderRadius(AppTheme.pillRadius)
-          .enabled(!this.busy && !this.uncertain).onClick(() => this.derive('REGENERATE'))
+        AppEqualActionRow() {
+          AppGroupedButton({ variant: 'text', label: $r('app.string.adaptation_optimize'), available: !this.busy && !this.uncertain,
+            action: () => this.derive('OPTIMIZE') })
+          AppGroupedButton({ variant: 'text', label: $r('app.string.adaptation_regenerate'), available: !this.busy && !this.uncertain,
+            action: () => this.derive('REGENERATE') })
+        }
       }
     }.width('100%').padding({ left: 12, right: 18, top: 12, bottom: 12 })
   }
@@ -644,11 +648,11 @@ export struct ChapterAdaptationPanel {
   private Footer() {
     // 直接读取当前页面状态，避免值传递 Builder 将初始 busy 状态冻结在按钮上。
     Column() {
-      Button(this.footerLabel()).width('100%').height(AppTheme.inputHeight).fontSize(15).fontWeight(FontWeight.Medium)
-        .fontFamily('HarmonyOS Sans').fontColor(Color.White).backgroundColor(AppTheme.primary)
-        .borderRadius(AppTheme.pillRadius).enabled(this.footerAvailable()).onClick(() => this.footerAction())
-    }.width('100%').padding({ left: 24, right: 24, top: 12, bottom: 24 })
+      AppButton({ label: this.footerLabel(), available: this.footerAvailable(), loading: this.busy, fullWidth: true,
+        action: () => this.footerAction() }).enabled(this.footerAvailable())
+    }.width('100%').padding({ left: 20, right: 20, top: 12, bottom: 20 })
   }
+  /** 构建改编任务的表单、历史、结果和操作状态。 */
   build() {
     Column() {
       this.Header()
@@ -656,7 +660,7 @@ export struct ChapterAdaptationPanel {
         Column({ space: 18 }) {
           if (this.busy) { LoadingProgress().width(28).height(28).color(AppTheme.primary) }
           if (this.status !== '') {
-            Text(this.statusText()).fontSize(13).lineHeight(21).fontColor(AppTheme.textSecondary)
+            Text(this.statusText()).fontFamily(AppTheme.fontFamily).fontSize(12).lineHeight(18).fontColor(AppTheme.textSecondary)
             if (!this.busy) {
               this.SecondaryAction($r('app.string.adaptation_refresh'), true, () => {
                 if (this.page === 'FORM') this.loadStyles();
@@ -666,7 +670,7 @@ export struct ChapterAdaptationPanel {
             }
           }
           if (this.uncertain) {
-            Text($r('app.string.adaptation_uncertain')).fontSize(13).lineHeight(21).fontColor(AppTheme.danger)
+            Text($r('app.string.adaptation_uncertain')).fontFamily(AppTheme.fontFamily).fontSize(12).lineHeight(18).fontColor(AppTheme.danger)
             if (this.page !== 'FORM') {
               this.SecondaryAction($r('app.string.adaptation_retry_same'), !this.busy,
                 () => { this.page = 'FORM'; this.composing = true; })
@@ -675,7 +679,7 @@ export struct ChapterAdaptationPanel {
           if (this.chapter === undefined) {
             this.ContextHeading(this.targetChapterTitle)
             if (this.capability !== undefined && this.capability.status !== 'READY') {
-              Text(this.label(this.capability.status)).fontSize(14).fontColor(AppTheme.textSecondary)
+              Text(this.label(this.capability.status)).lineHeight(22).fontFamily(AppTheme.fontFamily).fontSize(14).fontColor(AppTheme.textSecondary)
               this.SecondaryAction($r('app.string.adaptation_prepare'),
                 !this.busy && this.capability.status !== 'PREPARING', () => this.prepare())
             }
@@ -685,14 +689,14 @@ export struct ChapterAdaptationPanel {
             else if (this.page === 'READ') this.ReadingContent()
             else {
               if (this.progress !== undefined && !this.policy.terminal(this.progress.status)) {
-                Text(this.progressText())
+                Text(this.progressText()).lineHeight(24).fontFamily(AppTheme.fontFamily)
                   .fontSize(15).fontColor(AppTheme.textPrimary)
                 this.SecondaryAction($r('app.string.adaptation_cancel'), !this.busy, () => this.cancel())
               }
               this.VersionDetail()
             }
           }
-        }.width('100%').padding({ left: 24, right: 24, top: 4, bottom: 24 }).alignItems(HorizontalAlign.Start)
+        }.width('100%').padding({ left: 20, right: 20, top: 4, bottom: 24 }).alignItems(HorizontalAlign.Start)
       }.width('100%').layoutWeight(1).align(Alignment.TopStart).scrollBar(BarState.Off)
       if (this.page !== 'READ' && this.chapter !== undefined) this.Footer()
     }.width('100%').height('100%').backgroundColor(AppTheme.background)

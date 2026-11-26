@@ -2,29 +2,43 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import replace
+from unittest.mock import patch
 
-from mytools_telegram_connector.client import TelegramConnector
+from mytools_telegram_connector.client import ProviderError, TelegramConnector
 from mytools_telegram_connector.config import Config
 
 
 class RecordingConnector(TelegramConnector):
     """记录标准化消息且不访问网络。"""
 
-    def __init__(self) -> None:
+    def __init__(self, inbox_path: str = ":memory:") -> None:
         config = Config("telegram_main", "secret", 7, frozenset({"42"}),
                         "http://telegram.test", None, "http://messaging.test", "message-token",
                         "internal-token", 45, 1024 * 1024, "@pikpak_bot", 20 * 1024 * 1024, "")
-        super().__init__(config, object())  # type: ignore[arg-type]
+        super().__init__(replace(config, inbox_path=inbox_path), object())  # type: ignore[arg-type]
         self.payload = None
         self.payloads = []
         self.api_calls = []
+        self.updates = []
+        self.failures = []
+
+    async def receive(self, update: dict) -> None:
+        """模拟轮询接收单条更新，并处理可投递记录。"""
+        self.updates.append([update])
+        await self.poll_once()
+        await self.deliver_once()
 
     async def _internal_json(self, url: str, payload: dict) -> dict:
+        if self.failures:
+            raise self.failures.pop(0)
         self.payload = payload
         self.payloads.append(payload)
         return {"id": "message-id"}
 
     async def api(self, method: str, payload: dict | None = None):
+        if method == "getUpdates":
+            return self.updates.pop(0)
         self.api_calls.append((method, payload))
         return {"message_id": 99}
 
@@ -99,7 +113,8 @@ def test_groups_media_album_into_one_inbound_message() -> None:
                 "from": {"id": 99}, "media_group_id": "album-7",
                 "photo": [{"file_id": file_id, "file_size": 20}]}})
         assert connector.payload is None
-        await connector.flush_albums(True)
+        with patch("mytools_telegram_connector.inbox.time.time", return_value=2_000_000_000):
+            assert await connector.deliver_once()
         return connector
 
     connector = asyncio.run(scenario())
@@ -139,3 +154,83 @@ def test_oversized_media_is_relayed_without_messaging_download() -> None:
                          "text": "Large media was forwarded to PikPak and will continue automatically.",
                          "reply_parameters": {"message_id": 88,
                                               "allow_sending_without_reply": True}})]
+
+
+def test_poll_ack_after_durable_store_and_resets_offset_on_idle() -> None:
+    """收据写入失败时保留游标，空响应后允许较小的新更新 ID。"""
+    async def scenario() -> None:
+        connector = RecordingConnector()
+        connector.updates = [
+            [{"update_id": 50}], [{"update_id": 50}], [], [{"update_id": 3}]]
+        with patch.object(connector.inbox, "store", side_effect=OSError):
+            try:
+                await connector.poll_once()
+            except OSError:
+                pass
+            else:
+                raise AssertionError("expected inbox write to fail")
+        assert connector.offset == 0
+        await connector.poll_once()
+        assert connector.offset == 51
+        await connector.poll_once()
+        assert connector.offset == 0
+        await connector.poll_once()
+        assert connector.offset == 4
+        connector.inbox.close()
+
+    asyncio.run(scenario())
+
+
+def test_album_survives_restart_and_retries_without_duplicates(tmp_path) -> None:
+    """跨批次和重启保存相册，下游瞬时失败后整组重试。"""
+    path = str(tmp_path / "private" / "inbox.sqlite3")
+
+    def photo(update_id: int) -> dict:
+        return {"update_id": update_id, "message": {
+            "message_id": update_id, "chat": {"id": 42}, "media_group_id": "album",
+            "photo": [{"file_id": f"photo-{update_id}", "file_size": 20}]}}
+
+    async def scenario() -> None:
+        with patch("mytools_telegram_connector.inbox.time.time", return_value=1_700_000_000) as now:
+            original = RecordingConnector(path)
+            await original.receive(photo(61))
+            assert original.offset == 62
+            assert original.payloads == []
+            original.inbox.close()
+
+            restored = RecordingConnector(path)
+            assert restored.offset == 0
+            restored.updates = [[photo(61), photo(62)]]
+            await restored.poll_once()
+            assert restored.offset == 63
+            now.return_value += 3
+            restored.failures.append(ProviderError("Messaging", 503))
+            assert await restored.deliver_once()
+            assert restored.inbox.health()[0] == 1
+            assert not await restored.deliver_once()
+            now.return_value += 1
+            assert await restored.deliver_once()
+            assert not await restored.deliver_once()
+            assert len(restored.payloads) == 1
+            assert restored.payloads[0]["externalMessageId"] == "telegram_main:42:61:album:album"
+            assert [part["providerFileId"] for part in restored.payloads[0]["parts"]] == ["photo-61", "photo-62"]
+            restored.inbox.close()
+
+    asyncio.run(scenario())
+
+
+def test_poison_record_does_not_block_other_messages() -> None:
+    """无效消息保留在收件箱供排查，其他消息继续投递。"""
+    async def scenario() -> None:
+        connector = RecordingConnector()
+        connector.failures.append(ProviderError("Messaging", 400))
+        await connector.receive({"update_id": 70, "message": {
+            "message_id": 70, "chat": {"id": 42}, "text": "bad"}})
+        await connector.receive({"update_id": 71, "message": {
+            "message_id": 71, "chat": {"id": 42}, "text": "good"}})
+        assert connector.inbox.health() == (0, 0, 1)
+        assert connector.payloads[0]["body"] == "good"
+        assert connector.health()["status"] == "DOWN"
+        connector.inbox.close()
+
+    asyncio.run(scenario())

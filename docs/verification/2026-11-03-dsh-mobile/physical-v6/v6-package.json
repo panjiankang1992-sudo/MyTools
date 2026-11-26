@@ -1,0 +1,11 @@
+{
+  "version": "20261103-v6",
+  "hapPath": "/Users/pankang/mycode/MyTools/app/build/dsh-mobile/entry-dsh-mobile-20261103-v6-signed.hap",
+  "sha256": "5f701e3a1554b12f8fdef43e21cb9815852ed0fc7452f67935edcc013d5bcf0a",
+  "debugRelayMarkersAbsent": true,
+  "webVersion": "20261103a",
+  "sourceHashes": {
+    "app/entry/src/main/ets/pages/Index.ets": "65dea08f6039ce74bf5643444e7469fb6e6dad9b7c6ccb355600b43fa91c9b6c",
+    "app/tests/dsh_web_load_monitor_test.cjs": "8a319dd7044af32c114b675f8bb86b7111fd2afcab80876005d15e1c576b0a9b"
+  }
+}

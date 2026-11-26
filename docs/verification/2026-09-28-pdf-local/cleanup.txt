@@ -1,0 +1,2 @@
+PASS Removed 10 test jobs, 26 content-matched cache files, 4 Download fixtures and 5 device UI evidence temporaries.
+Verified all specified paths absent.

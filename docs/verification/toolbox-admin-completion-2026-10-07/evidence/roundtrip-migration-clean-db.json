@@ -1,0 +1,202 @@
+{
+  "actor": {
+    "authenticated": true,
+    "username": "local-admin",
+    "userId": "local-admin-1001",
+    "csrfToken": "QPIopjOkxaTvfP2CUPdIFjSB7Zy4Ro-WAsZdQr9eBIM"
+  },
+  "importHttpStatus": 200,
+  "importBody": {
+    "code": "OK",
+    "data": {
+      "outcomes": [
+        {
+          "editionId": "cn-ty-1-1-pep-2024",
+          "contentVersion": "1.0.2",
+          "state": "INSERTED",
+          "storedSha256": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527"
+        },
+        {
+          "editionId": "cn-ty-2-1-pep-2017",
+          "contentVersion": "1.0.2",
+          "state": "INSERTED",
+          "storedSha256": "1d14e1fd6d3c819dfa5a74b00de26d9476e04e7f9d5e5780a97dff71914f8778"
+        },
+        {
+          "editionId": "cn-ty-3-1-pep-2024",
+          "contentVersion": "1.0.0",
+          "state": "INSERTED",
+          "storedSha256": "49abe27d8b49e50b99af599726d0374b13071b47f4447538fcaab65b74fd7cdf"
+        },
+        {
+          "editionId": "cn-ty-4-1-pep-2024",
+          "contentVersion": "1.0.0",
+          "state": "INSERTED",
+          "storedSha256": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295"
+        },
+        {
+          "editionId": "en-yl-3-1-yilin-2024",
+          "contentVersion": "1.0.1",
+          "state": "INSERTED",
+          "storedSha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4"
+        }
+      ],
+      "conflicts": [],
+      "ok": true
+    },
+    "requestId": "098cff4f-21ed-40bd-af17-d4bccd7b0af9"
+  },
+  "manifest": {
+    "catalogVersion": "2026-10-04.1",
+    "publishedAt": "2026-10-04T06:04:05.716Z",
+    "editionCount": 5
+  },
+  "perEdition": [
+    {
+      "editionId": "cn-ty-1-1-pep-2024",
+      "contentVersion": "1.0.2",
+      "declaredSha256": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527",
+      "declaredEntryCount": 318,
+      "fileExists": true,
+      "bytes": 289494,
+      "sha256": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527",
+      "hashMatchesManifest": true,
+      "entryCountInFile": 318,
+      "dbVersionRows": [
+        "cn-ty-1-1-pep-2024@1.0.2\t20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527\t289494\tlocal-admin-1001"
+      ],
+      "storedHashMatchesFile": true,
+      "downloadStatus": 200,
+      "downloadedBytes": 289494,
+      "downloadedSha256": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527",
+      "downloadHeaderSha256": "20017f83d008c9942ff1bf52dc962bda43db49165ff8881cdd8500a753844527",
+      "downloadedBytesIdenticalToFile": true
+    },
+    {
+      "editionId": "cn-ty-2-1-pep-2017",
+      "contentVersion": "1.0.2",
+      "declaredSha256": "1d14e1fd6d3c819dfa5a74b00de26d9476e04e7f9d5e5780a97dff71914f8778",
+      "declaredEntryCount": 760,
+      "fileExists": true,
+      "bytes": 693200,
+      "sha256": "1d14e1fd6d3c819dfa5a74b00de26d9476e04e7f9d5e5780a97dff71914f8778",
+      "hashMatchesManifest": true,
+      "entryCountInFile": 760,
+      "dbVersionRows": [
+        "cn-ty-2-1-pep-2017@1.0.2\t1d14e1fd6d3c819dfa5a74b00de26d9476e04e7f9d5e5780a97dff71914f8778\t693200\tlocal-admin-1001"
+      ],
+      "storedHashMatchesFile": true,
+      "downloadStatus": 200,
+      "downloadedBytes": 693200,
+      "downloadedSha256": "1d14e1fd6d3c819dfa5a74b00de26d9476e04e7f9d5e5780a97dff71914f8778",
+      "downloadHeaderSha256": "1d14e1fd6d3c819dfa5a74b00de26d9476e04e7f9d5e5780a97dff71914f8778",
+      "downloadedBytesIdenticalToFile": true
+    },
+    {
+      "editionId": "cn-ty-3-1-pep-2024",
+      "contentVersion": "1.0.0",
+      "declaredSha256": "49abe27d8b49e50b99af599726d0374b13071b47f4447538fcaab65b74fd7cdf",
+      "declaredEntryCount": 777,
+      "fileExists": true,
+      "bytes": 716239,
+      "sha256": "49abe27d8b49e50b99af599726d0374b13071b47f4447538fcaab65b74fd7cdf",
+      "hashMatchesManifest": true,
+      "entryCountInFile": 777,
+      "dbVersionRows": [
+        "cn-ty-3-1-pep-2024@1.0.0\t49abe27d8b49e50b99af599726d0374b13071b47f4447538fcaab65b74fd7cdf\t716239\tlocal-admin-1001"
+      ],
+      "storedHashMatchesFile": true,
+      "downloadStatus": 200,
+      "downloadedBytes": 716239,
+      "downloadedSha256": "49abe27d8b49e50b99af599726d0374b13071b47f4447538fcaab65b74fd7cdf",
+      "downloadHeaderSha256": "49abe27d8b49e50b99af599726d0374b13071b47f4447538fcaab65b74fd7cdf",
+      "downloadedBytesIdenticalToFile": true
+    },
+    {
+      "editionId": "cn-ty-4-1-pep-2024",
+      "contentVersion": "1.0.0",
+      "declaredSha256": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295",
+      "declaredEntryCount": 640,
+      "fileExists": true,
+      "bytes": 595122,
+      "sha256": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295",
+      "hashMatchesManifest": true,
+      "entryCountInFile": 640,
+      "dbVersionRows": [
+        "cn-ty-4-1-pep-2024@1.0.0\tac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295\t595122\tlocal-admin-1001"
+      ],
+      "storedHashMatchesFile": true,
+      "downloadStatus": 200,
+      "downloadedBytes": 595122,
+      "downloadedSha256": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295",
+      "downloadHeaderSha256": "ac988e6772a39464921fae77581faa484e407cad10ceffa88cc5a908d720d295",
+      "downloadedBytesIdenticalToFile": true
+    },
+    {
+      "editionId": "en-yl-3-1-yilin-2024",
+      "contentVersion": "1.0.1",
+      "declaredSha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4",
+      "declaredEntryCount": 140,
+      "fileExists": true,
+      "bytes": 117917,
+      "sha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4",
+      "hashMatchesManifest": true,
+      "entryCountInFile": 140,
+      "dbVersionRows": [
+        "en-yl-3-1-yilin-2024@1.0.1\taed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4\t117917\tlocal-admin-1001"
+      ],
+      "storedHashMatchesFile": true,
+      "downloadStatus": 200,
+      "downloadedBytes": 117917,
+      "downloadedSha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4",
+      "downloadHeaderSha256": "aed31475025e503ca5f40fb2b6f70bc4c73a0ef4b647b03d0545fdab2bf479d4",
+      "downloadedBytesIdenticalToFile": true
+    }
+  ],
+  "catalogRows": [
+    "current\t0\t2026-10-04.1\t2026-10-06 18:42:19"
+  ],
+  "callLog": [
+    {
+      "method": "GET",
+      "path": "/admin/v1/auth/csrf",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/v1/auth/login",
+      "status": 200,
+      "requestBodyBytes": 53
+    },
+    {
+      "method": "POST",
+      "path": "/admin/v1/curriculum/import-from-files",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/curriculum/versions/cn-ty-1-1-pep-2024/1.0.2/bytes",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/curriculum/versions/cn-ty-2-1-pep-2017/1.0.2/bytes",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/curriculum/versions/cn-ty-3-1-pep-2024/1.0.0/bytes",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/curriculum/versions/cn-ty-4-1-pep-2024/1.0.0/bytes",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/admin/v1/curriculum/versions/en-yl-3-1-yilin-2024/1.0.1/bytes",
+      "status": 200
+    }
+  ]
+}

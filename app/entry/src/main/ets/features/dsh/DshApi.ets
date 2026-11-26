@@ -1,5 +1,7 @@
+import { DshWebAuthPolicy } from './DshWebAuthPolicy';
 import { AuthSessionManager } from '../auth/AuthSessionManager';
 import { AuthorizedApiClient } from '../../shared/network/AuthorizedApiClient';
+import { DownloadCancellationToken } from '../../shared/network/DownloadCancellationToken';
 import { DshHistory, DshSession, DshStatus } from './DshModels';
 import { DshResponseNormalizer } from './DshResponseNormalizer';
 
@@ -21,10 +23,34 @@ interface DshApprovalBody {
  */
 export class DshApi {
   private readonly client: AuthorizedApiClient;
+  private readonly authManager: AuthSessionManager;
   private readonly normalizer: DshResponseNormalizer = new DshResponseNormalizer();
 
   constructor(baseUrl: string, authManager: AuthSessionManager) {
+    this.authManager = authManager;
     this.client = new AuthorizedApiClient(baseUrl, authManager);
+  }
+
+  /** 使用当前 MyTools 登录态换取短时一次性网页连接票据。 */
+  async webTicket(preferSecure: boolean = false, forcePublic: boolean = false,
+    cancellation?: DownloadCancellationToken): Promise<string> {
+    // 线路发现可以与换票并行，返回的票据只用于本次预先选定的网页入口。
+    const publicBusinessBase = this.authManager.publicBusinessBaseUrl();
+    const origin = DshWebAuthPolicy.webOrigin(this.authManager.activeBusinessBaseUrl(), publicBusinessBase,
+      preferSecure, forcePublic);
+    if (origin.length === 0) throw new Error('Invalid DSH endpoint');
+    // 公网回退的换票请求也使用公网，避免网页绕开了失效的直连却仍从原线路取票。
+    const client = forcePublic ? new AuthorizedApiClient(publicBusinessBase,
+      this.authManager, false, 20000, true) : this.client;
+    const data = (await client.post('/api/app/v1/dsh/web-ticket', cancellation)).data;
+    if (data === undefined || data === null || typeof data !== 'object' || Array.isArray(data)) {
+      throw new Error('Invalid DSH ticket response');
+    }
+    const url = (data as Record<string, Object>)['url'];
+    if (typeof url !== 'string' || DshWebAuthPolicy.connectionUrl(url).length === 0) {
+      throw new Error('Invalid DSH ticket URL');
+    }
+    return origin + url.substring(DshWebAuthPolicy.PUBLIC_ORIGIN.length);
   }
 
   /** 查询远程 DSH 状态。 */

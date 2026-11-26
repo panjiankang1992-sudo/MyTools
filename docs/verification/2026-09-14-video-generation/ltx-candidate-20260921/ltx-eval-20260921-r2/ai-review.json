@@ -1,0 +1,42 @@
+{
+  "reviewer": "ai:codex",
+  "notHumanReview": true,
+  "method": "Visual inspection of all 49 chronological frames per sample using contact sheets; not real-time playback or official VBench scores.",
+  "scope": "development_candidate_only",
+  "productionApproved": false,
+  "passed": 2,
+  "total": 6,
+  "verdict": "reject",
+  "samples": [
+    {
+      "name": "A-cold-white-seed42",
+      "verdict": "limited_pass",
+      "observation": "Cup and saucer preserved; small motion."
+    },
+    {
+      "name": "A-cold-white-seed932",
+      "verdict": "reject",
+      "observation": "Unrequested hand enters around frame 12, fingers enter cup and lift it."
+    },
+    {
+      "name": "B-warm-generated-seed42",
+      "verdict": "reject",
+      "observation": "Grey padding becomes black after frame 0; product colors remain stable."
+    },
+    {
+      "name": "B-warm-generated-seed932",
+      "verdict": "limited_pass",
+      "observation": "Teapot shape and colors preserved; small motion."
+    },
+    {
+      "name": "C-landscape-seed42",
+      "verdict": "reject",
+      "observation": "Padding is replaced by blurry invented mountains from frame 1."
+    },
+    {
+      "name": "C-landscape-seed932",
+      "verdict": "reject",
+      "observation": "Camera tilts upward instead of requested forward push; major framing drift."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+const assert = require('node:assert/strict');
+const { DownloadClipboardPolicy: policy } = require(process.argv[2]);
+const now = 1000e9;
+const url = 'https://example.com/clipboard-test.mp4';
+assert.equal(policy.recentLink(url, now, now), url);
+assert.equal(policy.recentLink(url, now - 60e9, now), url);
+assert.equal(policy.recentLink(url, now - 60e9 - 1, now), '');
+assert.equal(policy.recentLink(url, now + 1, now), '');
+for (const timestamp of [0, -1, NaN, Infinity]) assert.equal(policy.recentLink(url, timestamp, now), '');
+assert.equal(policy.recentLink(url, now, NaN), '');
+assert.equal(policy.recentLink('secret text without a link', now, now), '');
+assert.equal(policy.recentLink('  share ' + url + '  ', now, now), 'share ' + url);
+assert.equal(policy.recentLink('magnet:?xt=urn:btih:test', now, now), 'magnet:?xt=urn:btih:test');
+assert.equal(policy.recentLink(url + 'x'.repeat(20000), now, now), '');
+policy.accept(now);
+assert.equal(policy.recentLink(url, now, now), '');
+assert.equal(policy.recentLink(url, now + 1, now + 1), url);
+console.log('15 clipboard age, content and deduplication assertions passed');

@@ -1,0 +1,183 @@
+{
+  "23410": {
+    "http": 200,
+    "status": "UP"
+  },
+  "23341": {
+    "http": 200,
+    "status": "UP"
+  },
+  "23340": {
+    "http": 200,
+    "status": "UP"
+  },
+  "models": [
+    {
+      "id": "wan-vace-1.3b-local",
+      "name": "Wan 2.1 VACE 1.3B",
+      "location": "LOCAL",
+      "status": "READY",
+      "sizes": [
+        "832x480"
+      ],
+      "frames": [
+        49
+      ],
+      "fps": 16,
+      "modes": [
+        {
+          "mode": "TEXT_TO_VIDEO",
+          "minInputs": 0,
+          "maxInputs": 0,
+          "roles": [],
+          "requiresPrompt": true,
+          "frames": [
+            49
+          ],
+          "validated": false,
+          "reasonCode": "INSTRUCTION_FOLLOWING_UNVERIFIED"
+        },
+        {
+          "mode": "FIRST_FRAME",
+          "minInputs": 1,
+          "maxInputs": 1,
+          "roles": [
+            {
+              "name": "FIRST_FRAME",
+              "kind": "IMAGE"
+            }
+          ],
+          "requiresPrompt": true,
+          "frames": [
+            49
+          ],
+          "validated": false,
+          "reasonCode": "MODE_VALIDATION_REQUIRED"
+        },
+        {
+          "mode": "SUBJECT_REFERENCES",
+          "minInputs": 2,
+          "maxInputs": 2,
+          "roles": [
+            {
+              "name": "SUBJECT",
+              "kind": "IMAGE"
+            }
+          ],
+          "requiresPrompt": true,
+          "frames": [
+            49
+          ],
+          "validated": false,
+          "reasonCode": "REFERENCE_CONTROL_UNVERIFIED"
+        },
+        {
+          "mode": "FIRST_LAST_FRAMES",
+          "minInputs": 2,
+          "maxInputs": 2,
+          "roles": [
+            {
+              "name": "FIRST_FRAME",
+              "kind": "IMAGE"
+            },
+            {
+              "name": "LAST_FRAME",
+              "kind": "IMAGE"
+            }
+          ],
+          "requiresPrompt": true,
+          "frames": [
+            49
+          ],
+          "validated": false,
+          "reasonCode": "MODE_VALIDATION_REQUIRED"
+        },
+        {
+          "mode": "STRUCTURE_RESTYLE",
+          "minInputs": 1,
+          "maxInputs": 1,
+          "roles": [
+            {
+              "name": "SOURCE_VIDEO",
+              "kind": "VIDEO"
+            }
+          ],
+          "requiresPrompt": true,
+          "frames": [
+            49
+          ],
+          "validated": false,
+          "reasonCode": "SOURCE_QUALITY_UNVERIFIED"
+        },
+        {
+          "mode": "MASKED_EDIT",
+          "minInputs": 1,
+          "maxInputs": 2,
+          "roles": [
+            {
+              "name": "SOURCE_VIDEO",
+              "kind": "VIDEO"
+            },
+            {
+              "name": "MASK_VIDEO",
+              "kind": "VIDEO"
+            }
+          ],
+          "requiresPrompt": true,
+          "frames": [
+            49
+          ],
+          "validated": false,
+          "reasonCode": "LOCALITY_DISPUTED"
+        }
+      ],
+      "reasonCode": ""
+    },
+    {
+      "id": "ltx-video-2b-local",
+      "name": "LTX-Video 2B",
+      "location": "LOCAL",
+      "status": "READY",
+      "sizes": [
+        "640x640"
+      ],
+      "frames": [
+        49
+      ],
+      "fps": 16,
+      "modes": [
+        {
+          "mode": "FIRST_FRAME",
+          "minInputs": 1,
+          "maxInputs": 1,
+          "roles": [
+            {
+              "name": "FIRST_FRAME",
+              "kind": "IMAGE"
+            }
+          ],
+          "requiresPrompt": true,
+          "frames": [
+            49
+          ],
+          "validated": false,
+          "reasonCode": "MODE_VALIDATION_REQUIRED"
+        }
+      ],
+      "reasonCode": ""
+    }
+  ],
+  "modelsHttp": 200,
+  "activeTasks": 0,
+  "migrations": [
+    {
+      "version": "163",
+      "success": true
+    },
+    {
+      "version": "164",
+      "success": true
+    }
+  ],
+  "gpuUsedMiB": 996
+}

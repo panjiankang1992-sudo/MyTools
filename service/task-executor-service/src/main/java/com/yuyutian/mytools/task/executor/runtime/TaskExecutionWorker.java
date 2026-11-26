@@ -58,6 +58,7 @@ public class TaskExecutionWorker {
     private final ScriptReleaseVerifier releaseVerifier;
     private final ExecutionReportJournal reportJournal;
     private final DiskSpaceGuard diskSpaceGuard;
+    private final ProcessLaunchHealthIndicator processLaunchHealth;
     private final ObjectMapper objectMapper;
     private final NovelAdaptationTaskHost adaptationHost;
     private final AtomicInteger runningTasks = new AtomicInteger();
@@ -124,11 +125,21 @@ public class TaskExecutionWorker {
     }
 
     /** 创建带专属小说改编入口的工作器，旧构造保留兼容但不能执行受保护任务。 */
-    @Autowired
     public TaskExecutionWorker(ExecutorProperties properties, ExecutorNodeAgent nodeAgent,
                                SchedulerClient schedulerClient, ScriptProcessRunner processRunner,
                                ScriptReleaseVerifier releaseVerifier, ObjectMapper objectMapper,
                                ExecutionReportJournal reportJournal, DiskSpaceGuard diskSpaceGuard, NovelAdaptationTaskHost adaptationHost) {
+        this(properties, nodeAgent, schedulerClient, processRunner, releaseVerifier, objectMapper,
+                reportJournal, diskSpaceGuard, adaptationHost, null);
+    }
+
+    /** 创建带进程启动探测的工作器。 */
+    @Autowired
+    public TaskExecutionWorker(ExecutorProperties properties, ExecutorNodeAgent nodeAgent,
+                               SchedulerClient schedulerClient, ScriptProcessRunner processRunner,
+                               ScriptReleaseVerifier releaseVerifier, ObjectMapper objectMapper,
+                               ExecutionReportJournal reportJournal, DiskSpaceGuard diskSpaceGuard,
+                               NovelAdaptationTaskHost adaptationHost, ProcessLaunchHealthIndicator processLaunchHealth) {
         this.properties = properties;
         this.nodeAgent = nodeAgent;
         this.schedulerClient = schedulerClient;
@@ -138,6 +149,7 @@ public class TaskExecutionWorker {
         this.reportJournal = reportJournal;
         this.diskSpaceGuard = diskSpaceGuard;
         this.adaptationHost = adaptationHost;
+        this.processLaunchHealth = processLaunchHealth;
     }
 
     /**
@@ -162,6 +174,10 @@ public class TaskExecutionWorker {
             if (!diskSpaceGuard.hasCapacity()) {
                 // 低磁盘时仍允许 WAL 回放和成功目录清理，但禁止扩大本地执行现场。
                 nodeAgent.drainForDiskPressure();
+                return;
+            }
+            // JVM 无法启动脚本时保留任务在调度队列，节点恢复后继续领取。
+            if (processLaunchHealth != null && !processLaunchHealth.canLaunch()) {
                 return;
             }
             int claimBudget = properties.maxConcurrentTasks() - runningTasks.get();

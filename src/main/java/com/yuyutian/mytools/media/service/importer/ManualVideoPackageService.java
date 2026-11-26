@@ -42,7 +42,7 @@ public class ManualVideoPackageService {
     private final LocalFileMapper fileMapper;
     private final MediaPackageFileWriter fileWriter;
 
-    @Value("${media.big-video-threshold-bytes:52428800}")
+    @Value("${media.big-video-threshold-bytes:104857600}")
     private long thresholdBytes;
 
     /**

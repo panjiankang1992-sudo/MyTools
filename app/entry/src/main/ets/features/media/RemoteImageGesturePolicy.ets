@@ -66,6 +66,24 @@ export class RemoteImageGesturePolicy {
     return offsetY < 0 ? 1 : -1;
   }
 
+  /** 根据拖动比例或同方向甩动速度决定翻页，短距离抖动和斜向手势不翻页。 */
+  pageSwipeDirection(offsetX: number, offsetY: number, velocityY: number, scale: number, height: number): number {
+    if (this.clampScale(scale) > 1 || !Number.isFinite(offsetX) || !Number.isFinite(offsetY) ||
+      !Number.isFinite(height) || height <= 0 || Math.abs(offsetY) <= Math.abs(offsetX) * 1.2) return 0;
+    const threshold = Math.max(72, Math.min(160, height * 0.18));
+    const flick = Number.isFinite(velocityY) && Math.abs(velocityY) >= 700 &&
+      velocityY * offsetY > 0 && Math.abs(offsetY) >= 28;
+    if (Math.abs(offsetY) < threshold && !flick) return 0;
+    return offsetY < 0 ? 1 : -1;
+  }
+
+  /** 有相邻页时跟随手指一比一移动，序列边界提供有界阻尼。 */
+  pageDragOffset(offset: number, height: number, hasNeighbor: boolean): number {
+    if (!Number.isFinite(offset) || !Number.isFinite(height) || height <= 0) return 0;
+    const bounded = Math.max(-height, Math.min(height, offset));
+    return hasNeighbor ? bounded : bounded * 0.2;
+  }
+
   private clampFinite(value: number, minimum: number, maximum: number): number {
     if (!Number.isFinite(value)) return 0;
     return Math.max(minimum, Math.min(maximum, value));

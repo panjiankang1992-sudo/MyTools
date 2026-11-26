@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1000" viewBox="0 0 1080 1000"><style>text{font-family:"PingFang SC","Microsoft YaHei",sans-serif;fill:#1E2622}</style>
+<rect x="0" y="0" width="1080" height="1000" rx="0" fill="#E9EFEB" stroke="none"/>
+<text x="40" y="50" font-size="28" fill="#1E2622" style="fill:#1E2622" font-weight="650">MyTools · PDF 工具统一入口</text>
+<text x="40" y="82" font-size="16" fill="#59645E" style="fill:#59645E" font-weight="400">设计草案：生成 / 转换 / 整理。仅显示服务端已开放的能力。</text>
+<rect x="40" y="116" width="470" height="805" rx="26" fill="#F3F6F4" stroke="#CFD6D1"/>
+<text x="64" y="159" font-size="13" fill="#1E2622" style="fill:#1E2622" font-weight="400">9:41</text>
+<text x="64" y="207" font-size="26" fill="#1E2622" style="fill:#1E2622" font-weight="600">工具</text>
+<rect x="64" y="231" width="422" height="48" rx="16" fill="#fff" stroke="none"/>
+<text x="82" y="261" font-size="15" fill="#59645E" style="fill:#59645E" font-weight="400">搜索工具</text>
+<rect x="570" y="116" width="470" height="805" rx="26" fill="#F3F6F4" stroke="#CFD6D1"/>
+<text x="594" y="159" font-size="13" fill="#1E2622" style="fill:#1E2622" font-weight="400">9:41</text>
+<text x="594" y="207" font-size="26" fill="#1E2622" style="fill:#1E2622" font-weight="600">PDF 工具</text>
+<rect x="594" y="231" width="422" height="48" rx="16" fill="#fff" stroke="none"/>
+<text x="612" y="261" font-size="15" fill="#59645E" style="fill:#59645E" font-weight="400">搜索 PDF 功能</text>
+<text x="64" y="327" font-size="18" fill="#1E2622" style="fill:#1E2622" font-weight="600">最近使用</text>
+<rect x="64" y="348" width="422" height="67" rx="16" fill="#fff" stroke="none"/>
+<text x="85" y="375" font-size="17" fill="#1E2622" style="fill:#1E2622" font-weight="600">PDF 工具</text>
+<text x="85" y="397" font-size="14" fill="#59645E" style="fill:#59645E" font-weight="400">生成、转换、分割与合并</text>
+<text x="64" y="456" font-size="18" fill="#1E2622" style="fill:#1E2622" font-weight="600">全部工具</text>
+<rect x="64" y="480" width="203" height="111" rx="16" fill="#fff" stroke="none"/>
+<text x="81" y="521" font-size="18" fill="#1E2622" style="fill:#1E2622" font-weight="600">文件管理</text>
+<text x="81" y="553" font-size="14" fill="#59645E" style="fill:#59645E" font-weight="400">浏览云端文件</text>
+<rect x="283" y="480" width="203" height="111" rx="16" fill="#fff" stroke="none"/>
+<text x="300" y="521" font-size="18" fill="#1E2622" style="fill:#1E2622" font-weight="600">压缩解压</text>
+<text x="300" y="553" font-size="14" fill="#59645E" style="fill:#59645E" font-weight="400">归档与提取</text>
+<rect x="64" y="609" width="203" height="111" rx="16" fill="#DDF4EA" stroke="#0DA678"/>
+<text x="81" y="650" font-size="18" fill="#1E2622" style="fill:#1E2622" font-weight="600">PDF 工具</text>
+<text x="81" y="682" font-size="14" fill="#59645E" style="fill:#59645E" font-weight="400">生成、转换、整理</text>
+<rect x="283" y="609" width="203" height="111" rx="16" fill="#fff" stroke="none"/>
+<text x="300" y="650" font-size="18" fill="#1E2622" style="fill:#1E2622" font-weight="600">文本处理</text>
+<text x="300" y="682" font-size="14" fill="#59645E" style="fill:#59645E" font-weight="400">格式与内容处理</text>
+<text x="64" y="803" font-size="16" fill="#59645E" style="fill:#59645E" font-weight="400">一个入口，集中管理全部 PDF 能力。</text>
+<text x="68" y="880" font-size="14" fill="#59645E" style="fill:#59645E" font-weight="400">电子书     工具     Copilot     多媒体     我的</text>
+<text x="968" y="205" font-size="15" fill="#087A58" style="fill:#087A58" font-weight="400">记录</text>
+<text x="594" y="322" font-size="18" fill="#1E2622" style="fill:#1E2622" font-weight="600">生成 PDF</text>
+<rect x="594" y="339" width="203" height="92" rx="16" fill="#fff" stroke="none"/>
+<text x="608" y="372" font-size="16" fill="#1E2622" style="fill:#1E2622" font-weight="550">图片生成</text>
+<text x="608" y="398" font-size="12" fill="#59645E" style="fill:#59645E" font-weight="400">多图排序成册</text>
+<rect x="813" y="339" width="203" height="92" rx="16" fill="#fff" stroke="none"/>
+<text x="827" y="372" font-size="16" fill="#1E2622" style="fill:#1E2622" font-weight="550">文本 / Markdown</text>
+<text x="827" y="398" font-size="12" fill="#59645E" style="fill:#59645E" font-weight="400">笔记与文档排版</text>
+<text x="594" y="463" font-size="18" fill="#1E2622" style="fill:#1E2622" font-weight="600">转成 PDF</text>
+<rect x="594" y="480" width="203" height="92" rx="16" fill="#fff" stroke="none"/>
+<text x="608" y="513" font-size="16" fill="#1E2622" style="fill:#1E2622" font-weight="550">Word / Excel / PPT</text>
+<text x="608" y="539" font-size="12" fill="#59645E" style="fill:#59645E" font-weight="400">P1 · 通过兼容验收后开放</text>
+<rect x="813" y="480" width="203" height="92" rx="16" fill="#fff" stroke="none"/>
+<text x="827" y="513" font-size="16" fill="#1E2622" style="fill:#1E2622" font-weight="550">HTML / 模板</text>
+<text x="827" y="539" font-size="12" fill="#59645E" style="fill:#59645E" font-weight="400">P1 · 受管内容排版</text>
+<text x="594" y="604" font-size="18" fill="#1E2622" style="fill:#1E2622" font-weight="600">PDF 转出</text>
+<rect x="594" y="621" width="203" height="92" rx="16" fill="#fff" stroke="none"/>
+<text x="608" y="654" font-size="16" fill="#1E2622" style="fill:#1E2622" font-weight="550">转图片</text>
+<text x="608" y="680" font-size="12" fill="#59645E" style="fill:#59645E" font-weight="400">PNG / JPG</text>
+<rect x="813" y="621" width="203" height="92" rx="16" fill="#fff" stroke="none"/>
+<text x="827" y="654" font-size="16" fill="#1E2622" style="fill:#1E2622" font-weight="550">提取文本</text>
+<text x="827" y="680" font-size="12" fill="#59645E" style="fill:#59645E" font-weight="400">读取已有文字层</text>
+<text x="594" y="745" font-size="18" fill="#1E2622" style="fill:#1E2622" font-weight="600">整理 PDF</text>
+<rect x="594" y="762" width="203" height="92" rx="16" fill="#fff" stroke="none"/>
+<text x="608" y="795" font-size="16" fill="#1E2622" style="fill:#1E2622" font-weight="550">裁切 / 拆分</text>
+<text x="608" y="821" font-size="12" fill="#59645E" style="fill:#59645E" font-weight="400">双页裁切、按页码拆分</text>
+<rect x="813" y="762" width="203" height="92" rx="16" fill="#fff" stroke="none"/>
+<text x="827" y="795" font-size="16" fill="#1E2622" style="fill:#1E2622" font-weight="550">合并 PDF</text>
+<text x="827" y="821" font-size="12" fill="#59645E" style="fill:#59645E" font-weight="400">按顺序合成一个文件</text>
+<text x="40" y="966" font-size="15" fill="#59645E" style="fill:#59645E" font-weight="400">右侧为目标能力布局；未上线的 P1 功能在正式 APP 隐藏。此图不是运行截图。</text>
+</svg>

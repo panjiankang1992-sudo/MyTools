@@ -52,4 +52,17 @@ equal(policy.responseEnvelope(204, '', 0), {
 }, 'Empty 204 response');
 rejects(() => policy.responseEnvelope(200, '', 0), 'Empty 200 response rejection');
 
+for (const body of [undefined, null, '']) {
+  const text = policy.responseText(body);
+  equal(policy.responseEnvelope(204, text, Buffer.byteLength(text)), {
+    code: '0000', message: '', data: undefined, traceId: undefined
+  }, 'Device empty DELETE response');
+  rejects(() => policy.responseEnvelope(200, text, Buffer.byteLength(text)), 'Missing successful JSON body');
+}
+equal(policy.responseText({ code: '0000' }), '{"code":"0000"}', 'Object response preserved');
 console.log('Authorized API policy tests passed');
+policy.requestBody('{}', Math.ceil(5 * 1024 * 1024 / 3) * 4 + 32, '/api/app/v1/image-generation/uploads');
+rejects(() => policy.requestBody('{}', 7 * 1024 * 1024 + 1, '/api/app/v1/image-generation/uploads'), 'Image payload ceiling');
+for (const path of ['/api/app/v1/image-generation/jobs', '/api/app/v1/image-generation/uploads/other', '/api/app/v1/image-generation/uploads?large=true']) {
+  rejects(() => policy.requestBody('{}', 3 * 1024 * 1024, path), 'No quota bypass for unrelated paths');
+}

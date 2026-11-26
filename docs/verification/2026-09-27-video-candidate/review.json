@@ -1,0 +1,38 @@
+{
+  "samples": [
+    {
+      "name": "product",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "seconds": 16.45,
+      "status": "SUCCEEDED"
+    },
+    {
+      "name": "portrait",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "seconds": 12.33,
+      "status": "SUCCEEDED"
+    },
+    {
+      "name": "landscape",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "seconds": 8.31,
+      "status": "SUCCEEDED"
+    }
+  ],
+  "quality": "REJECTED",
+  "productionEnabled": false,
+  "reviewer": "ai:codex",
+  "notHumanReview": true,
+  "reviewedFrames": 291,
+  "findings": {
+    "product": "主体颜色稳定，但推进镜头变为明显横向移动，后段茶壶移出画面。",
+    "portrait": "出现微笑，但闭眼维持较长时间，头部与画面位置变化，不满足短暂眨眼和固定镜头。",
+    "landscape": "水面出现波纹，但视角/构图缓慢偏移，不满足固定机位。"
+  }
+}

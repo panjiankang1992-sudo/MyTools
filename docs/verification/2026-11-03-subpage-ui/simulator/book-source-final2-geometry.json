@@ -1,0 +1,39 @@
+{
+  "hapSha256": "35e5495f2287ee0ebc8abe494cfdf4af117319cbd88e6c95128cf84f15a77214",
+  "result": "passed",
+  "scope": "fresh final2 source search/status filter geometry and visual shape; empty source list, not a logged-in result-state check",
+  "controls": {
+    "filter": {
+      "type": "Button",
+      "bounds": [
+        928,
+        1053,
+        1250,
+        1221
+      ],
+      "heightPx": 168,
+      "widthPx": 322
+    },
+    "searchPlate": {
+      "type": "Column",
+      "bounds": [
+        70,
+        1053,
+        893,
+        1221
+      ],
+      "heightPx": 168,
+      "widthPx": 823
+    }
+  },
+  "heightVp": 48,
+  "scalePxPerVp": 3.5,
+  "shapeReview": {
+    "result": "passed-by-image-review",
+    "nativeButtonType": "Normal",
+    "intendedRadiusVp": 12,
+    "observed": "rounded rectangle matches adjacent search plate; radius value comes from code, not pixel-radius measurement"
+  },
+  "sourceLayout": "/tmp/mytools-ui-simulator-private/25-source-shape-final2.json",
+  "screenshot": "screens/source-filter-final2.jpeg"
+}

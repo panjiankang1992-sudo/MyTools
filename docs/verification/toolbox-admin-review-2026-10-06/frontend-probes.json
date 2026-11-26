@@ -1,0 +1,201 @@
+{
+  "generatedAt": "2026-10-05T17:35:51.184Z",
+  "scope": "Read-only frontend function probes. No browser mount, production API, OCR upload, PDF generation or physical printing.",
+  "editorSource": "/Users/pankang/mycode/MyTools/toolbox-web/src/views/admin/TextbookEditorView.vue",
+  "summary": {
+    "probes": 6,
+    "issuesReproduced": 6
+  },
+  "evidence": [
+    {
+      "id": "F01-one-sided-input-loss",
+      "severity": "P1",
+      "execution": "Direct application pure function: pairsToEntries",
+      "input": [
+        {
+          "meaning": "星期一",
+          "english": ""
+        }
+      ],
+      "expected": "Keep one row with meaning 星期一 and blank English for later completion.",
+      "actual": [],
+      "issueReproduced": true,
+      "sources": [
+        "toolbox-web/src/lib/admin-textbook-draft.ts:123"
+      ]
+    },
+    {
+      "id": "F02-new-row-identity-changes",
+      "severity": "P1",
+      "execution": "Actual onRowsUpdate extracted from TextbookEditorView.vue; two successive input events.",
+      "expected": "One stable rowId for the same new row, returned to editor rows.",
+      "actual": {
+        "firstId": "row-1",
+        "secondId": "row-2",
+        "editorRows": [
+          {
+            "text": "山峰"
+          }
+        ]
+      },
+      "issueReproduced": true,
+      "sources": [
+        "toolbox-web/src/views/admin/TextbookEditorView.vue:395",
+        "toolbox-web/src/lib/admin-textbook-draft.ts:126"
+      ]
+    },
+    {
+      "id": "F03-current-unit-input-duplicates-unassigned",
+      "severity": "P1",
+      "execution": "Actual onRowsUpdate; initially empty selected unit; three input events for a single cell.",
+      "expected": [
+        {
+          "text": "山峰高",
+          "clientUnitId": "unit-selected",
+          "stableRowId": true
+        }
+      ],
+      "actual": [
+        {
+          "rowId": "row-1",
+          "entryId": null,
+          "unitId": null,
+          "clientUnitId": null,
+          "lessonId": null,
+          "clientLessonId": null,
+          "text": "山",
+          "pinyin": null,
+          "meaning": null,
+          "listTypes": [],
+          "automaticInitialized": false,
+          "confirmed": false,
+          "confirmedDigest": null
+        },
+        {
+          "rowId": "row-2",
+          "entryId": null,
+          "unitId": null,
+          "clientUnitId": null,
+          "lessonId": null,
+          "clientLessonId": null,
+          "text": "山峰",
+          "pinyin": null,
+          "meaning": null,
+          "listTypes": [],
+          "automaticInitialized": false,
+          "confirmed": false,
+          "confirmedDigest": null
+        },
+        {
+          "rowId": "row-3",
+          "entryId": null,
+          "unitId": null,
+          "clientUnitId": null,
+          "lessonId": null,
+          "clientLessonId": null,
+          "text": "山峰高",
+          "pinyin": null,
+          "meaning": null,
+          "listTypes": [],
+          "automaticInitialized": false,
+          "confirmed": false,
+          "confirmedDigest": null
+        }
+      ],
+      "issueReproduced": true,
+      "sources": [
+        "toolbox-web/src/views/admin/TextbookEditorView.vue:395",
+        "toolbox-web/src/lib/admin-textbook-draft.ts:137"
+      ]
+    },
+    {
+      "id": "F04-stale-translation-wrong-pair",
+      "severity": "P1",
+      "execution": "Direct applyCompletionResults; request began for cat, user changed source to dog before cat result arrived.",
+      "expected": {
+        "english": "dog",
+        "meaning": "",
+        "filledCount": 0
+      },
+      "actual": {
+        "pairs": [
+          {
+            "tokenId": "r1",
+            "english": "dog",
+            "meaning": "猫"
+          }
+        ],
+        "filledCount": 1
+      },
+      "issueReproduced": true,
+      "sources": [
+        "toolbox-web/src/views/admin/TextbookEditorView.vue:231",
+        "toolbox-web/src/lib/admin-textbook-draft.ts:326"
+      ]
+    },
+    {
+      "id": "F05-tsv-not-paired-punctuation-and-blank-loss",
+      "severity": "P1",
+      "execution": "Direct parseBulkText used by onBulkPaste.",
+      "input": "明天见\tSee you tomorrow!\n\n放学后\tafter school",
+      "expected": {
+        "rows": [
+          {
+            "meaning": "明天见",
+            "english": "See you tomorrow!"
+          },
+          {
+            "meaning": "",
+            "english": ""
+          },
+          {
+            "meaning": "放学后",
+            "english": "after school"
+          }
+        ],
+        "blankRowsPreserved": true
+      },
+      "actual": {
+        "items": [
+          "明天见\tSee you tomorrow",
+          "放学后\tafter school"
+        ],
+        "duplicateCount": 0,
+        "blankCount": 1
+      },
+      "issueReproduced": true,
+      "sources": [
+        "toolbox-web/src/lib/admin-bulk-paste.ts:27",
+        "toolbox-web/src/lib/admin-bulk-paste.ts:43",
+        "toolbox-web/src/views/admin/TextbookEditorView.vue:139"
+      ]
+    },
+    {
+      "id": "F06-completion-overwrites-nonempty-pinyin",
+      "severity": "P1",
+      "execution": "Actual runAutomaticCompletion(false) extracted from Vue source. Existing loaded/manual pinyin has no initialized flag; no input event sets that flag.",
+      "expected": {
+        "text": "长",
+        "pinyin": "zhǎng",
+        "reason": "Nonempty pinyin must be retained regardless of initialized flag."
+      },
+      "actual": {
+        "rows": [
+          {
+            "tokenId": "r-long",
+            "text": "长",
+            "pinyin": "cháng",
+            "automaticInitialized": true
+          }
+        ],
+        "message": "已自动补全 1 条拼音，可直接修改（不会再次自动覆盖）。"
+      },
+      "issueReproduced": true,
+      "sources": [
+        "toolbox-web/src/views/admin/TextbookEditorView.vue:190",
+        "toolbox-web/src/views/admin/TextbookEditorView.vue:201",
+        "toolbox-web/src/views/admin/TextbookEditorView.vue:210"
+      ]
+    }
+  ]
+}

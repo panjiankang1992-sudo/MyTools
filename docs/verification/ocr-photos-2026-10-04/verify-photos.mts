@@ -1,0 +1,34 @@
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import assert from 'node:assert/strict';
+import { readFile, writeFile } from 'node:fs/promises';
+import { encodeWorksheetImage } from '../../../toolbox-web/src/lib/worksheet-image-render.ts';
+import { prepareOcrInkImages } from '../../../toolbox-web/src/lib/ocr-ink.ts';
+import { createLayoutOcrWorker } from '../../../toolbox-web/src/services/ocr-recognition.ts';
+const require=createRequire(new URL('../../../toolbox-web/package.json', import.meta.url));
+const {createCanvas, loadImage}=require('@napi-rs/canvas');
+const {createWorker}=require('tesseract.js');
+const root=fileURLToPath(new URL('../../../toolbox-web', import.meta.url));
+const out=fileURLToPath(new URL('.', import.meta.url));
+const photos=process.argv.slice(2);
+assert.equal(photos.length, 2, 'Provide the two original photo paths in order');
+const expected=[['dancing','lesson','walk','dog','tomorrow','free','See you tomorrow!'],['week','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','when','every','at','up','today','What day is it today?','cinema','after school']];
+(globalThis as any).document={createElement:()=>{ const c=createCanvas(1,1); c.toBlob=(done:any)=>c.encode('png').then((buf:any)=>done(new Blob([buf]))); return c; }};
+(globalThis as any).createImageBitmap=async(blob:Blob)=>{const image=await loadImage(Buffer.from(await blob.arrayBuffer()));image.close=()=>{};return image;};
+const rawWorker=await createWorker(['eng','chi_sim'],1,{workerPath:`${root}/node_modules/tesseract.js/src/worker-script/node/index.js`,corePath:`${root}/node_modules/tesseract.js-core`,langPath:`${root}/public/ocr/tesseract-7.0.0-lang-4.0.0-best-int-1`,gzip:true,cacheMethod:'none'});
+const passes:any[]=[];
+const worker=createLayoutOcrWorker({...rawWorker,recognize:async(image:Blob,...args:any[])=>{const result=await rawWorker.recognize(Buffer.from(await image.arrayBuffer()),...args);passes.push(result.data);return result;}},true,prepareOcrInkImages);
+const report:any[]=[];
+for(const [index, path] of photos.entries()){
+ const name=path.split('/').at(-1)!;
+ const begin=Date.now();const file=new Blob([await readFile(path)]);
+ const bitmap=await (globalThis as any).createImageBitmap(file);
+ const image=await encodeWorksheetImage(bitmap,0,null);bitmap.close();
+ const result=await worker.recognize(image);
+ const actual=result.data.candidateText!.split('\n');
+ assert.deepEqual(actual.map(word=>word.toLowerCase()),expected[index]!.map(word=>word.toLowerCase()));
+ report.push({name,expected:expected[index],strictMatches:actual.filter((word,i)=>word===expected[index]![i]).length,durationMs:Date.now()-begin,...result.data,passes:passes.splice(0)});
+ console.log(JSON.stringify({...report.at(-1),passes:undefined}));
+ await writeFile(`${out}/integration-results.json`,JSON.stringify(report,null,2));
+}
+await worker.terminate();

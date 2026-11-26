@@ -1,16 +1,18 @@
 /** 约束混合媒体查看器的相邻资源预加载范围和票据复用条件。 */
 export class RemoteMediaPreloadPolicy {
-  /** 按距离由近到远返回当前项前后各五项的去重索引，序列首尾循环衔接。 */
-  neighborIndexes(length: number, currentIndex: number, radius: number = 5): number[] {
+  /** 按距离优先下一项，准备前后各十二项；分页图库关闭循环，避免预热临时页尾。 */
+  neighborIndexes(length: number, currentIndex: number, radius: number = 12, wrap: boolean = true, preferPrevious: boolean = false): number[] {
     if (!Number.isSafeInteger(length) || !Number.isSafeInteger(currentIndex) || length < 2 ||
       currentIndex < 0 || currentIndex >= length || !Number.isSafeInteger(radius) || radius < 1) return [];
     const indexes: number[] = [];
     const maximum = Math.min(radius, length - 1);
     for (let distance = 1; distance <= maximum; distance++) {
-      const previous = (currentIndex - distance + length) % length;
-      const next = (currentIndex + distance) % length;
-      if (previous !== currentIndex && !indexes.includes(previous)) indexes.push(previous);
-      if (next !== currentIndex && !indexes.includes(next)) indexes.push(next);
+      const previous = wrap ? (currentIndex - distance + length) % length : currentIndex - distance;
+      const next = wrap ? (currentIndex + distance) % length : currentIndex + distance;
+      const pair = preferPrevious ? [previous, next] : [next, previous];
+      for (const index of pair) {
+        if (index >= 0 && index < length && index !== currentIndex && !indexes.includes(index)) indexes.push(index);
+      }
     }
     return indexes;
   }

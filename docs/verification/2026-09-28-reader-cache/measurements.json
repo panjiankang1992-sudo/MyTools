@@ -1,0 +1,52 @@
+[
+  {
+    "case": "31-file-first-download",
+    "passed": true,
+    "observationSeconds": 4.053,
+    "note": "Includes HDC click and UI layout observation overhead",
+    "pagePosition": "1/440页"
+  },
+  {
+    "case": "33-file-warm",
+    "passed": false,
+    "observationSeconds": 45.295,
+    "statuses": [
+      "正在打开图书…"
+    ]
+  },
+  {
+    "case": "34-file-fixed-cold",
+    "passed": true,
+    "observationSeconds": 0.888,
+    "note": "Includes HDC click and UI layout observation overhead",
+    "pagePosition": "1/440页"
+  },
+  {
+    "case": "35-file-fixed-warm-1",
+    "passed": true,
+    "observationSeconds": 0.899,
+    "note": "Includes HDC click and UI layout observation overhead",
+    "pagePosition": "1/440页"
+  },
+  {
+    "case": "35-file-fixed-warm-2",
+    "passed": true,
+    "observationSeconds": 0.956,
+    "note": "Includes HDC click and UI layout observation overhead",
+    "pagePosition": "1/440页"
+  },
+  {
+    "case": "35-file-fixed-warm-3",
+    "passed": true,
+    "observationSeconds": 0.913,
+    "note": "Includes HDC click and UI layout observation overhead",
+    "pagePosition": "1/440页"
+  },
+  {
+    "case": "36-file-force-stop-reopen",
+    "passed": true,
+    "observationSeconds": 0.867,
+    "note": "Includes HDC click and UI layout observation overhead",
+    "pagePosition": "1/440页"
+  }
+]

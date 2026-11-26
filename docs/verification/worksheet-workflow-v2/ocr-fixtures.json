@@ -1,0 +1,153 @@
+{
+  "generatedAt": "2026-10-03",
+  "note": "原创合成清晰夹具，用无头 Chrome 渲染后截图；内容为常用词，不与任何教材数据相同。",
+  "engine": {
+    "package": "tesseract.js@7.0.0",
+    "core": "tesseract.js-core@7.0.0",
+    "languageData": "@tesseract.js-data/chi_sim@1.0.0 4.0.0_best_int, @tesseract.js-data/eng@1.0.0 4.0.0_best_int",
+    "assetBase": "/ocr/tesseract-7.0.0-lang-4.0.0-best-int-1/",
+    "oem": 1
+  },
+  "fixtures": [
+    {
+      "file": "samples/ocr-fixture-zh.png",
+      "sha256_note": "见文件本身",
+      "groundTruth": "山水风云春天花朵日月江河森林田野白云小路",
+      "language": "chinese",
+      "referenceChars": 20
+    },
+    {
+      "file": "samples/ocr-fixture-en.png",
+      "groundTruth": "apple banana orange pencil window garden",
+      "language": "english",
+      "referenceWords": 6
+    }
+  ],
+  "measurements": [
+    {
+      "run": 1,
+      "fixture": "ocr-fixture-zh.png",
+      "layout": "font-size 64px, letter-spacing 8px, 4 words/line",
+      "rawRecognizedText": "山水 风云 春天 化 未\n日 月 江河 &™ HE\n",
+      "confidence": 76,
+      "referenceChars": 16,
+      "editDistance": 6,
+      "cer": 0.375,
+      "target": 0.05,
+      "meetsTarget": false
+    },
+    {
+      "run": 2,
+      "fixture": "ocr-fixture-zh.png",
+      "layout": "font-size 44px, line-height 2.0, 5 words/line（更贴近真实词表）",
+      "rawRecognizedText": "山水 风云 春天 esx 日 月\n江河 森林 田野 日 云 小 路\n",
+      "confidence": 86,
+      "referenceChars": 20,
+      "editDistance": 4,
+      "cer": 0.2,
+      "target": 0.05,
+      "meetsTarget": false,
+      "errorPattern": "「花朵」识别为拉丁乱码 esx；「白」识别为「日」"
+    },
+    {
+      "run": 3,
+      "fixture": "ocr-fixture-zh.png",
+      "path": "完整 UI 链路（选图 → 校验 → 预览 → 识别 → 候选 → 追加回原文）",
+      "rawRecognizedText": "山水 风云 春天 esx 日 月\n江河 森林 田野 日 云 小 路\n",
+      "confidence": 86,
+      "referenceChars": 20,
+      "editDistance": 4,
+      "cer": 0.2,
+      "target": 0.05,
+      "meetsTarget": false,
+      "note": "与直接调用引擎的结果完全一致；耗时 311 ms（不含资产加载）"
+    }
+  ],
+  "conclusion": "英文 WER 0.00% 达标；中文最好 15.00%（32px/18px 自然字号、PSM 11 也为 15%），未达标。真实引擎可用、同域加载已证、完整 UI 链路已跑通。中文剩余错误集中在形近字混淆；下一步试 4.0.0 非量化语言数据对照。",
+  "psmComparison": {
+    "note": "同一 worker 内切换 tessedit_pageseg_mode，中文夹具 20 字、英文夹具 6 词。",
+    "rows": [
+      {
+        "psm": "3 (auto，引擎默认)",
+        "zhCer": 0.2,
+        "zhConfidence": 86,
+        "enWer": 0.0,
+        "enConfidence": 90
+      },
+      {
+        "psm": "6 (uniform block)",
+        "zhCer": 0.2,
+        "zhConfidence": 86,
+        "enWer": 0.0,
+        "enConfidence": 90
+      },
+      {
+        "psm": "4 (single column)",
+        "zhCer": 0.2,
+        "zhConfidence": 86,
+        "enWer": 0.0,
+        "enConfidence": 90
+      },
+      {
+        "psm": "11 (sparse text)",
+        "zhCer": 0.15,
+        "zhConfidence": 85,
+        "enWer": 0.0,
+        "enConfidence": 90
+      },
+      {
+        "psm": "7 (single line)",
+        "zhCer": 1.0,
+        "zhConfidence": 47,
+        "enWer": 1.0,
+        "enConfidence": 54
+      }
+    ],
+    "conclusion": "英文在 PSM 3/4/6/11 下 WER 均为 0.00%，**达到 ≤5% 的目标**；中文最好为 PSM 11 的 15.00%，仍高于 5%。PSM 7 因夹具是多行而几乎全错。未把 PSM 11 设为默认：它是为单一夹具选出的，需要更多样本才能决定。",
+    "measurementNote": "首版诊断脚本把换行替换成了字面反斜杠 n，导致 CER 被高估为 40%；上表为按真实文本重算的结果。"
+  },
+  "fontSizeComparison": {
+    "note": "同一批文字、同一引擎（chi_sim best_int），只改渲染字号；字高约为字号的 1 倍。",
+    "rows": [
+      {
+        "fixture": "88px 字高（deviceScaleFactor 2）",
+        "confidence": 85,
+        "editDistance": 5,
+        "cer": 0.25
+      },
+      {
+        "fixture": "32px 字高",
+        "confidence": 91,
+        "editDistance": 3,
+        "cer": 0.15
+      },
+      {
+        "fixture": "18px 字高",
+        "confidence": 90,
+        "editDistance": 3,
+        "cer": 0.15
+      }
+    ],
+    "conclusion": "字号确实影响结果：过大的字号（约 88px）比自然字号（18—32px）差 10 个百分点。剩余错误集中在个别字的形近混淆（如「朵」→「采」），属于模型层面的问题，不是排版问题。"
+  },
+  "regionIsolation": {
+    "fixture": "samples/ocr-fixture-gap.png",
+    "purpose": "证明 OCR 只识别所选区域",
+    "layout": "1800×1040，两行文字间隔 340px 空白",
+    "runs": [
+      {
+        "input": "只框选上半部分 1746×198",
+        "text": "山水 风云 春天 化 未",
+        "confidence": 85,
+        "containsLowerHalfWords": false
+      },
+      {
+        "input": "整图",
+        "text": "山水 风云 春天 Eas\\n日 月 江河 和 森林 HEY",
+        "confidence": 79,
+        "containsLowerHalfWords": true
+      }
+    ],
+    "conclusion": "只选上半部分时，下半部分的词（日月/江河/森林/田野）一个都没有出现；整图识别则两行都读到。严格证明裁选被正确应用。"
+  }
+}

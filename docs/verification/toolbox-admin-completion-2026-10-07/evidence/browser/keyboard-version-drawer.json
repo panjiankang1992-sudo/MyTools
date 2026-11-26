@@ -1,0 +1,387 @@
+{
+  "target": "http://127.0.0.1:4173",
+  "edition": "local-acceptance-2026-10-07",
+  "results": [
+    {
+      "name": "进入管理编辑页（注入会话 Cookie 后直达）",
+      "ok": true,
+      "detail": "编辑页渲染=true"
+    },
+    {
+      "name": "编辑页已加载该册草稿（头部出现修订信息）",
+      "ok": true,
+      "detail": "加载=true"
+    },
+    {
+      "name": "可以把焦点放到「版本记录」按钮上（触发入口本身可聚焦）",
+      "ok": true,
+      "detail": "聚焦=true"
+    },
+    {
+      "name": "回车可打开版本记录抽屉",
+      "ok": true,
+      "detail": "打开=true 事件=[\"keydown:Enter\",\"click:-\"]"
+    },
+    {
+      "name": "抽屉列出了该册历史版本",
+      "ok": true,
+      "detail": "版本行=3 版本号=[\"1.0.2\",\"1.0.1\",\"1.0.0\"]"
+    },
+    {
+      "name": "该版本原始字节可下载（200 + octet-stream），字节与自算 SHA-256 同 `X-Content-Sha256` 一致",
+      "ok": true,
+      "detail": "{\"ok\":true,\"status\":200,\"href\":\"/admin/v1/curriculum/versions/local-acceptance-2026-10-07/1.0.2/bytes\",\"version\":\"1.0.2\",\"byteLength\":1668,\"header\":\"db742dae82ff1bc6767163a19b836993cb658dd2e69e80f43ae693c088971db1\",\"headerVersion\":\"1.0.2\",\"sha256\":\"db742dae82ff1bc6767163a19b836993cb658dd2e69e80f43ae693c088971db1\",\"contentType\":\"application/octet-stream\"}"
+    },
+    {
+      "name": "打开后焦点进入抽屉（在 role=\"dialog\" 或抽屉内容里）",
+      "ok": true,
+      "detail": "焦点={\"tag\":\"BUTTON\",\"cls\":\"n-base-close.n-base-close--absolute.n-drawer-header__close\",\"label\":\"close\",\"ariaHidden\":null,\"tabIndex\":0,\"visible\":true,\"inDialog\":true,\"inDrawerTestId\":false}"
+    },
+    {
+      "name": "Tab 在抽屉内依次落在可交互元素上（不是 body、不是隐藏哨兵）",
+      "ok": true,
+      "detail": "异常落点=0"
+    },
+    {
+      "name": "Tab 不会离开抽屉（焦点陷阱生效，未落到页面背景）",
+      "ok": true,
+      "detail": "离开抽屉的落点=0"
+    },
+    {
+      "name": "Escape 可关闭版本记录抽屉",
+      "ok": true,
+      "detail": "关闭=true"
+    },
+    {
+      "name": "关闭后焦点回到「版本记录」触发按钮（设计第 176 行）",
+      "ok": true,
+      "detail": "焦点={\"tag\":\"BUTTON\",\"cls\":\"n-button.n-button--default-type.n-button--medium-type\",\"label\":\"版本记录\",\"ariaHidden\":null,\"tabIndex\":0,\"visible\":true,\"inDialog\":false,\"inDrawerTestId\":false} activeElement 是触发按钮=true"
+    },
+    {
+      "name": "关闭后可再次用键盘打开（Escape 没有把入口弄坏）",
+      "ok": true,
+      "detail": "再次打开=true"
+    },
+    {
+      "name": "Tab 可达「查看来源快照」按钮",
+      "ok": true,
+      "detail": "用了 2 次 Tab；焦点={\"tag\":\"BUTTON\",\"cls\":\"n-button.n-button--default-type.n-button--tiny-type\",\"label\":\"查看来源快照\",\"ariaHidden\":null,\"tabIndex\":0,\"visible\":true,\"inDialog\":true,\"inDrawerTestId\":true}"
+    },
+    {
+      "name": "回车可展开该版本来源快照 JSON",
+      "ok": true,
+      "detail": "展开=true 头=\"{\\n  \\\"snapshotSchemaVersion\\\": 1,\\n  \\\"snapshot\\\": {\\n    \\\"capturedAt\\\": \\\"2026-10-06T18:51:23.725833Z\\\",\\n    \\\"capturedBy\\\": \\\"local-admin-1001\\\",\\n    \\\"operationId\\\": \\\"publi\""
+    },
+    {
+      "name": "抽屉是只读的（控件里没有恢复／回滚／下架／删除／覆盖）",
+      "ok": true,
+      "detail": "写操作控件=[] 全部控件=[\"下载该版本原始字节\",\"收起来源快照\",\"下载该版本原始字节\",\"查看来源快照\",\"下载该版本原始字节\",\"查看来源快照\"]"
+    },
+    {
+      "name": "键盘路径期间无渲染进程异常",
+      "ok": true,
+      "detail": "pageErrors=[]"
+    },
+    {
+      "name": "键盘路径期间无异常响应（4xx/5xx）",
+      "ok": true,
+      "detail": "badResponses=[]"
+    }
+  ],
+  "drawn": {
+    "text": "该册的全部已发布版本，按发布时间倒序。本抽屉是只读的：不提供恢复旧版、下架或回滚。 1.0.2 2026/10/7 02:51:24（1791312684000） 发布人：local-admin-1001 修改摘要 未记录 原始字节 1668 字节 来源快照 有（SHA-256 da8f825a33fef06f8696ef2b2c261ce9ed99f2bdffc766cb505bd8b19f91037c） 下载该版本原始字节 查看来源快照 1.0.1 2026/10/7 02:51:24（1791312684000） 发布人：local-admin-1001 修改摘要 未记录 原始字节 1668 字节 来源快照 有（SHA-256 933dc5353b1ea6f8e977a32e1cadc0832dc831e9e9f888fffd98199caf9b2fee） 下载该版本原始字节 查看来",
+    "rows": 3,
+    "versions": [
+      "1.0.2",
+      "1.0.1",
+      "1.0.0"
+    ],
+    "downloads": [
+      "/admin/v1/curriculum/versions/local-acceptance-2026-10-07/1.0.2/bytes",
+      "/admin/v1/curriculum/versions/local-acceptance-2026-10-07/1.0.1/bytes",
+      "/admin/v1/curriculum/versions/local-acceptance-2026-10-07/1.0.0/bytes"
+    ],
+    "snapshots": [
+      "1.0.2",
+      "1.0.1",
+      "1.0.0"
+    ],
+    "error": null,
+    "empty": false
+  },
+  "tabTrail": [
+    {
+      "tag": "A",
+      "cls": "version-download",
+      "label": "下载该版本原始字节",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "n-button.n-button--default-type.n-button--tiny-type",
+      "label": "查看来源快照",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "A",
+      "cls": "version-download",
+      "label": "下载该版本原始字节",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "n-button.n-button--default-type.n-button--tiny-type",
+      "label": "查看来源快照",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "A",
+      "cls": "version-download",
+      "label": "下载该版本原始字节",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "n-button.n-button--default-type.n-button--tiny-type",
+      "label": "查看来源快照",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "n-base-close.n-base-close--absolute.n-drawer-header__close",
+      "label": "close",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": false
+    },
+    {
+      "tag": "A",
+      "cls": "version-download",
+      "label": "下载该版本原始字节",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "n-button.n-button--default-type.n-button--tiny-type",
+      "label": "查看来源快照",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "A",
+      "cls": "version-download",
+      "label": "下载该版本原始字节",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "n-button.n-button--default-type.n-button--tiny-type",
+      "label": "查看来源快照",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "A",
+      "cls": "version-download",
+      "label": "下载该版本原始字节",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "n-button.n-button--default-type.n-button--tiny-type",
+      "label": "查看来源快照",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "n-base-close.n-base-close--absolute.n-drawer-header__close",
+      "label": "close",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": false
+    },
+    {
+      "tag": "A",
+      "cls": "version-download",
+      "label": "下载该版本原始字节",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "n-button.n-button--default-type.n-button--tiny-type",
+      "label": "查看来源快照",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "A",
+      "cls": "version-download",
+      "label": "下载该版本原始字节",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "n-button.n-button--default-type.n-button--tiny-type",
+      "label": "查看来源快照",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "A",
+      "cls": "version-download",
+      "label": "下载该版本原始字节",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "n-button.n-button--default-type.n-button--tiny-type",
+      "label": "查看来源快照",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "n-base-close.n-base-close--absolute.n-drawer-header__close",
+      "label": "close",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": false
+    },
+    {
+      "tag": "A",
+      "cls": "version-download",
+      "label": "下载该版本原始字节",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "n-button.n-button--default-type.n-button--tiny-type",
+      "label": "查看来源快照",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    },
+    {
+      "tag": "A",
+      "cls": "version-download",
+      "label": "下载该版本原始字节",
+      "ariaHidden": null,
+      "tabIndex": 0,
+      "visible": true,
+      "inDialog": true,
+      "inDrawerTestId": true
+    }
+  ],
+  "unexpected": [],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedRequests": [],
+  "badResponses": [],
+  "transcript": [
+    "PASS 进入管理编辑页（注入会话 Cookie 后直达） —— 编辑页渲染=true",
+    "PASS 编辑页已加载该册草稿（头部出现修订信息） —— 加载=true",
+    "PASS 可以把焦点放到「版本记录」按钮上（触发入口本身可聚焦） —— 聚焦=true",
+    "  实测：Shift+Tab 从触发按钮退到 BUTTON/预览草稿；再 Tab 回到 BUTTON/版本记录",
+    "  触发按钮收到的事件：[\"keydown:Enter\",\"click:-\"]",
+    "PASS 回车可打开版本记录抽屉 —— 打开=true 事件=[\"keydown:Enter\",\"click:-\"]",
+    "PASS 抽屉列出了该册历史版本 —— 版本行=3 版本号=[\"1.0.2\",\"1.0.1\",\"1.0.0\"]",
+    "  抽屉文本：该册的全部已发布版本，按发布时间倒序。本抽屉是只读的：不提供恢复旧版、下架或回滚。 1.0.2 2026/10/7 02:51:24（1791312684000） 发布人：local-admin-1001 修改摘要 未记录 原始字节 1668 字节 来源快照 有（SHA-256 da8f825a33fef06f8696ef2b2c261ce9ed99f2bdffc766cb505bd8b19f91037c） 下载该版本原始字节 查看来源快照 1.0.1 2026/10/7 02:51:24（1791312684000） 发布人：local-admin-1001 修改摘要 未记录 原始字节 1668 字节 来源快照 有（SHA-256 933dc5353b1ea6f8e977a32e1cadc0832dc831e9e9f888fffd98199caf9b2fee） 下载该版本原始字节 查看来",
+    "  下载链接：[\"/admin/v1/curriculum/versions/local-acceptance-2026-10-07/1.0.2/bytes\",\"/admin/v1/curriculum/versions/local-acceptance-2026-10-07/1.0.1/bytes\",\"/admin/v1/curriculum/versions/local-acceptance-2026-10-07/1.0.0/bytes\"]",
+    "  有来源快照的版本：[\"1.0.2\",\"1.0.1\",\"1.0.0\"]",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/version-drawer-keyboard-open.png",
+    "PASS 该版本原始字节可下载（200 + octet-stream），字节与自算 SHA-256 同 `X-Content-Sha256` 一致 —— {\"ok\":true,\"status\":200,\"href\":\"/admin/v1/curriculum/versions/local-acceptance-2026-10-07/1.0.2/bytes\",\"version\":\"1.0.2\",\"byteLength\":1668,\"header\":\"db742dae82ff1bc6767163a19b836993cb658dd2e69e80f43ae693c088971db1\",\"headerVersion\":\"1.0.2\",\"sha256\":\"db742dae82ff1bc6767163a19b836993cb658dd2e69e80f43ae693c088971db1\",\"contentType\":\"application/octet-stream\"}",
+    "PASS 打开后焦点进入抽屉（在 role=\"dialog\" 或抽屉内容里） —— 焦点={\"tag\":\"BUTTON\",\"cls\":\"n-base-close.n-base-close--absolute.n-drawer-header__close\",\"label\":\"close\",\"ariaHidden\":null,\"tabIndex\":0,\"visible\":true,\"inDialog\":true,\"inDrawerTestId\":false}",
+    "  抽屉内 Tab 顺序（实测）：1.A「下载该版本原始字节」 → 2.BUTTON「查看来源快照」 → 3.A「下载该版本原始字节」 → 4.BUTTON「查看来源快照」 → 5.A「下载该版本原始字节」 → 6.BUTTON「查看来源快照」 → 7.BUTTON「close」(对话框内/抽屉外) → 8.A「下载该版本原始字节」 → 9.BUTTON「查看来源快照」 → 10.A「下载该版本原始字节」 → 11.BUTTON「查看来源快照」 → 12.A「下载该版本原始字节」 → 13.BUTTON「查看来源快照」 → 14.BUTTON「close」(对话框内/抽屉外) → 15.A「下载该版本原始字节」 → 16.BUTTON「查看来源快照」 → 17.A「下载该版本原始字节」 → 18.BUTTON「查看来源快照」 → 19.A「下载该版本原始字节」 → 20.BUTTON「查看来源快照」 → 21.BUTTON「close」(对话框内/抽屉外) → 22.A「下载该版本原始字节」 → 23.BUTTON「查看来源快照」 → 24.A「下载该版本原始字节」",
+    "PASS Tab 在抽屉内依次落在可交互元素上（不是 body、不是隐藏哨兵） —— 异常落点=0",
+    "PASS Tab 不会离开抽屉（焦点陷阱生效，未落到页面背景） —— 离开抽屉的落点=0",
+    "PASS Escape 可关闭版本记录抽屉 —— 关闭=true",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/version-drawer-keyboard-after-escape.png",
+    "PASS 关闭后焦点回到「版本记录」触发按钮（设计第 176 行） —— 焦点={\"tag\":\"BUTTON\",\"cls\":\"n-button.n-button--default-type.n-button--medium-type\",\"label\":\"版本记录\",\"ariaHidden\":null,\"tabIndex\":0,\"visible\":true,\"inDialog\":false,\"inDrawerTestId\":false} activeElement 是触发按钮=true",
+    "PASS 关闭后可再次用键盘打开（Escape 没有把入口弄坏） —— 再次打开=true",
+    "PASS Tab 可达「查看来源快照」按钮 —— 用了 2 次 Tab；焦点={\"tag\":\"BUTTON\",\"cls\":\"n-button.n-button--default-type.n-button--tiny-type\",\"label\":\"查看来源快照\",\"ariaHidden\":null,\"tabIndex\":0,\"visible\":true,\"inDialog\":true,\"inDrawerTestId\":true}",
+    "PASS 回车可展开该版本来源快照 JSON —— 展开=true 头=\"{\\n  \\\"snapshotSchemaVersion\\\": 1,\\n  \\\"snapshot\\\": {\\n    \\\"capturedAt\\\": \\\"2026-10-06T18:51:23.725833Z\\\",\\n    \\\"capturedBy\\\": \\\"local-admin-1001\\\",\\n    \\\"operationId\\\": \\\"publi\"",
+    "  截图 /Users/pankang/mycode/MyTools/docs/verification/toolbox-admin-completion-2026-10-07/screenshots/version-drawer-keyboard-snapshot.png",
+    "PASS 抽屉是只读的（控件里没有恢复／回滚／下架／删除／覆盖） —— 写操作控件=[] 全部控件=[\"下载该版本原始字节\",\"收起来源快照\",\"下载该版本原始字节\",\"查看来源快照\",\"下载该版本原始字节\",\"查看来源快照\"]",
+    "PASS 键盘路径期间无渲染进程异常 —— pageErrors=[]",
+    "PASS 键盘路径期间无异常响应（4xx/5xx） —— badResponses=[]"
+  ]
+}

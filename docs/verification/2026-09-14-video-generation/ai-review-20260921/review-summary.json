@@ -1,0 +1,156 @@
+{
+  "verdict": "reject",
+  "samples": [
+    {
+      "sampleId": "A-cold-white-seed42",
+      "video": "p0-reaccept-20260920/A-cold-white-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": 3,
+        "subjectPreservation": 4,
+        "temporalCoherence": 3,
+        "editLocality": null,
+        "artifacts": 4
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence",
+        "artifacts"
+      ],
+      "missingKeyScores": [],
+      "severe": false,
+      "passed": true
+    },
+    {
+      "sampleId": "A-cold-white-seed932",
+      "video": "p0-reaccept-20260920/A-cold-white-seed932.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": 1,
+        "subjectPreservation": 2,
+        "temporalCoherence": 2,
+        "editLocality": null,
+        "artifacts": 2
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence",
+        "artifacts"
+      ],
+      "missingKeyScores": [],
+      "severe": true,
+      "passed": false
+    },
+    {
+      "sampleId": "B-warm-generated-seed42",
+      "video": "p0-reaccept-20260920/B-warm-generated-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": 1,
+        "subjectPreservation": 2,
+        "temporalCoherence": 2,
+        "editLocality": null,
+        "artifacts": 2
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence",
+        "artifacts"
+      ],
+      "missingKeyScores": [],
+      "severe": true,
+      "passed": false
+    },
+    {
+      "sampleId": "B-warm-generated-seed932",
+      "video": "p0-reaccept-20260920/B-warm-generated-seed932.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": 1,
+        "subjectPreservation": 2,
+        "temporalCoherence": 2,
+        "editLocality": null,
+        "artifacts": 2
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence",
+        "artifacts"
+      ],
+      "missingKeyScores": [],
+      "severe": true,
+      "passed": false
+    },
+    {
+      "sampleId": "C-landscape-seed42",
+      "video": "p0-reaccept-20260920/C-landscape-seed42.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": 3,
+        "subjectPreservation": 4,
+        "temporalCoherence": 3,
+        "editLocality": null,
+        "artifacts": 4
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence",
+        "artifacts"
+      ],
+      "missingKeyScores": [],
+      "severe": false,
+      "passed": true
+    },
+    {
+      "sampleId": "C-landscape-seed932",
+      "video": "p0-reaccept-20260920/C-landscape-seed932.mp4",
+      "mode": "FIRST_FRAME",
+      "role": "acceptance",
+      "scores": {
+        "instructionFollowing": 3,
+        "subjectPreservation": 4,
+        "temporalCoherence": 3,
+        "editLocality": null,
+        "artifacts": 4
+      },
+      "keyDimensions": [
+        "instructionFollowing",
+        "subjectPreservation",
+        "temporalCoherence",
+        "artifacts"
+      ],
+      "missingKeyScores": [],
+      "severe": false,
+      "passed": true
+    }
+  ],
+  "complete": true,
+  "counts": {
+    "graded": 6,
+    "reference": 0,
+    "passed": 3,
+    "severe": 3
+  },
+  "unscoredSamples": [],
+  "passRatio": 0.5,
+  "rule": "只看 role=acceptance 的行；关键项均 ≥3 视为通过；至少 5/6 通过且无一票否决才准入",
+  "sheet": "ai-review-sheet.csv",
+  "reviewKind": "ai",
+  "reviewer": "ai:codex",
+  "notHumanReview": true,
+  "mergedInto": {
+    "reviews": "/Users/pankang/mycode/MyTools/docs/verification/2026-09-14-video-generation/vlm-review/reviews.json",
+    "merged": 6,
+    "added": 6
+  }
+}

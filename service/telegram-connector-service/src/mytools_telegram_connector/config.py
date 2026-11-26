@@ -23,6 +23,7 @@ class Config:
     pikpak_bot: str
     pikpak_threshold_bytes: int
     business_connection_id: str
+    inbox_path: str = "/opt/yuyutian/mytools/runtime/telegram/inbox.sqlite3"
 
     @classmethod
     def load(cls) -> "Config":
@@ -43,7 +44,8 @@ class Config:
             int(os.getenv("TELEGRAM_CONNECTOR_MAXIMUM_FILE_BYTES", "2147483648")),
             os.getenv("TELEGRAM_CONNECTOR_PIKPAK_BOT", "@pikpak_bot"),
             int(os.getenv("TELEGRAM_CONNECTOR_PIKPAK_THRESHOLD_BYTES", "20971520")),
-            os.getenv("TELEGRAM_CONNECTOR_BUSINESS_CONNECTION_ID", "").strip())
+            os.getenv("TELEGRAM_CONNECTOR_BUSINESS_CONNECTION_ID", "").strip(),
+            os.getenv("TELEGRAM_CONNECTOR_INBOX_PATH", "/opt/yuyutian/mytools/runtime/telegram/inbox.sqlite3"))
         if value.owner_id <= 0 or not value.bot_token \
                 or not 1 <= value.poll_timeout <= 50 or value.maximum_file_bytes <= 0 \
                 or not value.pikpak_bot.startswith("@") or value.pikpak_threshold_bytes <= 0:

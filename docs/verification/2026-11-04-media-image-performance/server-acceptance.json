@@ -1,0 +1,131 @@
+{
+  "release": "/opt/yuyutian/mytools/releases/media-preview-20261104-v1",
+  "artifacts": {
+    "media-library-service": {
+      "sha256": "ed4660b1212d64f4b5b14b44b86cbff5daa0347b3b86ffd97718786535d4d13e",
+      "changedMembers": 4,
+      "dropIn": "/etc/systemd/system/mytools-media-library-service.service.d/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-media-preview.conf"
+    },
+    "mytools-gateway": {
+      "sha256": "9d0ecce3c2c46b9b72b5bf65125eef19ba86202d002e40103eb960241803bb3e",
+      "changedMembers": 2,
+      "dropIn": "/etc/systemd/system/mytools-mytools-gateway.service.d/zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz-media-preview.conf"
+    }
+  },
+  "checks": {
+    "samples": [
+      {
+        "sample": 1,
+        "edge": 512,
+        "coldMs": 112,
+        "width": 385,
+        "height": 512,
+        "bytes": 36236,
+        "warmMs": 4
+      },
+      {
+        "sample": 1,
+        "edge": 2048,
+        "coldMs": 73,
+        "width": 1080,
+        "height": 1438,
+        "bytes": 180190,
+        "warmMs": 4
+      },
+      {
+        "sample": 2,
+        "edge": 512,
+        "coldMs": 70,
+        "width": 385,
+        "height": 512,
+        "bytes": 34439,
+        "warmMs": 3
+      },
+      {
+        "sample": 2,
+        "edge": 2048,
+        "coldMs": 66,
+        "width": 1080,
+        "height": 1438,
+        "bytes": 173072,
+        "warmMs": 4
+      },
+      {
+        "sample": 3,
+        "edge": 512,
+        "coldMs": 72,
+        "width": 288,
+        "height": 512,
+        "bytes": 41604,
+        "warmMs": 3
+      },
+      {
+        "sample": 3,
+        "edge": 2048,
+        "coldMs": 80,
+        "width": 1152,
+        "height": 2048,
+        "bytes": 401077,
+        "warmMs": 3
+      },
+      {
+        "sample": 4,
+        "edge": 512,
+        "coldMs": 69,
+        "width": 281,
+        "height": 512,
+        "bytes": 34006,
+        "warmMs": 4
+      },
+      {
+        "sample": 4,
+        "edge": 2048,
+        "coldMs": 85,
+        "width": 1126,
+        "height": 2048,
+        "bytes": 360272,
+        "warmMs": 2
+      },
+      {
+        "sample": 5,
+        "edge": 512,
+        "coldMs": 64,
+        "width": 309,
+        "height": 512,
+        "bytes": 23838,
+        "warmMs": 3
+      },
+      {
+        "sample": 5,
+        "edge": 2048,
+        "coldMs": 75,
+        "width": 1236,
+        "height": 2048,
+        "bytes": 172599,
+        "warmMs": 3
+      },
+      {
+        "sample": 6,
+        "edge": 512,
+        "coldMs": 72,
+        "width": 311,
+        "height": 512,
+        "bytes": 24492,
+        "warmMs": 2
+      },
+      {
+        "sample": 6,
+        "edge": 2048,
+        "coldMs": 81,
+        "width": 1243,
+        "height": 2048,
+        "bytes": 170432,
+        "warmMs": 3
+      }
+    ],
+    "unauthorizedRejected": true,
+    "wrongOwnerRejected": true,
+    "invalidEdgeRejected": true
+  },
+  "passed": true
+}

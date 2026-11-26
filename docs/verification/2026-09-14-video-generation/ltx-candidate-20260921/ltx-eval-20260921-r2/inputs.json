@@ -1,0 +1,20 @@
+[
+  {
+    "name": "A-cold-white",
+    "sourceJob": "44fe02fb-a9cb-4106-889a-b9659113411f",
+    "sourceSha256": "712c98518e3c9d40c142428fc6b7ca263e59723d9992e0d9519f7cbe71a6a8a3",
+    "image": "ltx-eval-20260921-r2/A-cold-white.png"
+  },
+  {
+    "name": "B-warm-generated",
+    "sourceJob": "a97a45c2-08c5-4094-b6af-8f83c547c3a4",
+    "sourceSha256": "8a4a2540c0f992bf78800f967df25b9aa6e7623a14dcec4f32cb2608d1d8e001",
+    "image": "ltx-eval-20260921-r2/B-warm-generated.png"
+  },
+  {
+    "name": "C-landscape",
+    "sourceJob": "20323017-04e4-4623-a469-bbe622637609",
+    "sourceSha256": "3488bd4c3070a571ee538e67524cc3b5147c9236b7e5dc3b749ac8f56e2e78c2",
+    "image": "ltx-eval-20260921-r2/C-landscape.png"
+  }
+]

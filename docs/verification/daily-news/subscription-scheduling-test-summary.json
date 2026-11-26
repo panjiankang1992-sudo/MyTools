@@ -1,0 +1,293 @@
+{
+  "date": "2026-10-18",
+  "phase": "subscription-scheduling",
+  "jdk": "21.0.11",
+  "python": "3.12.13",
+  "news": {
+    "totals": {
+      "tests": 120,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 4
+    },
+    "suites": [
+      {
+        "class": "com.yuyutian.mytools.news.DigestEngineTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.FeedParserTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.GithubTrendCalculatorTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.LiveFeedSmokeTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      {
+        "class": "com.yuyutian.mytools.news.LiveTechnicalSourcesTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 3
+      },
+      {
+        "class": "com.yuyutian.mytools.news.NewsIntegrationTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.PublicNetworkPolicyTest",
+        "tests": 29,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.RegionIntegrationTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.RestartPersistenceTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.SchedulingIntegrationTest",
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.SubscriptionScheduleTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.TechnicalCollectorsTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.TechnicalMigrationTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.TechnicalPersistenceTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.TokenFilterTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.news.service.NewsSchedulerClientTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "gateway": {
+    "totals": {
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "class": "com.yuyutian.mytools.gateway.controller.NewsGatewayControllerTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.gateway.web.GatewayRequestFilterTest",
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "schedulerFocused": {
+    "totals": {
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "class": "com.yuyutian.mytools.task.scheduler.controller.NewsExecutionAuthorizationControllerTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.task.scheduler.controller.NewsTaskMigrationTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "com.yuyutian.mytools.task.scheduler.service.PublicPdfTaskAccessTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "schedulerBroaderRegression": {
+    "status": "BLOCKED_BY_EXISTING_H2_MIGRATION",
+    "test": "TaskInstanceServiceTest",
+    "migration": "V141__bound_remote_download_paths.sql",
+    "reason": "H2 does not implement MySQL JSON_SET"
+  },
+  "pythonWorker": {
+    "tests": 7,
+    "failures": 0,
+    "skipped": 0
+  },
+  "assembly": {
+    "contentSha256": "503cac8027bfa1db1bf3a938d4ee8cb754673e0eb04d75052f9b52dc7a0ea71f",
+    "output": null,
+    "packageCount": 150,
+    "ready": true
+  },
+  "environmentGate": {
+    "checkedPackageCount": 105,
+    "configuredPackageCount": 97,
+    "missing": {
+      "media_generate_tags": [
+        "TASK_ERROR_FILE"
+      ],
+      "pdf_process": [
+        "PDF_ALLOW_UNSANDBOXED_TEST"
+      ],
+      "reader_analyze_audiobook_book": [
+        "TASK_ERROR_FILE"
+      ],
+      "video_generate": [
+        "IMAGE_COMFY_URL",
+        "TAGGING_MODEL",
+        "TAGGING_SERVICE_URL",
+        "VIDEO_COLOR_MATCH",
+        "VIDEO_COMFY_OUTPUT_DIR",
+        "VIDEO_COMFY_URL",
+        "VIDEO_FILL_BLEND",
+        "VIDEO_GENERATION_ROOT",
+        "VIDEO_GPU_COORDINATION_VALIDATED",
+        "VIDEO_GPU_LOCK_FILE",
+        "VIDEO_INFERENCE_TIMEOUT_SECONDS",
+        "VIDEO_LOCAL_VALIDATED",
+        "VIDEO_MIN_FREE_MIB",
+        "VIDEO_NVIDIA_SMI",
+        "VIDEO_WORKFLOW_INDEX_FILE",
+        "VIDEO_WORKFLOW_INDEX_SHA256"
+      ]
+    },
+    "ready": false
+  },
+  "newPackageEnvironment": "PASS",
+  "builds": {
+    "news-digest-service": {
+      "status": "PASS",
+      "artifacts": [
+        {
+          "file": "service/news-digest-service/target/news-digest-service-0.1.0-SNAPSHOT.jar",
+          "sha256": "2fca4d0222752699afa8dd7c1c18f0c0aca0e24c5de80163024d76a9c265c2c0"
+        }
+      ]
+    },
+    "task-scheduler-service": {
+      "status": "PASS",
+      "artifacts": [
+        {
+          "file": "service/task-scheduler-service/target/task-scheduler-service-0.1.0-SNAPSHOT.jar",
+          "sha256": "656d1a52428c16264bf3590adf9b685853d1269043c7a3706bfa4468c394ef44"
+        }
+      ]
+    },
+    "mytools-gateway": {
+      "status": "PASS",
+      "artifacts": [
+        {
+          "file": "service/mytools-gateway/target/mytools-gateway-0.1.0-SNAPSHOT.jar",
+          "sha256": "75c12592d3ffd1d66f473681116937168e7082f8a1e90012b33b953c71f0a640"
+        }
+      ]
+    }
+  },
+  "packageFiles": [
+    {
+      "path": "README.md",
+      "sha256": "7a1dca705ce8c7926c54e54d24deec8f38c69c5b899f48f43b7111a5e7633636"
+    },
+    {
+      "path": "manifest.yaml",
+      "sha256": "49d8569f527bb7ff55a62f1f8d56e57952d05cb094dfe7f1a166b2bcdd0b2e97"
+    },
+    {
+      "path": "requirements.txt",
+      "sha256": "d195d93d1dbb2461b703d41642ba0796d275e4cd0438897c2f11f824f578a3e9"
+    },
+    {
+      "path": "scripts/main.py",
+      "sha256": "0c5b7039e9731c9f8437ac0192dda8ffa05f65c9925323af1447256d91835fac"
+    },
+    {
+      "path": "tests/test_main.py",
+      "sha256": "79345dc4713fa79be7e25edfa104e9b1a9e8c7a5ce4da2316eb36988974effa2"
+    }
+  ],
+  "limitations": [
+    "No production deployment or real Scheduler/Executor end-to-end validation",
+    "No real MySQL migration or concurrency validation",
+    "No messages sent; no delivery bindings implemented",
+    "Region reports and recurring source collection still require orchestration",
+    "Four opt-in live source tests skipped; no external source probe in this batch"
+  ]
+}

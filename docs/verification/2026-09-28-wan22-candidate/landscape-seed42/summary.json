@@ -1,0 +1,18 @@
+{
+  "samples": [
+    {
+      "name": "landscape",
+      "frames": 97,
+      "fps": 24,
+      "seed": 42,
+      "model": "wan22",
+      "inputMode": "first-frame",
+      "variant": "baseline",
+      "promptStyle": "original",
+      "seconds": 138.82,
+      "status": "SUCCEEDED"
+    }
+  ],
+  "quality": "pending",
+  "productionEnabled": false
+}

@@ -16,15 +16,16 @@ node "$APP_DIR/tests/remote_image_gesture_policy_test.cjs" "$TEST_DIR/output/Rem
 grep -Fq "PinchGesture({ fingers: 2 })" "$PAGE"
 grep -Fq "PanGesture({ fingers: 1" "$PAGE"
 grep -Fq "this.imageGesturePolicy.swipeDirection" "$PAGE"
-grep -Fq "const scale = this.currentMediaKind === 'image' ? this.imageScale : 1;" "$PAGE"
-grep -Fq "this.EndRemoteViewerVerticalSwipe(event.offsetX, event.offsetY)" "$PAGE"
+grep -Fq "this.EndRemoteViewerVerticalSwipe(event.offsetX, event.offsetY, event.velocityY)" "$PAGE"
 grep -Fq "this.UpdateRemoteViewerVerticalSwipe(event.offsetX, event.offsetY)" "$PAGE"
-grep -Fq 'this.DragAdjacentMediaPreviewUri()' "$PAGE"
+grep -Fq 'this.MediaViewerAdjacentPage(this.mediaViewerSlideNextUri, 1)' "$PAGE"
 grep -Fq '.translate({ y: this.mediaViewerDragOffsetY })' "$PAGE"
-grep -Fq '.animation({ duration: this.mediaViewerDragging ? 0 : 180, curve: Curve.EaseOut })' "$PAGE"
-! grep -Fq "PanGesture({ direction: PanDirection.Vertical, distance: 80 })" "$PAGE"
+grep -Fq 'this.getUIContext().animateTo({ duration: direction === 0 ? 200 : 260, curve: Curve.EaseOut,' "$PAGE"
 grep -Fq "this.queuedImageNavigationDirection = direction" "$PAGE"
 grep -Fq "this.ChangeRemoteImage(queuedDirection)" "$PAGE"
 grep -Fq "this.ResetRemoteImageTransform()" "$PAGE"
 
 echo "Remote image gesture integration policy tests passed"
+
+cd "$APP_DIR/.."
+node app/tests/remote_image_slide_test.cjs

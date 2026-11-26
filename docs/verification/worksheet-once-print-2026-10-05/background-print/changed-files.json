@@ -1,0 +1,35 @@
+{
+  "releaseId": "once-print-bg-20261005-125500",
+  "files": [
+    {
+      "path": "assets/PdfView-CCVAkfW6.js",
+      "bytes": 136956,
+      "sha256": "2c08174d8a6dad68fd3c5fc621c62d02f49a95e58165a36a9dea5b9cc7792305"
+    },
+    {
+      "path": "assets/WorksheetV2View-CfN-ca-D.js",
+      "bytes": 527928,
+      "sha256": "1ab09ef7581b3a8a4d9f4b94d35bb4e7d1d04783a169c5e7bf6717682a34d889"
+    },
+    {
+      "path": "assets/es-FWnne9jG.js",
+      "bytes": 387504,
+      "sha256": "8022cd482e9317bd17f68a18f2af14f7bd3b8ed6c1ada74de958c330c49c7c2e"
+    },
+    {
+      "path": "assets/index-B7C3zQY1.js",
+      "bytes": 159339,
+      "sha256": "2878c7585b522354fda28b671282c92dc10614e86227029698009c4b4e073ecd"
+    },
+    {
+      "path": "assets/pdf-runtime-V6Rn2ncd.js",
+      "bytes": 760052,
+      "sha256": "e89d88af5c67d3e9941ddfd9448c5d99bf540a5ee7621bfa87cb318a2fb598e4"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1199,
+      "sha256": "f4948e9b73af1439d334d95173723a926551db89fe96ac34b58016d4ca456549"
+    }
+  ]
+}

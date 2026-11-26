@@ -1,0 +1,25 @@
+{
+  "releaseId": "english-wordlist-20261004-140500",
+  "files": [
+    {
+      "path": "assets/WorksheetV2View-ByXriFZ7.js",
+      "bytes": 493022,
+      "sha256": "0a5bc0c342b0a9961e5cd63af1528cf597b4ca39aa9813601d3f633298959a3f"
+    },
+    {
+      "path": "assets/WorksheetV2View-CfcVkS1x.css",
+      "bytes": 14057,
+      "sha256": "f45d9800c15791f1786888c8901d05240eb1da0f02b4c3d8b7fdcbd056f7dec8"
+    },
+    {
+      "path": "assets/index-D6Cm8oRR.js",
+      "bytes": 159348,
+      "sha256": "f5c3fe01fbd3179977dcdf3b533419c7a80e7aa3e073197e88fc2b35d822952e"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1199,
+      "sha256": "801771b0ac4ab04074fc1d36e6f0c3ed8ed760e13cdab09d1ec94dab05d10e02"
+    }
+  ]
+}
