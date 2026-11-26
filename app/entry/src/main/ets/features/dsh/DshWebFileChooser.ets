@@ -3,6 +3,7 @@ import { PromptAction } from '@ohos.arkui.UIContext';
 import photoAccessHelper from '@ohos.file.photoAccessHelper';
 import picker from '@ohos.file.picker';
 import { AppTheme } from '../../theme/AppTheme';
+import { DshImageUploadPreparation } from './DshImageUploadPreparation';
 
 interface DshFileSelection {
   result: FileSelectorResult;
@@ -15,6 +16,7 @@ export class DshWebFileChooser {
   private readonly context: common.UIAbilityContext;
   private readonly prompt: PromptAction;
   private pending?: DshFileSelection;
+  private preparedUris: Set<string> = new Set();
 
   /** 使用当前窗口的系统菜单和选择器。 */
   constructor(context: common.UIAbilityContext, prompt: PromptAction) {
@@ -78,9 +80,30 @@ export class DshWebFileChooser {
     } catch (_) {
       // 用户取消、权限状态变化及系统选择器失败都以空结果结束原页面请求。
     } finally {
-      const allowed = this.current(selection.isCurrent) ? this.selectedUris(files, limit) : [];
+      const prepared = await this.prepareImages(files);
+      const allowed = this.current(selection.isCurrent) ? this.selectedUris(prepared, limit) : [];
       this.complete(selection, allowed);
     }
+  }
+
+  /** 相册大图先在本机缩放到长边上限，明显缩短网页读取和上传时间。 */
+  private async prepareImages(files: string[]): Promise<string[]> {
+    const prepared: string[] = [];
+    let announced = false;
+    for (let index = 0; index < files.length; index++) {
+      const value = files[index];
+      // 一次选择最多处理四张，避免多选时长时间占用界面。
+      if (index >= 4) { prepared.push(value); continue; }
+      const next = await DshImageUploadPreparation.prepare(this.context, value, index, () => {
+        if (announced) return;
+        announced = true;
+        this.prompt.showToast({ message: $r('app.string.dsh_web_upload_preparing'), duration: 2000 });
+      });
+      // 只有真正生成压缩副本时才放宽后续的 URI 校验。
+      if (next !== value) this.preparedUris.add(next);
+      prepared.push(next);
+    }
+    return prepared;
   }
 
   private async pickMedia(limit: number, images: boolean, videos: boolean): Promise<string[]> {
@@ -100,7 +123,8 @@ export class DshWebFileChooser {
     const accepted = new Set<string>();
     for (const value of files) {
       // ArkWeb 只需操作系统选择器授予的公开 URI，不传入沙箱路径或网络链接。
-      if (/^file:\/\/(?:docs|media)\/[^\u0000-\u0020\u007f\\]+$/.test(value)) accepted.add(value);
+      if (/^file:\/\/(?:docs|media)\/[^\u0000-\u0020\u007f\\]+$/.test(value) ||
+        this.preparedUris.has(value)) accepted.add(value);
       if (accepted.size >= limit) break;
     }
     return Array.from(accepted);
@@ -114,6 +138,7 @@ export class DshWebFileChooser {
     if (this.pending !== selection) return;
     this.pending = undefined;
     this.deliver(selection.result, files);
+    this.preparedUris.clear();
   }
 
   private deliver(result: FileSelectorResult, files: string[]): void {

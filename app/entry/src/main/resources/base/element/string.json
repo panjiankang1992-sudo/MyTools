@@ -2043,6 +2043,10 @@
       "value": "本地文件"
     },
     {
+      "name": "dsh_web_upload_preparing",
+      "value": "正在压缩图片…"
+    },
+    {
       "name": "dsh_web_error",
       "value": "暂时无法打开 DSH，请检查网络或稍后重试。"
     },
