@@ -20,8 +20,6 @@
 
 公开资源与受限生产配置目录分开存放。当前 Nginx 以 `www-data` 运行，不能读取 `/opt/yuyutian/mytools/config`；不要通过放宽该目录权限解决静态资源访问。重载后等待新工作进程开始服务，再检查资源状态和摘要。Cloudflare 公网缓存策略可能覆盖源站 `no-cache`，每次更改内容都必须更新 HTML 引用中的版本参数。
 
-`20261126a` 为 DSH 插件组合包缓存版本。DSH 的 `/plugins/??...&rev=` 响应是一年 `immutable`，URL 只带按文件时间派生的 `rev`；升级 DSH 后 `rev` 可能不变，手机 WebView 会继续使用旧包，表现为文件预览报“文件资源服务不可用”（0.2.1 的 workspace-files 客户端没有 `file` 资源 provider，0.2.2 才有）。Nginx 入口给组合包 URL 追加 `mytools=20261126a`，**每次升级 DSH 必须把该参数加一**，见 [验证记录](../../docs/verification/2026-11-26-dsh-plugin-cache/README.md)。
-
 启用分片中继时，将 `upload.js` 安装到适配资源目录，将 `../dsh-upload/server.py` 安装到 `/opt/mytools-dsh-upload/server.py`，并安装同目录下的 systemd 套接字、服务和 Nginx 注入片段。验证 unit 后仅启用 `mytools-dsh-upload.socket`，再检查并重载 Nginx。回滚时先还原公网 Nginx 入口，再停中继，保留状态目录供未完成请求核对。
 
 新版 App 的外部窗口中转需要安装对应 HAP；浏览器 CSS 更新不能代替客户端修复。
@@ -58,3 +56,5 @@ App 调用 `window.mytoolsDshMobileBack()`，返回 true 表示消费当前浮�
 - 本机内置浏览器不能显示测试 Blob iframe，HTML 应使用 Chrome 复核；不要为绕过预览工具限制移除 sandbox 或放开同源访问。
 
 检查入口和样本说明见 [tests/README.md](tests/README.md)。后续部署只复制 `mobile.css`、`mobile.js` 和 Nginx 候选配置，不复制 tests。
+
+DSH 升级后必须先重启 `dsh.service` 再让客户端加载页面：组合包的 `rev` 由客户端 bundle 的 mtime/ctime/size 派生，原地替换文件但旧进程仍在运行时，会出现“新 rev 配旧代码”，客户端会按新 URL 缓存旧包（文件预览报“文件资源服务不可用”就是这种情形）。若已经发生，运行 `deploy/dsh-rotate-plugin-revisions.sh --apply` 旋转 rev 并重启，客户端下一次加载即可换包。见 [验证记录](../../docs/verification/2026-11-26-dsh-plugin-cache/README.md)。

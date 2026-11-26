@@ -31,8 +31,6 @@ class GenerateGatewayLanConfigTest(unittest.TestCase):
     location / {
         sub_filter_types text/html;
         sub_filter_once off;
-        sub_filter 'client.js&rev=' 'client.js&mytools=fixture&rev=';
-        sub_filter 'client.js&amp;rev=' 'client.js&amp;mytools=fixture&amp;rev=';
         sub_filter '</head>' '<script>window.bridge = {a:1};</script></head>';
     }
 }
@@ -90,21 +88,8 @@ class GenerateGatewayLanConfigTest(unittest.TestCase):
         self.assertIn("proxy_set_header Upgrade $http_upgrade;", nginx)
         self.assertIn("proxy_read_timeout 3600s;", nginx)
         self.assertIn("sub_filter '</head>' '<script>window.bridge = {a:1};</script></head>';", nginx)
-        self.assertIn("sub_filter 'client.js&rev=' 'client.js&mytools=fixture&rev=';", nginx)
-        self.assertIn("sub_filter 'client.js&amp;rev=' 'client.js&amp;mytools=fixture&amp;rev=';", nginx)
-        self.assertEqual(5, report["reusedDshHtmlFilters"])
+        self.assertEqual(3, report["reusedDshHtmlFilters"])
         self.assertNotIn("proxy_set_header X-Dsh-Proxy-Key", nginx)
-
-    def test_repository_dsh_entry_busts_plugin_bundle_cache(self) -> None:
-        """插件组合包缓存一年，入口版本参数是 DSH 升级后换包的唯一手段。"""
-        config = (Path(__file__).resolve().parents[2] / "deploy/nginx/dsh-lan.conf").read_text()
-        self.assertIn("sub_filter_once off;", config)
-        self.assertIn("sub_filter '</head>' '<link rel=\"stylesheet\"", config)
-        plain = re.search(r"sub_filter 'client\.js&rev=' 'client\.js&mytools=([A-Za-z0-9]+)&rev=';", config)
-        escaped = re.search(r"sub_filter 'client\.js&amp;rev=' 'client\.js&amp;mytools=([A-Za-z0-9]+)&amp;rev=';", config)
-        self.assertIsNotNone(plain, "missing client.js&rev cache bust")
-        self.assertIsNotNone(escaped, "missing escaped cache bust")
-        self.assertEqual(plain.group(1), escaped.group(1))
 
     def test_inline_key_is_private_and_absent_from_manifest(self) -> None:
         fixture_key = "test-only-" + "a" * 40
